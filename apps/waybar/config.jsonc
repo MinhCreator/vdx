@@ -1,14 +1,14 @@
 {
   "include": [
-    "config/00-global.jsonc",
-    "config/workspaces.jsonc",
-    "config/media.jsonc",
-    "config/clock.jsonc",
-    "config/brightness.jsonc",
-    "config/audio.jsonc",
-    "config/network.jsonc",
-    "config/vpn.jsonc",
-    "config/battery.jsonc",
-    "config/language.jsonc"
+    "modules/00-global.jsonc",
+    "modules/workspaces.jsonc",
+    "modules/media.jsonc",
+    "modules/clock.jsonc",
+    "modules/brightness.jsonc",
+    "modules/audio.jsonc",
+    "modules/network.jsonc",
+    "modules/vpn.jsonc",
+    "modules/battery.jsonc",
+    "modules/language.jsonc"
   ]
 }
