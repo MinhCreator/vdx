@@ -1,0 +1,4 @@
+vpn() {
+    [[ -z "$1" ]] && { mihomo-tui; return; }
+    uv run ~/.config/scripts/vpn/manager.py --"$1"
+}

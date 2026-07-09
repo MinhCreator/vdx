@@ -1,0 +1,27 @@
+export EDITOR="nvim"
+export VISUAL="nvim"
+
+# XDG
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+export XDG_CACHE_HOME="$HOME/.cache"
+
+# Path
+[[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH="$HOME/.local/bin:$PATH"
+
+# Zsh
+export HISTFILE="$XDG_STATE_HOME/zsh/history"
+export HISTSIZE=10000
+export SAVEHIST=10000
+
+# Apps
+export MPD_HOST="$XDG_DATA_HOME/mpd/socket"
+export BAT_THEME="ansi"
+
+# Python
+export PYTHONDONTWRITEBYTECODE=1
+
+# Node
+export NPM_CONFIG_PREFIX="$HOME/.local"
+export NPM_CONFIG_CACHE="$XDG_CACHE_HOME/npm"

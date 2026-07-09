@@ -1,0 +1,1 @@
+memory() { sh "${HOME}/.config/scripts/memory.sh" }

@@ -1,0 +1,55 @@
+[ui]
+show_tob_bar = false
+show_hidden = true
+
+[places]
+show_devices = false
+
+[layout.panes]
+places = 0
+files = 40
+preview = 60
+
+# [keys]
+# nav_left             = ["h", "left"]
+# nav_down             = ["j", "down"]
+# nav_up               = ["k", "up"]
+# nav_right            = ["l", "right"]
+# quit                 = "q"
+# quit_without_cd      = "Q"
+# yank                 = "y"
+# cut                  = "x"
+# paste                = "p"
+# trash                = "d"
+# delete_permanently   = "D"   # Shift+D
+# create               = "a"
+# rename               = ["r", "F2"]
+# restore_from_trash   = "r"
+# copy_path            = "c"
+# search_folders       = "f"
+# search_files         = "ctrl+f"
+# zoxide               = "z"
+# shell                = "!"
+# open                 = "o"
+# open_with            = "O"
+# open_or_enter        = "enter"
+# choose               = "enter"  # confirm chooser selection
+# go_to                = "g"
+# toggle_selection     = "space"
+# cycle_places_next    = "tab"
+# cycle_places_previous = "backtab"
+# go_parent            = "backspace"
+# page_up              = "pageup"
+# page_down            = "pagedown"
+# jump_first           = "home"
+# jump_last            = ["G", "end"]
+# select_all           = "ctrl+a"
+# history_back         = "alt+left"
+# history_forward      = "alt+right"
+# sort                 = "s"
+# toggle_view          = "v"
+# toggle_hidden        = "."
+# scroll_preview_up    = ["K", "["]   # Shift+K, [
+# scroll_preview_down  = ["J", "]"]   # Shift+J, ]
+# scroll_preview_left  = "H"           # Shift+H
+# scroll_preview_right = "L"           # Shift+L

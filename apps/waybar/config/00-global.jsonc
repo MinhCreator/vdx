@@ -1,0 +1,38 @@
+{
+  "layer": "top",
+  "position": "top",
+  "exclusive": true,
+  "reload_style_on_change": true,
+  "height": 34,
+  "spacing": 2,
+  "margin-top": 0,
+  "margin-right": 0,
+  "margin-bottom": 0,
+  "margin-left": 0,
+  "modules-left": [
+    "hyprland/workspaces",
+    "custom/separator",
+    "group/media"
+  ],
+  "modules-center": [
+    "clock"
+  ],
+  "modules-right": [
+    "custom/brightness",
+    "custom/separator",
+    "pulseaudio",
+    "custom/separator",
+    "network",
+    "custom/separator",
+    "custom/vpn",
+    "custom/separator",
+    "battery",
+    "custom/separator",
+    "hyprland/language"
+  ],
+  "custom/separator": {
+    "format": "|",
+    "interval": "once",
+    "tooltip": false
+  }
+}

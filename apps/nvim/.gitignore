@@ -1,0 +1,23 @@
+# spell files
+spell/
+
+# generated helptags
+doc/tags
+
+# netrw history
+.netrwhist
+
+# persistent views
+view/
+
+# swap files
+swap/
+
+# backup files
+backup/
+
+# undo files
+undo/
+
+# sessions
+session/

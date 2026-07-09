@@ -1,0 +1,10 @@
+{
+  "network": {
+    "interval": 1,
+    "format-wifi": "  {essid}",
+    "format-ethernet": "",
+    "format-disconnected": "Disconnected",
+    "on-click": "kitty -e wifitui",
+    "tooltip": false
+  }
+}

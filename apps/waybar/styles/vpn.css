@@ -1,0 +1,7 @@
+#custom-vpn.connected {
+    color: @green;
+}
+
+#custom-vpn.disconnected {
+    color: @gray;
+}

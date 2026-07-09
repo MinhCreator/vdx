@@ -1,0 +1,1 @@
+battery() { sh "${HOME}/.config/scripts/battery.sh" }

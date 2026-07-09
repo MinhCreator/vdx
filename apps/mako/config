@@ -1,0 +1,21 @@
+font=JetBrainsMono Nerd Font 11
+background-color=#32302f
+text-color=#ebdbb2
+border-color=#282828
+border-size=4
+border-radius=0
+padding=8,10
+margin=20
+width=320
+height=100
+anchor=top-right
+
+[urgency=low]
+border-color=#282828
+
+[urgency=normal]
+border-color=#282828
+
+[urgency=high]
+border-color=#ea6962
+text-color=#ea6962

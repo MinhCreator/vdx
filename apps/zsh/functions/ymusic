@@ -1,0 +1,4 @@
+ymusic() {
+    [[ -z "$1" ]] && { ncmpcpp; return; }
+    uv run ~/.config/scripts/yandex-music/manager.py --"$1"
+}

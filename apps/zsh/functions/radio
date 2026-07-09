@@ -1,0 +1,4 @@
+radio() {
+    [[ -z "$1" ]] && { uv run ~/.config/scripts/radio/radio.py --list; return; }
+    uv run ~/.config/scripts/radio/radio.py --"$1" "$2"
+}

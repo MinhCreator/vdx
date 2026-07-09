@@ -1,0 +1,9 @@
+#clock,
+#custom-brightness,
+#pulseaudio,
+#network,
+#custom-vpn,
+#battery {
+    background: transparent;
+    color: @foreground0;
+}

@@ -1,0 +1,20 @@
+@define-color background0 #202020;
+@define-color background1 #32302f;
+@define-color background2 #3c3836;
+@define-color background3 #45403d;
+
+@define-color foreground0 #d4be98;
+@define-color foreground1 #ddc7a1;
+@define-color foreground2 #bdae93;
+
+@define-color red         #ea6962;
+@define-color orange      #e78a4e;
+@define-color yellow      #d8a657;
+@define-color green       #a9b665;
+@define-color aqua        #89b482;
+@define-color blue        #7daea3;
+@define-color purple      #d3869b;
+
+@define-color gray        #7c6f64;
+
+@define-color shadow      rgba(0, 0, 0, 0.35);

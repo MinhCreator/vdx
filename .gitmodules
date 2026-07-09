@@ -1,0 +1,6 @@
+[submodule "system/scripts/yandex-music"]
+	path = system/scripts/yandex-music
+	url = https://github.com/diominvd/dotfiles
+[submodule "system/scripts/radio"]
+	path = system/scripts/radio
+	url = https://github.com/diominvd/radio-cli
