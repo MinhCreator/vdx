@@ -10,16 +10,14 @@ vim.api.nvim_create_autocmd("VimEnter", {
 
 -- Display errors on hover
 vim.api.nvim_create_autocmd("CursorHold", {
-	buffer = vim.api.nvim_get_current_buf(),
 	callback = function()
-		local options = {
+		vim.diagnostic.open_float(nil, {
 			focusable = false,
 			close_events = { "CursorMoved", "CursorMovedI", "BufLeave" },
 			border = "single",
 			source = "always",
 			prefix = " ",
 			scope = "cursor",
-		}
-		vim.diagnostic.open_float(nil, options)
+		})
 	end,
 })

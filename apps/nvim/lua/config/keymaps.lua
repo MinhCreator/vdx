@@ -17,7 +17,7 @@ vim.g.maplocalleader = " "
 -- General keymaps
 map("i", "jk", "<ESC>", "Exit form insert mode")
 map("i", "kj", "<ESC>", "Exit from insert mode")
-map("v", "jk", "<ESC>", "Exit from visaul mode")
+map("v", "jk", "<ESC>", "Exit from visual mode")
 map("v", "kj", "<ESC>", "Exit from visual mode")
 
 map("n", "<C-h>", "<C-w>h", "Window left")
@@ -72,7 +72,7 @@ map("n", "<leader>fk", ":Telescope keymaps<CR>", "Keymaps")
 -- Plugin: Bufferline
 map("n", "<S-h>", ":BufferLineCyclePrev<CR>", "Previous buffer")
 map("n", "<S-l>", ":BufferLineCycleNext<CR>", "Next buffer")
-map("n", "<S-x>", ":Bdelete<CR>", "Close current buffer")
+map("n", "<S-x>", ":bd<CR>", "Close current buffer")
 map("n", "<S-p>", ":BufferLineTogglePin<CR>", "Pin buffer")
 map("n", "<A-h>", ":BufferLineMovePrev<CR>", "Move buffer left")
 map("n", "<A-l>", ":BufferLineMoveNext<CR>", "Move buffer right")
@@ -87,5 +87,19 @@ map("n", "<leader>Q", function()
 	vim.cmd("qa!")
 end, "Close and delete session")
 
--- Plugin: REnder Markdown
+-- Plugin: Render Markdown
 map("n", "<leader>mp", ":RenderMarkdown toggle<CR>", "Toggle Markdown Preview")
+
+-- Plugin: LSP (nvim-lspconfig)
+vim.api.nvim_create_autocmd("LspAttach", {
+	callback = function(args)
+		local bufnr = args.buf
+
+		map("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "LSP hover" })
+		map("i", "<C-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "LSP signature help" })
+		map("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
+		map("n", "gr", vim.lsp.buf.references, { buffer = bufnr, desc = "Find references" })
+		map("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename symbol" })
+		map("n", "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code action" })
+	end,
+})

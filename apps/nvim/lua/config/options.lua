@@ -2,7 +2,7 @@ local opt = vim.opt
 local g = vim.g
 
 -- General settings
-g.loaded_ntrw = 1
+g.loaded_netrw = 1
 g.loaded_netrwPlugin = 1
 opt.clipboard = "unnamedplus"
 

@@ -18,7 +18,8 @@ return {
 					},
 				},
 				menu = {
-					border = "none",
+					border = "single",
+					winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder,BlinkCmpMenuSelection:BlinkCmpMenuSelection",
 					draw = {
 						columns = {
 							{ "label", "label_description", gap = 1 },
@@ -28,7 +29,8 @@ return {
 				},
 				documentation = {
 					window = {
-						border = "none",
+						border = "single",
+						winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder",
 					},
 				},
 			},
