@@ -1,68 +1,10 @@
 {
-  "group/media": {
-    "orientation": "inherit",
-    "modules": [
-      "custom/media_title",
-      "custom/media_bracket_open",
-      "custom/media_prev",
-      "custom/media_toggle",
-      "custom/media_next",
-      "custom/media_kill",
-      "custom/media_bracket_close"
-    ]
-  },
   "custom/media_title": {
     "format": "{}",
     "return-type": "json",
     "interval": 1,
     "exec": "~/.config/waybar/scripts/media.sh --title-json",
     "max-length": 60,
-    "tooltip": false
-  },
-  "custom/media_bracket_open": {
-    "format": "{}",
-    "return-type": "json",
-    "interval": 1,
-    "exec": "~/.config/waybar/scripts/media.sh --bracket-open-json",
-    "tooltip": false
-  },
-  "custom/media_prev": {
-    "format": "{}",
-    "return-type": "json",
-    "interval": 1,
-    "exec": "~/.config/waybar/scripts/media.sh --prev-json",
-    "on-click": "~/.config/waybar/scripts/media.sh --prev",
-    "tooltip": false
-  },
-  "custom/media_toggle": {
-    "format": "{}",
-    "return-type": "json",
-    "interval": 1,
-    "exec": "~/.config/waybar/scripts/media.sh --status-json",
-    "on-click": "~/.config/waybar/scripts/media.sh --toggle",
-    "tooltip": false
-  },
-  "custom/media_next": {
-    "format": "{}",
-    "return-type": "json",
-    "interval": 1,
-    "exec": "~/.config/waybar/scripts/media.sh --next-json",
-    "on-click": "~/.config/waybar/scripts/media.sh --next",
-    "tooltip": false
-  },
-  "custom/media_kill": {
-    "format": "{}",
-    "return-type": "json",
-    "interval": 1,
-    "exec": "~/.config/waybar/scripts/media.sh --kill-json",
-    "on-click": "~/.config/waybar/scripts/media.sh --kill",
-    "tooltip": false
-  },
-  "custom/media_bracket_close": {
-    "format": "{}",
-    "return-type": "json",
-    "interval": 1,
-    "exec": "~/.config/waybar/scripts/media.sh --bracket-close-json",
     "tooltip": false
   }
 }
