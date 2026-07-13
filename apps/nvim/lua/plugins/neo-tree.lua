@@ -34,10 +34,10 @@ return {
 					["v"] = "open_vsplit",
 					["s"] = "open_split",
 				},
-				default_component_configs = {
-					icon = {
-						highlight = "NeoTreeFileIcon",
-					},
+			},
+			default_component_configs = {
+				icon = {
+					highlight = "NeoTreeFileIcon",
 				},
 			},
 			event_handlers = {

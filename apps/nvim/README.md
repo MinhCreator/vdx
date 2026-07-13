@@ -9,23 +9,24 @@ Minimal Neovim configuration built with [lazy.nvim](https://github.com/folke/laz
 * [File Layout](#file-layout)
 * [Requirements](#requirements)
 * [Installation](#installation)
-* [Usage](#usage)
+* [Keybindings](#keybindings)
 * [Troubleshooting](#troubleshooting)
 
 ## Features
 
-* Plug-in management with lazy.nvim — lazy-loading, optimised startup.
-* LSP support via mason.nvim + mason-lspconfig (TypeScript, Lua, Rust, Go, and more).
-* Blink.cmp — fast, native-LSP‑style autocompletion.
-* Telescope — fuzzy finder for files, buffers, help tags, and more.
-* Treesitter — syntax highlighting, text objects, and incremental selection.
-* Neo‑tree — file explorer with git status integration.
-* Bufferline — tab‑like buffer tabs with diagnostics and icons.
-* Lualine — minimal status line with mode, git branch, and diagnostics.
-* Auto‑sessions — restore cursor position and open buffers on restart.
-* Flash — motion with labels, treesitter‑aware target selection.
-* Conform — automatic formatting on save.
-* Auto‑pairs, commenting, and buffer‑safe deletion helpers.
+* lazy.nvim — lazy-loading, optimised startup.
+* LSP via mason.nvim + nvim-lspconfig (Lua, Python, JSON).
+* Blink.cmp — autocompletion.
+* Telescope — fuzzy finder (files, grep, buffers).
+* Treesitter — syntax highlighting, text objects.
+* Neo-tree — file explorer with git integration.
+* Bufferline — tab-like buffer bar.
+* Lualine — status line.
+* Auto-sessions — restore editor state on restart.
+* Flash — motion with labels.
+* Conform — format on save (StyLua, Ruff, fixjson).
+* Gitsigns — git hunks, preview, blame.
+* Noice / Trouble / Which-key / Todo-comments.
 
 ## File Layout
 
@@ -51,44 +52,24 @@ Minimal Neovim configuration built with [lazy.nvim](https://github.com/folke/laz
     │   ├── auto-session.lua
     │   ├── flash.lua
     │   ├── conform.lua
-    │   ├── autopairs.lua
-    │   ├── comment.lua
-    │   └── bufdelete.lua
+    │   ├── gitsigns.lua
+    │   ├── noice.lua
+    │   ├── trouble.lua
+    │   ├── which-key.lua
+    │   ├── todo-comments.lua
+    │   ├── render-markdown.lua
+    │   └── autopairs.lua
     └── appearance/
         └── theme.lua
 ```
 
-| Path | Description |
-| --- | --- |
-| `init.lua` | Entry point, requires core modules. |
-| `lazy-lock.json` | Locked versions of all plugins. |
-| `lua/config/options.lua` | Global editor options (`shiftwidth`, `number`, etc.). |
-| `lua/config/keymaps.lua` | Custom key bindings. |
-| `lua/config/lazy.lua` | Lazy.nvim bootstrap and plugin specs. |
-| `lua/config/autocmds.lua` | Autocommands (formatting, highlights, etc.). |
-| `lua/plugins/lsp.lua` | LSP configuration and servers. |
-| `lua/plugins/mason.lua` | Mason — external tool installer (LSP, DAP, linters). |
-| `lua/plugins/treesitter.lua` | Treesitter — syntax highlighting and text objects. |
-| `lua/plugins/telescope.lua` | Telescope — fuzzy finder. |
-| `lua/plugins/blink.lua` | Blink.cmp — autocompletion engine. |
-| `lua/plugins/neo-tree.lua` | Neo-tree — file explorer. |
-| `lua/plugins/bufferline.lua` | Bufferline — tab-like buffer bar. |
-| `lua/plugins/lualine.lua` | Lualine — status line. |
-| `lua/plugins/auto-session.lua` | Auto-sessions — save/restore editor state. |
-| `lua/plugins/flash.lua` | Flash — enhanced motion with labels. |
-| `lua/plugins/conform.lua` | Conform — automatic formatting. |
-| `lua/plugins/autopairs.lua` | Auto-pairs — bracket/quote pairing. |
-| `lua/plugins/comment.lua` | Comment — toggle comments. |
-| `lua/plugins/bufdelete.lua` | Bufdelete — close buffers without losing layout. |
-| `lua/appearance/theme.lua` | Colorscheme setup. |
-
 ## Requirements
 
-* Neovim >= 0.10
+* Neovim >= 0.11
 * Git
-* A [Nerd Font](https://www.nerdfonts.com/) (for icons)
-* `ripgrep` (for Telescope grep search)
-* `make` / C compiler (for Treesitter parsers and some Lua Rocks)
+* A [Nerd Font](https://www.nerdfonts.com/)
+* `ripgrep`, `fd`
+* `make` / C compiler
 
 ## Installation
 
@@ -97,23 +78,80 @@ git clone https://github.com/diominvd/nvim.git ~/.config/nvim
 nvim --headless "+Lazy! sync" +qa
 ```
 
-On first launch Lazy.nvim will install all plugins automatically.
+## Keybindings
 
-## Usage
+Leader is `<Space>`.
+
+### Find (Telescope)
 
 | Key | Action |
 | --- | --- |
-| `<Space>` | Leader key |
-| `<Space>ff` | Find files (Telescope) |
-| `<Space>fg` | Live grep (Telescope) |
-| `<Space>fb` | Find open buffers (Telescope) |
-| `<Space>e`  | Toggle file explorer (Neo‑tree) |
-| `gD` | Go to declaration (LSP) |
-| `gd` | Go to definition (LSP) |
-| `K`  | Hover documentation (LSP) |
-| `<C-n>` | Next buffer |
-| `<C-p>` | Previous buffer |
-| `s`  | Flash (jump anywhere) |
+| `<leader>ff` | Find files |
+| `<leader>fg` | Live grep |
+| `<leader>fw` | Grep word under cursor |
+| `<leader>fb` | Buffers |
+| `<leader>fo` | Recent files |
+| `<leader>fh` | Help tags |
+| `<leader>ft` | Find TODOs |
+| `<leader>fk` | Show keymaps |
+
+### Buffers
+
+| Key | Action |
+| --- | --- |
+| `<S-h>` / `<S-l>` | Previous / next buffer |
+| `<S-x>` | Close buffer (smart) |
+| `<S-p>` | Pin buffer |
+| `<A-h>` / `<A-l>` | Move buffer left / right |
+
+### Windows
+
+| Key | Action |
+| --- | --- |
+| `<C-h/j/k/l>` | Navigate windows |
+| `<leader>sv` / `<leader>sh` | Vertical / horizontal split |
+
+### LSP
+
+| Key | Action |
+| --- | --- |
+| `gd` | Go to definition |
+| `gr` | Find references |
+| `K` | Hover |
+| `<C-k>` | Signature help (insert) |
+| `<leader>rn` | Rename |
+| `<leader>ca` | Code action |
+
+### Git
+
+| Key | Action |
+| --- | --- |
+| `]h` / `[h` | Next / previous hunk |
+| `<leader>gp` | Preview hunk |
+| `<leader>gb` | Blame line |
+
+### Treesitter Textobjects
+
+| Key | Action |
+| --- | --- |
+| `af` / `if` | Function (outer / inner) |
+| `ac` / `ic` | Class (outer / inner) |
+| `aa` / `ia` | Parameter (outer / inner) |
+| `]f` / `[f` | Next / previous function |
+| `]]` / `[[` | Next / previous class |
+
+### Other
+
+| Key | Action |
+| --- | --- |
+| `s` / `S` | Flash jump / treesitter |
+| `<leader>e` | Toggle file explorer |
+| `<leader>fmt` | Format buffer |
+| `<leader>xx` | Diagnostics (Trouble) |
+| `<leader>xb` | Buffer diagnostics (Trouble) |
+| `<leader>mp` | Toggle markdown render |
+| `<leader>Q` | Delete session and quit |
+| `<leader>r` | Reload config |
 
 See `lua/config/keymaps.lua` for the full list.
 
@@ -121,7 +159,8 @@ See `lua/config/keymaps.lua` for the full list.
 
 | Problem | Solution |
 | --- | --- |
-| Icons are missing / garbled | Install a [Nerd Font](https://www.nerdfonts.com/) and set it in your terminal. |
-| Telescope grep finds nothing | Install `ripgrep` (`yay -S ripgrep`). |
-| LSP not working for language X | Run `:Mason` and install the corresponding server. |
-| Plug-in not loading | Check `:Lazy` for errors. |
+| Icons missing | Install a [Nerd Font](https://www.nerdfonts.com/) |
+| Telescope grep empty | Install `ripgrep` |
+| Telescope find empty | Install `fd` |
+| LSP not working | Run `:Mason` and install the server |
+| Plug-in not loading | Check `:Lazy` for errors |

@@ -1,10 +1,5 @@
 return {
 	"neovim/nvim-lspconfig",
-	dependencies = {
-		"williamboman/mason.nvim",
-		"williamboman/mason-lspconfig.nvim",
-		"WhoIsSethDaniel/mason-tool-installer.nvim",
-	},
 	config = function()
 		vim.diagnostic.config({
 			virtual_text = true,

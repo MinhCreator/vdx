@@ -26,7 +26,6 @@ opt.shiftwidth = 2
 opt.expandtab = true
 
 -- Window & Display
--- opt.cmdheight      = 0
 opt.splitright = true
 opt.splitbelow = true
 
