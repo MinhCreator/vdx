@@ -5,6 +5,7 @@
     "interval": 1,
     "exec": "~/.config/waybar/scripts/media.sh --title-json",
     "max-length": 60,
-    "tooltip": false
+    "tooltip": false,
+    "on-click": "kitty -e ncmpcpp"
   }
 }

@@ -12,7 +12,7 @@
   "modules-left": [
     "hyprland/workspaces",
     "custom/separator",
-    "group/media"
+    "custom/media_title"
   ],
   "modules-center": [
     "clock"
