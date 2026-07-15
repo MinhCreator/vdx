@@ -2,5 +2,6 @@ apps/zsh/oh-my-zsh
 system/gh
 system/mihomo/cache.db
 system/mihomo/geoip.metadb
+system/mihomo/providers/
 apps/opencode/node_modules
 apps/opencode/*.bak
