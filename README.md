@@ -123,8 +123,8 @@ git checkout other-branch
 │   ├── telegram/                  Telegram theme
 │   ├── tmux/                      terminal multiplexer
 │   ├── waybar/                    status bar
-│   │   ├── config.jsonc           → include config/*.jsonc
-│   │   ├── config/                modular configs
+│   │   ├── config.jsonc           → include modules/*.jsonc
+│   │   ├── modules/               modular configs
 │   │   ├── style.css              → @import styles/*.css
 │   │   ├── styles/                modular styles
 │   │   └── scripts/               custom scripts
@@ -214,19 +214,20 @@ API keys and tokens are **not** stored in the repository.
 
 | Secret | Location | In git? |
 |--------|----------|---------|
-| GEMINI_API_KEY, etc. | `~/.config/zsh/keys` | No |
+| GEMINI_API_KEY, etc. | `~/.config/secrets/env` | No |
 | GitHub OAuth token | `~/.config/gh/hosts.yml` | No (git-ignored) |
 | Mihomo subscription | `system/mihomo/config.yaml` | No (git-ignored) |
 | VPN providers | `system/mihomo/providers/` | No (git-ignored) |
 
 ### Setting up secrets
 
-1. Copy the keys template:
+1. Create the secrets file:
    ```bash
-   cp ~/.config/zsh/keys.example ~/.config/zsh/keys
+   mkdir -p ~/.config/secrets
+   cp ~/.config/zsh/keys.example ~/.config/secrets/env
    ```
 
-2. Edit `~/.config/zsh/keys` and add your API keys:
+2. Edit `~/.config/secrets/env` and add your API keys:
    ```bash
    export GEMINI_API_KEY="your-key-here"
    export ANTHROPIC_API_KEY="your-key-here"
@@ -260,6 +261,7 @@ API keys and tokens are **not** stored in the repository.
 | [Rofi](https://github.com/DaveDavenport/rofi) | `apps/rofi/` | Application launcher |
 | [Starship](https://starship.rs/) | `apps/starship.toml` | Shell prompt |
 | [Swaylock](https://github.com/swaywm/swaylock) | `apps/swaylock/` | Screen locker |
+| [Telegram](https://desktop.telegram.org/) | `apps/telegram/` | Telegram theme |
 | [tmux](https://github.com/tmux/tmux) | `apps/tmux/` | Terminal multiplexer |
 | [Waybar](https://github.com/Alexays/Waybar) | `apps/waybar/` | Status bar |
 | [Zsh](https://www.zsh.org/) | `apps/zsh/` | Shell |

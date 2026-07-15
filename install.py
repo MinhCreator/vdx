@@ -12,38 +12,6 @@ TARGET = HOME / ".config"
 
 HOOKS = ["post-checkout", "post-merge", "post-rebase"]
 
-APPS = {
-    "btop": TARGET / "btop",
-    "elio": TARGET / "elio",
-    "fastfetch": TARGET / "fastfetch",
-    "gtk-3.0": TARGET / "gtk-3.0",
-    "hypr": TARGET / "hypr",
-    "kitty": TARGET / "kitty",
-    "mako": TARGET / "mako",
-    "mihomo-tui": TARGET / "mihomo-tui",
-    "ncmpcpp": TARGET / "ncmpcpp",
-    "nvim": TARGET / "nvim",
-    "opencode": TARGET / "opencode",
-    "rofi": TARGET / "rofi",
-    "starship.toml": TARGET / "starship.toml",
-    "swaylock": TARGET / "swaylock",
-    "telegram": TARGET / "telegram",
-    "tmux": TARGET / "tmux",
-    "waybar": TARGET / "waybar",
-    "zsh": TARGET / "zsh",
-}
-
-SYSTEM = {
-    "gh": TARGET / "gh",
-    "mihomo": TARGET / "mihomo",
-    "mpd": TARGET / "mpd",
-    "scripts": TARGET / "scripts",
-}
-
-HOME_FILES = {
-    ".zshenv": HOME / ".zshenv",
-}
-
 BOLD = "\033[1m"
 GREEN = "\033[32m"
 YELLOW = "\033[33m"
@@ -92,16 +60,6 @@ def find_packages(dirpath):
     if not dirpath.is_dir():
         return []
     return [p.name for p in sorted(dirpath.iterdir()) if p.is_dir() or p.is_file()]
-
-
-def resolve_target(pkg):
-    if pkg in APPS:
-        return TARGET
-    if pkg in SYSTEM:
-        return TARGET
-    if pkg in HOME_FILES:
-        return HOME
-    return None
 
 
 def cmd_link(args):

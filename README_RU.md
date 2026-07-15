@@ -123,8 +123,8 @@ git checkout other-branch
 │   ├── telegram/                  тема Telegram
 │   ├── tmux/                      мультиплексор терминалов
 │   ├── waybar/                    статус-бар
-│   │   ├── config.jsonc           → include config/*.jsonc
-│   │   ├── config/                модульные конфиги
+│   │   ├── config.jsonc           → include modules/*.jsonc
+│   │   ├── modules/               модульные конфиги
 │   │   ├── style.css              → @import styles/*.css
 │   │   ├── styles/                модульные стили
 │   │   └── scripts/               пользовательские скрипты
@@ -214,19 +214,20 @@ API-ключи и токены **не** хранятся в репозитори
 
 | Секрет | Расположение | В гите? |
 |--------|-------------|---------|
-| GEMINI_API_KEY и др. | `~/.config/zsh/keys` | Нет |
+| GEMINI_API_KEY и др. | `~/.config/secrets/env` | Нет |
 | GitHub OAuth токен | `~/.config/gh/hosts.yml` | Нет (игнорится) |
 | Mihomo подписка | `system/mihomo/config.yaml` | Нет (игнорится) |
 | VPN-провайдеры | `system/mihomo/providers/` | Нет (игнорятся) |
 
 ### Настройка секретов
 
-1. Скопируйте шаблон ключей:
+1. Создайте файл секретов:
    ```bash
-   cp ~/.config/zsh/keys.example ~/.config/zsh/keys
+   mkdir -p ~/.config/secrets
+   cp ~/.config/zsh/keys.example ~/.config/secrets/env
    ```
 
-2. Отредактируйте `~/.config/zsh/keys` и добавьте API-ключи:
+2. Отредактируйте `~/.config/secrets/env` и добавьте API-ключи:
    ```bash
    export GEMINI_API_KEY="your-key-here"
    export ANTHROPIC_API_KEY="your-key-here"
@@ -260,6 +261,7 @@ API-ключи и токены **не** хранятся в репозитори
 | [Rofi](https://github.com/DaveDavenport/rofi) | `apps/rofi/` | Лаунчер приложений |
 | [Starship](https://starship.rs/) | `apps/starship.toml` | Промпт оболочки |
 | [Swaylock](https://github.com/swaywm/swaylock) | `apps/swaylock/` | Блокировка экрана |
+| [Telegram](https://desktop.telegram.org/) | `apps/telegram/` | Тема Telegram |
 | [tmux](https://github.com/tmux/tmux) | `apps/tmux/` | Мультиплексор терминалов |
 | [Waybar](https://github.com/Alexays/Waybar) | `apps/waybar/` | Статус-бар |
 | [Zsh](https://www.zsh.org/) | `apps/zsh/` | Оболочка |
