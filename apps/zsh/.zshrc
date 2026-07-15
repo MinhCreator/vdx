@@ -27,4 +27,4 @@ fi
 eval "$(starship init zsh)"
 
 # bun completions
-[ -s "/home/diominvd/.local/state/bun/_bun" ] && source "/home/diominvd/.local/state/bun/_bun"
+[ -s "$HOME/.local/state/bun/_bun" ] && source "$HOME/.local/state/bun/_bun"
