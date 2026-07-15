@@ -1,27 +1,29 @@
-# Управление питанием — ASUS TUF Dash F15 / Arch Linux
+> **[Русская версия](POWER_MANAGEMENT_RU.md)**
 
-## Что было сделано и зачем
+# Power Management — ASUS TUF Dash F15 / Arch Linux
 
-Ноутбук изначально потреблял ~20W в idle. После настройки — ~10W. Основная причина была в том, что RTX 3060 работала постоянно без какого-либо управления питанием.
+## Why
 
-Установлено два инструмента: **TLP** и **supergfxctl**.
+The laptop consumed ~20W at idle. After tuning — ~10W. The main culprit was the RTX 3060 running continuously without power management.
+
+Two tools are used: **TLP** and **supergfxctl**.
 
 ---
 
 ## TLP
 
-**Что это:** демон управления питанием. Автоматически применяет настройки CPU, Wi-Fi и других устройств при переключении между батареей и сетью.
+**What it is:** A power management daemon. Automatically applies CPU, Wi-Fi, and device settings when switching between battery and AC.
 
-**Установка:**
+**Install:**
 ```bash
 sudo pacman -S tlp tlp-rdw
 sudo systemctl enable --now tlp
 sudo systemctl mask systemd-rfkill systemd-rfkill.socket
 ```
 
-**Конфиг:** `/etc/tlp.conf`
+**Config:** `/etc/tlp.conf`
 
-Текущие настройки:
+Current settings:
 ```ini
 CPU_SCALING_GOVERNOR_ON_AC=powersave
 CPU_SCALING_GOVERNOR_ON_BAT=powersave
@@ -41,112 +43,112 @@ WIFI_PWR_ON_BAT=on
 WIFI_PWR_ON_AC=off
 ```
 
-**Применить изменения без перезагрузки:**
+**Apply without reboot:**
 ```bash
 sudo tlp start
 ```
 
-**Проверить статус:**
+**Check status:**
 ```bash
 tlp-stat -s
 ```
 
-**Важно:** строки `START_CHARGE_THRESH_BAT0` и `STOP_CHARGE_THRESH_BAT0` должны быть закомментированы. Если они выставлены — зарядка остановится на указанном пороге и ноутбук перестанет заряжаться выше него.
+**Important:** Lines `START_CHARGE_THRESH_BAT0` and `STOP_CHARGE_THRESH_BAT0` must be commented out. If set, charging will stop at that threshold and the laptop won't charge above it.
 
 ---
 
 ## supergfxctl
 
-**Что это:** утилита для ASUS-ноутов, управляет переключением GPU через `asus_wmi`. Позволяет полностью выключить дискретную карту.
+**What it is:** A utility for ASUS laptops that manages GPU switching via `asus_wmi`. Allows fully powering off the discrete GPU.
 
-**Установка:**
+**Install:**
 ```bash
 yay -S supergfxctl
 sudo systemctl enable --now supergfxd
 ```
 
-**Режимы:**
+**Modes:**
 
-| Режим | Что делает |
-|-------|-----------|
-| `Integrated` | Только iGPU. RTX 3060 полностью выключена, D3cold. Максимальная экономия. |
-| `Hybrid` | Оба GPU. dGPU включается под нагрузку через PRIME offload. |
-| `NvidiaNoModeset` | Только dGPU без modesetting. Редко нужен. |
+| Mode | What it does |
+|------|-------------|
+| `Integrated` | iGPU only. RTX 3060 fully off, D3cold. Maximum power savings. |
+| `Hybrid` | Both GPUs. dGPU activates under load via PRIME offload. |
+| `NvidiaNoModeset` | dGPU only without modesetting. Rarely needed. |
 
-**Переключение:**
+**Switching:**
 ```bash
-# выключить дискретку (максимальная экономия)
+# disable discrete GPU (maximum savings)
 supergfxctl -m Integrated
 
-# включить обратно для игр/рендеринга
+# re-enable for games/rendering
 supergfxctl -m Hybrid
 ```
 
-Переключение вступает в силу после перезагрузки.
+Switching takes effect after reboot.
 
-**Проверить текущий режим:**
+**Check current mode:**
 ```bash
 supergfxctl -S
 ```
 
-**Проверить что dGPU выключена:**
+**Verify dGPU is off:**
 ```bash
 nvidia-smi
-# должна быть ошибка: No devices found
+# should return: No devices found
 ```
 
 ---
 
-## Мониторинг потребления
+## Power Monitoring
 
-**Текущее потребление батареи:**
+**Current battery consumption:**
 ```bash
 awk '{printf "%.2f W\n", $1/1000000}' /sys/class/power_supply/BAT0/power_now
 ```
 
-**Статус батареи:**
+**Battery status:**
 ```bash
 cat /sys/class/power_supply/BAT0/status
 # Charging / Discharging / Full
 ```
 
-**Потребление GPU (когда активна):**
+**GPU power (when active):**
 ```bash
 nvidia-smi --query-gpu=power.draw,utilization.gpu --format=csv,noheader,nounits
 ```
 
-**Наблюдение в реальном времени:**
+**Live monitoring:**
 ```bash
 watch -n 1 "awk '{printf \"%.2f W\n\", \$1/1000000}' /sys/class/power_supply/BAT0/power_now"
 ```
 
 ---
 
-## Зарядка перестала работать
+## Charging Not Working
 
-Первым делом проверить видит ли система адаптер:
+First check if the system sees the adapter:
 ```bash
 cat /sys/class/power_supply/AC0/online
-# 1 = адаптер определяется, 0 = не видит
+# 1 = adapter detected, 0 = not detected
 ```
 
-Проверить порог зарядки:
+Check the charge threshold:
 ```bash
 cat /sys/class/power_supply/BAT0/charge_control_end_threshold
 ```
 
-Если там не 100 — сбросить:
+If not 100 — reset:
 ```bash
 echo 100 | sudo tee /sys/class/power_supply/BAT0/charge_control_end_threshold
 ```
 
-Убедиться что в `/etc/tlp.conf` закомментированы пороги:
+Make sure thresholds are commented in `/etc/tlp.conf`:
 ```ini
 # START_CHARGE_THRESH_BAT0=...
 # STOP_CHARGE_THRESH_BAT0=...
 ```
 
-Применить и перезагрузиться:
+Apply and reboot:
 ```bash
 sudo tlp start
 reboot
@@ -154,9 +156,9 @@ reboot
 
 ---
 
-## Откат всего
+## Rollback
 
-**Удалить TLP:**
+**Remove TLP:**
 ```bash
 sudo systemctl stop tlp
 sudo systemctl disable tlp
@@ -164,31 +166,37 @@ sudo systemctl unmask systemd-rfkill systemd-rfkill.socket
 sudo pacman -Rns tlp tlp-rdw
 ```
 
-**Удалить supergfxctl:**
+**Remove supergfxctl:**
 ```bash
-# сначала вернуть Hybrid чтобы не потерять dGPU
+# first switch back to Hybrid to keep dGPU accessible
 supergfxctl -m Hybrid
 reboot
 
-# после ребута
+# after reboot
 sudo systemctl stop supergfxd
 sudo systemctl disable supergfxd
 yay -Rns supergfxctl
 reboot
 ```
 
-**Сбросить EPP вручную:**
+**Reset EPP manually:**
 ```bash
 echo balance_performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference
 ```
 
 ---
 
-## Итоговые цифры
+## Results
 
-| Состояние | Потребление |
-|-----------|------------|
-| До настройки | ~20W idle |
-| После (Integrated + TLP) | ~10W idle |
-| RTX 3060 в Hybrid idle | +5–10W |
-| RTX 3060 под нагрузкой | до 80W |
+| State | Power |
+|-------|-------|
+| Before tuning | ~20W idle |
+| After (Integrated + TLP) | ~10W idle |
+| RTX 3060 in Hybrid idle | +5–10W |
+| RTX 3060 under load | up to 80W |
+
+---
+
+## License
+
+[MIT](https://opensource.org/licenses/MIT)
