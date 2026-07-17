@@ -2,7 +2,7 @@
 
 # dotfiles
 
-Gruvbox-themed dotfiles for Arch Linux / Hyprland / Zsh / Neovim. Uses [GNU Stow](https://www.gnu.org/software/stow/) for symlink management and a Python installer for easy deployment.
+Gruvbox-themed dotfiles for Arch Linux / Hyprland / Zsh / Neovim. Python-based symlink manager with TUI — no stow required.
 
 | Component | Software |
 |-----------|----------|
@@ -38,64 +38,104 @@ chmod +x install.py
 ```
 
 This will:
-1. Install system packages (`stow`, `git`) via pacman
+1. Install system packages (`git`) via pacman
 2. Install Oh My Zsh (if not present)
 3. Install Starship prompt (if not present)
 4. Deploy all symlinks
-5. Initialize git submodules (nvim, radio, vpn, yandex-music)
+5. Initialize git submodules (nvim, radio, vpn)
 6. Configure git hooks (auto-relink on pull/checkout/rebase)
 
 ### Existing system
 
-If you already have stow and git installed:
+If git is already installed:
 
 ```bash
-./install.py install
-```
-
-### Single package
-
-```bash
-./install.py link-pkg nvim
-./install.py link-pkg hypr
-./install.py link-pkg kitty
+./install.py link
 ```
 
 ---
 
 ## Usage
 
+### CLI
+
 | Command | Description |
 |---------|-------------|
-| `./install.py setup` | Install system dependencies + full install |
-| `./install.py install` | Full install (check deps + link + submodules + hooks) |
-| `./install.py link` | Deploy or update all symlinks |
-| `./install.py link-pkg <name>` | Deploy a single package |
-| `./install.py force` | Remove existing links and redeploy everything |
-| `./install.py clean` | Remove all symlinks created by this tool |
+| `./install.py link` | Create all symlinks (auto-resolves conflicts) |
+| `./install.py update` | Add only new files, skip existing |
+| `./install.py force` | Remove all symlinks and recreate |
+| `./install.py unlink` | Remove all managed symlinks |
+| `./install.py status` | Show package status (linked/missing/conflict) |
 | `./install.py verify` | Check for broken symlinks |
-| `./install.py check-deps` | Verify stow and git are installed |
-| `./install.py submodules` | Initialize git submodules |
-| `./install.py hooks` | Configure git hooks |
+| `./install.py tui` | Interactive TUI menu |
+
+### TUI
+
+```bash
+./install.py tui
+```
+
+Navigate with arrow keys or j/k, Enter to select, q to quit.
 
 ### Common workflows
 
 ```bash
-# Added a new config file to apps/nvim/
-./install.py link
+# Added new config files to apps/nvim/
+./install.py update
 
-# Pulled changes from GitHub (hooks auto-run make link)
+# Pulled changes from GitHub (hooks auto-run link)
 git pull
 
-# Switched branch (hooks auto-run make link)
-git checkout other-branch
-
-# Files already exist in ~/.config/ and stow refuses to link
+# Conflicts with existing files in ~/.config/
 ./install.py force
 
 # Fresh reinstall on a new machine
 ./install.py setup
 ```
+
+---
+
+## How It Works
+
+### Symlink Manager
+
+The manager scans three source directories and creates symlinks preserving the package structure:
+
+| Source | Target | Example |
+|--------|--------|---------|
+| `home/` | `~/` | `home/.zshenv` → `~/.zshenv` |
+| `apps/` | `~/.config/` | `apps/nvim/init.lua` → `~/.config/nvim/init.lua` |
+| `system/` | `~/.config/` | `system/mpd/mpd.conf` → `~/.config/mpd/mpd.conf` |
+
+Each package gets its own subdirectory in `~/.config/`, avoiding name collisions between packages (e.g. `mako/config` vs `ncmpcpp/config`).
+
+**Conflict resolution:**
+- Existing symlinks pointing to the correct source are kept
+- Wrong symlinks are replaced
+- Real files/directories are backed up with `.bak` extension
+- Empty directories are removed
+
+### Git Hooks
+
+After `install`, git hooks are configured in `hooks/`:
+
+- **post-checkout** — runs `./install.py link` after `git checkout` or `git switch`
+- **post-merge** — runs `./install.py link` after `git pull`
+- **post-rebase** — runs `./install.py link` after `git rebase`
+
+This means symlinks are always in sync with the repo after any branch operation.
+
+### Submodules
+
+External tools are pulled as git submodules:
+
+| Submodule | Path | Source |
+|-----------|------|--------|
+| Neovim config | `apps/nvim` | github.com/diominvd/neovim |
+| Radio CLI | `system/scripts/radio` | github.com/diominvd/radio-cli |
+| VPN manager | `system/scripts/vpn` | github.com/diominvd/vpn-manager-cli |
+
+Initialized automatically by `./install.py link` or manually with `git submodule update --init --recursive`.
 
 ---
 
@@ -118,6 +158,8 @@ git checkout other-branch
 │   ├── nvim/                      Neovim (submodule)
 │   ├── opencode/                  AI assistant
 │   ├── rofi/                      launcher
+│   │   ├── dmenu.sh              custom menu script
+│   │   └── menu.json             menu entries
 │   ├── starship.toml              prompt
 │   ├── swaylock/                  screen lock
 │   ├── telegram/                  Telegram theme
@@ -150,61 +192,18 @@ git checkout other-branch
 │       ├── disk.sh
 │       ├── memory.sh
 │       ├── radio/                  (submodule)
-│       ├── vpn/                    (submodule)
-│       └── yandex-music/           (submodule)
+│       └── vpn/                    (submodule)
 │
 ├── hooks/                         git hooks
 │   ├── post-checkout              relink after checkout
 │   ├── post-merge                 relink after pull
 │   └── post-rebase                relink after rebase
 │
-├── install.py                     installer script
+├── install.py                     symlink manager
 ├── docs/
 │   └── POWER_MANAGEMENT.md        ASUS TUF power optimization
 └── .gitignore
 ```
-
----
-
-## How It Works
-
-### Stow
-
-The installer uses `stow --no-folding` to create symlinks from three source directories:
-
-| Source | Target | Contents |
-|--------|--------|----------|
-| `home/` | `~/` | Files that live in $HOME (.zshenv) |
-| `apps/` | `~/.config/` | Application configs |
-| `system/` | `~/.config/` | System services and scripts |
-
-Each subdirectory or file in the source becomes a symlink. For example:
-- `apps/nvim/` → `~/.config/nvim/`
-- `apps/starship.toml` → `~/.config/starship.toml`
-- `home/.zshenv` → `~/.zshenv`
-
-### Git Hooks
-
-After `install`, git hooks are configured in `hooks/`:
-
-- **post-checkout** — runs `./install.py link` after `git checkout` or `git switch`
-- **post-merge** — runs `./install.py link` after `git pull`
-- **post-rebase** — runs `./install.py link` after `git rebase`
-
-This means symlinks are always in sync with the repo after any branch operation.
-
-### Submodules
-
-External tools are pulled as git submodules:
-
-| Submodule | Path | Source |
-|-----------|------|--------|
-| Neovim config | `apps/nvim` | github.com/diominvd/neovim |
-| Radio CLI | `system/scripts/radio` | github.com/diominvd/radio-cli |
-| VPN manager | `system/scripts/vpn` | github.com/diominvd/vpn-manager-cli |
-| Yandex Music | `system/scripts/yandex-music` | (personal) |
-
-Initialized automatically by `./install.py install` or `./install.py submodules`.
 
 ---
 
@@ -272,9 +271,9 @@ Color scheme: **Gruvbox Material Dark** across all configs.
 
 ## Troubleshooting
 
-### "stow: existing target is not the same as" / "not empty"
+### Conflicts with existing files
 
-Files already exist in `~/.config/` conflicting with stow. Use force mode:
+The manager backs up conflicting files with `.bak` extension. To force recreate everything:
 
 ```bash
 ./install.py force
@@ -285,7 +284,7 @@ Files already exist in `~/.config/` conflicting with stow. Use force mode:
 After cloning, submodules need initialization:
 
 ```bash
-./install.py submodules
+git submodule update --init --recursive
 ```
 
 ### Git hooks not running
@@ -300,14 +299,6 @@ After cloning, submodules need initialization:
 ./install.py verify
 # Then redeploy:
 ./install.py link
-```
-
-### "command not found: stow"
-
-```bash
-./install.py setup
-# or manually:
-sudo pacman -S stow
 ```
 
 ### "permission denied: ./install.py"
