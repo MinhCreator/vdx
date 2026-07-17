@@ -97,6 +97,10 @@ git pull
 
 ## How It Works
 
+### install.py
+
+The `install.py` script is a pure Python symlink manager with no external dependencies (no stow). It provides both CLI and TUI interfaces for managing dotfile symlinks.
+
 ### Symlink Manager
 
 The manager scans three source directories and creates symlinks preserving the package structure:
@@ -134,6 +138,7 @@ External tools are pulled as git submodules:
 | Neovim config | `apps/nvim` | github.com/diominvd/neovim |
 | Radio CLI | `system/scripts/radio` | github.com/diominvd/radio-cli |
 | VPN manager | `system/scripts/vpn` | github.com/diominvd/vpn-manager-cli |
+| Yandex Music | `system/scripts/yandex-music` | github.com/diominvd/yandex-music-cli |
 
 Initialized automatically by `./install.py link` or manually with `git submodule update --init --recursive`.
 
@@ -192,7 +197,8 @@ Initialized automatically by `./install.py link` or manually with `git submodule
 │       ├── disk.sh
 │       ├── memory.sh
 │       ├── radio/                  (submodule)
-│       └── vpn/                    (submodule)
+│       ├── vpn/                    (submodule)
+│       └── yandex-music/           (submodule)
 │
 ├── hooks/                         git hooks
 │   ├── post-checkout              relink after checkout
