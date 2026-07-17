@@ -1,0 +1,7 @@
+{
+  "Brave": "brave",
+  "Elio": "kitty -e elio",
+  "Materialgram": "materialgram",
+  "Neovim": "kitty -e nvim /home/diominvd/",
+  "Yandex Music": "kitty bash -c 'uv run ~/.config/scripts/yandex-music/manager.py --update && uv run ~/.config/scripts/yandex-music/manager.py --init && ncmpcpp'"
+}
