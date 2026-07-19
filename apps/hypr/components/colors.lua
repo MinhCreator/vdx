@@ -1,0 +1,12 @@
+local colors = {
+	background = "rgb(151515)",
+	background_alt = "rgb(282828)",
+	foreground = "rgb(ebdbb2)",
+	yellow = "rgb(d8a657)",
+	red = "rgb(ea6962)",
+	green = "rgb(a9b665)",
+	blue = "rgb(7daea3)",
+	gray = "rgb(928374)",
+}
+
+return colors
