@@ -87,7 +87,6 @@ def tui_main():
         choice = tui_menu(ITEMS)
         if choice == -1:
             print(C.CLR, end="")
-            print(f"\n  {C.D}Bye!{C.X}\n")
             break
         try:
             ITEMS[choice][2](None)
