@@ -1,4 +1,5 @@
 # System & Core
+alias update="sudo pacman -Syu"
 alias cls="clear"
 alias ff="fastfetch"
 
