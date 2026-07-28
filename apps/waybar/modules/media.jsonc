@@ -6,6 +6,7 @@
     "exec": "~/.config/waybar/scripts/media.sh --title-json",
     "max-length": 60,
     "tooltip": false,
-    "on-click": "kitty -e ncmpcpp"
+    "on-click": "~/.config/waybar/scripts/media.sh --toggle",
+    "on-click-right": "kitty --class ncmpcpp -e ncmpcpp"
   }
 }
