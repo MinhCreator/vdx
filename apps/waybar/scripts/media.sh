@@ -19,6 +19,8 @@
 #   --next-json               "next" — visible only in music mode
 #   --status-json             play/pause icon — visible whenever mode != off
 #   --kill-json               "kill" — visible whenever mode != off
+#   --listen                  long-running mode for waybar `exec` (no polling):
+#                             emits one JSON line per MPD event via `mpc idle`
 #
 # Actions (wired to waybar `on-click`):
 #   -p, --prev                mpc prev
@@ -152,6 +154,24 @@ widget_kill() {
     emit "kill" "$mode"
 }
 
+# Continuous mode: keep the process alive and emit only on MPD events,
+# so waybar doesn't re-run the script (and spawn mpc) every second.
+# Blocks on `mpc idle` between updates; re-polls every 2s while MPD is down.
+widget_listen() {
+    local prev=""
+    while true; do
+        local out
+        out="$(widget_title)"
+        if [[ -n "$out" && "$out" != "$prev" ]]; then
+            printf '%s\n' "$out"
+            prev="$out"
+        fi
+        if ! mpc idle player playlist >/dev/null 2>&1; then
+            sleep 2
+        fi
+    done
+}
+
 # ---------------------------------------------------------------------------
 # Actions — the only functions allowed to mutate MPD state.
 # ---------------------------------------------------------------------------
@@ -182,6 +202,7 @@ main() {
         --next-json)          widget_track_nav "next" ;;
         --status-json)        widget_toggle ;;
         --kill-json)          widget_kill ;;
+        --listen)             widget_listen ;;
         -p|--prev)            action_prev ;;
         -n|--next)             action_next ;;
         -t|--toggle)           action_toggle ;;

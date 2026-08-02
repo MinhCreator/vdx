@@ -1,6 +1,6 @@
 {
   "network": {
-    "interval": 1,
+    "interval": 5,
     "format-wifi": "  {essid}",
     "format-ethernet": "",
     "format-disconnected": "Disconnected",

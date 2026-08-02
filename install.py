@@ -1,8 +1,8 @@
+#!/usr/bin/env python3
 # /// script
 # requires-python = ">=3.11"
 # dependencies = []
 # ///
-#!/usr/bin/env python3
 """Dotfiles manager — smart symlinks without stow."""
 
 from installer.cli import main

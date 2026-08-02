@@ -2,6 +2,6 @@
   "Brave": "brave",
   "Elio": "kitty -e elio",
   "Telegram": "telegram-desktop",
-  "Neovim": "kitty -e nvim /home/diominvd/",
+  "Neovim": "kitty -e nvim $HOME/",
   "Yandex Music": "kitty bash -c 'uv run ~/.config/scripts/yandex-music/manager.py --update && uv run ~/.config/scripts/yandex-music/manager.py --init && ncmpcpp'"
 }

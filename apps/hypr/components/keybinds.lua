@@ -44,8 +44,9 @@ hl.bind(mainMod .. " + period", hl.dsp.window.resize({ x = 40, y = 0 }), { repea
 hl.bind(mainMod .. " + SHIFT + comma", hl.dsp.window.resize({ x = 0, y = -40 }), { repeating = true })
 hl.bind(mainMod .. " + SHIFT + period", hl.dsp.window.resize({ x = 0, y = 40 }), { repeating = true })
 
--- workspaces 1-9
-for i = 1, 9 do
-	hl.bind(mainMod .. " + " .. i, hl.dsp.focus({ workspace = i }))
-	hl.bind(mainMod .. " + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }))
+-- workspaces 1-10 (SUPER+0 = workspace 10)
+for i = 1, 10 do
+	local key = (i == 10) and "0" or tostring(i)
+	hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }))
+	hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
 end

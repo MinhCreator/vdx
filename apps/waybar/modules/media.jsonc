@@ -2,8 +2,8 @@
   "custom/media_title": {
     "format": "{}",
     "return-type": "json",
-    "interval": 1,
-    "exec": "~/.config/waybar/scripts/media.sh --title-json",
+    "exec": "~/.config/waybar/scripts/media.sh --listen",
+    "restart-interval": 5,
     "max-length": 60,
     "tooltip": false,
     "on-click": "~/.config/waybar/scripts/media.sh --toggle",
