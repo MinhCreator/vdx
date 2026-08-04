@@ -10,3 +10,6 @@
 [submodule "apps/nvim"]
 	path = apps/nvim
 	url = https://github.com/diominvd/neovim.git
+[submodule "apps/tmux/plugins/tpm"]
+	path = apps/tmux/plugins/tpm
+	url = https://github.com/tmux-plugins/tpm
