@@ -1,7 +1,18 @@
 configuration {
-    modi: "drun";
+    modes: "apps:~/.config/rofi/apps.sh,scripts:~/.config/rofi/scripts.sh,boot:~/.config/rofi/boot.sh";
     show-icons: false;
-    display-drun: "»";
+    display-apps: "Apps";
+    display-scripts: "Scripts";
+    display-boot: "Boot";
+    kb-mode-next: "Tab";
+    kb-mode-previous: "Shift+Tab";
+    kb-element-next: "";
+    kb-element-prev: "";
+    kb-custom-1: "Left";
+    kb-move-char-back: "Control+b";
+    kb-move-char-forward: "Control+f";
+    kb-accept-entry: "Right,Control+j,Control+m,Return,KP_Enter";
+    sidebar-mode: true;
 }
 
 @import "~/.config/rofi/colors.rasi"
@@ -10,36 +21,58 @@ configuration {
     font: "JetBrainsMono Nerd Font Bold 11";
 }
 
-configuration {
-    drun-display-format: "{name}";
-}
-
 window {
     transparency: "real";
     width: 300px;
     border: 4px;
     border-color: @border;
     background-color: @bg;
+    location: northeast;
+    anchor: northeast;
+    x-offset: -20px;
+    y-offset: 20px;
 }
 
 mainbox {
     padding: 15px;
-    children: [ "inputbar", "listview" ];
+    children: [ "mode-switcher", "inputbar", "listview" ];
+}
+
+mode-switcher {
+    background-color: transparent;
+    border: 0px;
+    padding: 0px 0px 8px 0px;
+    margin: 0px 0px 8px 0px;
+    spacing: 0px;
+    orientation: horizontal;
+}
+
+button {
+    background-color: transparent;
+    border: 0px 0px 2px 0px;
+    border-color: transparent;
+    padding: 2px 0px;
+    margin: 0px 0px 6px 0px;
+    text-color: @fg;
+}
+
+button selected {
+    background-color: transparent;
+    border-color: @accent;
+    text-color: @accent;
 }
 
 inputbar {
     margin: 0 0 12px 0;
-    children: [ "prompt", "entry" ];
-}
-
-prompt {
-    text-color: @accent;
-    margin: 0 12px 0 0;
+    padding: 0 0 12px 0;
+    border: 0px 0px 2px 0px;
+    border-color: @fg;
+    children: [ "entry" ];
 }
 
 entry {
     text-color: @fg;
-    placeholder: "Apps...";
+    placeholder: "Search...";
     placeholder-color: @fg;
 }
 
