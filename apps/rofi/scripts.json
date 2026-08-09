@@ -1,0 +1,20 @@
+{
+  "VPN": {
+    "type": "folder",
+    "children": {
+      "Start": "uv run ~/.config/scripts/vpn/manager.py --start",
+      "Stop": "uv run ~/.config/scripts/vpn/manager.py --stop",
+      "Restart": "uv run ~/.config/scripts/vpn/manager.py --restart",
+      "Update": "uv run ~/.config/scripts/vpn/manager.py --update"
+    }
+  },
+  "Radio": {
+    "type": "folder",
+    "children": {
+      "Play Lofi": "uv run ~/.config/scripts/radio/radio.py --play lofi",
+      "Play Synthwave": "uv run ~/.config/scripts/radio/radio.py --play synthwave",
+      "Pause": "uv run ~/.config/scripts/radio/radio.py --toggle",
+      "Stop": "uv run ~/.config/scripts/radio/radio.py --stop"
+    }
+  }
+}
