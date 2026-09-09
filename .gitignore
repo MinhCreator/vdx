@@ -1,8 +1,10 @@
-apps/zsh/oh-my-zsh
-system/gh
-system/mihomo/cache.db
-system/mihomo/geoip.metadb
-system/mihomo/providers/
-apps/opencode/node_modules
-apps/opencode/*.bak
 __pycache__/
+*.pyc
+
+# secrets & local runtime data (never commit)
+packages/mihomo/config.yaml
+packages/mihomo/providers/
+packages/gh/hosts.yml
+packages/scripts/vpn/subscriptions.json
+packages/scripts/yandex-music/token
+packages/opencode/node_modules

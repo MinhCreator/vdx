@@ -1,17 +1,16 @@
-> **[Русская версия](README_RU.md)**
-
 # dotfiles
 
-Gruvbox-themed dotfiles for Arch Linux / Hyprland / Zsh / Neovim. Python-based symlink manager with TUI — no stow required.
+Gruvbox-themed dotfiles for Arch Linux / Hyprland / Zsh / Neovim.
+Manifest-based symlink manager, pure Python stdlib — no stow required.
 
 | Component | Software |
 |-----------|----------|
 | Window Manager | Hyprland + Waybar + Mako + Rofi + Swaylock |
 | Shell | Zsh + Oh My Zsh + Starship |
 | Editor | Neovim (lazy.nvim, LSP, Treesitter, Telescope) |
-| Terminal | Kitty + tmux |
+| Terminal | Kitty + tmux (TPM) |
 | Music | MPD + ncmpcpp + Yandex Music |
-| VPN | Mihomo (Clash Meta) + Krusofiya |
+| VPN | Mihomo (Clash Meta) + `vpn` manager |
 | Other | btop, fastfetch, elio, opencode |
 
 ---
@@ -19,143 +18,110 @@ Gruvbox-themed dotfiles for Arch Linux / Hyprland / Zsh / Neovim. Python-based s
 ## Requirements
 
 - **OS:** Arch Linux (or derivative)
-- **Python:** 3.11+
+- **Python:** 3.11+ (stdlib only, via `tomllib`)
 - **Git:** for cloning and submodules
-- **uv** (recommended): used by the `radio`, `vpn` and `yandex-music` scripts
-
-No other dependencies — the installer is pure Python stdlib.
+- **uv:** used by the `radio`, `vpn` and `yandex-music` scripts
 
 ---
 
 ## Installation
 
-### Fresh system
-
 ```bash
-# 1. Prerequisites
 sudo pacman -S --needed git python uv
 
-# 2. Oh My Zsh + Starship (needed by the zsh config)
+# Oh My Zsh + Starship (required by zsh config)
 ZSH="$HOME/.local/share/oh-my-zsh" sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 curl -sS https://starship.rs/install.sh | sh
 
-# 3. Clone and deploy
+# Clone and deploy
 git clone git@github.com:diominvd/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-./install.py link                          # deploy all symlinks
-git submodule update --init --recursive    # fetch nvim, tpm, radio, vpn, yandex-music
-git config core.hooksPath hooks            # enable auto-relink hooks
+git submodule update --init --recursive     # fetch nvim config
+./install.py link                           # deploy all symlinks
+./install.py bootstrap                      # copy seed templates for secrets
+git config core.hooksPath hooks             # auto-relink on checkout/pull/rebase
 ```
 
-### Existing system
-
-If git is already installed:
+tmux: reinstall TPM at runtime (removed from the repo as a submodule):
 
 ```bash
-./install.py link
+rm -rf ~/.config/tmux/plugins/tpm
+git clone --depth 1 https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
 ```
-
-### Makefile (legacy)
-
-The repo also ships a `Makefile` that uses GNU Stow (`make setup`, `make install`, `make link`, ...). It is kept for compatibility only — new installs should use `./install.py`.
 
 ---
 
 ## Usage
 
-### CLI
-
 | Command | Description |
 |---------|-------------|
-| `./install.py link` | Create all symlinks (auto-resolves conflicts) |
-| `./install.py update` | Add only new files, skip existing/conflicting |
+| `./install.py link` | Create/refresh all symlinks (removes stale, resolves conflicts) |
+| `./install.py update` | Alias of `link` |
 | `./install.py force` | Unlink + relink everything |
-| `./install.py cleanup` | Remove stale and broken symlinks |
 | `./install.py unlink` | Remove all managed symlinks |
-| `./install.py status` | Show package status (linked/missing/problem) |
-| `./install.py verify` | Check for broken and stale symlinks |
-| `./install.py tui` | Interactive TUI menu |
+| `./install.py cleanup` | Remove stale symlinks only |
+| `./install.py status` | Per-package link status |
+| `./install.py verify` | Check for broken/missing/stale links |
+| `./install.py theme list` | Available themes |
+| `./install.py theme current` | Active theme |
+| `./install.py theme set <name>` | Switch theme and re-link |
+| `./install.py bootstrap` | Copy seeded templates (secrets/mihomo/vpn) |
 
-The same CLI is available as `python -m installer` or `uv run install.py` (works via the inline PEP 723 metadata).
-
-### TUI
-
-```bash
-./install.py tui
-```
-
-Navigate with arrow keys or j/k, Enter to select, q to quit.
-
-### Common workflows
-
-```bash
-# Added new config files to apps/nvim/
-./install.py update
-
-# Pulled changes from GitHub (hooks auto-run link)
-git pull
-
-# Conflicts with existing files in ~/.config/
-./install.py force
-
-# Diagnose problems
-./install.py status
-./install.py verify
-```
+Works everywhere via inline PEP 723 metadata: `uv run install.py link`.
 
 ---
 
 ## How It Works
 
-### install.py
-
-`install.py` is a pure Python symlink manager with no external dependencies (no stow). It provides both CLI and TUI interfaces for managing dotfile symlinks.
-
-### Symlink Manager
-
-The manager scans three source directories and creates symlinks preserving the package structure:
+### Layout
 
 | Source | Target | Example |
 |--------|--------|---------|
 | `home/` | `~/` | `home/.zshenv` → `~/.zshenv` |
-| `apps/` | `~/.config/` | `apps/nvim/init.lua` → `~/.config/nvim/init.lua` |
-| `system/` | `~/.config/` | `system/mpd/mpd.conf` → `~/.config/mpd/mpd.conf` |
+| `packages/<pkg>/` | `~/.config/<pkg>/` | `packages/nvim/init.lua` → `~/.config/nvim/init.lua` |
+| `themes/<name>/` | overlay on `~/.config/` | `themes/gruvbox/waybar/colors.css` → `~/.config/waybar/colors.css` |
 
-Each package gets its own subdirectory in `~/.config/`, avoiding name collisions between packages (e.g. `mako/config` vs `ncmpcpp/config`). Root-level files such as `apps/starship.toml` are linked directly.
+Each package maps to its own directory in `~/.config/` (avoids `mako/config` vs
+`ncmpcpp/config` collisions). Exceptions are declared in an optional
+`packages/<pkg>/package.toml`:
 
-**Skip rules:** hidden files are skipped unless in the allow-list (`.zshrc`, `.zshenv`, `.luarc.json`, `.gitignore`); `.git`, `README.md`, `README`, `assets` and `node_modules` are never linked.
+```toml
+dir = "~/.config"              # install dir override (default ~/.config/<pkg>)
 
-**Conflict resolution:**
-- Existing symlinks pointing to the correct source are kept
-- Wrong symlinks are replaced
-- Real files/directories are backed up with `.bak` extension
-- Empty directories are removed
+[files]                        # per-file target overrides
+"starship.toml" = "~/.config/starship.toml"
+```
 
-**Stale links:** symlinks pointing into the repo that are no longer managed are detected and removed by `link`, `update`, `cleanup` and `verify`.
+Theme overlay: `themes/<active>/<pkg>/<rel>` shadows `packages/<pkg>/<rel>`
+when present. `.theme` holds the active theme name.
+
+**Skip rules:** `.git`, `.gitignore`, `package.toml`, `node_modules`, `README`,
+`README.md` are never linked.
+
+**Conflict resolution:** correct symlinks are kept; wrong ones replaced; real
+files/directories get backed up as `.bak`.
 
 ### Git Hooks
 
-Enable hooks once with `git config core.hooksPath hooks`, then they stay in sync:
+Enable once — then symlinks stay in sync after every branch operation:
 
-- **post-checkout** — runs `./install.py link` after `git checkout` or `git switch`
-- **post-merge** — runs `./install.py link` after `git pull`
-- **post-rebase** — runs `./install.py link` after `git rebase`
+- `post-checkout` / `post-merge` / `post-rebase` → `./install.py link`
 
-This means symlinks are always in sync with the repo after any branch operation.
+```bash
+git config core.hooksPath hooks
+```
 
 ### Submodules
 
-External tools are pulled as git submodules:
+Only Neovim remains a submodule:
 
-| Submodule | Path | Source |
-|-----------|------|--------|
-| Neovim config | `apps/nvim` | github.com/diominvd/neovim |
-| tmux TPM | `apps/tmux/plugins/tpm` | github.com/tmux-plugins/tpm |
-| Radio CLI | `system/scripts/radio` | github.com/diominvd/radio-cli |
-| VPN manager | `system/scripts/vpn` | github.com/diominvd/vpn-manager-cli |
-| Yandex Music | `system/scripts/yandex-music` | github.com/diominvd/yandex-music-cli |
+| Submodule | Path |
+|-----------|------|
+| Neovim config | `packages/nvim` → github.com/diominvd/neovim |
 
-Initialized manually with `git submodule update --init --recursive` (or by the legacy `make install`).
+`radio`, `vpn` and `yandex-music` are vendored as plain files under
+`packages/scripts/` (they deploy as configs; their CLI repos remain the upstream
+source). TPM is installed at runtime (see above).
 
 ---
 
@@ -163,86 +129,26 @@ Initialized manually with `git submodule update --init --recursive` (or by the l
 
 ```
 .dotfiles/
-├── apps/              → ~/.config/
-│   ├── btop/                      system monitor
-│   ├── elio/                      file manager
-│   ├── fastfetch/                 system info
-│   ├── gtk-3.0/                   GTK theme
-│   ├── hypr/                      Hyprland WM (Lua config)
-│   │   ├── hyprland.lua           main config
-│   │   └── components/            modular configs
-│   ├── kitty/                     terminal
-│   ├── mako/                      notifications
-│   ├── mihomo-tui/                VPN TUI client
-│   ├── ncmpcpp/                   MPD client
-│   ├── nvim/                      Neovim (submodule)
-│   ├── opencode/                  AI assistant
-│   │   ├── opencode.jsonc         main config
-│   │   ├── tui.json               TUI settings
-│   │   └── command/               custom commands (snapshot, restore)
-│   ├── rofi/                      launcher
-│   │   ├── apps.sh, scripts.sh, boot.sh   launcher modes
-│   │   ├── dmenu.sh               custom menu script
-│   │   ├── menu.json, scripts.json        menu entries
-│   │   └── config.rasi, colors.rasi       theme
-│   ├── starship.toml              prompt
-│   ├── swaylock/                  screen lock
-│   ├── telegram/                  Telegram theme
-│   ├── tmux/                      terminal multiplexer
-│   │   ├── tmux.conf
-│   │   └── plugins/tpm/           TPM plugin manager (submodule)
-│   ├── waybar/                    status bar
-│   │   ├── config.jsonc           → include modules/*.jsonc
-│   │   ├── modules/               modular configs
-│   │   ├── style.css              → @import styles/*.css + colors.css
-│   │   ├── styles/                modular styles
-│   │   ├── colors.css             shared color variables
-│   │   └── scripts/               custom scripts
-│   └── zsh/                       shell
-│       ├── .zshrc                 main config
-│       ├── aliases                aliases
-│       ├── exports                environment variables
-│       ├── functions/             autoloaded functions (battery, disk, memory, music, radio, volume, vpn)
-│       ├── keys                   secrets placeholder
-│       └── keys.example           template for keys
-│
-├── home/              → ~/
-│   └── .zshenv                     ZDOTDIR, paths
-│
-├── system/            → ~/.config/
-│   ├── gh/                         GitHub CLI
-│   ├── mihomo/                     VPN proxy
-│   │   ├── config.example.yaml     template
-│   │   ├── config.yaml             subscription (tracked)
-│   │   └── providers/              providers (git-ignored)
-│   ├── mpd/                        Music Player Daemon
-│   └── scripts/                    helper scripts
-│       ├── battery.sh
-│       ├── disk.sh
-│       ├── memory.sh
-│       ├── colorpaper/             image recolor tool
-│       ├── radio/                  (submodule)
-│       ├── vpn/                    (submodule)
-│       └── yandex-music/           (submodule)
-│
-├── hooks/                         git hooks
-│   ├── post-checkout              relink after checkout
-│   ├── post-merge                 relink after pull
-│   └── post-rebase                relink after rebase
-│
-├── installer/                     Python package (stdlib only)
-│   ├── cli.py                     argument parsing
-│   ├── commands.py                command implementations
-│   ├── links.py                   symlink logic
-│   ├── tui.py                     TUI menu
-│   ├── config.py                  paths & skip rules
-│   └── ansi.py                    terminal colors
-│
-├── install.py                     entry point
-├── Makefile                       legacy stow-based alternative
-├── docs/
-│   ├── POWER_MANAGEMENT.md        ASUS TUF power optimization
-│   └── POWER_MANAGEMENT_RU.md
+├── install.py                     manifest-based manager (stdlib only)
+├── .theme                         active theme (gruvbox | dune)
+├── home/                          → ~/
+│   └── .zshenv
+├── packages/                      → ~/.config/<pkg>/
+│   ├── btop/ elio/ fastfetch/ gh/ gtk-3.0/
+│   ├── hypr/                      Hyprland (Lua, modular components)
+│   ├── kitty/ mihomo/ mihomo-tui/ mpd/ ncmpcpp/
+│   ├── nvim/                      submodule
+│   ├── opencode/ rofi/ scripts/ starship/ telegram/ tmux/ waybar/ zsh/
+│   ├── starship/starship.toml     ~/.config/starship.toml (package.toml override)
+│   └── scripts/                   vendor: battery, disk, memory, colorpaper,
+│                                  radio/, vpn/, yandex-music/
+├── themes/
+│   ├── gruvbox/                   active theme overlay (11 files)
+│   └── dune/                      alternative theme overlay
+├── secrets/
+│   └── env.example                template for ~/.config/secrets/env
+├── hooks/                         post-checkout / post-merge / post-rebase
+├── docs/                          POWER_MANAGEMENT notes
 └── .gitignore
 ```
 
@@ -250,110 +156,39 @@ Initialized manually with `git submodule update --init --recursive` (or by the l
 
 ## Secrets
 
-API keys and tokens are **not** stored in the repository.
+API keys, tokens and subscriptions are **not** committed.
 
 | Secret | Location | In git? |
 |--------|----------|---------|
-| GEMINI_API_KEY, etc. | `~/.config/secrets/env` | No (sourced by zsh) |
-| GitHub OAuth token | `~/.config/gh/hosts.yml` | No (created by `gh auth login`) |
-| GitHub CLI config | `system/gh/config.yml` | Yes (no secrets) |
-| Mihomo subscription | `system/mihomo/config.yaml` | Yes — contains subscription token + HWID |
-| VPN providers | `system/mihomo/providers/` | No (git-ignored) |
+| API keys (GEMINI, ANTHROPIC, OPENAI...) | `~/.config/secrets/env`, sourced by zsh | No |
+| GitHub OAuth token | `~/.config/gh/hosts.yml` | No (git-ignored) |
+| GitHub CLI config | `packages/gh/config.yml` | Yes (no secrets) |
+| Mihomo subscription | `packages/mihomo/config.yaml` (+ `packages/mihomo/providers/`) | No (git-ignored) |
+| VPN subscriptions | `packages/scripts/vpn/subscriptions.json` | No (git-ignored) |
+| Yandex Music token | `~/.config/scripts/yandex-music/token` | No (local file) |
 
-> **Note:** `system/mihomo/config.yaml` currently **is** tracked in git and contains a subscription token and HWID. If this repository is public, un-track it (`git rm --cached system/mihomo/config.yaml`) and rotate the credentials.
+Bootstrap seeds from templates:
 
-### Setting up secrets
+```bash
+./install.py bootstrap        # ~/.config/secrets/env, mihomo/config.yaml,
+                              # scripts/vpn/subscriptions.json (from *.example)
+```
 
-1. Create the secrets file:
-   ```bash
-   mkdir -p ~/.config/secrets
-   cp ~/.config/zsh/keys.example ~/.config/secrets/env
-   ```
-
-2. Edit `~/.config/secrets/env` and add your API keys:
-   ```bash
-   export GEMINI_API_KEY="your-key-here"
-   export GOOGLE_GENERATIVE_AI_API_KEY="your-key-here"
-   export ANTHROPIC_API_KEY="your-key-here"
-   export OPENAI_API_KEY="your-key-here"
-   ```
-
-3. Set up Mihomo VPN:
-   ```bash
-   cp system/mihomo/config.example.yaml system/mihomo/config.yaml
-   # Edit config.yaml with your subscription URL and HWID
-   ```
-
-**Backup:** Encrypted backup at `~/secrets.tar.gz.enc` (AES-256-CBC), password in `~/secrets.passphrase`.
-
----
-
-## Included Apps
-
-| App | Config path | Description |
-|-----|-------------|-------------|
-| [btop](https://github.com/aristocratos/btop) | `apps/btop/` | System monitor |
-| [elio](https://github.com/elio-fm/elio) | `apps/elio/` | File manager |
-| [fastfetch](https://github.com/fastfetch-cli/fastfetch) | `apps/fastfetch/` | System info display |
-| [Hyprland](https://hyprland.org/) | `apps/hypr/` | Wayland compositor |
-| [Kitty](https://sw.kovidgoyal.net/kitty/) | `apps/kitty/` | Terminal emulator |
-| [Mako](https://github.com/emersion/mako) | `apps/mako/` | Notification daemon |
-| [mihomo-tui](https://github.com/MetaCubeX/mihomo-tui) | `apps/mihomo-tui/` | VPN TUI client |
-| [ncmpcpp](https://github.com/ncmpcpp/ncmpcpp) | `apps/ncmpcpp/` | MPD music client |
-| [Neovim](https://neovim.io/) | `apps/nvim/` | Text editor |
-| [opencode](https://github.com/opencode-ai/opencode) | `apps/opencode/` | AI coding assistant |
-| [Rofi](https://github.com/DaveDavenport/rofi) | `apps/rofi/` | Application launcher |
-| [Starship](https://starship.rs/) | `apps/starship.toml` | Shell prompt |
-| [Swaylock](https://github.com/swaywm/swaylock) | `apps/swaylock/` | Screen locker |
-| [Telegram](https://desktop.telegram.org/) | `apps/telegram/` | Telegram theme |
-| [tmux](https://github.com/tmux/tmux) | `apps/tmux/` | Terminal multiplexer |
-| [Waybar](https://github.com/Alexays/Waybar) | `apps/waybar/` | Status bar |
-| [Zsh](https://www.zsh.org/) | `apps/zsh/` | Shell |
-
-Color scheme: **Gruvbox Material Dark** across all configs.
+Local runtime files may live inside the repo tree (`packages/mihomo/config.yaml`,
+`providers/`) — they are git-ignored and re-linked by the manager.
 
 ---
 
 ## Troubleshooting
 
-### Conflicts with existing files
-
-The manager backs up conflicting files with `.bak` extension. To force recreate everything:
-
-```bash
-./install.py force
-```
-
-### Submodules are empty
-
-After cloning, submodules need initialization:
-
-```bash
-git submodule update --init --recursive
-```
-
-### Git hooks not running
-
-```bash
-git config core.hooksPath hooks
-```
-
-### Broken symlinks found
-
-```bash
-./install.py verify
-# Then redeploy:
-./install.py link
-```
-
-### "permission denied: ./install.py"
-
-```bash
-chmod +x install.py
-```
+- **Conflicts** → `./install.py force` (backs up real files as `.bak`).
+- **Submodules empty** → `git submodule update --init`.
+- **Hooks not running** → `git config core.hooksPath hooks`.
+- **Broken links** → `./install.py verify` then `./install.py link`.
+- **Permission denied** → `chmod +x install.py`.
 
 ---
 
 ## License
 
-[MIT](https://opensource.org/licenses/MIT)
+MIT

@@ -1,15 +1,3 @@
-[submodule "system/scripts/yandex-music"]
-	path = system/scripts/yandex-music
-	url = https://github.com/diominvd/yandex-music-cli
-[submodule "system/scripts/radio"]
-	path = system/scripts/radio
-	url = https://github.com/diominvd/radio-cli
-[submodule "system/scripts/vpn"]
-	path = system/scripts/vpn
-	url = https://github.com/diominvd/vpn-manager-cli.git
-[submodule "apps/nvim"]
-	path = apps/nvim
+[submodule "packages/nvim"]
+	path = packages/nvim
 	url = https://github.com/diominvd/neovim.git
-[submodule "apps/tmux/plugins/tpm"]
-	path = apps/tmux/plugins/tpm
-	url = https://github.com/tmux-plugins/tpm
