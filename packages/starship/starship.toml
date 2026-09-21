@@ -1,7 +1,7 @@
 add_newline    = false
 format         = """
 $directory$git_branch$git_status
-$character
+$character$status
 """
 
 [directory]
@@ -19,4 +19,9 @@ format         = "([$ahead_behind]($style))"
 
 [character]
 success_symbol = "[»](bold black)"
-error_symbol   = "[»](bold black)"
+error_symbol   = "[»](bold red)"
+
+[status]
+disabled = false
+format   = " [$status]($style)"
+style    = "bold red"
