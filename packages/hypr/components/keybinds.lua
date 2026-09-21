@@ -13,7 +13,12 @@ hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd("kitty"))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd("kitty -e elio"))
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("kitty -e ncmpcpp"))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("~/.config/rofi/dmenu.sh"))
+hl.bind(mainMod .. " + SHIFT + D", hl.dsp.exec_cmd("~/.config/rofi/scripts.sh"))
+hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("~/.config/rofi/boot.sh"))
+
+-- screenshots (both copy to the clipboard)
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd('grim -g "$(slurp)" - | wl-copy'))
+hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("grim - | wl-copy"))
 
 -- music / volume
 hl.bind(mainMod .. " + ALT + P", hl.dsp.exec_cmd("mpc toggle"))
