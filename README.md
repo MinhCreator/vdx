@@ -21,16 +21,33 @@ Manifest-based symlink manager, pure Python stdlib — no stow required.
 - **Python:** 3.11+ (stdlib only, via `tomllib`)
 - **Git:** for cloning and submodules
 - **uv:** used by the `radio`, `vpn` and `yandex-music` scripts
+- **Hyprland with Lua config support:** the window-manager config is written
+  as `hyprland.lua` (the `hl.*` API), so a Hyprland build with the Lua
+  configuration layer is required (0.55+ or current git —
+  https://hypr.land/news/26_lua/)
 
 ---
 
 ## Installation
 
 ```bash
-sudo pacman -S --needed git python uv
+# Core packages (Arch official repos)
+sudo pacman -S --needed git python uv zsh eza starship tmux kitty jq \
+  brightnessctl wl-clipboard grim slurp swaylock mako waybar \
+  mpd mpc ncmpcpp btop fastfetch github-cli
 
-# Oh My Zsh + Starship (required by zsh config)
+# From AUR (or git builds; see Requirements for the Hyprland version):
+#   hyprland (Lua-capable build), rofi-wayland, awww (wallpaper daemon),
+#   hyprsunset (night light), wifitui, elio, zed, mihomo, mihomo-tui,
+#   opencode, telegram-desktop
+# Optional: zoxide (enables `z` directory jumps in the zsh config)
+
+# Oh My Zsh (required by zsh config) + custom plugins used by .zshrc
 ZSH="$HOME/.local/share/oh-my-zsh" sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH/custom/plugins/zsh-autosuggestions"
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH/custom/plugins/zsh-syntax-highlighting"
+
+# Starship prompt
 curl -sS https://starship.rs/install.sh | sh
 
 # Clone and deploy
