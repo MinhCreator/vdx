@@ -1,5 +1,5 @@
 [ui]
-show_tob_bar = false
+show_top_bar = false
 show_hidden = true
 
 [places]
