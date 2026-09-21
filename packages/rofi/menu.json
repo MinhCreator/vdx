@@ -1,7 +1,9 @@
 {
-  "Brave": "brave",
-  "Elio": "kitty -e elio",
-  "Telegram": "telegram-desktop",
-  "Neovim": "kitty -e nvim $HOME/",
-  "Yandex Music": "kitty bash -c 'uv run ~/.config/scripts/yandex-music/manager.py --update && uv run ~/.config/scripts/yandex-music/manager.py --init && ncmpcpp'"
+  "TERMINAL": "kitty",
+  "BROWSER": "brave",
+  "CODE EDITOR": "zed",
+  "NEOVIM": "kitty -e nvim $HOME/",
+  "FILE MANAGER": "kitty -e elio",
+  "TELEGRAM": "telegram-desktop",
+  "MUSIC": "kitty bash -c 'uv run ~/.config/scripts/yandex-music/manager.py --update && uv run ~/.config/scripts/yandex-music/manager.py --init && ncmpcpp'"
 }

@@ -8,7 +8,7 @@
       "Update": "uv run ~/.config/scripts/vpn/manager.py --update"
     }
   },
-  "Radio": {
+  "RADIO": {
     "type": "folder",
     "children": {
       "Play Lofi": "uv run ~/.config/scripts/radio/radio.py --play lofi",
