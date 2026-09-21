@@ -1,9 +1,12 @@
 # Exports
 source "$ZDOTDIR/exports"
-source "$ZDOTDIR/keys"
 
 # Local secrets (not tracked by git)
 [[ -f "$HOME/.config/secrets/env" ]] && source "$HOME/.config/secrets/env"
+
+# History: shared across sessions, with timestamps
+setopt share_history inc_append_history extended_history
+export HISTTIMEFORMAT="%F %T "
 
 # Oh My Zsh
 export ZSH="$HOME/.local/share/oh-my-zsh"
@@ -25,6 +28,9 @@ fi
 
 # Prompt
 eval "$(starship init zsh)"
+
+# zoxide (fast directory jumps) — optional, skipped when not installed
+command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
 
 # bun completions
 [ -s "$HOME/.local/state/bun/_bun" ] && source "$HOME/.local/state/bun/_bun"

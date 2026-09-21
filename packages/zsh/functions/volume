@@ -1,1 +1,6 @@
-volume() { wpctl set-volume @DEFAULT_AUDIO_SINK@ $(LC_NUMERIC=C awk "BEGIN {print ${1//%/} / 100}") }
+# volume 50%   -> set level to 50%
+# volume +5%   -> raise by 5% (wpctl handles the arithmetic)
+volume() {
+    local spec="${1:?usage: volume 50% | +5% | -5%}"
+    wpctl set-volume @DEFAULT_AUDIO_SINK@ "$spec"
+}
