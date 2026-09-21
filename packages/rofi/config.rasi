@@ -12,7 +12,6 @@ configuration {
     kb-move-char-back: "Control+b";
     kb-move-char-forward: "Control+f";
     kb-accept-entry: "Right,Control+j,Control+m,Return,KP_Enter";
-    sidebar-mode: true;
 }
 
 @import "~/.config/rofi/colors.rasi"
@@ -23,43 +22,17 @@ configuration {
 
 window {
     transparency: "real";
-    width: 300px;
+    width: 260px;
     border: 4px;
     border-color: @border;
     background-color: @bg;
-    location: northeast;
-    anchor: northeast;
-    x-offset: -20px;
-    y-offset: 20px;
+    location: center;
+    anchor: center;
 }
 
 mainbox {
     padding: 15px;
-    children: [ "mode-switcher", "inputbar", "listview" ];
-}
-
-mode-switcher {
-    background-color: transparent;
-    border: 0px;
-    padding: 0px 0px 8px 0px;
-    margin: 0px 0px 8px 0px;
-    spacing: 0px;
-    orientation: horizontal;
-}
-
-button {
-    background-color: transparent;
-    border: 0px 0px 2px 0px;
-    border-color: transparent;
-    padding: 2px 0px;
-    margin: 0px 0px 6px 0px;
-    text-color: @fg;
-}
-
-button selected {
-    background-color: transparent;
-    border-color: @accent;
-    text-color: @accent;
+    children: [ "inputbar", "listview" ];
 }
 
 inputbar {
