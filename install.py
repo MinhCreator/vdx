@@ -46,6 +46,24 @@ THEME_FILE = ROOT / ".theme"
 # names that are never treated as config files
 SKIP = {".git", ".gitignore", ".DS_Store", "node_modules", "package.toml", "README", "README.md"}
 
+# directories never worth scanning for managed symlinks (~/.cache, ~/.local,
+# git/npm/rust trees, ...) — keeps `link`/`status`/`verify` fast on big homes
+PRUNE = {
+    ".cache",
+    ".local",
+    ".git",
+    "node_modules",
+    ".npm",
+    ".cargo",
+    ".rustup",
+    ".nvm",
+    ".pyenv",
+    ".conda",
+    "target",
+    ".var",
+    ".mozilla",
+}
+
 
 # --------------------------------------------------------------------------- helpers
 
@@ -150,15 +168,24 @@ def is_managed(p: Path) -> bool:
         return False
 
 
+def _walk(base: Path):
+    """Yield file paths under base, pruning heavy/uninteresting dirs."""
+    for root, dirs, files in os.walk(base):
+        dirs[:] = sorted(d for d in dirs if d not in PRUNE)
+        for name in sorted(files):
+            yield Path(root) / name
+
+
 def find_managed() -> list[Path]:
-    found: list[Path] = []
+    # A dict is used purely for dedup: HOME already contains ~/.config.
+    found: dict[Path, None] = {}
     for base in (HOME, TGT):
         if not base.is_dir():
             continue
-        for p in base.rglob("*"):
+        for p in _walk(base):
             if p.is_symlink() and is_managed(p):
-                found.append(p)
-    return found
+                found[p] = None
+    return list(found)
 
 
 def expected_targets(entries: list[tuple[Path, Path, str]]) -> set[Path]:
