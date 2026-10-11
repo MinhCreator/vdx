@@ -55,10 +55,19 @@ Item {
         try {
           const data = JSON.parse(this.text.trim())
           const keyboards = data.keyboards || []
-          for (const kb of keyboards) {
-            if (kb.active_keymap) {
-              root.activeLayout = kb.active_keymap
-              break
+          // `hyprctl devices` lists pseudo-keyboards for power/sleep buttons and
+          // WMI hotkeys; their `active_keymap` is stale ("English (US)") even
+          // when the real layout is Russian. Use the device Hyprland marks as
+          // `main`, and only fall back to the first entry that reports a keymap.
+          const main = keyboards.find(kb => kb.main && kb.active_keymap)
+          if (main) {
+            root.activeLayout = main.active_keymap
+          } else {
+            for (const kb of keyboards) {
+              if (kb.active_keymap) {
+                root.activeLayout = kb.active_keymap
+                break
+              }
             }
           }
         } catch (e) {

@@ -102,6 +102,7 @@ QtObject {
   readonly property int mihomoVisibleRows: 8
   readonly property int switchWidth: 34                 // square toggle (popup header)
   readonly property int switchKnob: 14
+  readonly property int popupInputHeight: 24            // text field (PopupInput)
 
   // ---- scripts --------------------------------------------------------------
   readonly property string mediaToggleScript: scriptsDir + "/media.sh"

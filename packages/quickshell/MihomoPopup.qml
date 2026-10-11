@@ -203,14 +203,23 @@ Item {
           }
         }
 
-        // One action per tab, at the far right of the tab bar: UPDATE belongs to
-        // the providers list, PING to the servers list, so the row stays clean.
+        // One action per tab, at the far right of the tab bar: ADD + UPDATE
+        // belong to the providers list, PING to the servers list, so the row
+        // stays clean. While the add form is open both are hidden (the form
+        // carries its own SAVE/CANCEL).
         Row {
           anchors { right: parent.right; verticalCenter: parent.verticalCenter }
           spacing: 6
 
           PopupButton {
-            visible: root.tab === 0
+            visible: root.tab === 0 && !root.svc.adding
+            label: "ADD"
+            tint: Theme.foreground0
+            onClicked: root.svc.beginAdd()
+          }
+
+          PopupButton {
+            visible: root.tab === 0 && !root.svc.adding
             label: "UPDATE"
             tint: Theme.foreground0
             busy: root.svc.updating
@@ -296,7 +305,7 @@ Item {
         ListView {
           id: providerList
           anchors.fill: parent
-          visible: root.tab === 0
+          visible: root.tab === 0 && !root.svc.adding
           clip: true
           boundsBehavior: Flickable.StopAtBounds
           model: root.svc.providers
@@ -462,7 +471,7 @@ Item {
         // empty states
         Text {
           anchors.centerIn: parent
-          visible: root.tab === 0 && !root.svc.serviceOn
+          visible: root.tab === 0 && !root.svc.adding && !root.svc.serviceOn
           text: "mihomo is off"
           color: Theme.muted
           font.family: Theme.fontFamily
@@ -472,7 +481,7 @@ Item {
 
         Text {
           anchors.centerIn: parent
-          visible: root.tab === 0 && root.svc.serviceOn && !root.hasProviders
+          visible: root.tab === 0 && !root.svc.adding && root.svc.serviceOn && !root.hasProviders
           text: "no providers"
           color: Theme.muted
           font.family: Theme.fontFamily
@@ -488,6 +497,97 @@ Item {
           font.family: Theme.fontFamily
           font.pixelSize: Theme.fontSize
           font.weight: Theme.fontWeight
+        }
+
+        // ---- add-provider form (providers tab) ----------------------------
+        // Declared last so it overlays the list. SAVE is disabled until both
+        // fields are filled; the script's error text is shown beneath.
+        Item {
+          id: addForm
+          z: 2
+          anchors.fill: parent
+          visible: root.tab === 0 && root.svc.adding
+
+          // Put the caret in the name field as soon as the form appears; the
+          // 80ms retry below covers the window activating a beat later.
+          property bool pendingFocus: false
+          onVisibleChanged: {
+            if (visible) {
+              nameInput.input.forceActiveFocus();
+              pendingFocus = true;
+            }
+          }
+
+          Column {
+            anchors { left: parent.left; right: parent.right; top: parent.top }
+            spacing: 8
+
+            PopupInput {
+              id: nameInput
+              width: parent.width
+              label: "PROVIDER NAME"
+              placeholder: "my-provider"
+              text: root.svc.addName
+              onTextEdited: root.svc.addName = text
+              onAccepted: urlInput.input.forceActiveFocus()
+            }
+
+            PopupInput {
+              id: urlInput
+              width: parent.width
+              label: "SUBSCRIPTION URL"
+              placeholder: "https://…"
+              text: root.svc.addUrl
+              onTextEdited: root.svc.addUrl = text
+              onAccepted: root.svc.addProvider()
+            }
+
+            Row {
+              spacing: 6
+
+              PopupButton {
+                label: "CANCEL"
+                onClicked: root.svc.closeAddForm()
+              }
+
+              PopupButton {
+                label: "SAVE"
+                tint: Theme.foreground0
+                busy: root.svc.addBusy
+                status: root.svc.addStatus
+                disabled: root.svc.addBusy ||
+                          root.svc.addName.trim() === "" ||
+                          root.svc.addUrl.trim() === ""
+                onClicked: root.svc.addProvider()
+              }
+            }
+
+            Text {
+              width: parent.width
+              visible: root.svc.addStatus === "error" && root.svc.addError !== ""
+              text: root.svc.addError
+              color: Theme.red
+              wrapMode: Text.WordWrap
+              font.family: Theme.fontFamily
+              font.pixelSize: Theme.fontSize - 2
+              font.weight: Theme.fontWeight
+            }
+          }
+
+          // Escape anywhere in the form cancels (Keys bubble up from the field)
+          Keys.onEscapePressed: root.svc.closeAddForm()
+
+          // One retry in case the window only becomes active a beat after the
+          // form appears (the first forceActiveFocus then has no effect).
+          Timer {
+            interval: 80
+            running: addForm.pendingFocus
+            onTriggered: {
+              addForm.pendingFocus = false;
+              if (addForm.visible && !nameInput.input.activeFocus &&
+                  !urlInput.input.activeFocus) nameInput.input.forceActiveFocus();
+            }
+          }
         }
       }
 

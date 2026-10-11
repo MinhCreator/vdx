@@ -49,6 +49,7 @@ Item {
     onVisibleChanged: {
       MihomoService.popupsOpen += visible ? 1 : -1;
       if (visible) MihomoService.refreshAll();
+      else MihomoService.closeAddForm();
     }
 
     MihomoPopup {

@@ -18,8 +18,13 @@
 #                        prints {"ok":true,"alive":N} or {"ok":false,"error":…}
 #   --update             re-download every proxy-provider, then verify
 #   --toggle             start/stop mihomo.service
-#   --update prints {"ok":true} or {"ok":false,"error":…}; on failure it also
-#   appends a line to $MIHOMO_DIR/update.log.
+#   --add-provider <name> <url>
+#                        fetch <url> as a Clash proxy-provider, save it to
+#                        $MIHOMO_DIR/providers/<name>.yaml, register it in
+#                        config.yaml (proxy-providers + the policy group's
+#                        `use:`) and reload mihomo
+#   --update/--add-provider print {"ok":true,…} or {"ok":false,"error":…}; on
+#   failure --update also appends a line to $MIHOMO_DIR/update.log.
 # Paths (for the popup's "open config" buttons):
 #   --config-path        print the path of mihomo's config.yaml
 #   --path <provider>    print the provider's own file (config.yaml as fallback)
@@ -203,6 +208,178 @@ cmd_update() {
     printf '{"ok":true}\n'
 }
 
+# ---- add a provider ----------------------------------------------------------
+# A new provider has to exist in two places in config.yaml: its own
+# proxy-providers block and the policy group's `use:` list, otherwise it is
+# downloaded but never selectable. Both edits are made against a backup and
+# rolled back if either fails, so a bad insert can never leave a broken config.
+
+# Names currently declared under proxy-providers (one per line).
+provider_names() {
+    awk '
+        /^proxy-providers:[[:space:]]*$/ { inblk = 1; next }
+        inblk && /^[^[:space:]#]/        { inblk = 0 }
+        inblk && /^  [^[:space:]]/ {
+            line = $0
+            sub(/^  /, "", line)
+            sub(/:.*/, "", line)
+            print line
+        }
+    ' "$MIHOMO_DIR/config.yaml" 2>/dev/null || true
+}
+
+provider_exists() {
+    provider_names | grep -Fxq -- "${1:-}" 2>/dev/null
+}
+
+# Insert the provider's block at the end of the proxy-providers map.
+config_insert_provider() {
+    local cfg="$1" name="$2" url="$3" out="$1.add.$$"
+    if ! awk -v p="$name" -v u="$url" '
+        function block() {
+            printf "  %s:\n", p
+            printf "    type: http\n"
+            printf "    url: \"%s\"\n", u
+            printf "    interval: 3600\n"
+            printf "    path: ./providers/%s.yaml\n", p
+            printf "    health-check:\n"
+            printf "      enable: true\n"
+            printf "      interval: 600\n"
+            printf "      url: http://www.gstatic.com/generate_204\n"
+        }
+        BEGIN { inblk = 0; done = 0 }
+        {
+            if ($0 ~ /^proxy-providers:[[:space:]]*$/) { inblk = 1; print; next }
+            if (inblk && $0 ~ /^[^[:space:]#]/) {
+                if (!done) { block(); done = 1 }
+                inblk = 0
+            }
+            print
+        }
+        END { if (!done && inblk) block() }
+    ' "$cfg" > "$out"; then
+        rm -f "$out"
+        return 1
+    fi
+    cat "$out" > "$cfg"
+    rm -f "$out"
+}
+
+# Append the provider to the `use:` list of the policy group, then confirm it.
+config_group_use() {
+    local cfg="$1" name="$2" group="$3" out="$1.grp.$$"
+    if ! awk -v g="$group" -v p="$name" '
+        BEGIN { state = 0; done = 0 }
+        {
+            if (state == 0) {
+                if ($0 ~ ("^  - name:[[:space:]]*\"?" g "\"?[[:space:]]*$")) state = 1
+                print; next
+            }
+            if (state == 1) {
+                if ($0 ~ /^    use:[[:space:]]*$/) { state = 2; print; next }
+                if ($0 ~ /^  - name:/ || $0 ~ /^[^[:space:]]/) state = 0
+                print; next
+            }
+            if (state == 2) {
+                if ($0 ~ /^      -[[:space:]]/) { print; next }
+                if (!done) { printf "      - %s\n", p; done = 1 }
+                state = 0
+                print; next
+            }
+        }
+        END { if (state == 2 && !done) printf "      - %s\n", p }
+    ' "$cfg" > "$out"; then
+        rm -f "$out"
+        return 1
+    fi
+    cat "$out" > "$cfg"
+    rm -f "$out"
+
+    # confirm the group actually got the new entry
+    awk -v g="$group" -v p="$name" '
+        /^proxy-groups:[[:space:]]*$/ { top = 1; next }
+        top && /^[^[:space:]#]/ { top = 0 }
+        top && $0 ~ ("^  - name:[[:space:]]*\"?" g "\"?[[:space:]]*$") { ing = 1; next }
+        ing && /^  - name:/ { ing = 0 }
+        ing && $0 ~ ("^      -[[:space:]]*" p "[[:space:]]*$") { ok = 1 }
+        END { exit !ok }
+    ' "$cfg" 2>/dev/null
+}
+
+# Best-effort config reload. If the controller is down the edit still stands and
+# takes effect the next time mihomo starts.
+reload_config() {
+    local cfg="$1"
+    curl -sf --max-time "$TIMEOUT" "$API/version" >/dev/null 2>&1 || return 0
+    curl -s -o /dev/null --max-time "${MIHOMO_RELOAD_TIMEOUT:-10}" \
+        -X PUT "$API/configs?force=true" \
+        -H 'Content-Type: application/json' \
+        -d "$(jq -nc --arg p "$cfg" '{path:$p}')" 2>/dev/null || true
+}
+
+cmd_add_provider() {
+    local name="${1:-}" url="${2:-}" cfg="$MIHOMO_DIR/config.yaml"
+    local group tmp prov code
+
+    if [[ -z "$name" || -z "$url" ]]; then
+        printf '{"ok":false,"error":"name and url required"}\n'; return 1
+    fi
+    if [[ ! "$name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+        printf '{"ok":false,"error":"invalid name"}\n'; return 1
+    fi
+    if [[ ! "$url" =~ ^https?:// ]]; then
+        printf '{"ok":false,"error":"invalid url"}\n'; return 1
+    fi
+    if [[ ! -f "$cfg" ]]; then
+        printf '{"ok":false,"error":"config.yaml not found"}\n'; return 1
+    fi
+    if provider_exists "$name"; then
+        printf '{"ok":false,"error":"provider already exists"}\n'; return 1
+    fi
+
+    # Fetch the subscription first: a bad url must not touch the config.
+    tmp="$(mktemp "${TMPDIR:-/tmp}/mihomo-add.XXXXXX" 2>/dev/null || true)"
+    if [[ -z "$tmp" ]]; then
+        printf '{"ok":false,"error":"temp file"}\n'; return 1
+    fi
+    code="$(curl -sSL -o "$tmp" -w '%{http_code}' \
+        --max-time "${MIHOMO_ADD_TIMEOUT:-30}" \
+        -A "${MIHOMO_UA:-ClashMeta/1.19.0}" "$url" 2>/dev/null || true)"
+    if [[ "$code" != "200" ]]; then
+        rm -f "$tmp"
+        printf '{"ok":false,"error":"download HTTP %s"}\n' "${code:-000}"; return 1
+    fi
+    if [[ ! -s "$tmp" ]] || ! grep -qE '^[[:space:]]*proxies:' "$tmp" 2>/dev/null; then
+        rm -f "$tmp"
+        printf '{"ok":false,"error":"not a Clash subscription"}\n'; return 1
+    fi
+
+    group="$(group_name)"
+    [[ -z "$group" ]] && group="$GROUP"
+
+    cp -f "$cfg" "$cfg.bak"
+
+    if ! config_insert_provider "$cfg" "$name" "$url" || ! provider_exists "$name"; then
+        cat "$cfg.bak" > "$cfg"; rm -f "$tmp"
+        printf '{"ok":false,"error":"could not add to config"}\n'; return 1
+    fi
+    if ! config_group_use "$cfg" "$name" "$group"; then
+        cat "$cfg.bak" > "$cfg"; rm -f "$tmp"
+        printf '{"ok":false,"error":"group \\"%s\\" not found"}\n' "$group"; return 1
+    fi
+
+    mkdir -p "$MIHOMO_DIR/providers" 2>/dev/null || true
+    prov="$MIHOMO_DIR/providers/$name.yaml"
+    if ! cp -f "$tmp" "$prov"; then
+        cat "$cfg.bak" > "$cfg"; rm -f "$tmp"
+        printf '{"ok":false,"error":"could not save provider"}\n'; return 1
+    fi
+    rm -f "$tmp"
+
+    reload_config "$cfg"
+    printf '{"ok":true,"name":%s}\n' "$(jq -nc --arg n "$name" '$n')"
+}
+
 # The provider's file: honour an explicit `path:` in its proxy-providers block
 # (relative paths resolve against MIHOMO_DIR), else the default layout.
 provider_file() {
@@ -249,6 +426,7 @@ main() {
         --select)    cmd_select "${2:-}" ;;
         --ping)      cmd_ping "${2:-}" ;;
         --update)    cmd_update ;;
+        --add-provider) cmd_add_provider "${2:-}" "${3:-}" ;;
         --traffic)   cmd_traffic ;;
         --config-path) cmd_config_path ;;
         --path)      cmd_path "${2:-}" ;;

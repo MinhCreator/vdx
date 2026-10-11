@@ -76,15 +76,16 @@ Item {
     cursorShape: Qt.PointingHandCursor // waybar: HAND2 when the module has events
     // waybar on-click: wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
     onClicked: Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
-  }
-
-  WheelHandler {
-    onWheel: (event) => {
-      const delta = event.angleDelta.y
+    // A sibling WheelHandler never receives wheel events on a layer-shell
+    // surface, so the scroll is handled on the MouseArea (same path as clicks).
+    //   scroll-step 5 · max-volume 150 (limit 1.5)
+    onWheel: (wheel) => {
+      const delta = wheel.angleDelta.y
       if (delta > 0)
         Quickshell.execDetached(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", "5%+"])
       else if (delta < 0)
         Quickshell.execDetached(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", "5%-"])
+      wheel.accepted = true
     }
   }
 }

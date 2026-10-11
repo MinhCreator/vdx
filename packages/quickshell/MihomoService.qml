@@ -31,6 +31,14 @@ Singleton {
   property bool pinging: false
   property string pingStatus: ""       // "", "ok", "error" — transient result
 
+  // ---- add a provider (the form itself lives in the popup) ----------------
+  property bool adding: false          // the add form is open
+  property bool addBusy: false         // --add-provider in flight
+  property string addStatus: ""        // "", "ok", "error" — transient result
+  property string addError: ""         // message shown when addStatus is "error"
+  property string addName: ""          // form: provider name
+  property string addUrl: ""           // form: subscription url
+
   // ---- traffic (bytes/s + session totals) ---------------------------------
   property real up: 0
   property real down: 0
@@ -159,6 +167,67 @@ Singleton {
     refreshStatus();
   }
 
+  // ---- add a provider -----------------------------------------------------
+  // The popup's "+ ADD" button opens the form here; SAVE hands name + url to
+  // mihomo.sh, which downloads the subscription, saves it under providers/ and
+  // registers it in config.yaml before reloading mihomo.
+  function beginAdd() {
+    addName = "";
+    addUrl = "";
+    addStatus = "";
+    addError = "";
+    adding = true;
+  }
+
+  function closeAddForm() {
+    adding = false;
+    addStatus = "";
+    addError = "";
+    addName = "";
+    addUrl = "";
+  }
+
+  function addProvider() {
+    if (addBusy) return;
+    var n = (addName || "").trim();
+    var u = (addUrl || "").trim();
+    if (n === "" || u === "") {
+      addStatus = "error";
+      addError = "name and url are required";
+      addResultClear.restart();
+      return;
+    }
+    addBusy = true;
+    addStatus = "";
+    addError = "";
+    addProc.command = ["bash", Theme.mihomoScript, "--add-provider", n, u];
+    addProc.running = true;
+  }
+
+  function finishAdd(text) {
+    addBusy = false;
+    var ok = false, err = "";
+    try {
+      var o = JSON.parse(text.trim());
+      ok = !!o.ok;
+      err = o.error || "";
+    } catch (e) { ok = false; }
+    if (ok) {
+      addStatus = "ok";
+      addError = "";
+      addName = "";
+      addUrl = "";
+      refreshProviders();
+      refreshStatus();
+      addSettle.restart();   // let the reload land, then re-read everything
+      addCloseOk.restart();  // …and close the form once the check has shown
+    } else {
+      addStatus = "error";
+      addError = err !== "" ? err : "could not add provider";
+      addResultClear.restart();
+    }
+  }
+
   function toggleService() {
     if (toggling) return;
     toggling = true;
@@ -285,6 +354,31 @@ Singleton {
     id: updateResultClear
     interval: 2500
     onTriggered: svc.updateStatus = ""
+  }
+
+  // ---- add a provider: fetch + save + register + reload -------------------
+  Process {
+    id: addProc
+    stdout: StdioCollector { onStreamFinished: svc.finishAdd(this.text) }
+    onExited: svc.addBusy = false
+  }
+
+  Timer {
+    id: addSettle
+    interval: 900
+    onTriggered: svc.refreshAll()
+  }
+
+  Timer {
+    id: addCloseOk
+    interval: 900
+    onTriggered: svc.closeAddForm()
+  }
+
+  Timer {
+    id: addResultClear
+    interval: 2500
+    onTriggered: svc.addStatus = ""
   }
 
   // ---- start / stop the service -------------------------------------------

@@ -56,7 +56,7 @@ Quickshell следит только за уже загруженными фай
 | `custom/brightness` (hyprsunset)  | `Brightness.qml`         | poll 2s, клик-toggle, скролл ±5%                            |
 | `pulseaudio` (Pipewire)           | `Audio.qml`              | muted U+EEE8 red, headphone U+F025, max-volume 150, клик mute |
 | `network`                         | `Network.qml` + `network.sh` | wifi U+F1EB, ethernet скрыт, "Disconnected"             |
-| `custom/vpn` (mihomo)             | `Mihomo.qml` + `MihomoPopup.qml` | щит + VPN, попап: вкладки providers/servers, current server, update/ping, шестерёнка (конфиг mihomo) и троеточие (файл провайдера); `Vpn.qml` оставлен на диске |
+| `custom/vpn` (mihomo)             | `Mihomo.qml` + `MihomoPopup.qml` | щит + VPN, попап: вкладки providers/servers, current server, ADD/update/ping, шестерёнка (конфиг mihomo) и троеточие (файл провайдера); `Vpn.qml` оставлен на диске |
 | `battery` (sysfs)                 | `Battery.qml` + `battery.sh` | warning <=30, critical <=15, charging/plugged иконки     |
 | `hyprland/language`               | `Language.qml`           | "US"/"RU" по activelayout, margin-right 20                  |
 
@@ -92,8 +92,15 @@ scripts/mihomo.sh   все REST-запросы к mihomo (JSON на выходе
 показывает пинг с маркером выбранного; подвал — live-трафик ↓/↑ и суммы
 сессии (строки подписаны `SPEED:` и `TRAFFIC:`, значения по общему краю).
 
-Кнопка **UPDATE** только на вкладке `PROVIDERS` (перекачивает все
-proxy-provider'ы по их URL и перечитывает состояние); кнопка **PING**
+Кнопка **ADD** + **UPDATE** на вкладке `PROVIDERS`: **ADD** открывает форму
+«PROVIDER NAME» + «SUBSCRIPTION URL» (фокус сразу в поле, Enter из имени
+переходит в URL, Enter в URL или **SAVE** отправляет, Escape или **CANCEL**
+закрывает; при ошибке под формой красная строка). Добавление скачивает
+подписку (`scripts/mihomo.sh --add-provider`), сохраняет её в
+`~/.config/mihomo/providers/<name>.yaml`, прописывает в `config.yaml`
+(proxy-providers + `use:` в группе) и перезагружает mihomo; при сбое конфиг
+откатывается из бэкапа. **UPDATE** перекачивает все
+proxy-provider'ы по их URL и перечитывает состояние; кнопка **PING**
 (healthcheck) только на вкладке `SERVERS`. Обе показывают спиннер, затем
 на ~2.5 с — галочку (успех) или крестик (ошибка), и только после этого
 возвращаются к подписи. При ошибке обновления `scripts/mihomo.sh --update`
