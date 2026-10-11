@@ -1,0 +1,50 @@
+# config.template.yaml
+#
+# This is the template for ~/.config/mihomo/config.yaml. Do NOT edit
+# config.yaml directly — it is generated from this file plus
+# subscriptions.json by `vpn --render` (called automatically by
+# `vpn --update` and by the mihomo widget's UPDATE button).
+#
+# To add, remove or change a provider: edit subscriptions.json. The
+# proxy-providers block and the group's `use:` list are filled in from there.
+
+mixed-port: 7890
+allow-lan: true
+mode: rule
+log-level: info
+ipv6: false
+external-controller: 127.0.0.1:9090
+
+tun:
+  enable: true
+  stack: gvisor
+  auto-route: true
+  auto-detect-interface: true
+  dns-hijack:
+    - "any:53"
+
+dns:
+  enable: true
+  listen: 0.0.0.0:53
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  nameserver:
+    - 1.1.1.1
+    - 8.8.8.8
+  fallback:
+    - https://dns.google/dns-query
+
+# PROVIDERS is replaced with one block per subscription from
+# subscriptions.json, each declared as `type: file` pointing at the yaml file
+# the downloader writes. mihomo never fetches: the downloader does.
+proxy-providers:
+{{PROVIDERS}}
+
+proxy-groups:
+  - name: "Proxies"
+    type: select
+    use:
+{{PROVIDER_NAMES}}
+
+rules:
+  - MATCH,Proxies
