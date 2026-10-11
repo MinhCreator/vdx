@@ -55,8 +55,8 @@ Quickshell следит только за уже загруженными фай
 | `clock`                           | `Clock.qml`              | HH:MM, alt-формат по клику, 1s                              |
 | `custom/brightness` (hyprsunset)  | `Brightness.qml`         | poll 2s, клик-toggle, скролл ±5%                            |
 | `pulseaudio` (Pipewire)           | `Audio.qml`              | muted U+EEE8 red, headphone U+F025, max-volume 150, клик mute |
-| `network`                         | `Network.qml` + `network.sh` | wifi U+F1EB, ethernet скрыт, "Disconnected"             |
-| `custom/vpn` (mihomo)             | `Mihomo.qml` + `MihomoPopup.qml` | щит + VPN, попап: вкладки providers/servers, current server, ADD/update/ping, шестерёнка (конфиг mihomo) и троеточие (файл провайдера); `Vpn.qml` оставлен на диске |
+| `network`                         | `Wifi.qml` + `WifiService.qml` + `wifi.sh` | wifi U+F1EB, "Disconnected", ethernet скрыт; попап: switch, info, DNS, сети, пароль, QR, speedtest |
+| `custom/vpn` (mihomo)             | `Mihomo.qml` + `MihomoPopup.qml` + `MihomoService.qml` | щит + VPN, попап: вкладки providers/servers, current server, ADD/update/ping, шестерёнка (конфиг mihomo) и троеточие (файл провайдера) |
 | `battery` (sysfs)                 | `Battery.qml` + `battery.sh` | warning <=30, critical <=15, charging/plugged иконки     |
 | `hyprland/language`               | `Language.qml`           | "US"/"RU" по activelayout, margin-right 20                  |
 
@@ -73,11 +73,13 @@ Quickshell следит только за уже загруженными фай
 разделители и вторичный текст `dim`, выбранное — `foreground0`.
 
 ```
-Mihomo.qml          бар-элемент + PopupWindow (позиция, показ/скрытие)
+Mihomo.qml          бар-элемент + BarPopup (позиция, показ/скрытие)
 MihomoPopup.qml     содержимое попапа (рамка, вкладки, списки, трафик)
+MihomoService.qml   синглтон: состояние + вызовы scripts/mihomo.sh
 PopupButton.qml     квадратная кнопка (глиф или подпись)
 PopupSwitch.qml     квадратный свитч вкл/выкл (ползунок влево-вправо)
-MihomoService.qml   синглтон: состояние + вызовы scripts/mihomo.sh
+PopupInput.qml      квадратное текстовое поле (форма ADD)
+PopupSeparator.qml  разделитель попапа (2px, dim)
 scripts/mihomo.sh   все REST-запросы к mihomo (JSON на выходе) + пути конфигов
 ```
 
@@ -88,7 +90,7 @@ scripts/mihomo.sh   все REST-запросы к mihomo (JSON на выходе
 Заголовок: щит, «MIHOMO», статус подключения
 (`connected`/`disconnected`) и справа шестерёнка + свитч вкл/выкл. На
 вкладке `SERVERS` сверху закреплён текущий выбранный сервер
-(«CURRENT SERVER»); список ниже прокручивается (`mihomoVisibleRows`) и
+(«CURRENT SERVER»); список ниже прокручивается (`Theme.visibleRows`) и
 показывает пинг с маркером выбранного; подвал — live-трафик ↓/↑ и суммы
 сессии (строки подписаны `SPEED:` и `TRAFFIC:`, значения по общему краю).
 
@@ -123,12 +125,14 @@ proxy-provider'ы по их URL и перечитывает состояние; 
   `Theme.mihomoGroup` ("Proxies"), иначе берётся первый не-GLOBAL
   Selector/URLTest/Fallback/LoadBalance.
 
-Попап — `PopupWindow` поверх панели. Панель — layer-shell поверхность,
-она не может нести grabbing xdg_popup, поэтому `grabFocus` не
-используется: клик-снаружи закрывает через `HyprlandFocusGrab`
-(`hyprland_focus_grab_v1`). Позиция считается в `onAnchoring` через
-`mapToItem` (не реактивно; ширина подписи досчитывается асинхронно из-за
-emoji-фолбэков, поэтому якорь ещё обновляется по `onImplicitWidthChanged`).
+Попап — `PopupWindow` поверх панели, обёрнутый в `BarPopup` (общий хром:
+якорь, регистрация в `PopupManager`, focus-grab, `closedAt`; см.
+`PLUGIN_STYLE.md`). Панель — layer-shell поверхность, поэтому клик-снаружи
+закрывает через `HyprlandFocusGrab` (`hyprland_focus_grab_v1`), а
+`grabFocus: true` нужен, чтобы текстовые поля внутри попапа получали
+клавиатуру. Позиция считается в `onAnchoring` через `mapToItem` (не
+реактивно; ширина подписи досчитывается асинхронно из-за emoji-фолбэков,
+поэтому якорь ещё обновляется по `onImplicitWidthChanged`).
 
 ## Отличия от waybar
 
@@ -138,8 +142,10 @@ emoji-фолбэков, поэтому якорь ещё обновляется 
 - **Звук** — Pipewire (`Pipewire.defaultAudioSink`) вместо pulseaudio;
   активный порт (наушники) определяется через `sink_port.sh` (`pactl`),
   потому что сервис Pipewire в Quickshell его не отдаёт напрямую.
-- **Сеть** — маленький `network.sh` на `nmcli` вместо встроенного модуля
-  (та же семантика вывода текста: wifi-иконка + ESSID, ethernet скрыт).
+- **Сеть** — маленький `wifi.sh` на `nmcli` вместо встроенного модуля
+  (та же семантика текста в баре: wifi-иконка + ESSID или "Disconnected",
+  ethernet скрыт); попап `WifiPopup.qml` добавляет info/DNS/сети/пароль/
+  QR/speedtest, состояние живёт в `WifiService.qml`.
 - **Батарея** — `battery.sh` повторяет sysfs-логику waybar (capacity из
   charge/energy_now, "Plugged" при онлайн-адаптере, "Full" при 100%);
   выводит JSON `{"text","class"}`, класс выбирает цвет
@@ -148,7 +154,7 @@ emoji-фолбэков, поэтому якорь ещё обновляется 
   обновляется по событию `activelayout`; полное имя xkb ("English (US)",
   "Russian") мапится в `format-en`/`format-ru`, как в
   `waybar/src/modules/hyprland/language.cpp` (short_description).
-- Скрипты media/vpn/brightness/network/battery/sink_port/mihomo
+- Скрипты media/brightness/wifi/battery/sink_port/mihomo
   продублированы: пакет самодостаточен
   (`~/.config/quickshell/scripts/`).
 - Тултипов нет нигде (в waybar у всех модулей `tooltip: false`).

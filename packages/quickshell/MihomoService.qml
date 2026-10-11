@@ -63,30 +63,8 @@ Singleton {
   }
 
   // ---- helpers ------------------------------------------------------------
-  // "🇫🇮 #1 Финляндия | Антиглушилка" -> "🇫🇮 Финляндия"
-  function countryOf(name) {
-    if (!name) return ""
-    var s = name.split("|")[0].trim();
-    return s.replace(/#\d+\s*/, "").trim();
-  }
-
   function barLabel() {
     return Theme.iconMihomo + " VPN";
-  }
-
-  function humanRate(bytes) {
-    if (bytes < 1024) return Math.round(bytes) + " B/s";
-    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB/s";
-    if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + " MB/s";
-    return (bytes / 1073741824).toFixed(2) + " GB/s";
-  }
-
-  function humanSize(bytes) {
-    if (bytes < 1024) return Math.round(bytes) + " B";
-    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
-    if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + " MB";
-    if (bytes < 1099511627776) return (bytes / 1073741824).toFixed(2) + " GB";
-    return (bytes / 1099511627776).toFixed(2) + " TB";
   }
 
   // ---- actions ------------------------------------------------------------

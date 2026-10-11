@@ -109,7 +109,7 @@ Item {
 
           PopupButton {
             glyph: root.svc.view === "speedtest" ? Theme.iconHome : Theme.iconSpeedtest
-            glyphSize: Theme.fontSize + 6
+            glyphSize: Theme.fontSize + 4
             tint: root.svc.connected || root.svc.view === "speedtest"
                   ? Theme.foreground0 : Theme.muted
             frameless: true
@@ -122,7 +122,7 @@ Item {
 
           PopupButton {
             glyph: root.svc.view === "qr" ? Theme.iconHome : Theme.iconQr
-            glyphSize: Theme.fontSize + 6
+            glyphSize: Theme.fontSize + 2
             tint: root.svc.connected || root.svc.view === "qr"
                   ? Theme.foreground0 : Theme.muted
             frameless: true

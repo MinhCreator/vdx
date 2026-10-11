@@ -88,7 +88,7 @@ QtObject {
   readonly property string ellipsis: "\u2026"
   readonly property string iconWifi: "\uF1EB"
   readonly property string iconLock: "\uF023"
-  readonly property string iconQr: "\uDB81\uDC32"       // nf-md-qrcode
+  readonly property string iconQr: "\udb81\udc33"       // nf-md-qrcode
   readonly property string iconSpeedtest: "\uDB81\uDCC5" // nf-md-speedometer
   readonly property string iconHome: "\uF015"            // nf-fa-home
 

@@ -1,5 +1,4 @@
 import QtQuick
-import Quickshell
 import Quickshell.Io
 
 // custom/brightness (gruvbox): JSON exec every 2s, color foreground0
@@ -43,16 +42,15 @@ Item {
   }
 
   // Apply the accumulated wheel delta and re-read the value from the same
-  // command, so the label reflects the change as soon as it is applied.
+  // command, so the label reflects the change as soon as it is applied. The
+  // step (and its sign) is handed to the script, which runs `brightnessctl`
+  // and prints fresh JSON.
   function runStep() {
     if (root.stepRunning || root.pendingStep === 0)
       return
     const s = root.pendingStep
     root.pendingStep = 0
-    const arg = s > 0 ? "+" + s + "%" : (-s) + "%-"
-    stepProc.command = ["bash", "-c",
-      'brightnessctl set "$1" >/dev/null && exec bash "$2"',
-      "brightness", arg, Theme.brightnessScript]
+    stepProc.command = ["bash", Theme.brightnessScript, "--step", (s > 0 ? "+" : "") + s]
     root.stepRunning = true
     stepProc.running = true
   }
@@ -105,7 +103,8 @@ Item {
     }
   }
 
-  // Scroll: `brightnessctl set` + the script in one command.
+  // Scroll: one `--step` call per accumulated delta (script runs brightnessctl
+  // and prints fresh JSON).
   Process {
     id: stepProc
     stdout: StdioCollector {
