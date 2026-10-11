@@ -33,7 +33,7 @@ Item {
 
   Process {
     id: mediaProc
-    command: ["bash", Theme.mediaToggleScript, "--listen"]
+    command: ["bash", Theme.mediaScript, "--listen"]
     running: true
 
     stdout: SplitParser {
@@ -70,7 +70,7 @@ Item {
       if (mouse.button === Qt.RightButton)
         Quickshell.execDetached(["kitty", "--class", "ncmpcpp", "-e", "ncmpcpp"])
       else
-        Quickshell.execDetached(["bash", Theme.mediaToggleScript, "--toggle"])
+        Quickshell.execDetached(["bash", Theme.mediaScript, "--toggle"])
     }
   }
 }

@@ -1,5 +1,4 @@
 import QtQuick
-import Quickshell
 import Quickshell.Hyprland
 
 // hyprland/workspaces (mirrors waybar's module exactly):

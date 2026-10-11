@@ -1,5 +1,4 @@
 import QtQuick
-import Quickshell
 
 // clock (gruvbox): format {:%H:%M}, alt {:%A, %d %B %Y %H:%M:%S},
 // on-click "mode", refresh 1s, color gray (clock.css)
@@ -8,7 +7,7 @@ Item {
   id: root
 
   property bool showAlt: false
-  property var now: new Date()
+  property date now: new Date()
 
   // waybar uses the process locale for strftime; the environment is en_US.UTF-8,
   // so pin the month/day names to en_US for a 1:1 alt format.

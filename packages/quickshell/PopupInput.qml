@@ -1,10 +1,11 @@
 import QtQuick
 
 // Square text field for the popup chrome — rofi-style: 1px frame, no radius.
-// A dim UPPERCASE label sits above the field; the frame uses `frame` at rest,
-// `dim` on hover and `foreground0` while the field holds keyboard focus.
-// Typing happens in the inner TextInput, exposed as `input` so the owner can
-// hand it focus (and read `activeFocus`); the label/placeholder live here.
+// A dim UPPERCASE label sits above the field; the frame uses `muted` at rest,
+// brightens to `foreground1` on hover and `foreground0` while the field holds
+// keyboard focus. Typing happens in the inner TextInput, exposed as `input` so
+// the owner can hand it focus (and read `activeFocus`); the label/placeholder
+// live here.
 Item {
   id: root
 
@@ -42,7 +43,8 @@ Item {
     color: Theme.background0
     border.width: 1
     border.color: input.activeFocus ? Theme.foreground0
-                : root.hovered ? Theme.dim : Theme.frame
+                : root.hovered ? Theme.foreground1
+                : Theme.muted
 
     TextInput {
       id: input

@@ -25,7 +25,7 @@ Item {
   readonly property int percent: Math.min(Theme.audioMaxPercent, Math.round(root.volume * 100))
 
   // waybar default icons: idx = clamp(percent / (100 / 3), 0, 2)
-  readonly property int iconIndex: Math.min(2, Math.floor(root.percent / 33))
+  readonly property int iconIndex: Math.min(2, Math.floor(root.percent * 3 / 100))
   readonly property string defaultIcon: [Theme.iconVolumeOff, Theme.iconVolumeLow, Theme.iconVolumeHigh][root.iconIndex]
 
   property bool headphones: false
@@ -81,10 +81,12 @@ Item {
     //   scroll-step 5 · max-volume 150 (limit 1.5)
     onWheel: (wheel) => {
       const delta = wheel.angleDelta.y
+      const step = Theme.audioScrollStep + "%"
+      const limit = (Theme.audioMaxPercent / 100).toString()
       if (delta > 0)
-        Quickshell.execDetached(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", "5%+"])
+        Quickshell.execDetached(["wpctl", "set-volume", "-l", limit, "@DEFAULT_AUDIO_SINK@", step + "+"])
       else if (delta < 0)
-        Quickshell.execDetached(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", "5%-"])
+        Quickshell.execDetached(["wpctl", "set-volume", "-l", limit, "@DEFAULT_AUDIO_SINK@", step + "-"])
       wheel.accepted = true
     }
   }

@@ -1,5 +1,4 @@
 import QtQuick
-import Quickshell
 
 // custom/separator: "|", margin 8px each side, color gray (separator.css)
 

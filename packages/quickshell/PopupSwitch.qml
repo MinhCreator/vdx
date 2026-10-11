@@ -25,7 +25,7 @@ Item {
     border.width: 1
     border.color: root.hovered
       ? (root.checked ? root.onColor : root.offColor)
-      : Theme.frame
+      : Theme.muted
 
     Rectangle {
       id: knob

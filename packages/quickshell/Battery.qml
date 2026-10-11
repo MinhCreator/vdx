@@ -1,5 +1,4 @@
 import QtQuick
-import Quickshell
 import Quickshell.Io
 
 // battery (packages/waybar/modules/battery.jsonc + styles/battery.css):
@@ -16,10 +15,10 @@ Item {
   id: root
 
   property string text: ""
-  property string state: ""
+  property string stateClass: ""
 
   readonly property color labelColor: {
-    switch (root.state) {
+    switch (root.stateClass) {
       case "charging": return Theme.green
       case "critical": return Theme.red
       case "warning":  return Theme.yellow
@@ -50,10 +49,10 @@ Item {
         try {
           const obj = JSON.parse(this.text.trim())
           root.text = obj.text !== undefined ? obj.text : ""
-          root.state = obj.class !== undefined ? obj.class : ""
+          root.stateClass = obj.class !== undefined ? obj.class : ""
         } catch (e) {
           root.text = ""
-          root.state = ""
+          root.stateClass = ""
         }
       }
     }

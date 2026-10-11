@@ -1,41 +1,21 @@
 #!/usr/bin/env bash
 #
-# media.sh — waybar media widget for MPD (local music + internet radio)
+# media.sh — the bar's media widget for MPD (local music + internet radio).
 #
-# MPD holds a single shared queue. This script never tracks state itself —
-# it infers what's currently loaded by inspecting the queue on every call
-# and comparing it against stations.json. One fact, one place to check it.
+# MPD holds a single shared queue; this script never tracks state itself — it
+# infers the mode by inspecting the queue and comparing it against
+# stations.json. One fact, one place to check it.
 #
-# Modes:
-#   music — queue holds a local track
-#   radio — queue holds a known radio stream (stations.json)
-#   off   — MPD is unreachable, or the queue is empty
-#
-# Read-only widgets (JSON, wired to waybar `exec`):
-#   -j, --title-json          now-playing text
-#   --bracket-open-json       "["  — visible whenever mode != off
-#   --bracket-close-json      "]"  — visible whenever mode != off
-#   --prev-json               "prev" — visible only in music mode
-#   --next-json               "next" — visible only in music mode
-#   --status-json             play/pause icon — visible whenever mode != off
-#   --kill-json               "kill" — visible whenever mode != off
-#   --listen                  long-running mode for waybar `exec` (no polling):
-#                             emits one JSON line per MPD event via `mpc idle`
-#
-# Actions (wired to waybar `on-click`):
-#   -p, --prev                mpc prev
-#   -n, --next                mpc next
-#   -t, --toggle              mpc toggle
-#   -k, --kill                stop + clear queue
-#   -o, --open                open ncmpcpp if not already running
+#   --listen   long-running mode for the bar: emits one {"text","class"} line
+#              per MPD event via `mpc idle` (re-polls every 2s while MPD is down)
+#   --toggle   mpc toggle (wired to the module's on-click)
+
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
 
-readonly PLAYER_COMMAND="kitty --class ncmpcpp -e ncmpcpp"
 readonly STATIONS_FILE="$HOME/.config/scripts/radio/stations.json"
-readonly ICON_PLAYING=""
-readonly ICON_PAUSED=""
 
 # ---------------------------------------------------------------------------
 # MPD queries — raw facts, no interpretation.
@@ -73,7 +53,7 @@ is_station_file() {
 }
 
 # ---------------------------------------------------------------------------
-# Mode resolution — single source of truth every widget reads from.
+# Mode resolution — single source of truth for the label.
 # ---------------------------------------------------------------------------
 
 current_mode() {
@@ -88,25 +68,8 @@ current_mode() {
     fi
 }
 
-playback_class() {
-    mpd_playing && echo "playing" || echo "paused"
-}
-
 # ---------------------------------------------------------------------------
-# JSON output — shared shape for every waybar custom-module.
-# ---------------------------------------------------------------------------
-
-emit() {
-    local text="$1" class="$2"
-    jq -nc --arg text "$text" --arg class "$class" '{text: $text, class: $class}'
-}
-
-emit_hidden() {
-    emit "" "$1"
-}
-
-# ---------------------------------------------------------------------------
-# Widgets — one function per waybar module, each reads current_mode() fresh.
+# Title widget — the only output the bar renders.
 # ---------------------------------------------------------------------------
 
 widget_title() {
@@ -114,49 +77,20 @@ widget_title() {
 
     case "$mode" in
         off)
-            emit "$(mpd_available && echo "No media" || echo "MPD dead")" "off"
+            emit_json "$(mpd_available && echo "No media" || echo "MPD dead")" "off"
             ;;
         radio)
             local name; name="$(station_name_for "$(current_file)")"
-            emit "Station - ${name:-Unknown}" "$(playback_class)"
+            emit_json "Station - ${name:-Unknown}" "$mode"
             ;;
         music)
-            local icon; icon=$(mpd_playing && echo "$ICON_PLAYING" || echo "$ICON_PAUSED")
-            emit "$icon $(current_track_label)" "$(playback_class)"
+            emit_json "$(current_track_label)" "$mode"
             ;;
     esac
 }
 
-# Brackets stand alone — visible whenever anything is loaded, regardless
-# of which inner buttons happen to be shown.
-widget_bracket() {
-    local glyph="$1" mode; mode="$(current_mode)"
-    [[ "$mode" == "off" ]] && { emit_hidden "off"; return; }
-    emit "$glyph" "$mode"
-}
-
-# Track navigation only makes sense for a local playlist.
-widget_track_nav() {
-    local label="$1" mode; mode="$(current_mode)"
-    [[ "$mode" == "music" ]] || { emit_hidden "$mode"; return; }
-    emit "$label" "$mode"
-}
-
-widget_toggle() {
-    local mode; mode="$(current_mode)"
-    [[ "$mode" == "off" ]] && { emit_hidden "off"; return; }
-    emit "$(mpd_playing && echo "pause" || echo "play")" "$mode"
-}
-
-widget_kill() {
-    local mode; mode="$(current_mode)"
-    [[ "$mode" == "off" ]] && { emit_hidden "off"; return; }
-    emit "kill" "$mode"
-}
-
-# Continuous mode: keep the process alive and emit only on MPD events,
-# so waybar doesn't re-run the script (and spawn mpc) every second.
-# Blocks on `mpc idle` between updates; re-polls every 2s while MPD is down.
+# Continuous mode: emit one JSON line per MPD event so the bar doesn't re-run
+# the script (and spawn mpc) every second.
 widget_listen() {
     local prev=""
     while true; do
@@ -173,46 +107,14 @@ widget_listen() {
 }
 
 # ---------------------------------------------------------------------------
-# Actions — the only functions allowed to mutate MPD state.
-# ---------------------------------------------------------------------------
-
-action_prev()   { mpc prev >/dev/null; }
-action_next()   { mpc next >/dev/null; }
-action_toggle() { mpc toggle >/dev/null; }
-
-action_kill() {
-    mpc stop >/dev/null
-    mpc clear >/dev/null
-}
-
-action_open_player() {
-    process_is_running "ncmpcpp" || eval "$PLAYER_COMMAND"
-}
-
-# ---------------------------------------------------------------------------
 # CLI dispatch
 # ---------------------------------------------------------------------------
 
-main() {
-    case "${1:-}" in
-        -j|--title-json)      widget_title ;;
-        --bracket-open-json)  widget_bracket "[" ;;
-        --bracket-close-json) widget_bracket "]" ;;
-        --prev-json)          widget_track_nav "prev" ;;
-        --next-json)          widget_track_nav "next" ;;
-        --status-json)        widget_toggle ;;
-        --kill-json)          widget_kill ;;
-        --listen)             widget_listen ;;
-        -p|--prev)            action_prev ;;
-        -n|--next)             action_next ;;
-        -t|--toggle)           action_toggle ;;
-        -k|--kill)              action_kill ;;
-        -o|--open)               action_open_player ;;
-        *)
-            log_error "Unknown command: ${1:-}"
-            exit 1
-            ;;
-    esac
-}
-
-main "$@"
+case "${1:-}" in
+    --listen) widget_listen ;;
+    --toggle) mpc toggle >/dev/null ;;
+    *)
+        log_error "Unknown command: ${1:-}"
+        exit 1
+        ;;
+esac

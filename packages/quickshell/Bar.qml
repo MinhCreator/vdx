@@ -1,8 +1,9 @@
 import QtQuick
 import Quickshell
 
-// One top bar per screen (background: #202020, height 34).
-// Left / center / right — same module order as waybar's 00-global.jsonc.
+// One top bar per screen (background: Theme.background0, height 34).
+// Left / center / right — same module order and spacing (2px) as waybar's
+// 00-global.jsonc, so the bar is a true 1:1 mirror.
 
 PanelWindow {
   id: root
@@ -35,12 +36,8 @@ PanelWindow {
     Media {}
   }
 
-  Row {
-    id: center
+  Clock {
     anchors.centerIn: parent
-    spacing: Theme.moduleSpacing
-
-    Clock {}
   }
 
   Row {
@@ -49,13 +46,13 @@ PanelWindow {
       right: parent.right
       verticalCenter: parent.verticalCenter
     }
-    spacing: Theme.moduleSpacing + Theme.rightGroupSpacingExtra
+    spacing: Theme.moduleSpacing
 
     Brightness {}
     Separator {}
     Audio {}
     Separator {}
-    Network {}
+    Wifi { bar: root }
     Separator {}
     Mihomo { bar: root }
     Separator {}
