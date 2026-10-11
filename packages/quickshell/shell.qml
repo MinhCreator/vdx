@@ -8,7 +8,7 @@ import Quickshell.Io
 //   height 34, spacing 2, background #202020,
 //   left  = workspaces | separator | media
 //   center = clock
-//   right = brightness | sep | audio | sep | network | sep | vpn | sep | battery | sep | language
+//   right = brightness | sep | audio | sep | wifi | sep | mihomo | sep | battery | sep | language
 
 Scope {
   Variants {

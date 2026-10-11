@@ -2,32 +2,16 @@
 #
 # mihomo.sh — backend for the Quickshell mihomo widget.
 #
-# The single place that talks to mihomo's external controller (REST). It only
-# prints JSON for MihomoService.qml; mihomo itself stays the source of truth
-# (no state is kept here), the same way the other quickshell scripts work.
+# Thin layer between the widget and the two things it needs to talk to:
+#   * the subscription manager (manager.py under packages/scripts/vpn/),
+#     which owns subscriptions.json, downloads every subscription and renders
+#     config.yaml from config.template.yaml. It is the ONLY writer of
+#     config.yaml.
+#   * mihomo's REST API — status, node switching, health checks, reload.
 #
-# Read-only:
-#   --status             {"service","mode","group","node","provider","delay"}
-#                        (delay = last measured ping of the active node, ms)
-#   --providers          [{"name","nodes"}]
-#   --nodes <provider>   [{"name","alive","delay"}]   (delay = last measured, ms)
-#   --traffic            stream: {"up","down","upTotal","downTotal"} once a second
-# Actions:
-#   --select <node>      make <node> the active server of the policy group
-#   --ping <provider>    health-check every node of <provider>
-#                        prints {"ok":true,"alive":N} or {"ok":false,"error":…}
-#   --update             re-download every proxy-provider, then verify
-#   --toggle             start/stop mihomo.service
-#   --add-provider <name> <url>
-#                        fetch <url> as a Clash proxy-provider, save it to
-#                        $MIHOMO_DIR/providers/<name>.yaml, register it in
-#                        config.yaml (proxy-providers + the policy group's
-#                        `use:`) and reload mihomo
-#   --update/--add-provider print {"ok":true,…} or {"ok":false,"error":…}; on
-#   failure --update also appends a line to $MIHOMO_DIR/update.log.
-# Paths (for the popup's "open config" buttons):
-#   --config-path        print the path of mihomo's config.yaml
-#   --path <provider>    print the provider's own file (config.yaml as fallback)
+# config.yaml is a rendered artefact. To add, remove or change a provider,
+# edit subscriptions.json (or press SAVE in the widget, which appends to that
+# file) and let the renderer rebuild proxy-providers + the group `use:` list.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=_common.sh
@@ -38,6 +22,21 @@ SERVICE="${MIHOMO_SERVICE:-mihomo.service}"
 GROUP="${MIHOMO_GROUP:-Proxies}"
 TIMEOUT="${MIHOMO_TIMEOUT:-3}"
 MIHOMO_DIR="${MIHOMO_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/mihomo}"
+
+# The subscription manager. A Python script under the dotfiles; run with `uv`
+# so it resolves its inline `requests` dependency on the fly. Not a shell
+# script, not a symlink, not an alias — just a file path.
+VPN_MANAGER="${VPN_MANAGER:-$HOME/.dotfiles/packages/scripts/vpn/manager.py}"
+SUBS_JSON="${SUBS_JSON:-$MIHOMO_DIR/subscriptions.json}"
+
+# Single entry point. Everything that needs the manager goes through here.
+vpn() {
+    uv run --quiet "$VPN_MANAGER" "$@"
+}
+
+vpn_available() {
+    [[ -f "$VPN_MANAGER" ]] && command -v uv >/dev/null 2>&1
+}
 
 # curl that never trips `set -e` (the controller may legitimately be down).
 api() { curl -sf --max-time "$TIMEOUT" "$API$1" 2>/dev/null || true; }
@@ -67,14 +66,13 @@ cmd_status() {
     if [[ -n "$group" ]]; then
         node="$(api "/proxies/$group" | jq -r '.now // ""' 2>/dev/null || true)"
     fi
-    # /proxies carries both provider-name and the node's ping history; reading
-    # it once avoids URL-encoding the (unicode) node name.
+    # /proxies carries both the provider-name and the node's ping history;
+    # reading it once avoids URL-encoding the (unicode) node name.
     proxies="$(api /proxies)"
     if [[ -n "$node" ]]; then
         provider="$(printf '%s' "$proxies" | jq -r --arg n "$node" '.proxies[$n]["provider-name"] // ""' 2>/dev/null || true)"
         delay="$(printf '%s' "$proxies" | jq -r --arg n "$node" '((.proxies[$n].history // []) | last | .delay) // 0' 2>/dev/null || true)"
     fi
-    # the active node's last measured ping (0 / empty -> no data yet)
     [[ -z "$delay" || ! "$delay" =~ ^[0-9]+$ ]] && delay=0
     jq -nc --arg s "$svc" --arg m "${mode:-rule}" --arg g "${group:-}" \
            --arg n "${node:-}" --arg p "${provider:-}" --argjson d "$delay" \
@@ -144,170 +142,15 @@ cmd_traffic() {
 }
 
 # Timestamped line in the mihomo directory — only written on a failed update,
-# so the folder keeps the most recent failure for diagnosis. A failed write
-# must never abort the update itself, hence the `|| true`s.
+# so the folder keeps the most recent failure for diagnosis.
 update_log() {
     mkdir -p "$MIHOMO_DIR" 2>/dev/null || true
     printf '[%s] %s\n' "$(date '+%F %T')" "$*" \
         >> "$MIHOMO_DIR/update.log" 2>/dev/null || true
 }
 
-# Re-download every proxy-provider from its subscription URL, then confirm the
-# list actually refreshed (mihomo bumps updatedAt once the download is done).
-cmd_update() {
-    local rc=0 names name before after code i
-
-    if ! curl -sf --max-time "$TIMEOUT" "$API/version" >/dev/null 2>&1; then
-        update_log "mihomo controller unreachable at $API"
-        printf '{"ok":false,"error":"controller unreachable"}\n'
-        return 1
-    fi
-
-    names="$(api /providers/proxies | jq -r '
-        .providers | to_entries[]
-        | select(.key != "default")
-        | select(.value.vehicleType != "Compatible")
-        | .key
-    ' 2>/dev/null || true)"
-
-    if [[ -z "$names" ]]; then
-        printf '{"ok":true,"providers":0}\n'
-        return 0
-    fi
-
-    while IFS= read -r name; do
-        [[ -z "$name" ]] && continue
-        before="$(api "/providers/proxies/$name" | jq -r '.updatedAt // ""' 2>/dev/null || true)"
-
-        code="$(curl -s -o /dev/null -w '%{http_code}' \
-            --max-time "${MIHOMO_UPDATE_TIMEOUT:-30}" \
-            -X PUT "$API/providers/proxies/$name" 2>/dev/null || true)"
-        if [[ "$code" != "204" && "$code" != "200" ]]; then
-            rc=1
-            update_log "provider '$name': update request returned HTTP ${code:-000}"
-            continue
-        fi
-
-        # updatedAt moves only once the subscription was fetched successfully.
-        after="$before"
-        for i in $(seq 1 12); do
-            after="$(api "/providers/proxies/$name" | jq -r '.updatedAt // ""' 2>/dev/null || true)"
-            [[ -n "$after" && "$after" != "$before" ]] && break
-            sleep 0.5
-        done
-        if [[ -z "$after" || "$after" == "$before" ]]; then
-            rc=1
-            update_log "provider '$name': subscription did not refresh (updatedAt unchanged)"
-        fi
-    done <<< "$names"
-
-    if [[ "$rc" -ne 0 ]]; then
-        printf '{"ok":false,"error":"see update.log"}\n'
-        return 1
-    fi
-    printf '{"ok":true}\n'
-}
-
-# ---- add a provider ----------------------------------------------------------
-# A new provider has to exist in two places in config.yaml: its own
-# proxy-providers block and the policy group's `use:` list, otherwise it is
-# downloaded but never selectable. Both edits are made against a backup and
-# rolled back if either fails, so a bad insert can never leave a broken config.
-
-# Names currently declared under proxy-providers (one per line).
-provider_names() {
-    awk '
-        /^proxy-providers:[[:space:]]*$/ { inblk = 1; next }
-        inblk && /^[^[:space:]#]/        { inblk = 0 }
-        inblk && /^  [^[:space:]]/ {
-            line = $0
-            sub(/^  /, "", line)
-            sub(/:.*/, "", line)
-            print line
-        }
-    ' "$MIHOMO_DIR/config.yaml" 2>/dev/null || true
-}
-
-provider_exists() {
-    provider_names | grep -Fxq -- "${1:-}" 2>/dev/null
-}
-
-# Insert the provider's block at the end of the proxy-providers map.
-config_insert_provider() {
-    local cfg="$1" name="$2" url="$3" out="$1.add.$$"
-    if ! awk -v p="$name" -v u="$url" '
-        function block() {
-            printf "  %s:\n", p
-            printf "    type: http\n"
-            printf "    url: \"%s\"\n", u
-            printf "    interval: 3600\n"
-            printf "    path: ./providers/%s.yaml\n", p
-            printf "    health-check:\n"
-            printf "      enable: true\n"
-            printf "      interval: 600\n"
-            printf "      url: http://www.gstatic.com/generate_204\n"
-        }
-        BEGIN { inblk = 0; done = 0 }
-        {
-            if ($0 ~ /^proxy-providers:[[:space:]]*$/) { inblk = 1; print; next }
-            if (inblk && $0 ~ /^[^[:space:]#]/) {
-                if (!done) { block(); done = 1 }
-                inblk = 0
-            }
-            print
-        }
-        END { if (!done && inblk) block() }
-    ' "$cfg" > "$out"; then
-        rm -f "$out"
-        return 1
-    fi
-    cat "$out" > "$cfg"
-    rm -f "$out"
-}
-
-# Append the provider to the `use:` list of the policy group, then confirm it.
-config_group_use() {
-    local cfg="$1" name="$2" group="$3" out="$1.grp.$$"
-    if ! awk -v g="$group" -v p="$name" '
-        BEGIN { state = 0; done = 0 }
-        {
-            if (state == 0) {
-                if ($0 ~ ("^  - name:[[:space:]]*\"?" g "\"?[[:space:]]*$")) state = 1
-                print; next
-            }
-            if (state == 1) {
-                if ($0 ~ /^    use:[[:space:]]*$/) { state = 2; print; next }
-                if ($0 ~ /^  - name:/ || $0 ~ /^[^[:space:]]/) state = 0
-                print; next
-            }
-            if (state == 2) {
-                if ($0 ~ /^      -[[:space:]]/) { print; next }
-                if (!done) { printf "      - %s\n", p; done = 1 }
-                state = 0
-                print; next
-            }
-        }
-        END { if (state == 2 && !done) printf "      - %s\n", p }
-    ' "$cfg" > "$out"; then
-        rm -f "$out"
-        return 1
-    fi
-    cat "$out" > "$cfg"
-    rm -f "$out"
-
-    # confirm the group actually got the new entry
-    awk -v g="$group" -v p="$name" '
-        /^proxy-groups:[[:space:]]*$/ { top = 1; next }
-        top && /^[^[:space:]#]/ { top = 0 }
-        top && $0 ~ ("^  - name:[[:space:]]*\"?" g "\"?[[:space:]]*$") { ing = 1; next }
-        ing && /^  - name:/ { ing = 0 }
-        ing && $0 ~ ("^      -[[:space:]]*" p "[[:space:]]*$") { ok = 1 }
-        END { exit !ok }
-    ' "$cfg" 2>/dev/null
-}
-
-# Best-effort config reload. If the controller is down the edit still stands and
-# takes effect the next time mihomo starts.
+# Best-effort config reload. If the controller is down the render still stands
+# and takes effect the next time mihomo starts.
 reload_config() {
     local cfg="$1"
     curl -sf --max-time "$TIMEOUT" "$API/version" >/dev/null 2>&1 || return 0
@@ -317,9 +160,38 @@ reload_config() {
         -d "$(jq -nc --arg p "$cfg" '{path:$p}')" 2>/dev/null || true
 }
 
+# ---- update ------------------------------------------------------------------
+# Re-download every subscription through the manager, then ask mihomo to
+# reload config.yaml so it picks up the freshly written provider files and the
+# re-rendered proxy-providers block. The manager is the only thing that talks
+# to subscription URLs — mihomo uses `type: file` providers and never fetches.
+cmd_update() {
+    local out rc=0
+
+    if ! vpn_available; then
+        update_log "manager not found at $VPN_MANAGER or uv missing"
+        printf '{"ok":false,"error":"vpn manager not found"}\n'
+        return 1
+    fi
+
+    out="$(vpn --update 2>&1)" || rc=$?
+    if [[ "$rc" -ne 0 ]]; then
+        update_log "vpn --update failed: $out"
+        printf '{"ok":false,"error":"vpn --update failed"}\n'
+        return 1
+    fi
+
+    reload_config "$MIHOMO_DIR/config.yaml"
+    printf '{"ok":true}\n'
+}
+
+# ---- add a provider ----------------------------------------------------------
+# Only subscriptions.json is touched here. The renderer in manager.py rebuilds
+# config.yaml on every `--update`, so there is exactly one writer of the
+# runtime config and no chance of the two files drifting apart.
 cmd_add_provider() {
-    local name="${1:-}" url="${2:-}" cfg="$MIHOMO_DIR/config.yaml"
-    local group tmp prov code
+    local name="${1:-}" url="${2:-}"
+    local provider_path subs_tmp back_json out rc=0
 
     if [[ -z "$name" || -z "$url" ]]; then
         printf '{"ok":false,"error":"name and url required"}\n'; return 1
@@ -330,58 +202,60 @@ cmd_add_provider() {
     if [[ ! "$url" =~ ^https?:// ]]; then
         printf '{"ok":false,"error":"invalid url"}\n'; return 1
     fi
-    if [[ ! -f "$cfg" ]]; then
-        printf '{"ok":false,"error":"config.yaml not found"}\n'; return 1
+    if ! vpn_available; then
+        printf '{"ok":false,"error":"vpn manager not found"}\n'; return 1
     fi
-    if provider_exists "$name"; then
+    if ! command -v jq >/dev/null 2>&1; then
+        printf '{"ok":false,"error":"jq required"}\n'; return 1
+    fi
+
+    provider_path="$MIHOMO_DIR/providers/$name.yaml"
+
+    if [[ ! -f "$SUBS_JSON" ]]; then
+        printf '{"headers":{},"subscriptions":[]}\n' > "$SUBS_JSON"
+    fi
+
+    if jq -e --arg n "$name" '.subscriptions[] | select(.name == $n)' "$SUBS_JSON" \
+         >/dev/null 2>&1; then
         printf '{"ok":false,"error":"provider already exists"}\n'; return 1
     fi
 
-    # Fetch the subscription first: a bad url must not touch the config.
-    tmp="$(mktemp "${TMPDIR:-/tmp}/mihomo-add.XXXXXX" 2>/dev/null || true)"
-    if [[ -z "$tmp" ]]; then
+    subs_tmp="$(mktemp "${TMPDIR:-/tmp}/mihomo-subs.XXXXXX")" || {
         printf '{"ok":false,"error":"temp file"}\n'; return 1
+    }
+    if ! jq --arg n "$name" --arg u "$url" --arg p "$provider_path" '
+        .subscriptions += [{ name: $n, url: $u, path: $p, decode: false }]
+    ' "$SUBS_JSON" > "$subs_tmp"; then
+        rm -f "$subs_tmp"
+        printf '{"ok":false,"error":"could not update subscriptions.json"}\n'; return 1
     fi
-    code="$(curl -sSL -o "$tmp" -w '%{http_code}' \
-        --max-time "${MIHOMO_ADD_TIMEOUT:-30}" \
-        -A "${MIHOMO_UA:-ClashMeta/1.19.0}" "$url" 2>/dev/null || true)"
-    if [[ "$code" != "200" ]]; then
-        rm -f "$tmp"
-        printf '{"ok":false,"error":"download HTTP %s"}\n' "${code:-000}"; return 1
-    fi
-    if [[ ! -s "$tmp" ]] || ! grep -qE '^[[:space:]]*proxies:' "$tmp" 2>/dev/null; then
-        rm -f "$tmp"
-        printf '{"ok":false,"error":"not a Clash subscription"}\n'; return 1
-    fi
+    back_json="$(mktemp "${TMPDIR:-/tmp}/mihomo-subs-bak.XXXXXX")" || {
+        rm -f "$subs_tmp"
+        printf '{"ok":false,"error":"temp file"}\n'; return 1
+    }
+    cp -f "$SUBS_JSON" "$back_json"
+    cat "$subs_tmp" > "$SUBS_JSON"
+    rm -f "$subs_tmp"
 
-    group="$(group_name)"
-    [[ -z "$group" ]] && group="$GROUP"
-
-    cp -f "$cfg" "$cfg.bak"
-
-    if ! config_insert_provider "$cfg" "$name" "$url" || ! provider_exists "$name"; then
-        cat "$cfg.bak" > "$cfg"; rm -f "$tmp"
-        printf '{"ok":false,"error":"could not add to config"}\n'; return 1
+    # The manager downloads the new subscription and re-renders config.yaml.
+    # Roll subscriptions.json back on failure so a bad URL does not leave a
+    # broken entry behind.
+    out="$(vpn --update 2>&1)" || rc=$?
+    if [[ "$rc" -ne 0 ]]; then
+        cp -f "$back_json" "$SUBS_JSON"
+        rm -f "$back_json"
+        update_log "add-provider '$name': vpn --update failed: $out"
+        printf '{"ok":false,"error":"vpn --update failed"}\n'; return 1
     fi
-    if ! config_group_use "$cfg" "$name" "$group"; then
-        cat "$cfg.bak" > "$cfg"; rm -f "$tmp"
-        printf '{"ok":false,"error":"group \\"%s\\" not found"}\n' "$group"; return 1
-    fi
+    rm -f "$back_json"
 
-    mkdir -p "$MIHOMO_DIR/providers" 2>/dev/null || true
-    prov="$MIHOMO_DIR/providers/$name.yaml"
-    if ! cp -f "$tmp" "$prov"; then
-        cat "$cfg.bak" > "$cfg"; rm -f "$tmp"
-        printf '{"ok":false,"error":"could not save provider"}\n'; return 1
-    fi
-    rm -f "$tmp"
-
-    reload_config "$cfg"
+    reload_config "$MIHOMO_DIR/config.yaml"
     printf '{"ok":true,"name":%s}\n' "$(jq -nc --arg n "$name" '$n')"
 }
 
-# The provider's file: honour an explicit `path:` in its proxy-providers block
-# (relative paths resolve against MIHOMO_DIR), else the default layout.
+# ---- provider file / config path --------------------------------------------
+# The renderer writes absolute paths into config.yaml (see manager.py), so the
+# lookup is a straight read of `path:` out of the rendered file.
 provider_file() {
     local provider="$1" rel
     rel="$(awk -v p="$provider" '
@@ -394,7 +268,7 @@ provider_file() {
         }
     ' "$MIHOMO_DIR/config.yaml" 2>/dev/null || true)"
     if [[ -z "$rel" ]]; then
-        rel="providers/$provider.yaml"
+        rel="$MIHOMO_DIR/providers/$provider.yaml"
     fi
     if [[ "$rel" != /* ]]; then
         printf '%s\n' "$MIHOMO_DIR/${rel#./}"
