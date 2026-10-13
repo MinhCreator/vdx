@@ -111,6 +111,14 @@ QtObject {
   readonly property string iconBell: "\udb80\udc9a"            // nf-md-bell
   readonly property string iconClearAll: "\udb83\udc79"        // nf-md-notification_clear_all
   readonly property string iconRobot: "\udb81\udea9"           // nf-md-robot
+  readonly property string iconDrag: "\udb80\udddd"            // nf-md-drag
+  readonly property string iconPuzzle: "\udb81\udc31"          // nf-md-puzzle
+  readonly property string iconEye: "\udb80\ude08"             // nf-md-eye
+  readonly property string iconEyeOff: "\udb80\ude09"          // nf-md-eye_off
+  readonly property string iconGrid: "\udb81\udd70"            // nf-md-view_grid
+  readonly property string iconClock: "\udb82\udd54"           // nf-md-clock_outline
+  readonly property string iconKeyboard: "\udb80\udf0c"        // nf-md-keyboard
+  readonly property string iconRestore: "\udb82\udd9b"         // nf-md-backup_restore
   readonly property var iconBatteryLevels: ["\udb80\udc7a", "\udb80\udc7c", "\udb80\udc7e", "\udb80\udc82", "\udb80\udc79"]   // nf-md-battery_10/30/50/80/full
   readonly property string iconMihomo: "\udb81\udc98"          // nf-md-shield
   readonly property string iconSettings: "\udb81\udc93"        // nf-md-cog
@@ -132,6 +140,7 @@ QtObject {
   // ---- popup chrome --------------------------------------------------------
   readonly property int popupWidth: 370          // popups with two-column info (wifi, mihomo)
   readonly property int popupWidthCompact: 300   // single-column popups (audio, brightness)
+  readonly property int popupWidthWide: 520      // three-column popups (plugin manager)
   readonly property int popupFrameWidth: 4
   readonly property int popupPadding: 10
   readonly property int popupGap: 6

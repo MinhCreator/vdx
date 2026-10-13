@@ -43,7 +43,6 @@ Item {
     id: popup
     anchorItem: root
     ipcTarget: "radio"
-    alignLeft: true
     bar: root.bar
     implicitWidth: content.implicitWidth
     implicitHeight: content.implicitHeight

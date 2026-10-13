@@ -10,7 +10,7 @@ Item {
 
   required property PanelWindow bar
 
-  implicitWidth: bell.implicitWidth + Theme.edgeMargin
+  implicitWidth: bell.implicitWidth
   implicitHeight: bell.implicitHeight
 
   ThemeText {

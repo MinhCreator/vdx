@@ -7,7 +7,6 @@ import qs.config
 // names or, when the theme sets workspaceFormat "{icon}", icons. Focused and
 // visible workspaces are highlighted; click activates.
 Row {
-  leftPadding: Theme.edgeMargin
 
   Repeater {
     model: Hyprland.workspaces

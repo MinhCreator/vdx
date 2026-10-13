@@ -25,8 +25,8 @@ PopupWindow {
   // views going back first) turns this off.
   property bool closeOnEscape: true
 
-  // Grow to the right from the module's left edge instead of to the left from
-  // its right edge — for modules on the left whose width changes (music).
+  // Modules in the left half grow their popup to the right from their left
+  // edge, the rest to the left from their right edge; set on every anchoring.
   property bool alignLeft: false
 
   // When the popup last closed. The outside click that closes it also reaches
@@ -47,6 +47,8 @@ PopupWindow {
   // A corner under the module. mapToItem isn't reactive, so this runs on every
   // show and whenever the module's width changes.
   anchor.onAnchoring: {
+    root.alignLeft = root.anchorItem.mapToItem(root.bar.contentItem, root.anchorItem.width / 2, 0).x
+                     < root.bar.width / 2;
     const p = root.anchorItem.mapToItem(root.bar.contentItem, root.alignLeft ? 0 : root.anchorItem.width, 0);
     anchor.rect.x = Math.round(p.x) - 1;
     anchor.rect.y = Theme.barHeight - 1;
