@@ -14,7 +14,7 @@ taskbar/
 ├─ config/          Theme.qml (всё общее), Colors.qml (палитра, перекрывается темой)
 ├─ scripts/         бэкенды плагинов: *.sh, на выходе только JSON
 └─ plugins/<name>/  <Name>.qml + <Name>Popup.qml + <Name>Service.qml (+ view-файлы, *.json)
-../system/          системные правила (tmpfiles), ставятся руками через sudo
+~/.dotfiles/system/ файлы для /etc (tmpfiles и т.п.): ./install.py system install
 ```
 
 Импорты — `import qs.<папка>` от корня конфига (`qs.config`, `qs.components`,
@@ -158,8 +158,8 @@ Wi-Fi, сервис mihomo, весь звук, воспроизведение л
 - Состояние, переживающее перезапуск — `FileView { path:
   Quickshell.statePath("<name>.json") }` + `JsonAdapter`, запись
   `writeAdapter()` по `onAdapterUpdated` (с задержкой, если пишется часто).
-- Нужен root для sysfs — правило в `../system/*.conf` (tmpfiles, группа
-  `wheel`), команду установки даёт пользователю одной строкой.
+- Нужен root для sysfs — правило tmpfiles в `~/.dotfiles/system/etc/tmpfiles.d/`
+  (группа `wheel`); пользователь ставит его `./install.py system install`.
 
 ## Порядок работы
 

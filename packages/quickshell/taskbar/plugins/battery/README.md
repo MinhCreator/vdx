@@ -20,12 +20,11 @@ aqua. Клик открывает попап.
 
 ## Права
 
-Лимит и профиль пишутся в sysfs, нужен
-`packages/quickshell/system/quickshell-power.conf`:
+Лимит и профиль пишутся в sysfs, нужно правило
+`system/etc/tmpfiles.d/quickshell-power.conf` (корень dotfiles):
 
 ```
-sudo cp ~/.dotfiles/packages/quickshell/system/quickshell-power.conf /etc/tmpfiles.d/
-sudo systemd-tmpfiles --create quickshell-power.conf
+./install.py system install
 ```
 
 Лимит сбрасывается при перезагрузке — сервис хранит выбранный в

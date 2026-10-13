@@ -9,6 +9,7 @@ Layout:
   home/            -> ~/                 (files linked into the home dir)
   packages/<pkg>/  -> ~/.config/<pkg>/   (one package per directory)
   themes/<name>/   -> theme overrides, mirrors the packages/ tree
+  system/          -> /                  (root-owned files, copied with sudo)
   secrets/env.example -> bootstrap template for ~/.config/secrets/env
   .theme           -> active theme name (local; DEFAULT_THEME when absent)
 
@@ -22,7 +23,7 @@ A package may ship an optional `package.toml`:
   "theme.toml" = "~/.config/custom.toml"
 
 Commands: link, update, force, unlink, cleanup, status, verify,
-theme (list|set|current), bootstrap.
+theme (list|set|current), bootstrap, system (status|install).
 """
 
 from __future__ import annotations
@@ -31,6 +32,7 @@ import argparse
 import os
 import re
 import shutil
+import subprocess
 import sys
 import tomllib
 from pathlib import Path
@@ -41,6 +43,13 @@ TGT = HOME / ".config"
 PKG = ROOT / "packages"
 THEME = ROOT / "themes"
 SEED = ROOT / "secrets"
+SYSTEM = ROOT / "system"
+
+# after installing a system file under these dirs, run the command ({} = file)
+SYSTEM_APPLY = {
+    "/etc/tmpfiles.d": ["systemd-tmpfiles", "--create", "{}"],
+    "/etc/tlp.d": ["tlp", "start"],
+}
 THEME_FILE = ROOT / ".theme"          # local, git-ignored; DEFAULT_THEME when absent
 DEFAULT_THEME = "gruvbox"
 
@@ -377,6 +386,37 @@ def cmd_bootstrap(args) -> None:
         print("  nothing to bootstrap")
 
 
+def system_files() -> list[tuple[Path, Path]]:
+    if not SYSTEM.is_dir():
+        return []
+    return [(f, Path("/") / f.relative_to(SYSTEM))
+            for f in sorted(SYSTEM.rglob("*")) if f.is_file() and f.name not in SKIP]
+
+
+def cmd_system(args) -> None:
+    """Root-owned files are copied, not linked: /etc must not point into $HOME."""
+    changed = []
+    for src, dst in system_files():
+        state = "ok" if dst.is_file() and dst.read_bytes() == src.read_bytes() else \
+                "differs" if dst.exists() else "missing"
+        if state != "ok":
+            changed.append((src, dst))
+        if args.s_action == "status":
+            print(f"  {'=' if state == 'ok' else 'x'} {dst}  ({state})")
+    if args.s_action == "status":
+        return
+    if not changed:
+        print("  system files are up to date")
+        return
+    for src, dst in changed:
+        subprocess.run(["sudo", "install", "-Dm644", str(src), str(dst)], check=True)
+        print(f"  + {dst}")
+        for prefix, cmd in SYSTEM_APPLY.items():
+            if str(dst).startswith(prefix + "/"):
+                subprocess.run(["sudo", *(a.replace("{}", str(dst)) for a in cmd)], check=False)
+    print("  done")
+
+
 # --------------------------------------------------------------------------- cli
 
 def main() -> None:
@@ -392,6 +432,8 @@ def main() -> None:
     sub.add_parser("bootstrap", help="copy seed templates to ~/.config").add_argument(
         "-f", "--force", action="store_true"
     )
+    sy = sub.add_parser("system", help="root-owned files under system/ (copied with sudo)")
+    sy.add_argument("s_action", choices=["status", "install"])
     te = sub.add_parser("theme", help="theme management")
     tsub = te.add_subparsers(dest="t_action", required=True)
     tsub.add_parser("list", help="list available themes")
@@ -417,6 +459,8 @@ def main() -> None:
         cmd_bootstrap(args)
     elif args.cmd == "theme":
         cmd_theme(args)
+    elif args.cmd == "system":
+        cmd_system(args)
     else:
         p.print_help()
 

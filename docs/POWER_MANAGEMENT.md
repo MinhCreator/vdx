@@ -21,7 +21,7 @@ sudo systemctl enable --now tlp
 sudo systemctl mask systemd-rfkill systemd-rfkill.socket
 ```
 
-**Config:** `/etc/tlp.conf`
+**Config:** `system/etc/tlp.d/99-dotfiles.conf` in the repo → `/etc/tlp.d/` (`./install.py system install`). Keep `/etc/tlp.conf` at the package defaults: it is read after the drop-in and overrides it.
 
 Current settings:
 ```ini
