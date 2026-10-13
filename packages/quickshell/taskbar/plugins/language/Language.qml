@@ -1,94 +1,54 @@
 import QtQuick
-import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import qs.components
 import qs.config
 
-// hyprland/language (packages/waybar/modules/language.jsonc + styles/language.css):
-//   format "{}" · format-en "US" · format-ru "RU" · color foreground1
-//   margin-right 20px.
-//
-// waybar listens to Hyprland's `activelayout` event and resolves the xkb layout
-// *brief* description ("English (US)" -> "en", "Russian" -> "ru") before looking
-// up `format-en`/`format-ru`. We map the same full names to the same output.
-// See waybar src/modules/hyprland/language.cpp (getLayout/short_description).
-//
-// Initial value comes from `hyprctl devices -j` (Hyprland does not emit the
-// activelayout event on connect); live changes come from Hyprland.rawEvent.
-
+// Active keyboard layout as a short code. The initial value comes from
+// `hyprctl devices` (Hyprland doesn't replay activelayout on connect), changes
+// from the activelayout event.
 Item {
   id: root
 
-  property string activeLayout: ""
+  property string layout: ""
 
-  readonly property string labelText: {
-    const k = root.activeLayout.toLowerCase()
-    if (k.indexOf("english") >= 0) return Theme.languageFormatEn
-    if (k.indexOf("russian") >= 0) return Theme.languageFormatRu
-    // waybar falls back to the raw layout name when no format-<lang> matches.
-    return root.activeLayout
-  }
-
-  Text {
-    id: label
-    anchors.left: parent.left
-    anchors.verticalCenter: parent.verticalCenter
-    text: root.labelText
-    color: Theme.foreground1
-    font.family: Theme.fontFamily
-    font.pixelSize: Theme.fontSize
-    font.weight: Theme.fontWeight
-    verticalAlignment: Text.AlignVCenter
-  }
-
-  // extra width on the right == margin-right: 20px
   implicitWidth: label.implicitWidth + Theme.edgeMargin
   implicitHeight: label.implicitHeight
 
-  // initial layout: waybar's initLanguage reads the first keymap from `devices`.
+  ThemeText {
+    id: label
+    anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+    text: {
+      const name = root.layout.toLowerCase();
+      if (name.includes("english")) return Theme.languageFormatEn;
+      if (name.includes("russian")) return Theme.languageFormatRu;
+      return root.layout;
+    }
+    color: Theme.foreground1
+  }
+
   Process {
-    id: devicesProc
     command: ["hyprctl", "devices", "-j"]
     running: true
-
     stdout: StdioCollector {
       onStreamFinished: {
         try {
-          const data = JSON.parse(this.text.trim())
-          const keyboards = data.keyboards || []
-          // `hyprctl devices` lists pseudo-keyboards for power/sleep buttons and
-          // WMI hotkeys; their `active_keymap` is stale ("English (US)") even
-          // when the real layout is Russian. Use the device Hyprland marks as
-          // `main`, and only fall back to the first entry that reports a keymap.
-          const main = keyboards.find(kb => kb.main && kb.active_keymap)
-          if (main) {
-            root.activeLayout = main.active_keymap
-          } else {
-            for (const kb of keyboards) {
-              if (kb.active_keymap) {
-                root.activeLayout = kb.active_keymap
-                break
-              }
-            }
-          }
-        } catch (e) {
-          // leave the label empty until a live event arrives
-        }
+          // Pseudo-keyboards (power buttons, WMI hotkeys) report a stale keymap:
+          // prefer the main keyboard.
+          const keyboards = JSON.parse(text).keyboards ?? [];
+          const kb = keyboards.find(k => k.main && k.active_keymap) ?? keyboards.find(k => k.active_keymap);
+          if (kb) root.layout = kb.active_keymap;
+        } catch (e) {}
       }
     }
   }
 
   Connections {
     target: Hyprland
-
+    // data: "<keyboard>,<layout name>"
     function onRawEvent(event) {
-      // data = "<keyboard>,<xkb layout name>", e.g. "some-kbd,English (US)".
-      if (event.name === "activelayout" && event.data) {
-        const comma = event.data.indexOf(",")
-        root.activeLayout = comma >= 0
-            ? event.data.substring(comma + 1)
-            : event.data
-      }
+      if (event.name === "activelayout" && event.data)
+        root.layout = event.data.slice(event.data.indexOf(",") + 1);
     }
   }
 }
