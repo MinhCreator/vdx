@@ -33,6 +33,7 @@ tmux
 # editors
 neovim
 zed
+ollama          # optional: local model for the nvim habit coach
 
 # audio, network, power (quickshell plugins)
 pipewire
