@@ -37,9 +37,7 @@ Column {
   Rectangle {
     width: parent.width
     height: 6
-    color: "transparent"
-    border.width: 1
-    border.color: Theme.muted
+    color: Theme.background2
 
     Rectangle {
       width: Math.max(0, Math.min(1, root.value)) * parent.width

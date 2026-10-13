@@ -1,7 +1,7 @@
 import QtQuick
 import qs.config
 
-// Square horizontal slider: framed track, filled part and a square knob. It
+// Square horizontal slider: flat track, filled part and a square knob. It
 // never writes `value` itself: drag, click and wheel emit moved(value) for live
 // changes (volume), and released(value) fires once when a drag ends (seeking).
 // While pressed the slider shows the pointer position (`shown`).
@@ -34,9 +34,7 @@ Item {
     anchors.verticalCenter: parent.verticalCenter
     width: parent.width
     height: 6
-    color: "transparent"
-    border.width: 1
-    border.color: area.containsMouse || area.pressed ? Theme.foreground1 : Theme.muted
+    color: Theme.background2
 
     Rectangle {
       width: root.shown * parent.width
