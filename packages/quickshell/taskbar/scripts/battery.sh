@@ -1,106 +1,86 @@
 #!/usr/bin/env bash
 #
-# battery.sh — waybar-compatible battery text for the bar (sysfs backend).
+# battery.sh — battery, power profile and GPU mode backend for plugins/battery.
 #
-# Mirrors waybar's linux battery module for this config:
-#   format          "{icon}  {capacity}"  (level icon by capacity/20, no % suffix)
-#   format-charging "  {capacity}"
-#   format-plugged  "  {capacity}"
-#   states          warning 30 · critical 15
+#   --status          {present, capacity, status, plugged, energy, energyFull, energyDesign,
+#                      power, cycles, threshold, profile, profiles}   Wh / W / %
+#   --threshold N     {ok, error}   charge limit, %
+#   --profile NAME    {ok, error}   platform profile
+#   --gpu             {mode, pending, action}
+#   --gpu-mode MODE   {ok, error}   supergfxctl mode, applied after logout / reboot
 #
-# Output is JSON: {"text":"<label>","class":"<class>"} where <class> carries the
-# colour waybar would apply (charging green · critical red · warning yellow ·
-# else foreground0). Prints {"text":""} when no battery is present (hidden).
+# Writing the limit and the profile needs /etc/tmpfiles.d/quickshell-power.conf.
 
-set -euo pipefail
+PROFILE=/sys/firmware/acpi/platform_profile
 
-# --- locate the main battery (waybar: type == "Battery", skip scope == "Device")
-battery=""
-for d in /sys/class/power_supply/*; do
-    [[ -f "$d/type" ]] || continue
-    [[ "$(cat "$d/type")" == "Battery" ]] || continue
-    if [[ -f "$d/scope" && "$(cat "$d/scope")" == "Device" ]]; then continue; fi
-    if [[ -f "$d/capacity" || -f "$d/charge_now" || -f "$d/energy_now" ]]; then
-        battery="$d"
-        break
-    fi
-done
+ok()    { echo '{"ok":true}'; }
+error() { jq -cn --arg e "$1" '{ok:false, error:$e}'; }
 
-if [[ -z "$battery" ]]; then
-    printf '{"text":""}\n'
-    exit 0
-fi
-
-# --- capacity (waybar order: charge_now/charge_full, energy_now/energy_full, capacity)
-capacity=""
-if [[ -f "$battery/charge_now" && -f "$battery/charge_full" ]]; then
-    now="$(cat "$battery/charge_now")"; full="$(cat "$battery/charge_full")"
-    [[ "$full" -ne 0 ]] && capacity=$(( now * 100 / full ))
-fi
-if [[ -z "$capacity" && -f "$battery/energy_now" && -f "$battery/energy_full" ]]; then
-    now="$(cat "$battery/energy_now")"; full="$(cat "$battery/energy_full")"
-    [[ "$full" -ne 0 ]] && capacity=$(( now * 100 / full ))
-fi
-if [[ -z "$capacity" && -f "$battery/capacity" ]]; then
-    capacity="$(cat "$battery/capacity")"
-fi
-capacity="${capacity:-0}"
-(( capacity > 100 )) && capacity=100
-
-# --- status (waybar reads the battery status, falling back to the adapter)
-status="$(cat "$battery/status" 2>/dev/null || echo Unknown)"
-
-# Mains adapter: among supplies exposing `online`, one that is currently online.
-# (waybar's adapter loop is filesystem-order dependent; keying on the same
-# observable fact — a connected AC adapter — keeps this deterministic.)
-adapter=""
-for d in /sys/class/power_supply/*; do
-    if [[ -f "$d/online" && "$(cat "$d/online")" == "1" ]]; then adapter="$d"; fi
-done
-
-# Give "Plugged" priority over "Not charging"/"Discharging" (waybar TLP behaviour).
-if [[ -n "$adapter" && ( "$status" == "Discharging" || "$status" == "Not charging" ) ]]; then
-    astatus="$(cat "$adapter/status" 2>/dev/null || echo "")"
-    if [[ "$astatus" != "Discharging" ]]; then
-        status="Plugged"
-    fi
-fi
-
-# waybar marks a stuck-at-100% charging battery as full.
-if [[ "$capacity" -eq 100 && "$status" == "Charging" ]]; then
-    status="Full"
-fi
-
-# --- format + class
-ICON_CHARGING=""
-ICON_PLUGGED=""
-LEVEL_ICONS=("" "" "" "" "")
-
-level_icon() {
-    local idx=$(( capacity / 20 ))
-    (( idx > 4 )) && idx=4
-    printf '%s' "${LEVEL_ICONS[$idx]}"
+# Main battery: type Battery, not a peripheral (scope Device).
+battery() {
+    local d
+    for d in /sys/class/power_supply/*; do
+        [[ "$(cat "$d/type" 2>/dev/null)" == Battery ]] || continue
+        [[ "$(cat "$d/scope" 2>/dev/null)" == Device ]] && continue
+        echo "$d"
+        return
+    done
 }
 
-case "$status" in
-    Charging) text="$ICON_CHARGING  $capacity" ;;
-    Plugged)  text="$ICON_PLUGGED  $capacity" ;;
-    *)        text="$(level_icon)  $capacity" ;;
+plugged() {
+    local d
+    for d in /sys/class/power_supply/*; do
+        [[ "$(cat "$d/online" 2>/dev/null)" == 1 ]] && { echo true; return; }
+    done
+    echo false
+}
+
+cmd_status() {
+    local b
+    b=$(battery)
+    [[ -z "$b" ]] && { echo '{"present":false}'; return; }
+    num() { local v; v=$(cat "$b/$1" 2>/dev/null); echo "${v:-0}"; }
+    jq -cn \
+        --arg status "$(cat "$b/status" 2>/dev/null)" \
+        --argjson capacity "$(num capacity)" \
+        --argjson plugged "$(plugged)" \
+        --argjson energy "$(num energy_now)" \
+        --argjson energyFull "$(num energy_full)" \
+        --argjson energyDesign "$(num energy_full_design)" \
+        --argjson power "$(num power_now)" \
+        --argjson cycles "$(num cycle_count)" \
+        --argjson threshold "$(cat "$b/charge_control_end_threshold" 2>/dev/null || echo 100)" \
+        --arg profile "$(cat "$PROFILE" 2>/dev/null)" \
+        --arg profiles "$(cat "$PROFILE"_choices 2>/dev/null)" \
+        '{present: true, status: $status, capacity: $capacity, plugged: $plugged,
+          energy: ($energy / 1e6), energyFull: ($energyFull / 1e6), energyDesign: ($energyDesign / 1e6),
+          power: ($power / 1e6), cycles: $cycles, threshold: $threshold,
+          profile: $profile, profiles: ($profiles | split(" ") | map(select(. != "")))}'
+}
+
+write() {
+    if { printf '%s' "$2" > "$1"; } 2>/dev/null; then ok
+    else error "permission denied: install quickshell-power.conf"; fi
+}
+
+cmd_gpu() {
+    command -v supergfxctl >/dev/null || { echo '{"mode":"","pending":"","action":""}'; return; }
+    jq -cn --arg mode "$(supergfxctl -g 2>/dev/null)" \
+           --arg pending "$(supergfxctl -P 2>/dev/null)" \
+           --arg action "$(supergfxctl -p 2>/dev/null)" \
+        '{mode:$mode, pending:$pending, action:$action}'
+}
+
+cmd_gpu_mode() {
+    local out
+    out=$(supergfxctl -m "$1" 2>&1) && ok || error "${out%%$'\n'*}"
+}
+
+case "${1:-}" in
+    --status)    cmd_status ;;
+    --threshold) [[ "${2:-}" =~ ^[0-9]+$ ]] && write "$(battery)/charge_control_end_threshold" "$2" || error "bad limit" ;;
+    --profile)   write "$PROFILE" "${2:-}" ;;
+    --gpu)       cmd_gpu ;;
+    --gpu-mode)  cmd_gpu_mode "${2:-}" ;;
+    *)           error "unknown command: ${1:-}" ;;
 esac
-
-# class priority mirrors the CSS cascade: charging > critical > warning > default.
-if [[ "$status" == "Charging" ]]; then
-    class="charging"
-elif (( capacity <= 15 )); then
-    class="critical"
-elif (( capacity <= 30 )); then
-    class="warning"
-elif [[ "$status" == "Plugged" ]]; then
-    class="plugged"
-elif [[ "$status" == "Full" ]]; then
-    class="full"
-else
-    class="discharging"
-fi
-
-printf '{"text":"%s","class":"%s"}\n' "$text" "$class"

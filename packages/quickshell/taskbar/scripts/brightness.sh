@@ -1,77 +1,54 @@
 #!/usr/bin/env bash
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/_common.sh"
-
-# brightness.sh — the bar's brightness module (labels + actions).
 #
-# Always prints fresh JSON — {"text":"<icon>  <NN>","class":"on|off"} — after
-# any action, so the widget reflects it immediately instead of waiting for its
-# poll. The step direction carries the sign: `--step +5` brightens, `--step -5`
-# dims.
+# brightness.sh — backlight and night light backend for plugins/brightness.
 #
-#   (no arg)   read current brightness + night mode
-#   --toggle   toggle hyprsunset and print the new state
-#   --step ±N  brightnessctl set +N% / N%- and print the new state
+#   --get                      {brightness}   backlight, %
+#   --set N                    {brightness}   set the backlight to N %
+#   --step ±N                  {brightness}   change the backlight by N %
+#   --apply TEMPERATURE GAMMA  {ok, error}    TEMPERATURE in K or "off", GAMMA in %
+#
+# hyprsunset runs as a daemon (started in identity mode on first use) and is
+# driven over its IPC, so night light and dimming change without a restart.
 
-NIGHT_TEMP=5000
-ICON_NIGHT="󰌵"
-ICON_DAY="󰃠"
-TOGGLE_DELAY=0.1
+set -u
 
-get_brightness() {
-    local current max
-    current=$(brightnessctl get 2>/dev/null || echo 0)
-    max=$(brightnessctl max 2>/dev/null || echo 1)
-
-    if [[ "$max" -le 0 ]]; then
-        echo "0"
-        return
-    fi
-
-    awk -v cur="$current" -v mx="$max" 'BEGIN { printf "%.0f", (cur / mx) * 100 }'
+emit() {
+    brightnessctl -m 2>/dev/null | awk -F, '{ sub("%", "", $4); printf "{\"brightness\":%d}\n", $4 }'
 }
 
-night_mode_active() {
-    process_is_running "hyprsunset"
+daemon() {
+    pgrep -x hyprsunset >/dev/null && return
+    setsid -f hyprsunset -i >/dev/null 2>&1
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+        hyprctl hyprsunset gamma >/dev/null 2>&1 && return
+        sleep 0.1
+    done
 }
 
-toggle_night_mode() {
-    if night_mode_active; then
-        pkill -x "hyprsunset"
+cmd_apply() {
+    daemon
+    if [[ "$1" == off ]]; then
+        hyprctl hyprsunset identity
     else
-        hyprsunset --temperature "$NIGHT_TEMP" > /dev/null 2>&1 &
-    fi
-    sleep "$TOGGLE_DELAY"
-}
-
-apply_step() {
-    local delta="${1:-}"
-    [[ "$delta" =~ ^[+-]?[0-9]+$ ]] || return
-    if [[ "$delta" == -* ]]; then
-        brightnessctl set "${delta#-}%-" >/dev/null 2>&1 || true
+        hyprctl hyprsunset temperature "$1"
+    fi >/dev/null 2>&1
+    if hyprctl hyprsunset gamma "$2" >/dev/null 2>&1; then
+        echo '{"ok":true}'
     else
-        brightnessctl set "+${delta#+}%" >/dev/null 2>&1 || true
+        echo '{"ok":false,"error":"hyprsunset is not reachable"}'
     fi
 }
 
-main() {
-    case "${1:-}" in
-        --toggle) toggle_night_mode ;;
-        --step)   apply_step "${2:-}" ;;
-    esac
-
-    local brightness icon class
-    brightness="$(get_brightness)"
-
-    if night_mode_active; then
-        icon="$ICON_NIGHT"
-        class="on"
-    else
-        icon="$ICON_DAY"
-        class="off"
-    fi
-
-    emit_json "$icon  $brightness" "$class"
-}
-
-main "$@"
+case "${1:-}" in
+    --get)   emit ;;
+    --set)   brightnessctl -q -n1 set "${2:-0}%"; emit ;;
+    --step)
+        case "${2:-0}" in
+            -*) brightnessctl -q -n1 set "${2#-}%-" ;;
+            *)  brightnessctl -q -n1 set "+${2#+}%" ;;
+        esac
+        emit
+        ;;
+    --apply) cmd_apply "${2:-off}" "${3:-100}" ;;
+    *)       echo '{"ok":false,"error":"unknown command"}' ;;
+esac

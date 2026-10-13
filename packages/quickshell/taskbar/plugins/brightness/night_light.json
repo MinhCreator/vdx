@@ -1,0 +1,8 @@
+{
+  "schedule": { "enabled": false, "start": "21:00", "end": "07:00" },
+  "presets": [
+    { "label": "CANDLE",  "temperature": 2000 },
+    { "label": "WARM",    "temperature": 3500 },
+    { "label": "NEUTRAL", "temperature": 5000 }
+  ]
+}
