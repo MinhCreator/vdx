@@ -53,7 +53,7 @@ curl -sS https://starship.rs/install.sh | sh
 # Clone and deploy
 git clone git@github.com:diominvd/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-git submodule update --init --recursive     # fetch nvim config
+git submodule update --init --recursive     # fetch nvim + script CLIs
 ./install.py link                           # deploy all symlinks
 ./install.py bootstrap                      # copy seed templates for secrets
 git config core.hooksPath hooks             # auto-relink on checkout/pull/rebase
@@ -130,15 +130,16 @@ git config core.hooksPath hooks
 
 ### Submodules
 
-Only Neovim remains a submodule:
-
 | Submodule | Path |
 |-----------|------|
 | Neovim config | `packages/nvim` → github.com/diominvd/neovim |
+| Yandex Music CLI | `packages/scripts/yandex-music` → github.com/diominvd/yandex-music-cli |
+| Radio CLI | `packages/scripts/radio` → github.com/diominvd/radio-cli |
+| VPN manager CLI | `packages/scripts/vpn` → github.com/diominvd/vpn-manager-cli |
 
-`radio`, `vpn` and `yandex-music` are vendored as plain files under
-`packages/scripts/` (they deploy as configs; their CLI repos remain the upstream
-source). TPM is installed at runtime (see above).
+Changes to the CLIs are committed in their own repos, then the pointer is bumped
+here (`git submodule update --remote <path>` + commit). TPM is installed at
+runtime (see above).
 
 ---
 
