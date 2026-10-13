@@ -74,6 +74,12 @@ QtObject {
   readonly property int notificationsMax: 100       // kept in history
   readonly property int notificationsVisible: 6     // rows before scrolling
 
+  // ---- claude code -----------------------------------------------------------
+  readonly property int claudeUsageIntervalMs: 300000   // plan limits poll (API)
+  readonly property int claudeLocalIntervalMs: 30000    // today's tokens + sessions, popup open
+  readonly property int claudeWarning: 75               // %, bar icon yellow
+  readonly property int claudeCritical: 90              // %, bar icon red
+
   // ---- language formats ----------------------------------------------------
   readonly property string languageFormatEn: "US"
   readonly property string languageFormatRu: "RU"
@@ -104,6 +110,7 @@ QtObject {
   readonly property string iconSearch: "\udb80\udf49"          // nf-md-magnify
   readonly property string iconBell: "\udb80\udc9a"            // nf-md-bell
   readonly property string iconClearAll: "\udb83\udc79"        // nf-md-notification_clear_all
+  readonly property string iconRobot: "\udb81\udea9"           // nf-md-robot
   readonly property var iconBatteryLevels: ["\udb80\udc7a", "\udb80\udc7c", "\udb80\udc7e", "\udb80\udc82", "\udb80\udc79"]   // nf-md-battery_10/30/50/80/full
   readonly property string iconMihomo: "\udb81\udc98"          // nf-md-shield
   readonly property string iconSettings: "\udb81\udc93"        // nf-md-cog
@@ -158,6 +165,7 @@ QtObject {
   readonly property string mihomoScript: scriptsDir + "/mihomo.sh"
   readonly property string wifiScript: scriptsDir + "/wifi.sh"
   readonly property string notificationsScript: scriptsDir + "/notifications.sh"
+  readonly property string claudeScript: scriptsDir + "/claude.sh"
 
   // ---- shared formatting ---------------------------------------------------
   // Bytes per second, human-readable.
@@ -183,6 +191,14 @@ QtObject {
 
   function pingColor(ms) {
     return ms > 0 ? qualityColor(ms, pingGoodMs, pingFairMs) : muted;
+  }
+
+  // Large counts: 812, 47.1k, 176.9M.
+  function humanCount(n) {
+    if (n < 1000) return String(Math.round(n));
+    if (n < 1e6) return (n / 1e3).toFixed(1) + "k";
+    if (n < 1e9) return (n / 1e6).toFixed(1) + "M";
+    return (n / 1e9).toFixed(2) + "B";
   }
 
   // Cumulative byte counters, human-readable.

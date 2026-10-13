@@ -5,6 +5,7 @@ import qs.config
 import qs.plugins.audio
 import qs.plugins.battery
 import qs.plugins.brightness
+import qs.plugins.claude
 import qs.plugins.clock
 import qs.plugins.language
 import qs.plugins.music
@@ -71,6 +72,8 @@ PanelWindow {
     Battery { bar: root }
     Separator {}
     Language {}
+    Separator {}
+    Claude { bar: root }
     Separator {}
     Notifications { bar: root }
   }

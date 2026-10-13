@@ -212,6 +212,7 @@ Wi-Fi, сервис mihomo, весь звук, воспроизведение л
 | `PopupDropdownItem` | Пункт: `label`, `active`, слот `trailing` |
 | `PopupSelect` | Выбор одного значения: `label`, `model [{label, value}]`, `current`, `picked(value)` |
 | `PopupChoices` | Ряд кнопок-вариантов той же моделью |
+| `PopupMeter` | Уровень только для чтения: подпись, значение, полоска, заметка (лимиты) |
 | `PopupSlider` / `PopupSliderRow` | Ползунок 0..1 / ползунок с подписью или иконкой и значением |
 | `PopupSpinner` | Индикатор загрузки |
 | `PopupManager` | Синглтон: открыт только один попап |
