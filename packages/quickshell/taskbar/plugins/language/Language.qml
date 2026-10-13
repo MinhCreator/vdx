@@ -12,7 +12,7 @@ Item {
 
   property string layout: ""
 
-  implicitWidth: label.implicitWidth + Theme.edgeMargin
+  implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
 
   ThemeText {

@@ -8,6 +8,7 @@ import qs.plugins.brightness
 import qs.plugins.clock
 import qs.plugins.language
 import qs.plugins.music
+import qs.plugins.notifications
 import qs.plugins.radio
 import qs.plugins.mihomo
 import qs.plugins.wifi
@@ -70,5 +71,7 @@ PanelWindow {
     Battery { bar: root }
     Separator {}
     Language {}
+    Separator {}
+    Notifications { bar: root }
   }
 }

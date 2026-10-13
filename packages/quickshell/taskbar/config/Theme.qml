@@ -70,6 +70,10 @@ QtObject {
   readonly property var batteryLimits: [60, 80, 100] // %, charge limit choices
   readonly property string powerSaverProfile: "quiet"  // platform profile of the power saver
 
+  // ---- notifications -------------------------------------------------------
+  readonly property int notificationsMax: 100       // kept in history
+  readonly property int notificationsVisible: 6     // rows before scrolling
+
   // ---- language formats ----------------------------------------------------
   readonly property string languageFormatEn: "US"
   readonly property string languageFormatRu: "RU"
@@ -98,6 +102,8 @@ QtObject {
   readonly property string iconHeartOutline: "\udb80\uded5"    // nf-md-heart_outline
   readonly property string iconRadio: "\udb81\udc39"           // nf-md-radio
   readonly property string iconSearch: "\udb80\udf49"          // nf-md-magnify
+  readonly property string iconBell: "\udb80\udc9a"            // nf-md-bell
+  readonly property string iconClearAll: "\udb83\udc79"        // nf-md-notification_clear_all
   readonly property var iconBatteryLevels: ["\udb80\udc7a", "\udb80\udc7c", "\udb80\udc7e", "\udb80\udc82", "\udb80\udc79"]   // nf-md-battery_10/30/50/80/full
   readonly property string iconMihomo: "\udb81\udc98"          // nf-md-shield
   readonly property string iconSettings: "\udb81\udc93"        // nf-md-cog
@@ -151,6 +157,7 @@ QtObject {
   readonly property string audioScript: scriptsDir + "/audio.sh"
   readonly property string mihomoScript: scriptsDir + "/mihomo.sh"
   readonly property string wifiScript: scriptsDir + "/wifi.sh"
+  readonly property string notificationsScript: scriptsDir + "/notifications.sh"
 
   // ---- shared formatting ---------------------------------------------------
   // Bytes per second, human-readable.
