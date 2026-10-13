@@ -117,8 +117,11 @@ one by one, so a new one is not visible until then.
 
 ### Quickshell bar
 
-`packages/quickshell/taskbar/` — plugins for Wi-Fi, Mihomo, audio, display,
-battery, music and radio. Architecture, UI rules and how to add a plugin:
+`packages/quickshell/taskbar/` — plugins for workspaces, music, radio, clock,
+display, audio, Wi-Fi, Mihomo, battery, language, AI (Claude Code limits +
+local Ollama) and a notification center. The puzzle button opens the plugin
+manager: switch plugins on / off and drag them between the left, center and
+right zones. Architecture, UI rules and how to add a plugin:
 [`taskbar/CLAUDE.md`](packages/quickshell/taskbar/CLAUDE.md); each plugin has its
 own `README.md`.
 

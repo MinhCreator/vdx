@@ -92,7 +92,8 @@ Item {
 
 **Шапка** — компонент `PopupHeader` (`glyph`, `title`, `subtitle`,
 `subtitleColor`, кнопки/тумблер — дочерние элементы справа): иконка, заголовок
-капсом (`WI-FI`, `MIHOMO`, `AUDIO`, `DISPLAY`, `BATTERY`, `MUSIC`, `RADIO`), под ним подзаголовок
+капсом (`WI-FI`, `MIHOMO`, `AUDIO`, `DISPLAY`, `BATTERY`, `MUSIC`, `RADIO`,
+`NOTIFICATIONS`, `CLAUDE CODE` / `OLLAMA`, `PLUGINS MANAGER`), под ним подзаголовок
 состояния (`Theme.fontSize - 3`): зелёный — активно/подключено, `muted` —
 выключено, `foreground2` — нейтральная информация. Справа — кнопки-глифы
 (`headerButtonSize`, `frameless`, `hoverBackground: false`) и `PopupSwitch`.
@@ -220,6 +221,7 @@ Wi-Fi, сервис mihomo, весь звук, воспроизведение л
 | `PopupDropdownItem` | Пункт: `label`, `active`, слот `trailing` |
 | `PopupSelect` | Выбор одного значения: `label`, `model [{label, value}]`, `current`, `picked(value)` |
 | `PopupChoices` | Ряд кнопок-вариантов той же моделью |
+| `PopupTabs` | Текстовые вкладки с подчёркиванием активной (`model [{label, value}]`, `current`, `picked`) |
 | `PopupMeter` | Уровень только для чтения: подпись, значение, полоска, заметка (лимиты) |
 | `PopupSlider` / `PopupSliderRow` | Ползунок 0..1 / ползунок с подписью или иконкой и значением |
 | `PopupSpinner` | Индикатор загрузки |
