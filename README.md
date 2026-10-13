@@ -81,7 +81,9 @@ one by one, so a new one is not visible until then.
 ├── themes/<name>/     overlay mirroring packages/ (active theme wins per file)
 ├── system/            -> /                  (copied with sudo, never linked)
 ├── secrets/           env.example — template for ~/.config/secrets/env
-└── docs/              power management notes
+├── docs/              power management notes
+├── CONVENTIONS.md     repository rules: layout, secrets, submodules, commits
+└── CLAUDE.md          the same rules, short, for coding agents
 ```
 
 | Source | Target | Example |
