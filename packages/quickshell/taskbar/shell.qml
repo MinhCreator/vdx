@@ -3,14 +3,7 @@ import Quickshell
 import Quickshell.Io
 import qs.bar
 
-// Quickshell entry point — a top bar for every screen.
-//
-// Mirrors the waybar config (packages/waybar + theme gruvbox), 1:1:
-//   height 34, spacing 2, background #202020,
-//   left  = workspaces | separator | media
-//   center = clock
-//   right = brightness | sep | audio | sep | wifi | sep | mihomo | sep | battery | sep | language
-
+// Entry point: a bar on every screen, reloaded when the dotfiles theme changes.
 Scope {
   Variants {
     model: Quickshell.screens
@@ -18,12 +11,9 @@ Scope {
     Bar {}
   }
 
-  // Follow the active theme live. `install.py theme set` rewrites this file and
-  // *then* retargets Colors.qml (which Quickshell can't watch, since it only
-  // watches files it has loaded — the old palette). Watch .theme and hard-reload
-  // slightly later, once the relink has finished, to pick up the new palette.
+  // `install.py theme set` writes .theme first and relinks Colors.qml after;
+  // Quickshell can't see the relink, so reload once it has finished.
   FileView {
-    id: themeWatcher
     path: Quickshell.env("HOME") + "/.dotfiles/.theme"
     watchChanges: true
     printErrors: false
@@ -32,7 +22,7 @@ Scope {
 
   Timer {
     id: reloadTimer
-    interval: 400  // > install.py's link time (~220ms) so Colors.qml has been retargeted
+    interval: 400   // longer than install.py's relink (~220 ms)
     onTriggered: Quickshell.reload(true)
   }
 }

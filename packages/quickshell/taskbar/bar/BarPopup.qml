@@ -1,44 +1,49 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Io
 import qs.components
 import qs.config
 
-// BarPopup — the chrome every bar module's popup shares.
+// Popup chrome shared by every bar module: anchoring under the module, one open
+// popup across the bar (PopupManager), keyboard focus for inputs and
+// outside-click dismissal (HyprlandFocusGrab).
 //
-// Wraps a PopupWindow and handles everything modules would otherwise repeat:
-// anchoring under the module, registering with PopupManager (only one popup
-// open across the bar), grabbing keyboard focus (so TextInputs inside are
-// typable) and outside-click dismissal via HyprlandFocusGrab.
-//
-// The dismiss signals are named `shown` / `hidden` — not `opened` / `closed` —
-// because PopupWindow already declares signals by those names, and overriding
-// them trips qt.qml.invalidOverride.
-
+// The signals are `shown` / `hidden` because PopupWindow already owns `opened`
+// and `closed`; redeclaring them trips qt.qml.invalidOverride.
 PopupWindow {
   id: root
 
   required property Item anchorItem
   required property PanelWindow bar
 
-  // Timestamp of the last close (outside-click, ESC, button). The module's
-  // MouseArea compares Date.now() against it to skip the click the compositor
-  // delivers to the bar right after the popup disappears — otherwise that click
-  // would immediately reopen the popup it just closed.
+  // `qs -c taskbar ipc call <ipcTarget> toggle` opens / closes the popup
+  // (Hyprland binds, checks). Empty disables it.
+  property string ipcTarget: ""
+
+  // Grow to the right from the module's left edge instead of to the left from
+  // its right edge — for modules on the left whose width changes (music).
+  property bool alignLeft: false
+
+  // When the popup last closed. The outside click that closes it also reaches
+  // the module right after; toggle() ignores that echo.
   property real closedAt: 0
 
   signal shown()
   signal hidden()
 
-  anchor.window: root.bar
-  anchor.edges: Edges.Bottom | Edges.Right
-  anchor.gravity: Edges.Bottom | Edges.Left
+  function toggle() {
+    if (Date.now() - closedAt > 300) visible = !visible;
+  }
 
-  // Anchor the popup's top-right corner just under this module. Recomputed on
-  // every show: mapToItem is not reactive and the module shifts as sibling text
-  // changes. The rect is relative to the anchor window's contentItem.
+  anchor.window: root.bar
+  anchor.edges: Edges.Bottom | (alignLeft ? Edges.Left : Edges.Right)
+  anchor.gravity: Edges.Bottom | (alignLeft ? Edges.Right : Edges.Left)
+
+  // A corner under the module. mapToItem isn't reactive, so this runs on every
+  // show and whenever the module's width changes.
   anchor.onAnchoring: {
-    const p = root.anchorItem.mapToItem(root.bar.contentItem, root.anchorItem.width, 0);
+    const p = root.anchorItem.mapToItem(root.bar.contentItem, root.alignLeft ? 0 : root.anchorItem.width, 0);
     anchor.rect.x = Math.round(p.x) - 1;
     anchor.rect.y = Theme.barHeight - 1;
     anchor.rect.width = 1;
@@ -46,7 +51,6 @@ PopupWindow {
   }
 
   color: "transparent"
-  implicitWidth: Theme.popupWidth
   visible: false
   grabFocus: true
 
@@ -61,9 +65,18 @@ PopupWindow {
     }
   }
 
-  // Hyprland-native outside-click dismissal.
+  Connections {
+    target: root.anchorItem
+    function onWidthChanged() { if (root.visible) root.anchor.updateAnchor(); }
+  }
+
+  IpcHandler {
+    target: root.ipcTarget
+    enabled: root.ipcTarget !== ""
+    function toggle(): void { root.toggle(); }
+  }
+
   HyprlandFocusGrab {
-    id: grab
     windows: [root]
     active: root.visible
     onCleared: root.visible = false

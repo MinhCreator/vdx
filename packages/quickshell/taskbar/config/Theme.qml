@@ -2,14 +2,8 @@ pragma Singleton
 import QtQuick
 import Quickshell
 
-// Theme — the single place every module reads from.
-//
-// Colors are aliased from the Colors singleton (base = gruvbox fallback; the
-// active theme overlays Colors.qml via install.py). Metrics, the shared font,
-// Nerd Font glyphs, script paths and formatting helpers — the parts that don't
-// change per theme — live here.
-//
-// Quickshell auto-registers this file as a singleton (`singleton Theme 1.0`).
+// Everything modules read: the palette (from the theme's Colors.qml), font,
+// metrics, glyphs, intervals, script paths and formatting helpers.
 
 QtObject {
   id: root
@@ -36,7 +30,7 @@ QtObject {
   readonly property color frame:  Colors.frame
   readonly property color dim:    Colors.dim
 
-  // theme-dependent module values (mirrors themes/<t>/waybar/modules/*.jsonc)
+  // per-theme workspace label style
   readonly property string workspaceFormat: Colors.workspaceFormat
   readonly property string workspaceIconDefault: Colors.workspaceIconDefault
   readonly property string workspaceIconActive: Colors.workspaceIconActive
@@ -56,57 +50,92 @@ QtObject {
   readonly property int brightnessIntervalMs: 2000
   readonly property int batteryIntervalMs: 3000
   readonly property int audioPortIntervalMs: 2000
-  readonly property int mediaRestartMs: 5000
-  readonly property int mediaMaxLength: 60
+  readonly property int musicRestartMs: 5000
+  readonly property int musicMaxLength: 60          // bar label, chars
+  readonly property int musicCoverSize: 64
+  readonly property int musicUpNext: 5             // queue rows visible before scrolling
 
   // ---- interaction limits --------------------------------------------------
   readonly property int audioMaxPercent: 150
   readonly property int audioScrollStep: 5
   readonly property int brightnessScrollStep: 5
+  readonly property int nightTemperatureMin: 2000   // K
+  readonly property int nightTemperatureMax: 6500   // K
+  readonly property int dimGammaMin: 30             // %, lowest gamma of the dim slider
+
+  // ---- battery ---------------------------------------------------------------
+  readonly property int batteryWarning: 30          // %, yellow
+  readonly property int batteryCritical: 15         // %, red
+  readonly property var batteryNotifyLevels: [15, 5] // %, low-battery notifications
+  readonly property var batteryLimits: [60, 80, 100] // %, charge limit choices
+  readonly property string powerSaverProfile: "quiet"  // platform profile of the power saver
 
   // ---- language formats ----------------------------------------------------
   readonly property string languageFormatEn: "US"
   readonly property string languageFormatRu: "RU"
 
-  // ---- Nerd Font glyphs ----------------------------------------------------
-  // All from the same Nerd Fonts v2/v3 FA range (\uF000–\uF2FF) except where a
-  // wider codepoint is required (Material Design icons live above the BMP and
-  // use surrogate pairs, written as "\uDB81\uDCxx" below).
-  readonly property string iconVolumeOff: "\uF026"
-  readonly property string iconVolumeLow: "\uF027"
-  readonly property string iconVolumeHigh: "\uF028"
-  readonly property string iconHeadphone: "\uF025"
-  readonly property string iconMuted: "\uEEE8"
-  readonly property string iconMihomo: "\uF132"
-  readonly property string iconSettings: "\uF013"
-  readonly property string iconRefresh: "\uF021"        // nf-fa-refresh — UPDATE
-  readonly property string iconPing: "\uF0E7"           // nf-fa-bolt — health-check / PING
-  readonly property string iconDots: "\uF141"
-  readonly property string iconSpinner: "\uF110"
-  readonly property string iconOk: "\uF00C"
-  readonly property string iconError: "\uF00D"
+  // ---- Nerd Font glyphs (Material Design) ---------------------------------
+  readonly property string iconVolume: "\udb81\udd7e"      // nf-md-volume_high
+  readonly property string iconHeadphone: "\udb80\udecb"       // nf-md-headphones
+  readonly property string iconMuted: "\udb81\udd81"           // nf-md-volume_off
+  readonly property string iconMicrophone: "\udb80\udf6c"     // nf-md-microphone
+  readonly property string iconMicrophoneOff: "\udb80\udf6d"  // nf-md-microphone_off
+  readonly property string iconBrightness: "\udb80\udce0"    // nf-md-brightness_7
+  readonly property string iconBatteryCharging: "\udb80\udc84" // nf-md-battery_charging
+  readonly property string iconPlug: "\udb81\udea5"            // nf-md-power_plug
+  readonly property string iconLeaf: "\udb80\udf2a"           // nf-md-leaf
+  readonly property string iconMusic: "\udb81\udf5a"           // nf-md-music
+  readonly property string iconPlay: "\udb81\udc0a"            // nf-md-play
+  readonly property string iconPause: "\udb80\udfe4"           // nf-md-pause
+  readonly property string iconNext: "\udb81\udcad"            // nf-md-skip_next
+  readonly property string iconPrev: "\udb81\udcae"            // nf-md-skip_previous
+  readonly property string iconRandom: "\udb81\udc9d"          // nf-md-shuffle
+  readonly property string iconRandomOff: "\udb81\udc9e"       // nf-md-shuffle_disabled
+  readonly property string iconRepeat: "\udb81\udc56"          // nf-md-repeat
+  readonly property string iconRepeatOff: "\udb81\udc57"       // nf-md-repeat_off
+  readonly property string iconRepeatOnce: "\udb81\udc58"      // nf-md-repeat_once
+  readonly property string iconHeart: "\udb80\uded1"           // nf-md-heart
+  readonly property string iconHeartOutline: "\udb80\uded5"    // nf-md-heart_outline
+  readonly property string iconRadio: "\udb81\udc39"           // nf-md-radio
+  readonly property string iconSearch: "\udb80\udf49"          // nf-md-magnify
+  readonly property var iconBatteryLevels: ["\udb80\udc7a", "\udb80\udc7c", "\udb80\udc7e", "\udb80\udc82", "\udb80\udc79"]   // nf-md-battery_10/30/50/80/full
+  readonly property string iconMihomo: "\udb81\udc98"          // nf-md-shield
+  readonly property string iconSettings: "\udb81\udc93"        // nf-md-cog
+  readonly property string iconRefresh: "\udb81\udc50"         // nf-md-refresh
+  readonly property string iconPing: "\udb85\udc0b"            // nf-md-lightning_bolt
+  readonly property string iconDots: "\udb80\uddd8"            // nf-md-dots_horizontal
+  readonly property string iconSpinner: "\udb81\udf72"         // nf-md-loading
+  readonly property string iconOk: "\udb80\udd2c"              // nf-md-check
+  readonly property string iconError: "\udb80\udd56"           // nf-md-close
+  readonly property string iconWifi: "\udb82\udd28"            // nf-md-wifi
+  readonly property string iconSpeedtest: "\udb81\udcc5"       // nf-md-speedometer
+  readonly property string iconArrowLeft: "\udb80\udc4d"       // nf-md-arrow_left
+  readonly property string iconArrowDown: "\udb80\udc45"       // nf-md-arrow_down
+  readonly property string iconArrowUp: "\udb80\udc5d"         // nf-md-arrow_up
+  readonly property string iconChevron: "\udb80\udd42"         // nf-md-chevron_right
+  readonly property string iconLock: "\udb80\udf3e"            // nf-md-lock
   readonly property string ellipsis: "\u2026"
-  readonly property string iconWifi: "\uF1EB"
-  readonly property string iconLock: "\uF023"
-  readonly property string iconQr: "\udb81\udc33"       // nf-md-qrcode
-  readonly property string iconSpeedtest: "\uDB81\uDCC5" // nf-md-speedometer
-  readonly property string iconHome: "\uF015"            // nf-fa-home
 
   // ---- popup chrome --------------------------------------------------------
-  readonly property int popupWidth: 370
+  readonly property int popupWidth: 370          // popups with two-column info (wifi, mihomo)
+  readonly property int popupWidthCompact: 300   // single-column popups (audio, brightness)
   readonly property int popupFrameWidth: 4
   readonly property int popupPadding: 10
   readonly property int popupGap: 6
-  readonly property int rowHeight: 26
+  readonly property int rowHeight: 24
   readonly property int visibleRows: 8
   readonly property int switchWidth: 34
   readonly property int switchKnob: 14
   readonly property int popupInputHeight: 24
+  readonly property int headerButtonSize: fontSize + 3   // glyph buttons next to a header switch
+  readonly property int popupStatusMs: 2500       // how long ok / error marks stay
 
-  // ---- wifi popup ----------------------------------------------------------
+  // ---- wifi ----------------------------------------------------------------
   readonly property int wifiStatusIntervalMs: 5000
-  readonly property int wifiTrafficRestartMs: 2000
   readonly property int wifiPingIntervalMs: 3000
+  readonly property int wifiTrafficRestartMs: 2000
+  readonly property int wifiSpeedtestTimeoutMs: 60000
+  readonly property int wifiBarMaxLength: 14
 
   // ---- mihomo --------------------------------------------------------------
   readonly property string mihomoGroup: "Proxies"
@@ -114,22 +143,39 @@ QtObject {
   readonly property int mihomoTrafficRestartMs: 2000
 
   // ---- scripts -------------------------------------------------------------
-  readonly property string iconsDir: Quickshell.shellDir + "/icons"
   readonly property string scriptsDir: Quickshell.shellDir + "/scripts"
-  readonly property string mediaScript: scriptsDir + "/media.sh"
+  readonly property string musicScript: scriptsDir + "/music.sh"
+  readonly property string likesScript: scriptsDir + "/yandex_likes.py"
   readonly property string brightnessScript: scriptsDir + "/brightness.sh"
   readonly property string batteryScript: scriptsDir + "/battery.sh"
-  readonly property string sinkPortScript: scriptsDir + "/sink_port.sh"
+  readonly property string audioScript: scriptsDir + "/audio.sh"
   readonly property string mihomoScript: scriptsDir + "/mihomo.sh"
   readonly property string wifiScript: scriptsDir + "/wifi.sh"
 
   // ---- shared formatting ---------------------------------------------------
-  // Bytes per second, human-readable (used by the wifi + mihomo popups).
+  // Bytes per second, human-readable.
   function humanRate(bytes) {
     if (bytes < 1024) return Math.round(bytes) + " B/s";
     if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB/s";
     if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + " MB/s";
     return (bytes / 1073741824).toFixed(2) + " GB/s";
+  }
+
+  // Green / yellow / orange for a measured value. Thresholds may ascend
+  // (lower is better: ping, loss) or descend (higher is better: signal).
+  function qualityColor(value, good, fair) {
+    const lowerIsBetter = good <= fair;
+    if (lowerIsBetter ? value <= good : value >= good) return green;
+    if (lowerIsBetter ? value <= fair : value >= fair) return yellow;
+    return orange;
+  }
+
+  // Latency color shared by every plugin; no measurement reads as muted.
+  readonly property int pingGoodMs: 100
+  readonly property int pingFairMs: 300
+
+  function pingColor(ms) {
+    return ms > 0 ? qualityColor(ms, pingGoodMs, pingFairMs) : muted;
   }
 
   // Cumulative byte counters, human-readable.

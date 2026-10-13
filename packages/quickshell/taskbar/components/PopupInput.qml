@@ -1,12 +1,8 @@
 import QtQuick
 import qs.config
 
-// Square text field for the popup chrome — rofi-style: 1px frame, no radius.
-// A dim UPPERCASE label sits above the field; the frame uses `muted` at rest,
-// brightens to `foreground1` on hover and `foreground0` while the field holds
-// keyboard focus. Typing happens in the inner TextInput, exposed as `input` so
-// the owner can hand it focus (and read `activeFocus`); the label/placeholder
-// live here.
+// Square text field with a dim label above it. The frame brightens on hover and
+// while focused. The inner TextInput is exposed as `input` for focus handling.
 Item {
   id: root
 
@@ -14,38 +10,34 @@ Item {
   property string placeholder: ""
   property alias text: input.text
   property alias input: input
-
-  readonly property bool hovered: fieldHover.hovered
+  property alias echoMode: input.echoMode
 
   signal textEdited()
   signal accepted()
 
-  implicitHeight: labelText.implicitHeight + 4 + Theme.popupInputHeight
+  implicitHeight: (caption.visible ? caption.implicitHeight + 4 : 0) + Theme.popupInputHeight
 
-  Text {
-    id: labelText
+  ThemeText {
+    id: caption
+    visible: root.label !== ""
     text: root.label
     color: Theme.dim
-    font.family: Theme.fontFamily
-    font.pixelSize: Theme.fontSize - 3
-    font.weight: Theme.fontWeight
+    font.pixelSize: Theme.fontSize - 2
     font.letterSpacing: 1
   }
 
   Rectangle {
-    id: field
     anchors {
-      left: parent.left
-      right: parent.right
-      top: labelText.bottom
-      topMargin: 4
+      left: parent.left; right: parent.right
+      top: caption.visible ? caption.bottom : parent.top
+      topMargin: caption.visible ? 4 : 0
     }
     height: Theme.popupInputHeight
     color: Theme.background0
     border.width: 1
-    border.color: input.activeFocus ? Theme.foreground0
-                : root.hovered ? Theme.foreground1
-                : Theme.muted
+    border.color: input.activeFocus ? Theme.foreground0 : hover.hovered ? Theme.foreground1 : Theme.muted
+
+    HoverHandler { id: hover }
 
     TextInput {
       id: input
@@ -62,26 +54,16 @@ Item {
       font.family: Theme.fontFamily
       font.pixelSize: Theme.fontSize
       font.weight: Theme.fontWeight
-
       onTextEdited: root.textEdited()
       onAccepted: root.accepted()
 
-      // placeholder — hidden once the field is focused or holds text
-      Text {
-        anchors.fill: parent
-        anchors.leftMargin: input.leftPadding
-        anchors.rightMargin: input.rightPadding
-        verticalAlignment: Text.AlignVCenter
+      ThemeText {
+        anchors { fill: parent; leftMargin: input.leftPadding; rightMargin: input.rightPadding }
         visible: input.text === "" && !input.activeFocus
         text: root.placeholder
         elide: Text.ElideRight
         color: Theme.dim
-        font: input.font
       }
-    }
-
-    HoverHandler {
-      id: fieldHover
     }
   }
 }

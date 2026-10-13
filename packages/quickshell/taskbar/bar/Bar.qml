@@ -7,21 +7,19 @@ import qs.plugins.battery
 import qs.plugins.brightness
 import qs.plugins.clock
 import qs.plugins.language
-import qs.plugins.media
+import qs.plugins.music
+import qs.plugins.radio
 import qs.plugins.mihomo
 import qs.plugins.wifi
 import qs.plugins.workspaces
 
-// One top bar per screen (background: Theme.background0, height 34).
-// Left / center / right — same module order and spacing (2px) as waybar's
-// 00-global.jsonc, so the bar is a true 1:1 mirror.
-
+// Top bar for one screen: workspaces, music and radio on the left, clock in the
+// center, status modules on the right.
 PanelWindow {
   id: root
 
-  // Variants injects `modelData` via QQmlComponent::createWithInitialProperties,
-  // so it must be a required property (set at creation time).
-  required property var modelData
+  required property var modelData   // the screen, injected by Variants
+
   screen: modelData
 
   anchors {
@@ -44,7 +42,9 @@ PanelWindow {
 
     Workspaces {}
     Separator {}
-    Media {}
+    Music { bar: root }
+    Separator {}
+    Radio { bar: root }
   }
 
   Clock {
@@ -59,15 +59,15 @@ PanelWindow {
     }
     spacing: Theme.moduleSpacing
 
-    Brightness {}
+    Brightness { bar: root }
     Separator {}
-    Audio {}
+    Audio { bar: root }
     Separator {}
     Wifi { bar: root }
     Separator {}
     Mihomo { bar: root }
     Separator {}
-    Battery {}
+    Battery { bar: root }
     Separator {}
     Language {}
   }
