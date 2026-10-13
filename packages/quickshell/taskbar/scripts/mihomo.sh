@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 #
-# mihomo.sh — backend for the Quickshell mihomo widget.
+# mihomo.sh — mihomo backend for plugins/mihomo.
+#
+#   --status          {service, mode, group, node, provider, delay}
+#   --providers       [{name, nodes}]
+#   --nodes P         [{name, alive, delay}]
+#   --select NODE     switch the policy group to NODE
+#   --ping P          {ok, alive | error}   health-check P's servers
+#   --update          {ok | error}          re-download subscriptions, reload
+#   --traffic         {up, down} once a second (controller stream)
+#   --config-path     path of config.yaml
+#   --path P          path of P's provider file (config.yaml if unknown)
+#   --toggle          start / stop mihomo.service
 #
 # Thin layer between the widget and the two things it needs to talk to:
 #   * the subscription manager (manager.py under packages/scripts/vpn/),
@@ -10,12 +21,10 @@
 #   * mihomo's REST API — status, node switching, health checks, reload.
 #
 # config.yaml is a rendered artefact. To add, remove or change a provider,
-# edit subscriptions.json (or press SAVE in the widget, which appends to that
-# file) and let the renderer rebuild proxy-providers + the group `use:` list.
+# edit subscriptions.json and let the renderer rebuild proxy-providers + the
+# group `use:` list.
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=_common.sh
-source "$SCRIPT_DIR/_common.sh"
+set -euo pipefail
 
 API="${MIHOMO_API:-http://127.0.0.1:9090}"
 SERVICE="${MIHOMO_SERVICE:-mihomo.service}"
@@ -23,11 +32,13 @@ GROUP="${MIHOMO_GROUP:-Proxies}"
 TIMEOUT="${MIHOMO_TIMEOUT:-3}"
 MIHOMO_DIR="${MIHOMO_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/mihomo}"
 
+error()      { jq -cn --arg e "$1" '{ok:false, error:$e}'; }
+service_on() { systemctl --user is-active --quiet "$SERVICE"; }
+
 # The subscription manager. A Python script under the dotfiles; run with `uv`
 # so it resolves its inline `requests` dependency on the fly. Not a shell
 # script, not a symlink, not an alias — just a file path.
 VPN_MANAGER="${VPN_MANAGER:-$HOME/.dotfiles/packages/scripts/vpn/manager.py}"
-SUBS_JSON="${SUBS_JSON:-$MIHOMO_DIR/subscriptions.json}"
 
 # Single entry point. Everything that needs the manager goes through here.
 vpn() {
@@ -60,7 +71,7 @@ group_name() {
 
 cmd_status() {
     local svc="off" mode="rule" group node provider delay="0" proxies
-    if service_is_active "$SERVICE"; then svc="on"; fi
+    if service_on; then svc="on"; fi
     mode="$(api /configs | jq -r '.mode // "rule"' 2>/dev/null || true)"
     group="$(group_name)"
     if [[ -n "$group" ]]; then
@@ -185,74 +196,6 @@ cmd_update() {
     printf '{"ok":true}\n'
 }
 
-# ---- add a provider ----------------------------------------------------------
-# Only subscriptions.json is touched here. The renderer in manager.py rebuilds
-# config.yaml on every `--update`, so there is exactly one writer of the
-# runtime config and no chance of the two files drifting apart.
-cmd_add_provider() {
-    local name="${1:-}" url="${2:-}"
-    local provider_path subs_tmp back_json out rc=0
-
-    if [[ -z "$name" || -z "$url" ]]; then
-        printf '{"ok":false,"error":"name and url required"}\n'; return 1
-    fi
-    if [[ ! "$name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
-        printf '{"ok":false,"error":"invalid name"}\n'; return 1
-    fi
-    if [[ ! "$url" =~ ^https?:// ]]; then
-        printf '{"ok":false,"error":"invalid url"}\n'; return 1
-    fi
-    if ! vpn_available; then
-        printf '{"ok":false,"error":"vpn manager not found"}\n'; return 1
-    fi
-    if ! command -v jq >/dev/null 2>&1; then
-        printf '{"ok":false,"error":"jq required"}\n'; return 1
-    fi
-
-    provider_path="$MIHOMO_DIR/providers/$name.yaml"
-
-    if [[ ! -f "$SUBS_JSON" ]]; then
-        printf '{"headers":{},"subscriptions":[]}\n' > "$SUBS_JSON"
-    fi
-
-    if jq -e --arg n "$name" '.subscriptions[] | select(.name == $n)' "$SUBS_JSON" \
-         >/dev/null 2>&1; then
-        printf '{"ok":false,"error":"provider already exists"}\n'; return 1
-    fi
-
-    subs_tmp="$(mktemp "${TMPDIR:-/tmp}/mihomo-subs.XXXXXX")" || {
-        printf '{"ok":false,"error":"temp file"}\n'; return 1
-    }
-    if ! jq --arg n "$name" --arg u "$url" --arg p "$provider_path" '
-        .subscriptions += [{ name: $n, url: $u, path: $p, decode: false }]
-    ' "$SUBS_JSON" > "$subs_tmp"; then
-        rm -f "$subs_tmp"
-        printf '{"ok":false,"error":"could not update subscriptions.json"}\n'; return 1
-    fi
-    back_json="$(mktemp "${TMPDIR:-/tmp}/mihomo-subs-bak.XXXXXX")" || {
-        rm -f "$subs_tmp"
-        printf '{"ok":false,"error":"temp file"}\n'; return 1
-    }
-    cp -f "$SUBS_JSON" "$back_json"
-    cat "$subs_tmp" > "$SUBS_JSON"
-    rm -f "$subs_tmp"
-
-    # The manager downloads the new subscription and re-renders config.yaml.
-    # Roll subscriptions.json back on failure so a bad URL does not leave a
-    # broken entry behind.
-    out="$(vpn --update 2>&1)" || rc=$?
-    if [[ "$rc" -ne 0 ]]; then
-        cp -f "$back_json" "$SUBS_JSON"
-        rm -f "$back_json"
-        update_log "add-provider '$name': vpn --update failed: $out"
-        printf '{"ok":false,"error":"vpn --update failed"}\n'; return 1
-    fi
-    rm -f "$back_json"
-
-    reload_config "$MIHOMO_DIR/config.yaml"
-    printf '{"ok":true,"name":%s}\n' "$(jq -nc --arg n "$name" '$n')"
-}
-
 # ---- provider file / config path --------------------------------------------
 # The renderer writes absolute paths into config.yaml (see manager.py), so the
 # lookup is a straight read of `path:` out of the rendered file.
@@ -300,15 +243,14 @@ main() {
         --select)    cmd_select "${2:-}" ;;
         --ping)      cmd_ping "${2:-}" ;;
         --update)    cmd_update ;;
-        --add-provider) cmd_add_provider "${2:-}" "${3:-}" ;;
         --traffic)   cmd_traffic ;;
         --config-path) cmd_config_path ;;
         --path)      cmd_path "${2:-}" ;;
-        --toggle)    service_toggle "$SERVICE" ;;
-        *)
-            log_error "Unknown command: ${1:-}"
-            exit 1
+        --toggle)
+            if service_on; then systemctl --user stop "$SERVICE"
+            else systemctl --user start "$SERVICE"; fi
             ;;
+        *)           error "unknown command: ${1:-}" ;;
     esac
 }
 

@@ -1,0 +1,5 @@
+[
+  { "label": "DHCP",       "servers": "" },
+  { "label": "CLOUDFLARE", "servers": "1.1.1.1,1.0.0.1" },
+  { "label": "GOOGLE",     "servers": "8.8.8.8,8.8.4.4" }
+]
