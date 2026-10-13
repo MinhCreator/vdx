@@ -22,14 +22,16 @@ Singleton {
     { id: "mihomo",        label: "Mihomo",        zone: "right",  icon: "iconMihomo", about: "Proxy service and servers" },
     { id: "battery",       label: "Battery",       zone: "right",  icon: "iconPlug", about: "Charge, limit, power profile, GPU" },
     { id: "language",      label: "Language",      zone: "right",  icon: "iconKeyboard", about: "Keyboard layout" },
-    { id: "claude",        label: "AI",            zone: "right",  icon: "iconRobot", about: "Claude Code limits, local Ollama models" },
+    { id: "ai",            label: "AI",            zone: "right",  icon: "iconRobot", about: "Claude Code limits, local Ollama models" },
     { id: "plugins",       label: "Plugins",       zone: "right",  icon: "iconPuzzle", fixed: true, about: "This manager, always on" },
     { id: "notifications", label: "Notifications", zone: "right",  icon: "iconBell", about: "History and unseen dot" }
   ]
   readonly property var zones: ["left", "center", "right"]
+  // Old ids still found in saved layouts: old -> new.
+  readonly property var renamed: ({ claude: "ai" })
 
   readonly property var layout: normalize(state.zones)    // {left: [ids], center, right}
-  readonly property var hidden: state.hidden
+  readonly property var hidden: state.hidden.map(id => renamed[id] ?? id)
   readonly property bool customized: state.zones !== null || hidden.length > 0
 
   // Fixed plugins can move but not be switched off (the manager's own button).
@@ -61,8 +63,10 @@ Singleton {
     const seen = new Set();
     const z = { left: [], center: [], right: [] };
     for (const name of zones)
-      for (const id of saved?.[name] ?? [])
+      for (const old of saved?.[name] ?? []) {
+        const id = renamed[old] ?? old;
         if (known.has(id) && !seen.has(id)) { z[name].push(id); seen.add(id); }
+      }
     for (const p of plugins)
       if (!seen.has(p.id)) z[p.zone].push(p.id);
     return z;

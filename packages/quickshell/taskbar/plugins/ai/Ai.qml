@@ -30,14 +30,14 @@ Item {
   BarPopup {
     id: popup
     anchorItem: root
-    ipcTarget: "claude"
+    ipcTarget: "ai"
     bar: root.bar
     implicitWidth: content.implicitWidth
     implicitHeight: content.implicitHeight
     onShown: ClaudeService.popupShown()
     onHidden: ClaudeService.popupHidden()
 
-    ClaudePopup {
+    AiPopup {
       id: content
       anchors.fill: parent
     }

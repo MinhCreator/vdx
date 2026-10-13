@@ -2,10 +2,10 @@ import QtQuick
 import Quickshell
 import qs.components
 import qs.config
+import qs.plugins.ai
 import qs.plugins.audio
 import qs.plugins.battery
 import qs.plugins.brightness
-import qs.plugins.claude
 import qs.plugins.clock
 import qs.plugins.language
 import qs.plugins.mihomo
@@ -26,7 +26,7 @@ PanelWindow {
   readonly property var modules: ({
     workspaces: workspaces, music: music, radio: radio, clock: clock,
     brightness: brightness, audio: audio, wifi: wifi, mihomo: mihomo,
-    battery: battery, language: language, claude: claude, notifications: notifications,
+    battery: battery, language: language, ai: ai, notifications: notifications,
     plugins: plugins
   })
 
@@ -113,7 +113,7 @@ PanelWindow {
   Component { id: mihomo; Mihomo { bar: root } }
   Component { id: battery; Battery { bar: root } }
   Component { id: language; Language {} }
-  Component { id: claude; Claude { bar: root } }
+  Component { id: ai; Ai { bar: root } }
   Component { id: notifications; Notifications { bar: root } }
 
   // The manager's button; a plugin of its own so it can move between zones.

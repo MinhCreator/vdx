@@ -47,11 +47,11 @@
 
 | Файл | Что |
 |---|---|
-| `Claude.qml` | Бар-модуль |
+| `Ai.qml` | Бар-модуль |
 | `ClaudeService.qml` | Опросы и состояние |
-| `ClaudePopup.qml` | Попап |
+| `AiPopup.qml` | Попап (вкладки CLAUDE / OLLAMA) |
 | `OllamaService.qml`, `OllamaView.qml` | Вкладка OLLAMA |
 | `scripts/claude.sh` | `--usage`, `--today`, `--sessions` |
 | `scripts/ollama.sh` | `--status`, `--start`, `--stop`, `--pull`, `--unload` |
 
-**IPC:** `qs -c taskbar ipc call claude toggle` — открыть/закрыть попап.
+**IPC:** `qs -c taskbar ipc call ai toggle` — открыть/закрыть попап.
