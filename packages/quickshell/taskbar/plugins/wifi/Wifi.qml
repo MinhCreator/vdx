@@ -32,6 +32,7 @@ Item {
     id: popup
     anchorItem: root
     ipcTarget: "wifi"
+    closeOnEscape: false                 // WifiPopup: Escape goes back, then closes
     bar: root.bar
     implicitWidth: content.implicitWidth
     implicitHeight: content.implicitHeight

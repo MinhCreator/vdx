@@ -21,6 +21,10 @@ PopupWindow {
   // (Hyprland binds, checks). Empty disables it.
   property string ipcTarget: ""
 
+  // Escape closes the popup. A popup with its own Escape handling (nested
+  // views going back first) turns this off.
+  property bool closeOnEscape: true
+
   // Grow to the right from the module's left edge instead of to the left from
   // its right edge — for modules on the left whose width changes (music).
   property bool alignLeft: false
@@ -68,6 +72,13 @@ PopupWindow {
   Connections {
     target: root.anchorItem
     function onWidthChanged() { if (root.visible) root.anchor.updateAnchor(); }
+  }
+
+  Shortcut {
+    sequences: [StandardKey.Cancel]
+    context: Qt.WindowShortcut
+    enabled: root.visible && root.closeOnEscape
+    onActivated: root.visible = false
   }
 
   IpcHandler {
