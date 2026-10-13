@@ -10,7 +10,7 @@ Layout:
   packages/<pkg>/  -> ~/.config/<pkg>/   (one package per directory)
   themes/<name>/   -> theme overrides, mirrors the packages/ tree
   secrets/env.example -> bootstrap template for ~/.config/secrets/env
-  .theme           -> currently active theme name
+  .theme           -> active theme name (local; DEFAULT_THEME when absent)
 
 A package may ship an optional `package.toml`:
 
@@ -41,7 +41,8 @@ TGT = HOME / ".config"
 PKG = ROOT / "packages"
 THEME = ROOT / "themes"
 SEED = ROOT / "secrets"
-THEME_FILE = ROOT / ".theme"
+THEME_FILE = ROOT / ".theme"          # local, git-ignored; DEFAULT_THEME when absent
+DEFAULT_THEME = "gruvbox"
 
 # names that are never treated as config files
 SKIP = {".git", ".gitignore", ".DS_Store", "node_modules", "package.toml", "README", "README.md"}
@@ -72,11 +73,8 @@ def expand(p: str) -> Path:
 
 
 def active_theme() -> str | None:
-    if THEME_FILE.exists():
-        name = THEME_FILE.read_text().strip()
-        if name and (THEME / name).is_dir():
-            return name
-    return None
+    name = THEME_FILE.read_text().strip() if THEME_FILE.exists() else DEFAULT_THEME
+    return name if name and (THEME / name).is_dir() else None
 
 
 def parse_pkg(pkg: str) -> dict:
@@ -361,7 +359,6 @@ def cmd_theme(args) -> None:
 def cmd_bootstrap(args) -> None:
     jobs = [
         (SEED / "env.example", TGT / "secrets" / "env", 0o600, "secrets env"),
-        (PKG / "mihomo" / "config.example.yaml", TGT / "mihomo" / "config.yaml", 0o644, "mihomo config"),
         (PKG / "scripts" / "vpn" / "subscriptions.json.example", TGT / "scripts" / "vpn" / "subscriptions.json", 0o644, "vpn subscriptions"),
     ]
     done = 0

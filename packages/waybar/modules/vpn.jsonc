@@ -1,9 +1,0 @@
-{
-  "custom/vpn": {
-    "format": "{}",
-    "return-type": "json",
-    "interval": 2,
-    "exec": "~/.config/waybar/scripts/vpn.sh",
-    "on-click": "~/.config/waybar/scripts/vpn.sh --toggle"
-  }
-}

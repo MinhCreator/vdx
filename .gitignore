@@ -8,3 +8,5 @@ packages/gh/hosts.yml
 packages/scripts/vpn/subscriptions.json
 packages/scripts/yandex-music/token
 packages/opencode/node_modules
+# local machine state
+.theme
