@@ -1,0 +1,56 @@
+# Official repos — `./install.py deps` installs what is missing (pacman --needed).
+
+# base
+git
+python
+uv
+curl
+jq
+github-cli
+
+# desktop: Hyprland + quickshell bar
+hyprland
+hyprsunset
+quickshell
+awww
+rofi
+mako
+swaylock
+grim
+slurp
+wl-clipboard
+brightnessctl
+ttf-jetbrains-mono-nerd
+
+# terminal + shell
+kitty
+zsh
+starship
+eza
+zoxide
+tmux
+
+# editors
+neovim
+zed
+
+# audio, network, power (quickshell plugins)
+pipewire
+pipewire-pulse
+wireplumber
+libpulse
+networkmanager
+libnotify
+tlp
+tlp-rdw
+upower
+
+# music
+mpd
+mpc
+ncmpcpp
+
+# tools
+btop
+fastfetch
+opencode

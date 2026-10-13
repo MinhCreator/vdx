@@ -10,6 +10,7 @@ Layout:
   packages/<pkg>/  -> ~/.config/<pkg>/   (one package per directory)
   themes/<name>/   -> theme overrides, mirrors the packages/ tree
   system/          -> /                  (root-owned files, copied with sudo)
+  deps/            -> pacman.txt / aur.txt package lists for `deps` and `setup`
   secrets/env.example -> bootstrap template for ~/.config/secrets/env
   .theme           -> active theme name (local; DEFAULT_THEME when absent)
 
@@ -23,7 +24,8 @@ A package may ship an optional `package.toml`:
   "theme.toml" = "~/.config/custom.toml"
 
 Commands: link, update, force, unlink, cleanup, status, verify,
-theme (list|set|current), bootstrap, system (status|install).
+theme (list|set|current), bootstrap, system (status|install), deps [--check],
+setup (fresh machine: deps, submodules, links, secrets, shell plugins, system).
 """
 
 from __future__ import annotations
@@ -44,6 +46,16 @@ PKG = ROOT / "packages"
 THEME = ROOT / "themes"
 SEED = ROOT / "secrets"
 SYSTEM = ROOT / "system"
+DEPS = ROOT / "deps"
+
+OMZ = HOME / ".local" / "share" / "oh-my-zsh"       # matches $ZSH in .zshrc
+OMZ_INSTALL = "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+# repos cloned once when missing: (target, url)
+CLONES = [
+    (OMZ / "custom" / "plugins" / "zsh-autosuggestions", "https://github.com/zsh-users/zsh-autosuggestions"),
+    (OMZ / "custom" / "plugins" / "zsh-syntax-highlighting", "https://github.com/zsh-users/zsh-syntax-highlighting"),
+    (TGT / "tmux" / "plugins" / "tpm", "https://github.com/tmux-plugins/tpm"),
+]
 
 # after installing a system file under these dirs, run the command ({} = file)
 SYSTEM_APPLY = {
@@ -417,6 +429,65 @@ def cmd_system(args) -> None:
     print("  done")
 
 
+def read_list(name: str) -> list[str]:
+    f = DEPS / name
+    if not f.is_file():
+        return []
+    return [l.split("#", 1)[0].strip() for l in f.read_text().splitlines() if l.split("#", 1)[0].strip()]
+
+
+def cmd_deps(args) -> int:
+    installed = set(subprocess.run(["pacman", "-Qq"], capture_output=True, text=True).stdout.split())
+    repo = [p for p in read_list("pacman.txt") if p not in installed]
+    aur = [p for p in read_list("aur.txt") if p not in installed]
+    if not repo and not aur:
+        print("  all packages installed")
+        return 0
+    for label, pkgs in (("pacman", repo), ("aur", aur)):
+        if pkgs:
+            print(f"  missing ({label}): {' '.join(pkgs)}")
+    if args.check:
+        return 1
+    if repo:
+        subprocess.run(["sudo", "pacman", "-S", "--needed", *repo], check=True)
+    if aur:
+        helper = shutil.which("paru") or shutil.which("yay")
+        if helper:
+            subprocess.run([helper, "-S", "--needed", *aur], check=True)
+        else:
+            print(f"  ! no AUR helper (paru / yay): install manually: {' '.join(aur)}")
+    return 0
+
+
+def shell_extras() -> None:
+    if not OMZ.is_dir():
+        print("  + oh-my-zsh")
+        script = subprocess.run(["curl", "-fsSL", OMZ_INSTALL], capture_output=True, text=True, check=True).stdout
+        subprocess.run(["sh", "-c", script, "", "--unattended", "--keep-zshrc"],
+                       env={**os.environ, "ZSH": str(OMZ), "RUNZSH": "no", "CHSH": "no"}, check=True)
+    for target, url in CLONES:
+        if not target.is_dir():
+            print(f"  + {target.relative_to(HOME)}")
+            subprocess.run(["git", "clone", "--depth", "1", "-q", url, str(target)], check=True)
+
+
+def cmd_setup(args) -> int:
+    """Fresh machine, idempotent: every step skips what is already in place."""
+    steps = [
+        ("packages", lambda: cmd_deps(argparse.Namespace(check=False))),
+        ("submodules", lambda: subprocess.run(["git", "-C", str(ROOT), "submodule", "update", "--init", "--recursive"], check=True)),
+        ("links", lambda: cmd_link(args)),
+        ("secrets", lambda: cmd_bootstrap(argparse.Namespace(force=False))),
+        ("shell plugins", shell_extras),
+        ("system files", lambda: cmd_system(argparse.Namespace(s_action="install"))),
+    ]
+    for name, step in steps:
+        print(f"\n== {name}")
+        step()
+    print("\n== verify")
+    return cmd_verify(args)
+
+
 # --------------------------------------------------------------------------- cli
 
 def main() -> None:
@@ -432,6 +503,9 @@ def main() -> None:
     sub.add_parser("bootstrap", help="copy seed templates to ~/.config").add_argument(
         "-f", "--force", action="store_true"
     )
+    sub.add_parser("deps", help="install missing packages from deps/").add_argument(
+        "--check", action="store_true", help="only list what is missing")
+    sub.add_parser("setup", help="fresh machine: deps, submodules, links, secrets, plugins, system")
     sy = sub.add_parser("system", help="root-owned files under system/ (copied with sudo)")
     sy.add_argument("s_action", choices=["status", "install"])
     te = sub.add_parser("theme", help="theme management")
@@ -461,6 +535,10 @@ def main() -> None:
         cmd_theme(args)
     elif args.cmd == "system":
         cmd_system(args)
+    elif args.cmd == "deps":
+        sys.exit(cmd_deps(args))
+    elif args.cmd == "setup":
+        sys.exit(cmd_setup(args))
     else:
         p.print_help()
 
