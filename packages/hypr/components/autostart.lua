@@ -5,6 +5,6 @@ hl.on("hyprland.start", function()
 	local wall = os.getenv("HOME") .. "/Pictures/Wallpapers/solid.jpeg"
 	hl.exec_cmd("awww-daemon")
 	hl.exec_cmd("awww img " .. wall)
-	hl.exec_cmd("quickshell")
+	hl.exec_cmd("qs -c taskbar")
 	hl.exec_cmd("mako")
 end)
