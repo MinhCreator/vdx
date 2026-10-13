@@ -1,132 +1,117 @@
 # dotfiles
 
-Gruvbox-themed dotfiles for Arch Linux / Hyprland / Zsh / Neovim.
-Manifest-based symlink manager, pure Python stdlib — no stow required.
+Gruvbox-themed dotfiles for Arch Linux / Hyprland / Zsh / Neovim, deployed by a
+manifest-based symlink manager in pure Python stdlib — no stow.
 
 | Component | Software |
 |-----------|----------|
-| Window Manager | Hyprland + Waybar + Mako + Rofi + Swaylock |
+| Desktop | Hyprland (Lua config) + Quickshell bar + Mako + Rofi + Swaylock |
 | Shell | Zsh + Oh My Zsh + Starship |
-| Editor | Neovim (lazy.nvim, LSP, Treesitter, Telescope) |
+| Editor | Neovim (lazy.nvim, LSP, Treesitter, Telescope), Zed |
 | Terminal | Kitty + tmux (TPM) |
-| Music | MPD + ncmpcpp + Yandex Music |
+| Music | MPD + ncmpcpp + Yandex Music CLI + radio CLI |
 | VPN | Mihomo (Clash Meta) + `vpn` manager |
 | Other | btop, fastfetch, elio, opencode |
 
 ---
 
-## Requirements
+## Install
 
-- **OS:** Arch Linux (or derivative)
-- **Python:** 3.11+ (stdlib only, via `tomllib`)
-- **Git:** for cloning and submodules
-- **uv:** used by the `radio`, `vpn` and `yandex-music` scripts
-- **Hyprland with Lua config support:** the window-manager config is written
-  as `hyprland.lua` (the `hl.*` API), so a Hyprland build with the Lua
-  configuration layer is required (0.55+ or current git —
-  https://hypr.land/news/26_lua/)
-
----
-
-## Installation
+On a fresh Arch install (with `git` and `python` ≥ 3.11):
 
 ```bash
-# Core packages (Arch official repos)
-sudo pacman -S --needed git python uv zsh eza starship tmux kitty jq \
-  brightnessctl wl-clipboard grim slurp swaylock mako waybar \
-  mpd mpc ncmpcpp btop fastfetch github-cli
-
-# From AUR (or git builds; see Requirements for the Hyprland version):
-#   hyprland (Lua-capable build), rofi-wayland, awww (wallpaper daemon),
-#   hyprsunset (night light), wifitui, elio, zed, mihomo, mihomo-tui,
-#   opencode, telegram-desktop
-# Optional: zoxide (enables `z` directory jumps in the zsh config)
-
-# Oh My Zsh (required by zsh config) + custom plugins used by .zshrc
-ZSH="$HOME/.local/share/oh-my-zsh" sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH/custom/plugins/zsh-autosuggestions"
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH/custom/plugins/zsh-syntax-highlighting"
-
-# Starship prompt
-curl -sS https://starship.rs/install.sh | sh
-
-# Clone and deploy
-git clone git@github.com:diominvd/dotfiles.git ~/.dotfiles
+git clone --recursive git@github.com:diominvd/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-git submodule update --init --recursive     # fetch nvim + script CLIs
-./install.py link                           # deploy all symlinks
-./install.py bootstrap                      # copy seed templates for secrets
-git config core.hooksPath hooks             # auto-relink on checkout/pull/rebase
+./install.py setup
 ```
 
-tmux: reinstall TPM at runtime (removed from the repo as a submodule):
+`setup` is idempotent — each step skips what is already in place:
 
-```bash
-rm -rf ~/.config/tmux/plugins/tpm
-git clone --depth 1 https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
-```
+1. **packages** — missing ones from `deps/pacman.txt` (`pacman --needed`) and
+   `deps/aur.txt` (`paru` or `yay`);
+2. **submodules** — nvim and the script CLIs;
+3. **links** — `~/` and `~/.config` symlinks for the active theme;
+4. **secrets** — seeds `~/.config/secrets/env` from `secrets/env.example`;
+5. **shell plugins** — Oh My Zsh, zsh-autosuggestions, zsh-syntax-highlighting,
+   TPM (cloned when missing);
+6. **system files** — `system/` into `/etc` with sudo;
+7. **verify** — reports broken, missing or stale links.
+
+Hyprland must be a build with the Lua config layer (0.55+ or git): the config
+is `hyprland.lua` (`hl.*` API) — https://hypr.land/news/26_lua/
 
 ---
 
-## Usage
+## Commands
 
-| Command | Description |
-|---------|-------------|
-| `./install.py link` | Create/refresh all symlinks (removes stale, resolves conflicts) |
-| `./install.py update` | Alias of `link` |
-| `./install.py force` | Unlink + relink everything |
+| Command | What it does |
+|---------|--------------|
+| `./install.py setup` | Fresh machine: everything above |
+| `./install.py deps [--check]` | Install missing packages (`--check`: only list them) |
+| `./install.py link` | Create/refresh symlinks, drop stale ones (`update` is an alias) |
+| `./install.py force` | Unlink + link everything |
 | `./install.py unlink` | Remove all managed symlinks |
 | `./install.py cleanup` | Remove stale symlinks only |
 | `./install.py status` | Per-package link status |
-| `./install.py verify` | Check for broken/missing/stale links |
-| `./install.py theme list` | Available themes |
-| `./install.py theme current` | Active theme |
-| `./install.py theme set <name>` | Switch theme and re-link |
-| `./install.py bootstrap` | Copy seeded templates (secrets/mihomo/vpn) |
+| `./install.py verify` | Broken / missing / stale links (non-zero exit on problems) |
+| `./install.py bootstrap [-f]` | Seed secrets from templates |
+| `./install.py system status\|install` | Compare / install `system/` files into `/etc` |
+| `./install.py theme list\|current\|set <name>` | Themes; `set` re-links |
 
-Works everywhere via inline PEP 723 metadata: `uv run install.py link`.
+After adding a file to a package, run `./install.py link` — files are linked
+one by one, so a new one is not visible until then.
 
 ---
 
-## How It Works
+## Layout
 
-### Layout
+```
+.dotfiles/
+├── install.py         manager (stdlib only, PEP 723: `uv run install.py`)
+├── deps/              pacman.txt, aur.txt — package lists for `deps` / `setup`
+├── home/              -> ~/                 (.zshenv)
+├── packages/<pkg>/    -> ~/.config/<pkg>/   (one package per program)
+├── themes/<name>/     overlay mirroring packages/ (active theme wins per file)
+├── system/            -> /                  (copied with sudo, never linked)
+├── secrets/           env.example — template for ~/.config/secrets/env
+└── docs/              power management notes
+```
 
 | Source | Target | Example |
 |--------|--------|---------|
-| `home/` | `~/` | `home/.zshenv` → `~/.zshenv` |
-| `packages/<pkg>/` | `~/.config/<pkg>/` | `packages/nvim/init.lua` → `~/.config/nvim/init.lua` |
-| `themes/<name>/` | overlay on `~/.config/` | `themes/gruvbox/waybar/colors.css` → `~/.config/waybar/colors.css` |
+| `home/<file>` | `~/<file>` | `home/.zshenv` → `~/.zshenv` |
+| `packages/<pkg>/<rel>` | `~/.config/<pkg>/<rel>` | `packages/kitty/kitty.conf` |
+| `themes/<t>/<pkg>/<rel>` | same target, shadows the package file | `themes/gruvbox/kitty/colors.conf` |
+| `system/<path>` | `/<path>` | `system/etc/tlp.d/99-dotfiles.conf` |
 
-Each package maps to its own directory in `~/.config/` (avoids `mako/config` vs
-`ncmpcpp/config` collisions). Exceptions are declared in an optional
-`packages/<pkg>/package.toml`:
+- **package.toml** (optional, per package) overrides the install dir or single
+  targets:
 
-```toml
-dir = "~/.config"              # install dir override (default ~/.config/<pkg>)
+  ```toml
+  dir = "~/.config"                         # default ~/.config/<pkg>
 
-[files]                        # per-file target overrides
-"starship.toml" = "~/.config/starship.toml"
-```
+  [files]
+  "starship.toml" = "~/.config/starship.toml"
+  ```
 
-Theme overlay: `themes/<active>/<pkg>/<rel>` shadows `packages/<pkg>/<rel>`
-when present. `.theme` holds the active theme name.
+- **Themes.** `themes/gruvbox` is the only theme; the active one is in `.theme`
+  (local, git-ignored — gruvbox when absent). Mako and Swaylock exist only as
+  theme files. The Quickshell bar reloads itself when the theme changes.
+- **Never linked:** `.git`, `.gitignore`, `package.toml`, `node_modules`,
+  `README`, `README.md`.
+- **Conflicts:** correct links are kept, wrong ones replaced, real files and
+  directories moved to `.bak`.
+- **System files** are copied, not linked (`/etc` must not point into `$HOME`).
+  `system status` shows drift; `system install` copies and applies
+  (`systemd-tmpfiles --create`, `tlp start`). Keep `/etc/tlp.conf` at the
+  package defaults so the `/etc/tlp.d` drop-in applies.
 
-**Skip rules:** `.git`, `.gitignore`, `package.toml`, `node_modules`, `README`,
-`README.md` are never linked.
+### Quickshell bar
 
-**Conflict resolution:** correct symlinks are kept; wrong ones replaced; real
-files/directories get backed up as `.bak`.
-
-### Git Hooks
-
-Enable once — then symlinks stay in sync after every branch operation:
-
-- `post-checkout` / `post-merge` / `post-rebase` → `./install.py link`
-
-```bash
-git config core.hooksPath hooks
-```
+`packages/quickshell/taskbar/` — plugins for Wi-Fi, Mihomo, audio, display,
+battery, music and radio. Architecture, UI rules and how to add a plugin:
+[`taskbar/CLAUDE.md`](packages/quickshell/taskbar/CLAUDE.md); each plugin has its
+own `README.md`.
 
 ### Submodules
 
@@ -137,73 +122,30 @@ git config core.hooksPath hooks
 | Radio CLI | `packages/scripts/radio` → github.com/diominvd/radio-cli |
 | VPN manager CLI | `packages/scripts/vpn` → github.com/diominvd/vpn-manager-cli |
 
-Changes to the CLIs are committed in their own repos, then the pointer is bumped
-here (`git submodule update --remote <path>` + commit). TPM is installed at
-runtime (see above).
-
----
-
-## Repository Structure
-
-```
-.dotfiles/
-├── install.py                     manifest-based manager (stdlib only)
-├── .theme                         active theme (gruvbox | dune)
-├── home/                          → ~/
-│   └── .zshenv
-├── packages/                      → ~/.config/<pkg>/
-│   ├── btop/ elio/ fastfetch/ gh/ gtk-3.0/
-│   ├── hypr/                      Hyprland (Lua, modular components)
-│   ├── kitty/ mihomo/ mihomo-tui/ mpd/ ncmpcpp/
-│   ├── nvim/                      submodule
-│   ├── opencode/ rofi/ scripts/ starship/ telegram/ tmux/ waybar/ zsh/
-│   ├── starship/starship.toml     ~/.config/starship.toml (package.toml override)
-│   └── scripts/                   vendor: battery, disk, memory, colorpaper,
-│                                  radio/, vpn/, yandex-music/
-├── themes/
-│   ├── gruvbox/                   active theme overlay (11 files)
-│   └── dune/                      alternative theme overlay
-├── secrets/
-│   └── env.example                template for ~/.config/secrets/env
-├── hooks/                         post-checkout / post-merge / post-rebase
-├── docs/                          POWER_MANAGEMENT notes
-└── .gitignore
-```
+Change them in their own repos, then bump the pointer here:
+`git submodule update --remote <path>` and commit.
 
 ---
 
 ## Secrets
 
-API keys, tokens and subscriptions are **not** committed.
-
 | Secret | Location | In git? |
 |--------|----------|---------|
-| API keys (GEMINI, ANTHROPIC, OPENAI...) | `~/.config/secrets/env`, sourced by zsh | No |
-| GitHub OAuth token | `~/.config/gh/hosts.yml` | No (git-ignored) |
-| GitHub CLI config | `packages/gh/config.yml` | Yes (no secrets) |
-| Mihomo subscription | `packages/mihomo/config.yaml` (+ `packages/mihomo/providers/`) | No (git-ignored) |
-| VPN subscriptions | `packages/scripts/vpn/subscriptions.json` | No (git-ignored) |
+| API keys (GEMINI, ANTHROPIC, OPENAI…) | `~/.config/secrets/env`, sourced by zsh | No |
+| GitHub OAuth token | `~/.config/gh/hosts.yml` | No (ignored) |
+| Mihomo rendered config + providers | `packages/mihomo/config.yaml`, `providers/` | No (ignored) |
+| Mihomo subscriptions | `packages/mihomo/subscriptions.json` | **Yes** (private repo) |
 | Yandex Music token | `~/.config/scripts/yandex-music/token` | No (local file) |
-
-Bootstrap seeds from templates:
-
-```bash
-./install.py bootstrap        # ~/.config/secrets/env, mihomo/config.yaml,
-                              # scripts/vpn/subscriptions.json (from *.example)
-```
-
-Local runtime files may live inside the repo tree (`packages/mihomo/config.yaml`,
-`providers/`) — they are git-ignored and re-linked by the manager.
 
 ---
 
 ## Troubleshooting
 
-- **Conflicts** → `./install.py force` (backs up real files as `.bak`).
-- **Submodules empty** → `git submodule update --init`.
-- **Hooks not running** → `git config core.hooksPath hooks`.
-- **Broken links** → `./install.py verify` then `./install.py link`.
-- **Permission denied** → `chmod +x install.py`.
+- **Conflicts** → `./install.py force` (real files are kept as `.bak`).
+- **New file not picked up** → `./install.py link`.
+- **Empty submodules** → `git submodule update --init --recursive`.
+- **Broken links** → `./install.py verify`, then `./install.py link`.
+- **Missing programs** → `./install.py deps --check`.
 
 ---
 
