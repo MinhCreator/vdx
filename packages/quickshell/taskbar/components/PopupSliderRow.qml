@@ -70,11 +70,17 @@ Item {
     }
   }
 
+  // Sized to the widest value ("150%"), so the gap to the slider stays small.
+  FontMetrics {
+    id: metrics
+    font: inlineValue.font
+  }
+
   ThemeText {
     id: inlineValue
     visible: !root.captioned
     anchors { right: parent.right; verticalCenter: slider.verticalCenter }
-    width: 52
+    width: metrics.advanceWidth("150%")
     horizontalAlignment: Text.AlignRight
     text: root.text
     color: root.valueColor
