@@ -22,7 +22,7 @@ On a fresh Arch install (with `git` and `python` ≥ 3.11):
 ```bash
 git clone --recursive git@github.com:diominvd/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-./install.py setup
+./install.py setup          # or just ./install.py for the menu
 ```
 
 `setup` is idempotent — each step skips what is already in place:
@@ -44,6 +44,9 @@ is `hyprland.lua` (`hl.*` API) — https://hypr.land/news/26_lua/
 
 ## Commands
 
+`./install.py` with no arguments opens a menu: a status overview (theme,
+links, system files, missing packages) and numbered actions.
+
 | Command | What it does |
 |---------|--------------|
 | `./install.py setup` | Fresh machine: everything above |
@@ -57,6 +60,10 @@ is `hyprland.lua` (`hl.*` API) — https://hypr.land/news/26_lua/
 | `./install.py bootstrap [-f]` | Seed secrets from templates |
 | `./install.py system status\|install` | Compare / install `system/` files into `/etc` |
 | `./install.py theme list\|current\|set <name>` | Themes; `set` re-links |
+
+Commands that change or remove things (`force`, `unlink`, `deps`,
+`system install`, `setup`) ask first; `-y` answers yes, and without a terminal
+they do nothing unless `-y` is given.
 
 After adding a file to a package, run `./install.py link` — files are linked
 one by one, so a new one is not visible until then.

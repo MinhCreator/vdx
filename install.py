@@ -5,6 +5,9 @@
 # ///
 """dotfiles — manifest-based symlink manager (stdlib only).
 
+Run without arguments for an interactive menu with a status overview, or pass
+a command (`./install.py --help`).
+
 Layout:
   home/            -> ~/                 (files linked into the home dir)
   packages/<pkg>/  -> ~/.config/<pkg>/   (one package per directory)
@@ -16,23 +19,17 @@ Layout:
 
 A package may ship an optional `package.toml`:
 
-  [package]
-  dir        = "~/.config"            # install dir (default ~/.config/<pkg>)
-  skip       = ["*.log"]              # extra names to skip
+  dir  = "~/.config"                  # install dir (default ~/.config/<pkg>)
+  skip = ["notes.txt"]                # extra relative paths to skip
 
-  [files]    # per-file target overrides
+  [files]                             # per-file target overrides
   "theme.toml" = "~/.config/custom.toml"
-
-Commands: link, update, force, unlink, cleanup, status, verify,
-theme (list|set|current), bootstrap, system (status|install), deps [--check],
-setup (fresh machine: deps, submodules, links, secrets, shell plugins, system).
 """
 
 from __future__ import annotations
 
 import argparse
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -48,6 +45,9 @@ SEED = ROOT / "secrets"
 SYSTEM = ROOT / "system"
 DEPS = ROOT / "deps"
 
+THEME_FILE = ROOT / ".theme"          # local, git-ignored; DEFAULT_THEME when absent
+DEFAULT_THEME = "gruvbox"
+
 OMZ = HOME / ".local" / "share" / "oh-my-zsh"       # matches $ZSH in .zshrc
 OMZ_INSTALL = "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
 # repos cloned once when missing: (target, url)
@@ -62,8 +62,6 @@ SYSTEM_APPLY = {
     "/etc/tmpfiles.d": ["systemd-tmpfiles", "--create", "{}"],
     "/etc/tlp.d": ["tlp", "start"],
 }
-THEME_FILE = ROOT / ".theme"          # local, git-ignored; DEFAULT_THEME when absent
-DEFAULT_THEME = "gruvbox"
 
 # names that are never treated as config files
 SKIP = {".git", ".gitignore", ".DS_Store", "node_modules", "package.toml", "README", "README.md"}
@@ -71,23 +69,64 @@ SKIP = {".git", ".gitignore", ".DS_Store", "node_modules", "package.toml", "READ
 # directories never worth scanning for managed symlinks (~/.cache, ~/.local,
 # git/npm/rust trees, ...) — keeps `link`/`status`/`verify` fast on big homes
 PRUNE = {
-    ".cache",
-    ".local",
-    ".git",
-    "node_modules",
-    ".npm",
-    ".cargo",
-    ".rustup",
-    ".nvm",
-    ".pyenv",
-    ".conda",
-    "target",
-    ".var",
-    ".mozilla",
+    ".cache", ".local", ".git", "node_modules", ".npm", ".cargo", ".rustup",
+    ".nvm", ".pyenv", ".conda", "target", ".var", ".mozilla",
 }
 
 
-# --------------------------------------------------------------------------- helpers
+# --------------------------------------------------------------------------- output
+
+COLOR = sys.stdout.isatty() and "NO_COLOR" not in os.environ
+
+
+def paint(code: str, text: str) -> str:
+    return f"\033[{code}m{text}\033[0m" if COLOR else text
+
+
+def bold(t: str) -> str: return paint("1", t)
+def dim(t: str) -> str: return paint("2", t)
+def green(t: str) -> str: return paint("32", t)
+def yellow(t: str) -> str: return paint("33", t)
+def red(t: str) -> str: return paint("31", t)
+def cyan(t: str) -> str: return paint("36", t)
+
+
+def heading(text: str) -> None:
+    print(f"\n{bold(cyan('::'))} {bold(text)}")
+
+
+def mark(sym: str, color, text: str) -> None:
+    print(f"  {color(sym)} {text}")
+
+
+def ok(text: str) -> None: mark("✓", green, text)
+def added(text: str) -> None: mark("+", green, text)
+def removed(text: str) -> None: mark("-", yellow, text)
+def warn(text: str) -> None: mark("!", yellow, text)
+def err(text: str) -> None: mark("✗", red, text)
+def note(text: str) -> None: print(f"  {dim(text)}")
+
+
+def short(p: Path) -> str:
+    """~/-relative path for display."""
+    try:
+        return "~/" + str(p.relative_to(HOME))
+    except ValueError:
+        return str(p)
+
+
+def confirm(question: str, args) -> bool:
+    """Ask before changing things; -y answers yes, no terminal answers no."""
+    if getattr(args, "yes", False):
+        return True
+    if not sys.stdin.isatty():
+        warn(f"{question} — skipped (no terminal; pass -y to confirm)")
+        return False
+    answer = input(f"  {yellow('?')} {question} {dim('[y/N]')} ").strip().lower()
+    return answer in ("y", "yes", "д", "да")
+
+
+# --------------------------------------------------------------------------- model
 
 def expand(p: str) -> Path:
     return Path(os.path.expanduser(p))
@@ -96,6 +135,12 @@ def expand(p: str) -> Path:
 def active_theme() -> str | None:
     name = THEME_FILE.read_text().strip() if THEME_FILE.exists() else DEFAULT_THEME
     return name if name and (THEME / name).is_dir() else None
+
+
+def themes() -> list[str]:
+    if not THEME.is_dir():
+        return []
+    return sorted(d.name for d in THEME.iterdir() if d.is_dir() and not d.name.startswith("."))
 
 
 def parse_pkg(pkg: str) -> dict:
@@ -112,8 +157,6 @@ def install_dir(pkg: str, man: dict) -> Path:
     d = man.get("dir")
     return expand(d) if d else TGT / pkg
 
-
-# --------------------------------------------------------------------------- model
 
 def pkg_names() -> list[str]:
     names = set()
@@ -169,10 +212,7 @@ def build_entries() -> list[tuple[Path, Path, str]]:
         for rel, src in sources_for(pkg):
             if Path(rel).name in SKIP or rel in pkg_skip:
                 continue
-            if rel in files_map:
-                tgt = expand(str(files_map[rel]))
-            else:
-                tgt = idir / rel
+            tgt = expand(str(files_map[rel])) if rel in files_map else idir / rel
             entries.append((src, tgt, pkg))
 
     return entries
@@ -207,23 +247,19 @@ def find_managed() -> list[Path]:
     return list(found)
 
 
-def expected_targets(entries: list[tuple[Path, Path, str]]) -> set[Path]:
-    return {t for _, t, _ in entries}
-
-
 def stale_links(entries: list[tuple[Path, Path, str]]) -> list[Path]:
-    expected = expected_targets(entries)
+    expected = {t for _, t, _ in entries}
     return [p for p in find_managed() if p not in expected]
 
 
 def cleanup_stale(entries: list[tuple[Path, Path, str]] | None = None) -> int:
     entries = entries if entries is not None else build_entries()
-    removed = 0
+    n = 0
     for p in stale_links(entries):
         p.unlink(missing_ok=True)
-        print(f"  ~ removed stale: {p.relative_to(HOME)}")
-        removed += 1
-    return removed
+        removed(f"{short(p)} {dim('(stale)')}")
+        n += 1
+    return n
 
 
 def is_same(tgt: Path, src: Path) -> bool:
@@ -235,217 +271,225 @@ def is_same(tgt: Path, src: Path) -> bool:
         return False
 
 
-def resolve_conflict(tgt: Path) -> bool:
+def resolve_conflict(tgt: Path) -> None:
     """Make room for a symlink. Backs up real files/dirs with .bak."""
     if not tgt.exists() and not tgt.is_symlink():
-        return True
-    if tgt.is_dir() and not tgt.is_symlink():
-        has_real = any(c.is_file() and not c.is_symlink() for c in tgt.rglob("*"))
-        if has_real:
-            bak = tgt.with_suffix(".bak")
-            if bak.exists():
-                shutil.rmtree(bak)
-            shutil.move(str(tgt), str(bak))
-            print(f"  ! backed up dir: {tgt.relative_to(HOME)} -> .bak")
-        else:
-            shutil.rmtree(tgt)
-        return True
+        return
     if tgt.is_symlink():
         tgt.unlink(missing_ok=True)
-        return True
-    if tgt.is_file():
-        bak = tgt.with_suffix(".bak")
+        return
+    bak = tgt.with_suffix(".bak")
+    if tgt.is_dir():
+        if not any(c.is_file() and not c.is_symlink() for c in tgt.rglob("*")):
+            shutil.rmtree(tgt)
+            return
         if bak.exists():
-            bak.unlink()
-        shutil.move(str(tgt), str(bak))
-        print(f"  ! backed up file: {tgt.relative_to(HOME)} -> .bak")
-        return True
-    return True
+            shutil.rmtree(bak)
+    elif bak.exists():
+        bak.unlink()
+    shutil.move(str(tgt), str(bak))
+    warn(f"backed up {short(tgt)} -> .bak")
 
 
 def create_symlink(src: Path, tgt: Path) -> None:
     tgt.parent.mkdir(parents=True, exist_ok=True)
-    rel = os.path.relpath(src, tgt.parent)
-    tgt.symlink_to(rel)
+    tgt.symlink_to(os.path.relpath(src, tgt.parent))
 
 
-# --------------------------------------------------------------------------- commands
-
-def cmd_link(args) -> None:
-    print(f"\n  Linking dotfiles (theme: {active_theme() or 'default'})\n")
-    removed = cleanup_stale()
-    created = skipped = 0
-    for src, tgt, pkg in build_entries():
-        if is_same(tgt, src):
-            skipped += 1
-            continue
-        resolve_conflict(tgt)
-        create_symlink(src, tgt)
-        created += 1
-        print(f"  + {tgt.relative_to(HOME)}")
-    if created or removed or skipped:
-        print(f"\n  created: {created} | up-to-date: {skipped} | stale removed: {removed}")
-    print("  done")
+def link_counts(entries: list[tuple[Path, Path, str]]) -> tuple[int, int]:
+    """(linked, problems) over all entries."""
+    good = sum(1 for src, tgt, _ in entries if src.exists() and is_same(tgt, src))
+    return good, len(entries) - good
 
 
-def cmd_unlink(args) -> None:
-    entries = build_entries()
-    removed = 0
-    for src, tgt, pkg in entries:
-        if tgt.is_symlink():
-            tgt.unlink(missing_ok=True)
-            removed += 1
-            print(f"  - {tgt.relative_to(HOME)}")
-    r2 = cleanup_stale(entries)
-    print(f"\n  removed: {removed} | stale: {r2}")
-    print("  done")
-
-
-def cmd_force(args) -> None:
-    cmd_unlink(args)
-    cmd_link(args)
-
-
-def cmd_cleanup(args) -> None:
-    n = cleanup_stale()
-    print(f"  removed stale: {n}")
-
-
-def cmd_status(args) -> None:
-    entries = build_entries()
-    by_pkg: dict[str, list[tuple[Path, Path, str]]] = {}
-    for e in entries:
-        by_pkg.setdefault(e[2], []).append(e)
-
-    for pkg in sorted(by_pkg):
-        items = by_pkg[pkg]
-        n_ok = 0
-        n_prob = 0
-        for src, tgt, _ in items:
-            if src is None or not src.exists():
-                n_prob += 1
-            elif tgt.is_symlink() and is_same(tgt, src):
-                n_ok += 1
-            elif tgt.exists() and not tgt.is_symlink():
-                n_prob += 1
-            else:
-                n_prob += 1
-        print(f"  {pkg:20s} {n_ok} linked | {n_prob} problems")
-
-    stale = stale_links(entries)
-    if stale:
-        print(f"\n  stale ({len(stale)}):")
-        for p in stale:
-            print(f"    x {p.relative_to(HOME)}")
-
-
-def cmd_verify(args) -> None:
-    entries = build_entries()
-    broken = 0
-    for src, tgt, pkg in entries:
-        if not src.exists():
-            print(f"  x SOURCE MISSING: {tgt.relative_to(HOME)}")
-            broken += 1
-        elif tgt.is_symlink() and not tgt.exists():
-            print(f"  x BROKEN: {tgt.relative_to(HOME)}")
-            broken += 1
-        elif not tgt.exists() and not tgt.is_symlink():
-            print(f"  x MISSING: {tgt.relative_to(HOME)}")
-            broken += 1
-    for p in stale_links(entries):
-        print(f"  x STALE: {p.relative_to(HOME)}")
-        broken += 1
-    print(f"  {'all ok' if broken == 0 else f'{broken} problem(s)'}")
-    return 1 if broken else 0
-
-
-def cmd_theme(args) -> None:
-    if args.t_action == "list":
-        for d in sorted(THEME.iterdir()) if THEME.is_dir() else []:
-            if d.is_dir() and not d.name.startswith("."):
-                mark = " (active)" if d.name == active_theme() else ""
-                print(f"  {d.name}{mark}")
-    elif args.t_action == "current":
-        print(active_theme() or "none")
-    elif args.t_action == "set":
-        name = args.t_name
-        if not (THEME / name).is_dir():
-            print(f"  x unknown theme: {name}")
-            sys.exit(1)
-        THEME_FILE.write_text(name + "\n")
-        print(f"  switched to theme: {name}")
-        cmd_link(args)
-
-
-def cmd_bootstrap(args) -> None:
-    jobs = [
-        (SEED / "env.example", TGT / "secrets" / "env", 0o600, "secrets env"),
-    ]
-    done = 0
-    for src, tgt, mode, label in jobs:
-        if not src.is_file():
-            continue
-        if tgt.exists() and not args.force:
-            print(f"  - exists, skip: {label} ({tgt.relative_to(HOME)})")
-            continue
-        tgt.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(src, tgt)
-        os.chmod(tgt, mode)
-        print(f"  + {label} -> {tgt.relative_to(HOME)}")
-        done += 1
-    if done == 0:
-        print("  nothing to bootstrap")
-
-
-def system_files() -> list[tuple[Path, Path]]:
-    if not SYSTEM.is_dir():
-        return []
-    return [(f, Path("/") / f.relative_to(SYSTEM))
-            for f in sorted(SYSTEM.rglob("*")) if f.is_file() and f.name not in SKIP]
-
-
-def cmd_system(args) -> None:
-    """Root-owned files are copied, not linked: /etc must not point into $HOME."""
-    changed = []
-    for src, dst in system_files():
-        state = "ok" if dst.is_file() and dst.read_bytes() == src.read_bytes() else \
-                "differs" if dst.exists() else "missing"
-        if state != "ok":
-            changed.append((src, dst))
-        if args.s_action == "status":
-            print(f"  {'=' if state == 'ok' else 'x'} {dst}  ({state})")
-    if args.s_action == "status":
-        return
-    if not changed:
-        print("  system files are up to date")
-        return
-    for src, dst in changed:
-        subprocess.run(["sudo", "install", "-Dm644", str(src), str(dst)], check=True)
-        print(f"  + {dst}")
-        for prefix, cmd in SYSTEM_APPLY.items():
-            if str(dst).startswith(prefix + "/"):
-                subprocess.run(["sudo", *(a.replace("{}", str(dst)) for a in cmd)], check=False)
-    print("  done")
+def system_state() -> list[tuple[Path, Path, str]]:
+    """(src, dst, ok|differs|missing) for every file under system/."""
+    out = []
+    if SYSTEM.is_dir():
+        for src in sorted(SYSTEM.rglob("*")):
+            if not src.is_file() or src.name in SKIP:
+                continue
+            dst = Path("/") / src.relative_to(SYSTEM)
+            state = "ok" if dst.is_file() and dst.read_bytes() == src.read_bytes() \
+                else "differs" if dst.exists() else "missing"
+            out.append((src, dst, state))
+    return out
 
 
 def read_list(name: str) -> list[str]:
     f = DEPS / name
     if not f.is_file():
         return []
-    return [l.split("#", 1)[0].strip() for l in f.read_text().splitlines() if l.split("#", 1)[0].strip()]
+    return [w for w in (l.split("#", 1)[0].strip() for l in f.read_text().splitlines()) if w]
+
+
+def missing_packages() -> tuple[list[str], list[str]]:
+    if not shutil.which("pacman"):
+        return [], []
+    installed = set(subprocess.run(["pacman", "-Qq"], capture_output=True, text=True).stdout.split())
+    return ([p for p in read_list("pacman.txt") if p not in installed],
+            [p for p in read_list("aur.txt") if p not in installed])
+
+
+# --------------------------------------------------------------------------- commands
+
+def cmd_link(args) -> int:
+    heading(f"Linking dotfiles {dim('(theme: ' + (active_theme() or 'none') + ')')}")
+    entries = build_entries()
+    stale = cleanup_stale(entries)
+    created = 0
+    for src, tgt, _ in entries:
+        if is_same(tgt, src):
+            continue
+        resolve_conflict(tgt)
+        create_symlink(src, tgt)
+        added(short(tgt))
+        created += 1
+    ok(f"{created} created · {len(entries) - created} up to date · {stale} stale removed")
+    return 0
+
+
+def cmd_unlink(args) -> int:
+    heading("Removing managed symlinks")
+    if not confirm("Remove every symlink this repo created?", args):
+        return 1
+    entries = build_entries()
+    n = 0
+    for _, tgt, _ in entries:
+        if tgt.is_symlink():
+            tgt.unlink(missing_ok=True)
+            n += 1
+    ok(f"{n} removed · {cleanup_stale(entries)} stale")
+    return 0
+
+
+def cmd_force(args) -> int:
+    heading("Re-linking everything")
+    if not confirm("Remove and recreate every symlink (real files go to .bak)?", args):
+        return 1
+    args.yes = True
+    cmd_unlink(args)
+    return cmd_link(args)
+
+
+def cmd_cleanup(args) -> int:
+    heading("Removing stale symlinks")
+    ok(f"{cleanup_stale()} removed")
+    return 0
+
+
+def cmd_status(args) -> int:
+    heading("Link status")
+    entries = build_entries()
+    by_pkg: dict[str, list[tuple[Path, Path, str]]] = {}
+    for e in entries:
+        by_pkg.setdefault(e[2], []).append(e)
+    for pkg in sorted(by_pkg):
+        good, bad = link_counts(by_pkg[pkg])
+        line = f"{pkg:14s} {good} linked"
+        (err if bad else ok)(line + (red(f" · {bad} problem(s)") if bad else ""))
+    stale = stale_links(entries)
+    for p in stale:
+        err(f"{short(p)} {dim('(stale)')}")
+    return 0
+
+
+def cmd_verify(args) -> int:
+    heading("Verifying links")
+    entries = build_entries()
+    problems = 0
+    for src, tgt, _ in entries:
+        issue = ("source missing" if not src.exists()
+                 else "broken" if tgt.is_symlink() and not tgt.exists()
+                 else "missing" if not tgt.exists() and not tgt.is_symlink()
+                 else None)
+        if issue:
+            err(f"{short(tgt)} {dim('(' + issue + ')')}")
+            problems += 1
+    for p in stale_links(entries):
+        err(f"{short(p)} {dim('(stale)')}")
+        problems += 1
+    if problems:
+        err(f"{problems} problem(s) — run `./install.py link`")
+        return 1
+    ok(f"all {len(entries)} links ok")
+    return 0
+
+
+def cmd_theme(args) -> int:
+    if args.t_action == "list":
+        heading("Themes")
+        for name in themes():
+            (ok if name == active_theme() else note)(name + (" (active)" if name == active_theme() else ""))
+    elif args.t_action == "current":
+        print(active_theme() or "none")
+    elif args.t_action == "set":
+        if args.t_name not in themes():
+            err(f"unknown theme: {args.t_name} (have: {', '.join(themes())})")
+            return 1
+        THEME_FILE.write_text(args.t_name + "\n")
+        ok(f"theme: {args.t_name}")
+        return cmd_link(args)
+    return 0
+
+
+def cmd_bootstrap(args) -> int:
+    heading("Seeding secrets")
+    jobs = [
+        (SEED / "env.example", TGT / "secrets" / "env", 0o600, "secrets env"),
+    ]
+    for src, tgt, mode, label in jobs:
+        if not src.is_file():
+            continue
+        if tgt.exists() and not getattr(args, "force", False):
+            note(f"{label}: {short(tgt)} exists, kept")
+            continue
+        tgt.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, tgt)
+        os.chmod(tgt, mode)
+        added(f"{label} -> {short(tgt)}")
+    return 0
+
+
+def cmd_system(args) -> int:
+    """Root-owned files are copied, not linked: /etc must not point into $HOME."""
+    state = system_state()
+    if args.s_action == "status":
+        heading("System files")
+        for _, dst, s in state:
+            (ok if s == "ok" else err)(f"{dst} {dim('(' + s + ')')}")
+        return 0 if all(s == "ok" for *_, s in state) else 1
+    heading("Installing system files")
+    changed = [(src, dst) for src, dst, s in state if s != "ok"]
+    if not changed:
+        ok("system files are up to date")
+        return 0
+    for _, dst in changed:
+        note(str(dst))
+    if not confirm(f"Copy {len(changed)} file(s) into / with sudo?", args):
+        return 1
+    for src, dst in changed:
+        subprocess.run(["sudo", "install", "-Dm644", str(src), str(dst)], check=True)
+        added(str(dst))
+        for prefix, cmd in SYSTEM_APPLY.items():
+            if str(dst).startswith(prefix + "/"):
+                subprocess.run(["sudo", *(a.replace("{}", str(dst)) for a in cmd)], check=False)
+    return 0
 
 
 def cmd_deps(args) -> int:
-    installed = set(subprocess.run(["pacman", "-Qq"], capture_output=True, text=True).stdout.split())
-    repo = [p for p in read_list("pacman.txt") if p not in installed]
-    aur = [p for p in read_list("aur.txt") if p not in installed]
+    heading("Packages")
+    repo, aur = missing_packages()
     if not repo and not aur:
-        print("  all packages installed")
+        ok("all packages installed")
         return 0
-    for label, pkgs in (("pacman", repo), ("aur", aur)):
-        if pkgs:
-            print(f"  missing ({label}): {' '.join(pkgs)}")
-    if args.check:
+    if repo:
+        warn(f"missing (pacman): {' '.join(repo)}")
+    if aur:
+        warn(f"missing (aur): {' '.join(aur)}")
+    if getattr(args, "check", False):
+        return 1
+    if not confirm("Install them?", args):
         return 1
     if repo:
         subprocess.run(["sudo", "pacman", "-S", "--needed", *repo], check=True)
@@ -454,92 +498,176 @@ def cmd_deps(args) -> int:
         if helper:
             subprocess.run([helper, "-S", "--needed", *aur], check=True)
         else:
-            print(f"  ! no AUR helper (paru / yay): install manually: {' '.join(aur)}")
+            warn(f"no AUR helper (paru / yay): install manually: {' '.join(aur)}")
     return 0
 
 
-def shell_extras() -> None:
+def shell_extras(args=None) -> int:
+    heading("Shell plugins")
     if not OMZ.is_dir():
-        print("  + oh-my-zsh")
+        added("oh-my-zsh")
         script = subprocess.run(["curl", "-fsSL", OMZ_INSTALL], capture_output=True, text=True, check=True).stdout
         subprocess.run(["sh", "-c", script, "", "--unattended", "--keep-zshrc"],
                        env={**os.environ, "ZSH": str(OMZ), "RUNZSH": "no", "CHSH": "no"}, check=True)
     for target, url in CLONES:
         if not target.is_dir():
-            print(f"  + {target.relative_to(HOME)}")
+            added(short(target))
             subprocess.run(["git", "clone", "--depth", "1", "-q", url, str(target)], check=True)
+    ok("oh-my-zsh, zsh plugins and TPM in place")
+    return 0
+
+
+def submodules(args=None) -> int:
+    heading("Submodules")
+    subprocess.run(["git", "-C", str(ROOT), "submodule", "update", "--init", "--recursive"], check=True)
+    ok("submodules up to date")
+    return 0
 
 
 def cmd_setup(args) -> int:
     """Fresh machine, idempotent: every step skips what is already in place."""
-    steps = [
-        ("packages", lambda: cmd_deps(argparse.Namespace(check=False))),
-        ("submodules", lambda: subprocess.run(["git", "-C", str(ROOT), "submodule", "update", "--init", "--recursive"], check=True)),
-        ("links", lambda: cmd_link(args)),
-        ("secrets", lambda: cmd_bootstrap(argparse.Namespace(force=False))),
-        ("shell plugins", shell_extras),
-        ("system files", lambda: cmd_system(argparse.Namespace(s_action="install"))),
-    ]
-    for name, step in steps:
-        print(f"\n== {name}")
-        step()
-    print("\n== verify")
+    heading("Setup: packages, submodules, links, secrets, shell plugins, system files")
+    if not confirm("Run the full setup (asks for sudo for packages and /etc)?", args):
+        return 1
+    args.yes = True
+    for step in (cmd_deps, submodules, cmd_link, cmd_bootstrap, shell_extras, cmd_system_install):
+        step(args)
     return cmd_verify(args)
+
+
+def cmd_system_install(args) -> int:
+    args.s_action = "install"
+    return cmd_system(args)
+
+
+# --------------------------------------------------------------------------- menu
+
+def overview() -> None:
+    entries = build_entries()
+    good, bad = link_counts(entries)
+    stale = len(stale_links(entries))
+    sys_state = system_state()
+    drift = sum(1 for *_, s in sys_state if s != "ok")
+    repo, aur = missing_packages()
+    branch = subprocess.run(["git", "-C", str(ROOT), "branch", "--show-current"],
+                            capture_output=True, text=True).stdout.strip()
+
+    def row(label: str, value: str, healthy: bool) -> None:
+        print(f"  {(green('●') if healthy else yellow('●'))} {label:9s} {value}")
+
+    print(f"\n  {bold('dotfiles')}  {dim(short(ROOT))}  {dim(branch)}\n")
+    row("theme", active_theme() or "none", active_theme() is not None)
+    row("links", f"{good} ok" + (f" · {bad} problem(s)" if bad else "") + (f" · {stale} stale" if stale else ""),
+        not bad and not stale)
+    row("system", f"{len(sys_state) - drift}/{len(sys_state)} in sync", drift == 0)
+    missing = repo + aur
+    row("packages", "all installed" if not missing else f"{len(missing)} missing ({' '.join(missing)})",
+        not missing)
+
+
+MENU = [
+    ("link", "Link", "create / refresh symlinks", cmd_link),
+    ("status", "Status", "per-package link status", cmd_status),
+    ("verify", "Verify", "broken / missing / stale links", cmd_verify),
+    ("deps", "Packages", "install missing packages", cmd_deps),
+    ("system", "System", "copy system/ files into /etc", cmd_system_install),
+    ("theme", "Theme", "switch the active theme", None),
+    ("setup", "Setup", "full setup for a fresh machine", cmd_setup),
+    ("force", "Re-link", "remove and recreate every symlink", cmd_force),
+    ("unlink", "Unlink", "remove every managed symlink", cmd_unlink),
+]
+
+
+def pick_theme(args) -> int:
+    names = themes()
+    heading("Themes")
+    for i, name in enumerate(names, 1):
+        print(f"  {cyan(str(i))}  {name}{dim(' (active)') if name == active_theme() else ''}")
+    choice = input(f"\n  {yellow('?')} Theme number {dim('(Enter: cancel)')} ").strip()
+    if not choice.isdigit() or not 1 <= int(choice) <= len(names):
+        return 0
+    args.t_action, args.t_name = "set", names[int(choice) - 1]
+    return cmd_theme(args)
+
+
+def menu() -> int:
+    args = argparse.Namespace(yes=False, check=False, force=False)
+    while True:
+        overview()
+        print()
+        for i, (_, label, desc, _) in enumerate(MENU, 1):
+            print(f"  {cyan(str(i))}  {label:9s} {dim(desc)}")
+        print(f"  {cyan('q')}  {'Quit':9s}")
+        try:
+            choice = input(f"\n  {yellow('?')} Choose ").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            return 0
+        if choice in ("q", "quit", "exit", ""):
+            return 0
+        if not choice.isdigit() or not 1 <= int(choice) <= len(MENU):
+            warn(f"no such item: {choice}")
+            continue
+        name, *_, action = MENU[int(choice) - 1]
+        try:
+            (pick_theme if name == "theme" else action)(args)
+        except subprocess.CalledProcessError as e:
+            err(f"command failed: {' '.join(map(str, e.cmd))}")
+        except KeyboardInterrupt:
+            print()
+        input(f"\n  {dim('Enter — back to the menu')} ")
 
 
 # --------------------------------------------------------------------------- cli
 
 def main() -> None:
-    p = argparse.ArgumentParser(description="dotfiles manager")
+    if len(sys.argv) == 1 and sys.stdin.isatty():
+        sys.exit(menu())
+
+    yes = argparse.ArgumentParser(add_help=False)
+    yes.add_argument("-y", "--yes", action="store_true", help="don't ask for confirmation")
+
+    p = argparse.ArgumentParser(description="dotfiles manager — run without arguments for a menu")
     sub = p.add_subparsers(dest="cmd")
     sub.add_parser("link", help="create/refresh all symlinks")
     sub.add_parser("update", help="alias of link")
-    sub.add_parser("force", help="unlink + link")
-    sub.add_parser("unlink", help="remove all managed symlinks")
+    sub.add_parser("force", help="unlink + link", parents=[yes])
+    sub.add_parser("unlink", help="remove all managed symlinks", parents=[yes])
     sub.add_parser("cleanup", help="remove stale symlinks only")
     sub.add_parser("status", help="per-package link status")
     sub.add_parser("verify", help="check for broken/missing/stale links")
     sub.add_parser("bootstrap", help="copy seed templates to ~/.config").add_argument(
-        "-f", "--force", action="store_true"
-    )
-    sub.add_parser("deps", help="install missing packages from deps/").add_argument(
+        "-f", "--force", action="store_true", help="overwrite existing files")
+    sub.add_parser("deps", help="install missing packages from deps/", parents=[yes]).add_argument(
         "--check", action="store_true", help="only list what is missing")
-    sub.add_parser("setup", help="fresh machine: deps, submodules, links, secrets, plugins, system")
-    sy = sub.add_parser("system", help="root-owned files under system/ (copied with sudo)")
+    sub.add_parser("setup", help="fresh machine: deps, submodules, links, secrets, plugins, system",
+                   parents=[yes])
+    sy = sub.add_parser("system", help="root-owned files under system/ (copied with sudo)", parents=[yes])
     sy.add_argument("s_action", choices=["status", "install"])
     te = sub.add_parser("theme", help="theme management")
     tsub = te.add_subparsers(dest="t_action", required=True)
     tsub.add_parser("list", help="list available themes")
     tsub.add_parser("current", help="show active theme")
-    tp = tsub.add_parser("set", help="switch theme")
-    tp.add_argument("t_name")
+    tsub.add_parser("set", help="switch theme").add_argument("t_name")
 
     args = p.parse_args()
-
-    if args.cmd in ("link", "update"):
-        cmd_link(args)
-    elif args.cmd == "force":
-        cmd_force(args)
-    elif args.cmd == "unlink":
-        cmd_unlink(args)
-    elif args.cmd == "cleanup":
-        cmd_cleanup(args)
-    elif args.cmd == "status":
-        cmd_status(args)
-    elif args.cmd == "verify":
-        sys.exit(cmd_verify(args))
-    elif args.cmd == "bootstrap":
-        cmd_bootstrap(args)
-    elif args.cmd == "theme":
-        cmd_theme(args)
-    elif args.cmd == "system":
-        cmd_system(args)
-    elif args.cmd == "deps":
-        sys.exit(cmd_deps(args))
-    elif args.cmd == "setup":
-        sys.exit(cmd_setup(args))
-    else:
+    commands = {
+        "link": cmd_link, "update": cmd_link, "force": cmd_force, "unlink": cmd_unlink,
+        "cleanup": cmd_cleanup, "status": cmd_status, "verify": cmd_verify,
+        "bootstrap": cmd_bootstrap, "deps": cmd_deps, "setup": cmd_setup,
+        "system": cmd_system, "theme": cmd_theme,
+    }
+    if args.cmd not in commands:
         p.print_help()
+        return
+    try:
+        sys.exit(commands[args.cmd](args) or 0)
+    except subprocess.CalledProcessError as e:
+        err(f"command failed: {' '.join(map(str, e.cmd))}")
+        sys.exit(e.returncode or 1)
+    except KeyboardInterrupt:
+        print()
+        sys.exit(130)
 
 
 if __name__ == "__main__":
