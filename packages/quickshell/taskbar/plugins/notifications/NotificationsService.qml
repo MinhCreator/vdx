@@ -28,16 +28,27 @@ Singleton {
 
   function isFresh(item) { return item.time > openedSeenAt; }
 
-  // Adds what mako holds and the history doesn't yet; the first run after a
-  // fresh state only records what is there, without counting it as unseen.
+  // Adds mako's notifications newer than the last one taken (mako ids grow;
+  // a lower top id means mako restarted and numbering began again), so a
+  // cleared history stays clear. The first run after a fresh state only
+  // records what is there, without counting it as unseen.
   function ingest(list) {
+    const top = list.reduce((m, n) => Math.max(m, n.id), 0);
+    if (!state.tracked) {                      // state from before id tracking
+      state.lastId = top;
+      state.tracked = true;
+      state.initialized = true;
+      return;
+    }
+    if (top < state.lastId) state.lastId = 0;
     const known = new Set(state.items.map(n => n.key));
     const now = Date.now();
-    const fresh = list.slice().reverse()
+    const fresh = list
+      .filter(n => n.id > state.lastId)
       .map(n => ({ key: n.id + "|" + n.summary + "|" + n.body, app: n.app, summary: n.summary,
                    body: n.body, urgency: n.urgency, time: now }))
-      .filter(n => !known.has(n.key))
-      .reverse();
+      .filter(n => !known.has(n.key));
+    state.lastId = Math.max(state.lastId, top);
     if (fresh.length > 0)
       state.items = fresh.concat(state.items).slice(0, Theme.notificationsMax);
     if (!state.initialized) {
@@ -106,6 +117,8 @@ Singleton {
       property var items: []
       property real seenAt: 0
       property bool initialized: false
+      property int lastId: 0
+      property bool tracked: false
     }
   }
 }
