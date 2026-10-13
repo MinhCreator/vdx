@@ -5,8 +5,8 @@ import qs.components
 import qs.config
 import qs.plugins.mpd
 
-// Liked tracks player. Idle: grey "MUSIC". Click opens the player, middle click
-// toggles playback, right click opens ncmpcpp, the wheel skips tracks.
+// Liked tracks player. Idle: grey "Music". Click opens the player, middle click
+// toggles playback, the wheel skips tracks.
 Item {
   id: root
 
@@ -29,14 +29,13 @@ Item {
   // Wheel events reach a layer-shell surface only through a MouseArea.
   MouseArea {
     anchors.fill: parent
-    acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
+    acceptedButtons: Qt.LeftButton | Qt.MiddleButton
     cursorShape: Qt.PointingHandCursor
     onClicked: mouse => {
       if (mouse.button === Qt.MiddleButton) {
         if (MpdService.source === "likes") MpdService.toggle();
         else MusicService.setActive(true);
       }
-      else if (mouse.button === Qt.RightButton) Quickshell.execDetached(["kitty", "--class", "ncmpcpp", "-e", "ncmpcpp"]);
       else popup.toggle();
     }
     onWheel: wheel => {
@@ -51,7 +50,6 @@ Item {
     id: popup
     anchorItem: root
     ipcTarget: "music"
-    alignLeft: true
     bar: root.bar
     implicitWidth: content.implicitWidth
     implicitHeight: content.implicitHeight
