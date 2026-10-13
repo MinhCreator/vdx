@@ -11,14 +11,15 @@ import qs.config
 Singleton {
   id: root
 
-  property var usage: ({})                     // see `claude.sh --usage`
+  property var usage: ({})                     // last good `claude.sh --usage`
+  property string error: ""                    // last failure; `usage` keeps older data
+  property real fetchedAt: 0                   // when `usage` was fetched
   property var today: ({})                     // see `claude.sh --today`
   property var sessions: []                    // see `claude.sh --sessions`
   property bool popupOpen: false
 
   readonly property string plan: usage.plan ?? ""
   readonly property var limits: usage.limits ?? []
-  readonly property string error: usage.ok === false ? usage.error : ""
   readonly property int peak: Math.max(0, ...limits.map(l => l.percent))
   readonly property int busy: sessions.filter(s => s.status === "busy").length
   readonly property bool refreshing: usageProc.running || todayProc.running
@@ -30,8 +31,9 @@ Singleton {
 
   function popupHidden() { popupOpen = false; }
 
+  // The usage API rate-limits: on open, ask only if the data is a minute old.
   function refresh() {
-    run(usageProc, ["--usage"]);
+    if (Date.now() - fetchedAt > 60000) run(usageProc, ["--usage"]);
     refreshLocal();
   }
 
@@ -68,7 +70,16 @@ Singleton {
   Process {
     id: usageProc
     stdout: StdioCollector {
-      onStreamFinished: root.usage = root.parse(text, { ok: false, error: "no answer" })
+      onStreamFinished: {
+        const o = root.parse(text, { ok: false, error: "no answer" });
+        if (o.ok) {
+          root.usage = o;
+          root.fetchedAt = Date.now();
+          root.error = "";
+        } else {
+          root.error = o.error;
+        }
+      }
     }
   }
 

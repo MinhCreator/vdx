@@ -79,7 +79,11 @@ PopupFrame {
       font.letterSpacing: 1
     }
 
-    PopupError { text: ClaudeService.error }
+    PopupError {
+      text: ClaudeService.error === "" ? ""
+        : ClaudeService.error + (ClaudeService.fetchedAt > 0
+            ? " · data from " + Qt.formatDateTime(new Date(ClaudeService.fetchedAt), "HH:mm") : "")
+    }
   }
 
   PopupSeparator { width: parent.width }
