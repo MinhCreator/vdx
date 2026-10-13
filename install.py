@@ -380,7 +380,6 @@ def cmd_theme(args) -> None:
 def cmd_bootstrap(args) -> None:
     jobs = [
         (SEED / "env.example", TGT / "secrets" / "env", 0o600, "secrets env"),
-        (PKG / "scripts" / "vpn" / "subscriptions.json.example", TGT / "scripts" / "vpn" / "subscriptions.json", 0o644, "vpn subscriptions"),
     ]
     done = 0
     for src, tgt, mode, label in jobs:
