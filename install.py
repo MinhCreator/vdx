@@ -91,6 +91,12 @@ def red(t: str) -> str: return paint("31", t)
 def cyan(t: str) -> str: return paint("36", t)
 
 
+def clear() -> None:
+    """Wipe the terminal (menu screens only)."""
+    if sys.stdout.isatty():
+        print("\033[H\033[2J\033[3J", end="", flush=True)
+
+
 def heading(text: str) -> None:
     print(f"\n{bold(cyan('::'))} {bold(text)}")
 
@@ -592,12 +598,18 @@ def pick_theme(args) -> int:
 
 def menu() -> int:
     args = argparse.Namespace(yes=False, check=False, force=False)
+    problem = ""                      # shown under the menu after a redraw
     while True:
+        clear()
         overview()
         print()
         for i, (_, label, desc, _) in enumerate(MENU, 1):
             print(f"  {cyan(str(i))}  {label:9s} {dim(desc)}")
         print(f"  {cyan('q')}  {'Quit':9s}")
+        if problem:
+            print()
+            warn(problem)
+            problem = ""
         try:
             choice = input(f"\n  {yellow('?')} Choose ").strip().lower()
         except (EOFError, KeyboardInterrupt):
@@ -606,9 +618,10 @@ def menu() -> int:
         if choice in ("q", "quit", "exit", ""):
             return 0
         if not choice.isdigit() or not 1 <= int(choice) <= len(MENU):
-            warn(f"no such item: {choice}")
+            problem = f"no such item: {choice}"
             continue
         name, *_, action = MENU[int(choice) - 1]
+        clear()
         try:
             (pick_theme if name == "theme" else action)(args)
         except subprocess.CalledProcessError as e:
