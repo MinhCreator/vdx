@@ -22,7 +22,7 @@ Singleton {
     { id: "mihomo",        label: "Mihomo",        zone: "right",  icon: "iconMihomo", about: "Proxy service and servers" },
     { id: "battery",       label: "Battery",       zone: "right",  icon: "iconPlug", about: "Charge, limit, power profile, GPU" },
     { id: "language",      label: "Language",      zone: "right",  icon: "iconKeyboard", about: "Keyboard layout" },
-    { id: "claude",        label: "Claude Code",   zone: "right",  icon: "iconRobot", about: "Plan limits, tokens, sessions" },
+    { id: "claude",        label: "AI",            zone: "right",  icon: "iconRobot", about: "Claude Code limits, local Ollama models" },
     { id: "plugins",       label: "Plugins",       zone: "right",  icon: "iconPuzzle", fixed: true, about: "This manager, always on" },
     { id: "notifications", label: "Notifications", zone: "right",  icon: "iconBell", about: "History and unseen dot" }
   ]

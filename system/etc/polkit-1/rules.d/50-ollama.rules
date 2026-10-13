@@ -1,0 +1,9 @@
+// Lets wheel members start / stop the Ollama service without a password
+// (the quickshell AI plugin's switch). Only ollama.service, nothing else.
+polkit.addRule(function (action, subject) {
+  if (action.id == "org.freedesktop.systemd1.manage-units" &&
+      action.lookup("unit") == "ollama.service" &&
+      subject.isInGroup("wheel")) {
+    return polkit.Result.YES;
+  }
+});

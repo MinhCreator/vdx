@@ -79,6 +79,8 @@ QtObject {
   readonly property int claudeLocalIntervalMs: 30000    // today's tokens + sessions, popup open
   readonly property int claudeWarning: 75               // %, bar icon yellow
   readonly property int claudeCritical: 90              // %, bar icon red
+  readonly property int ollamaIntervalMs: 5000           // status poll while the tab is open
+  readonly property string ollamaCoachModel: "qwen2.5:1.5b"   // the nvim habit coach's model
 
   // ---- language formats ----------------------------------------------------
   readonly property string languageFormatEn: "US"
@@ -175,6 +177,7 @@ QtObject {
   readonly property string wifiScript: scriptsDir + "/wifi.sh"
   readonly property string notificationsScript: scriptsDir + "/notifications.sh"
   readonly property string claudeScript: scriptsDir + "/claude.sh"
+  readonly property string ollamaScript: scriptsDir + "/ollama.sh"
 
   // ---- shared formatting ---------------------------------------------------
   // Bytes per second, human-readable.
