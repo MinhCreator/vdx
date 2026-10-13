@@ -2,7 +2,9 @@
 -- https://wiki.hypr.land/Configuring/Basics/Window-Rules/
 
 hl.window_rule({
-	name = "filepicker",
-	match = { title = ".*wants to open.*" },
-	float = false,
+  name  = "portal-filechooser",
+  match = { class = "^(xdg-desktop-portal-gtk)$" },
+  float  = true,
+  center = true,
+  size   = "900 600",
 })
