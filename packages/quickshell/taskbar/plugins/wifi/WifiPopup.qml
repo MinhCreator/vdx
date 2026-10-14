@@ -1,8 +1,9 @@
 import QtQuick
 import qs.components
 import qs.config
+import qs.kit
 
-PopupFrame {
+KitFrame {
   id: root
 
   signal closeRequested()
@@ -10,20 +11,14 @@ PopupFrame {
   focus: true
   Keys.onEscapePressed: WifiService.view === "list" ? root.closeRequested() : WifiService.showList()
 
-  WifiHeader { width: parent.width }
+  WifiHeader {
+    width: parent.width
+    visible: WifiService.view !== "list"
+  }
 
-  PopupSeparator { width: parent.width }
-
-  Column {
+  WifiOverview {
     width: parent.width
     visible: WifiService.view === "list"
-    spacing: Theme.popupPadding
-
-    WifiInfoPanel { width: parent.width }
-    PopupSeparator { width: parent.width }
-    WifiDnsSection { width: parent.width }
-    PopupSeparator { width: parent.width }
-    WifiNetworkList { width: parent.width }
   }
 
   WifiPasswordView {

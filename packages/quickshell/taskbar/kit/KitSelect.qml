@@ -1,0 +1,157 @@
+import QtQuick
+import qs.config
+
+// A setting row: a label (and a dim hint under it) on the left, an outlined
+// box with the current value and a chevron on the right. Clicking the box
+// opens the choices in an outlined list under the row. Model: [{label, value}].
+Column {
+  id: root
+
+  property string label: ""
+  property string hint: ""
+  property var model: []
+  property var current: null
+  property bool busy: false
+  property bool disabled: false
+  property bool expanded: false
+  property real boxWidth: width * 0.48
+
+  readonly property var selected: model.find(c => c.value === current) ?? null
+
+  signal picked(var value)
+
+  width: parent ? parent.width : 0
+  spacing: 6
+
+  onDisabledChanged: if (disabled) expanded = false
+
+  Item {
+    width: parent.width
+    height: Math.max(box.height, text.implicitHeight)
+
+    Column {
+      id: text
+      anchors { left: parent.left; right: box.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
+      spacing: 2
+
+      KitText {
+        width: parent.width
+        text: root.label
+        elide: Text.ElideRight
+      }
+
+      KitText {
+        width: parent.width
+        visible: root.hint !== ""
+        text: root.hint
+        elide: Text.ElideRight
+        color: Theme.muted
+        font.pixelSize: Theme.fontSize - 2
+      }
+    }
+
+    Rectangle {
+      id: box
+      anchors.right: parent.right
+      width: root.boxWidth
+      height: 30
+      color: boxArea.containsMouse && !root.disabled ? Theme.background1 : "transparent"
+      border.width: 1
+      border.color: root.expanded || boxArea.containsMouse ? Theme.foreground2 : Theme.gray
+      opacity: root.disabled ? 0.4 : 1
+
+      KitText {
+        anchors { left: parent.left; leftMargin: 10; right: mark.left; rightMargin: 6; verticalCenter: parent.verticalCenter }
+        text: root.selected?.label ?? "—"
+        elide: Text.ElideRight
+      }
+
+      Item {
+        id: mark
+        anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+        width: 14
+        height: 14
+
+        KitSpinner {
+          anchors.centerIn: parent
+          visible: root.busy
+        }
+
+        KitText {
+          anchors.centerIn: parent
+          visible: !root.busy
+          text: "󰅀"          // nf-md-chevron_down
+          color: Theme.foreground2
+          rotation: root.expanded ? 180 : 0
+
+          Behavior on rotation { NumberAnimation { duration: 150 } }
+        }
+      }
+
+      MouseArea {
+        id: boxArea
+        anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: root.disabled ? Qt.ArrowCursor : Qt.PointingHandCursor
+        onClicked: if (!root.disabled && !root.busy) root.expanded = !root.expanded
+      }
+    }
+  }
+
+  Rectangle {
+    width: parent.width
+    visible: root.expanded
+    height: options.implicitHeight + 2
+    color: "transparent"
+    border.width: 1
+    border.color: Theme.gray
+
+    Column {
+      id: options
+      x: 1
+      y: 1
+      width: parent.width - 2
+
+      Repeater {
+        model: root.model
+
+        Rectangle {
+          id: option
+
+          required property var modelData
+
+          readonly property bool active: modelData.value === root.current
+
+          width: options.width
+          height: 28
+          color: active ? Theme.background3 : optionArea.containsMouse ? Theme.background1 : "transparent"
+
+          KitText {
+            anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
+            text: option.modelData.label
+            color: option.active || optionArea.containsMouse ? Theme.foreground0 : Theme.foreground2
+            font.weight: option.active ? Font.Bold : Font.Medium
+          }
+
+          KitIcon {
+            anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
+            visible: option.active
+            name: "check"
+            size: 14
+          }
+
+          MouseArea {
+            id: optionArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: {
+              if (!option.active) root.picked(option.modelData.value);
+              root.expanded = false;
+            }
+          }
+        }
+      }
+    }
+  }
+}
