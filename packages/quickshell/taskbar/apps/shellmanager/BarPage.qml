@@ -163,6 +163,13 @@ Column {
       spacing: 6
 
       KitButton {
+        visible: BarLayout.roleOf(root.screenName) === "extra"
+        icon: "layout"
+        text: "Copy Main"
+        onClicked: BarLayout.copyLayout(BarLayout.mainScreen(), root.screenName)
+      }
+
+      KitButton {
         icon: "trash"
         text: "Clear"
         disabled: root.placed === 0

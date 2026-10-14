@@ -106,6 +106,9 @@ Singleton {
   // An empty bar: every plugin into the tray (Super+S still opens the Shell Manager).
   function clear(screen) { update(screen, { hidden: plugins.map(p => p.id) }); }
 
+  // this bar takes another one's layout (Extra copying Main)
+  function copyLayout(from, to) { update(to, { zones: layout(from), hidden: hidden(from) }); }
+
   function reset(screen) { update(screen, { zones: null, hidden: [] }); }
 
   function normalize(saved) {
