@@ -1,210 +1,226 @@
 import QtQuick
-import qs.components
 import qs.config
+import qs.kit
 
-PopupFrame {
+// Mihomo: the tunnel's state and traffic, provider and server choice, and
+// the actions (ping all, update subscriptions, open the config) in the footer.
+KitFrame {
   id: root
 
   readonly property bool listed: MihomoService.serviceOn && MihomoService.providers.length > 0
 
   signal closeRequested()
 
-  function openServersFor(name) {
-    MihomoService.provider = name;
-    providers.expanded = false;
-    servers.expanded = true;
-  }
-
   // ---- header ----------------------------------------------------------------
-  PopupHeader {
-    width: parent.width
-    glyph: Theme.iconMihomo
-    title: "MIHOMO"
-    subtitle: MihomoService.serviceOn ? "CONNECTED" : "DISCONNECTED"
-    subtitleColor: MihomoService.serviceOn ? Theme.green : Theme.muted
+  KitHeader {
+    icon: "shield"
+    glyphColor: MihomoService.serviceOn ? Theme.foreground0 : Theme.muted
+    title: "Mihomo"
+    subtitle: MihomoService.serviceOn
+      ? "CONNECTED · " + (MihomoService.mode || "—").toUpperCase()
+      : "DISCONNECTED"
 
-    Row {
+    KitBadge {
       anchors.verticalCenter: parent.verticalCenter
-      spacing: 4
-
-      PopupButton {
-        glyph: Theme.iconPing
-        glyphSize: Theme.headerButtonSize
-        tint: Theme.foreground0
-        frameless: true
-        hoverBackground: false
-        busy: MihomoService.pinging
-        status: MihomoService.pingStatus
-        disabled: !MihomoService.serviceOn
-        onClicked: MihomoService.pingNodes()
-      }
-
-      PopupButton {
-        glyph: Theme.iconRefresh
-        glyphSize: Theme.headerButtonSize
-        tint: Theme.foreground0
-        frameless: true
-        hoverBackground: false
-        busy: MihomoService.updating
-        status: MihomoService.updateStatus
-        disabled: !MihomoService.serviceOn
-        onClicked: MihomoService.runUpdate()
-      }
-
-      PopupButton {
-        glyph: Theme.iconSettings
-        glyphSize: Theme.headerButtonSize
-        tint: Theme.foreground0
-        frameless: true
-        hoverBackground: false
-        onClicked: {
-          root.closeRequested();
-          MihomoService.openMihomoConfig();
-        }
-      }
+      visible: MihomoService.serviceOn && MihomoService.nodes.length > 0
+      text: MihomoService.nodes.length + " SERVERS"
     }
 
-    PopupSwitch {
+    KitSwitch {
       anchors.verticalCenter: parent.verticalCenter
       checked: MihomoService.serviceOn
       onToggled: MihomoService.toggleService()
     }
   }
 
-  PopupSeparator { width: parent.width }
+  KitLine {}
 
-  // ---- current server --------------------------------------------------------
+  // ---- connection ------------------------------------------------------------
   Column {
     width: parent.width
-    visible: MihomoService.current !== ""
-    spacing: 1
+    visible: MihomoService.serviceOn
+    spacing: 10
 
-    ThemeText {
-      text: "CURRENT SERVER"
-      color: Theme.dim
-      font.pixelSize: Theme.fontSize - 2
-      font.letterSpacing: 1
+    KitLabel {
+      text: "CONNECTION"
+      value: MihomoService.currentDelay > 0 ? "PING " + MihomoService.currentDelay + " MS" : "PING —"
+      valueColor: Theme.pingColor(MihomoService.currentDelay)
     }
 
-    ThemeText {
+    Column {
       width: parent.width
-      text: MihomoService.current
-      elide: Text.ElideRight
+      spacing: 3
+
+      KitText {
+        width: parent.width
+        text: MihomoService.current || "—"
+        wrapMode: Text.Wrap
+        font.weight: Font.Bold
+      }
+
+      KitText {
+        width: parent.width
+        text: "via " + (MihomoService.currentProvider || "—") + " · group " + MihomoService.group
+        elide: Text.ElideRight
+        color: Theme.muted
+        font.pixelSize: Theme.fontSize - 2
+      }
+    }
+
+    KitInfo {
+      label: "Traffic now"
+      value: "↓ " + Theme.humanRate(MihomoService.down) + "   ↑ " + Theme.humanRate(MihomoService.up)
+    }
+
+    KitInfo {
+      label: "Session total"
+      value: "↓ " + Theme.humanSize(MihomoService.downTotal) + "   ↑ " + Theme.humanSize(MihomoService.upTotal)
+      valueColor: Theme.foreground2
     }
   }
 
-  PopupSeparator {
-    width: parent.width
-    visible: MihomoService.current !== ""
-  }
+  KitLine { visible: MihomoService.serviceOn }
 
-  // ---- info ------------------------------------------------------------------
-  Row {
-    id: info
-    width: parent.width
-    spacing: 16
-
-    readonly property real columnWidth: (width - spacing) / 2
-
-    PopupInfoList {
-      width: info.columnWidth
-      model: [
-        { label: "PING",
-          value: MihomoService.currentDelay > 0 ? MihomoService.currentDelay + " ms" : "—",
-          color: Theme.pingColor(MihomoService.currentDelay) },
-        { label: "RECEIVING",  value: Theme.humanRate(MihomoService.down) },
-        { label: "DOWNLOADED", value: Theme.humanSize(MihomoService.downTotal) },
-        { label: "MODE",       value: MihomoService.mode }
-      ]
-    }
-
-    PopupInfoList {
-      width: info.columnWidth
-      model: [
-        { label: "PROVIDER", value: MihomoService.currentProvider || "—",
-          color: MihomoService.currentProvider ? Theme.foreground0 : Theme.muted },
-        { label: "SENDING",  value: Theme.humanRate(MihomoService.up) },
-        { label: "UPLOADED", value: Theme.humanSize(MihomoService.upTotal) },
-        { label: "GROUP",    value: MihomoService.group }
-      ]
-    }
-  }
-
-  PopupSeparator { width: parent.width }
-
-  // ---- providers / servers -------------------------------------------------
-  ThemeText {
+  // ---- routing ---------------------------------------------------------------
+  KitText {
     visible: !root.listed
-    text: MihomoService.serviceOn ? "NO PROVIDERS" : "MIHOMO IS OFF"
+    text: MihomoService.serviceOn ? "No providers configured." : "Mihomo is off. Switch it on to pick a server."
     color: Theme.muted
-    font.letterSpacing: 1
+    font.pixelSize: Theme.fontSize - 1
   }
 
   Column {
     width: parent.width
     visible: root.listed
-    spacing: 4
+    spacing: 10
 
-    PopupDropdown {
-      id: providers
-      width: parent.width
-      title: "PROVIDERS"
-      onExpandedChanged: if (expanded) servers.expanded = false
-
-      Repeater {
-        model: MihomoService.providers
-
-        PopupDropdownItem {
-          id: providerItem
-          required property var modelData
-
-          label: modelData.name
-          active: modelData.name === MihomoService.provider
-          onClicked: root.openServersFor(modelData.name)
-
-          trailing: PopupButton {
-            glyph: Theme.iconDots
-            tint: Theme.foreground0
-            frameless: true
-            hoverBackground: false
-            onClicked: {
-              root.closeRequested();
-              MihomoService.openProviderConfig(providerItem.modelData.name);
-            }
-          }
-        }
-      }
+    KitSelect {
+      label: "Provider"
+      hint: "subscription in use"
+      model: MihomoService.providers.map(p => ({ label: p.name, value: p.name }))
+      current: MihomoService.provider
+      onPicked: value => MihomoService.provider = value
     }
 
-    PopupDropdown {
-      id: servers
+    KitLabel {
+      text: "SERVERS (" + MihomoService.nodes.length + ")"
+      value: "PING"
+    }
+
+    Flickable {
       width: parent.width
-      title: "SERVERS"
-      disabled: MihomoService.nodes.length === 0
-      onExpandedChanged: if (expanded) providers.expanded = false
+      visible: MihomoService.nodes.length > 0
+      height: Math.min(contentHeight, 30 * Theme.visibleRows)
+      contentHeight: servers.implicitHeight
+      interactive: contentHeight > height
+      clip: true
+      boundsBehavior: Flickable.StopAtBounds
 
-      Repeater {
-        model: MihomoService.nodes
+      Column {
+        id: servers
+        width: parent.width
 
-        PopupDropdownItem {
-          id: serverItem
-          required property var modelData
+        Repeater {
+          model: MihomoService.nodes
 
-          readonly property int delay: modelData.alive ? modelData.delay : 0
+          Rectangle {
+            id: server
 
-          label: modelData.name
-          active: modelData.name === MihomoService.current
-          onClicked: MihomoService.selectNode(modelData.name)
+            required property var modelData
 
-          trailing: ThemeText {
-            text: serverItem.delay > 0 ? serverItem.delay + " ms" : "—"
-            color: Theme.pingColor(serverItem.delay)
-            font.pixelSize: Theme.fontSize - 1
+            readonly property bool current: modelData.name === MihomoService.current
+            readonly property int delay: modelData.alive ? modelData.delay : 0
+
+            width: servers.width
+            height: 30
+            color: current ? Theme.background3 : area.containsMouse ? Theme.background1 : "transparent"
+
+            KitText {
+              anchors { left: parent.left; leftMargin: 10; right: ping.left; rightMargin: 10; verticalCenter: parent.verticalCenter }
+              text: server.modelData.name
+              elide: Text.ElideRight
+              color: server.current || area.containsMouse ? Theme.foreground0 : Theme.foreground2
+              font.weight: server.current ? Font.Bold : Font.Medium
+            }
+
+            KitText {
+              id: ping
+              anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
+              text: server.delay > 0 ? server.delay + " ms" : "—"
+              color: Theme.pingColor(server.delay)
+              font.pixelSize: Theme.fontSize - 1
+            }
+
+            MouseArea {
+              id: area
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: server.current ? Qt.ArrowCursor : Qt.PointingHandCursor
+              onClicked: if (!server.current) MihomoService.selectNode(server.modelData.name)
+            }
           }
         }
       }
     }
   }
 
-  PopupError { text: MihomoService.error }
+  KitText {
+    width: parent.width
+    visible: MihomoService.error !== ""
+    text: MihomoService.error
+    color: Theme.red
+    wrapMode: Text.WordWrap
+    font.pixelSize: Theme.fontSize - 1
+  }
+
+  KitLine {}
+
+  // ---- actions ---------------------------------------------------------------
+  Item {
+    width: parent.width
+    height: 30
+
+    Row {
+      spacing: 8
+
+      KitButton {
+        icon: "zap"
+        text: "Ping"
+        busy: MihomoService.pinging
+        disabled: !MihomoService.serviceOn
+        onClicked: MihomoService.pingNodes()
+      }
+
+      KitButton {
+        icon: "refresh"
+        text: "Update"
+        busy: MihomoService.updating
+        disabled: !MihomoService.serviceOn
+        onClicked: MihomoService.runUpdate()
+      }
+    }
+
+    // open in the editor: the provider's subscription, mihomo's config
+    Row {
+      anchors.right: parent.right
+      spacing: 8
+
+      KitButton {
+        icon: "server"
+        disabled: !root.listed || MihomoService.provider === ""
+        onClicked: {
+          root.closeRequested();
+          MihomoService.openProviderConfig(MihomoService.provider);
+        }
+      }
+
+      KitButton {
+        icon: "sliders"
+        onClicked: {
+          root.closeRequested();
+          MihomoService.openMihomoConfig();
+        }
+      }
+    }
+  }
 }

@@ -1,11 +1,13 @@
 import QtQuick
-import qs.components
 import qs.config
+import qs.kit
 
-PopupFrame {
+// Battery: charge and health, then the power settings (saver, charge limit,
+// platform profile, GPU mode).
+KitFrame {
   id: root
 
-  property string icon: ""
+  property string icon: ""             // bar glyph, unused here (kit icons)
 
   readonly property string timeLeft: BatteryService.minutesLeft < 0 ? "—"
     : Math.floor(BatteryService.minutesLeft / 60) + ":" + String(BatteryService.minutesLeft % 60).padStart(2, "0")
@@ -13,108 +15,131 @@ PopupFrame {
     : BatteryService.discharging ? "DISCHARGING · " + timeLeft + " LEFT"
     : BatteryService.plugged ? "PLUGGED IN · LIMIT " + BatteryService.threshold + "%"
     : "IDLE"
-  readonly property real columnWidth: (width - 2 * inset - 16) / 2
-  readonly property var dropdowns: [limit, profile, gpu]
+  readonly property color levelColor: BatteryService.capacity <= Theme.batteryCritical ? Theme.red
+    : BatteryService.capacity <= Theme.batteryWarning ? Theme.yellow : Theme.green
+  // supergfxctl reports "Unknown" when nothing is pending
+  readonly property string gpuNext: BatteryService.gpuPending === "Unknown" ? "" : BatteryService.gpuPending
+  readonly property bool gpuPending: gpuNext !== "" && gpuNext !== BatteryService.gpuMode
+    && !/no action/i.test(BatteryService.gpuAction)
+  readonly property var selects: [limit, profile, gpu]
 
-  // At most one dropdown open at a time.
+  // At most one select open at a time.
   function collapseOthers(open) {
-    for (const d of dropdowns) if (d !== open) d.expanded = false;
+    for (const s of selects) if (s !== open) s.expanded = false;
   }
 
   // ---- header ----------------------------------------------------------------
-  PopupHeader {
-    width: parent.width
-    glyph: root.icon
-    glyphColor: BatteryService.saver ? Theme.aqua : Theme.foreground0
-    title: "BATTERY"
+  KitHeader {
+    icon: BatteryService.charging ? "battery-charging" : BatteryService.plugged ? "plug" : "battery"
+    glyphColor: BatteryService.capacity <= Theme.batteryCritical && !BatteryService.plugged ? Theme.red : Theme.foreground0
+    title: "Battery"
     subtitle: root.summary
-    subtitleColor: BatteryService.charging || BatteryService.plugged ? Theme.green
-      : BatteryService.capacity <= Theme.batteryCritical ? Theme.red
-      : Theme.foreground2
 
-    // Power saver: the quiet profile, shown as the leaf icon.
-    PopupSwitch {
-      visible: BatteryService.profiles.includes(Theme.powerSaverProfile)
-      checked: BatteryService.saver
-      onToggled: BatteryService.setSaver(!BatteryService.saver)
+    KitBadge {
+      anchors.verticalCenter: parent.verticalCenter
+      text: BatteryService.capacity + "%"
+      tint: root.levelColor
     }
   }
 
-  PopupSeparator { width: parent.width }
+  KitLine {}
 
-  // ---- info ------------------------------------------------------------------
-  Row {
-    width: parent.width
-    spacing: 16
-
-    PopupInfoList {
-      width: root.columnWidth
-      model: [
-        { label: "CHARGE", value: BatteryService.capacity + "%" },
-        { label: "POWER",  value: BatteryService.power > 0 ? BatteryService.power.toFixed(1) + " W" : "—" },
-        { label: "HEALTH", value: BatteryService.health + "%",
-          color: Theme.qualityColor(BatteryService.health, 80, 60) },
-        { label: "ENERGY", value: BatteryService.energy.toFixed(1) + " Wh" }
-      ]
-    }
-
-    PopupInfoList {
-      width: root.columnWidth
-      model: [
-        { label: "STATUS", value: BatteryService.info.status ?? "—" },
-        { label: "TIME",   value: root.timeLeft },
-        { label: "CYCLES", value: String(BatteryService.cycles) },
-        { label: "DESIGN", value: BatteryService.energyDesign.toFixed(1) + " Wh" }
-      ]
-    }
-  }
-
-  PopupSeparator { width: parent.width }
-
-  // ---- controls --------------------------------------------------------------
+  // ---- charge ----------------------------------------------------------------
   Column {
     width: parent.width
-    spacing: 4
+    spacing: 8
 
-    PopupSelect {
+    KitLabel {
+      text: "CHARGE"
+      value: BatteryService.power > 0 ? BatteryService.power.toFixed(1) + " W" : "IDLE"
+    }
+
+    KitBar {
+      value: BatteryService.capacity / 100
+      tint: root.levelColor
+    }
+
+    Item { width: 1; height: 2 }
+
+    KitInfo {
+      label: "Health"
+      value: BatteryService.health + "%"
+      valueColor: Theme.qualityColor(BatteryService.health, 80, 60)
+    }
+
+    KitInfo { label: "Cycles"; value: String(BatteryService.cycles) }
+
+    KitInfo {
+      label: "Energy"
+      value: BatteryService.energy.toFixed(1) + " / " + BatteryService.energyDesign.toFixed(1) + " Wh"
+    }
+  }
+
+  KitLine {}
+
+  // ---- power settings ----------------------------------------------------------
+  Column {
+    width: parent.width
+    spacing: 10
+
+    KitLabel { text: "POWER" }
+
+    KitRow {
+      visible: BatteryService.profiles.includes(Theme.powerSaverProfile)
+      label: "Power saver"
+      hint: "quiet profile, longer battery"
+
+      KitSwitch {
+        checked: BatteryService.saver
+        onToggled: BatteryService.setSaver(!BatteryService.saver)
+      }
+    }
+
+    KitSelect {
       id: limit
-      width: parent.width
-      label: "CHARGE LIMIT"
+      label: "Charge limit"
+      hint: "stop charging at"
       model: Theme.batteryLimits.map(v => ({ label: v + "%", value: v }))
       current: BatteryService.threshold
-      busyValue: BatteryService.busy
+      busy: model.some(c => c.value === BatteryService.busy)
       onPicked: value => BatteryService.setThreshold(value)
       onExpandedChanged: if (expanded) root.collapseOthers(limit)
     }
 
-    PopupSelect {
+    KitSelect {
       id: profile
-      width: parent.width
-      label: "POWER PROFILE"
-      model: BatteryService.profiles.map(p => ({ label: p.toUpperCase(), value: p }))
+      label: "Profile"
+      hint: "platform profile"
+      model: BatteryService.profiles.map(p => ({ label: p, value: p }))
       current: BatteryService.profile
-      busyValue: BatteryService.busy
+      busy: model.some(c => c.value === BatteryService.busy)
       onPicked: value => BatteryService.setProfile(value)
       onExpandedChanged: if (expanded) root.collapseOthers(profile)
     }
 
-    PopupSelect {
+    KitSelect {
       id: gpu
-      width: parent.width
       visible: BatteryService.gpuMode !== ""
       label: "GPU"
+      hint: root.gpuPending ? (BatteryService.gpuAction || "reboot required").toLowerCase() : "graphics mode"
+      hintColor: root.gpuPending ? Theme.orange : Theme.muted
       model: [
-        { label: "INTEGRATED", value: "Integrated" },
-        { label: "HYBRID",     value: "Hybrid" }
+        { label: "Integrated", value: "Integrated" },
+        { label: "Hybrid",     value: "Hybrid" }
       ]
-      current: BatteryService.gpuPending || BatteryService.gpuMode
-      busyValue: BatteryService.busy
+      current: root.gpuNext || BatteryService.gpuMode
+      busy: model.some(c => c.value === BatteryService.busy)
       onPicked: value => BatteryService.setGpuMode(value)
-      hint: BatteryService.gpuPending !== "" && BatteryService.gpuPending !== BatteryService.gpuMode
-            ? (BatteryService.gpuAction || "reboot required").toUpperCase() : ""
       onExpandedChanged: if (expanded) root.collapseOthers(gpu)
     }
   }
 
-  PopupError { text: BatteryService.error }
+  KitText {
+    width: parent.width
+    visible: BatteryService.error !== ""
+    text: BatteryService.error
+    color: Theme.red
+    wrapMode: Text.WordWrap
+    font.pixelSize: Theme.fontSize - 1
+  }
 }

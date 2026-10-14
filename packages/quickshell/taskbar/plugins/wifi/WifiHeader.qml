@@ -1,59 +1,22 @@
 import QtQuick
-import qs.components
 import qs.config
+import qs.kit
 
-// Wi-Fi header; nested views (password, speed test) swap it for back + title.
-Item {
-  id: root
+// Header of the nested views (password, speed test): what the view is about
+// and a Back button to the list.
+KitHeader {
+  readonly property bool password: WifiService.view === "password"
 
-  readonly property bool nested: WifiService.view !== "list"
-  readonly property var titles: ({ password: "CONNECT", speedtest: "SPEED TEST" })
+  icon: password ? "lock" : "gauge"
+  title: password ? "Connect" : "Speed test"
+  subtitle: password ? (WifiService.selected?.ssid ?? "").toUpperCase()
+    : WifiService.speedtestBusy ? "MEASURING…"
+    : WifiService.speedtestError !== "" ? "FAILED"
+    : WifiService.speedtest ? "DONE · " + (WifiService.speedtest.server || "").toUpperCase() : ""
 
-  implicitHeight: header.implicitHeight
-
-  PopupHeader {
-    id: header
-    width: parent.width
-    visible: !root.nested
-    glyph: Theme.iconWifi
-    title: "WI-FI"
-    subtitle: WifiService.connected ? "CONNECTED" : "DISCONNECTED"
-    subtitleColor: WifiService.connected ? Theme.green : Theme.muted
-
-    PopupButton {
-      anchors.verticalCenter: parent.verticalCenter
-      glyph: Theme.iconSpeedtest
-      glyphSize: Theme.headerButtonSize
-      tint: Theme.foreground0
-      frameless: true
-      hoverBackground: false
-      disabled: !WifiService.connected
-      onClicked: WifiService.showSpeedtest()
-    }
-
-    PopupSwitch {
-      anchors.verticalCenter: parent.verticalCenter
-      checked: WifiService.radioOn
-      onToggled: WifiService.toggleRadio()
-    }
-  }
-
-  PopupButton {
-    id: back
-    visible: root.nested
-    anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-    glyph: Theme.iconArrowLeft
-    glyphSize: Theme.fontSize + 2
-    tint: Theme.foreground0
-    frameless: true
-    hoverBackground: false
+  KitButton {
+    icon: "arrow-left"
+    text: "Back"
     onClicked: WifiService.showList()
-  }
-
-  ThemeText {
-    visible: root.nested
-    anchors { left: back.right; leftMargin: 6; verticalCenter: parent.verticalCenter }
-    text: root.titles[WifiService.view] ?? ""
-    font.letterSpacing: 1
   }
 }

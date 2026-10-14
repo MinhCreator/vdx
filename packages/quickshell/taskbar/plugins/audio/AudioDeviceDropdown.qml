@@ -1,31 +1,15 @@
 import QtQuick
-import qs.components
+import qs.kit
 
-// Dropdown of Pipewire devices with the current default marked.
-PopupDropdown {
+// Device row: the kind on the left, the default device in a select box.
+KitSelect {
   id: root
 
-  property string kind: ""
   property var nodes: []
-  property var current: null
 
   signal selected(var node)
 
-  title: kind + ": " + (current ? AudioService.deviceName(current, nodes) : "—")
+  model: nodes.map(n => ({ label: AudioService.deviceName(n, nodes), value: n }))
   disabled: nodes.length === 0
-
-  Repeater {
-    model: root.nodes
-
-    PopupDropdownItem {
-      required property var modelData
-
-      label: AudioService.deviceName(modelData, root.nodes)
-      active: modelData === root.current
-      onClicked: {
-        if (!active) root.selected(modelData);
-        root.expanded = false;
-      }
-    }
-  }
+  onPicked: value => root.selected(value)
 }

@@ -1,41 +1,38 @@
 import QtQuick
-import qs.components
 import qs.config
+import qs.kit
 
-PopupFrame {
+// Display: backlight and software dimming, then the night light with its
+// colour temperature and presets.
+KitFrame {
   id: root
-
-  implicitWidth: Theme.popupWidthCompact
 
   readonly property real temperatureSpan: Theme.nightTemperatureMax - Theme.nightTemperatureMin
 
   // ---- header ----------------------------------------------------------------
-  PopupHeader {
-    width: parent.width
-    glyph: Theme.iconBrightness
+  KitHeader {
+    icon: BrightnessService.nightActive ? "moon" : "sun"
     glyphColor: BrightnessService.nightActive ? Theme.orange : Theme.foreground0
-    title: "DISPLAY"
-    subtitle: "BRIGHTNESS · " + BrightnessService.brightness + "%"
+    title: "Display"
+    subtitle: "BRIGHTNESS " + BrightnessService.brightness + "%"
       + (BrightnessService.nightActive ? " · NIGHT LIGHT" : "")
   }
 
-  PopupSeparator { width: parent.width }
+  KitLine {}
 
   // ---- backlight / dimming -------------------------------------------------
   Column {
     width: parent.width
-    spacing: 6
+    spacing: 14
 
-    PopupSliderRow {
-      width: parent.width
+    KitSliderRow {
       label: "BRIGHTNESS"
       value: BrightnessService.brightness / 100
       text: BrightnessService.brightness + "%"
       onMoved: value => BrightnessService.setBrightness(value * 100)
     }
 
-    PopupSliderRow {
-      width: parent.width
+    KitSliderRow {
       label: "DIMMING"
       value: (BrightnessService.gamma - Theme.dimGammaMin) / (100 - Theme.dimGammaMin)
       text: BrightnessService.gamma + "%"
@@ -43,34 +40,35 @@ PopupFrame {
     }
   }
 
-  PopupSeparator { width: parent.width }
+  KitLine {}
 
   // ---- night light -----------------------------------------------------------
   Column {
     width: parent.width
-    spacing: 6
+    spacing: 14
 
-    PopupSectionTitle {
-      width: parent.width
-      text: "NIGHT LIGHT"
+    KitRow {
+      label: "Night light"
+      hint: "warmer colours for the evening"
 
-      PopupSwitch {
+      KitSwitch {
         checked: BrightnessService.nightActive
         onToggled: BrightnessService.setNight(!BrightnessService.nightActive)
       }
     }
 
-    PopupSliderRow {
-      width: parent.width
+    KitSliderRow {
       visible: BrightnessService.nightActive
       label: "TEMPERATURE"
       value: (BrightnessService.temperature - Theme.nightTemperatureMin) / root.temperatureSpan
       text: BrightnessService.temperature + "K"
+      tint: Theme.orange
       onMoved: value => BrightnessService.setTemperature(Theme.nightTemperatureMin + value * root.temperatureSpan)
     }
 
-    PopupChoices {
+    KitChoices {
       width: parent.width
+      stretch: true
       visible: BrightnessService.nightActive && BrightnessService.presets.length > 0
       model: BrightnessService.presets.map(p => ({ label: p.label, value: p.temperature }))
       current: BrightnessService.temperature

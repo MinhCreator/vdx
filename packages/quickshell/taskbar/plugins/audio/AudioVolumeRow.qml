@@ -1,22 +1,22 @@
 import QtQuick
-import qs.components
 import qs.config
+import qs.kit
 
 // Mute button, volume slider and percentage for one Pipewire node.
-PopupSliderRow {
+KitSliderRow {
   id: root
 
   property var node: null
-  property string icon: Theme.iconVolume
-  property string mutedIcon: Theme.iconMuted
+  property string iconOn: "volume"
+  property string iconOff: "volume-x"
 
   readonly property var audio: node?.audio ?? null
   readonly property bool muted: audio?.muted ?? false
 
   enabled: !!audio
   clickable: true
-  glyph: muted ? mutedIcon : icon
-  glyphTint: muted ? Theme.red : Theme.foreground0
+  icon: muted ? iconOff : iconOn
+  iconTint: muted ? Theme.red : Theme.foreground0
   value: audio?.volume ?? 0
   text: audio ? Math.round(audio.volume * 100) + "%" : "—"
   dimmed: muted

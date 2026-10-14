@@ -1,93 +1,96 @@
 import QtQuick
-import qs.components
 import qs.config
+import qs.kit
 
-PopupFrame {
+// Audio: output and input devices with their volume, then each application's
+// stream.
+KitFrame {
   id: root
 
-  implicitWidth: Theme.popupWidthCompact
-
-  readonly property var dropdowns: [output, input, apps]
-
-  // At most one dropdown open at a time.
-  function collapseOthers(open) {
-    for (const d of dropdowns) if (d !== open) d.expanded = false;
-  }
+  readonly property bool headphones: AudioService.headphones
 
   // ---- header ----------------------------------------------------------------
-  PopupHeader {
-    width: parent.width
-    glyph: AudioService.icon
-    title: "AUDIO"
+  KitHeader {
+    icon: !AudioService.live || AudioService.muted ? "volume-x" : root.headphones ? "headphones" : "volume"
+    glyphColor: AudioService.live && !AudioService.muted ? Theme.foreground0 : Theme.muted
+    title: "Audio"
     subtitle: !AudioService.live ? "OFF"
       : AudioService.muted ? "OUTPUT MUTED"
-      : AudioService.nameOf(AudioService.sink).toUpperCase() + " · " + AudioService.volume + "%"
-    subtitleColor: AudioService.live && !AudioService.muted ? Theme.green : Theme.muted
+      : "VOLUME " + AudioService.volume + "%"
 
-    PopupSwitch {
+    KitSwitch {
+      anchors.verticalCenter: parent.verticalCenter
       checked: AudioService.live
       onToggled: AudioService.setMuted(AudioService.live)
     }
   }
 
-  PopupSeparator { width: parent.width }
+  KitLine {}
 
   // ---- output ----------------------------------------------------------------
   Column {
     width: parent.width
-    spacing: 4
+    spacing: 10
+
+    KitLabel { text: "OUTPUT" }
 
     AudioDeviceDropdown {
       id: output
-      width: parent.width
-      kind: "OUTPUT"
+      label: "Device"
+      hint: "default output"
       nodes: AudioService.sinks
       current: AudioService.sink
       onSelected: node => AudioService.setSink(node)
-      onExpandedChanged: if (expanded) root.collapseOthers(output)
+      onExpandedChanged: if (expanded) input.expanded = false
     }
 
     AudioVolumeRow {
-      width: parent.width
       node: AudioService.sink
+      iconOn: root.headphones ? "headphones" : "volume"
     }
   }
 
-  PopupSeparator { width: parent.width }
+  KitLine {}
 
   // ---- input -----------------------------------------------------------------
   Column {
     width: parent.width
-    spacing: 4
+    spacing: 10
+
+    KitLabel { text: "INPUT" }
 
     AudioDeviceDropdown {
       id: input
-      width: parent.width
-      kind: "INPUT"
+      label: "Device"
+      hint: "default input"
       nodes: AudioService.sources
       current: AudioService.source
       onSelected: node => AudioService.setSource(node)
-      onExpandedChanged: if (expanded) root.collapseOthers(input)
+      onExpandedChanged: if (expanded) output.expanded = false
     }
 
     AudioVolumeRow {
-      width: parent.width
       node: AudioService.source
-      icon: Theme.iconMicrophone
-      mutedIcon: Theme.iconMicrophoneOff
+      iconOn: "mic"
+      iconOff: "mic-off"
     }
   }
 
-  PopupSeparator { width: parent.width }
+  KitLine {}
 
   // ---- applications ----------------------------------------------------------
-  PopupDropdown {
-    id: apps
+  Column {
     width: parent.width
-    title: "APPLICATIONS: " + AudioService.streams.length
-    disabled: AudioService.streams.length === 0
-    maxListHeight: 4 * 46
-    onExpandedChanged: if (expanded) root.collapseOthers(apps)
+    spacing: 8
+
+    KitLabel { text: "APPLICATIONS (" + AudioService.streams.length + ")" }
+
+    KitText {
+      visible: AudioService.streams.length === 0
+      text: "Nothing is playing."
+      color: Theme.muted
+      font.pixelSize: Theme.fontSize - 1
+    }
 
     Repeater {
       model: AudioService.streams
@@ -96,22 +99,17 @@ PopupFrame {
         required property var modelData
 
         width: parent.width
-        leftPadding: 12
-        rightPadding: 10
-        topPadding: 4
+        spacing: 2
 
-        ThemeText {
-          width: parent.width - parent.leftPadding - parent.rightPadding
+        KitText {
+          width: parent.width
           text: AudioService.nameOf(modelData)
           elide: Text.ElideRight
           color: Theme.foreground2
-          font.letterSpacing: 1
+          font.pixelSize: Theme.fontSize - 1
         }
 
-        AudioVolumeRow {
-          width: parent.width - parent.leftPadding - parent.rightPadding
-          node: modelData
-        }
+        AudioVolumeRow { node: modelData }
       }
     }
   }

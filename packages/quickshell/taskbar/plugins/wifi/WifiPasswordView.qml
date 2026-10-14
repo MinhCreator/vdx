@@ -1,50 +1,60 @@
 import QtQuick
-import qs.components
 import qs.config
+import qs.kit
 
+// Password for a secured network that isn't saved yet.
 Column {
   id: root
 
-  spacing: Theme.popupPadding
+  spacing: 14
 
   onVisibleChanged: if (visible) field.input.forceActiveFocus()
 
-  PopupInfoRow {
+  KitLine {}
+
+  Column {
     width: parent.width
-    label: "NETWORK"
-    value: WifiService.selected?.ssid ?? ""
+    spacing: 8
+
+    KitLabel { text: "PASSWORD" }
+
+    KitInput {
+      id: field
+      placeholder: "••••••••"
+      echoMode: TextInput.Password
+      text: WifiService.password
+      onTextEdited: WifiService.password = text
+      onAccepted: WifiService.submitPassword()
+    }
+
+    KitText {
+      width: parent.width
+      visible: WifiService.connectError !== ""
+      text: WifiService.connectError
+      color: Theme.red
+      wrapMode: Text.WordWrap
+      font.pixelSize: Theme.fontSize - 1
+    }
   }
 
-  PopupInput {
-    id: field
-    width: parent.width
-    label: "PASSWORD"
-    placeholder: "••••••••"
-    echoMode: TextInput.Password
-    text: WifiService.password
-    onTextEdited: WifiService.password = text
-    onAccepted: WifiService.submitPassword()
-  }
+  KitLine {}
 
   Row {
     anchors.right: parent.right
-    spacing: 6
+    spacing: 8
 
-    PopupButton {
-      label: "CANCEL"
-      tint: Theme.foreground0
+    KitButton {
+      text: "Cancel"
       onClicked: WifiService.showList()
     }
 
-    PopupButton {
-      label: "CONNECT"
-      tint: Theme.foreground0
+    KitButton {
+      icon: "check"
+      text: "Connect"
+      selected: true
       busy: WifiService.connectingSsid !== ""
-      status: WifiService.connectStatus
       disabled: WifiService.password === ""
       onClicked: WifiService.submitPassword()
     }
   }
-
-  PopupError { text: WifiService.connectError }
 }

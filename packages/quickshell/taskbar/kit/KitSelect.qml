@@ -9,6 +9,7 @@ Column {
 
   property string label: ""
   property string hint: ""
+  property color hintColor: Theme.muted
   property var model: []
   property var current: null
   property bool busy: false
@@ -45,7 +46,7 @@ Column {
         visible: root.hint !== ""
         text: root.hint
         elide: Text.ElideRight
-        color: Theme.muted
+        color: root.hintColor
         font.pixelSize: Theme.fontSize - 2
       }
     }

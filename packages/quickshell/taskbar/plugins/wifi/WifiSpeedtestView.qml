@@ -1,7 +1,8 @@
 import QtQuick
-import qs.components
 import qs.config
+import qs.kit
 
+// Speed test result: download / upload in large type, the details under them.
 Column {
   id: root
 
@@ -11,80 +12,76 @@ Column {
     return root.result ? value.toFixed(digits) + " " + unit : "—";
   }
 
-  spacing: Theme.popupPadding
+  spacing: 14
+
+  KitLine {}
 
   Row {
     width: parent.width
-    spacing: 16
 
     Repeater {
       model: [
-        { label: Theme.iconArrowDown + " DOWNLOAD", value: root.format(root.result?.down, "Mbps", 2) },
-        { label: Theme.iconArrowUp + " UPLOAD",   value: root.format(root.result?.up, "Mbps", 2) }
+        { label: "DOWNLOAD", value: root.result?.down },
+        { label: "UPLOAD",   value: root.result?.up }
       ]
 
       Column {
         required property var modelData
 
-        width: (root.width - 16) / 2
+        width: root.width / 2
         spacing: 4
 
-        ThemeText {
-          text: modelData.label
-          color: Theme.dim
-          font.pixelSize: Theme.fontSize - 2
-          font.letterSpacing: 1
-        }
+        KitLabel { text: modelData.label }
 
-        ThemeText {
-          text: modelData.value
-          font.pixelSize: Theme.fontSize + 3
+        Row {
+          spacing: 6
+
+          KitText {
+            text: root.result ? modelData.value.toFixed(1) : "—"
+            color: root.result ? Theme.foreground0 : Theme.gray
+            font.pixelSize: Theme.fontSize + 9
+            font.weight: Font.Bold
+          }
+
+          KitText {
+            anchors.baseline: parent.children[0].baseline
+            text: "Mbps"
+            color: Theme.muted
+            font.pixelSize: Theme.fontSize - 1
+          }
         }
       }
     }
   }
 
-  PopupSeparator { width: parent.width }
+  KitLine {}
 
-  PopupInfoList {
+  Column {
     width: parent.width
-    model: [
-      { label: "LATENCY",   value: root.format(root.result?.ping, "ms", 0) },
-      { label: "JITTER",    value: root.format(root.result?.jitter, "ms", 1) },
-      { label: "DURATION",  value: root.format(root.result?.duration, "s", 1) },
-      { label: "SERVER",    value: root.result?.server || "—" },
-      { label: "PUBLIC IP", value: root.result?.ip || "—" }
-    ]
-  }
+    spacing: 6
 
-  PopupSeparator { width: parent.width }
+    KitInfo { label: "Latency";   value: root.format(root.result?.ping, "ms", 0) }
+    KitInfo { label: "Jitter";    value: root.format(root.result?.jitter, "ms", 1) }
+    KitInfo { label: "Duration";  value: root.format(root.result?.duration, "s", 1) }
+    KitInfo { label: "Server";    value: root.result?.server || "—" }
+    KitInfo { label: "Public IP"; value: root.result?.ip || "—" }
 
-  Item {
-    width: parent.width
-    height: 20
-
-    ThemeText {
-      anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-      text: "STATUS"
-      color: Theme.dim
-      font.pixelSize: Theme.fontSize - 2
-      font.letterSpacing: 1
-    }
-
-    PopupSpinner {
-      anchors { right: statusText.left; rightMargin: 6; verticalCenter: parent.verticalCenter }
-      visible: WifiService.speedtestBusy
-      tint: Theme.foreground0
-    }
-
-    ThemeText {
-      id: statusText
-      anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-      text: WifiService.speedtestBusy ? "measuring…" : WifiService.speedtestError || (root.result ? "done" : "—")
-      color: WifiService.speedtestBusy ? Theme.dim
-           : WifiService.speedtestError ? Theme.red
-           : root.result ? Theme.green : Theme.muted
+    KitText {
+      width: parent.width
+      visible: WifiService.speedtestError !== "" && !WifiService.speedtestBusy
+      text: WifiService.speedtestError
+      color: Theme.red
+      wrapMode: Text.WordWrap
       font.pixelSize: Theme.fontSize - 1
     }
+  }
+
+  KitLine {}
+
+  KitButton {
+    icon: "refresh"
+    text: "Run again"
+    busy: WifiService.speedtestBusy
+    onClicked: WifiService.showSpeedtest()
   }
 }
