@@ -23,7 +23,7 @@ Singleton {
     { id: "battery",       label: "Battery",       zone: "right",  icon: "battery", about: "Charge, limit, power profile, GPU" },
     { id: "language",      label: "Language",      zone: "right",  icon: "keyboard", about: "Keyboard layout" },
     { id: "ai",            label: "AI",            zone: "right",  icon: "bot", about: "Claude Code limits, local Ollama models" },
-    { id: "shell",         label: "Shell",         zone: "right",  icon: "sliders", fixed: true, about: "Shell Manager: options, plugins, layout" },
+    { id: "shell",         label: "Shell",         zone: "right",  icon: "sliders", about: "Shell Manager: options, plugins, layout" },
     { id: "notifications", label: "Notifications", zone: "right",  icon: "bell", about: "History and unseen dot" },
     { id: "capture",       label: "Capture",       zone: "right",  icon: "camera", about: "Screenshots and screen recording" }
   ]
@@ -52,8 +52,6 @@ Singleton {
                       : (state.zones !== null || state.hidden.length > 0);
   }
 
-  // Fixed plugins can move but not be switched off (the manager's own button).
-  function fixed(id) { return plugins.find(p => p.id === id)?.fixed ?? false; }
   function icon(id) { return plugins.find(p => p.id === id)?.icon ?? ""; }
   function about(id) { return plugins.find(p => p.id === id)?.about ?? ""; }
   function label(id) { return plugins.find(p => p.id === id)?.label ?? id; }
@@ -79,15 +77,14 @@ Singleton {
   }
 
   function setEnabled(id, on, screen) {
-    if (fixed(id)) return;
     const off = hidden(screen);
     update(screen, { hidden: on ? off.filter(x => x !== id) : off.concat(id) });
   }
 
   function setBarOn(screen, on) { update(screen, { off: !on }); }
 
-  // An empty bar: everything off except the fixed plugins.
-  function clear(screen) { update(screen, { hidden: plugins.filter(p => !p.fixed).map(p => p.id) }); }
+  // An empty bar: every plugin off (Super+S still opens the Shell Manager).
+  function clear(screen) { update(screen, { hidden: plugins.map(p => p.id) }); }
 
   function reset(screen) { update(screen, { zones: null, hidden: [] }); }
 

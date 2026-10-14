@@ -161,7 +161,7 @@ Column {
         KitButton {
           icon: "trash"
           text: "Clear"
-          disabled: root.onCount === BarLayout.plugins.filter(p => p.fixed).length
+          disabled: root.onCount === 0
           onClicked: BarLayout.clear(root.screenName)
         }
 
@@ -389,8 +389,8 @@ Column {
           id: moduleArea
           anchors.fill: parent
           hoverEnabled: true
-          cursorShape: module.modelData.fixed ? Qt.ArrowCursor : Qt.PointingHandCursor
-          onClicked: if (!module.modelData.fixed) BarLayout.setEnabled(module.modelData.id, !module.shown, root.screenName)
+          cursorShape: Qt.PointingHandCursor
+          onClicked: BarLayout.setEnabled(module.modelData.id, !module.shown, root.screenName)
         }
 
         Row {
@@ -400,7 +400,7 @@ Column {
 
           KitText {
             anchors.verticalCenter: parent.verticalCenter
-            text: module.modelData.fixed ? "ALWAYS ON" : module.shown ? root.zoneOf(module.modelData.id).toUpperCase() : "OFF"
+            text: module.shown ? root.zoneOf(module.modelData.id).toUpperCase() : "OFF"
             color: Theme.muted
             font.pixelSize: Theme.fontSize - 3
             font.letterSpacing: 1
@@ -409,7 +409,6 @@ Column {
           KitSwitch {
             anchors.verticalCenter: parent.verticalCenter
             checked: module.shown
-            disabled: module.modelData.fixed ?? false
             onToggled: BarLayout.setEnabled(module.modelData.id, !module.shown, root.screenName)
           }
         }

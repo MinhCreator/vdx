@@ -75,7 +75,7 @@ Item {
 Регистрация — запись в `bar/BarLayout.qml` (`plugins`: id, label, зона,
 `icon` — имя SVG из `kit/icons`, `about`) и `Component { id: x; X { bar: root } }`
 в `bar/Bar.qml`. Порядок, зоны и включённость пользователь меняет в Shell
-Manager. `fixed: true` — плагин можно двигать, но не выключить (кнопка `shell`).
+Manager; выключить можно любой, Shell Manager всегда открывается по Super+S.
 Переименовал id — добавь старое имя в `BarLayout.renamed`, сохранённые
 раскладки мигрируют сами.
 
