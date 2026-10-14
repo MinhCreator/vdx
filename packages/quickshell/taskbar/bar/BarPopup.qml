@@ -44,13 +44,19 @@ PopupWindow {
   anchor.edges: Edges.Bottom | (alignLeft ? Edges.Left : Edges.Right)
   anchor.gravity: Edges.Bottom | (alignLeft ? Edges.Right : Edges.Left)
 
-  // A corner under the module. mapToItem isn't reactive, so this runs on every
-  // show and whenever the module's width changes.
+  // Bar x of the popup's corner, fixed while it is open (-1: closed).
+  property real anchorX: -1
+
+  // A corner under the module, taken once per show: modules change width while
+  // the popup is open (track titles, values) and the popup must not follow.
   anchor.onAnchoring: {
-    root.alignLeft = root.anchorItem.mapToItem(root.bar.contentItem, root.anchorItem.width / 2, 0).x
-                     < root.bar.width / 2;
-    const p = root.anchorItem.mapToItem(root.bar.contentItem, root.alignLeft ? 0 : root.anchorItem.width, 0);
-    anchor.rect.x = Math.round(p.x) - 1;
+    if (root.anchorX < 0) {
+      root.alignLeft = root.anchorItem.mapToItem(root.bar.contentItem, root.anchorItem.width / 2, 0).x
+                       < root.bar.width / 2;
+      const p = root.anchorItem.mapToItem(root.bar.contentItem, root.alignLeft ? 0 : root.anchorItem.width, 0);
+      root.anchorX = Math.round(p.x) - 1;
+    }
+    anchor.rect.x = root.anchorX;
     anchor.rect.y = Theme.barHeight - 1;
     anchor.rect.width = 1;
     anchor.rect.height = 1 + Theme.popupGap;
@@ -66,14 +72,10 @@ PopupWindow {
       root.shown();
     } else {
       root.closedAt = Date.now();
+      root.anchorX = -1;
       PopupManager.close(root);
       root.hidden();
     }
-  }
-
-  Connections {
-    target: root.anchorItem
-    function onWidthChanged() { if (root.visible) root.anchor.updateAnchor(); }
   }
 
   Shortcut {
