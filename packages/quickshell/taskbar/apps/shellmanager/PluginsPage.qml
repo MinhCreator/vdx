@@ -150,8 +150,10 @@ Column {
 
         KitLine {}
 
+        // hidden when off: a zero-height item still takes a Column gap
         Loader {
           width: parent.width
+          visible: active
           active: !!root.plugin?.settings
           source: active ? Quickshell.shellPath("plugins/" + root.plugin.id + "/" + root.plugin.settings) : ""
         }
