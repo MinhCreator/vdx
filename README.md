@@ -1,6 +1,7 @@
 # dotfiles
 
-Gruvbox-themed dotfiles for Arch Linux / Hyprland / Zsh / Neovim, deployed by a
+Arch Linux / Hyprland / Zsh / Neovim dotfiles with one palette across the whole
+desktop (gruvbox, graphite, ember), deployed by a
 manifest-based symlink manager in pure Python stdlib — no stow.
 
 | Component | Software |
@@ -59,7 +60,7 @@ links, system files, missing packages) and numbered actions.
 | `./install.py verify` | Broken / missing / stale links (non-zero exit on problems) |
 | `./install.py bootstrap [-f]` | Seed secrets from templates |
 | `./install.py system status\|install` | Compare / install `system/` files into `/etc` |
-| `./install.py theme list\|current\|set <name>` | Themes; `set` re-links |
+| `./install.py theme list\|current\|set <name>` | Themes; `set` re-links and reloads Hyprland, mako, kitty, tmux |
 
 Commands that change or remove things (`force`, `unlink`, `deps`,
 `system install`, `setup`) ask first; `-y` answers yes, and without a terminal
@@ -79,6 +80,7 @@ one by one, so a new one is not visible until then.
 ├── home/              -> ~/                 (.zshenv)
 ├── packages/<pkg>/    -> ~/.config/<pkg>/   (one package per program)
 ├── themes/<name>/     overlay mirroring packages/ (active theme wins per file)
+│   └── mktheme.py     derives a theme from gruvbox role by role
 ├── system/            -> /                  (copied with sudo, never linked)
 ├── secrets/           env.example — template for ~/.config/secrets/env
 ├── docs/              power management notes
@@ -103,9 +105,13 @@ one by one, so a new one is not visible until then.
   "starship.toml" = "~/.config/starship.toml"
   ```
 
-- **Themes.** `themes/gruvbox` is the only theme; the active one is in `.theme`
-  (local, git-ignored — gruvbox when absent). Mako and Swaylock exist only as
-  theme files. The Quickshell bar reloads itself when the theme changes.
+- **Themes.** `gruvbox`, `graphite` (near-black monochrome) and `ember` (warm
+  charcoal, coral frames). Every program uses the same roles —
+  [`themes/gruvbox/README.md`](themes/gruvbox/README.md) has the palette and
+  the rules; `themes/mktheme.py` derives a new theme from a palette. The active
+  one is in `.theme` (local, git-ignored — gruvbox when absent); switch with
+  `./install.py theme set` or the Shell Manager. Mako and Swaylock exist only
+  as theme files.
 - **Never linked:** `.git`, `.gitignore`, `package.toml`, `node_modules`,
   `README`, `README.md`.
 - **Conflicts:** correct links are kept, wrong ones replaced, real files and
@@ -119,11 +125,13 @@ one by one, so a new one is not visible until then.
 
 `packages/quickshell/taskbar/` — plugins for workspaces, music, radio, clock,
 display, audio, Wi-Fi, Mihomo, battery, language, AI (Claude Code limits +
-local Ollama) and a notification center. The puzzle button opens the plugin
-manager: switch plugins on / off and drag them between the left, center and
-right zones. Architecture, UI rules and how to add a plugin:
-[`taskbar/CLAUDE.md`](packages/quickshell/taskbar/CLAUDE.md); each plugin has its
-own `README.md`.
+local Ollama) and a notification center, all built from one component kit
+(`kit/`, SVG icons). The **Shell Manager** (Super+S or the bar's sliders
+button) is a settings window: themes with live previews, the solid wallpaper
+(theme colour or your own, painted through awww), the bar's icon style and
+zone layout, plugins on / off. Architecture and UI rules:
+[`taskbar/CLAUDE.md`](packages/quickshell/taskbar/CLAUDE.md); each plugin has
+its own `README.md`.
 
 ### Submodules
 
