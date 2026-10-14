@@ -110,14 +110,14 @@ Column {
         width: pane.width
         spacing: 14
 
-        // heading: icon, name and about; NO OPTIONS on the right when it has none
+        // heading: icon, name and about
         Item {
           width: parent.width
           height: heading.implicitHeight
 
           Row {
             id: heading
-            anchors { left: parent.left; right: badge.visible ? badge.left : parent.right; rightMargin: badge.visible ? 12 : 0 }
+            anchors { left: parent.left; right: parent.right }
             spacing: 10
 
             KitIcon {
@@ -146,22 +146,22 @@ Column {
               }
             }
           }
-
-          KitBadge {
-            id: badge
-            anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-            visible: !root.plugin?.settings
-            text: "NO OPTIONS"
-            tint: Theme.muted
-          }
         }
 
-        KitLine { visible: !!root.plugin?.settings }
+        KitLine {}
 
         Loader {
           width: parent.width
           active: !!root.plugin?.settings
           source: active ? Quickshell.shellPath("plugins/" + root.plugin.id + "/" + root.plugin.settings) : ""
+        }
+
+        // a plugin without options gets a row in their place, like one
+        KitRow {
+          visible: !root.plugin?.settings
+          label: "No options"
+          hint: "nothing to set for this plugin"
+          labelColor: Theme.foreground2
         }
       }
     }
