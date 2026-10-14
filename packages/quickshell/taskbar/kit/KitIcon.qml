@@ -15,7 +15,7 @@ Item {
   property bool solid: false
 
   // names that have a filled variant in icons/solid
-  readonly property var solidNames: ["battery-charging", "battery", "bell", "bot", "camera", "circle", "clock", "grid", "headphones", "keyboard", "leaf", "moon", "music", "plug", "radio", "shield", "sliders", "sun", "volume", "volume-x", "wifi-off", "wifi"]
+  readonly property var solidNames: ["battery-charging", "battery", "bell", "bot", "camera", "circle", "clipboard", "clock", "grid", "headphones", "keyboard", "leaf", "moon", "music", "plug", "radio", "shield", "sliders", "sun", "volume", "volume-x", "wifi-off", "wifi"]
   readonly property bool useSolid: solid && solidNames.includes(name)
 
   implicitWidth: size
