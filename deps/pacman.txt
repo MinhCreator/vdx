@@ -19,6 +19,8 @@ swaylock
 grim
 slurp
 wl-clipboard
+gpu-screen-recorder
+intel-media-driver
 brightnessctl
 ttf-jetbrains-mono-nerd
 

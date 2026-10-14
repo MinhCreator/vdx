@@ -7,6 +7,7 @@ import qs.plugins.ai
 import qs.plugins.audio
 import qs.plugins.battery
 import qs.plugins.brightness
+import qs.plugins.capture
 import qs.plugins.clock
 import qs.plugins.language
 import qs.plugins.mihomo
@@ -28,7 +29,7 @@ PanelWindow {
     workspaces: workspaces, music: music, radio: radio, clock: clock,
     brightness: brightness, audio: audio, wifi: wifi, mihomo: mihomo,
     battery: battery, language: language, ai: ai, notifications: notifications,
-    shell: shell
+    shell: shell, capture: capture
   })
 
   component Zone: Row {
@@ -102,6 +103,7 @@ PanelWindow {
   Component { id: language; Language {} }
   Component { id: ai; Ai { bar: root } }
   Component { id: notifications; Notifications { bar: root } }
+  Component { id: capture; Capture { bar: root } }
 
   // The Shell Manager's button; a plugin of its own so it can move between zones.
   Component {

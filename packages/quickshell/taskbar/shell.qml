@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.apps.capture
 import qs.apps.shellmanager
 import qs.bar
 import qs.components
@@ -18,6 +19,11 @@ Scope {
   Wallpaper {}
 
   PopupCatcher {}
+
+  // Super+Shift+S: screenshot or recording of a region, window or screen
+  CaptureOverlay {}
+
+  CaptureRecording {}
 
   // `install.py theme set` (here or from a terminal) writes .theme; reread the
   // palettes and the shell recolours live — Colors.qml only seeds the start.

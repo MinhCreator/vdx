@@ -19,7 +19,8 @@ hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("~/.config/rofi/boot.sh"))
 hl.bind(mainMod .. " + S", hl.dsp.exec_cmd("qs -c taskbar ipc call shell toggle"))
 
 -- screenshots (both copy to the clipboard)
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd('grim -g "$(slurp)" - | wl-copy'))
+-- capture tool: region / window / screen, shot or recording (again: stop recording)
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("qs -c taskbar ipc call capture open"))
 hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("grim - | wl-copy"))
 
 -- music / volume
