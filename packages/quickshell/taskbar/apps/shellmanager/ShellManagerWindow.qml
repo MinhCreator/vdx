@@ -5,15 +5,15 @@ import qs.config
 
 // The Shell Manager as a window of its own (Hyprland floats and centres it by
 // its title, see hypr/components/rules.lua). Opened from the bar's shell
-// button, `qs -c taskbar ipc call shell toggle` or `… shell open <tab>`
-// (appearance | plugins | layout); Escape closes it.
+// button, Super+S, `qs -c taskbar ipc call shell toggle` or `… shell open <tab>`
+// (themes | bar | plugins); Escape closes it.
 FloatingWindow {
   id: root
 
   title: "Shell Manager"
   visible: ShellSettings.managerOpen
-  implicitWidth: Theme.popupWidthWide
-  implicitHeight: 640
+  implicitWidth: 820
+  implicitHeight: 600
   color: Theme.background0
 
   onVisibleChanged: {
@@ -24,7 +24,6 @@ FloatingWindow {
   ShellManager {
     id: manager
     anchors.fill: parent
-    border.width: 0
   }
 
   Shortcut {
@@ -36,7 +35,7 @@ FloatingWindow {
     target: "shell"
     function toggle(): void { ShellSettings.managerOpen = !ShellSettings.managerOpen; }
     function open(tab: string): void {
-      manager.tab = tab;
+      manager.tab = ({ appearance: "themes", layout: "bar" })[tab] ?? tab;
       ShellSettings.managerOpen = true;
     }
   }
