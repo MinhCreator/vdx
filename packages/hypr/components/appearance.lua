@@ -8,10 +8,11 @@ hl.config({
 		layout = "master",
 		gaps_in = 10,
 		gaps_out = 20,
-		border_size = 4,
+		-- 1px frames like the bar's popups: light on the focused window, quiet on the rest
+		border_size = 1,
 		col = {
-			active_border = colors.background_alt,
-			inactive_border = colors.background,
+			active_border = colors.foreground2,
+			inactive_border = colors.background3,
 		},
 	},
 

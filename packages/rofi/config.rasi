@@ -17,13 +17,13 @@ configuration {
 @import "~/.config/rofi/colors.rasi"
 
 * {
-    font: "JetBrainsMono Nerd Font Bold 11";
+    font: "JetBrainsMono Nerd Font SemiBold 11";
 }
 
 window {
     transparency: "real";
     width: 260px;
-    border: 4px;
+    border: 1px;
     border-color: @border;
     background-color: @bg;
     location: center;
@@ -38,13 +38,13 @@ mainbox {
 inputbar {
     margin: 0 0 12px 0;
     padding: 0 0 12px 0;
-    border: 0px 0px 2px 0px;
-    border-color: @fg;
+    border: 0px 0px 1px 0px;
+    border-color: @line;
     children: [ "entry" ];
 }
 
 entry {
-    text-color: @fg;
+    text-color: @accent;
     placeholder: "Search...";
     placeholder-color: @fg;
 }
@@ -59,7 +59,7 @@ listview {
 }
 
 element {
-    padding: 0px;
+    padding: 5px 8px;
 }
 
 element normal.normal,
@@ -69,7 +69,7 @@ element alternate.normal {
 }
 
 element selected.normal {
-    background-color: transparent;
+    background-color: @selected;
     text-color: @accent;
     border: 0px;
     border-color: @accent;

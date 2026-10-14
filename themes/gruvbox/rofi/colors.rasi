@@ -1,8 +1,10 @@
 * {
-    bg:     #32302f;
-    border: #282828;
-    fg:     #665c54;
-    accent: #d4be98;
+    bg:       #202020;
+    border:   #7c6f64;
+    fg:       #928374;
+    accent:   #d4be98;
+    selected: #45403d;
+    line:     #45403d;
 
     background-color: @bg;
     text-color:       @fg;

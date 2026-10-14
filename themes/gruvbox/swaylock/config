@@ -3,20 +3,20 @@ hide-keyboard-layout
 font=JetBrainsMono Nerd Font
 font-size=14
 
-color=32302f
+color=202020
 
-inside-color=32302f
-inside-ver-color=32302f
-inside-wrong-color=32302f
-inside-clear-color=32302f
+inside-color=202020
+inside-ver-color=202020
+inside-wrong-color=202020
+inside-clear-color=202020
 
-ring-color=665c54
+ring-color=45403d
 ring-ver-color=a9b665
 ring-wrong-color=ea6962
 ring-clear-color=d8a657
 
-key-hl-color=ebdbb2
-bs-hl-color=cc241d
+key-hl-color=d4be98
+bs-hl-color=ea6962
 
 text-color=00000000
 text-ver-color=00000000
