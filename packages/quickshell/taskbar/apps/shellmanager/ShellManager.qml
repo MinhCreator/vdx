@@ -90,6 +90,40 @@ KitFrame {
     visible: root.tab === "appearance"
     spacing: 12
 
+    KitLabel { text: "THEME" }
+
+    KitSelect {
+      label: "Theme"
+      hint: ThemeService.error !== "" ? ThemeService.error : "colours for the whole desktop"
+      hintColor: ThemeService.error !== "" ? Theme.red : Theme.muted
+      model: ThemeService.themes.map(t => ({ label: t, value: t }))
+      current: ThemeService.current
+      busy: ThemeService.busy
+      overlay: true
+      onPicked: value => ThemeService.apply(value)
+    }
+
+    // the active palette, surfaces first, then the accents
+    Row {
+      spacing: 4
+
+      Repeater {
+        model: [Theme.background0, Theme.background1, Theme.background3, Theme.gray, Theme.foreground2, Theme.foreground0,
+                Theme.red, Theme.orange, Theme.yellow, Theme.green, Theme.aqua, Theme.blue, Theme.purple]
+
+        Rectangle {
+          required property color modelData
+          width: 30
+          height: 18
+          color: modelData
+          border.width: 1
+          border.color: Theme.background3
+        }
+      }
+    }
+
+    KitLine {}
+
     KitLabel { text: "BAR" }
 
     KitRow {
@@ -107,7 +141,7 @@ KitFrame {
       width: parent.width
       height: 40
       color: Theme.background1
-      border.width: 1
+      border.width: Theme.frameWidth
       border.color: Theme.background3
 
       Row {
@@ -151,7 +185,7 @@ KitFrame {
         width: tiles.tileWidth
         height: 52
         color: shown ? Theme.background3 : tileArea.containsMouse ? Theme.background1 : "transparent"
-        border.width: 1
+        border.width: Theme.frameWidth
         border.color: shown || tileArea.containsMouse ? Theme.foreground2 : Theme.gray
 
         KitIcon {
@@ -247,7 +281,7 @@ KitFrame {
                 width: list.width
                 height: root.chipHeight
                 color: chipHover.hovered ? Theme.background1 : "transparent"
-                border.width: 1
+                border.width: Theme.frameWidth
                 border.color: chipHover.hovered ? Theme.foreground2 : Theme.gray
                 opacity: root.dragId === modelData ? 0.3 : 1
 
@@ -311,7 +345,7 @@ KitFrame {
       width: (columns.width - 2 * columns.spacing) / 3
       height: root.chipHeight
       color: Theme.background3
-      border.width: 1
+      border.width: Theme.frameWidth
       border.color: Theme.foreground2
 
       PluginChip { pluginId: root.dragId }

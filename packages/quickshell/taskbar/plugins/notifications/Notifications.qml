@@ -28,7 +28,7 @@ Item {
       width: 6
       height: 6
       color: Theme.red
-      border.width: 1
+      border.width: Theme.frameWidth
       border.color: Theme.background0
     }
   }

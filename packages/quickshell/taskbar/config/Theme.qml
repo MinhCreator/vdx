@@ -146,6 +146,8 @@ QtObject {
   readonly property int popupFrameWidth: 4
   readonly property int popupPadding: 10
   readonly property int popupGap: 6
+  readonly property int frameWidth: 1          // controls: buttons, selects, fields
+  readonly property int windowFrameWidth: 2    // popup frames, like hypr windows, mako, rofi
   readonly property int rowHeight: 24
   readonly property int visibleRows: 8
   readonly property int switchWidth: 34

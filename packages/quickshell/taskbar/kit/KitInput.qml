@@ -18,7 +18,7 @@ Rectangle {
   width: parent ? parent.width : 0
   implicitHeight: 32
   color: "transparent"
-  border.width: 1
+  border.width: Theme.frameWidth
   border.color: input.activeFocus || hover.hovered ? Theme.foreground2 : Theme.gray
 
   HoverHandler { id: hover; cursorShape: Qt.IBeamCursor }

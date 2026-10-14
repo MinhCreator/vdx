@@ -12,7 +12,7 @@ Rectangle {
   implicitWidth: Theme.popupWidth
   implicitHeight: column.implicitHeight + 2 * padding
   color: Theme.background0
-  border.width: 1
+  border.width: Theme.windowFrameWidth
   border.color: Theme.gray
 
   Column {

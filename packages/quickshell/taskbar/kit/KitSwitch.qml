@@ -14,7 +14,7 @@ Rectangle {
   implicitWidth: 36
   implicitHeight: 20
   color: Theme.background3
-  border.width: area.containsMouse && !disabled ? 1 : 0
+  border.width: area.containsMouse && !disabled ? Theme.frameWidth : 0
   border.color: Theme.foreground2
   opacity: disabled ? 0.4 : 1
 

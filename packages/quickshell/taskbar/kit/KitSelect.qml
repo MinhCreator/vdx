@@ -16,6 +16,8 @@ Column {
   property bool disabled: false
   property bool expanded: false
   property real boxWidth: width * 0.48
+  // The open list floats over what follows instead of pushing it down.
+  property bool overlay: false
 
   readonly property var selected: model.find(c => c.value === current) ?? null
 
@@ -23,6 +25,7 @@ Column {
 
   width: parent ? parent.width : 0
   spacing: 6
+  z: expanded ? 10 : 0
 
   onDisabledChanged: if (disabled) expanded = false
 
@@ -57,7 +60,7 @@ Column {
       width: root.boxWidth
       height: 30
       color: boxArea.containsMouse && !root.disabled ? Theme.background1 : "transparent"
-      border.width: 1
+      border.width: Theme.frameWidth
       border.color: root.expanded || boxArea.containsMouse ? Theme.foreground2 : Theme.gray
       opacity: root.disabled ? 0.4 : 1
 
@@ -99,19 +102,24 @@ Column {
     }
   }
 
-  Rectangle {
+  Item {
     width: parent.width
+    height: root.overlay ? 0 : list.height
     visible: root.expanded
-    height: options.implicitHeight + 2
-    color: "transparent"
-    border.width: 1
+
+  Rectangle {
+    id: list
+    width: parent.width
+    height: options.implicitHeight + 2 * Theme.frameWidth
+    color: root.overlay ? Theme.background0 : "transparent"
+    border.width: Theme.frameWidth
     border.color: Theme.gray
 
     Column {
       id: options
-      x: 1
-      y: 1
-      width: parent.width - 2
+      x: Theme.frameWidth
+      y: Theme.frameWidth
+      width: parent.width - 2 * Theme.frameWidth
 
       Repeater {
         model: root.model
@@ -154,5 +162,6 @@ Column {
         }
       }
     }
+  }
   }
 }
