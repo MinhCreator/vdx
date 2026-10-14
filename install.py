@@ -422,6 +422,22 @@ def cmd_verify(args) -> int:
     return 0
 
 
+# Running programs that read their colours only at start; each command runs
+# only when the program is there, failures are ignored (best effort).
+THEME_RELOADS = [
+    ("hyprctl", ["hyprctl", "reload"]),
+    ("makoctl", ["makoctl", "reload"]),
+    ("kitty", ["pkill", "-USR1", "-x", "kitty"]),
+    ("tmux", ["tmux", "source-file", str(Path.home() / ".config/tmux/tmux.conf")]),
+]
+
+
+def reload_running() -> None:
+    for prog, command in THEME_RELOADS:
+        if shutil.which(prog):
+            subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
 def cmd_theme(args) -> int:
     if args.t_action == "list":
         heading("Themes")
@@ -435,7 +451,9 @@ def cmd_theme(args) -> int:
             return 1
         THEME_FILE.write_text(args.t_name + "\n")
         ok(f"theme: {args.t_name}")
-        return cmd_link(args)
+        code = cmd_link(args)
+        reload_running()
+        return code
     return 0
 
 
