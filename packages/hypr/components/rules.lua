@@ -15,5 +15,5 @@ hl.window_rule({
   match = { title = "^(Shell Manager)$" },
   float  = true,
   center = true,
-  size   = "520 640",
+  size   = "820 600",
 })
