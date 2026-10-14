@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.config
 
 // Dotfiles themes (~/.dotfiles/themes/<name>) for the Shell Manager: the list,
 // the active one (.theme, gruvbox when absent) and switching through
@@ -14,8 +15,13 @@ Singleton {
   readonly property string dotfiles: Quickshell.env("HOME") + "/.dotfiles"
 
   property var themes: []
+  // name -> that theme's colours by role (the order of scripts/themes.sh)
+  readonly property var roles: ["background0", "background1", "background3", "frame", "foreground0",
+                                "foreground2", "muted", "gray", "red", "yellow", "green", "blue"]
+  property var palettes: ({})
   property string current: ""
   property bool busy: false
+  property string applying: ""              // the theme being switched to
   property string error: ""
 
   function refresh() { if (!listProc.running) listProc.running = true; }
@@ -23,6 +29,7 @@ Singleton {
   function apply(name) {
     if (busy || name === current) return;
     busy = true;
+    applying = name;
     error = "";
     setProc.command = ["python3", dotfiles + "/install.py", "theme", "set", name];
     setProc.running = true;
@@ -32,11 +39,21 @@ Singleton {
 
   Process {
     id: listProc
-    command: ["bash", "-c", "cd \"$HOME/.dotfiles\" && for d in themes/*/; do basename \"$d\"; done; echo ---; cat .theme 2>/dev/null || echo gruvbox"]
+    command: ["bash", Theme.scriptsDir + "/themes.sh"]
     stdout: StdioCollector {
       onStreamFinished: {
         const [list, active] = text.split("---\n");
-        root.themes = list.split("\n").filter(s => s !== "");
+        const palettes = {};
+        const names = [];
+        for (const line of list.split("\n").filter(l => l !== "")) {
+          const [name, ...colors] = line.split(" ");
+          names.push(name);
+          const palette = {};
+          root.roles.forEach((role, i) => palette[role] = colors[i] ?? "#000000");
+          palettes[name] = palette;
+        }
+        root.palettes = palettes;
+        root.themes = names;
         root.current = (active ?? "").trim();
       }
     }
@@ -47,6 +64,7 @@ Singleton {
     stderr: StdioCollector { id: setErr }
     onExited: code => {
       root.busy = false;
+      root.applying = "";
       if (code !== 0) root.error = setErr.text.trim() || "install.py theme set failed";
       root.refresh();
     }
