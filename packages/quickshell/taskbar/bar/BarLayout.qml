@@ -3,8 +3,8 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// Which plugins the bar shows and where: three zones, each in order, plus the
-// switched-off ones. Persists in the state dir. Ids that `plugins` no longer
+// Which plugins the bar shows and where, per monitor: three zones, each in
+// order, plus the switched-off ones. Persists in the state dir. Ids that `plugins` no longer
 // knows are dropped; new plugins join their default zone.
 Singleton {
   id: root
@@ -30,33 +30,65 @@ Singleton {
   // Old ids still found in saved layouts: old -> new.
   readonly property var renamed: ({ claude: "ai", plugins: "shell" })
 
-  readonly property var layout: normalize(state.zones)    // {left: [ids], center, right}
-  readonly property var hidden: state.hidden.map(id => renamed[id] ?? id)
-  readonly property bool customized: state.zones !== null || hidden.length > 0
+  // Every function takes the screen name, but settings belong to its role:
+  // "main" — the external monitor when one is connected, else the only one
+  // (the laptop takes over the main bar when undocked); "extra" — the laptop
+  // panel and any further monitor while docked. A role never set up uses the
+  // shared layout (the one saved before per-monitor layouts).
+  function isInternal(name) { return /^(eDP|LVDS|DSI)/.test(name); }
+  function mainScreen() {
+    const names = Quickshell.screens.map(s => s.name);
+    return names.find(n => !isInternal(n)) ?? names[0] ?? "";
+  }
+  function roleOf(screen) { return screen === mainScreen() ? "main" : "extra"; }
+  function entry(screen) { return state.screens?.[roleOf(screen)] ?? null; }
+  function layout(screen) { return normalize(entry(screen)?.zones ?? state.zones); }
+  function hidden(screen) { return (entry(screen)?.hidden ?? state.hidden).map(id => renamed[id] ?? id); }
+  function barOn(screen) { return !(entry(screen)?.off ?? false); }
+  function customized(screen) {
+    const e = entry(screen);
+    return e !== null ? (e.zones !== null || e.hidden.length > 0)
+                      : (state.zones !== null || state.hidden.length > 0);
+  }
 
   // Fixed plugins can move but not be switched off (the manager's own button).
   function fixed(id) { return plugins.find(p => p.id === id)?.fixed ?? false; }
   function icon(id) { return plugins.find(p => p.id === id)?.icon ?? ""; }
   function about(id) { return plugins.find(p => p.id === id)?.about ?? ""; }
   function label(id) { return plugins.find(p => p.id === id)?.label ?? id; }
-  function visibleIn(zone) { return layout[zone].filter(id => !hidden.includes(id)); }
+  function visibleIn(zone, screen) {
+    const off = hidden(screen);
+    return layout(screen)[zone].filter(id => !off.includes(id));
+  }
 
-  function move(id, zone, index) {
+  // Writes the monitor's entry, starting from what it shows now.
+  function update(screen, change) {
+    const e = Object.assign({ zones: entry(screen)?.zones ?? state.zones, hidden: hidden(screen), off: !barOn(screen) }, change);
+    const all = Object.assign({}, state.screens ?? {});
+    all[roleOf(screen)] = e;
+    state.screens = all;
+  }
+
+  function move(id, zone, index, screen) {
+    const current = layout(screen);
     const z = {};
-    for (const name of zones) z[name] = layout[name].filter(x => x !== id);
+    for (const name of zones) z[name] = current[name].filter(x => x !== id);
     z[zone].splice(Math.max(0, Math.min(index, z[zone].length)), 0, id);
-    state.zones = z;
+    update(screen, { zones: z });
   }
 
-  function setEnabled(id, on) {
+  function setEnabled(id, on, screen) {
     if (fixed(id)) return;
-    state.hidden = on ? hidden.filter(x => x !== id) : hidden.concat(id);
+    const off = hidden(screen);
+    update(screen, { hidden: on ? off.filter(x => x !== id) : off.concat(id) });
   }
 
-  function reset() {
-    state.zones = null;
-    state.hidden = [];
-  }
+  function setBarOn(screen, on) { update(screen, { off: !on }); }
+
+  // An empty bar: everything off except the fixed plugins.
+  function clear(screen) { update(screen, { hidden: plugins.filter(p => !p.fixed).map(p => p.id) }); }
+
+  function reset(screen) { update(screen, { zones: null, hidden: [] }); }
 
   function normalize(saved) {
     const known = new Set(plugins.map(p => p.id));
@@ -82,6 +114,7 @@ Singleton {
       id: state
       property var zones: null
       property var hidden: []
+      property var screens: ({})      // role (main | extra) -> {zones, hidden, off}
     }
   }
 }

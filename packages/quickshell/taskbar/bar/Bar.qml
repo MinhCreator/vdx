@@ -40,7 +40,7 @@ PanelWindow {
     spacing: Theme.moduleSpacing
 
     Repeater {
-      model: BarLayout.visibleIn(zone.name)
+      model: BarLayout.visibleIn(zone.name, root.modelData.name)
 
       Row {
         required property string modelData

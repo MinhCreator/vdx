@@ -5,10 +5,10 @@ import qs.apps.shellmanager
 import qs.bar
 import qs.components
 
-// Entry point: a bar on every screen, reloaded when the dotfiles theme changes.
+// Entry point: a bar on every screen that has one on (BarLayout), recoloured when the dotfiles theme changes.
 Scope {
   Variants {
-    model: Quickshell.screens
+    model: Quickshell.screens.filter(s => BarLayout.barOn(s.name))
 
     Bar {}
   }
@@ -19,18 +19,18 @@ Scope {
 
   PopupCatcher {}
 
-  // `install.py theme set` writes .theme first and relinks Colors.qml after;
-  // Quickshell can't see the relink, so reload once it has finished.
+  // `install.py theme set` (here or from a terminal) writes .theme; reread the
+  // palettes and the shell recolours live — Colors.qml only seeds the start.
   FileView {
     path: Quickshell.env("HOME") + "/.dotfiles/.theme"
     watchChanges: true
     printErrors: false
-    onFileChanged: reloadTimer.restart()
+    onFileChanged: refreshTimer.restart()
   }
 
   Timer {
-    id: reloadTimer
+    id: refreshTimer
     interval: 400   // longer than install.py's relink (~220 ms)
-    onTriggered: Quickshell.reload(true)
+    onTriggered: ThemeService.refresh()
   }
 }

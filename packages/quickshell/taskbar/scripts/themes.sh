@@ -5,7 +5,7 @@
 # active theme (.theme, gruvbox when absent).
 set -u
 cd "$HOME/.dotfiles" || exit 1
-roles=(background0 background1 background3 frame foreground0 foreground2 muted gray red yellow green blue)
+roles=(background0 background1 background2 background3 foreground0 foreground1 foreground2 red orange yellow green aqua blue purple gray muted frame dim)
 for dir in themes/*/; do
   name=$(basename "$dir")
   file="$dir/quickshell/taskbar/config/Colors.qml"

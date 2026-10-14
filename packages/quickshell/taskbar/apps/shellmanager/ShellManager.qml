@@ -5,21 +5,16 @@ import qs.kit
 
 // Shell Manager: settings laid out like a system settings window — sections
 // on the left, the chosen page on the right, scrolling on its own.
-//   THEMES    — a gallery of themes with live previews;
-//   WALLPAPER — solid colour: the theme's or a custom one;
-//   BAR     — icon style and the layout of the bar's zones;
-//   PLUGINS — a tile per plugin, on / off.
+//   APPEARANCE — theme, wallpaper and icon style under one live preview;
+//   BAR        — the layout of the bar's zones, icon style, modules on / off.
 Rectangle {
   id: root
 
-  property string tab: "themes"
+  property string tab: "appearance"
 
   readonly property var sections: [
-    { value: "themes",  label: "Themes",  icon: "sun",    count: ThemeService.themes.length },
-    { value: "wallpaper", label: "Wallpaper", icon: "monitor", count: -1 },
-    { value: "bar",     label: "Bar",     icon: "layout", count: -1 },
-    { value: "plugins", label: "Plugins", icon: "grid",
-      count: BarLayout.plugins.length - BarLayout.hidden.length }
+    { value: "appearance", label: "Appearance", icon: "sun" },
+    { value: "bar",        label: "Bar",        icon: "layout" }
   ]
 
   color: Theme.background0
@@ -33,27 +28,9 @@ Rectangle {
 
     Column {
       x: 12
-      y: 16
+      y: 20
       width: parent.width - 24
       spacing: 4
-
-      Row {
-        spacing: 10
-        bottomPadding: 14
-
-        KitIcon {
-          anchors.verticalCenter: parent.verticalCenter
-          name: "sliders"
-          size: 20
-        }
-
-        KitText {
-          anchors.verticalCenter: parent.verticalCenter
-          text: "Shell"
-          font.pixelSize: Theme.fontSize + 3
-          font.weight: Font.ExtraBold
-        }
-      }
 
       Repeater {
         model: root.sections
@@ -84,13 +61,6 @@ Rectangle {
             font.weight: item.active ? Font.ExtraBold : Font.DemiBold
           }
 
-          KitText {
-            anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
-            visible: item.modelData.count >= 0
-            text: String(item.modelData.count)
-            color: Theme.muted
-            font.pixelSize: Theme.fontSize - 2
-          }
 
           MouseArea {
             id: itemArea
@@ -132,17 +102,17 @@ Rectangle {
       x: 24
       y: 20
       width: page.width - 48
-      implicitHeight: Math.max(themes.visible ? themes.implicitHeight : 0,
-                               wallpaper.visible ? wallpaper.implicitHeight : 0,
-                               bar.visible ? bar.implicitHeight : 0,
-                               plugins.visible ? plugins.implicitHeight : 0)
+      implicitHeight: Math.max(appearance.visible ? appearance.implicitHeight : 0,
+                               bar.visible ? bar.implicitHeight : 0)
 
-      ThemesPage  { id: themes;  width: parent.width; visible: root.tab === "themes" }
-      WallpaperPage { id: wallpaper; width: parent.width; visible: root.tab === "wallpaper" }
+      AppearancePage { id: appearance; width: parent.width; visible: root.tab === "appearance" }
       BarPage     { id: bar;     width: parent.width; visible: root.tab === "bar" }
-      PluginsPage { id: plugins; width: parent.width; visible: root.tab === "plugins" }
     }
   }
 
-  onTabChanged: page.contentY = 0
+  onTabChanged: {
+    if (tab === "themes" || tab === "wallpaper") tab = "appearance";
+    else if (tab === "plugins") tab = "bar";
+    page.contentY = 0;
+  }
 }

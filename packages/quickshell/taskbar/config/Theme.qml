@@ -10,26 +10,30 @@ QtObject {
   id: root
 
   // ---- palette (from the active theme's Colors.qml) -----------------------
-  readonly property color background0: Colors.background0
-  readonly property color background1: Colors.background1
-  readonly property color background2: Colors.background2
-  readonly property color background3: Colors.background3
+  // `live` is the active theme's palette read at runtime (ThemeService), so a
+  // theme switch recolours everything without reloading the shell.
+  property var live: ({})
 
-  readonly property color foreground0: Colors.foreground0
-  readonly property color foreground1: Colors.foreground1
-  readonly property color foreground2: Colors.foreground2
+  readonly property color background0: live.background0 ?? Colors.background0
+  readonly property color background1: live.background1 ?? Colors.background1
+  readonly property color background2: live.background2 ?? Colors.background2
+  readonly property color background3: live.background3 ?? Colors.background3
 
-  readonly property color red:    Colors.red
-  readonly property color orange: Colors.orange
-  readonly property color yellow: Colors.yellow
-  readonly property color green:  Colors.green
-  readonly property color aqua:   Colors.aqua
-  readonly property color blue:   Colors.blue
-  readonly property color purple: Colors.purple
-  readonly property color gray:   Colors.gray
-  readonly property color muted:  Colors.muted
-  readonly property color frame:  Colors.frame
-  readonly property color dim:    Colors.dim
+  readonly property color foreground0: live.foreground0 ?? Colors.foreground0
+  readonly property color foreground1: live.foreground1 ?? Colors.foreground1
+  readonly property color foreground2: live.foreground2 ?? Colors.foreground2
+
+  readonly property color red:    live.red ?? Colors.red
+  readonly property color orange: live.orange ?? Colors.orange
+  readonly property color yellow: live.yellow ?? Colors.yellow
+  readonly property color green:  live.green ?? Colors.green
+  readonly property color aqua:   live.aqua ?? Colors.aqua
+  readonly property color blue:   live.blue ?? Colors.blue
+  readonly property color purple: live.purple ?? Colors.purple
+  readonly property color gray:   live.gray ?? Colors.gray
+  readonly property color muted:  live.muted ?? Colors.muted
+  readonly property color frame:  live.frame ?? Colors.frame
+  readonly property color dim:    live.dim ?? Colors.dim
 
   // per-theme workspace label style
   readonly property string workspaceFormat: Colors.workspaceFormat

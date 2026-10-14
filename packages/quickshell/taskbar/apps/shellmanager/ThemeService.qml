@@ -7,8 +7,8 @@ import qs.config
 
 // Dotfiles themes (~/.dotfiles/themes/<name>) for the Shell Manager: the list,
 // the active one (.theme, gruvbox when absent) and switching through
-// `install.py theme set`, which relinks every program's colours; the bar
-// reloads itself when .theme changes (shell.qml).
+// `install.py theme set`, which relinks every program's colours. The active
+// palette goes to Theme.live, so the shell recolours without a reload.
 Singleton {
   id: root
 
@@ -16,8 +16,9 @@ Singleton {
 
   property var themes: []
   // name -> that theme's colours by role (the order of scripts/themes.sh)
-  readonly property var roles: ["background0", "background1", "background3", "frame", "foreground0",
-                                "foreground2", "muted", "gray", "red", "yellow", "green", "blue"]
+  readonly property var roles: ["background0", "background1", "background2", "background3",
+                                "foreground0", "foreground1", "foreground2", "red", "orange", "yellow",
+                                "green", "aqua", "blue", "purple", "gray", "muted", "frame", "dim"]
   property var palettes: ({})
   property string current: ""
   property bool busy: false
@@ -55,6 +56,7 @@ Singleton {
         root.palettes = palettes;
         root.themes = names;
         root.current = (active ?? "").trim();
+        Theme.live = palettes[root.current] ?? ({});
       }
     }
   }
