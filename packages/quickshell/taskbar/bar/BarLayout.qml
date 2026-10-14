@@ -61,9 +61,22 @@ Singleton {
   function icon(id) { return plugins.find(p => p.id === id)?.icon ?? ""; }
   function about(id) { return plugins.find(p => p.id === id)?.about ?? ""; }
   function label(id) { return plugins.find(p => p.id === id)?.label ?? id; }
+  // A plugin switched off (Plugins page) is gone from every bar and from the
+  // layout editor; one that is on but not placed on a monitor's bar sits in
+  // that bar's "not on this bar" tray (`hidden`).
+  readonly property var disabled: state.disabled
+  function pluginOn(id) { return !disabled.includes(id); }
+  function setPluginOn(id, on) { state.disabled = on ? disabled.filter(x => x !== id) : disabled.concat(id); }
+
   function visibleIn(zone, screen) {
     const off = hidden(screen);
-    return layout(screen)[zone].filter(id => !off.includes(id));
+    return layout(screen)[zone].filter(id => !off.includes(id) && pluginOn(id));
+  }
+
+  // on, but not placed on this monitor's bar
+  function unplaced(screen) {
+    const off = hidden(screen);
+    return plugins.map(p => p.id).filter(id => off.includes(id) && pluginOn(id));
   }
 
   // Writes the monitor's entry, starting from what it shows now.
@@ -82,6 +95,7 @@ Singleton {
     update(screen, { zones: z });
   }
 
+  // place on / take off one monitor's bar
   function setEnabled(id, on, screen) {
     const off = hidden(screen);
     update(screen, { hidden: on ? off.filter(x => x !== id) : off.concat(id) });
@@ -89,7 +103,7 @@ Singleton {
 
   function setBarOn(screen, on) { update(screen, { off: !on }); }
 
-  // An empty bar: every plugin off (Super+S still opens the Shell Manager).
+  // An empty bar: every plugin into the tray (Super+S still opens the Shell Manager).
   function clear(screen) { update(screen, { hidden: plugins.map(p => p.id) }); }
 
   function reset(screen) { update(screen, { zones: null, hidden: [] }); }
@@ -120,6 +134,7 @@ Singleton {
       property var hidden: []
       property var screens: ({})      // role (main | extra) -> {zones, hidden, off}
       property bool shared: false
+      property var disabled: []       // switched off everywhere (Plugins page)
     }
   }
 }

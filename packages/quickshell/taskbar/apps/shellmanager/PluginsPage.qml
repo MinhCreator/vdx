@@ -4,8 +4,8 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Plugins: the list on the left (dim: off on every bar), the chosen one on
-// the right — which bars show it, then its options: its own <Name>Settings.qml
+// Plugins: the list on the left (dim: switched off), the chosen one on the
+// right — on / off everywhere, then its options: its own <Name>Settings.qml
 // (the registry's `settings`), values kept in PluginSettings, Reset to the
 // defaults. The header stays; each pane scrolls on its own. Where a plugin
 // sits is set on the Bar page.
@@ -15,19 +15,6 @@ Column {
   property string selected: (BarLayout.plugins.find(p => p.settings) ?? BarLayout.plugins[0])?.id ?? ""
   readonly property var plugin: BarLayout.plugins.find(p => p.id === selected) ?? null
 
-  // the bars a plugin can sit on: one when shared, else Main and Extra
-  // (a monitor name standing for each role)
-  readonly property var bars: {
-    const names = Quickshell.screens.map(s => s.name);
-    const main = BarLayout.mainScreen();
-    const extra = names.find(n => n !== main);
-    return BarLayout.shared || !extra
-      ? [{ label: "On the bar", screen: main }]
-      : [{ label: "On the Main bar", screen: main }, { label: "On the Extra bar", screen: extra }];
-  }
-
-  function onBar(id, screen) { return !BarLayout.hidden(screen).includes(id); }
-  function onAnyBar(id) { return bars.some(b => onBar(id, b.screen)); }
 
   spacing: 14
 
@@ -74,7 +61,7 @@ Column {
               required property var modelData
 
               readonly property bool active: modelData.id === root.selected
-              readonly property bool on: root.onAnyBar(modelData.id)
+              readonly property bool on: BarLayout.pluginOn(modelData.id)
 
               width: rows.width
               height: 30
@@ -88,7 +75,7 @@ Column {
                 size: 14
               }
 
-              // plugins off on every bar read dimmer
+              // plugins switched off read dimmer
               KitText {
                 anchors { left: rowIcon.right; leftMargin: 8; right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
                 text: row.modelData.label
@@ -175,28 +162,16 @@ Column {
 
         KitLine {}
 
-        // ---- on the bar ------------------------------------------------------------
-        KitLabel { text: "BAR" }
+        // ---- on / off: everywhere; where it sits is the Bar page's job ----------------
+        KitRow {
+          readonly property bool on: BarLayout.pluginOn(root.selected)
 
-        Repeater {
-          model: root.bars
+          label: "Enabled"
+          hint: on ? "placed on the Bar page" : "off: on no bar, not in the layout"
 
-          KitRow {
-            id: barRow
-
-            required property var modelData
-
-            readonly property bool on: root.onBar(root.selected, modelData.screen)
-            readonly property bool barShown: BarLayout.barOn(modelData.screen)
-
-            label: modelData.label
-            hint: !barShown ? "no bar on that monitor (Bar page)" : on ? "placed on the Bar page" : "hidden"
-
-            KitSwitch {
-              disabled: !barRow.barShown
-              checked: barRow.on && barRow.barShown
-              onToggled: BarLayout.setEnabled(root.selected, !barRow.on, barRow.modelData.screen)
-            }
+          KitSwitch {
+            checked: parent.on
+            onToggled: BarLayout.setPluginOn(root.selected, !parent.on)
           }
         }
 
