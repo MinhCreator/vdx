@@ -1,8 +1,10 @@
 import QtQuick
-import qs.components
 import qs.config
+import qs.kit
 
-PopupFrame {
+// Notification history, newest first: app and time, summary, body. Unread
+// ones carry a red square; critical summaries are red.
+KitFrame {
   id: root
 
   readonly property var items: NotificationsService.items
@@ -14,44 +16,43 @@ PopupFrame {
     return Qt.formatDateTime(d, today ? "HH:mm" : "dd.MM HH:mm");
   }
 
-  implicitWidth: Theme.popupWidth
+  // ---- header ----------------------------------------------------------------
+  KitHeader {
+    icon: "bell"
+    glyphColor: root.items.length > 0 ? Theme.foreground0 : Theme.muted
+    title: "Notifications"
+    subtitle: root.items.length === 0 ? "ALL CAUGHT UP" : root.items.length + " IN HISTORY"
 
-  PopupHeader {
-    width: parent.width
-    glyph: Theme.iconBell
-    title: "NOTIFICATIONS"
-    subtitle: root.items.length === 0 ? "EMPTY"
-      : root.fresh > 0 ? root.fresh + " NEW · " + root.items.length + " TOTAL"
-      : root.items.length + " TOTAL"
-    subtitleColor: root.fresh > 0 ? Theme.green : Theme.muted
-
-    PopupButton {
+    KitBadge {
       anchors.verticalCenter: parent.verticalCenter
-      glyph: Theme.iconClearAll
-      glyphSize: Theme.headerButtonSize
-      tint: Theme.foreground0
-      frameless: true
-      hoverBackground: false
+      visible: root.fresh > 0
+      text: root.fresh + " NEW"
+      tint: Theme.red
+    }
+
+    KitButton {
+      icon: "trash"
+      text: "Clear"
       disabled: root.items.length === 0
       onClicked: NotificationsService.clear()
     }
   }
 
-  PopupSeparator { width: parent.width }
+  KitLine {}
 
-  ThemeText {
+  KitText {
     visible: root.items.length === 0
-    text: "NO NOTIFICATIONS"
+    text: "Nothing here yet."
     color: Theme.muted
-    font.letterSpacing: 1
+    font.pixelSize: Theme.fontSize - 1
   }
 
   Flickable {
-    id: list
     width: parent.width
     visible: root.items.length > 0
-    height: Math.min(contentHeight, Theme.notificationsVisible * 58)
+    height: Math.min(contentHeight, Theme.notificationsVisible * 66)
     contentHeight: rows.implicitHeight
+    interactive: contentHeight > height
     clip: true
     boundsBehavior: Flickable.StopAtBounds
 
@@ -67,9 +68,16 @@ PopupFrame {
           id: item
 
           required property var modelData
+          required property int index
+
+          readonly property bool fresh: NotificationsService.isFresh(modelData)
 
           width: rows.width
-          spacing: 2
+          spacing: 3
+
+          KitLine { visible: item.index > 0 }
+
+          Item { width: 1; height: item.index > 0 ? 6 : 0 }
 
           Item {
             width: parent.width
@@ -77,44 +85,45 @@ PopupFrame {
 
             Rectangle {
               id: dot
-              visible: NotificationsService.isFresh(item.modelData)
+              visible: item.fresh
               anchors.verticalCenter: parent.verticalCenter
               width: visible ? 6 : 0
               height: 6
-              radius: 3
               color: Theme.red
             }
 
-            ThemeText {
+            KitText {
               id: app
-              anchors { left: dot.right; leftMargin: dot.visible ? 6 : 0; right: time.left; rightMargin: 8 }
+              anchors { left: dot.right; leftMargin: dot.visible ? 8 : 0; right: time.left; rightMargin: 8 }
               text: (item.modelData.app || "—").toUpperCase()
               elide: Text.ElideRight
-              color: Theme.dim
+              color: Theme.muted
               font.pixelSize: Theme.fontSize - 2
               font.letterSpacing: 1
             }
 
-            ThemeText {
+            KitText {
               id: time
               anchors.right: parent.right
               text: root.when(item.modelData.time)
-              color: Theme.dim
+              color: Theme.muted
               font.pixelSize: Theme.fontSize - 2
             }
           }
 
-          ThemeText {
+          KitText {
             width: parent.width
             text: item.modelData.summary
             elide: Text.ElideRight
             color: item.modelData.urgency === "critical" ? Theme.red : Theme.foreground0
+            font.weight: Font.Bold
           }
 
-          ThemeText {
+          KitText {
             width: parent.width
             visible: item.modelData.body !== ""
-            text: item.modelData.body
+            // bodies may carry markup (<b>…</b> from Telegram); show the text only
+            text: item.modelData.body.replace(/<[^>]*>/g, "")
             textFormat: Text.PlainText
             wrapMode: Text.Wrap
             maximumLineCount: 2

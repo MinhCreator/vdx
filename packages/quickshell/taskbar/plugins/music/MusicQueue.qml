@@ -2,6 +2,7 @@ import QtQuick
 import qs.components
 import qs.config
 import qs.plugins.mpd
+import qs.kit
 
 // The whole queue, two lines per track, Theme.musicUpNext rows visible. It
 // scrolls itself so the current track sits on top (earlier tracks above,
@@ -31,17 +32,21 @@ Column {
   onCurrentPosChanged: Qt.callLater(scrollToCurrent)
   onSearchingChanged: if (!searching) Qt.callLater(scrollToCurrent)
 
-  spacing: 6
+  spacing: 8
 
-  PopupSectionTitle {
+  Item {
     width: parent.width
-    text: root.searching ? "SEARCH" : "QUEUE"
+    height: searchButton.height
 
-    PopupButton {
-      glyph: root.searching ? Theme.iconError : Theme.iconSearch
-      tint: Theme.foreground0
-      frameless: true
-      hoverBackground: false
+    KitLabel {
+      anchors.verticalCenter: parent.verticalCenter
+      text: root.searching ? "SEARCH" : "QUEUE (" + MusicService.queue.length + ")"
+    }
+
+    KitButton {
+      id: searchButton
+      anchors.right: parent.right
+      icon: root.searching ? "x" : "search"
       onClicked: {
         root.searching = !root.searching;
         root.query = "";
@@ -50,11 +55,10 @@ Column {
     }
   }
 
-  PopupInput {
+  KitInput {
     id: search
-    width: parent.width
     visible: root.searching
-    placeholder: "ARTIST OR TITLE"
+    placeholder: "artist or title"
     text: root.query
     onTextEdited: root.query = text
   }
@@ -83,47 +87,41 @@ Column {
 
           width: rows.width
           height: root.rowHeight
-          color: hover.hovered ? Theme.background2 : "transparent"
+          color: current ? Theme.background3 : hover.hovered ? Theme.background1 : "transparent"
 
           HoverHandler { id: hover }
 
-          Rectangle {
-            visible: row.current
-            width: 2
-            height: parent.height
-            color: Theme.foreground0
-          }
-
-          ThemeText {
+          KitText {
             id: number
-            anchors { left: parent.left; leftMargin: 12; verticalCenter: parent.verticalCenter }
-            width: 30
+            anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
+            width: 32
             text: row.modelData.pos
-            color: Theme.dim
+            color: row.current ? Theme.foreground0 : Theme.gray
             font.pixelSize: Theme.fontSize - 2
           }
 
           Column {
             anchors {
-              left: number.right; leftMargin: 6
-              right: parent.right; rightMargin: 8
+              left: number.right; leftMargin: 4
+              right: parent.right; rightMargin: 10
               verticalCenter: parent.verticalCenter
             }
             spacing: 1
 
-            ThemeText {
+            KitText {
               width: parent.width
               text: row.modelData.title
               elide: Text.ElideRight
               color: row.current || hover.hovered ? Theme.foreground0 : Theme.foreground2
+              font.weight: row.current ? Font.Bold : Font.Medium
               font.pixelSize: Theme.fontSize - 1
             }
 
-            ThemeText {
+            KitText {
               width: parent.width
               text: row.modelData.artist
               elide: Text.ElideRight
-              color: Theme.dim
+              color: Theme.muted
               font.pixelSize: Theme.fontSize - 2
             }
           }
@@ -141,11 +139,10 @@ Column {
     }
   }
 
-  ThemeText {
+  KitText {
     visible: root.tracks.length === 0
-    text: root.searching ? (root.query.trim() === "" ? "TYPE TO SEARCH" : "NOTHING FOUND") : "QUEUE IS EMPTY"
+    text: root.searching ? (root.query.trim() === "" ? "Type to search." : "Nothing found.") : "The queue is empty."
     color: Theme.muted
-    font.pixelSize: Theme.fontSize - 2
-    font.letterSpacing: 1
+    font.pixelSize: Theme.fontSize - 1
   }
 }

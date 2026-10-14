@@ -1,9 +1,11 @@
 import QtQuick
-import qs.components
 import qs.config
+import qs.kit
 import qs.plugins.mpd
 
-PopupFrame {
+// Music (Yandex likes over MPD): the track with cover, timeline and controls,
+// then the queue.
+KitFrame {
   id: root
 
   readonly property var player: MpdService.player
@@ -14,27 +16,20 @@ PopupFrame {
   }
 
   // ---- header ----------------------------------------------------------------
-  PopupHeader {
-    width: parent.width
-    glyph: Theme.iconMusic
-    title: "MUSIC"
-    subtitle: !MusicService.active ? "OFF"
-      : (MpdService.playing ? "PLAYING" : "PAUSED") + " · " + root.player.pos + "/" + root.player.length
-    subtitleColor: !MusicService.active ? Theme.muted : MpdService.playing ? Theme.green : Theme.foreground2
+  KitHeader {
+    icon: "music"
+    glyphColor: MusicService.active ? Theme.foreground0 : Theme.muted
+    title: "Music"
+    subtitle: !MusicService.active ? (MpdService.busy === "likes" ? "LOADING LIKES…" : "OFF")
+      : (MpdService.playing ? "PLAYING" : "PAUSED") + " · " + root.player.pos + " / " + root.player.length
 
-    PopupButton {
-      anchors.verticalCenter: parent.verticalCenter
-      glyph: Theme.iconRefresh
-      glyphSize: Theme.headerButtonSize
-      tint: Theme.foreground0
-      frameless: true
-      hoverBackground: false
+    KitButton {
+      icon: "refresh"
       busy: MusicService.updating
-      status: MusicService.updateStatus
       onClicked: MusicService.runUpdate()
     }
 
-    PopupSwitch {
+    KitSwitch {
       anchors.verticalCenter: parent.verticalCenter
       checked: MusicService.active
       disabled: MpdService.busy === "likes"
@@ -42,63 +37,66 @@ PopupFrame {
     }
   }
 
-  PopupSeparator { width: parent.width }
+  KitLine {}
 
-  ThemeText {
+  KitText {
     visible: !MusicService.active
-    text: MpdService.busy === "likes" ? "LOADING LIKES…" : "LIKES ARE NOT PLAYING"
+    text: "Likes are not playing. Switch them on to start."
     color: Theme.muted
-    font.letterSpacing: 1
+    font.pixelSize: Theme.fontSize - 1
   }
 
   // ---- now playing -----------------------------------------------------------
   Column {
     width: parent.width
     visible: MusicService.active
-    spacing: 8
+    spacing: 12
 
     Item {
       width: parent.width
       height: Theme.musicCoverSize
 
       Rectangle {
-        id: coverBox
+        id: cover
         width: Theme.musicCoverSize
         height: width
-        color: Theme.background2
+        color: Theme.background1
+        border.width: 1
+        border.color: Theme.background3
 
         Image {
-          anchors.fill: parent
+          anchors { fill: parent; margins: 1 }
           source: MusicService.cover
           fillMode: Image.PreserveAspectCrop
           asynchronous: true
           sourceSize { width: Theme.musicCoverSize * 2; height: Theme.musicCoverSize * 2 }
         }
 
-        ThemeText {
+        KitIcon {
           anchors.centerIn: parent
           visible: MusicService.cover === ""
-          text: Theme.iconMusic
-          color: Theme.dim
-          font.pixelSize: Theme.fontSize + 10
+          name: "music"
+          tint: Theme.gray
+          size: 24
         }
       }
 
       Column {
         anchors {
-          left: coverBox.right; leftMargin: 10
-          right: like.left; rightMargin: 6
+          left: cover.right; leftMargin: 12
+          right: like.left; rightMargin: 8
           verticalCenter: parent.verticalCenter
         }
-        spacing: 3
+        spacing: 4
 
-        ThemeText {
+        KitText {
           width: parent.width
           text: root.player.title || root.player.file || ""
           elide: Text.ElideRight
+          font.weight: Font.Bold
         }
 
-        ThemeText {
+        KitText {
           width: parent.width
           text: root.player.artist || "—"
           elide: Text.ElideRight
@@ -106,34 +104,31 @@ PopupFrame {
           font.pixelSize: Theme.fontSize - 1
         }
 
-        ThemeText {
+        KitText {
           width: parent.width
           text: [root.player.album, root.player.year].filter(s => s).join(" · ")
           elide: Text.ElideRight
-          color: Theme.dim
+          color: Theme.muted
           font.pixelSize: Theme.fontSize - 2
         }
       }
 
-      PopupButton {
+      KitButton {
         id: like
         anchors { right: parent.right; top: parent.top }
         visible: MusicService.trackId !== ""
-        glyph: MusicService.isLiked ? Theme.iconHeart : Theme.iconHeartOutline
-        glyphSize: Theme.headerButtonSize
-        tint: MusicService.isLiked ? Theme.red : Theme.foreground0
-        frameless: true
-        hoverBackground: false
+        icon: MusicService.isLiked ? "heart-filled" : "heart"
+        iconTint: MusicService.isLiked ? Theme.red : Theme.foreground0
         onClicked: MusicService.toggleLike()
       }
     }
 
-    // ---- progress ------------------------------------------------------------
+    // ---- timeline ------------------------------------------------------------
     Column {
       width: parent.width
       spacing: 2
 
-      PopupSlider {
+      KitSlider {
         id: timeline
         width: parent.width
         value: MpdService.duration > 0 ? MpdService.elapsed / MpdService.duration : 0
@@ -142,19 +137,19 @@ PopupFrame {
 
       Item {
         width: parent.width
-        height: elapsedText.implicitHeight
+        height: elapsed.implicitHeight
 
-        ThemeText {
-          id: elapsedText
+        KitText {
+          id: elapsed
           text: root.clock(timeline.pressed ? timeline.dragValue * MpdService.duration : MpdService.elapsed)
-          color: Theme.dim
+          color: Theme.muted
           font.pixelSize: Theme.fontSize - 2
         }
 
-        ThemeText {
+        KitText {
           anchors.right: parent.right
           text: root.clock(MpdService.duration)
-          color: Theme.dim
+          color: Theme.muted
           font.pixelSize: Theme.fontSize - 2
         }
       }
@@ -163,77 +158,55 @@ PopupFrame {
     // ---- controls ------------------------------------------------------------
     Item {
       width: parent.width
-      height: playButton.implicitHeight
+      height: 30
 
-      PopupButton {
-        anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-        glyph: root.player.random ? Theme.iconRandom : Theme.iconRandomOff
-        glyphSize: Theme.headerButtonSize
-        tint: root.player.random ? Theme.green : Theme.foreground0
-        frameless: true
-        hoverBackground: false
+      KitButton {
+        anchors.left: parent.left
+        icon: "shuffle"
+        selected: !!root.player.random
+        iconTint: !!root.player.random ? Theme.foreground0 : Theme.gray
         onClicked: MpdService.toggleRandom()
       }
 
       Row {
         anchors.centerIn: parent
-        spacing: 12
+        spacing: 8
 
-        PopupButton {
-          anchors.verticalCenter: parent.verticalCenter
-          glyph: Theme.iconPrev
-          glyphSize: Theme.headerButtonSize
-          tint: Theme.foreground0
-          frameless: true
-          hoverBackground: false
-          onClicked: MpdService.prev()
-        }
+        KitButton { icon: "skip-back"; onClicked: MpdService.prev() }
 
-        PopupButton {
-          id: playButton
-          anchors.verticalCenter: parent.verticalCenter
-          glyph: MpdService.playing ? Theme.iconPause : Theme.iconPlay
-          glyphSize: Theme.fontSize + 10
-          tint: Theme.foreground0
-          frameless: true
-          hoverBackground: false
+        KitButton {
+          width: 52
+          icon: MpdService.playing ? "pause" : "play"
+          selected: true
           onClicked: MpdService.toggle()
         }
 
-        PopupButton {
-          anchors.verticalCenter: parent.verticalCenter
-          glyph: Theme.iconNext
-          glyphSize: Theme.headerButtonSize
-          tint: Theme.foreground0
-          frameless: true
-          hoverBackground: false
-          onClicked: MpdService.next()
-        }
+        KitButton { icon: "skip-forward"; onClicked: MpdService.next() }
       }
 
-      PopupButton {
-        anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-        glyph: root.player.repeat === "one" ? Theme.iconRepeatOnce
-             : root.player.repeat === "all" ? Theme.iconRepeat
-             : Theme.iconRepeatOff
-        glyphSize: Theme.headerButtonSize
-        tint: root.player.repeat !== "off" ? Theme.green : Theme.foreground0
-        frameless: true
-        hoverBackground: false
+      KitButton {
+        anchors.right: parent.right
+        icon: root.player.repeat === "one" ? "repeat-1" : "repeat"
+        selected: root.player.repeat !== "off"
+        iconTint: root.player.repeat !== "off" ? Theme.foreground0 : Theme.gray
         onClicked: MpdService.cycleRepeat()
       }
     }
   }
 
-  PopupSeparator {
-    width: parent.width
-    visible: MusicService.active
-  }
+  KitLine { visible: MusicService.active }
 
   MusicQueue {
     width: parent.width
     visible: MusicService.active
   }
 
-  PopupError { text: MpdService.error }
+  KitText {
+    width: parent.width
+    visible: MpdService.error !== ""
+    text: MpdService.error
+    color: Theme.red
+    wrapMode: Text.WordWrap
+    font.pixelSize: Theme.fontSize - 1
+  }
 }

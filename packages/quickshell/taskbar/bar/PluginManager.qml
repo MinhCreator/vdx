@@ -1,12 +1,13 @@
 import QtQuick
 import qs.components
 import qs.config
+import qs.kit
 
 // Plugin manager, two tabs:
 //   PLUGINS — every plugin with a one-line description and an on / off switch;
 //   LAYOUT  — the bar's zones side by side; drag a chip to reorder it or move
 //             it to another zone (it follows the pointer, a bar marks the slot).
-PopupFrame {
+KitFrame {
   id: root
 
   property string tab: "plugins"
@@ -52,32 +53,31 @@ PopupFrame {
 
   implicitWidth: Theme.popupWidthWide
 
-  PopupHeader {
-    width: parent.width
-    glyph: Theme.iconPuzzle
-    title: "PLUGINS MANAGER"
+  KitHeader {
+    icon: "grid"
+    title: "Plugins"
     subtitle: BarLayout.plugins.length + " TOTAL · "
       + (BarLayout.plugins.length - BarLayout.hidden.length) + " ON · "
       + BarLayout.hidden.length + " OFF"
 
-    PopupButton {
-      anchors.verticalCenter: parent.verticalCenter
-      glyph: Theme.iconRestore
-      glyphSize: Theme.headerButtonSize
-      tint: Theme.foreground0
-      frameless: true
-      hoverBackground: false
+    KitButton {
+      icon: "rotate-ccw"
+      text: "Reset"
       disabled: !BarLayout.customized
       onClicked: BarLayout.reset()
     }
   }
 
-  PopupTabs {
-    width: parent.width
-    model: [{ label: "PLUGINS", value: "plugins" }, { label: "LAYOUT", value: "layout" }]
+  KitChoices {
+    model: [
+      { label: "Plugins", value: "plugins", icon: "list" },
+      { label: "Layout",  value: "layout",  icon: "layout" }
+    ]
     current: root.tab
     onPicked: value => root.tab = value
   }
+
+  KitLine {}
 
   // ---- plugins: on / off -----------------------------------------------------
   Column {
@@ -96,7 +96,7 @@ PopupFrame {
 
         width: parent.width
         height: 40
-        color: hover.hovered ? Theme.background2 : "transparent"
+        color: hover.hovered ? Theme.background1 : "transparent"
 
         HoverHandler { id: hover }
 
@@ -118,23 +118,24 @@ PopupFrame {
           }
           spacing: 1
 
-          ThemeText {
+          KitText {
             width: parent.width
             text: plugin.modelData.label
             elide: Text.ElideRight
             color: plugin.shown ? Theme.foreground0 : Theme.muted
+            font.weight: Font.Bold
           }
 
-          ThemeText {
+          KitText {
             width: parent.width
             text: plugin.modelData.about
             elide: Text.ElideRight
-            color: Theme.dim
+            color: Theme.muted
             font.pixelSize: Theme.fontSize - 2
           }
         }
 
-        PopupSwitch {
+        KitSwitch {
           id: pluginSwitch
           anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
           checked: plugin.shown
@@ -174,9 +175,9 @@ PopupFrame {
           width: (columns.width - 2 * columns.spacing) / 3
           spacing: 6
 
-          ThemeText {
-            text: column.modelData.toUpperCase() + " · " + column.count
-            color: column.target ? Theme.foreground0 : Theme.dim
+          KitText {
+            text: column.modelData.toUpperCase() + " (" + column.count + ")"
+            color: column.target ? Theme.foreground0 : Theme.muted
             font.pixelSize: Theme.fontSize - 2
             font.letterSpacing: 1
           }
@@ -197,8 +198,12 @@ PopupFrame {
 
                 width: list.width
                 height: root.chipHeight
-                color: Theme.background2
+                color: chipHover.hovered ? Theme.background1 : "transparent"
+                border.width: 1
+                border.color: chipHover.hovered ? Theme.foreground2 : Theme.gray
                 opacity: root.dragId === modelData ? 0.3 : 1
+
+                HoverHandler { id: chipHover }
 
                 // insertion marker above this chip
                 Rectangle {
@@ -236,9 +241,9 @@ PopupFrame {
               color: column.count === 0 ? "transparent" : Theme.foreground0
               opacity: column.count === 0 || (column.target && root.dropIndex === column.count) ? 1 : 0
               border.width: column.count === 0 ? 1 : 0
-              border.color: column.target ? Theme.foreground0 : Theme.muted
+              border.color: column.target ? Theme.foreground2 : Theme.background3
 
-              ThemeText {
+              KitText {
                 visible: column.count === 0
                 anchors.centerIn: parent
                 text: "drop here"
@@ -259,7 +264,7 @@ PopupFrame {
       height: root.chipHeight
       color: Theme.background3
       border.width: 1
-      border.color: Theme.foreground0
+      border.color: Theme.foreground2
 
       PluginChip { pluginId: root.dragId }
     }

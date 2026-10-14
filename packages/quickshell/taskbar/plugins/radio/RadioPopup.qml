@@ -1,64 +1,133 @@
 import QtQuick
-import qs.components
 import qs.config
+import qs.kit
 import qs.plugins.mpd
 
-PopupFrame {
+// Radio: what's on air and the station list; click a station to tune in.
+KitFrame {
   id: root
 
-  implicitWidth: Theme.popupWidthCompact
-
   // ---- header ----------------------------------------------------------------
-  PopupHeader {
-    width: parent.width
-    glyph: Theme.iconRadio
-    title: "RADIO"
+  KitHeader {
+    icon: "radio"
+    glyphColor: RadioService.active ? Theme.foreground0 : Theme.muted
+    title: "Radio"
     subtitle: RadioService.active ? "ON AIR · " + MpdService.player.station.toUpperCase() : "OFF"
-    subtitleColor: RadioService.active ? Theme.green : Theme.muted
 
-    PopupSwitch {
+    KitSwitch {
+      anchors.verticalCenter: parent.verticalCenter
       checked: RadioService.active
       disabled: RadioService.stations.length === 0
       onToggled: RadioService.setActive(!RadioService.active)
     }
   }
 
-  PopupSeparator { width: parent.width }
+  KitLine {}
 
   // ---- now playing -----------------------------------------------------------
   Column {
     width: parent.width
     visible: RadioService.active
-    spacing: 2
+    spacing: 6
 
-    ThemeText {
-      text: "NOW PLAYING"
-      color: Theme.dim
-      font.pixelSize: Theme.fontSize - 2
-      font.letterSpacing: 1
-    }
+    KitLabel { text: "NOW PLAYING" }
 
-    ThemeText {
+    KitText {
       width: parent.width
       text: MpdService.player.title || "—"
-      elide: Text.ElideRight
+      wrapMode: Text.Wrap
+      font.weight: Font.Bold
     }
   }
 
-  PopupSeparator {
+  KitLine { visible: RadioService.active }
+
+  // ---- stations ----------------------------------------------------------------
+  Column {
     width: parent.width
-    visible: RadioService.active
+    spacing: 8
+
+    KitLabel { text: "STATIONS (" + RadioService.stations.length + ")" }
+
+    KitText {
+      visible: RadioService.stations.length === 0
+      text: "No stations configured."
+      color: Theme.muted
+      font.pixelSize: Theme.fontSize - 1
+    }
+
+    Flickable {
+      width: parent.width
+      height: Math.min(contentHeight, 30 * Theme.visibleRows)
+      contentHeight: stations.implicitHeight
+      interactive: contentHeight > height
+      clip: true
+      boundsBehavior: Flickable.StopAtBounds
+
+      Column {
+        id: stations
+        width: parent.width
+
+        Repeater {
+          model: RadioService.stations
+
+          Rectangle {
+            id: station
+
+            required property var modelData
+
+            readonly property bool current: RadioService.active && RadioService.stationKey === modelData.key
+
+            width: stations.width
+            height: 30
+            color: current ? Theme.background3 : area.containsMouse ? Theme.background1 : "transparent"
+
+            KitText {
+              anchors { left: parent.left; leftMargin: 10; right: mark.left; rightMargin: 8; verticalCenter: parent.verticalCenter }
+              text: station.modelData.name
+              elide: Text.ElideRight
+              color: station.current || area.containsMouse ? Theme.foreground0 : Theme.foreground2
+              font.weight: station.current ? Font.Bold : Font.Medium
+            }
+
+            Item {
+              id: mark
+              anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
+              width: 14
+              height: 14
+
+              KitSpinner {
+                anchors.centerIn: parent
+                visible: MpdService.busy === station.modelData.key
+              }
+
+              KitIcon {
+                anchors.centerIn: parent
+                visible: station.current && MpdService.busy !== station.modelData.key
+                name: "check"
+                size: 14
+              }
+            }
+
+            MouseArea {
+              id: area
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: station.current ? Qt.ArrowCursor : Qt.PointingHandCursor
+              onClicked: if (!station.current) RadioService.play(station.modelData.key)
+            }
+          }
+        }
+      }
+    }
   }
 
-  // ---- station -------------------------------------------------------------
-  PopupSelect {
+  KitText {
     width: parent.width
-    label: "STATION"
-    model: RadioService.stations.map(s => ({ label: s.name.toUpperCase(), value: s.key }))
-    current: RadioService.active ? RadioService.stationKey : null
-    busyValue: MpdService.busy
-    onPicked: value => RadioService.play(value)
+    visible: MpdService.error !== ""
+    text: MpdService.error
+    color: Theme.red
+    wrapMode: Text.WordWrap
+    font.pixelSize: Theme.fontSize - 1
   }
-
-  PopupError { text: MpdService.error }
 }

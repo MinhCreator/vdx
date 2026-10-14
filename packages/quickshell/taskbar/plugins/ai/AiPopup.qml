@@ -1,19 +1,19 @@
 import QtQuick
 import qs.components
 import qs.config
+import qs.kit
 
-PopupFrame {
+KitFrame {
   id: root
 
   property string tab: "claude"
 
   readonly property var labels: ({
-    session: "SESSION · 5H",
-    weekly_all: "WEEK",
-    weekly_opus: "WEEK · OPUS",
-    weekly_sonnet: "WEEK · SONNET"
+    session: "Session · 5h",
+    weekly_all: "Week",
+    weekly_opus: "Week · Opus",
+    weekly_sonnet: "Week · Sonnet"
   })
-  readonly property real columnWidth: (width - 2 * inset - 16) / 2
 
   function resetsIn(iso) {
     if (!iso) return "";
@@ -30,55 +30,45 @@ PopupFrame {
   }
 
   // ---- header ----------------------------------------------------------------
-  PopupHeader {
-    width: parent.width
-    visible: root.tab === "claude"
-    glyph: Theme.iconRobot
-    title: "CLAUDE CODE"
-    subtitle: [ClaudeService.plan.toUpperCase(),
-               ClaudeService.sessions.length > 0
-                 ? (ClaudeService.busy > 0 ? ClaudeService.busy + " WORKING" : ClaudeService.sessions.length + " IDLE")
-                 : "NO SESSIONS"].filter(s => s).join(" · ")
-    subtitleColor: ClaudeService.busy > 0 ? Theme.green : Theme.foreground2
+  KitHeader {
+    icon: "bot"
+    title: root.tab === "claude" ? "Claude Code" : "Ollama"
+    subtitle: root.tab === "claude"
+      ? [ClaudeService.plan.toUpperCase(),
+         ClaudeService.sessions.length > 0
+           ? (ClaudeService.busy > 0 ? ClaudeService.busy + " WORKING" : ClaudeService.sessions.length + " IDLE")
+           : "NO SESSIONS"].filter(s => s).join(" · ")
+      : !OllamaService.installed ? "NOT INSTALLED"
+      : OllamaService.running ? "RUNNING · V" + OllamaService.status.version
+      : "STOPPED"
+    subtitleColor: (root.tab === "claude" ? ClaudeService.busy > 0 : OllamaService.running) ? Theme.green : Theme.muted
 
-    PopupButton {
-      anchors.verticalCenter: parent.verticalCenter
-      glyph: Theme.iconRefresh
-      glyphSize: Theme.headerButtonSize
-      tint: Theme.foreground0
-      frameless: true
-      hoverBackground: false
+    KitButton {
+      visible: root.tab === "claude"
+      icon: "refresh"
       busy: ClaudeService.refreshing
       onClicked: ClaudeService.refresh()
     }
-  }
 
-  PopupHeader {
-    width: parent.width
-    visible: root.tab === "ollama"
-    glyph: Theme.iconRobot
-    title: "OLLAMA"
-    subtitle: !OllamaService.installed ? "NOT INSTALLED"
-      : OllamaService.running ? "RUNNING · v" + OllamaService.status.version
-        + (OllamaService.loaded.length > 0 ? " · " + OllamaService.loaded.length + " LOADED" : "")
-      : "STOPPED"
-    subtitleColor: OllamaService.running ? Theme.green : Theme.muted
-
-    PopupSwitch {
+    KitSwitch {
       anchors.verticalCenter: parent.verticalCenter
-      visible: OllamaService.installed
+      visible: root.tab === "ollama" && OllamaService.installed
       checked: OllamaService.running
       disabled: OllamaService.busy === "server"
       onToggled: OllamaService.setRunning(!OllamaService.running)
     }
   }
 
-  PopupTabs {
-    width: parent.width
-    model: [{ label: "CLAUDE", value: "claude" }, { label: "OLLAMA", value: "ollama" }]
+  KitChoices {
+    model: [
+      { label: "Claude", value: "claude", icon: "bot" },
+      { label: "Ollama", value: "ollama", icon: "cpu" }
+    ]
     current: root.tab
     onPicked: value => root.tab = value
   }
+
+  KitLine {}
 
   Binding {
     target: OllamaService
@@ -86,91 +76,90 @@ PopupFrame {
     value: ClaudeService.popupOpen && root.tab === "ollama"
   }
 
-
+  // ---- claude ----------------------------------------------------------------
   Column {
     width: parent.width
     visible: root.tab === "claude"
-    spacing: Theme.popupPadding
+    spacing: 14
 
-    // ---- limits ----------------------------------------------------------------
     Column {
       width: parent.width
-      spacing: 10
+      spacing: 12
+
+      KitLabel { text: "PLAN LIMITS" }
 
       Repeater {
         model: ClaudeService.limits
 
-        PopupMeter {
+        Column {
           required property var modelData
 
+          readonly property color tint: Theme.qualityColor(modelData.percent, Theme.claudeWarning - 25, Theme.claudeWarning)
+
           width: parent.width
-          label: root.labels[modelData.kind] ?? modelData.kind.replace(/_/g, " ").toUpperCase()
-          text: modelData.percent + "%"
-          value: modelData.percent / 100
-          tint: Theme.qualityColor(modelData.percent, Theme.claudeWarning - 25, Theme.claudeWarning)
-          note: root.resetsIn(modelData.resets_at)
+          spacing: 5
+
+          KitInfo {
+            label: root.labels[modelData.kind] ?? modelData.kind.replace(/_/g, " ")
+            value: modelData.percent + "%"
+            valueColor: parent.tint
+          }
+
+          KitBar {
+            value: modelData.percent / 100
+            tint: parent.tint
+          }
+
+          KitText {
+            text: root.resetsIn(modelData.resets_at)
+            color: Theme.muted
+            font.pixelSize: Theme.fontSize - 2
+          }
         }
       }
 
-      ThemeText {
+      KitText {
         visible: ClaudeService.limits.length === 0 && ClaudeService.error === ""
-        text: "LOADING…"
+        text: "Loading…"
         color: Theme.muted
-        font.letterSpacing: 1
+        font.pixelSize: Theme.fontSize - 1
       }
 
-      PopupError {
-        text: ClaudeService.error === "" ? ""
-          : ClaudeService.error + (ClaudeService.fetchedAt > 0
-              ? " · data from " + Qt.formatDateTime(new Date(ClaudeService.fetchedAt), "HH:mm") : "")
+      KitText {
+        width: parent.width
+        visible: ClaudeService.error !== ""
+        text: ClaudeService.error + (ClaudeService.fetchedAt > 0
+          ? " · data from " + Qt.formatDateTime(new Date(ClaudeService.fetchedAt), "HH:mm") : "")
+        color: Theme.red
+        wrapMode: Text.WordWrap
+        font.pixelSize: Theme.fontSize - 1
       }
     }
 
-    PopupSeparator { width: parent.width }
+    KitLine {}
 
-    // ---- today -----------------------------------------------------------------
     Column {
       width: parent.width
       spacing: 6
 
-      PopupSectionTitle {
-        width: parent.width
-        text: "TODAY"
-      }
+      KitLabel { text: "TODAY"; value: (ClaudeService.today.messages ?? 0) + " MESSAGES" }
 
-      Row {
-        width: parent.width
-        spacing: 16
-
-        PopupInfoList {
-          width: root.columnWidth
-          model: [
-            { label: "OUTPUT",     value: Theme.humanCount(ClaudeService.today.output ?? 0) },
-            { label: "INPUT",      value: Theme.humanCount(ClaudeService.today.input ?? 0) },
-            { label: "MESSAGES",   value: String(ClaudeService.today.messages ?? 0) }
-          ]
-        }
-
-        PopupInfoList {
-          width: root.columnWidth
-          model: [
-            { label: "CACHE READ",  value: Theme.humanCount(ClaudeService.today.cache_read ?? 0) },
-            { label: "CACHE WRITE", value: Theme.humanCount(ClaudeService.today.cache_write ?? 0) }
-          ]
-        }
-      }
+      KitInfo { label: "Output";      value: Theme.humanCount(ClaudeService.today.output ?? 0) }
+      KitInfo { label: "Input";       value: Theme.humanCount(ClaudeService.today.input ?? 0) }
+      KitInfo { label: "Cache read";  value: Theme.humanCount(ClaudeService.today.cache_read ?? 0) }
+      KitInfo { label: "Cache write"; value: Theme.humanCount(ClaudeService.today.cache_write ?? 0) }
     }
 
-    PopupSeparator { width: parent.width }
+    KitLine {}
 
-    // ---- sessions --------------------------------------------------------------
     Column {
       width: parent.width
-      spacing: 6
+      spacing: 8
 
-      PopupSectionTitle {
-        width: parent.width
-        text: "SESSIONS"
+      KitLabel {
+        text: "SESSIONS (" + ClaudeService.sessions.length + ")"
+        value: ClaudeService.busy > 0 ? ClaudeService.busy + " BUSY" : ""
+        valueColor: Theme.green
       }
 
       Repeater {
@@ -181,46 +170,47 @@ PopupFrame {
 
           required property var modelData
 
+          readonly property bool busy: modelData.status === "busy"
+
           width: parent.width
-          spacing: 1
+          spacing: 2
 
           Item {
             width: parent.width
             height: name.implicitHeight
 
-            ThemeText {
+            KitText {
               id: name
               anchors { left: parent.left; right: statusText.left; rightMargin: 8 }
               text: session.modelData.name || "—"
               elide: Text.ElideRight
+              font.weight: Font.Bold
             }
 
-            ThemeText {
+            KitText {
               id: statusText
               anchors.right: parent.right
-              text: session.modelData.status.toUpperCase()
-              color: session.modelData.status === "busy" ? Theme.green : Theme.dim
-              font.pixelSize: Theme.fontSize - 2
-              font.letterSpacing: 1
+              text: session.modelData.status
+              color: session.busy ? Theme.green : Theme.muted
+              font.pixelSize: Theme.fontSize - 1
             }
           }
 
-          ThemeText {
+          KitText {
             width: parent.width
             text: root.shortPath(session.modelData.cwd) + " · v" + session.modelData.version
             elide: Text.ElideMiddle
-            color: Theme.dim
+            color: Theme.muted
             font.pixelSize: Theme.fontSize - 2
           }
         }
       }
 
-      ThemeText {
+      KitText {
         visible: ClaudeService.sessions.length === 0
-        text: "NO RUNNING SESSIONS"
+        text: "No running sessions."
         color: Theme.muted
-        font.pixelSize: Theme.fontSize - 2
-        font.letterSpacing: 1
+        font.pixelSize: Theme.fontSize - 1
       }
     }
   }

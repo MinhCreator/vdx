@@ -1,38 +1,33 @@
 import QtQuick
-import qs.components
 import qs.config
+import qs.kit
 
 // Ollama tab of the AI popup: models on disk (size, in memory or not), unload,
 // and a one-click download of the nvim coach's model.
 Column {
   id: root
 
-  spacing: 6
+  spacing: 14
 
-  ThemeText {
+  KitText {
     width: parent.width
-    visible: !OllamaService.installed
-    text: "Ollama is not installed:  sudo pacman -S ollama"
+    visible: !OllamaService.running
+    text: !OllamaService.installed ? "Ollama is not installed:  sudo pacman -S ollama"
+                                   : "The server is stopped. Switch it on to manage models."
     color: Theme.muted
     wrapMode: Text.WordWrap
-    font.pixelSize: Theme.fontSize - 2
-  }
-
-  ThemeText {
-    visible: OllamaService.installed && !OllamaService.running
-    text: "SERVER IS STOPPED"
-    color: Theme.muted
-    font.letterSpacing: 1
+    font.pixelSize: Theme.fontSize - 1
   }
 
   Column {
     width: parent.width
     visible: OllamaService.running
-    spacing: 6
+    spacing: 8
 
-    PopupSectionTitle {
-      width: parent.width
-      text: "MODELS · " + OllamaService.models.length
+    KitLabel {
+      text: "MODELS (" + OllamaService.models.length + ")"
+      value: OllamaService.loaded.length > 0 ? OllamaService.loaded.length + " IN MEMORY" : ""
+      valueColor: Theme.green
     }
 
     Repeater {
@@ -46,69 +41,66 @@ Column {
         readonly property real vram: OllamaService.vramOf(modelData.name)
 
         width: parent.width
-        height: Theme.rowHeight
+        height: 30
 
-        ThemeText {
+        KitText {
           anchors { left: parent.left; right: info.left; rightMargin: 8; verticalCenter: parent.verticalCenter }
           text: model.modelData.name
           elide: Text.ElideRight
-          color: model.vram > 0 ? Theme.green : Theme.foreground0
+          color: model.vram > 0 ? Theme.foreground0 : Theme.foreground2
+          font.weight: model.vram > 0 ? Font.Bold : Font.Medium
         }
 
-        ThemeText {
+        KitText {
           id: info
-          anchors { right: unload.left; rightMargin: 6; verticalCenter: parent.verticalCenter }
-          text: Theme.humanSize(model.modelData.size) + (model.vram > 0 ? " · " + Theme.humanSize(model.vram) + " in memory" : "")
-          color: Theme.dim
+          anchors { right: unload.left; rightMargin: 8; verticalCenter: parent.verticalCenter }
+          text: Theme.humanSize(model.modelData.size) + (model.vram > 0 ? " · " + Theme.humanSize(model.vram) + " loaded" : "")
+          color: model.vram > 0 ? Theme.green : Theme.muted
           font.pixelSize: Theme.fontSize - 2
         }
 
-        PopupButton {
+        KitButton {
           id: unload
           anchors { right: parent.right; verticalCenter: parent.verticalCenter }
           visible: model.vram > 0
           width: visible ? implicitWidth : 0
-          glyph: Theme.iconEyeOff
-          tint: Theme.foreground2
-          frameless: true
-          hoverBackground: false
+          icon: "eye-off"
           busy: OllamaService.busy === model.modelData.name
           onClicked: OllamaService.unload(model.modelData.name)
         }
       }
     }
 
-    ThemeText {
+    KitText {
       visible: OllamaService.models.length === 0
-      text: "No models yet"
+      text: "No models yet."
       color: Theme.muted
-      font.pixelSize: Theme.fontSize - 2
-    }
-
-    // The nvim habit coach needs this one.
-    Item {
-      width: parent.width
-      height: pull.implicitHeight
-      visible: !OllamaService.hasModel(Theme.ollamaCoachModel)
-
-      ThemeText {
-        anchors { left: parent.left; right: pull.left; rightMargin: 8; verticalCenter: parent.verticalCenter }
-        text: Theme.ollamaCoachModel + " — for the nvim coach"
-        elide: Text.ElideRight
-        color: Theme.foreground2
-        font.pixelSize: Theme.fontSize - 1
-      }
-
-      PopupButton {
-        id: pull
-        anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-        label: "PULL"
-        tint: Theme.foreground0
-        busy: OllamaService.busy === Theme.ollamaCoachModel
-        onClicked: OllamaService.pull(Theme.ollamaCoachModel)
-      }
+      font.pixelSize: Theme.fontSize - 1
     }
   }
 
-  PopupError { text: OllamaService.error }
+  KitLine { visible: OllamaService.running && !OllamaService.hasModel(Theme.ollamaCoachModel) }
+
+  // The nvim habit coach needs this one.
+  KitRow {
+    visible: OllamaService.running && !OllamaService.hasModel(Theme.ollamaCoachModel)
+    label: Theme.ollamaCoachModel
+    hint: "model for the nvim coach"
+
+    KitButton {
+      icon: "download"
+      text: "Pull"
+      busy: OllamaService.busy === Theme.ollamaCoachModel
+      onClicked: OllamaService.pull(Theme.ollamaCoachModel)
+    }
+  }
+
+  KitText {
+    width: parent.width
+    visible: OllamaService.error !== ""
+    text: OllamaService.error
+    color: Theme.red
+    wrapMode: Text.WordWrap
+    font.pixelSize: Theme.fontSize - 1
+  }
 }

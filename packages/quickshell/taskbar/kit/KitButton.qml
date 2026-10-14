@@ -9,6 +9,7 @@ Rectangle {
 
   property string icon: ""               // kit/icons name; wins over glyph
   property string glyph: ""
+  property color iconTint: Theme.foreground0
   property string text: ""
   property bool selected: false
   property bool busy: false
@@ -34,6 +35,7 @@ Rectangle {
       anchors.verticalCenter: parent.verticalCenter
       visible: root.icon !== "" && !root.busy
       name: root.icon
+      tint: root.iconTint
       size: Theme.fontSize + 1
     }
 
