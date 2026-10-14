@@ -53,7 +53,7 @@ Rectangle {
     KitText {
       visible: root.text !== ""
       text: root.text
-      font.weight: root.selected ? Font.Bold : Font.Medium
+      font.weight: root.selected ? Font.ExtraBold : Font.DemiBold
     }
   }
 

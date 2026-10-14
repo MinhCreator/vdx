@@ -116,7 +116,7 @@ KitFrame {
             text: item.modelData.summary
             elide: Text.ElideRight
             color: item.modelData.urgency === "critical" ? Theme.red : Theme.foreground0
-            font.weight: Font.Bold
+            font.weight: Font.ExtraBold
           }
 
           KitText {

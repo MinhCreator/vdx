@@ -1,5 +1,6 @@
 import QtQuick
 import qs.components
+import qs.bar
 import qs.config
 import qs.kit
 
@@ -17,10 +18,12 @@ Item {
     size: 16
   }
 
-  ThemeText {
+  KitIcon {
     id: chipIcon
     anchors { left: grip.right; leftMargin: 6; verticalCenter: parent.verticalCenter }
-    text: Theme[BarLayout.icon(pluginId)] ?? ""
+    name: BarLayout.icon(pluginId)
+    size: 15
+    solid: ShellSettings.solidIcons
   }
 
   KitText {

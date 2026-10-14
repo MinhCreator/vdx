@@ -26,7 +26,7 @@ Rectangle {
     text: root.modelData.ssid
     elide: Text.ElideRight
     color: root.current || hover.hovered ? Theme.foreground0 : Theme.foreground2
-    font.weight: root.current ? Font.Bold : Font.Medium
+    font.weight: root.current ? Font.ExtraBold : Font.DemiBold
   }
 
   KitIcon {

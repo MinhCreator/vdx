@@ -54,7 +54,7 @@ Item {
       text: root.title
       elide: Text.ElideRight
       font.pixelSize: Theme.fontSize + 3
-      font.weight: Font.Bold
+      font.weight: Font.ExtraBold
     }
 
     KitText {

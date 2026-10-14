@@ -36,7 +36,7 @@ KitFrame {
       width: parent.width
       text: MpdService.player.title || "—"
       wrapMode: Text.Wrap
-      font.weight: Font.Bold
+      font.weight: Font.ExtraBold
     }
   }
 
@@ -87,7 +87,7 @@ KitFrame {
               text: station.modelData.name
               elide: Text.ElideRight
               color: station.current || area.containsMouse ? Theme.foreground0 : Theme.foreground2
-              font.weight: station.current ? Font.Bold : Font.Medium
+              font.weight: station.current ? Font.ExtraBold : Font.DemiBold
             }
 
             Item {

@@ -40,7 +40,7 @@ Column {
 
     KitLabel {
       anchors.verticalCenter: parent.verticalCenter
-      text: root.searching ? "SEARCH" : "QUEUE (" + MusicService.queue.length + ")"
+      text: root.searching ? "SEARCH" : "UP NEXT FROM #" + root.currentPos
     }
 
     KitButton {
@@ -113,7 +113,7 @@ Column {
               text: row.modelData.title
               elide: Text.ElideRight
               color: row.current || hover.hovered ? Theme.foreground0 : Theme.foreground2
-              font.weight: row.current ? Font.Bold : Font.Medium
+              font.weight: row.current ? Font.ExtraBold : Font.DemiBold
               font.pixelSize: Theme.fontSize - 1
             }
 

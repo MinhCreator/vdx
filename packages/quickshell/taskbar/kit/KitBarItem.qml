@@ -24,6 +24,7 @@ Item {
       name: root.icon
       tint: root.tint
       size: Theme.fontSize + 2
+      solid: ShellSettings.solidIcons
     }
 
     KitText {

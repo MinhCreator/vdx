@@ -18,7 +18,7 @@ import qs.plugins.workspaces
 
 // Top bar for one screen. Plugins come from BarLayout (three zones, order,
 // switched-off ones); separators sit between neighbours of a zone only. The
-// puzzle button opens the plugin manager.
+// Shell button opens the Shell Manager.
 PanelWindow {
   id: root
 
@@ -28,7 +28,7 @@ PanelWindow {
     workspaces: workspaces, music: music, radio: radio, clock: clock,
     brightness: brightness, audio: audio, wifi: wifi, mihomo: mihomo,
     battery: battery, language: language, ai: ai, notifications: notifications,
-    plugins: plugins
+    shell: shell
   })
 
   component Zone: Row {
@@ -90,20 +90,6 @@ PanelWindow {
     anchors { right: parent.right; rightMargin: Theme.edgeMargin; verticalCenter: parent.verticalCenter }
   }
 
-  BarPopup {
-    id: manager
-    anchorItem: rightZone
-    ipcTarget: "plugins"
-    bar: root
-    implicitWidth: managerContent.implicitWidth
-    implicitHeight: managerContent.implicitHeight
-
-    PluginManager {
-      id: managerContent
-      anchors.fill: parent
-    }
-  }
-
   Component { id: workspaces; Workspaces {} }
   Component { id: music; Music { bar: root } }
   Component { id: radio; Radio { bar: root } }
@@ -117,21 +103,18 @@ PanelWindow {
   Component { id: ai; Ai { bar: root } }
   Component { id: notifications; Notifications { bar: root } }
 
-  // The manager's button; a plugin of its own so it can move between zones.
+  // The Shell Manager's button; a plugin of its own so it can move between zones.
   Component {
-    id: plugins
+    id: shell
 
     KitBarItem {
-      id: puzzle
-      icon: "grid"
+      id: shellButton
+      icon: "sliders"
 
       MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: {
-          manager.anchorItem = puzzle;
-          manager.toggle();
-        }
+        onClicked: ShellSettings.managerOpen = !ShellSettings.managerOpen
       }
     }
   }

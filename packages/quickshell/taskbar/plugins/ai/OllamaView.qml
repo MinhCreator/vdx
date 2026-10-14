@@ -48,7 +48,7 @@ Column {
           text: model.modelData.name
           elide: Text.ElideRight
           color: model.vram > 0 ? Theme.foreground0 : Theme.foreground2
-          font.weight: model.vram > 0 ? Font.Bold : Font.Medium
+          font.weight: model.vram > 0 ? Font.ExtraBold : Font.DemiBold
         }
 
         KitText {

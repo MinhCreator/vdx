@@ -12,23 +12,23 @@ Singleton {
   // Registry, in default order. A new plugin: an entry here + its Component in
   // Bar.qml. `icon` names a Theme glyph and `about` is the manager's one-liner.
   readonly property var plugins: [
-    { id: "workspaces",    label: "Workspaces",    zone: "left",   icon: "iconGrid", about: "Hyprland workspaces" },
-    { id: "music",         label: "Music",         zone: "left",   icon: "iconMusic", about: "Liked tracks from Yandex Music" },
-    { id: "radio",         label: "Radio",         zone: "left",   icon: "iconRadio", about: "Internet radio stations" },
-    { id: "clock",         label: "Clock",         zone: "center", icon: "iconClock", about: "Time, click for the date" },
-    { id: "brightness",    label: "Display",       zone: "right",  icon: "iconBrightness", about: "Backlight, dimming, night light" },
-    { id: "audio",         label: "Audio",         zone: "right",  icon: "iconVolume", about: "Devices, volumes, app streams" },
-    { id: "wifi",          label: "Wi-Fi",         zone: "right",  icon: "iconWifi", about: "Networks, DNS, speed test" },
-    { id: "mihomo",        label: "Mihomo",        zone: "right",  icon: "iconMihomo", about: "Proxy service and servers" },
-    { id: "battery",       label: "Battery",       zone: "right",  icon: "iconPlug", about: "Charge, limit, power profile, GPU" },
-    { id: "language",      label: "Language",      zone: "right",  icon: "iconKeyboard", about: "Keyboard layout" },
-    { id: "ai",            label: "AI",            zone: "right",  icon: "iconRobot", about: "Claude Code limits, local Ollama models" },
-    { id: "plugins",       label: "Plugins",       zone: "right",  icon: "iconPuzzle", fixed: true, about: "This manager, always on" },
-    { id: "notifications", label: "Notifications", zone: "right",  icon: "iconBell", about: "History and unseen dot" }
+    { id: "workspaces",    label: "Workspaces",    zone: "left",   icon: "layout", about: "Hyprland workspaces" },
+    { id: "music",         label: "Music",         zone: "left",   icon: "music", about: "Liked tracks from Yandex Music" },
+    { id: "radio",         label: "Radio",         zone: "left",   icon: "radio", about: "Internet radio stations" },
+    { id: "clock",         label: "Clock",         zone: "center", icon: "clock", about: "Time, click for the date" },
+    { id: "brightness",    label: "Display",       zone: "right",  icon: "sun", about: "Backlight, dimming, night light" },
+    { id: "audio",         label: "Audio",         zone: "right",  icon: "volume", about: "Devices, volumes, app streams" },
+    { id: "wifi",          label: "Wi-Fi",         zone: "right",  icon: "wifi", about: "Networks, DNS, speed test" },
+    { id: "mihomo",        label: "Mihomo",        zone: "right",  icon: "shield", about: "Proxy service and servers" },
+    { id: "battery",       label: "Battery",       zone: "right",  icon: "battery", about: "Charge, limit, power profile, GPU" },
+    { id: "language",      label: "Language",      zone: "right",  icon: "keyboard", about: "Keyboard layout" },
+    { id: "ai",            label: "AI",            zone: "right",  icon: "bot", about: "Claude Code limits, local Ollama models" },
+    { id: "shell",         label: "Shell",         zone: "right",  icon: "sliders", fixed: true, about: "Shell Manager: options, plugins, layout" },
+    { id: "notifications", label: "Notifications", zone: "right",  icon: "bell", about: "History and unseen dot" }
   ]
   readonly property var zones: ["left", "center", "right"]
   // Old ids still found in saved layouts: old -> new.
-  readonly property var renamed: ({ claude: "ai" })
+  readonly property var renamed: ({ claude: "ai", plugins: "shell" })
 
   readonly property var layout: normalize(state.zones)    // {left: [ids], center, right}
   readonly property var hidden: state.hidden.map(id => renamed[id] ?? id)

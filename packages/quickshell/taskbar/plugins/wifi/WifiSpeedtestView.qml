@@ -40,7 +40,7 @@ Column {
             text: root.result ? modelData.value.toFixed(1) : "—"
             color: root.result ? Theme.foreground0 : Theme.gray
             font.pixelSize: Theme.fontSize + 9
-            font.weight: Font.Bold
+            font.weight: Font.ExtraBold
           }
 
           KitText {

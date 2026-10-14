@@ -38,7 +38,7 @@ QtObject {
   // ---- bar metrics ---------------------------------------------------------
   readonly property string fontFamily: "JetBrainsMono Nerd Font"
   readonly property int fontSize: 13
-  readonly property int fontWeight: Font.Medium
+  readonly property int fontWeight: Font.DemiBold
   readonly property int barHeight: 34
   readonly property int moduleSpacing: 2
   readonly property int edgeMargin: 20
@@ -53,7 +53,7 @@ QtObject {
   readonly property int musicRestartMs: 5000
   readonly property int musicMaxLength: 60          // bar label, chars
   readonly property int musicCoverSize: 64
-  readonly property int musicUpNext: 5             // queue rows visible before scrolling
+  readonly property int musicUpNext: 9             // queue rows visible before scrolling
 
   // ---- interaction limits --------------------------------------------------
   readonly property int audioMaxPercent: 150

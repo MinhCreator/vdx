@@ -55,7 +55,7 @@ KitFrame {
         width: parent.width
         text: MihomoService.current || "—"
         wrapMode: Text.Wrap
-        font.weight: Font.Bold
+        font.weight: Font.ExtraBold
       }
 
       KitText {
@@ -140,7 +140,7 @@ KitFrame {
               text: server.modelData.name
               elide: Text.ElideRight
               color: server.current || area.containsMouse ? Theme.foreground0 : Theme.foreground2
-              font.weight: server.current ? Font.Bold : Font.Medium
+              font.weight: server.current ? Font.ExtraBold : Font.DemiBold
             }
 
             KitText {

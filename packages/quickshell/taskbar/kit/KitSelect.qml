@@ -131,7 +131,7 @@ Column {
             anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
             text: option.modelData.label
             color: option.active || optionArea.containsMouse ? Theme.foreground0 : Theme.foreground2
-            font.weight: option.active ? Font.Bold : Font.Medium
+            font.weight: option.active ? Font.ExtraBold : Font.DemiBold
           }
 
           KitIcon {

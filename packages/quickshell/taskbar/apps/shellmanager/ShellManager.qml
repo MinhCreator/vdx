@@ -1,16 +1,19 @@
 import QtQuick
 import qs.components
+import qs.bar
 import qs.config
 import qs.kit
 
-// Plugin manager, two tabs:
-//   PLUGINS — every plugin with a one-line description and an on / off switch;
-//   LAYOUT  — the bar's zones side by side; drag a chip to reorder it or move
-//             it to another zone (it follows the pointer, a bar marks the slot).
+// Shell Manager, three tabs:
+//   APPEARANCE — shell options (ShellSettings);
+//   PLUGINS    — a tile per plugin, click to switch it on / off;
+//   LAYOUT     — the bar's zones side by side; drag a chip to reorder it or
+//                move it to another zone (it follows the pointer, a bar marks
+//                the slot).
 KitFrame {
   id: root
 
-  property string tab: "plugins"
+  property string tab: "appearance"
   property string dragId: ""
   property string dropZone: ""
   property int dropIndex: -1
@@ -54,13 +57,14 @@ KitFrame {
   implicitWidth: Theme.popupWidthWide
 
   KitHeader {
-    icon: "grid"
-    title: "Plugins"
-    subtitle: BarLayout.plugins.length + " TOTAL · "
+    icon: "sliders"
+    title: "Shell Manager"
+    subtitle: BarLayout.plugins.length + " PLUGINS · "
       + (BarLayout.plugins.length - BarLayout.hidden.length) + " ON · "
       + BarLayout.hidden.length + " OFF"
 
     KitButton {
+      visible: root.tab !== "appearance"
       icon: "rotate-ccw"
       text: "Reset"
       disabled: !BarLayout.customized
@@ -70,8 +74,9 @@ KitFrame {
 
   KitChoices {
     model: [
-      { label: "Plugins", value: "plugins", icon: "list" },
-      { label: "Layout",  value: "layout",  icon: "layout" }
+      { label: "Appearance", value: "appearance", icon: "sun" },
+      { label: "Plugins",    value: "plugins",    icon: "grid" },
+      { label: "Layout",     value: "layout",     icon: "layout" }
     ]
     current: root.tab
     onPicked: value => root.tab = value
@@ -79,68 +84,111 @@ KitFrame {
 
   KitLine {}
 
-  // ---- plugins: on / off -----------------------------------------------------
+  // ---- appearance: shell options ---------------------------------------------
   Column {
     width: parent.width
+    visible: root.tab === "appearance"
+    spacing: 12
+
+    KitLabel { text: "BAR" }
+
+    KitRow {
+      label: "Solid icons"
+      hint: "filled icons in the bar instead of outlines"
+
+      KitSwitch {
+        checked: ShellSettings.solidIcons
+        onToggled: ShellSettings.set("solidIcons", !ShellSettings.solidIcons)
+      }
+    }
+
+    // live preview of the bar's icons in the chosen style
+    Rectangle {
+      width: parent.width
+      height: 40
+      color: Theme.background1
+      border.width: 1
+      border.color: Theme.background3
+
+      Row {
+        anchors.centerIn: parent
+        spacing: 22
+
+        Repeater {
+          model: ["sun", "volume", "wifi", "shield", "battery", "bot", "bell", "sliders"]
+
+          KitIcon {
+            required property string modelData
+            name: modelData
+            size: Theme.fontSize + 3
+            solid: ShellSettings.solidIcons
+          }
+        }
+      }
+    }
+  }
+
+  // ---- plugins: on / off tiles -------------------------------------------------
+  Grid {
+    id: tiles
+    width: parent.width
     visible: root.tab === "plugins"
+    columns: 3
+    spacing: 6
+
+    readonly property real tileWidth: Math.floor((width - 2 * 6) / 3)
 
     Repeater {
-      model: BarLayout.plugins
+      model: BarLayout.plugins.filter(p => !p.fixed)
 
       Rectangle {
-        id: plugin
+        id: tile
 
         required property var modelData
 
         readonly property bool shown: !BarLayout.hidden.includes(modelData.id)
 
-        width: parent.width
-        height: 40
-        color: hover.hovered ? Theme.background1 : "transparent"
+        width: tiles.tileWidth
+        height: 52
+        color: shown ? Theme.background3 : tileArea.containsMouse ? Theme.background1 : "transparent"
+        border.width: 1
+        border.color: shown || tileArea.containsMouse ? Theme.foreground2 : Theme.gray
 
-        HoverHandler { id: hover }
-
-        ThemeText {
-          id: pluginIcon
-          anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }
-          width: Theme.fontSize + 8
-          horizontalAlignment: Text.AlignHCenter
-          text: Theme[plugin.modelData.icon] ?? ""
-          color: plugin.shown ? Theme.foreground0 : Theme.muted
-          font.pixelSize: Theme.fontSize + 2
+        KitIcon {
+          id: tileIcon
+          anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
+          name: tile.modelData.icon
+          tint: tile.shown ? Theme.foreground0 : Theme.gray
+          size: 18
+          solid: ShellSettings.solidIcons
         }
 
         Column {
-          anchors {
-            left: pluginIcon.right; leftMargin: 10
-            right: pluginSwitch.left; rightMargin: 10
-            verticalCenter: parent.verticalCenter
-          }
-          spacing: 1
+          anchors { left: tileIcon.right; leftMargin: 10; right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+          spacing: 2
 
           KitText {
             width: parent.width
-            text: plugin.modelData.label
+            text: tile.modelData.label
             elide: Text.ElideRight
-            color: plugin.shown ? Theme.foreground0 : Theme.muted
-            font.weight: Font.Bold
+            color: tile.shown ? Theme.foreground0 : Theme.foreground2
+            font.weight: tile.shown ? Font.ExtraBold : Font.DemiBold
           }
 
           KitText {
-            width: parent.width
-            text: plugin.modelData.about
-            elide: Text.ElideRight
-            color: Theme.muted
-            font.pixelSize: Theme.fontSize - 2
+            text: tile.shown ? "ON" : "OFF"
+            color: tile.shown ? Theme.green : Theme.gray
+            font.pixelSize: Theme.fontSize - 3
+            font.letterSpacing: 1
           }
         }
 
-        KitSwitch {
-          id: pluginSwitch
-          anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
-          checked: plugin.shown
-          disabled: plugin.modelData.fixed ?? false
-          onToggled: BarLayout.setEnabled(plugin.modelData.id, !plugin.shown)
+        MouseArea {
+          id: tileArea
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          onClicked: BarLayout.setEnabled(tile.modelData.id, !tile.shown)
         }
       }
     }

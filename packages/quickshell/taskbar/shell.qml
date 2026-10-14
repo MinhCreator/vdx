@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.apps.shellmanager
 import qs.bar
 
 // Entry point: a bar on every screen, reloaded when the dotfiles theme changes.
@@ -10,6 +11,8 @@ Scope {
 
     Bar {}
   }
+
+  ShellManagerWindow {}
 
   // `install.py theme set` writes .theme first and relinks Colors.qml after;
   // Quickshell can't see the relink, so reload once it has finished.

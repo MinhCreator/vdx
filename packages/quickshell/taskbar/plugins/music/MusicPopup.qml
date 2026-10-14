@@ -10,6 +10,8 @@ KitFrame {
 
   readonly property var player: MpdService.player
 
+  property string tab: "playing"
+
   function clock(seconds) {
     const s = Math.max(0, Math.floor(seconds));
     return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
@@ -37,6 +39,16 @@ KitFrame {
     }
   }
 
+  KitChoices {
+    visible: MusicService.active
+    model: [
+      { label: "Now playing", value: "playing", icon: "music" },
+      { label: "Queue (" + MusicService.queue.length + ")", value: "queue", icon: "list" }
+    ]
+    current: root.tab
+    onPicked: value => root.tab = value
+  }
+
   KitLine {}
 
   KitText {
@@ -49,7 +61,7 @@ KitFrame {
   // ---- now playing -----------------------------------------------------------
   Column {
     width: parent.width
-    visible: MusicService.active
+    visible: MusicService.active && root.tab === "playing"
     spacing: 12
 
     Item {
@@ -93,7 +105,7 @@ KitFrame {
           width: parent.width
           text: root.player.title || root.player.file || ""
           elide: Text.ElideRight
-          font.weight: Font.Bold
+          font.weight: Font.ExtraBold
         }
 
         KitText {
@@ -194,11 +206,9 @@ KitFrame {
     }
   }
 
-  KitLine { visible: MusicService.active }
-
   MusicQueue {
     width: parent.width
-    visible: MusicService.active
+    visible: MusicService.active && root.tab === "queue"
   }
 
   KitText {

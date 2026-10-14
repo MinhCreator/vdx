@@ -184,7 +184,7 @@ KitFrame {
               anchors { left: parent.left; right: statusText.left; rightMargin: 8 }
               text: session.modelData.name || "—"
               elide: Text.ElideRight
-              font.weight: Font.Bold
+              font.weight: Font.ExtraBold
             }
 
             KitText {

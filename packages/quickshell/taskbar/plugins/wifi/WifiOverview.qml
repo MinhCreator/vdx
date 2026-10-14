@@ -29,6 +29,7 @@ Column {
       anchors.verticalCenter: parent.verticalCenter
       visible: WifiService.radioOn
       text: WifiService.networks.length + " NEARBY"
+      tint: Theme.muted
     }
 
     KitSwitch {
@@ -54,12 +55,15 @@ Column {
 
       KitText {
         id: address
+        width: parent.width - quality.implicitWidth - 12
         text: "This PC  " + (WifiService.ipAddress || "—")
+        elide: Text.ElideRight
       }
 
       KitText {
+        id: quality
         anchors.right: parent.right
-        text: root.measured ? "ping " + Math.round(WifiService.pingMs) + " ms · loss " + WifiService.packetLoss + "%" : "ping —"
+        text: root.measured ? "ping " + Math.round(WifiService.pingMs) + " ms · loss " + Math.round(WifiService.packetLoss) + "%" : "ping —"
         color: root.measured ? Theme.pingColor(WifiService.pingMs) : Theme.muted
         font.pixelSize: Theme.fontSize - 1
       }

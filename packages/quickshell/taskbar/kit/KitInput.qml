@@ -42,7 +42,7 @@ Rectangle {
     selectedTextColor: Theme.foreground0
     font.family: Theme.fontFamily
     font.pixelSize: Theme.fontSize
-    font.weight: Font.Medium
+    font.weight: Font.DemiBold
     onTextEdited: root.textEdited()
     onAccepted: root.accepted()
 
