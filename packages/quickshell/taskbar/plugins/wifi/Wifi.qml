@@ -3,6 +3,7 @@ import Quickshell
 import qs.bar
 import qs.components
 import qs.config
+import qs.kit
 
 Item {
   id: root
@@ -16,10 +17,11 @@ Item {
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
 
-  ThemeText {
+  KitBarItem {
     id: label
-    text: Theme.iconWifi + " " + (WifiService.connected ? root.name : "Disconnected")
-    color: WifiService.connected ? Theme.green : Theme.gray
+    icon: WifiService.radioOn ? "wifi" : "wifi-off"
+    text: WifiService.connected ? root.name : "--"
+    tint: WifiService.connected ? Theme.green : Theme.gray
   }
 
   MouseArea {
