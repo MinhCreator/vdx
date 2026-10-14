@@ -35,8 +35,8 @@ QtObject {
   // and popup take their colors from here.
   readonly property color muted:  "#928374"   // color8 (bright black) — disconnected / secondary
 
-  // rofi-style square frame + dim text (mirrors themes/gruvbox/rofi/colors.rasi)
-  readonly property color frame:  "#282828"   // window border
+  // popup frame (and mako / rofi frames); controls use `gray`
+  readonly property color frame:  "#7c6f64"
   readonly property color dim:    "#665c54"   // secondary text (rofi `fg`)
 
   // workspace labels: "{name}" shows names, "{icon}" the icons below.

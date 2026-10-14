@@ -6,6 +6,7 @@ local colors = {
 	foreground0 = "rgb(d4be98)", -- text
 	foreground2 = "rgb(bdae93)", -- active frames
 	gray = "rgb(7c6f64)", -- frames at rest
+	frame_active = "rgb(bdae93)", -- the focused window
 	red = "rgb(ea6962)",
 	orange = "rgb(e78a4e)",
 	yellow = "rgb(d8a657)",

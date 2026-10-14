@@ -13,7 +13,7 @@ Rectangle {
   implicitHeight: column.implicitHeight + 2 * padding
   color: Theme.background0
   border.width: Theme.windowFrameWidth
-  border.color: Theme.gray
+  border.color: Theme.frame
 
   Column {
     id: column

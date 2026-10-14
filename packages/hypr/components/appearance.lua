@@ -11,7 +11,7 @@ hl.config({
 		-- 2px frames like the bar's popups: light on the focused window, quiet on the rest
 		border_size = 2,
 		col = {
-			active_border = colors.foreground2,
+			active_border = colors.frame_active,
 			inactive_border = colors.background3,
 		},
 	},

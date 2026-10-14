@@ -31,8 +31,8 @@ QtObject {
   // kitty terminal palette (themes/gruvbox/kitty/colors.conf)
   readonly property color muted:  "#928374"   // color8 — disconnected / secondary
 
-  // hyprland frame (packages/hypr/components/appearance.lua: border_size, active_border)
-  readonly property color frame:  "#282828"   // active_border (background_alt)
+  // popup frame (and mako / rofi frames); controls use `gray`
+  readonly property color frame:  "#7c6f64"
   readonly property color dim:    "#665c54"   // rofi `fg` (kitty color0)
 
   // workspace labels: "{name}" shows names, "{icon}" the icons below.
