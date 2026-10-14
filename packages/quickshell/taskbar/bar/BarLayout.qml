@@ -26,7 +26,8 @@ Singleton {
     { id: "shell",         label: "Shell",         zone: "right",  icon: "sliders", about: "Shell Manager: options, plugins, layout" },
     { id: "notifications", label: "Notifications", zone: "right",  icon: "bell", about: "History and unseen dot" },
     { id: "capture",       label: "Capture",       zone: "right",  icon: "camera", about: "Screenshots and screen recording" },
-    { id: "clipboard",     label: "Clipboard",     zone: "right",  icon: "clipboard", about: "Copy history, images to drag out" }
+    { id: "clipboard",     label: "Clipboard",     zone: "right",  icon: "clipboard", about: "Copy history, images to drag out" },
+    { id: "sysmon",        label: "System",        zone: "right",  icon: "cpu", about: "CPU, memory, GPU, disks, network, sensors" }
   ]
   readonly property var zones: ["left", "center", "right"]
   // Old ids still found in saved layouts: old -> new.

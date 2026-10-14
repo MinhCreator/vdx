@@ -14,6 +14,7 @@ import qs.plugins.language
 import qs.plugins.mihomo
 import qs.plugins.music
 import qs.plugins.notifications
+import qs.plugins.sysmon
 import qs.plugins.radio
 import qs.plugins.wifi
 import qs.plugins.workspaces
@@ -30,7 +31,7 @@ PanelWindow {
     workspaces: workspaces, music: music, radio: radio, clock: clock,
     brightness: brightness, audio: audio, wifi: wifi, mihomo: mihomo,
     battery: battery, language: language, ai: ai, notifications: notifications,
-    shell: shell, capture: capture, clipboard: clipboard
+    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon
   })
 
   component Zone: Row {
@@ -106,6 +107,7 @@ PanelWindow {
   Component { id: notifications; Notifications { bar: root } }
   Component { id: capture; Capture { bar: root } }
   Component { id: clipboard; Clipboard { bar: root } }
+  Component { id: sysmon; Sysmon { bar: root } }
 
   // The Shell Manager's button; a plugin of its own so it can move between zones.
   Component {
