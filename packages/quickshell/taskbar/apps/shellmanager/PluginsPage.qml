@@ -4,8 +4,8 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Plugins: the list on the left (dim: switched off), the chosen one on the
-// right — on / off everywhere, then its options: its own <Name>Settings.qml
+// Plugins: the list on the left with a switch per plugin (dim: off — gone
+// from every bar), the chosen one's options on the right: its own <Name>Settings.qml
 // (the registry's `settings`), values kept in PluginSettings, Reset to the
 // defaults. The header stays; each pane scrolls on its own. Where a plugin
 // sits is set on the Bar page.
@@ -35,7 +35,7 @@ Column {
     // ---- list: framed like an open select, scrolls inside the frame ----------------
     Rectangle {
       id: list
-      width: 190
+      width: 220
       height: Math.min(parent.height, rows.implicitHeight + 2 * Theme.frameWidth)
       color: "transparent"
       border.width: Theme.frameWidth
@@ -77,7 +77,7 @@ Column {
 
               // plugins switched off read dimmer
               KitText {
-                anchors { left: rowIcon.right; leftMargin: 8; right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                anchors { left: rowIcon.right; leftMargin: 8; right: rowSwitch.left; rightMargin: 8; verticalCenter: parent.verticalCenter }
                 text: row.modelData.label
                 elide: Text.ElideRight
                 color: row.active || rowArea.containsMouse ? Theme.foreground0 : row.on ? Theme.foreground2 : Theme.muted
@@ -90,6 +90,14 @@ Column {
                 hoverEnabled: true
                 cursorShape: row.active ? Qt.ArrowCursor : Qt.PointingHandCursor
                 onClicked: root.selected = row.modelData.id
+              }
+
+              // quick on / off without opening the plugin
+              KitSwitch {
+                id: rowSwitch
+                anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                checked: row.on
+                onToggled: BarLayout.setPluginOn(row.modelData.id, !row.on)
               }
             }
           }
@@ -157,23 +165,6 @@ Column {
             text: "Reset"
             disabled: !PluginSettings.changed(root.selected)
             onClicked: PluginSettings.reset(root.selected)
-          }
-        }
-
-        KitLine {}
-
-        // ---- on / off: everywhere; where it sits is the Bar page's job ----------------
-        KitRow {
-          id: enabledRow
-
-          readonly property bool on: BarLayout.pluginOn(root.selected)
-
-          label: "Enabled"
-          hint: on ? "placed on the Bar page" : "off: on no bar, not in the layout"
-
-          KitSwitch {
-            checked: enabledRow.on
-            onToggled: BarLayout.setPluginOn(root.selected, !enabledRow.on)
           }
         }
 

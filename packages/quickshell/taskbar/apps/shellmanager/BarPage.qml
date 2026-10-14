@@ -112,6 +112,16 @@ Column {
     }
   }
 
+  // the monitor being arranged; with one bar everywhere there is nothing to pick
+  KitText {
+    visible: Quickshell.screens.length > 1 && BarLayout.shared
+    width: parent.width
+    text: "One layout on every monitor — switch off Same bar everywhere to arrange each apart."
+    color: Theme.muted
+    wrapMode: Text.WordWrap
+    font.pixelSize: Theme.fontSize - 2
+  }
+
   KitChoices {
     visible: root.roles.length > 1 && !BarLayout.shared
     width: parent.width
