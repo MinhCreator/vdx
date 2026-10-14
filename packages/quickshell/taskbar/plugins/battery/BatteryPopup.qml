@@ -110,14 +110,9 @@ PopupFrame {
       current: BatteryService.gpuPending || BatteryService.gpuMode
       busyValue: BatteryService.busy
       onPicked: value => BatteryService.setGpuMode(value)
+      hint: BatteryService.gpuPending !== "" && BatteryService.gpuPending !== BatteryService.gpuMode
+            ? (BatteryService.gpuAction || "reboot required").toUpperCase() : ""
       onExpandedChanged: if (expanded) root.collapseOthers(gpu)
-    }
-
-    ThemeText {
-      visible: BatteryService.gpuPending !== "" && BatteryService.gpuPending !== BatteryService.gpuMode
-      text: "GPU: " + (BatteryService.gpuAction || "reboot required").toUpperCase()
-      color: Theme.orange
-      font.pixelSize: Theme.fontSize - 2
     }
   }
 

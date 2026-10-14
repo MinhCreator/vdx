@@ -1,7 +1,7 @@
 import QtQuick
 import qs.config
 
-// One option of a PopupDropdown: accent bar and check mark while `active`.
+// One option of a PopupDropdown: bright label and check mark while `active`.
 // `trailing` holds extra right-aligned content (counts, latency, buttons).
 Rectangle {
   id: root
@@ -18,13 +18,6 @@ Rectangle {
   color: hover.hovered && root.enabled ? Theme.background2 : "transparent"
 
   HoverHandler { id: hover }
-
-  Rectangle {
-    visible: root.active
-    width: 2
-    height: parent.height
-    color: Theme.foreground0
-  }
 
   ThemeText {
     anchors {

@@ -109,8 +109,10 @@ Wi-Fi, сервис mihomo, весь звук, воспроизведение л
 - свой дропдаун (сложные пункты) — `PopupDropdown` + `PopupDropdownItem`;
 - несколько дропдаунов в группе — `Column { spacing: 4 }`, открыт максимум один
   (`collapseOthers(open)` в попапе);
-- выбранный пункт везде отмечается **белой полосой слева + зелёной галочкой
-  справа**; невыбранный текст — `foreground2`, при наведении — фон `background2`;
+- выбранный пункт в дропдауне — **яркий текст + зелёная галочка справа**
+  (полоски нет: открытый список и так в белой рамке); в открытых списках без
+  рамки (сети Wi-Fi, очередь) — ещё и **белая полоса слева**; невыбранный
+  текст — `foreground2`, при наведении — фон `background2`;
 - ряд из 2–4 вариантов, видимых сразу — `PopupChoices`.
 
 **Значения:** пары «подпись — значение» — `PopupInfoList` (две колонки
@@ -217,7 +219,7 @@ Wi-Fi, сервис mihomo, весь звук, воспроизведение л
 | `PopupSwitch` | Тумблер (`checkedColor` / `uncheckedColor`) |
 | `PopupInput` | Поле ввода с подписью (`echoMode`) |
 | `PopupInfoRow` / `PopupInfoList` | «ПОДПИСЬ … значение» / столбец таких из модели `{label, value, color?}` |
-| `PopupDropdown` | Раскрывающийся список: `title`, `busy`, `status`, `disabled`, прокрутка |
+| `PopupDropdown` | Раскрывающийся список: `title`, `hint` (короткое предупреждение справа, `hintColor`), `busy`, `status`, `disabled`, прокрутка |
 | `PopupDropdownItem` | Пункт: `label`, `active`, слот `trailing` |
 | `PopupSelect` | Выбор одного значения: `label`, `model [{label, value}]`, `current`, `picked(value)` |
 | `PopupChoices` | Ряд кнопок-вариантов той же моделью |
