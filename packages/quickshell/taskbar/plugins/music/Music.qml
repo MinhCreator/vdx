@@ -3,6 +3,7 @@ import Quickshell
 import qs.bar
 import qs.components
 import qs.config
+import qs.kit
 import qs.plugins.mpd
 
 // Liked tracks player. Idle: grey "Music". Click opens the player, middle click
@@ -18,12 +19,13 @@ Item {
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
 
-  ThemeText {
+  KitBarItem {
     id: label
     // The icon marks the idle label only; while playing the track speaks for itself.
-    text: (MusicService.active ? "" : Theme.iconMusic + " ") + (root.text.length > Theme.musicMaxLength
-      ? root.text.slice(0, Theme.musicMaxLength - 1) + Theme.ellipsis : root.text)
-    color: MusicService.active ? Theme.foreground0 : Theme.gray
+    icon: MusicService.active ? "" : "music"
+    text: root.text.length > Theme.musicMaxLength
+      ? root.text.slice(0, Theme.musicMaxLength - 1) + Theme.ellipsis : root.text
+    tint: MusicService.active ? Theme.foreground0 : Theme.gray
   }
 
   // Wheel events reach a layer-shell surface only through a MouseArea.

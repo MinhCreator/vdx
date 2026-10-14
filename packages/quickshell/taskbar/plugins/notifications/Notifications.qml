@@ -3,6 +3,7 @@ import Quickshell
 import qs.bar
 import qs.components
 import qs.config
+import qs.kit
 
 // Bell at the right edge; a red dot while there are unseen notifications.
 Item {
@@ -13,19 +14,22 @@ Item {
   implicitWidth: bell.implicitWidth
   implicitHeight: bell.implicitHeight
 
-  ThemeText {
+  KitBarItem {
     id: bell
     anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-    text: Theme.iconBell
-    color: NotificationsService.unseen > 0 ? Theme.foreground0 : Theme.gray
+    icon: "bell"
+    tint: NotificationsService.unseen > 0 ? Theme.foreground0 : Theme.gray
 
+    // unseen mark: a small red square on the bell's corner
     Rectangle {
       visible: NotificationsService.unseen > 0
-      anchors { right: parent.right; top: parent.top; rightMargin: -1; topMargin: 2 }
+      x: Theme.fontSize - 3
+      y: 0
       width: 6
       height: 6
-      radius: 3
       color: Theme.red
+      border.width: 1
+      border.color: Theme.background0
     }
   }
 

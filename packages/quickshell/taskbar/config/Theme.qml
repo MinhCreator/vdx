@@ -38,7 +38,7 @@ QtObject {
   // ---- bar metrics ---------------------------------------------------------
   readonly property string fontFamily: "JetBrainsMono Nerd Font"
   readonly property int fontSize: 13
-  readonly property int fontWeight: Font.ExtraBold
+  readonly property int fontWeight: Font.Medium
   readonly property int barHeight: 34
   readonly property int moduleSpacing: 2
   readonly property int edgeMargin: 20

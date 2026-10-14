@@ -3,6 +3,7 @@ import Quickshell
 import qs.bar
 import qs.components
 import qs.config
+import qs.kit
 
 Item {
   id: root
@@ -18,10 +19,12 @@ Item {
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
 
-  ThemeText {
+  KitBarItem {
     id: label
-    text: root.icon + " " + BatteryService.capacity
-    color: BatteryService.saver ? Theme.aqua
+    icon: BatteryService.saver ? "leaf" : BatteryService.charging ? "battery-charging"
+        : BatteryService.plugged ? "plug" : "battery"
+    text: String(BatteryService.capacity)
+    tint: BatteryService.saver ? Theme.aqua
          : BatteryService.charging ? Theme.green
          : BatteryService.capacity <= Theme.batteryCritical ? Theme.red
          : BatteryService.capacity <= Theme.batteryWarning ? Theme.yellow

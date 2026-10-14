@@ -3,6 +3,7 @@ import Quickshell
 import qs.bar
 import qs.components
 import qs.config
+import qs.kit
 import qs.plugins.mpd
 
 // Internet radio. Idle: grey "RADIO". Click opens the stations, middle click
@@ -20,12 +21,13 @@ Item {
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
 
-  ThemeText {
+  KitBarItem {
     id: label
     // The icon marks the idle label only; while playing the station speaks for itself.
-    text: (RadioService.active ? "" : Theme.iconRadio + " ") + (root.text.length > Theme.musicMaxLength
+    icon: RadioService.active ? "" : "radio"
+    text: (root.text.length > Theme.musicMaxLength
       ? root.text.slice(0, Theme.musicMaxLength - 1) + Theme.ellipsis : root.text)
-    color: RadioService.active ? Theme.foreground0 : Theme.gray
+    tint: RadioService.active ? Theme.foreground0 : Theme.gray
   }
 
   MouseArea {

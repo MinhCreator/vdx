@@ -3,6 +3,7 @@ import Quickshell
 import qs.bar
 import qs.components
 import qs.config
+import qs.kit
 
 Item {
   id: root
@@ -12,10 +13,11 @@ Item {
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
 
-  ThemeText {
+  KitBarItem {
     id: label
-    text: AudioService.icon + " " + (AudioService.muted ? "--" : Math.min(Theme.audioMaxPercent, AudioService.volume))
-    color: AudioService.muted ? Theme.red : Theme.foreground0
+    icon: AudioService.muted ? "volume-x" : AudioService.headphones ? "headphones" : "volume"
+    text: AudioService.muted ? "--" : String(Math.min(Theme.audioMaxPercent, AudioService.volume))
+    tint: AudioService.muted ? Theme.red : Theme.foreground0
   }
 
   // Wheel events reach a layer-shell surface only through a MouseArea.

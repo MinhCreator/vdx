@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import qs.components
 import qs.config
+import qs.kit
 import qs.plugins.ai
 import qs.plugins.audio
 import qs.plugins.battery
@@ -120,9 +121,9 @@ PanelWindow {
   Component {
     id: plugins
 
-    ThemeText {
+    KitBarItem {
       id: puzzle
-      text: Theme.iconPuzzle
+      icon: "grid"
 
       MouseArea {
         anchors.fill: parent

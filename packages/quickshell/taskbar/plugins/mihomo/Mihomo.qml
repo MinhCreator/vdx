@@ -3,6 +3,7 @@ import Quickshell
 import qs.bar
 import qs.components
 import qs.config
+import qs.kit
 
 Item {
   id: root
@@ -12,10 +13,11 @@ Item {
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
 
-  ThemeText {
+  KitBarItem {
     id: label
-    text: Theme.iconMihomo + " VPN"
-    color: MihomoService.serviceOn ? Theme.green : Theme.gray
+    icon: "shield"
+    text: "VPN"
+    tint: MihomoService.serviceOn ? Theme.green : Theme.gray
   }
 
   MouseArea {

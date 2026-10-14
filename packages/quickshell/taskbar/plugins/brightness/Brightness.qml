@@ -3,6 +3,7 @@ import Quickshell
 import qs.bar
 import qs.components
 import qs.config
+import qs.kit
 
 Item {
   id: root
@@ -12,10 +13,11 @@ Item {
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
 
-  ThemeText {
+  KitBarItem {
     id: label
-    text: Theme.iconBrightness + " " + BrightnessService.brightness
-    color: BrightnessService.nightActive ? Theme.orange : Theme.foreground0
+    icon: "sun"
+    text: String(BrightnessService.brightness)
+    tint: BrightnessService.nightActive ? Theme.orange : Theme.foreground0
   }
 
   // Wheel events reach a layer-shell surface only through a MouseArea.
