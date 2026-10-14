@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell.Services.Pipewire
 import qs.config
 import qs.kit
 
@@ -8,6 +9,21 @@ KitFrame {
   id: root
 
   readonly property bool headphones: AudioService.headphones
+
+  // Set while the popup is shown; the input level meter runs only then.
+  property bool open: false
+
+  // Live input level: the peak in dBFS mapped onto 0..1 over -60..0 dB.
+  readonly property real micLevel: {
+    const peak = micPeak.peak;
+    return peak > 0 ? Math.max(0, Math.min(1, (20 * Math.log10(peak) + 60) / 60)) : 0;
+  }
+
+  PwNodePeakMonitor {
+    id: micPeak
+    node: AudioService.source
+    enabled: root.open && !(AudioService.source?.audio?.muted ?? true)
+  }
 
   // ---- header ----------------------------------------------------------------
   KitHeader {
@@ -73,6 +89,32 @@ KitFrame {
       node: AudioService.source
       iconOn: "mic"
       iconOff: "mic-off"
+    }
+
+    // what the microphone hears right now: green, yellow near the top, red at clipping
+    Column {
+      width: parent.width
+      spacing: 5
+
+      KitInfo {
+        label: "Level"
+        value: micPeak.enabled ? Math.round(root.micLevel * 100) + "%" : "muted"
+        valueColor: micPeak.enabled ? Theme.foreground2 : Theme.gray
+      }
+
+      Rectangle {
+        width: parent.width
+        height: 4
+        color: Theme.background3
+
+        Rectangle {
+          width: root.micLevel * parent.width
+          height: parent.height
+          color: root.micLevel > 0.92 ? Theme.red : root.micLevel > 0.75 ? Theme.yellow : Theme.green
+
+          Behavior on width { NumberAnimation { duration: 60 } }
+        }
+      }
     }
   }
 

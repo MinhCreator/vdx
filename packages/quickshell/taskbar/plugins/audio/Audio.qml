@@ -42,6 +42,7 @@ Item {
     AudioPopup {
       id: content
       anchors.fill: parent
+      open: popup.visible
     }
   }
 }
