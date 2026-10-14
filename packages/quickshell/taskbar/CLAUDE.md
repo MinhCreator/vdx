@@ -8,19 +8,20 @@ Quickshell-бар (`qs -c taskbar`). Здесь правила, по котор�
 
 ```
 taskbar/
-├─ shell.qml          бар на каждый экран, окно Shell Manager, обои; перезагрузка при смене темы
+├─ shell.qml          бары по мониторам, окно Shell Manager, обои, захват экрана; перекраска при смене темы
 ├─ bar/               Bar.qml (зоны), BarLayout (реестр плагинов, раскладка), BarPopup (обвязка попапа)
 ├─ kit/               UI-компоненты (каталог ниже) и icons/ — SVG-иконки (+ icons/solid)
-├─ components/        ThemeText, Separator, PopupManager
+├─ components/        ThemeText, Separator, PopupManager, PopupCatcher (клик мимо попапа)
 ├─ config/            Theme (всё общее), Colors (палитра темы), ShellSettings (опции пользователя)
-├─ apps/shellmanager/ окно настроек: темы, обои, бар, плагины
+├─ apps/shellmanager/ окно настроек: Appearance (тема, обои), Bar (мониторы, раскладка, модули)
+├─ apps/capture/      захват экрана (Super+Shift+S): область / окно / экран, скриншот или запись
 ├─ scripts/           бэкенды: *.sh / *.py, на выходе только JSON (или строки, см. шапку)
 └─ plugins/<name>/    <Name>.qml + <Name>Popup.qml + <Name>Service.qml (+ view-файлы, *.json)
 ```
 
 Импорты — `import qs.<папка>` от корня конфига (`qs.config`, `qs.kit`,
-`qs.bar`, `qs.plugins.wifi`, `qs.apps.shellmanager`). Синглтоны —
-`pragma Singleton` + `Singleton {}`.
+`qs.bar`, `qs.plugins.wifi`, `qs.apps.shellmanager`, `qs.apps.capture`).
+Синглтоны — `pragma Singleton` + `Singleton {}`.
 
 ## Три слоя плагина
 
@@ -121,7 +122,11 @@ Manager. `fixed: true` — плагин можно двигать, но не в�
 
 **Попап:** ширина `Theme.popupWidth`; позиция выбирается сама и не следует за
 модулем, пока попап открыт; Escape закрывает (плагин с вложенными экранами —
-Wi-Fi — решает сам: назад или закрыть).
+Wi-Fi — решает сам: назад или закрыть). Попап без xdg-grab (`grabFocus:
+false`): фокус клавиатуры даёт `HyprlandFocusGrab`, клик мимо ловит
+`PopupCatcher` — бар он не накрывает, поэтому клик по другому модулю сразу
+открывает его попап. Захват экрана прячет попап (`PopupManager.frozen`), пока
+его заменяет неподвижный кадр.
 
 **Рефакторинг не меняет внешний вид** без согласования; новый вид — сначала
 прототип одного попапа и скриншот, потом раскатка.
@@ -166,15 +171,23 @@ SVG в `kit/icons/<name>.svg`, 24×24, белые контуры в стиле L
    `qs kill` роняет бар, он сам поднимается с неработающим IPC.
 5. **Проверка:** `qs log -c taskbar | grep -E 'ERROR|WARN'`; попап открывается
    `qs -c taskbar ipc call <ipcTarget> toggle` (пауза ≥ 1 с между вызовами),
-   окно настроек — `ipc call shell open <themes|wallpaper|bar|plugins>`;
-   скриншот — `grim -g "X,Y WxH"` (логические координаты). После перезапуска
-   попапы не откроются, пока бар не получил ввод («Failed to create grabbing
-   popup») — для скриншотов временно `grabFocus: false` в `BarPopup`, перед
-   коммитом вернуть.
+   окно настроек — `ipc call shell open <appearance|bar>`, захват —
+   `ipc call capture <open|close|stop>`; скриншот — `grim -g "X,Y WxH"`
+   (логические координаты).
 6. Обновить `plugins/<name>/README.md` и этот файл, если появилось правило
    или компонент.
 
 ## Подводные камни QML
+
+- JS-движок QML старый: нет `Array.flatMap` (бросает TypeError, а в `try`
+  пропадает молча) — `reduce` + `concat`.
+- `console.log` в `qs log` не виден — для отладки `console.warn`.
+- `sed -i` подменяет файл, и горячая перезагрузка его не замечает — правь
+  на месте (Edit, `open(p, 'w')`) или перезапускай бар.
+- Скриншот экрана в Hyprland — копия последнего кадра, программный курсор
+  уже в нём (`overlay_cursor` не помогает). `cursor:invisible` применяется
+  только на событии клавиатуры или по таймеру раз в 500 мс — результат
+  надо проверять, а не ждать (см. `apps/capture/README.md`).
 
 - Свойство `onSomething` — это обработчик сигнала; называй `checkedColor` и т.п.
 - Не называть свойства/id `state`, `signal`, `status`, `padding` — конфликт со
