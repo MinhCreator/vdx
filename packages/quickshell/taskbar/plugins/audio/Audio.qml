@@ -17,7 +17,7 @@ Item {
   KitBarItem {
     id: label
     icon: AudioService.muted ? "volume-x" : AudioService.headphones ? "headphones" : "volume"
-    text: AudioService.muted ? "--" : String(Math.min(Theme.audioMaxPercent, AudioService.volume))
+    text: !PluginSettings.get("audio", "percent", true) ? "" : AudioService.muted ? "--" : String(Math.min(Theme.audioMaxPercent, AudioService.volume))
     tint: AudioService.muted ? Theme.red : Theme.foreground0
   }
 

@@ -11,6 +11,9 @@ import qs.plugins.mpd
 Item {
   id: root
 
+  // title length in the bar, from Plugins › Music (0: the icon alone)
+  readonly property int maxLength: PluginSettings.get("music", "titleLength", 60)
+
   required property PanelWindow bar
 
   readonly property string title: [MpdService.player.artist, MpdService.player.title].filter(s => s).join(" - ")
@@ -22,9 +25,9 @@ Item {
   KitBarItem {
     id: label
     // The icon marks the idle label only; while playing the track speaks for itself.
-    icon: MusicService.active ? "" : "music"
-    text: root.text.length > Theme.musicMaxLength
-      ? root.text.slice(0, Theme.musicMaxLength - 1) + Theme.ellipsis : root.text
+    icon: MusicService.active && root.maxLength > 0 ? "" : "music"
+    text: root.maxLength === 0 ? "" : root.text.length > root.maxLength
+      ? root.text.slice(0, root.maxLength - 1) + Theme.ellipsis : root.text
     tint: MusicService.active ? Theme.foreground0 : Theme.gray
   }
 

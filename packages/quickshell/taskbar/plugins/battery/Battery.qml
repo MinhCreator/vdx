@@ -19,7 +19,7 @@ Item {
     id: label
     icon: BatteryService.saver ? "leaf" : BatteryService.charging ? "battery-charging"
         : BatteryService.plugged ? "plug" : "battery"
-    text: String(BatteryService.capacity)
+    text: PluginSettings.get("battery", "percent", true) ? String(BatteryService.capacity) : ""
     tint: BatteryService.saver ? Theme.green
          : BatteryService.charging ? Theme.green
          : BatteryService.capacity <= Theme.batteryCritical ? Theme.red

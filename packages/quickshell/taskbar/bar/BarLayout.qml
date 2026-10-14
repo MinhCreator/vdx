@@ -10,24 +10,25 @@ Singleton {
   id: root
 
   // Registry, in default order. A new plugin: an entry here + its Component in
-  // Bar.qml. `icon` names a kit/icons SVG and `about` is the manager's one-liner.
+  // Bar.qml. `icon` names a kit/icons SVG, `about` is the manager's one-liner,
+  // `settings` its options page in the plugin's folder (Shell Manager › Plugins).
   readonly property var plugins: [
     { id: "workspaces",    label: "Workspaces",    zone: "left",   icon: "layout", about: "Hyprland workspaces" },
-    { id: "music",         label: "Music",         zone: "left",   icon: "music", about: "Liked tracks from Yandex Music" },
-    { id: "radio",         label: "Radio",         zone: "left",   icon: "radio", about: "Internet radio stations" },
-    { id: "clock",         label: "Clock",         zone: "center", icon: "clock", about: "Time, click for the date" },
-    { id: "brightness",    label: "Display",       zone: "right",  icon: "sun", about: "Backlight, dimming, night light" },
-    { id: "audio",         label: "Audio",         zone: "right",  icon: "volume", about: "Devices, volumes, app streams" },
-    { id: "wifi",          label: "Wi-Fi",         zone: "right",  icon: "wifi", about: "Networks, DNS, speed test" },
+    { id: "music",         label: "Music",         zone: "left",   icon: "music", settings: "MusicSettings.qml", about: "Liked tracks from Yandex Music" },
+    { id: "radio",         label: "Radio",         zone: "left",   icon: "radio", settings: "RadioSettings.qml", about: "Internet radio stations" },
+    { id: "clock",         label: "Clock",         zone: "center", icon: "clock", settings: "ClockSettings.qml", about: "Time, click for the date" },
+    { id: "brightness",    label: "Display",       zone: "right",  icon: "sun", settings: "BrightnessSettings.qml", about: "Backlight, dimming, night light" },
+    { id: "audio",         label: "Audio",         zone: "right",  icon: "volume", settings: "AudioSettings.qml", about: "Devices, volumes, app streams" },
+    { id: "wifi",          label: "Wi-Fi",         zone: "right",  icon: "wifi", settings: "WifiSettings.qml", about: "Networks, DNS, speed test" },
     { id: "mihomo",        label: "Mihomo",        zone: "right",  icon: "shield", about: "Proxy service and servers" },
-    { id: "battery",       label: "Battery",       zone: "right",  icon: "battery", about: "Charge, limit, power profile, GPU" },
+    { id: "battery",       label: "Battery",       zone: "right",  icon: "battery", settings: "BatterySettings.qml", about: "Charge, limit, power profile, GPU" },
     { id: "language",      label: "Language",      zone: "right",  icon: "keyboard", about: "Keyboard layout" },
     { id: "ai",            label: "AI",            zone: "right",  icon: "bot", about: "Claude Code limits, local Ollama models" },
     { id: "shell",         label: "Shell",         zone: "right",  icon: "sliders", about: "Shell Manager: options, plugins, layout" },
-    { id: "notifications", label: "Notifications", zone: "right",  icon: "bell", about: "History and unseen dot" },
-    { id: "capture",       label: "Capture",       zone: "right",  icon: "camera", about: "Screenshots and screen recording" },
-    { id: "clipboard",     label: "Clipboard",     zone: "right",  icon: "clipboard", about: "Copy history, images to drag out" },
-    { id: "sysmon",        label: "System",        zone: "right",  icon: "cpu", about: "CPU, memory, GPU, disks, network, sensors" }
+    { id: "notifications", label: "Notifications", zone: "right",  icon: "bell", settings: "NotificationsSettings.qml", about: "History and unseen dot" },
+    { id: "capture",       label: "Capture",       zone: "right",  icon: "camera", settings: "CaptureSettings.qml", about: "Screenshots and screen recording" },
+    { id: "clipboard",     label: "Clipboard",     zone: "right",  icon: "clipboard", settings: "ClipboardSettings.qml", about: "Copy history, images to drag out" },
+    { id: "sysmon",        label: "System",        zone: "right",  icon: "cpu", settings: "SysmonSettings.qml", about: "CPU, memory, GPU, disks, network, sensors" }
   ]
   readonly property var zones: ["left", "center", "right"]
   // Old ids still found in saved layouts: old -> new.

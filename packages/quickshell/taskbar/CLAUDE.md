@@ -12,8 +12,8 @@ taskbar/
 ├─ bar/               Bar.qml (зоны), BarLayout (реестр плагинов, раскладка), BarPopup (обвязка попапа)
 ├─ kit/               UI-компоненты (каталог ниже) и icons/ — SVG-иконки (+ icons/solid)
 ├─ components/        ThemeText, Separator, PopupManager, PopupCatcher (клик мимо попапа)
-├─ config/            Theme (всё общее), Colors (палитра темы), ShellSettings (опции пользователя)
-├─ apps/shellmanager/ окно настроек: Appearance (тема, обои), Bar (мониторы, раскладка, модули)
+├─ config/            Theme (всё общее), Colors (палитра темы), ShellSettings (опции оболочки), PluginSettings (опции плагинов)
+├─ apps/shellmanager/ окно настроек: Appearance (тема, обои), Bar (мониторы, раскладка, модули), Plugins
 ├─ apps/capture/      захват экрана (Super+Shift+S): область / окно / экран, скриншот или запись
 ├─ scripts/           бэкенды: *.sh / *.py, на выходе только JSON (или строки, см. шапку)
 └─ plugins/<name>/    <Name>.qml + <Name>Popup.qml + <Name>Service.qml (+ view-файлы, *.json)
@@ -152,6 +152,10 @@ SVG в `kit/icons/<name>.svg`, 24×24, белые контуры в стиле L
 - Опции пользователя — `ShellSettings` (`settings.json` в state-папке):
   новая опция = свойство в `JsonAdapter` + readonly-алиас + контрол на
   странице Shell Manager.
+- Опции плагина — страница `<Name>Settings.qml` в папке плагина (поле
+  `settings` в реестре `BarLayout`, Shell Manager › Plugins) из `KitToggleRow` /
+  `KitOptionRow`; значения — `PluginSettings.get("<plugin>", "<key>", default)`
+  (`plugins.json` в state-папке). Значение по умолчанию живёт в плагине.
 - Пользовательские списки плагина (пресеты, провайдеры DNS) — `*.json` в
   папке плагина через `FileView` + `JsonAdapter` с `watchChanges`.
 - Состояние плагина между перезапусками — `FileView { path:
@@ -223,6 +227,7 @@ SVG в `kit/icons/<name>.svg`, 24×24, белые контуры в стиле L
 | `KitRow` | Строка настройки: подпись + подсказка слева, контрол справа |
 | `KitSelect` | То же с полем выбора; список под строкой или поверх (`overlay`) |
 | `KitInfo` | «Подпись — значение» |
+| `KitToggleRow` / `KitOptionRow` | Строка настроек плагина: тумблер / варианты, привязаны к `PluginSettings` |
 | `KitBar` | Тонкий уровень 0..1 |
 | `KitSlider` / `KitSliderRow` | Ползунок / ползунок с подписью или иконкой и значением |
 | `KitInput` | Поле ввода с `❯` и блочным курсором |

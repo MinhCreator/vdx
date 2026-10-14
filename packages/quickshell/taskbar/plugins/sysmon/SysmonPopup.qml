@@ -15,6 +15,8 @@ KitFrame {
     return (d > 0 ? d + "d " : "") + (d > 0 || h > 0 ? h + "h " : "") + m + "m";
   }
 
+  function on(key) { return PluginSettings.get("sysmon", key, true); }
+
   readonly property real memPercent: SysmonService.mem.total > 0 ? 100 * SysmonService.memUsed / SysmonService.mem.total : 0
   readonly property var dgpu: SysmonService.dgpu
 
@@ -44,6 +46,7 @@ KitFrame {
 
     // each core: a thin bar, side by side
     Row {
+      visible: root.on("cores")
       width: parent.width
       spacing: 4
 
@@ -60,10 +63,11 @@ KitFrame {
     }
   }
 
-  KitLine {}
+  KitLine { visible: root.on("memory") }
 
   // ---- memory --------------------------------------------------------------------
   Column {
+    visible: root.on("memory")
     width: parent.width
     spacing: 8
 
@@ -82,10 +86,11 @@ KitFrame {
     }
   }
 
-  KitLine {}
+  KitLine { visible: root.on("gpu") }
 
   // ---- gpu -------------------------------------------------------------------------
   Column {
+    visible: root.on("gpu")
     width: parent.width
     spacing: 8
 
@@ -124,10 +129,11 @@ KitFrame {
     }
   }
 
-  KitLine {}
+  KitLine { visible: root.on("disks") }
 
   // ---- disks -------------------------------------------------------------------------
   Column {
+    visible: root.on("disks")
     width: parent.width
     spacing: 8
 
@@ -160,10 +166,11 @@ KitFrame {
     }
   }
 
-  KitLine {}
+  KitLine { visible: root.on("network") }
 
   // ---- network, sensors -------------------------------------------------------------
   Column {
+    visible: root.on("network")
     width: parent.width
     spacing: 6
 
@@ -175,9 +182,10 @@ KitFrame {
     }
   }
 
-  KitLine {}
+  KitLine { visible: root.on("sensors") }
 
   Column {
+    visible: root.on("sensors")
     width: parent.width
     spacing: 6
 

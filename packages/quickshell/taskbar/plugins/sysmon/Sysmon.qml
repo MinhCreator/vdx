@@ -17,7 +17,7 @@ Item {
     id: face
     icon: "cpu"
     // two digits wide, so the bar doesn't shift between 9% and 10%
-    text: String(SysmonService.cpu).padStart(2, " ") + "%"
+    text: PluginSettings.get("sysmon", "barPercent", true) ? String(SysmonService.cpu).padStart(2, " ") + "%" : ""
     tint: SysmonService.cpu >= 90 ? Theme.red : SysmonService.cpu >= 70 ? Theme.yellow : Theme.foreground0
   }
 

@@ -50,7 +50,7 @@ KitFrame {
   Flickable {
     width: parent.width
     visible: root.items.length > 0
-    height: Math.min(contentHeight, Theme.notificationsVisible * 66)
+    height: Math.min(contentHeight, PluginSettings.get("notifications", "rows", 6) * 66)
     contentHeight: rows.implicitHeight
     interactive: contentHeight > height
     clip: true

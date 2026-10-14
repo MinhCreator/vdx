@@ -30,6 +30,12 @@
     между зонами; **Clear** выключает все модули (Shell Manager остаётся на Super+S), **Reset** —
     раскладка по умолчанию;
   - **MODULES** — каждый модуль с описанием, зоной и тумблером.
+- **Plugins** — слева все плагины (как боковое меню), справа опции
+  выбранного: его `<Name>Settings.qml` (поле `settings` в реестре), значения в
+  `config/PluginSettings.qml` (`plugins.json`). Сейчас: часы (12h, секунды,
+  дата), батарея / звук / яркость / Wi-Fi (число или имя рядом с иконкой),
+  музыка и радио (длина названия), уведомления (точка, высота списка), буфер
+  (лимит), захват (папки), мониторинг (число в баре, секции попапа).
 
 ## Файлы
 
@@ -40,9 +46,10 @@
 | `AppearancePage.qml`, `ThemePreview.qml` | Превью, темы, обои; миниатюра темы |
 | `Wallpaper.qml` | Заливка обоев через `awww` |
 | `BarPage.qml` | Стиль иконок, мониторы, раскладка, модули |
+| `PluginsPage.qml` | Список плагинов и страница опций выбранного |
 | `ThemeService.qml` | Список тем, палитры (все роли), переключение, `Theme.live` |
 | `scripts/themes.sh` | Темы и их цвета по ролям из `Colors.qml` каждой темы |
 
 Опции хранят `config/ShellSettings.qml` (`settings.json`: `solidIcons`,
-`wallpaperMode`, `wallpaperColor`) и `bar/BarLayout.qml` (`layout.json`:
+`wallpaperMode`, `wallpaperColor`), `config/PluginSettings.qml` (`plugins.json`) и `bar/BarLayout.qml` (`layout.json`:
 раскладка и выключенные модули по ролям мониторов).

@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.components
+import qs.config
 import qs.plugins.battery
 
 // Screen capture: the state of the overlay (CaptureOverlay) and the recording
@@ -59,8 +60,9 @@ Singleton {
   readonly property string mesaOnly: "/usr/share/glvnd/egl_vendor.d/50_mesa.json"
 
   // ---- output ------------------------------------------------------------------
-  readonly property string shotDir: Quickshell.env("HOME") + "/Pictures/Screenshots"
-  readonly property string videoDir: Quickshell.env("HOME") + "/Videos/Recordings"
+  // folders from Shell Manager › Plugins › Capture; empty: the defaults
+  readonly property string shotDir: PluginSettings.get("capture", "shotDir", "") || Quickshell.env("HOME") + "/Pictures/Screenshots"
+  readonly property string videoDir: PluginSettings.get("capture", "videoDir", "") || Quickshell.env("HOME") + "/Videos/Recordings"
 
   function stamp() { return Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss"); }
 

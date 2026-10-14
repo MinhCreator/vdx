@@ -11,6 +11,9 @@ import qs.plugins.mpd
 Item {
   id: root
 
+  // title length in the bar, from Plugins › Radio (0: the icon alone)
+  readonly property int maxLength: PluginSettings.get("radio", "titleLength", 60)
+
   required property PanelWindow bar
 
   // "Station - track on air" while playing, cut like the music label.
@@ -24,9 +27,9 @@ Item {
   KitBarItem {
     id: label
     // The icon marks the idle label only; while playing the station speaks for itself.
-    icon: RadioService.active ? "" : "radio"
-    text: (root.text.length > Theme.musicMaxLength
-      ? root.text.slice(0, Theme.musicMaxLength - 1) + Theme.ellipsis : root.text)
+    icon: RadioService.active && root.maxLength > 0 ? "" : "radio"
+    text: (root.maxLength === 0 ? "" : root.text.length > root.maxLength
+      ? root.text.slice(0, root.maxLength - 1) + Theme.ellipsis : root.text)
     tint: RadioService.active ? Theme.foreground0 : Theme.gray
   }
 

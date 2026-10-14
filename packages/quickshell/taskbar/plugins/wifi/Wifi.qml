@@ -20,7 +20,7 @@ Item {
   KitBarItem {
     id: label
     icon: WifiService.radioOn ? "wifi" : "wifi-off"
-    text: WifiService.connected ? root.name : "--"
+    text: !PluginSettings.get("wifi", "name", true) ? "" : WifiService.connected ? root.name : "--"
     tint: WifiService.connected ? Theme.green : Theme.gray
   }
 

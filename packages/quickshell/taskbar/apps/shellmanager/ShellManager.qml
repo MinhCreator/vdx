@@ -7,6 +7,7 @@ import qs.kit
 // on the left, the chosen page on the right, scrolling on its own.
 //   APPEARANCE — theme, wallpaper and icon style under one live preview;
 //   BAR        — the layout of the bar's zones, icon style, modules on / off.
+//   PLUGINS    — each plugin's own options.
 Rectangle {
   id: root
 
@@ -14,7 +15,8 @@ Rectangle {
 
   readonly property var sections: [
     { value: "appearance", label: "Appearance", icon: "sun" },
-    { value: "bar",        label: "Bar",        icon: "layout" }
+    { value: "bar",        label: "Bar",        icon: "layout" },
+    { value: "plugins",    label: "Plugins",    icon: "grid" }
   ]
 
   color: Theme.background0
@@ -103,16 +105,17 @@ Rectangle {
       y: 20
       width: page.width - 48
       implicitHeight: Math.max(appearance.visible ? appearance.implicitHeight : 0,
-                               bar.visible ? bar.implicitHeight : 0)
+                               bar.visible ? bar.implicitHeight : 0,
+                               plugins.visible ? plugins.implicitHeight : 0)
 
       AppearancePage { id: appearance; width: parent.width; visible: root.tab === "appearance" }
       BarPage     { id: bar;     width: parent.width; visible: root.tab === "bar" }
+      PluginsPage { id: plugins; width: parent.width; visible: root.tab === "plugins" }
     }
   }
 
   onTabChanged: {
     if (tab === "themes" || tab === "wallpaper") tab = "appearance";
-    else if (tab === "plugins") tab = "bar";
     page.contentY = 0;
   }
 }

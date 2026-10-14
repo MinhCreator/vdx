@@ -22,7 +22,7 @@ Item {
 
     // unseen mark: a small red square on the bell's corner
     Rectangle {
-      visible: NotificationsService.unseen > 0
+      visible: NotificationsService.unseen > 0 && PluginSettings.get("notifications", "dot", true)
       x: Theme.fontSize - 3
       y: 0
       width: 6

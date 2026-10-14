@@ -1,0 +1,10 @@
+import QtQuick
+import qs.config
+import qs.kit
+
+// Audio options in the Shell Manager.
+Column {
+  spacing: 14
+
+  KitToggleRow { plugin: "audio"; key: "percent"; label: "Volume in the bar"; hint: "off: the icon alone" }
+}

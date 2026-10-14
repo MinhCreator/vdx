@@ -5,7 +5,7 @@ import qs.kit
 // Clipboard history, newest first: text previews and image thumbnails. Click
 // to copy it back (COPIED, then the popup closes), × to delete it; drag text
 // or an image out into any app. A search
-// field narrows the list; the limit and Clear sit at the bottom.
+// field narrows the list; Clear empties it (the limit: Shell Manager › Plugins).
 KitFrame {
   id: root
 
@@ -219,20 +219,6 @@ KitFrame {
         }
       }
     }
-  }
-
-  KitLine {}
-
-  // ---- settings --------------------------------------------------------------------
-  // the list opens inside the popup and grows it: an overlay would hang
-  // past the popup's bottom edge
-  KitSelect {
-    width: parent.width
-    label: "Keep last"
-    hint: "older ones drop off"
-    model: ClipboardService.limits.map(n => ({ label: n + " entries", value: n }))
-    current: ClipboardService.limit
-    onPicked: value => ClipboardService.setLimit(value)
   }
 
   KitText {
