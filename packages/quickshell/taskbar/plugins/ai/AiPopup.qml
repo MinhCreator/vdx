@@ -126,14 +126,18 @@ KitFrame {
         font.pixelSize: Theme.fontSize - 1
       }
 
+      // when the limits are from; a failed refresh keeps them and says so
       KitText {
         width: parent.width
-        visible: ClaudeService.error !== ""
-        text: ClaudeService.error + (ClaudeService.fetchedAt > 0
-          ? " · data from " + Qt.formatDateTime(new Date(ClaudeService.fetchedAt), "HH:mm") : "")
-        color: Theme.red
+        visible: ClaudeService.fetchedAt > 0 || ClaudeService.error !== ""
+        text: ClaudeService.fetchedAt > 0
+          ? (ClaudeService.error !== "" ? "Couldn't refresh (" + ClaudeService.error + ") · data from " : "Updated ")
+            + Qt.formatDateTime(new Date(ClaudeService.fetchedAt),
+                                new Date(ClaudeService.fetchedAt).toDateString() === new Date().toDateString() ? "HH:mm" : "dd MMM HH:mm")
+          : ClaudeService.error
+        color: ClaudeService.error !== "" && ClaudeService.fetchedAt === 0 ? Theme.red : Theme.muted
         wrapMode: Text.WordWrap
-        font.pixelSize: Theme.fontSize - 1
+        font.pixelSize: Theme.fontSize - 2
       }
     }
 

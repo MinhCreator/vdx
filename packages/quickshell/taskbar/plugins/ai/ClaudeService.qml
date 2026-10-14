@@ -52,6 +52,26 @@ Singleton {
     try { return JSON.parse(text); } catch (e) { return fallback; }
   }
 
+  // the last good usage survives shell restarts: a rate-limited first ask
+  // after a restart still has something to show
+  FileView {
+    path: Quickshell.statePath("claude-usage.json")
+    printErrors: false
+    onAdapterUpdated: writeAdapter()
+    onLoaded: {
+      if (root.fetchedAt === 0 && saved.fetchedAt > 0) {
+        root.usage = saved.usage;
+        root.fetchedAt = saved.fetchedAt;
+      }
+    }
+
+    JsonAdapter {
+      id: saved
+      property var usage: ({})
+      property real fetchedAt: 0
+    }
+  }
+
   Timer {
     interval: Theme.claudeUsageIntervalMs
     running: true
@@ -76,6 +96,8 @@ Singleton {
           root.usage = o;
           root.fetchedAt = Date.now();
           root.error = "";
+          saved.usage = o;
+          saved.fetchedAt = root.fetchedAt;
         } else {
           root.error = o.error;
         }
