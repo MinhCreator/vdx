@@ -4,15 +4,30 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Plugins: the list on the left, the chosen plugin's options on the right —
-// its own <Name>Settings.qml (the registry's `settings`), values kept in
-// PluginSettings. The header stays; each pane scrolls on its own. Placing
-// and switching plugins on stays on the Bar page.
+// Plugins: the list on the left (dim: off on every bar), the chosen one on
+// the right — which bars show it, then its options: its own <Name>Settings.qml
+// (the registry's `settings`), values kept in PluginSettings, Reset to the
+// defaults. The header stays; each pane scrolls on its own. Where a plugin
+// sits is set on the Bar page.
 Column {
   id: root
 
   property string selected: (BarLayout.plugins.find(p => p.settings) ?? BarLayout.plugins[0])?.id ?? ""
   readonly property var plugin: BarLayout.plugins.find(p => p.id === selected) ?? null
+
+  // the bars a plugin can sit on: one when shared, else Main and Extra
+  // (a monitor name standing for each role)
+  readonly property var bars: {
+    const names = Quickshell.screens.map(s => s.name);
+    const main = BarLayout.mainScreen();
+    const extra = names.find(n => n !== main);
+    return BarLayout.shared || !extra
+      ? [{ label: "On the bar", screen: main }]
+      : [{ label: "On the Main bar", screen: main }, { label: "On the Extra bar", screen: extra }];
+  }
+
+  function onBar(id, screen) { return !BarLayout.hidden(screen).includes(id); }
+  function onAnyBar(id) { return bars.some(b => onBar(id, b.screen)); }
 
   spacing: 14
 
@@ -59,7 +74,7 @@ Column {
               required property var modelData
 
               readonly property bool active: modelData.id === root.selected
-              readonly property bool hasOptions: !!modelData.settings
+              readonly property bool on: root.onAnyBar(modelData.id)
 
               width: rows.width
               height: 30
@@ -69,16 +84,16 @@ Column {
                 id: rowIcon
                 anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }
                 name: row.modelData.icon
-                tint: row.active ? Theme.foreground0 : row.hasOptions ? Theme.foreground2 : Theme.muted
+                tint: row.active ? Theme.foreground0 : row.on ? Theme.foreground2 : Theme.muted
                 size: 14
               }
 
-              // plugins without options read dimmer
+              // plugins off on every bar read dimmer
               KitText {
                 anchors { left: rowIcon.right; leftMargin: 8; right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
                 text: row.modelData.label
                 elide: Text.ElideRight
-                color: row.active || rowArea.containsMouse ? Theme.foreground0 : row.hasOptions ? Theme.foreground2 : Theme.muted
+                color: row.active || rowArea.containsMouse ? Theme.foreground0 : row.on ? Theme.foreground2 : Theme.muted
                 font.weight: row.active ? Font.ExtraBold : Font.DemiBold
               }
 
@@ -110,14 +125,14 @@ Column {
         width: pane.width
         spacing: 14
 
-        // heading: icon, name and about
+        // heading: icon, name and about; Reset brings the options' defaults back
         Item {
           width: parent.width
-          height: heading.implicitHeight
+          height: Math.max(heading.implicitHeight, resetButton.height)
 
           Row {
             id: heading
-            anchors { left: parent.left; right: parent.right }
+            anchors { left: parent.left; right: resetButton.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
             spacing: 10
 
             KitIcon {
@@ -144,6 +159,43 @@ Column {
                 color: Theme.muted
                 font.pixelSize: Theme.fontSize - 2
               }
+            }
+          }
+
+          KitButton {
+            id: resetButton
+            anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+            visible: !!root.plugin?.settings
+            icon: "rotate-ccw"
+            text: "Reset"
+            disabled: !PluginSettings.changed(root.selected)
+            onClicked: PluginSettings.reset(root.selected)
+          }
+        }
+
+        KitLine {}
+
+        // ---- on the bar ------------------------------------------------------------
+        KitLabel { text: "BAR" }
+
+        Repeater {
+          model: root.bars
+
+          KitRow {
+            id: barRow
+
+            required property var modelData
+
+            readonly property bool on: root.onBar(root.selected, modelData.screen)
+            readonly property bool barShown: BarLayout.barOn(modelData.screen)
+
+            label: modelData.label
+            hint: !barShown ? "no bar on that monitor (Bar page)" : on ? "placed on the Bar page" : "hidden"
+
+            KitSwitch {
+              disabled: !barRow.barShown
+              checked: barRow.on && barRow.barShown
+              onToggled: BarLayout.setEnabled(root.selected, !barRow.on, barRow.modelData.screen)
             }
           }
         }

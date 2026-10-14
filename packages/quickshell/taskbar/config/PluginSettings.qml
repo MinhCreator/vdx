@@ -17,6 +17,15 @@ Singleton {
     return v === undefined ? fallback : v;
   }
 
+  function changed(plugin) { return Object.keys(values[plugin] ?? {}).length > 0; }
+
+  // back to the plugin's defaults
+  function reset(plugin) {
+    const all = Object.assign({}, values);
+    delete all[plugin];
+    state.values = all;
+  }
+
   function set(plugin, key, value) {
     const all = Object.assign({}, values);
     all[plugin] = Object.assign({}, all[plugin] ?? {}, { [key]: value });

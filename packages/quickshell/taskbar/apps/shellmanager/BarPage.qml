@@ -4,9 +4,10 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Bar: the icon style shared by every bar, then one monitor at a time —
-// whether it has a bar, its three zones to arrange (drag an icon within a zone
-// or into another one) and every module with its on / off switch.
+// Bar: where things are — one monitor at a time: whether it has a bar and its
+// three zones to arrange (drag an icon within a zone or into another one);
+// then the icon style shared by every bar. Each plugin's on / off and options
+// live on the Plugins page.
 Column {
   id: root
 
@@ -33,8 +34,6 @@ Column {
   readonly property real zoneWidth: (width - 2 * zoneSpacing) / 3
   readonly property int perRow: Math.max(1, Math.floor((zoneWidth - 12 + chipSpacing) / (chipSize + chipSpacing)))
   readonly property int zoneRows: Math.max(1, ...BarLayout.zones.map(z => Math.ceil(BarLayout.visibleIn(z, screenName).length / perRow)))
-
-  function zoneOf(id) { return BarLayout.zones.find(z => layout[z].includes(id)) ?? ""; }
 
   // Drop slot under the pointer (zones coordinates): the zone box under x, then
   // the chip slot in reading order — chips on earlier rows, or left of the
@@ -88,23 +87,6 @@ Column {
 
   KitLine {}
 
-  // ---- every bar -------------------------------------------------------------
-  KitRow {
-    label: "Icons"
-    hint: "outlines or filled shapes, on every bar"
-
-    KitChoices {
-      model: [
-        { label: "Outline", value: false },
-        { label: "Solid",   value: true }
-      ]
-      current: ShellSettings.solidIcons
-      onPicked: value => ShellSettings.set("solidIcons", value)
-    }
-  }
-
-  KitLine {}
-
   // ---- this monitor ------------------------------------------------------------
   KitLabel {
     text: "MONITOR"
@@ -139,7 +121,7 @@ Column {
   KitText {
     width: parent.width
     visible: Quickshell.screens.length > 1 && !BarLayout.shared
-    text: "Main is the external monitor when one is connected, otherwise the laptop — unplug it and the laptop takes over the main bar. Extra is the laptop screen while docked."
+    text: "Main: the external monitor, or the laptop when alone · Extra: the laptop while docked"
     color: Theme.muted
     wrapMode: Text.WordWrap
     font.pixelSize: Theme.fontSize - 2
@@ -343,95 +325,22 @@ Column {
     }
   }
 
-  KitLine { visible: root.barOn }
+  KitLine {}
 
-  // ---- modules ---------------------------------------------------------------
-  KitLabel {
-    visible: root.barOn
-    text: "MODULES"
-    value: root.onCount + " / " + BarLayout.plugins.length + " ON"
-  }
+  // ---- style (every bar) -------------------------------------------------------
+  KitLabel { text: "STYLE" }
 
-  Column {
-    visible: root.barOn
-    width: parent.width
-    spacing: 2
+  KitRow {
+    label: "Icons"
+    hint: "outlines or filled shapes, on every bar"
 
-    Repeater {
-      model: BarLayout.plugins
-
-      Rectangle {
-        id: module
-
-        required property var modelData
-
-        readonly property bool shown: !root.hidden.includes(modelData.id)
-
-        width: parent.width
-        height: 44
-        color: moduleArea.containsMouse || root.hoverId === modelData.id ? Theme.background1 : "transparent"
-
-        KitIcon {
-          id: moduleIcon
-          anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }
-          name: module.modelData.icon
-          tint: module.shown ? Theme.foreground0 : Theme.gray
-          solid: ShellSettings.solidIcons
-          size: 16
-        }
-
-        Column {
-          anchors {
-            left: moduleIcon.right; leftMargin: 12
-            right: moduleTrail.left; rightMargin: 12
-            verticalCenter: parent.verticalCenter
-          }
-          spacing: 2
-
-          KitText {
-            width: parent.width
-            text: module.modelData.label
-            color: module.shown ? Theme.foreground0 : Theme.foreground2
-            elide: Text.ElideRight
-          }
-
-          KitText {
-            width: parent.width
-            text: module.modelData.about
-            color: Theme.muted
-            elide: Text.ElideRight
-            font.pixelSize: Theme.fontSize - 2
-          }
-        }
-
-        MouseArea {
-          id: moduleArea
-          anchors.fill: parent
-          hoverEnabled: true
-          cursorShape: Qt.PointingHandCursor
-          onClicked: BarLayout.setEnabled(module.modelData.id, !module.shown, root.screenName)
-        }
-
-        Row {
-          id: moduleTrail
-          anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
-          spacing: 12
-
-          KitText {
-            anchors.verticalCenter: parent.verticalCenter
-            text: module.shown ? root.zoneOf(module.modelData.id).toUpperCase() : "OFF"
-            color: Theme.muted
-            font.pixelSize: Theme.fontSize - 3
-            font.letterSpacing: 1
-          }
-
-          KitSwitch {
-            anchors.verticalCenter: parent.verticalCenter
-            checked: module.shown
-            onToggled: BarLayout.setEnabled(module.modelData.id, !module.shown, root.screenName)
-          }
-        }
-      }
+    KitChoices {
+      model: [
+        { label: "Outline", value: false },
+        { label: "Solid",   value: true }
+      ]
+      current: ShellSettings.solidIcons
+      onPicked: value => ShellSettings.set("solidIcons", value)
     }
   }
 }

@@ -238,10 +238,11 @@ Column {
     }
   }
 
+  // only while another theme is previewed
   KitRow {
-    label: root.selected === ThemeService.current ? "Active theme" : "Previewing " + root.selected
-    hint: root.selected === ThemeService.current ? "pick a theme on the right to preview it"
-                                                 : "Apply switches the bar, terminals and Hyprland"
+    visible: root.selected !== ThemeService.current || ThemeService.busy
+    label: "Previewing " + root.selected
+    hint: "Apply switches the bar, terminals and Hyprland"
 
     KitButton {
       visible: root.selected !== ThemeService.current

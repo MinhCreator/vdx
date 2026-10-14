@@ -7,7 +7,7 @@ import qs.kit
 Column {
   spacing: 14
 
-  KitLabel { text: "BAR" }
+  KitLabel { text: "BAR TEXT" }
 
   KitToggleRow {
     plugin: "sysmon"; key: "barPercent"
