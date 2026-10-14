@@ -106,11 +106,12 @@ Rectangle {
       width: page.width - 48
       implicitHeight: Math.max(appearance.visible ? appearance.implicitHeight : 0,
                                bar.visible ? bar.implicitHeight : 0,
-                               plugins.visible ? plugins.implicitHeight : 0)
+                               plugins.visible ? plugins.height : 0)
 
       AppearancePage { id: appearance; width: parent.width; visible: root.tab === "appearance" }
       BarPage     { id: bar;     width: parent.width; visible: root.tab === "bar" }
-      PluginsPage { id: plugins; width: parent.width; visible: root.tab === "plugins" }
+      // fills the window and scrolls its two panes itself
+      PluginsPage { id: plugins; width: parent.width; height: page.height - 40; visible: root.tab === "plugins" }
     }
   }
 

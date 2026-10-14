@@ -4,102 +4,155 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Plugins: every plugin on the left, the chosen one's options on the right —
+// Plugins: the list on the left, the chosen plugin's options on the right —
 // its own <Name>Settings.qml (the registry's `settings`), values kept in
-// PluginSettings. Placing and switching plugins on stays on the Bar page.
+// PluginSettings. The header stays; each pane scrolls on its own. Placing
+// and switching plugins on stays on the Bar page.
 Column {
   id: root
 
-  property string selected: BarLayout.plugins[0]?.id ?? ""
+  property string selected: (BarLayout.plugins.find(p => p.settings) ?? BarLayout.plugins[0])?.id ?? ""
   readonly property var plugin: BarLayout.plugins.find(p => p.id === selected) ?? null
 
   spacing: 14
 
-
   KitHeader {
+    id: header
     icon: "grid"
     title: "Plugins"
     subtitle: BarLayout.plugins.filter(p => p.settings).length + " WITH OPTIONS · " + BarLayout.plugins.length + " IN ALL"
   }
 
-  KitLine {}
+  KitLine { id: headerLine }
 
   Row {
     width: parent.width
+    height: root.height - header.height - headerLine.height - 2 * root.spacing
     spacing: 18
 
-    // the plugin list, styled like the Shell Manager's own navigation
-    Column {
+    // ---- list: framed like an open select, scrolls inside the frame ----------------
+    Rectangle {
       id: list
-      width: 180
-      spacing: 4
+      width: 190
+      height: Math.min(parent.height, rows.implicitHeight + 2 * Theme.frameWidth)
+      color: "transparent"
+      border.width: Theme.frameWidth
+      border.color: Theme.gray
 
-      Repeater {
-        model: BarLayout.plugins
+      Flickable {
+        anchors { fill: parent; margins: Theme.frameWidth }
+        contentHeight: rows.implicitHeight
+        interactive: contentHeight > height
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
 
-        Rectangle {
-          id: row
+        Column {
+          id: rows
+          width: parent.width
 
-          required property var modelData
+          Repeater {
+            model: BarLayout.plugins
 
-          readonly property bool active: modelData.id === root.selected
+            Rectangle {
+              id: row
 
-          width: list.width
-          height: 34
-          color: active ? Theme.background3 : rowArea.containsMouse ? Theme.background1 : "transparent"
+              required property var modelData
 
-          KitIcon {
-            id: rowIcon
-            anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
-            name: row.modelData.icon
-            tint: row.active ? Theme.foreground0 : Theme.foreground2
-            size: 16
-          }
+              readonly property bool active: modelData.id === root.selected
+              readonly property bool hasOptions: !!modelData.settings
 
-          KitText {
-            anchors { left: rowIcon.right; leftMargin: 10; right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
-            text: row.modelData.label
-            elide: Text.ElideRight
-            color: row.active ? Theme.foreground0 : Theme.foreground2
-            font.weight: row.active ? Font.ExtraBold : Font.DemiBold
-          }
+              width: rows.width
+              height: 30
+              color: active ? Theme.background3 : rowArea.containsMouse ? Theme.background1 : "transparent"
 
-          MouseArea {
-            id: rowArea
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: row.active ? Qt.ArrowCursor : Qt.PointingHandCursor
-            onClicked: root.selected = row.modelData.id
+              KitIcon {
+                id: rowIcon
+                anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }
+                name: row.modelData.icon
+                tint: row.active ? Theme.foreground0 : row.hasOptions ? Theme.foreground2 : Theme.muted
+                size: 14
+              }
+
+              // plugins without options read dimmer
+              KitText {
+                anchors { left: rowIcon.right; leftMargin: 8; right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                text: row.modelData.label
+                elide: Text.ElideRight
+                color: row.active || rowArea.containsMouse ? Theme.foreground0 : row.hasOptions ? Theme.foreground2 : Theme.muted
+                font.weight: row.active ? Font.ExtraBold : Font.DemiBold
+              }
+
+              MouseArea {
+                id: rowArea
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: row.active ? Qt.ArrowCursor : Qt.PointingHandCursor
+                onClicked: root.selected = row.modelData.id
+              }
+            }
           }
         }
       }
     }
 
-    // the chosen plugin
-    Column {
+    // ---- the chosen plugin: its name and options, scrolling on their own ------------
+    Flickable {
+      id: pane
       width: parent.width - list.width - parent.spacing
-      spacing: 14
+      height: parent.height
+      contentHeight: details.implicitHeight
+      interactive: contentHeight > height
+      clip: true
+      boundsBehavior: Flickable.StopAtBounds
 
-      KitRow {
-        label: root.plugin?.label ?? ""
-        hint: root.plugin?.about ?? ""
-        labelColor: Theme.foreground0
-      }
+      Column {
+        id: details
+        width: pane.width
+        spacing: 14
 
-      KitLine {}
+        Row {
+          spacing: 10
 
-      Loader {
-        width: parent.width
-        active: !!root.plugin?.settings
-        source: active ? Quickshell.shellPath("plugins/" + root.plugin.id + "/" + root.plugin.settings) : ""
-      }
+          KitIcon {
+            anchors.verticalCenter: parent.verticalCenter
+            name: root.plugin?.icon ?? ""
+            size: 18
+          }
 
-      KitText {
-        visible: !root.plugin?.settings
-        text: "No options yet."
-        color: Theme.muted
-        font.pixelSize: Theme.fontSize - 1
+          Column {
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 2
+
+            KitText {
+              text: root.plugin?.label ?? ""
+              font.weight: Font.ExtraBold
+            }
+
+            KitText {
+              text: root.plugin?.about ?? ""
+              color: Theme.muted
+              font.pixelSize: Theme.fontSize - 2
+            }
+          }
+        }
+
+        KitLine {}
+
+        Loader {
+          width: parent.width
+          active: !!root.plugin?.settings
+          source: active ? Quickshell.shellPath("plugins/" + root.plugin.id + "/" + root.plugin.settings) : ""
+        }
+
+        KitText {
+          visible: !root.plugin?.settings
+          text: "This plugin has no options."
+          color: Theme.muted
+          font.pixelSize: Theme.fontSize - 1
+        }
       }
     }
   }
+
+  onSelectedChanged: pane.contentY = 0
 }
