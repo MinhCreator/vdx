@@ -11,12 +11,12 @@ inside-wrong-color=0e0e0e
 inside-clear-color=0e0e0e
 
 ring-color=2c2c2c
-ring-ver-color=8fba7a
-ring-wrong-color=e06c6c
-ring-clear-color=d4b866
+ring-ver-color=7fd1a8
+ring-wrong-color=f07178
+ring-clear-color=e9d16c
 
 key-hl-color=e4e4e4
-bs-hl-color=e06c6c
+bs-hl-color=f07178
 
 text-color=00000000
 text-ver-color=00000000

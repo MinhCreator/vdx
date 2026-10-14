@@ -19,13 +19,13 @@ QtObject {
   readonly property color foreground2: "#b8b8b8"
 
   // accents
-  readonly property color red:    "#e06c6c"
-  readonly property color orange: "#d9915a"
-  readonly property color yellow: "#d4b866"
-  readonly property color green:  "#8fba7a"
-  readonly property color aqua:   "#7fb8a8"
-  readonly property color blue:   "#82a6c9"
-  readonly property color purple: "#b495c9"
+  readonly property color red:    "#f07178"
+  readonly property color orange: "#f4a261"
+  readonly property color yellow: "#e9d16c"
+  readonly property color green:  "#7fd1a8"
+  readonly property color aqua:   "#5fc4d4"
+  readonly property color blue:   "#6aa7f0"
+  readonly property color purple: "#b39ddb"
   readonly property color gray:   "#6e6e6e"
 
   // kitty terminal palette (themes/gruvbox/kitty/colors.conf)

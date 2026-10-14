@@ -25,12 +25,12 @@ PALETTE_HEX = [
     "#b09e92",  # cursor / color15
     "#574640",  # color0
     "#94827a",  # color8
-    "#e8665a",  # color1 / color9  (red)
-    "#9cc76c",  # color2 / color10 (green)
-    "#e8b45e",  # color3 / color11 (yellow)
-    "#6f9fe0",  # color4 / color12 (blue)
-    "#c99ac0",  # color5 / color13 (magenta)
-    "#7ec4a5",  # color6 / color14 (cyan)
+    "#ff5c57",  # color1 / color9  (red)
+    "#8fd45f",  # color2 / color10 (green)
+    "#f9c56a",  # color3 / color11 (yellow)
+    "#5ea8ff",  # color4 / color12 (blue)
+    "#e48ad8",  # color5 / color13 (magenta)
+    "#5fd3b8",  # color6 / color14 (cyan)
 ]
 
 INFO_TEXT = """\
