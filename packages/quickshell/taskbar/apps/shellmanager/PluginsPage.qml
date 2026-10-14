@@ -164,14 +164,16 @@ Column {
 
         // ---- on / off: everywhere; where it sits is the Bar page's job ----------------
         KitRow {
+          id: enabledRow
+
           readonly property bool on: BarLayout.pluginOn(root.selected)
 
           label: "Enabled"
           hint: on ? "placed on the Bar page" : "off: on no bar, not in the layout"
 
           KitSwitch {
-            checked: parent.on
-            onToggled: BarLayout.setPluginOn(root.selected, !parent.on)
+            checked: enabledRow.on
+            onToggled: BarLayout.setPluginOn(root.selected, !enabledRow.on)
           }
         }
 
