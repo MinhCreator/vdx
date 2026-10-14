@@ -2,9 +2,8 @@
 -- https://wiki.hypr.land/Configuring/Basics/Autostart/
 
 hl.on("hyprland.start", function()
-	local wall = os.getenv("HOME") .. "/Pictures/Wallpapers/solid.jpeg"
+	-- the bar fills it with the theme's (or the user's) solid colour
 	hl.exec_cmd("awww-daemon")
-	hl.exec_cmd("awww img " .. wall)
 	hl.exec_cmd("qs -c taskbar")
 	hl.exec_cmd("mako")
 end)
