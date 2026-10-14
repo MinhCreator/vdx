@@ -23,7 +23,7 @@ configuration {
 window {
     transparency: "real";
     width: 260px;
-    border: 1px;
+    border: 2px;
     border-color: @border;
     background-color: @bg;
     location: center;

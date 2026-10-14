@@ -25,7 +25,7 @@ uses these values and roles; a new config takes its colours from here.
 
 Rules (the bar's style):
 - surfaces step up in tone (`background0 → 1 → 3`), no shadows-as-colour;
-- frames are 1px: `gray` at rest, `foreground2` when active / focused;
+- frames: 1px inside the bar (`Theme.frameWidth`), 2px for windows, notifications and rofi; `gray` at rest, `foreground2` when active / focused;
 - selection is a `background3` fill with bold text, not a colour;
 - colour carries meaning only: green ok, yellow / orange attention, red error.
 
