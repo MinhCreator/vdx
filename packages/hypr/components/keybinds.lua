@@ -15,7 +15,7 @@ hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("kitty -e ncmpcpp"))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("~/.config/rofi/dmenu.sh"))
 hl.bind(mainMod .. " + SHIFT + D", hl.dsp.exec_cmd("~/.config/rofi/scripts.sh"))
 hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("~/.config/rofi/boot.sh"))
-hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("qs -c taskbar ipc call shell toggle"))
+hl.bind(mainMod .. " + S", hl.dsp.exec_cmd("qs -c taskbar ipc call shell toggle"))
 
 -- screenshots (both copy to the clipboard)
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd('grim -g "$(slurp)" - | wl-copy'))
