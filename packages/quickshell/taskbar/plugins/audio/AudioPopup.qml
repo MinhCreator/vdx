@@ -14,9 +14,10 @@ KitFrame {
   property bool open: false
 
   // Live input level: the peak in dBFS mapped onto 0..1 over -60..0 dB.
+  // PwNodePeakMonitor reports the cube root of the sample peak, so dBFS = 60·log10.
   readonly property real micLevel: {
     const peak = micPeak.peak;
-    return peak > 0 ? Math.max(0, Math.min(1, (20 * Math.log10(peak) + 60) / 60)) : 0;
+    return peak > 0 ? Math.max(0, Math.min(1, (60 * Math.log10(peak) + 60) / 60)) : 0;
   }
 
   PwNodePeakMonitor {
@@ -54,9 +55,8 @@ KitFrame {
       id: output
       label: "Device"
       hint: "default output"
-      nodes: AudioService.sinks
-      current: AudioService.sink
-      onSelected: node => AudioService.setSink(node)
+      entries: AudioService.outputs
+      current: AudioService.outputKey
       onExpandedChanged: if (expanded) input.expanded = false
     }
 
@@ -79,9 +79,8 @@ KitFrame {
       id: input
       label: "Device"
       hint: "default input"
-      nodes: AudioService.sources
-      current: AudioService.source
-      onSelected: node => AudioService.setSource(node)
+      entries: AudioService.inputs
+      current: AudioService.inputKey
       onExpandedChanged: if (expanded) output.expanded = false
     }
 
