@@ -24,7 +24,7 @@ Item {
     icon: BatteryService.saver ? "leaf" : BatteryService.charging ? "battery-charging"
         : BatteryService.plugged ? "plug" : "battery"
     text: String(BatteryService.capacity)
-    tint: BatteryService.saver ? Theme.aqua
+    tint: BatteryService.saver ? Theme.green
          : BatteryService.charging ? Theme.green
          : BatteryService.capacity <= Theme.batteryCritical ? Theme.red
          : BatteryService.capacity <= Theme.batteryWarning ? Theme.yellow
