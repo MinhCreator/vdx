@@ -8,12 +8,13 @@ Rectangle {
 
   property bool checked: false
   property bool disabled: false
+  property color trackColor: Theme.background3   // darker on a filled (selected) row
 
   signal toggled()
 
   implicitWidth: 36
   implicitHeight: 20
-  color: Theme.background3
+  color: root.trackColor
   border.width: area.containsMouse && !disabled ? Theme.frameWidth : 0
   border.color: Theme.foreground2
   opacity: disabled ? 0.4 : 1

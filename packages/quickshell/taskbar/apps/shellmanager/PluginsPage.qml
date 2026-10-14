@@ -97,6 +97,7 @@ Column {
                 id: rowSwitch
                 anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
                 checked: row.on
+                trackColor: row.active ? Theme.background0 : Theme.background3
                 onToggled: BarLayout.setPluginOn(row.modelData.id, !row.on)
               }
             }
