@@ -30,6 +30,7 @@ Column {
   onDisabledChanged: if (disabled) expanded = false
 
   Item {
+    id: row
     width: parent.width
     height: Math.max(box.height, text.implicitHeight)
 
@@ -102,13 +103,19 @@ Column {
     }
   }
 
+  // Column lays out no zero-height child, so in overlay mode the list hangs
+  // off the row (below it, over the following content) instead of the slot.
   Item {
+    id: slot
     width: parent.width
-    height: root.overlay ? 0 : list.height
-    visible: root.expanded
+    height: list.height
+    visible: root.expanded && !root.overlay
 
   Rectangle {
     id: list
+    parent: root.overlay ? row : slot
+    y: root.overlay ? row.height + root.spacing : 0
+    visible: root.expanded
     width: parent.width
     height: options.implicitHeight + 2 * Theme.frameWidth
     color: root.overlay ? Theme.background0 : "transparent"
