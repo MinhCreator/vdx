@@ -1,3 +1,6 @@
+# elio — terminal file manager (Super+E); colours: themes/<t>/elio/theme.toml
+# https://github.com/elio-fm/elio
+
 [ui]
 show_top_bar = false
 show_hidden = true

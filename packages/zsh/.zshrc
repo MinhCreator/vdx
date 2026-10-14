@@ -1,3 +1,5 @@
+# zsh — interactive shell: exports, secrets, plugins, aliases, functions
+
 # Exports
 source "$ZDOTDIR/exports"
 

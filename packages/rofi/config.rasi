@@ -1,3 +1,6 @@
+// rofi — launcher (Super+R); colours: colors.rasi of the active theme
+// https://github.com/davatorium/rofi/blob/next/doc/rofi-theme.5.markdown
+
 configuration {
     modes: "apps:~/.config/rofi/apps.sh,scripts:~/.config/rofi/scripts.sh,boot:~/.config/rofi/boot.sh";
     show-icons: false;

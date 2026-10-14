@@ -1,3 +1,4 @@
+-- Hyprland — animations
 -- bezier: hl.curve(name, {type="bezier", points={{x1,y1},{x2,y2}}})
 -- animation: hl.animation({leaf=, enabled=, speed=, bezier=, style=})
 -- https://wiki.hypr.land/Configuring/Advanced-and-Cool/Animations/

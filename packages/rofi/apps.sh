@@ -1,4 +1,5 @@
 #!/bin/bash
+# rofi mode "apps": entries from menu.json
 CONFIG="$HOME/.config/rofi/menu.json"
 
 if [ ! -f "$CONFIG" ]; then

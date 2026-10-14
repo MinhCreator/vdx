@@ -1,4 +1,5 @@
 #!/bin/bash
+# rofi mode "scripts": entries from scripts.json
 CONFIG="$HOME/.config/rofi/scripts.json"
 
 if [ ! -f "$CONFIG" ]; then

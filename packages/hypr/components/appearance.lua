@@ -1,3 +1,4 @@
+-- Hyprland — appearance: gaps, borders, decoration
 -- https://wiki.hypr.land/Configuring/Basics/Variables/
 -- https://wiki.hypr.land/Configuring/Layouts/Master-Layout/
 

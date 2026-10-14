@@ -1,3 +1,5 @@
+# mihomo-tui — terminal client for the mihomo API
+
 mihomo-api: http://127.0.0.1:9090
 #log-file: ~/.config/mihomo-tui/mihomo-tui.log
 log-level: error

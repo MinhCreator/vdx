@@ -1,3 +1,4 @@
+-- Hyprland — input devices
 -- https://wiki.hypr.land/Configuring/Basics/Variables/#input
 
 hl.config({

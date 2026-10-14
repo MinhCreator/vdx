@@ -1,3 +1,4 @@
+-- Hyprland — entry point; each part lives in components/<part>.lua
 -- https://wiki.hypr.land/Configuring/Start/
 -- https://wiki.hypr.land/Configuring/Basics/
 

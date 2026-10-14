@@ -1,3 +1,4 @@
+-- Hyprland — keybinds
 -- https://wiki.hypr.land/Configuring/Basics/Binds/
 -- https://wiki.hypr.land/Configuring/Basics/Dispatchers/
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+# rofi mode "boot": power menu (lock, reboot, power off)
 
 run_system() {
     ( setsid systemctl "$@" >/dev/null 2>&1 & )

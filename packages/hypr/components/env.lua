@@ -1,3 +1,4 @@
+-- Hyprland — environment
 -- https://wiki.hypr.land/Configuring/Advanced-and-Cool/Environment-variables/
 
 hl.env("LIBVA_DRIVER_NAME", "nvidia")

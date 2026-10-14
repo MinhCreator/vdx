@@ -1,3 +1,4 @@
+-- Hyprland — window rules
 -- windowrule: hl.window_rule({name=, match=, ...})
 -- https://wiki.hypr.land/Configuring/Basics/Window-Rules/
 

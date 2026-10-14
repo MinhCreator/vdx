@@ -1,3 +1,4 @@
+-- Hyprland — autostart
 -- hyprland.start fires once at startup, not on config reload.
 -- https://wiki.hypr.land/Configuring/Basics/Autostart/
 
