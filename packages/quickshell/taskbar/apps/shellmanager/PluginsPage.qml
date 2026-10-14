@@ -110,45 +110,58 @@ Column {
         width: pane.width
         spacing: 14
 
-        Row {
-          spacing: 10
+        // heading: icon, name and about; NO OPTIONS on the right when it has none
+        Item {
+          width: parent.width
+          height: heading.implicitHeight
 
-          KitIcon {
-            anchors.verticalCenter: parent.verticalCenter
-            name: root.plugin?.icon ?? ""
-            size: 18
+          Row {
+            id: heading
+            anchors { left: parent.left; right: badge.visible ? badge.left : parent.right; rightMargin: badge.visible ? 12 : 0 }
+            spacing: 10
+
+            KitIcon {
+              id: headingIcon
+              anchors.verticalCenter: parent.verticalCenter
+              name: root.plugin?.icon ?? ""
+              size: 18
+            }
+
+            Column {
+              anchors.verticalCenter: parent.verticalCenter
+              width: heading.width - headingIcon.width - heading.spacing
+              spacing: 2
+
+              KitText {
+                text: root.plugin?.label ?? ""
+                font.weight: Font.ExtraBold
+              }
+
+              KitText {
+                width: parent.width
+                text: root.plugin?.about ?? ""
+                elide: Text.ElideRight
+                color: Theme.muted
+                font.pixelSize: Theme.fontSize - 2
+              }
+            }
           }
 
-          Column {
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: 2
-
-            KitText {
-              text: root.plugin?.label ?? ""
-              font.weight: Font.ExtraBold
-            }
-
-            KitText {
-              text: root.plugin?.about ?? ""
-              color: Theme.muted
-              font.pixelSize: Theme.fontSize - 2
-            }
+          KitBadge {
+            id: badge
+            anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+            visible: !root.plugin?.settings
+            text: "NO OPTIONS"
+            tint: Theme.muted
           }
         }
 
-        KitLine {}
+        KitLine { visible: !!root.plugin?.settings }
 
         Loader {
           width: parent.width
           active: !!root.plugin?.settings
           source: active ? Quickshell.shellPath("plugins/" + root.plugin.id + "/" + root.plugin.settings) : ""
-        }
-
-        KitText {
-          visible: !root.plugin?.settings
-          text: "This plugin has no options."
-          color: Theme.muted
-          font.pixelSize: Theme.fontSize - 1
         }
       }
     }
