@@ -1,19 +1,20 @@
 # AI (Claude Code + Ollama)
 
-Лимиты и расход Claude Code, управление локальной Ollama. Две вкладки: CLAUDE и OLLAMA.
+Лимиты и расход Claude Code, управление локальной Ollama. Две вкладки: Claude и Ollama.
 
 **Бар:** иконка робота. Жёлтая, когда какой-то лимит ≥ `Theme.claudeWarning`
 (75%), красная ≥ `Theme.claudeCritical` (90%). Клик открывает попап.
 
 ## Попап
 
-- **Шапка:** `CLAUDE CODE` / `PRO · 1 WORKING` (`N IDLE`, `NO SESSIONS`).
-  Кнопка справа — обновить всё.
-- **Лимиты** — то же, что `/usage`: окно сессии (5 часов), неделя и другие, если
-  они есть у тарифа. Полоска, процент и время до сброса.
+- **Шапка:** `Claude Code`, `PRO · 1 WORKING` (`N IDLE`, `NO SESSIONS`), кнопка
+  обновления. Под шапкой вкладки `Claude` / `Ollama`.
+- **PLAN LIMITS** — то же, что `/usage`: окно сессии (5 часов), неделя и
+  другие, если они есть у тарифа. Процент цветом нагрузки, полоска, время до
+  сброса.
 - **TODAY** — токены за сегодня из локальных логов: output, input, cache
   read/write, число ответов.
-- **SESSIONS** — запущенные Claude Code: имя, папка, версия, BUSY / IDLE.
+- **SESSIONS (N)** — запущенные Claude Code: имя, папка, версия, busy / idle.
 
 ## Как работает
 
@@ -31,12 +32,12 @@
 
 ## Вкладка OLLAMA
 
-- **Шапка:** `OLLAMA` / `RUNNING · v0.40.3 · 1 LOADED`, `STOPPED`, `NOT INSTALLED`.
-  Тумблер — запустить / остановить сервер.
-- **MODELS** — скачанные модели: размер; загруженная в память — зелёная, с
-  объёмом в памяти и кнопкой «выгрузить».
-- **PULL** — скачать `Theme.ollamaCoachModel` (`qwen2.5:1.5b`, модель тренера
-  nvim), если её нет.
+- **Шапка:** `Ollama`, `RUNNING · V0.40.3` / `STOPPED` / `NOT INSTALLED`,
+  тумблер — запустить / остановить сервер.
+- **MODELS (N)** — скачанные модели: размер; загруженная в память — жирная,
+  с объёмом в памяти и кнопкой «выгрузить».
+- Строка `Theme.ollamaCoachModel` (`qwen2.5:1.5b`, модель тренера nvim) с
+  кнопкой `Pull`, если её нет.
 - Опрос раз в `Theme.ollamaIntervalMs`, только пока вкладка открыта.
 - Есть системная `ollama.service` — тумблер работает через `systemctl`; без
   пароля его пускает правило `system/etc/polkit-1/rules.d/50-ollama.rules`
@@ -49,8 +50,8 @@
 |---|---|
 | `Ai.qml` | Бар-модуль |
 | `ClaudeService.qml` | Опросы и состояние |
-| `AiPopup.qml` | Попап (вкладки CLAUDE / OLLAMA) |
-| `OllamaService.qml`, `OllamaView.qml` | Вкладка OLLAMA |
+| `AiPopup.qml` | Попап (вкладки Claude / Ollama) |
+| `OllamaService.qml`, `OllamaView.qml` | Вкладка Ollama |
 | `scripts/claude.sh` | `--usage`, `--today`, `--sessions` |
 | `scripts/ollama.sh` | `--status`, `--start`, `--stop`, `--pull`, `--unload` |
 

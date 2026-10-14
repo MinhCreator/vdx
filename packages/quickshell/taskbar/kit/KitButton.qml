@@ -7,8 +7,7 @@ import qs.config
 Rectangle {
   id: root
 
-  property string icon: ""               // kit/icons name; wins over glyph
-  property string glyph: ""
+  property string icon: ""               // kit/icons name
   property color iconTint: Theme.foreground0
   property string text: ""
   property bool selected: false
@@ -37,12 +36,6 @@ Rectangle {
       name: root.icon
       tint: root.iconTint
       size: Theme.fontSize + 1
-    }
-
-    KitText {
-      visible: root.icon === "" && root.glyph !== "" && !root.busy
-      text: root.glyph
-      font.pixelSize: Theme.fontSize + 1
     }
 
     KitSpinner {

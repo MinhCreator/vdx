@@ -19,7 +19,7 @@ KitFrame {
   // ---- header ----------------------------------------------------------------
   KitHeader {
     icon: "bell"
-    glyphColor: root.items.length > 0 ? Theme.foreground0 : Theme.muted
+    iconColor: root.items.length > 0 ? Theme.foreground0 : Theme.muted
     title: "Notifications"
     subtitle: root.items.length === 0 ? "ALL CAUGHT UP" : root.items.length + " IN HISTORY"
 

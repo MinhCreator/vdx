@@ -7,8 +7,6 @@ import qs.kit
 KitFrame {
   id: root
 
-  property string icon: ""             // bar glyph, unused here (kit icons)
-
   readonly property string timeLeft: BatteryService.minutesLeft < 0 ? "—"
     : Math.floor(BatteryService.minutesLeft / 60) + ":" + String(BatteryService.minutesLeft % 60).padStart(2, "0")
   readonly property string summary: BatteryService.charging ? "CHARGING · " + timeLeft + " TO " + BatteryService.threshold + "%"
@@ -31,7 +29,7 @@ KitFrame {
   // ---- header ----------------------------------------------------------------
   KitHeader {
     icon: BatteryService.charging ? "battery-charging" : BatteryService.plugged ? "plug" : "battery"
-    glyphColor: BatteryService.capacity <= Theme.batteryCritical && !BatteryService.plugged ? Theme.red : Theme.foreground0
+    iconColor: BatteryService.capacity <= Theme.batteryCritical && !BatteryService.plugged ? Theme.red : Theme.foreground0
     title: "Battery"
     subtitle: root.summary
 

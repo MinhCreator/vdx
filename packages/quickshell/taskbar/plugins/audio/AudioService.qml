@@ -24,9 +24,6 @@ Singleton {
   property var ports: ({})
   readonly property bool headphones: (ports[sink?.name]?.type ?? "").startsWith("Head")
 
-  // Output glyph shared by the bar label and the popup header.
-  readonly property string icon: muted ? Theme.iconMuted : headphones ? Theme.iconHeadphone : Theme.iconVolume
-
   // Whether output or input is still live; the header switch mutes both.
   readonly property bool live: !muted || !(source?.audio?.muted ?? true)
 

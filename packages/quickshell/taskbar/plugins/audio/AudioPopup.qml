@@ -28,7 +28,7 @@ KitFrame {
   // ---- header ----------------------------------------------------------------
   KitHeader {
     icon: !AudioService.live || AudioService.muted ? "volume-x" : root.headphones ? "headphones" : "volume"
-    glyphColor: AudioService.live && !AudioService.muted ? Theme.foreground0 : Theme.muted
+    iconColor: AudioService.live && !AudioService.muted ? Theme.foreground0 : Theme.muted
     title: "Audio"
     subtitle: !AudioService.live ? "OFF"
       : AudioService.muted ? "OUTPUT MUTED"

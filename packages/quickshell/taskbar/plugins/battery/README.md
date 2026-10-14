@@ -3,19 +3,19 @@
 Батарея, лимит зарядки, профиль питания, режим GPU и энергосбережение.
 
 **Бар:** иконка уровня / зарядки / вилки + заряд. Жёлтый ≤ `batteryWarning`,
-красный ≤ `batteryCritical`, зелёный — зарядка. Энергосбережение — листочек и
-aqua. Клик открывает попап.
+красный ≤ `batteryCritical`, зелёный — зарядка. Энергосбережение — листочек,
+зелёный. Клик открывает попап.
 
 ## Попап
 
-- **Шапка:** `BATTERY` / `CHARGING · 1:20 TO 80%`, `DISCHARGING · 3:40 LEFT`,
-  `PLUGGED IN · LIMIT 80%`. Тумблер — энергосбережение (профиль
-  `Theme.powerSaverProfile`; выключение возвращает прежний профиль).
-- **Инфо:** заряд, статус, мощность, оставшееся время, здоровье
-  (`energy_full / energy_full_design`), циклы, текущая и паспортная ёмкость.
-- **CHARGE LIMIT** (`Theme.batteryLimits`), **POWER PROFILE** (из
-  `platform_profile_choices`), **GPU** (INTEGRATED / HYBRID через supergfxctl;
-  после смены — оранжевая пометка о перезагрузке/выходе).
+- **Шапка:** `Battery`, `CHARGING · 1:20 TO 80%` / `DISCHARGING · 3:40 LEFT` /
+  `PLUGGED IN · LIMIT 80%`, метка заряда цветом уровня.
+- **CHARGE:** полоска заряда, мощность; **Health** (`energy_full /
+  energy_full_design`), **Cycles**, **Energy** (текущая / паспортная).
+- **POWER:** **Power saver** — тумблер (профиль `Theme.powerSaverProfile`,
+  выключение возвращает прежний), **Charge limit** (`Theme.batteryLimits`),
+  **Profile** (из `platform_profile_choices`), **GPU** (Integrated / Hybrid
+  через supergfxctl; ожидающая смена — оранжевая подсказка).
 - Уведомления о низком заряде на `Theme.batteryNotifyLevels` (`notify-send`).
 
 ## Права

@@ -12,7 +12,7 @@ KitFrame {
   // ---- header ----------------------------------------------------------------
   KitHeader {
     icon: BrightnessService.nightActive ? "moon" : "sun"
-    glyphColor: BrightnessService.nightActive ? Theme.orange : Theme.foreground0
+    iconColor: BrightnessService.nightActive ? Theme.orange : Theme.foreground0
     title: "Display"
     subtitle: "BRIGHTNESS " + BrightnessService.brightness + "%"
       + (BrightnessService.nightActive ? " · NIGHT LIGHT" : "")

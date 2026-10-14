@@ -2,8 +2,9 @@ pragma Singleton
 import QtQuick
 import Quickshell
 
-// Everything modules read: the palette (from the theme's Colors.qml), font,
-// metrics, glyphs, intervals, script paths and formatting helpers.
+// Everything modules read: the palette (from the theme's Colors.qml), type,
+// metrics, intervals, script paths and formatting helpers. Icons are SVGs in
+// kit/icons, not font glyphs.
 
 QtObject {
   id: root
@@ -35,7 +36,7 @@ QtObject {
   readonly property string workspaceIconDefault: Colors.workspaceIconDefault
   readonly property string workspaceIconActive: Colors.workspaceIconActive
 
-  // ---- bar metrics ---------------------------------------------------------
+  // ---- type and bar metrics ---------------------------------------------------
   readonly property string fontFamily: "JetBrainsMono Nerd Font"
   readonly property int fontSize: 13
   readonly property int fontWeight: Font.DemiBold
@@ -86,75 +87,15 @@ QtObject {
   readonly property string languageFormatEn: "US"
   readonly property string languageFormatRu: "RU"
 
-  // ---- Nerd Font glyphs (Material Design) ---------------------------------
-  readonly property string iconVolume: "\udb81\udd7e"      // nf-md-volume_high
-  readonly property string iconHeadphone: "\udb80\udecb"       // nf-md-headphones
-  readonly property string iconMuted: "\udb81\udd81"           // nf-md-volume_off
-  readonly property string iconMicrophone: "\udb80\udf6c"     // nf-md-microphone
-  readonly property string iconMicrophoneOff: "\udb80\udf6d"  // nf-md-microphone_off
-  readonly property string iconBrightness: "\udb80\udce0"    // nf-md-brightness_7
-  readonly property string iconBatteryCharging: "\udb80\udc84" // nf-md-battery_charging
-  readonly property string iconPlug: "\udb81\udea5"            // nf-md-power_plug
-  readonly property string iconLeaf: "\udb80\udf2a"           // nf-md-leaf
-  readonly property string iconMusic: "\udb81\udf5a"           // nf-md-music
-  readonly property string iconPlay: "\udb81\udc0a"            // nf-md-play
-  readonly property string iconPause: "\udb80\udfe4"           // nf-md-pause
-  readonly property string iconNext: "\udb81\udcad"            // nf-md-skip_next
-  readonly property string iconPrev: "\udb81\udcae"            // nf-md-skip_previous
-  readonly property string iconRandom: "\udb81\udc9d"          // nf-md-shuffle
-  readonly property string iconRandomOff: "\udb81\udc9e"       // nf-md-shuffle_disabled
-  readonly property string iconRepeat: "\udb81\udc56"          // nf-md-repeat
-  readonly property string iconRepeatOff: "\udb81\udc57"       // nf-md-repeat_off
-  readonly property string iconRepeatOnce: "\udb81\udc58"      // nf-md-repeat_once
-  readonly property string iconHeart: "\udb80\uded1"           // nf-md-heart
-  readonly property string iconHeartOutline: "\udb80\uded5"    // nf-md-heart_outline
-  readonly property string iconRadio: "\udb81\udc39"           // nf-md-radio
-  readonly property string iconSearch: "\udb80\udf49"          // nf-md-magnify
-  readonly property string iconBell: "\udb80\udc9a"            // nf-md-bell
-  readonly property string iconClearAll: "\udb83\udc79"        // nf-md-notification_clear_all
-  readonly property string iconRobot: "\udb81\udea9"           // nf-md-robot
-  readonly property string iconDrag: "\udb80\udddd"            // nf-md-drag
-  readonly property string iconPuzzle: "\udb81\udc31"          // nf-md-puzzle
-  readonly property string iconEye: "\udb80\ude08"             // nf-md-eye
-  readonly property string iconEyeOff: "\udb80\ude09"          // nf-md-eye_off
-  readonly property string iconGrid: "\udb81\udd70"            // nf-md-view_grid
-  readonly property string iconClock: "\udb82\udd54"           // nf-md-clock_outline
-  readonly property string iconKeyboard: "\udb80\udf0c"        // nf-md-keyboard
-  readonly property string iconRestore: "\udb82\udd9b"         // nf-md-backup_restore
-  readonly property var iconBatteryLevels: ["\udb80\udc7a", "\udb80\udc7c", "\udb80\udc7e", "\udb80\udc82", "\udb80\udc79"]   // nf-md-battery_10/30/50/80/full
-  readonly property string iconMihomo: "\udb81\udc98"          // nf-md-shield
-  readonly property string iconSettings: "\udb81\udc93"        // nf-md-cog
-  readonly property string iconRefresh: "\udb81\udc50"         // nf-md-refresh
-  readonly property string iconPing: "\udb85\udc0b"            // nf-md-lightning_bolt
-  readonly property string iconDots: "\udb80\uddd8"            // nf-md-dots_horizontal
-  readonly property string iconSpinner: "\udb81\udf72"         // nf-md-loading
-  readonly property string iconOk: "\udb80\udd2c"              // nf-md-check
-  readonly property string iconError: "\udb80\udd56"           // nf-md-close
-  readonly property string iconWifi: "\udb82\udd28"            // nf-md-wifi
-  readonly property string iconSpeedtest: "\udb81\udcc5"       // nf-md-speedometer
-  readonly property string iconArrowLeft: "\udb80\udc4d"       // nf-md-arrow_left
-  readonly property string iconArrowDown: "\udb80\udc45"       // nf-md-arrow_down
-  readonly property string iconArrowUp: "\udb80\udc5d"         // nf-md-arrow_up
-  readonly property string iconChevron: "\udb80\udd42"         // nf-md-chevron_right
-  readonly property string iconLock: "\udb80\udf3e"            // nf-md-lock
-  readonly property string ellipsis: "\u2026"
-
-  // ---- popup chrome --------------------------------------------------------
-  readonly property int popupWidth: 370          // popups with two-column info (wifi, mihomo)
-  readonly property int popupWidthCompact: 300   // single-column popups (audio, brightness)
-  readonly property int popupWidthWide: 520      // three-column popups (plugin manager)
-  readonly property int popupFrameWidth: 4
-  readonly property int popupPadding: 10
+  // ---- popups (kit) -------------------------------------------------------
+  readonly property int popupWidth: 370
   readonly property int popupGap: 6
   readonly property int frameWidth: 1          // controls: buttons, selects, fields
   readonly property int windowFrameWidth: 2    // popup frames, like hypr windows, mako, rofi
   readonly property int rowHeight: 24
   readonly property int visibleRows: 8
-  readonly property int switchWidth: 34
-  readonly property int switchKnob: 14
-  readonly property int popupInputHeight: 24
-  readonly property int headerButtonSize: fontSize + 3   // glyph buttons next to a header switch
   readonly property int popupStatusMs: 2500       // how long ok / error marks stay
+  readonly property string ellipsis: "\u2026"
 
   // ---- wifi ----------------------------------------------------------------
   readonly property int wifiStatusIntervalMs: 5000

@@ -14,7 +14,7 @@ KitFrame {
   // ---- header ----------------------------------------------------------------
   KitHeader {
     icon: "shield"
-    glyphColor: MihomoService.serviceOn ? Theme.foreground0 : Theme.muted
+    iconColor: MihomoService.serviceOn ? Theme.foreground0 : Theme.muted
     title: "Mihomo"
     subtitle: MihomoService.serviceOn
       ? "CONNECTED · " + (MihomoService.mode || "—").toUpperCase()

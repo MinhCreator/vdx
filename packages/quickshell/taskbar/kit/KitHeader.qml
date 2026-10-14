@@ -6,9 +6,8 @@ import qs.config
 Item {
   id: root
 
-  property string icon: ""               // kit/icons name; wins over glyph
-  property string glyph: ""
-  property color glyphColor: Theme.foreground0
+  property string icon: ""               // kit/icons name
+  property color iconColor: Theme.foreground0
   property string title: ""
   property string subtitle: ""
   property color subtitleColor: Theme.muted
@@ -26,18 +25,9 @@ Item {
 
     KitIcon {
       anchors.verticalCenter: parent.verticalCenter
-      visible: root.icon !== ""
       name: root.icon
-      tint: root.glyphColor
+      tint: root.iconColor
       size: 24
-    }
-
-    KitText {
-      anchors.verticalCenter: parent.verticalCenter
-      visible: root.icon === ""
-      text: root.glyph
-      color: root.glyphColor
-      font.pixelSize: Theme.fontSize + 9
     }
   }
 

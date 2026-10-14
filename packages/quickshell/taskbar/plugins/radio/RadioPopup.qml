@@ -10,7 +10,7 @@ KitFrame {
   // ---- header ----------------------------------------------------------------
   KitHeader {
     icon: "radio"
-    glyphColor: RadioService.active ? Theme.foreground0 : Theme.muted
+    iconColor: RadioService.active ? Theme.foreground0 : Theme.muted
     title: "Radio"
     subtitle: RadioService.active ? "ON AIR · " + MpdService.player.station.toUpperCase() : "OFF"
 

@@ -10,7 +10,7 @@ Singleton {
   id: root
 
   // Registry, in default order. A new plugin: an entry here + its Component in
-  // Bar.qml. `icon` names a Theme glyph and `about` is the manager's one-liner.
+  // Bar.qml. `icon` names a kit/icons SVG and `about` is the manager's one-liner.
   readonly property var plugins: [
     { id: "workspaces",    label: "Workspaces",    zone: "left",   icon: "layout", about: "Hyprland workspaces" },
     { id: "music",         label: "Music",         zone: "left",   icon: "music", about: "Liked tracks from Yandex Music" },

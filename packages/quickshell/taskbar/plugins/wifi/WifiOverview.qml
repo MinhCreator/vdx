@@ -19,7 +19,7 @@ Column {
   // ---- header ----------------------------------------------------------------
   KitHeader {
     icon: WifiService.radioOn ? "wifi" : "wifi-off"
-    glyphColor: WifiService.connected ? Theme.foreground0 : Theme.muted
+    iconColor: WifiService.connected ? Theme.foreground0 : Theme.muted
     title: WifiService.connected ? WifiService.ssid : "Wi-Fi"
     subtitle: !WifiService.radioOn ? "OFF"
       : WifiService.connected ? "CONNECTED"

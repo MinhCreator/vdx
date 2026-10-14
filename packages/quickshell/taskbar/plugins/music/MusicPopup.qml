@@ -20,7 +20,7 @@ KitFrame {
   // ---- header ----------------------------------------------------------------
   KitHeader {
     icon: "music"
-    glyphColor: MusicService.active ? Theme.foreground0 : Theme.muted
+    iconColor: MusicService.active ? Theme.foreground0 : Theme.muted
     title: "Music"
     subtitle: !MusicService.active ? (MpdService.busy === "likes" ? "LOADING LIKES…" : "OFF")
       : (MpdService.playing ? "PLAYING" : "PAUSED") + " · " + root.player.pos + " / " + root.player.length

@@ -1,47 +1,45 @@
 # Taskbar — инструкция для агента
 
-Quickshell-бар (`qs -c taskbar`). Этот файл — правила, по которым написаны все
-плагины. Новый плагин должен выглядеть и вести себя так, будто он был здесь
-всегда. Описание каждого плагина — в `plugins/<name>/README.md`.
+Quickshell-бар (`qs -c taskbar`). Здесь правила, по которым написаны все
+плагины: новый должен выглядеть и вести себя так, будто был здесь всегда.
+Описание каждого плагина — `plugins/<name>/README.md`.
 
 ## Устройство
 
 ```
 taskbar/
-├─ shell.qml        бар на каждый экран + перезагрузка при смене темы
-├─ bar/             Bar.qml (раскладка модулей), BarPopup.qml (обвязка попапа)
-├─ components/      общие компоненты (каталог ниже)
-├─ config/          Theme.qml (всё общее), Colors.qml (палитра, перекрывается темой)
-├─ scripts/         бэкенды плагинов: *.sh, на выходе только JSON
-└─ plugins/<name>/  <Name>.qml + <Name>Popup.qml + <Name>Service.qml (+ view-файлы, *.json)
-~/.dotfiles/system/ файлы для /etc (tmpfiles и т.п.): ./install.py system install
+├─ shell.qml          бар на каждый экран, окно Shell Manager, обои; перезагрузка при смене темы
+├─ bar/               Bar.qml (зоны), BarLayout (реестр плагинов, раскладка), BarPopup (обвязка попапа)
+├─ kit/               UI-компоненты (каталог ниже) и icons/ — SVG-иконки (+ icons/solid)
+├─ components/        ThemeText, Separator, PopupManager
+├─ config/            Theme (всё общее), Colors (палитра темы), ShellSettings (опции пользователя)
+├─ apps/shellmanager/ окно настроек: темы, обои, бар, плагины
+├─ scripts/           бэкенды: *.sh / *.py, на выходе только JSON (или строки, см. шапку)
+└─ plugins/<name>/    <Name>.qml + <Name>Popup.qml + <Name>Service.qml (+ view-файлы, *.json)
 ```
 
-Импорты — `import qs.<папка>` от корня конфига (`qs.config`, `qs.components`,
-`qs.bar`, `qs.plugins.wifi`). Синглтоны — `pragma Singleton` + `Singleton {}`.
+Импорты — `import qs.<папка>` от корня конфига (`qs.config`, `qs.kit`,
+`qs.bar`, `qs.plugins.wifi`, `qs.apps.shellmanager`). Синглтоны —
+`pragma Singleton` + `Singleton {}`.
 
 ## Три слоя плагина
 
 1. **Скрипт** `scripts/<name>.sh` — единственное место, которое говорит с
-   системой (nmcli, pactl, sysfs, REST). Каждая команда печатает один JSON.
-   В шапке скрипта перечислены все команды и формат ответа. Ошибки —
-   `{"ok":false,"error":"..."}` (хелпер `error()`), неизвестная команда — тоже
-   JSON-ошибка. Скрипт самодостаточен, общих bash-библиотек нет. Если данные есть в Quickshell-сервисе
-   (Pipewire, Hyprland), скрипт не нужен.
-2. **Сервис** `<Name>Service.qml` (синглтон) — состояние и действия. Владеет
-   всеми `Process` и `Timer`. Отдаёт сырые данные, форматирование — во view.
-   Шаблон:
+   системой (nmcli, pactl, sysfs, REST). Каждая команда печатает один JSON; в
+   шапке скрипта перечислены команды и формат ответа. Ошибки —
+   `{"ok":false,"error":"..."}`. Скрипт самодостаточен. Если данные есть в
+   сервисе Quickshell (Pipewire, Hyprland), скрипт не нужен.
+2. **Сервис** `<Name>Service.qml` (синглтон) — состояние и действия, владеет
+   всеми `Process` и `Timer`, отдаёт сырые данные (форматирует view):
    - свойства сгруппированы секциями `// ---- name ----`;
-   - `popupShown()` / `popupHidden()` — что запускать только при открытом попапе;
-   - `run(proc, args)` — один хелпер запуска скрипта, `parse(text)` — один JSON-парсер;
-   - действия: `busy`/`status` ("" | ok | error) и сброс статуса таймером
-     `Theme.popupStatusMs`; текст ошибки — в `error`, показывается в попапе.
-3. **Бар-модуль** `<Name>.qml` — подпись (`ThemeText`), `MouseArea`
+   - `popupShown()` / `popupHidden()` — что работает только при открытом попапе;
+   - `run(proc, args)` — один хелпер запуска, `parse(text)` — один JSON-парсер;
+   - действия: `busy` / `status` ("" | ok | error), сброс по
+     `Theme.popupStatusMs`; текст ошибки — `error`, показывается в попапе.
+3. **Бар-модуль** `<Name>.qml` — лицо в баре (`KitBarItem`), `MouseArea`
    (клик → `popup.toggle()`, колесо — быстрое действие) и `BarPopup`, который
-   форвардит `onShown`/`onHidden` в сервис. **Попап** `<Name>Popup.qml` —
-   корень `PopupFrame`, только чтение сервиса и вызов его функций.
-
-Шаблон бар-модуля:
+   форвардит `onShown` / `onHidden` в сервис. **Попап** `<Name>Popup.qml` —
+   корень `KitFrame`, только чтение сервиса и вызов его функций.
 
 ```qml
 Item {
@@ -51,7 +49,7 @@ Item {
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
 
-  ThemeText { id: label; text: Theme.iconX + " " + XService.value }
+  KitBarItem { id: label; icon: "wifi"; text: XService.value; tint: Theme.foreground0 }
 
   MouseArea {
     anchors.fill: parent
@@ -73,159 +71,149 @@ Item {
 }
 ```
 
-Регистрация — запись в `bar/BarLayout.qml` (`plugins`: id, подпись, зона по
-умолчанию) и `Component { id: x; X { bar: root } }` в `bar/Bar.qml`. Порядок,
-зоны и выключенные плагины пользователь меняет в менеджере (иконка пазла или
-`ipc call plugins toggle`); разделители бар ставит
-сам. `fixed: true` — плагин можно двигать, но не выключить (сам пазл).
+Регистрация — запись в `bar/BarLayout.qml` (`plugins`: id, label, зона,
+`icon` — имя SVG из `kit/icons`, `about`) и `Component { id: x; X { bar: root } }`
+в `bar/Bar.qml`. Порядок, зоны и включённость пользователь меняет в Shell
+Manager. `fixed: true` — плагин можно двигать, но не выключить (кнопка `shell`).
+Переименовал id — добавь старое имя в `BarLayout.renamed`, сохранённые
+раскладки мигрируют сами.
 
-Если два плагина работают с одним бэкендом (music и radio — один MPD), общее
-состояние и команды выносятся в отдельный сервис-папку (`plugins/mpd/`), а
-каждый плагин держит в своём сервисе только своё (`MusicService`,
-`RadioService`). Неактивный плагин в баре — серые иконка + имя (`♫ Music`).
+Общий бэкенд двух плагинов (music и radio — один MPD) — отдельная папка-сервис
+(`plugins/mpd/`), каждый плагин держит в своём сервисе только своё.
 
-## UI/UX правила
+## UI-правила (стиль kit)
 
-**Попап сверху вниз:** шапка → `PopupSeparator` → секции, разделённые
-`PopupSeparator`. Корень — `PopupFrame` (рамка, отступы, столбец с
-`spacing: Theme.popupPadding`).
+Минимализм с уклоном в терминал: моно-шрифт, острые углы, почти монохром.
+Эталон — попап Wi-Fi.
 
-**Шапка** — компонент `PopupHeader` (`glyph`, `title`, `subtitle`,
-`subtitleColor`, кнопки/тумблер — дочерние элементы справа): иконка, заголовок
-капсом (`WI-FI`, `MIHOMO`, `AUDIO`, `DISPLAY`, `BATTERY`, `MUSIC`, `RADIO`,
-`NOTIFICATIONS`, `CLAUDE CODE` / `OLLAMA`, `PLUGINS MANAGER`), под ним подзаголовок
-состояния (`Theme.fontSize - 3`): зелёный — активно/подключено, `muted` —
-выключено, `foreground2` — нейтральная информация. Справа — кнопки-глифы
-(`headerButtonSize`, `frameless`, `hoverBackground: false`) и `PopupSwitch`.
+**Попап сверху вниз:** `KitHeader` → `KitLine` → группы, между ними `KitLine`
+→ (футер с `KitButton`). Корень — `KitFrame` (рамка 2px цвета `frame`,
+отступ 16, столбец с `spacing: 14`). Подложек под секции нет — группы
+разделяют линии и воздух.
 
-**Тумблер в шапке** включает/выключает то, что названо в заголовке (радио
-Wi-Fi, сервис mihomo, весь звук, воспроизведение лайков, радио). Если «выключить заголовок» нельзя (DISPLAY),
-тумблера нет, а переключатель живёт в своей секции (`PopupSectionTitle` +
-`PopupSwitch`). Исключение, согласованное с пользователем: энергосбережение
-в шапке BATTERY (иконка становится листочком). Тумблеры — обычные зелёные.
+**Шапка** `KitHeader`: SVG-иконка (`icon`, `iconColor`), жирный заголовок
+обычным регистром (`Wi-Fi`, `Mihomo`, `Battery`), под ним подзаголовок
+мелким капсом через ` · ` (`CONNECTED · RULE`). Справа (дочерние): `KitBadge`
+(статус-метка без рамки: квадратик + капс), `KitButton`, `KitSwitch`. Тумблер
+в шапке включает то, что названо в заголовке.
 
-**Списки и выбор:**
-- выбор одного значения из списка — `PopupSelect` (заголовок `LABEL: VALUE`);
-- свой дропдаун (сложные пункты) — `PopupDropdown` + `PopupDropdownItem`;
-- несколько дропдаунов в группе — `Column { spacing: 4 }`, открыт максимум один
-  (`collapseOthers(open)` в попапе);
-- выбранный пункт в дропдауне — **яркий текст + зелёная галочка справа**
-  (полоски нет: открытый список и так в белой рамке); в открытых списках без
-  рамки (сети Wi-Fi, очередь) — ещё и **белая полоса слева**; невыбранный
-  текст — `foreground2`, при наведении — фон `background2`;
-- ряд из 2–4 вариантов, видимых сразу — `PopupChoices`.
+**Группа:** подпись `KitLabel` (мелкий капс, `muted`, значение справа) →
+содержимое. Строки настроек — `KitRow` / `KitSelect`: подпись и серая
+подсказка слева, контрол справа. Пары «подпись — значение» — `KitInfo`.
+Уровни — `KitBar` (3px, цвет по смыслу); ползунки — `KitSliderRow`.
 
-**Значения:** пары «подпись — значение» — `PopupInfoList` (две колонки
-`Row { spacing: 16 }` для широких попапов). Ползунки — `PopupSliderRow`: с
-`label` (подпись + значение сверху, ползунок во всю ширину) или с
-`glyph`/`clickable` (иконка-кнопка, ползунок, значение в строку — громкость).
+**Выбор:** выбранное — заливка `background3` + жирный текст (+ галочка в
+списках), не цвет. Ряд вариантов / вкладки — `KitChoices` (кнопки с иконками).
+Несколько `KitSelect` в группе — открыт максимум один. Если открытый список не
+должен ничего сдвигать — `KitSelect { overlay: true }`.
 
-**Типографика:** весь текст — `ThemeText`. Подписи и заголовки секций — КАПС,
-`letterSpacing: 1`. Подписи у значений — `Theme.fontSize - 2`, `dim`. Значения —
-`Theme.fontSize - 1`. Ошибки — `PopupError { text: XService.error }` внизу
-попапа.
-Пустые состояния — muted-текст (`WI-FI IS OFF`, `NO PROVIDERS`), не пустота.
+**Текст:** `KitText` (SemiBold), заголовки и выбранное — ExtraBold. Пустые
+состояния — короткая фраза `muted` («Nothing is playing.»). Ошибки — красный
+`KitText` внизу попапа.
 
-**Цвета смысла:** `green` — ок/активно/зарядка, `red` — ошибка/mute/критично,
-`yellow` — предупреждение, `orange` — особый режим (ночной свет, требуется
-перезагрузка), `aqua` — энергосбережение, `muted` — нет данных/выключено.
-Качество (пинг, сигнал, здоровье) — `Theme.qualityColor()` / `Theme.pingColor()`.
+**Цвет — только смысл:** `green` ок/вкл/зарядка, `red` ошибка/mute, `yellow` /
+`orange` — внимание / особый режим (ночной свет), `muted` — нет данных. Качество
+(пинг, сигнал, здоровье) — `Theme.qualityColor()` / `Theme.pingColor()`.
 
-**Ширина попапа:** `Theme.popupWidth` (370) — если есть инфо в две колонки,
-иначе `Theme.popupWidthCompact` (300).
+**Бар:** `KitBarItem` — иконка + короткий текст одного цвета. Ширина не должна
+прыгать: вместо пропавшего значения — `--`. Иконки — solid или контур по
+опции `ShellSettings.solidIcons`.
 
-**Escape** закрывает любой попап (`BarPopup.closeOnEscape`). Плагин с
-вложенными экранами (Wi-Fi) выключает это и сам решает: назад или закрыть.
+**Попап:** ширина `Theme.popupWidth`; позиция выбирается сама и не следует за
+модулем, пока попап открыт; Escape закрывает (плагин с вложенными экранами —
+Wi-Fi — решает сам: назад или закрыть).
 
-**Позиция попапа:** выбирается сама — модуль в левой половине экрана растит
-попап вправо от своего левого края, в правой — влево от правого.
+**Рефакторинг не меняет внешний вид** без согласования; новый вид — сначала
+прототип одного попапа и скриншот, потом раскатка.
 
-**Вкладки** (несколько режимов в одном попапе) — `PopupChoices` под шапкой,
-активная вкладка — свойство `view` в сервисе, при открытии выбирается по
-текущему состоянию.
+## Цвета и темы
 
-**Бар:** `иконка + один пробел + значение`. Подпись не должна менять ширину при
-смене состояния (попап прыгает): заменяй текст на `--` той же длины, красить —
-можно, менять иконку — только на глиф той же ширины.
-
-**Минимализм:** без скруглений, теней, тултипов. Новое — только если решает
-задачу. При рефакторинге внешний вид не меняется без согласования.
+`Colors.qml` — палитра активной темы (`themes/<t>/quickshell/.../Colors.qml`
+перекрывает базу), `Theme` пробрасывает роли: `background0..3`,
+`foreground0..2`, `gray` (рамки контролов), `frame` (рамка попапа), `muted`,
+`dim`, акценты. Роли и правила палитры — `~/.dotfiles/themes/gruvbox/README.md`.
+Новая тема — палитра в `themes/mktheme.py` и запуск; Shell Manager увидит её
+сам (`scripts/themes.sh`). Хардкод цветов в QML запрещён — только `Theme.*`.
 
 ## Иконки
 
-Только Material Design из JetBrainsMono Nerd Font, только через `Theme.icon*`
-(суррогатные пары `"\udbXX\udcXX"`, в комментарии `// nf-md-<name>`). Ширина
-глифов разная (большинство 9.8px при 13px, `brightness_4..7` — 12.8px), поэтому
-глифы, которые сменяют друг друга на месте, меряй (см. «Проверка»).
+SVG в `kit/icons/<name>.svg`, 24×24, белые контуры в стиле Lucide со
+`stroke-linecap="square"` / `stroke-linejoin="miter"`; `kit/icons/solid/` —
+залитые варианты для бара (список имён — `KitIcon.solidNames`). `KitIcon`
+перекрашивает их в любой цвет (`MultiEffect`). Глифы шрифта не используются.
 
 ## Состояние и настройки
 
-- Пользовательские настройки (списки, пресеты, расписания) — `*.json` в папке
-  плагина, читаются `FileView` + `JsonAdapter` с `watchChanges`. Ничего не
-  хардкодить в коде, что пользователь может захотеть поправить
-  (`dns_providers.json`, `night_light.json`).
-- Состояние, переживающее перезапуск — `FileView { path:
-  Quickshell.statePath("<name>.json") }` + `JsonAdapter`, запись
-  `writeAdapter()` по `onAdapterUpdated` (с задержкой, если пишется часто).
-- Нужен root для sysfs — правило tmpfiles в `~/.dotfiles/system/etc/tmpfiles.d/`
-  (группа `wheel`); пользователь ставит его `./install.py system install`.
+- Опции пользователя — `ShellSettings` (`settings.json` в state-папке):
+  новая опция = свойство в `JsonAdapter` + readonly-алиас + контрол на
+  странице Shell Manager.
+- Пользовательские списки плагина (пресеты, провайдеры DNS) — `*.json` в
+  папке плагина через `FileView` + `JsonAdapter` с `watchChanges`.
+- Состояние плагина между перезапусками — `FileView { path:
+  Quickshell.statePath("<name>.json") }` + `writeAdapter()` по `onAdapterUpdated`.
+- Нужен root для sysfs — правило tmpfiles в `~/.dotfiles/system/etc/tmpfiles.d/`,
+  ставится `./install.py system install`.
 
 ## Порядок работы
 
-1. Скрипт → проверить каждую команду в терминале (`bash scripts/x.sh --cmd`).
-2. Сервис → бар-модуль → попап → строка в `Bar.qml`.
-3. **Новые файлы** не видны Quickshell, пока не созданы симлинки:
-   `cd ~/.dotfiles && python3 install.py link`, затем перезапуск
-   `pkill -x qs; setsid qs -c taskbar -d`. Удалённые — `install.py cleanup`.
-   Правки существующих файлов подхватываются на лету.
-4. Проверка: `qs log -c taskbar | grep -iE 'warn|error|caused'`; бар —
-   скриншот `grim -g "X,Y WxH"`. Любой попап открывается сам:
-   `qs -c taskbar ipc call <ipcTarget> toggle` (свойство `BarPopup.ipcTarget`,
-   у всех плагинов — имя папки), затем `grim` и тот же вызов, чтобы закрыть.
-   Между вызовами — пауза ≥ 1 с (защита от повторного открытия).
-   После перезапуска `qs` IPC не откроет попап, пока пользователь хоть раз не
-   кликнул по бару (Wayland не даёт grab без ввода: «Failed to create grabbing
-   popup»). Тогда — попросить кликнуть или открыть попап самому.
-5. Обновить `plugins/<name>/README.md` и этот файл, если появилось новое правило
+1. Скрипт → проверить каждую команду в терминале.
+2. Сервис → бар-модуль → попап → строка в `Bar.qml` и `BarLayout`.
+3. **Новый файл** не виден, пока нет ссылки: `./install.py link`, затем
+   перезапуск. Правки существующих файлов подхватываются на лету (кроме
+   функций `IpcHandler` — для них тоже перезапуск).
+4. **Перезапуск:** `kill <pid>` (pid из `qs list --all`), убедиться, что
+   инстансов 0, `setsid qs -c taskbar -d`, проверить, что инстанс ровно один.
+   `qs kill` роняет бар, он сам поднимается с неработающим IPC.
+5. **Проверка:** `qs log -c taskbar | grep -E 'ERROR|WARN'`; попап открывается
+   `qs -c taskbar ipc call <ipcTarget> toggle` (пауза ≥ 1 с между вызовами),
+   окно настроек — `ipc call shell open <themes|wallpaper|bar|plugins>`;
+   скриншот — `grim -g "X,Y WxH"` (логические координаты). После перезапуска
+   попапы не откроются, пока бар не получил ввод («Failed to create grabbing
+   popup») — для скриншотов временно `grabFocus: false` в `BarPopup`, перед
+   коммитом вернуть.
+6. Обновить `plugins/<name>/README.md` и этот файл, если появилось правило
    или компонент.
 
 ## Подводные камни QML
 
-- Свойство с именем `onSomething` — это обработчик сигнала (`onColor:` не
-  присвоить); называй `checkedColor` и т.п.
-- Не называть свойства/id `state`, `signal`, `status` у Item — конфликт со
-  встроенными.
-- `this` в обработчиках ненадёжен — передавай `id`.
-- Вложенный `component X: …` в файле с корнем `PopupFrame` (у него своё
-  default-свойство) даёт «X is not a type» — выноси в отдельный файл.
-- В `Row` у детей нельзя `anchors.left/right`; в `Column` — `top/bottom`.
-- `Process` с `running: true` в декларации стартует сразу; повторный запуск —
-  `proc.running = true` только если `!proc.running`.
-- Колесо на layer-shell доходит только до `MouseArea`, не до `WheelHandler`.
-- Пользователь видит изменения сразу (горячая перезагрузка) — ломать конфиг
-  даже временно нельзя.
+- Свойство `onSomething` — это обработчик сигнала; называй `checkedColor` и т.п.
+- Не называть свойства/id `state`, `signal`, `status`, `padding` — конфликт со
+  встроенными (`padding` у `Column`).
+- `Column` / `Row` не раскладывают детей нулевого размера; в `Row` у детей нет
+  `anchors.left/right`, в `Column` — `top/bottom`. Дети `Row`, которым нужны
+  свои `MouseArea` / метки, — оборачивай корень в `Item` (см. `KitBarItem`).
+- Свойства самого `Grid` (`columns`, `spacing`) в его же биндингах дают
+  `NaN` — считай размер из родителя.
+- Inline `component` в файле с собственным default-свойством даёт «is not a
+  type» — выноси в отдельный файл.
+- `Behavior` на readonly-свойстве нельзя — анимируй то, что пишется
+  (`width`, `x`).
+- `Process` с `running: true` стартует сразу; повтор — только если
+  `!proc.running`. Колесо на layer-shell доходит только до `MouseArea`.
+- Пользователь видит изменения сразу — ломать конфиг даже временно нельзя.
 
-## Каталог компонентов (`components/`)
+## Каталог kit (`kit/`)
 
 | Компонент | Для чего |
 |---|---|
-| `ThemeText` | Любой текст в шрифте темы |
-| `PopupFrame` | Корень попапа: рамка + столбец |
-| `PopupHeader` | Шапка: иконка, заголовок, подзаголовок, действия справа |
-| `PopupError` | Красная строка ошибки, скрыта при пустом тексте |
-| `PopupSeparator` | Разделитель секций |
-| `PopupSectionTitle` | Заголовок секции + слот справа (тумблер, пометка) |
-| `PopupButton` | Кнопка: `label` или `glyph`; `busy`, `status`, `active`, `frameless` |
-| `PopupSwitch` | Тумблер (`checkedColor` / `uncheckedColor`) |
-| `PopupInput` | Поле ввода с подписью (`echoMode`) |
-| `PopupInfoRow` / `PopupInfoList` | «ПОДПИСЬ … значение» / столбец таких из модели `{label, value, color?}` |
-| `PopupDropdown` | Раскрывающийся список: `title`, `hint` (короткое предупреждение справа, `hintColor`), `busy`, `status`, `disabled`, прокрутка |
-| `PopupDropdownItem` | Пункт: `label`, `active`, слот `trailing` |
-| `PopupSelect` | Выбор одного значения: `label`, `model [{label, value}]`, `current`, `picked(value)` |
-| `PopupChoices` | Ряд кнопок-вариантов той же моделью |
-| `PopupTabs` | Текстовые вкладки с подчёркиванием активной (`model [{label, value}]`, `current`, `picked`) |
-| `PopupMeter` | Уровень только для чтения: подпись, значение, полоска, заметка (лимиты) |
-| `PopupSlider` / `PopupSliderRow` | Ползунок 0..1 / ползунок с подписью или иконкой и значением |
-| `PopupSpinner` | Индикатор загрузки |
-| `PopupManager` | Синглтон: открыт только один попап |
-| `Separator` | `|` между модулями бара |
+| `KitFrame` | Корень попапа: фон, рамка `frame`, столбец |
+| `KitHeader` | Иконка, заголовок, подзаголовок, действия справа |
+| `KitLine` | Линия между группами |
+| `KitLabel` | Подпись группы мелким капсом + значение справа |
+| `KitText` | Текст в шрифте темы (SemiBold) |
+| `KitIcon` | SVG из `kit/icons`, перекрашенный в `tint`; `solid` |
+| `KitBarItem` | Лицо бар-модуля: иконка + текст |
+| `KitBadge` | Статус-метка в шапке: квадратик + капс, без рамки |
+| `KitButton` | Контурная кнопка: `icon`, `text`, `selected`, `busy`, `disabled`, `iconTint` |
+| `KitChoices` | Ряд кнопок-вариантов / вкладок: `model [{label, value, icon?}]`, `current`, `stretch` |
+| `KitSwitch` | Прямоугольный тумблер с квадратной ручкой |
+| `KitRow` | Строка настройки: подпись + подсказка слева, контрол справа |
+| `KitSelect` | То же с полем выбора; список под строкой или поверх (`overlay`) |
+| `KitInfo` | «Подпись — значение» |
+| `KitBar` | Тонкий уровень 0..1 |
+| `KitSlider` / `KitSliderRow` | Ползунок / ползунок с подписью или иконкой и значением |
+| `KitInput` | Поле ввода с `❯` и блочным курсором |
+| `KitSpinner` | Braille-спиннер |
+
+`components/`: `ThemeText` (текст бара), `Separator` (`|` между модулями),
+`PopupManager` (открыт только один попап).

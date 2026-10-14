@@ -10,11 +10,6 @@ Item {
 
   required property PanelWindow bar
 
-  readonly property string icon: BatteryService.saver ? Theme.iconLeaf
-    : BatteryService.charging ? Theme.iconBatteryCharging
-    : BatteryService.plugged ? Theme.iconPlug
-    : Theme.iconBatteryLevels[Math.min(4, Math.floor(BatteryService.capacity / 20))]
-
   visible: BatteryService.present
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
@@ -49,7 +44,6 @@ Item {
     BatteryPopup {
       id: content
       anchors.fill: parent
-      icon: root.icon
     }
   }
 }
