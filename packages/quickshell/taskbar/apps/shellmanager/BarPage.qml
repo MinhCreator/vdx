@@ -108,11 +108,27 @@ Column {
   // ---- this monitor ------------------------------------------------------------
   KitLabel {
     text: "MONITOR"
-    value: Quickshell.screens.length > 1 ? "SETTINGS BELOW APPLY TO THIS ONE" : "MAIN · " + root.screenName
+    value: Quickshell.screens.length === 1 ? "MAIN · " + root.screenName
+         : BarLayout.shared ? "ONE BAR ON ALL " + Quickshell.screens.length
+         : "SETTINGS BELOW APPLY TO THIS ONE"
+  }
+
+  KitRow {
+    visible: Quickshell.screens.length > 1
+    label: "Same bar everywhere"
+    hint: BarLayout.shared ? "every monitor shows the Main bar" : "Main and Extra are set up apart"
+
+    KitSwitch {
+      checked: BarLayout.shared
+      onToggled: {
+        BarLayout.setShared(!BarLayout.shared);
+        root.screenName = BarLayout.mainScreen();
+      }
+    }
   }
 
   KitChoices {
-    visible: root.roles.length > 1
+    visible: root.roles.length > 1 && !BarLayout.shared
     width: parent.width
     stretch: true
     model: root.roles.map(n => ({ label: (BarLayout.roleOf(n) === "main" ? "Main · " : "Extra · ") + n, value: n, icon: BarLayout.isInternal(n) ? "laptop" : "monitor" }))
@@ -122,6 +138,7 @@ Column {
 
   KitText {
     width: parent.width
+    visible: Quickshell.screens.length > 1 && !BarLayout.shared
     text: "Main is the external monitor when one is connected, otherwise the laptop — unplug it and the laptop takes over the main bar. Extra is the laptop screen while docked."
     color: Theme.muted
     wrapMode: Text.WordWrap
@@ -130,7 +147,9 @@ Column {
 
   KitRow {
     label: "Show bar"
-    hint: root.barOn ? root.onCount + " modules on " + root.screenName : "no bar on " + root.screenName
+    hint: BarLayout.shared && Quickshell.screens.length > 1
+      ? (root.barOn ? root.onCount + " modules on every monitor" : "no bar on any monitor")
+      : root.barOn ? root.onCount + " modules on " + root.screenName : "no bar on " + root.screenName
 
     KitSwitch {
       checked: root.barOn

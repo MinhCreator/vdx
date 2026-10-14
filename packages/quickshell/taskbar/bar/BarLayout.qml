@@ -42,7 +42,10 @@ Singleton {
     const names = Quickshell.screens.map(s => s.name);
     return names.find(n => !isInternal(n)) ?? names[0] ?? "";
   }
-  function roleOf(screen) { return screen === mainScreen() ? "main" : "extra"; }
+  // `shared`: every monitor shows the main bar
+  readonly property bool shared: state.shared
+  function setShared(on) { state.shared = on; }
+  function roleOf(screen) { return shared || screen === mainScreen() ? "main" : "extra"; }
   function entry(screen) { return state.screens?.[roleOf(screen)] ?? null; }
   function layout(screen) { return normalize(entry(screen)?.zones ?? state.zones); }
   function hidden(screen) { return (entry(screen)?.hidden ?? state.hidden).map(id => renamed[id] ?? id); }
@@ -114,6 +117,7 @@ Singleton {
       property var zones: null
       property var hidden: []
       property var screens: ({})      // role (main | extra) -> {zones, hidden, off}
+      property bool shared: false
     }
   }
 }
