@@ -8,3 +8,12 @@ hl.window_rule({
   center = true,
   size   = "900 600",
 })
+
+-- Quickshell's Shell Manager window (taskbar/apps/shellmanager)
+hl.window_rule({
+  name  = "shell-manager",
+  match = { title = "^(Shell Manager)$" },
+  float  = true,
+  center = true,
+  size   = "520 640",
+})
