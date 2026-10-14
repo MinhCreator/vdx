@@ -11,6 +11,8 @@ Singleton {
   id: root
 
   readonly property bool solidIcons: state.solidIcons
+  readonly property string wallpaperMode: state.wallpaperMode     // theme | custom
+  readonly property string wallpaperColor: state.wallpaperColor   // #rrggbb, for custom
 
   // Whether the Shell Manager window is open (not saved).
   property bool managerOpen: false
@@ -28,6 +30,8 @@ Singleton {
     JsonAdapter {
       id: state
       property bool solidIcons: false
+      property string wallpaperMode: "theme"
+      property string wallpaperColor: "#32302f"
     }
   }
 }

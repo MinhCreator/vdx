@@ -5,7 +5,8 @@ import qs.kit
 
 // Shell Manager: settings laid out like a system settings window — sections
 // on the left, the chosen page on the right, scrolling on its own.
-//   THEMES  — a gallery of themes with live previews;
+//   THEMES    — a gallery of themes with live previews;
+//   WALLPAPER — solid colour: the theme's or a custom one;
 //   BAR     — icon style and the layout of the bar's zones;
 //   PLUGINS — a tile per plugin, on / off.
 Rectangle {
@@ -15,6 +16,7 @@ Rectangle {
 
   readonly property var sections: [
     { value: "themes",  label: "Themes",  icon: "sun",    count: ThemeService.themes.length },
+    { value: "wallpaper", label: "Wallpaper", icon: "monitor", count: -1 },
     { value: "bar",     label: "Bar",     icon: "layout", count: -1 },
     { value: "plugins", label: "Plugins", icon: "grid",
       count: BarLayout.plugins.length - BarLayout.hidden.length }
@@ -131,10 +133,12 @@ Rectangle {
       y: 20
       width: page.width - 48
       implicitHeight: Math.max(themes.visible ? themes.implicitHeight : 0,
+                               wallpaper.visible ? wallpaper.implicitHeight : 0,
                                bar.visible ? bar.implicitHeight : 0,
                                plugins.visible ? plugins.implicitHeight : 0)
 
       ThemesPage  { id: themes;  width: parent.width; visible: root.tab === "themes" }
+      WallpaperPage { id: wallpaper; width: parent.width; visible: root.tab === "wallpaper" }
       BarPage     { id: bar;     width: parent.width; visible: root.tab === "bar" }
       PluginsPage { id: plugins; width: parent.width; visible: root.tab === "plugins" }
     }

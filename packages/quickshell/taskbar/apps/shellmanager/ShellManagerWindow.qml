@@ -6,7 +6,7 @@ import qs.config
 // The Shell Manager as a window of its own (Hyprland floats and centres it by
 // its title, see hypr/components/rules.lua). Opened from the bar's shell
 // button, Super+S, `qs -c taskbar ipc call shell toggle` or `… shell open <tab>`
-// (themes | bar | plugins); Escape closes it.
+// (themes | wallpaper | bar | plugins); Escape closes it.
 FloatingWindow {
   id: root
 

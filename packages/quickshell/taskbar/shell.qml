@@ -14,6 +14,8 @@ Scope {
 
   ShellManagerWindow {}
 
+  Wallpaper {}
+
   // `install.py theme set` writes .theme first and relinks Colors.qml after;
   // Quickshell can't see the relink, so reload once it has finished.
   FileView {
