@@ -69,6 +69,7 @@ Variants {
     }
     property point pressAt: Qt.point(-1, -1)
     property bool dragging: false
+    property bool swallowClick: false   // the click that closed the options menu
 
     function clampToScreen(r) {
       const x1 = Math.max(0, r.x), y1 = Math.max(0, r.y);
@@ -117,7 +118,10 @@ Variants {
       opacity: CaptureService.shown ? 1 : 0
       focus: true
 
-      Keys.onEscapePressed: CaptureService.close()
+      Keys.onEscapePressed: {
+        if (toolbar.menuOpen) toolbar.menuOpen = false;
+        else CaptureService.close();
+      }
 
       // Two stills: with the pointer, then without it once CaptureService has
       // hidden it. Hide cursor picks which one is shown and saved, live.
@@ -302,6 +306,7 @@ Variants {
         cursorShape: CaptureService.mode === "region" ? Qt.CrossCursor : Qt.PointingHandCursor
 
         onPressed: mouse => {
+          if (toolbar.menuOpen) { toolbar.menuOpen = false; root.swallowClick = true; return; }
           if (mouse.button === Qt.RightButton) { CaptureService.close(); return; }
           if (CaptureService.mode !== "region") return;
           root.pressAt = Qt.point(mouse.x, mouse.y);
@@ -315,6 +320,7 @@ Variants {
                                 Math.abs(mouse.x - root.pressAt.x), Math.abs(mouse.y - root.pressAt.y)));
         }
         onReleased: mouse => {
+          if (root.swallowClick) { root.swallowClick = false; return; }
           if (mouse.button !== Qt.LeftButton) return;
           if (CaptureService.mode === "region") {
             root.dragging = false;
@@ -328,6 +334,7 @@ Variants {
 
       // ---- toolbar -----------------------------------------------------------------
       CaptureToolbar {
+        id: toolbar
         visible: root.toolbarHere && !root.dragging
         anchors.horizontalCenter: parent.horizontalCenter
         y: Theme.barHeight + (root.live ? 16 : 0)
