@@ -25,12 +25,6 @@ KitFrame {
     subtitle: !MusicService.active ? (MpdService.busy === "likes" ? "LOADING LIKES…" : "OFF")
       : (MpdService.playing ? "PLAYING" : "PAUSED") + " · " + root.player.pos + " / " + root.player.length
 
-    KitButton {
-      icon: "refresh"
-      busy: MusicService.updating
-      onClicked: MusicService.runUpdate()
-    }
-
     KitSwitch {
       anchors.verticalCenter: parent.verticalCenter
       checked: MusicService.active

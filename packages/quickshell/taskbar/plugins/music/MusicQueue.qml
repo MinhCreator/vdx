@@ -43,6 +43,14 @@ Column {
       text: root.searching ? "SEARCH" : "UP NEXT FROM #" + root.currentPos
     }
 
+    // re-fetch the likes from Yandex Music
+    KitButton {
+      anchors { right: searchButton.left; rightMargin: 8 }
+      icon: "refresh"
+      busy: MusicService.updating
+      onClicked: MusicService.runUpdate()
+    }
+
     KitButton {
       id: searchButton
       anchors.right: parent.right
