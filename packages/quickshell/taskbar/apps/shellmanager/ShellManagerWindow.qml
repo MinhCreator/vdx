@@ -16,7 +16,10 @@ FloatingWindow {
   implicitHeight: 640
   color: Theme.background0
 
-  onVisibleChanged: if (!visible) ShellSettings.managerOpen = false
+  onVisibleChanged: {
+    if (visible) ThemeService.refresh();     // themes added since start show up
+    else ShellSettings.managerOpen = false;
+  }
 
   ShellManager {
     id: manager

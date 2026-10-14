@@ -18,7 +18,7 @@ Singleton {
   property bool busy: false
   property string error: ""
 
-  function refresh() { listProc.running = true; }
+  function refresh() { if (!listProc.running) listProc.running = true; }
 
   function apply(name) {
     if (busy || name === current) return;
