@@ -5,6 +5,7 @@ import qs.components
 import qs.config
 import qs.kit
 
+// Bar module: backlight level (sun, orange while the night light is on); wheel changes it.
 Item {
   id: root
 

@@ -3,6 +3,7 @@ import qs.components
 import qs.config
 import qs.kit
 
+// Wi-Fi popup: the overview, or a nested view (password, speed test) by WifiService.view.
 KitFrame {
   id: root
 

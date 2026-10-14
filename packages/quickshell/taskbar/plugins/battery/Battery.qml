@@ -5,6 +5,7 @@ import qs.components
 import qs.config
 import qs.kit
 
+// Bar module: charge with a state icon (charging, plugged, leaf in power saver).
 Item {
   id: root
 

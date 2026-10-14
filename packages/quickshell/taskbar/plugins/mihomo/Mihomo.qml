@@ -5,6 +5,7 @@ import qs.components
 import qs.config
 import qs.kit
 
+// Bar module: the proxy state (shield + VPN, green while mihomo.service runs).
 Item {
   id: root
 

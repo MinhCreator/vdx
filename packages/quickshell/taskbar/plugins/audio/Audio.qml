@@ -5,6 +5,7 @@ import qs.components
 import qs.config
 import qs.kit
 
+// Bar module: output volume ("--" while muted); wheel changes it.
 Item {
   id: root
 

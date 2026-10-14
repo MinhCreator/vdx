@@ -3,6 +3,7 @@ import qs.components
 import qs.config
 import qs.kit
 
+// AI popup: Claude Code limits, today's tokens and sessions; the Ollama tab.
 KitFrame {
   id: root
 
