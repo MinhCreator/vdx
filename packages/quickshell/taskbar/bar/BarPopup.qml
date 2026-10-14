@@ -64,7 +64,11 @@ PopupWindow {
 
   color: "transparent"
   visible: false
-  grabFocus: true
+  // No xdg popup grab: the compositor would dismiss the popup whenever another
+  // surface takes focus (slurp) and swallow the click on another module.
+  // Keyboard focus comes from HyprlandFocusGrab, outside clicks from
+  // PopupCatcher.
+  grabFocus: false
 
   onVisibleChanged: {
     if (visible) {
@@ -91,9 +95,16 @@ PopupWindow {
     function toggle(): void { root.toggle(); }
   }
 
+  // hidden, not closed, while the capture overlay's still copy stands in for it
+  Binding {
+    target: root.contentItem
+    property: "opacity"
+    value: PopupManager.frozen ? 0 : 1
+  }
+
   HyprlandFocusGrab {
     windows: [root]
-    active: root.visible
-    onCleared: root.visible = false
+    active: root.visible && !PopupManager.holding
+    onCleared: if (!PopupManager.holding) root.visible = false
   }
 }
