@@ -13,9 +13,7 @@ hyprland
 hyprsunset
 quickshell
 awww
-rofi
 mako
-swaylock
 grim
 slurp
 wl-clipboard

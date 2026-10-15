@@ -56,7 +56,6 @@ QtObject {
   readonly property int batteryIntervalMs: 3000
   readonly property int audioPortIntervalMs: 2000
   readonly property int musicRestartMs: 5000
-  readonly property int musicMaxLength: 60          // bar label, chars
   readonly property int musicCoverSize: 64
   readonly property int musicUpNext: 9             // queue rows visible before scrolling
 
@@ -77,7 +76,6 @@ QtObject {
 
   // ---- notifications -------------------------------------------------------
   readonly property int notificationsMax: 100       // kept in history
-  readonly property int notificationsVisible: 6     // rows before scrolling
 
   // ---- claude code -----------------------------------------------------------
   readonly property int claudeUsageIntervalMs: 300000   // plan limits poll (API)
