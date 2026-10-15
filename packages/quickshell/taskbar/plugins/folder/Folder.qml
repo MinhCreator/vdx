@@ -6,8 +6,8 @@ import qs.kit
 
 // Bar module: a folder for modules tucked off the bar (Shell Manager › Bar,
 // FOLDER row); the count next to it. Its popup lists them as tiles; a tile
-// opens that module's own popup. The modules themselves live here, zero-wide
-// and out of sight, so their popups open under the folder.
+// opens that module's own popup. The modules themselves live here, clipped to
+// the folder's size and out of sight, so their popups open where the folder's does.
 Item {
   id: root
 
@@ -36,11 +36,12 @@ Item {
     id: tucked
     model: root.ids
 
-    // zero-wide and clipped: nothing shows, their popups still open
+    // the folder's own size, clipped and under its click area: nothing shows,
+    // and their popups line up exactly with the folder's
     Loader {
       required property string modelData
       clip: true
-      width: 0
+      width: root.width
       height: root.height
       sourceComponent: root.modules[modelData] ?? null
     }
