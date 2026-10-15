@@ -18,8 +18,12 @@ Rectangle {
   function shown(ids) { return ids.length <= perSide ? ids : ids.slice(0, perSide - 1); }
   function extra(ids) { return ids.length <= perSide ? 0 : ids.length - perSide + 1; }
 
+  // dark like the bar itself, outlined so it reads apart from the page;
+  // the drop wells below are the filled ones
   height: 30
-  color: Theme.background1
+  color: Theme.background0
+  border.width: 1
+  border.color: Theme.background3
 
   Repeater {
     model: BarLayout.zones
