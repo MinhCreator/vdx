@@ -31,8 +31,12 @@ Column {
   readonly property var hiddenIds: BarLayout.unplaced(screenName)
   readonly property string focusId: dragId !== "" ? dragId : hoverId
   // icons tighten to fit the strip, like the bar fitting its modules
-  readonly property int placedCount: BarLayout.zones.reduce((n, z) => n + BarLayout.visibleIn(z, screenName).length, 0)
-  readonly property real iconGap: Math.max(4, Math.min(14, (width - 24 - placedCount * 20 - 2 * 24) / Math.max(1, placedCount - 3)))
+  // the fuller side decides: each side fits its half, so the centre stays centred
+  readonly property int centerCount: BarLayout.visibleIn("center", screenName).length
+  readonly property int sideCount: Math.max(BarLayout.visibleIn("left", screenName).length,
+                                            BarLayout.visibleIn("right", screenName).length)
+  readonly property real iconGap: Math.max(2, Math.min(14,
+    ((width - (centerCount * 20 + Math.max(0, centerCount - 1) * 14)) / 2 - 12 - 24 - sideCount * 20) / Math.max(1, sideCount - 1)))
 
   function plugin(id) { return BarLayout.plugins.find(p => p.id === id) ?? null; }
 
