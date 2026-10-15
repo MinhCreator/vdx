@@ -22,6 +22,9 @@ hl.config({
 	master = { mfact = opts.mfact or 0.5, new_status = opts.newStatus or "slave" },
 	scrolling = { column_width = opts.columnWidth or 0.5 },
 })
+-- frames and shadows can go (appearance.lua sets how they look)
+if opts.borders == false then hl.config({ general = { border_size = 0 } }) end
+if opts.shadows == false then hl.config({ decoration = { shadow = { enabled = false } } }) end
 
 -- floating: new windows float, tagged as the mode's
 local floatAll = hl.window_rule({
@@ -175,8 +178,17 @@ function RestoreWindow(address)
 		local name = tostring(t):gsub("%*$", "")
 		if name:match("^min%d+$") then hl.dispatch(hl.dsp.window.tag({ tag = "-" .. name, window = target })) end
 	end
+	hl.config({ cursor = { no_warps = true } })
 	hl.dispatch(hl.dsp.window.move({ workspace = hl.get_active_workspace().id, window = target }))
-	hl.dispatch(hl.dsp.focus({ window = target }))
+	FocusWindow(address)
+end
+
+-- focus without the pointer jumping to the window (the taskbar's clicks):
+-- the warp comes after the dispatch, so warps stay off for a moment
+function FocusWindow(address)
+	hl.config({ cursor = { no_warps = true } })
+	hl.dispatch(hl.dsp.focus({ window = "address:" .. address }))
+	hl.timer(function() hl.config({ cursor = { no_warps = false } }) end, { timeout = 300, type = "oneshot" })
 end
 
 -- floating: the whole work area and back to the middle; otherwise fullscreen
@@ -226,7 +238,8 @@ titleBar = (saved == "floating" and io.open("/usr/lib/libhyprbars.so", "r")) and
 WindowMode(saved)
 
 -- title bars (hyprbars, AUR hyprland-plugin-hyprbars) — the floating mode's:
--- like macOS: on the left close / minimize / maximize as red, yellow and
+-- like macOS, a shade lighter than the window: on the left close / minimize
+-- / maximize as red, yellow and
 -- green circles whose icon shows under the pointer, the title in the middle;
 -- a double click maximizes
 local barsLib = "/usr/lib/libhyprbars.so"
@@ -243,7 +256,7 @@ if barsLoaded and hl.plugin.hyprbars then
 	hl.config({ plugin = { hyprbars = {
 		enabled = saved == "floating",
 		bar_height = TITLE_BAR,
-		bar_color = colors.background0,
+		bar_color = colors.background1,
 		["col.text"] = colors.foreground0,
 		bar_text_font = "monospace",
 		bar_text_size = 11,
