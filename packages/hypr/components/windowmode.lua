@@ -241,20 +241,28 @@ WindowMode(saved)
 -- like macOS, a shade lighter than the window: on the left close / minimize
 -- / maximize as red, yellow and
 -- green circles whose icon shows under the pointer, the title in the middle;
--- a double click maximizes
+-- a double click maximizes. Other modes unload it: disabled, it still takes
+-- a press on a window's top edge as a drag
 local barsLib = "/usr/lib/libhyprbars.so"
 local barsLoaded = false
 for _, p in ipairs(hl.get_loaded_plugins() or {}) do
 	if p.name == "hyprbars" then barsLoaded = true end
 end
-if not barsLoaded and io.open(barsLib, "r") then
-	hl.plugin.load(barsLib)
-	barsLoaded = true
+if saved ~= "floating" then
+	if barsLoaded then hl.exec_cmd("hyprctl plugin unload " .. barsLib) end
+	barsLoaded = false
+elseif not barsLoaded and io.open(barsLib, "r") then
+	-- loaded from outside, once, after this pass: a plugin loaded from the
+	-- config reloads the config, and when it doesn't load (a build for
+	-- another Hyprland) the config asked again on every reload — an endless
+	-- reload → load → reload that blew the stack and crashed Hyprland.
+	-- Loaded, it brings one reload that finds it here; failed, nothing more.
+	hl.exec_cmd("sleep 1; hyprctl plugin load " .. barsLib)
 end
 if barsLoaded and hl.plugin.hyprbars then
 	local colors = require("components.colors")
 	hl.config({ plugin = { hyprbars = {
-		enabled = saved == "floating",
+		enabled = true,
 		bar_height = TITLE_BAR,
 		bar_color = colors.background1,
 		["col.text"] = colors.foreground0,
