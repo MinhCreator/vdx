@@ -8,11 +8,14 @@ import Quickshell.Io
 // Window mode and snapping (hypr/components/windowmode.lua does the work):
 // tiling, floating (like Windows) or scrolling (like Niri), kept in
 // ~/.local/state/dotfiles/window-mode for every Hyprland start; and putting
-// the active window on a part of the screen.
+// the active window on a part of the screen. The options (gaps, master,
+// column width, floating arrangement) are kept in windows.json and written
+// as windows.lua for Hyprland, which reloads.
 Singleton {
   id: root
 
-  readonly property string stateFile: Quickshell.env("HOME") + "/.local/state/dotfiles/window-mode"
+  readonly property string stateDir: Quickshell.env("HOME") + "/.local/state/dotfiles/"
+  readonly property string stateFile: stateDir + "window-mode"
 
   // ---- state ----
   property string mode: "tiling"            // tiling | floating | scrolling
@@ -32,10 +35,48 @@ Singleton {
          "_", stateFile, value]);
   }
 
+  // ---- options ----
+  readonly property alias opts: opts
+
+  function setOption(key, value) {
+    if (opts[key] === value) return;
+    opts[key] = value;
+    const lua = "-- written by the Shell Manager › Windows (WindowsService.qml)\nreturn {\n"
+      + ["gapsIn", "gapsOut", "mfact", "columnWidth"].map(k => "\t" + k + " = " + opts[k] + ",\n").join("")
+      + ["newStatus", "arrange"].map(k => "\t" + k + " = \"" + opts[k] + "\",\n").join("") + "}\n";
+    run(["bash", "-c", 'mkdir -p "$(dirname "$1")" && printf "%s" "$2" > "$1" && hyprctl reload',
+         "_", stateDir + "windows.lua", lua]);
+  }
+
   // spot: left | right | top | bottom | top-left … | left-third … | center | maximize
   function snap(spot) { run(["hyprctl", "eval", "SnapWindow(\"" + spot + "\")"]); }
 
   function run(command) { Quickshell.execDetached(command); }
+
+  FileView {
+    path: root.stateDir + "windows.json"
+    printErrors: false
+    watchChanges: true
+    onFileChanged: reload()
+    onAdapterUpdated: writeAdapter()
+
+    JsonAdapter {
+      id: opts
+      property int gapsIn: 10
+      property int gapsOut: 20
+      property real mfact: 0.5
+      property string newStatus: "slave"      // master | slave: where a new window goes
+      property real columnWidth: 0.5          // scrolling: a new column's share
+      property string arrange: "cascade"      // floating: cascade | grid | center
+      property bool dock: true                // the bottom dock with minimized windows
+    }
+  }
+
+  // minimized windows wait on special:minimized (windowmode.lua)
+  function minimize(address) { run(["hyprctl", "eval", "MinimizeWindow(" + (address ? "\"" + address + "\"" : "") + ")"]); }
+  function restore(address) { run(["hyprctl", "eval", "RestoreWindow(\"" + address + "\")"]); }
+  function maximize() { run(["hyprctl", "eval", "MaximizeWindow()"]); }
+  function close(address) { run(["hyprctl", "eval", "hl.dispatch(hl.dsp.window.close({ window = \"address:" + address + "\" }))"]); }
 
   FileView {
     path: root.stateFile

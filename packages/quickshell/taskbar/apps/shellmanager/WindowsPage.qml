@@ -1,0 +1,152 @@
+import QtQuick
+import qs.config
+import qs.kit
+import qs.plugins.windows
+
+// Windows: how windows behave (hypr/components/windowmode.lua) — the mode
+// (tiling, floating, scrolling), each mode's own options, the gaps and the
+// bottom dock of minimized windows. Applied at once: Hyprland reloads.
+Column {
+  id: root
+
+  readonly property var ws: WindowsService
+  readonly property var o: WindowsService.opts
+  readonly property var mode: ws.modes.find(m => m.value === ws.mode) ?? ws.modes[0]
+
+  // the window's fixed header shows these; the page under it scrolls
+  readonly property string icon: "columns"
+  readonly property string title: "Windows"
+  readonly property string subtitle: mode.label.toUpperCase() + " · GAPS " + o.gapsIn + " / " + o.gapsOut
+                                     + " · DOCK " + (o.dock ? "ON" : "OFF")
+
+  // groups for the Shell Manager's sidebar: a click scrolls to `y`
+  readonly property var jumps: [
+    { key: "mode",   label: "Mode",   y: modeGroup.y },
+    { key: "layout", label: "Layout", y: layoutGroup.y },
+    { key: "gaps",   label: "Gaps",   y: gapsGroup.y },
+    { key: "dock",   label: "Dock",   y: dockGroup.y }
+  ]
+
+  function pct(v) { return Math.round(v * 100) + "%"; }
+
+  spacing: 14
+
+  // ---- mode ----------------------------------------------------------------------------
+  KitLabel { id: modeGroup; text: "MODE"; value: root.mode.label.toUpperCase() }
+
+  KitRow {
+    wide: true
+    label: "Windows"
+    hint: root.mode.about
+
+    KitChoices {
+      stretch: true
+      model: root.ws.modes
+      current: root.ws.mode
+      onPicked: value => root.ws.setMode(value)
+    }
+  }
+
+  KitLine {}
+
+  // ---- the modes' own options ----------------------------------------------------------
+  KitLabel { id: layoutGroup; text: "LAYOUT" }
+
+  KitRow {
+    wide: true
+    label: "Master size"
+    hint: "Tiling: the main window's share"
+
+    KitChoices {
+      stretch: true
+      model: [0.4, 0.5, 0.6, 0.7].map(v => ({ label: root.pct(v), value: v }))
+      current: root.o.mfact
+      onPicked: value => root.ws.setOption("mfact", value)
+    }
+  }
+
+  KitRow {
+    wide: true
+    label: "New window"
+    hint: "Tiling: where it opens"
+
+    KitChoices {
+      stretch: true
+      model: [{ label: "Master", value: "master" }, { label: "Stack", value: "slave" }]
+      current: root.o.newStatus
+      onPicked: value => root.ws.setOption("newStatus", value)
+    }
+  }
+
+  KitRow {
+    wide: true
+    label: "Column width"
+    hint: "Scrolling: a new column's share"
+
+    KitChoices {
+      stretch: true
+      model: [{ label: "1/3", value: 0.333 }, { label: "1/2", value: 0.5 }, { label: "2/3", value: 0.667 }, { label: "Full", value: 1 }]
+      current: root.o.columnWidth
+      onPicked: value => root.ws.setOption("columnWidth", value)
+    }
+  }
+
+  KitRow {
+    wide: true
+    label: "Arrange"
+    hint: "Floating: windows as the mode starts"
+
+    KitChoices {
+      stretch: true
+      model: [{ label: "Cascade", value: "cascade" }, { label: "Grid", value: "grid" }, { label: "Center", value: "center" }]
+      current: root.o.arrange
+      onPicked: value => root.ws.setOption("arrange", value)
+    }
+  }
+
+  KitLine {}
+
+  // ---- gaps ----------------------------------------------------------------------------
+  KitLabel { id: gapsGroup; text: "GAPS"; value: root.o.gapsIn + " / " + root.o.gapsOut + " PX" }
+
+  KitRow {
+    wide: true
+    label: "Between windows"
+    hint: "Pixels"
+
+    KitChoices {
+      stretch: true
+      model: [0, 5, 10, 15].map(v => ({ label: String(v), value: v }))
+      current: root.o.gapsIn
+      onPicked: value => root.ws.setOption("gapsIn", value)
+    }
+  }
+
+  KitRow {
+    wide: true
+    label: "Screen edges"
+    hint: "Pixels"
+
+    KitChoices {
+      stretch: true
+      model: [0, 10, 20, 30].map(v => ({ label: String(v), value: v }))
+      current: root.o.gapsOut
+      onPicked: value => root.ws.setOption("gapsOut", value)
+    }
+  }
+
+  KitLine {}
+
+  // ---- dock ----------------------------------------------------------------------------
+  KitLabel { id: dockGroup; text: "DOCK" }
+
+  KitRow {
+    label: "Minimized windows"
+    hint: "A bar at the bottom, Super+N minimizes"
+
+    KitSwitch {
+      checked: root.o.dock
+      onToggled: root.o.dock = !root.o.dock
+    }
+  }
+}

@@ -9,6 +9,7 @@ import qs.kit
 // open section its groups (`jumps` of the page) jump there on a click.
 //   APPEARANCE — theme, icon style, wallpaper, font and cursor;
 //   BAR        — the layout of the bar's zones, modules on / off, underline.
+//   WINDOWS    — the window mode, each mode's options, gaps, the dock.
 //   PLUGINS    — each plugin's own options.
 //   SHELL APPS — how the shell's own windows open: floating or tiled, size, spot.
 //   BINDS      — Hyprland's keybinds by group, with a search.
@@ -20,6 +21,7 @@ Rectangle {
   readonly property var sections: [
     { value: "appearance", label: "Appearance", icon: "sun" },
     { value: "bar",        label: "Bar",        icon: "layout" },
+    { value: "windows",    label: "Windows",    icon: "columns" },
     { value: "plugins",    label: "Plugins",    icon: "grid" },
     { value: "apps",       label: "Shell apps", icon: "app-window" },
     { value: "binds",      label: "Binds",      icon: "keyboard" },
@@ -27,7 +29,7 @@ Rectangle {
   ]
 
   function pageFor(value) {
-    return value === "bar" ? bar : value === "plugins" ? plugins : value === "binds" ? binds : value === "apps" ? apps : value === "about" ? about : appearance;
+    return value === "bar" ? bar : value === "plugins" ? plugins : value === "binds" ? binds : value === "apps" ? apps : value === "windows" ? windows : value === "about" ? about : appearance;
   }
   readonly property Item currentPage: pageFor(tab)
 
@@ -264,6 +266,7 @@ Rectangle {
       BarPage     { id: bar;     width: parent.width; visible: root.tab === "bar" }
       // fills the window and scrolls its two panes itself
       ShellAppsPage { id: apps;  width: parent.width; visible: root.tab === "apps" }
+      WindowsPage { id: windows; width: parent.width; visible: root.tab === "windows" }
       AboutPage   { id: about;   width: parent.width; visible: root.tab === "about" }
       BindsPage   { id: binds;   width: parent.width; visible: root.tab === "binds" }
       PluginsPage { id: plugins; width: parent.width; height: page.height - pages.y - 20; visible: root.tab === "plugins" }
