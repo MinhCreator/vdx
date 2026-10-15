@@ -284,4 +284,6 @@ Column {
   }
 
   KitToggleRow { module: "launcher"; key: "clear"; fallback: true; label: "Clear search on close"; hint: "Off: the search stays as it was" }
+
+  KitToggleRow { module: "launcher"; key: "english"; fallback: true; label: "English layout on open"; hint: "Switches the keyboard when it opens" }
 }

@@ -44,19 +44,8 @@ Column {
 
   KitLine {}
 
-  KitLabel { text: "REMOVING AND UPDATING" }
+  KitLabel { text: "REMOVING" }
 
   KitToggleRow { module: "packages"; key: "confirm"; label: "Ask before uninstalling"; hint: "Uninstall asks “Sure?” once" }
 
-  KitRow {
-    wide: true
-    label: "Update command"
-    hint: "Runs in a terminal, asks in the panel"
-
-    KitInput {
-      width: Theme.controlWidth
-      text: ModuleSettings.get("packages", "updateCommand", PackagesService.defaultUpdate)
-      onAccepted: ModuleSettings.set("packages", "updateCommand", text)
-    }
-  }
 }

@@ -16,6 +16,7 @@ Column {
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [
+    { key: "window",     label: "Shell manager", y: windowGroup.y },
     { key: "philosophy", label: "Philosophy", y: philosophy.y },
     { key: "concept",    label: "Concept",    y: concept.y },
     { key: "author",     label: "Author",     y: author.y },
@@ -46,6 +47,27 @@ Column {
     color: Theme.foreground2
     lineHeight: 1.15
   }
+
+  // ---- the Shell Manager itself ----
+  KitLabel { id: windowGroup; text: "SHELL MANAGER" }
+
+  KitRow {
+    wide: true
+    label: "Opens on"
+    hint: "The first page, or the last one"
+
+    KitChoices {
+      stretch: true
+      model: [
+        { label: "Main page", value: "main" },
+        { label: "Last page", value: "last" }
+      ]
+      current: ShellSettings.managerStart
+      onPicked: value => ShellSettings.set("managerStart", value)
+    }
+  }
+
+  KitLine {}
 
   // ---- philosophy ----
   KitLabel { id: philosophy; text: "PHILOSOPHY" }

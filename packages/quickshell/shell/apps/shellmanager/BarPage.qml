@@ -344,4 +344,21 @@ Column {
       onPicked: value => ShellSettings.set("underlineAnimation", value)
     }
   }
+
+  KitRow {
+    wide: true
+    label: "Icon size"
+    hint: "Pixels added to the bar's icons"
+
+    KitChoices {
+      stretch: true
+      model: [
+        { label: "Small",  value: 0 },
+        { label: "Normal", value: 2 },
+        { label: "Large",  value: 4 }
+      ]
+      current: ShellSettings.barIconGrow
+      onPicked: value => ShellSettings.set("barIconGrow", value)
+    }
+  }
 }

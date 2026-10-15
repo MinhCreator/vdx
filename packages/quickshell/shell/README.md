@@ -43,7 +43,6 @@ Cleaner, Windows, Chat, Folder.
 | Ollama service switch | `system/etc/polkit-1/rules.d/50-ollama.rules` |
 | AI limits | Claude Code login (`~/.claude/.credentials.json`) |
 | Music likes | Yandex Music token (`~/.config/scripts/yandex-music/token`) |
-| Title bars (floating) | AUR `hyprland-plugin-hyprbars` |
 
 System files: `./install.py system install`.
 

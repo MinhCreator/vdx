@@ -46,6 +46,15 @@ Singleton {
     return arg ? c.concat([arg]) : c;
   }
   function exec(command) { Quickshell.execDetached(command); }
+
+  // the main keyboard switches to its layout called us (Hyprland's index in
+  // the layouts list); the name and the layouts come as one line from hyprctl
+  function englishLayout() {
+    exec(["bash", "-c",
+      "IFS=$'\\t' read -r n l < <(hyprctl devices -j | jq -r '[.keyboards[] | select(.main)][0] | [.name, .layout] | @tsv'); "
+      + "i=$(printf '%s' \"$l\" | tr ',' '\\n' | grep -nx us | head -1 | cut -d: -f1); "
+      + "[ -n \"$i\" ] && hyprctl switchxkblayout \"$n\" $((i-1)) >/dev/null"]);
+  }
   function sh(script) { exec(["bash", "-c", script]); }
 
   // ---- apps ----

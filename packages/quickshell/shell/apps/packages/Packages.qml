@@ -80,7 +80,7 @@ Rectangle {
     spacing: 14
 
     KitHeader {
-      icon: "download"
+      icon: "package"
       title: "Packages"
       subtitle: root.subtitle()
 
@@ -128,6 +128,25 @@ Rectangle {
         text: "AUR: " + root.ps.aurError
       }
 
+      // the download, then the install: their progress, under the notice
+      Column {
+        visible: root.ps.stage !== ""
+        width: parent.width
+        spacing: 6
+
+        KitLabel {
+          text: root.ps.stage === "downloading" ? "DOWNLOADING" : "INSTALLING"
+          value: root.ps.stage === "downloading"
+              ? Math.round(root.ps.stagePercent * 100) + "% · " + root.ps.size(root.ps.stageDone) + " OF " + root.ps.size(root.ps.stageBytes)
+              : ""
+        }
+
+        KitBar {
+          value: root.ps.stage === "downloading" ? root.ps.stagePercent : 1
+          tint: Theme.green
+        }
+      }
+
       // the group's header: a box for the whole list, then its caption
       Row {
         visible: root.ps.count > 0
@@ -144,7 +163,7 @@ Rectangle {
         KitLabel {
           width: parent.width - 28
           text: "SELECT ALL"
-          value: root.ps.pickedUpdates.length + " OF " + root.ps.count
+          value: root.ps.pickedUpdates.length + " OF " + root.ps.count + " · " + root.ps.size(root.ps.repoPickedSize)
         }
       }
 
@@ -166,6 +185,15 @@ Rectangle {
             elide: Text.ElideLeft
             text: modelData.from + " → " + modelData.to
             color: Theme.foreground2
+          }
+
+          // what the repo update downloads; AUR builds have no download size
+          KitText {
+            anchors.verticalCenter: parent.verticalCenter
+            width: 70
+            horizontalAlignment: Text.AlignRight
+            text: modelData.aur ? "—" : root.ps.size(modelData.size)
+            color: Theme.muted
           }
         }
       }
@@ -405,7 +433,9 @@ Rectangle {
               ? (root.ps.pickedNames.length > 0 ? root.ps.pickedNames.length + " picked · " + root.ps.size(root.ps.pickedSize) : "Nothing picked")
               : root.tab === "cache"
               ? (root.ps.rollbackCount > 0 ? root.ps.rollbackCount + " to roll back" : "Nothing to roll back")
-              : (root.ps.pickedUpdates.length > 0 ? root.ps.pickedUpdates.length + " picked" : "Nothing picked")
+              : (root.ps.pickedUpdates.length > 0
+                  ? root.ps.pickedUpdates.length + " picked" + (root.ps.repoPickedSize > 0 ? " · " + root.ps.size(root.ps.repoPickedSize) : "")
+                  : "Nothing picked")
         }
 
         KitText {
@@ -420,7 +450,8 @@ Rectangle {
               : root.tab === "cache" ? "Installs the cached file with pacman -U"
               : root.ps.pickedUpdates.length > 0 && root.ps.pickedUpdates.length < root.ps.count
                 ? "A partial update can break things: pick all if unsure"
-              : "A terminal opens, the password comes from the panel"
+              : root.ps.aurPicked.length > 0 ? "AUR packages build in a terminal"
+              : "Download, then install: each asks in the panel"
         }
       }
 
@@ -434,7 +465,7 @@ Rectangle {
           icon: "download"
           text: "Update picked"
           busy: root.ps.busy
-          disabled: root.ps.pickedUpdates.length === 0
+          disabled: root.ps.repoPicked.length === 0 || root.ps.stage !== ""
           onClicked: root.ps.updatePicked()
         }
 
@@ -442,8 +473,16 @@ Rectangle {
           visible: root.tab === "updates"
           icon: "download"
           text: "Update all"
-          disabled: root.ps.count === 0
+          disabled: root.ps.repoPending.length === 0 || root.ps.stage !== ""
           onClicked: root.ps.updateAll()
+        }
+
+        KitButton {
+          visible: root.tab === "updates" && root.ps.aurPicked.length > 0
+          icon: "external"
+          text: "Build AUR"
+          disabled: root.ps.stage !== ""
+          onClicked: root.ps.updateAur()
         }
 
         KitButton {

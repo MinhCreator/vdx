@@ -15,9 +15,11 @@ KitFrame {
   signal openWindow()
 
   KitHeader {
-    icon: "download"
+    icon: "package"
     title: "Updates"
-    subtitle: ps.checking ? "CHECKING…" : ps.count > 0 ? ps.count + " PENDING" : "UP TO DATE"
+    subtitle: ps.stage === "downloading" ? "DOWNLOADING " + Math.round(ps.stagePercent * 100) + "%"
+        : ps.stage === "installing" ? "INSTALLING"
+        : ps.checking ? "CHECKING…" : ps.count > 0 ? ps.count + " PENDING" : "UP TO DATE"
 
     KitButton {
       icon: "external"
@@ -29,6 +31,13 @@ KitFrame {
   }
 
   KitLine {}
+
+  // the download, then the install: the green line runs along (full while installing)
+  KitBar {
+    visible: root.ps.stage !== ""
+    value: root.ps.stage === "downloading" ? root.ps.stagePercent : 1
+    tint: Theme.green
+  }
 
   Column {
     width: parent.width
@@ -77,13 +86,13 @@ KitFrame {
 
   KitRow {
     label: "Update all"
-    hint: "Opens a terminal, asks in the panel"
+    hint: "Download, then install, in the panel"
 
     KitButton {
       anchors.verticalCenter: parent.verticalCenter
       icon: "download"
       text: "Update"
-      disabled: root.ps.count === 0
+      disabled: root.ps.repoPending.length === 0 || root.ps.stage !== ""
       onClicked: root.ps.updateAll()
     }
   }

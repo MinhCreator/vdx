@@ -28,7 +28,6 @@ Singleton {
   function opt(key, fallback) { return ModuleSettings.get("packages", key, fallback); }
   readonly property bool aurOn: opt("aur", true)
   readonly property bool confirm: opt("confirm", true)
-  readonly property string defaultUpdate: "if command -v yay >/dev/null; then yay -Syu --sudo pkexec; else pkexec pacman -Syu; fi"
 
   readonly property int count: pacman.length + (aurOn ? aur.length : 0)
   // every pending update in one list: {name, from, to, desc, aur}
@@ -127,23 +126,69 @@ Singleton {
   }
 
   // ---- actions ----
-  // the update runs in a terminal: yay reviews the AUR builds there and asks
-  // for the password through the auth panel (pkexec). The command is the
-  // option "updateCommand"; empty means the default
-  function updateAll() {
-    const cmd = (opt("updateCommand", defaultUpdate) ?? "").trim() || defaultUpdate;
-    Quickshell.execDetached(["kitty", "-e", "bash", "-c",
-      cmd + "; echo; read -rp 'press Enter to close ' _"]);
+  // ---- the in-app update of the repo packages: download, then install ----
+  // Each stage is a root action confirmed in the auth panel (RootService).
+  // Progress is what the cache holds of the new versions (scripts/packages.py
+  // progress), against the download sizes.
+  property string stage: ""                 // "" | downloading | installing
+  property var stageList: []                // [{name, from, to, size}]
+  property real stageBytes: 0               // all of the download
+  property real stageDone: 0                // what is in the cache so far
+  readonly property real stagePercent: stageBytes > 0 ? Math.min(1, stageDone / stageBytes) : 0
+  readonly property var repoPending: pending.filter(p => !p.aur)
+  readonly property var repoPicked: pickedUpdates.filter(p => !p.aur)
+  readonly property var aurPicked: pickedUpdates.filter(p => p.aur)
+  readonly property real repoPickedSize: repoPicked.reduce((s, p) => s + p.size, 0)
+
+  function updatePicked() { startDownload(repoPicked); }
+  function updateAll() { startDownload(repoPending); }
+
+  function startDownload(list) {
+    if (busy || stage !== "" || list.length === 0) return;
+    busy = true;
+    status = "";
+    stageList = list;
+    stageBytes = list.reduce((s, p) => s + p.size, 0);
+    stageDone = 0;
+    stage = "downloading";
+    planProc.command = ["python3", root.script, "plan-download"].concat(list.map(p => p.name));
+    planProc.plan = { tag: "packages-download", title: "Download updates" };
+    planProc.running = true;
   }
 
-  // the picked updates only: `yay -Sy` refreshes the databases, then installs
-  // those names. The others stay pending, so the system may end up partly
-  // upgraded — the window says so.
-  function updatePicked() {
-    if (pickedUpdates.length === 0) return;
+  // the install, from the cache, after the download is confirmed and done
+  function startInstall() {
+    stage = "installing";
+    planProc.command = ["python3", root.script, "plan-install"].concat(stageList.map(p => p.name));
+    planProc.plan = { tag: "packages-install", title: "Install updates" };
+    planProc.running = true;
+  }
+
+  Timer {
+    id: progressTimer
+    interval: 1000
+    repeat: true
+    running: root.stage === "downloading"
+    onTriggered: progressProc.running = true
+  }
+
+  Process {
+    id: progressProc
+    command: ["python3", root.script, "progress"].concat(root.stageList.map(p => p.name + "=" + p.to))
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const r = root.parse(text);
+        if (r.ok) root.stageDone = r.bytes;
+      }
+    }
+  }
+
+  // the AUR picks: built by yay, which shows each PKGBUILD in a terminal
+  function updateAur() {
+    if (aurPicked.length === 0) return;
     Quickshell.execDetached(["kitty", "-e", "bash", "-c",
       "yay -Sy --needed --sudo pkexec \"$@\"; echo; read -rp 'press Enter to close ' _",
-      "bash"].concat(pickedUpdates.map(p => p.name)));
+      "bash"].concat(aurPicked.map(p => p.name)));
     updPicked = ({});
   }
 
@@ -186,21 +231,40 @@ Singleton {
     stdout: StdioCollector {
       onStreamFinished: {
         const r = root.parse(text);
-        if (!r.ok) { root.busy = false; root.done(false, r.error); return; }
+        if (!r.ok) { root.endStage(false, r.error); return; }
         if (!RootService.request("Packages", planProc.plan.title, r.steps, r.script, planProc.plan.tag)) {
-          root.busy = false;
-          root.done(false, "another root action is waiting");
+          root.endStage(false, "another root action is waiting");
         }
       }
     }
+  }
+
+  // the end of a stage (or of a failed plan): the flags off, the message, the lists again
+  function endStage(ok, text) {
+    stage = "";
+    busy = false;
+    done(ok, text);
+    freshen(true);
   }
 
   Connections {
     target: RootService
     function onFinished(tag, ok, error) {
       if (!tag.startsWith("packages-")) return;
+      const cancelled = error === "cancelled";
+      if (tag === "packages-download") {
+        // downloaded: the install is a second confirmation in the panel
+        if (ok) { root.stageDone = root.stageBytes; root.startInstall(); }
+        else root.endStage(false, cancelled ? "Download cancelled" : error);
+        return;
+      }
+      if (tag === "packages-install") {
+        if (ok) root.updPicked = ({});
+        root.endStage(ok, ok ? "Updated " + root.stageList.length + " packages" : cancelled ? "Install cancelled" : error);
+        return;
+      }
       root.busy = false;
-      if (!ok) { root.done(false, error === "cancelled" ? "cancelled" : error); return; }
+      if (!ok) { root.done(false, cancelled ? "cancelled" : error); return; }
       if (tag === "packages-remove") root.picked = ({});
       root.done(true, tag === "packages-remove" ? "Removed" : "Rolled back");
       root.freshen();

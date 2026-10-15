@@ -28,7 +28,7 @@ KitFrame {
 
   // ---- header ----
   KitHeader {
-    icon: BatteryService.charging ? "battery-charging" : BatteryService.plugged ? "plug" : "battery"
+    icon: BatteryService.charging ? "battery-charging" : BatteryService.plugged ? "battery-plugged" : "battery"
     iconColor: BatteryService.capacity <= Theme.batteryCritical && !BatteryService.plugged ? Theme.red : Theme.foreground0
     title: "Battery"
     subtitle: root.summary

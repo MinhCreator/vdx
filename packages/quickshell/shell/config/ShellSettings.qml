@@ -11,7 +11,9 @@ Singleton {
   id: root
 
   readonly property bool solidIcons: state.solidIcons
-  readonly property bool roundIcons: state.roundIcons
+  readonly property int barIconGrow: state.barIconGrow            // px added to the bar's icons: 0 | 2 | 4
+  readonly property string managerStart: state.managerStart        // main | last: the page the Shell Manager opens on
+  readonly property string managerTab: state.managerTab            // the page it was left on
   readonly property string font: state.font                       // family, kept in step with fontconfig
   readonly property string underlineAnimation: state.underlineAnimation  // none | grow | slide
   readonly property string wallpaperMode: state.wallpaperMode     // theme | custom | image
@@ -34,7 +36,9 @@ Singleton {
     JsonAdapter {
       id: state
       property bool solidIcons: false
-      property bool roundIcons: false
+      property int barIconGrow: 0
+      property string managerStart: "main"
+      property string managerTab: "appearance"
       property string font: "JetBrainsMono Nerd Font"
       property string underlineAnimation: "none"
       property string wallpaperMode: "theme"

@@ -19,6 +19,17 @@ Rectangle {
 
   property string tab: "appearance"
 
+  // opening: the main page, or the page it was left on (About › Shell manager).
+  // A page named by `shell open <page>` is set after this, so it wins.
+  Connections {
+    target: ShellSettings
+    function onManagerOpenChanged() {
+      if (ShellSettings.managerOpen)
+        root.tab = ShellSettings.managerStart === "last" ? ShellSettings.managerTab : "appearance";
+    }
+  }
+
+
   readonly property var sections: [
     { value: "appearance", label: "Appearance", icon: "sun" },
     { value: "bar",        label: "Bar",        icon: "layout" },
@@ -317,6 +328,7 @@ Rectangle {
 
   onTabChanged: {
     if (tab === "themes" || tab === "wallpaper") tab = "appearance";
+    ShellSettings.set("managerTab", tab);   // kept for About › Shell manager › Last page
     page.contentY = 0;
     pinnedJump = "";
     navOpen = false;

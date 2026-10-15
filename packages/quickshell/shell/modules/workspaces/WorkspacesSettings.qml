@@ -10,7 +10,12 @@ Column {
 
   KitOptionRow {
     module: "workspaces"; key: "style"; fallback: "numbers"
-    label: "Workspaces as"; hint: "Numbers, or a small square each"
-    model: [{ label: "Numbers", value: "numbers" }, { label: "Squares", value: "squares" }]
+    label: "Workspaces as"; hint: "How each workspace is drawn"
+    model: [
+      { label: "Digits", value: "numbers" },
+      { label: "Squares", value: "squares" },
+      { label: "Dots", value: "dots" },
+      { label: "Dashes", value: "dashes" }
+    ]
   }
 }

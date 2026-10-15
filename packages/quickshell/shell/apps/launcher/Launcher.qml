@@ -19,6 +19,7 @@ ScrimWindow {
   readonly property string position: ModuleSettings.get("launcher", "position", "top")
   readonly property string opens: ModuleSettings.get("launcher", "opens", "apps")
   readonly property bool clearOnClose: ModuleSettings.get("launcher", "clear", true)
+  readonly property bool english: ModuleSettings.get("launcher", "english", true)
   property string tab: "apps"
   property int current: 0
   readonly property string query: field.text.trim().toLowerCase()
@@ -53,6 +54,7 @@ ScrimWindow {
     function onOpenChanged() {
       if (!root.ls.open) return;
       if (root.clearOnClose) field.text = "";
+      if (root.english) root.ls.englishLayout();
       root.tab = root.tabs.some(t => t.value === root.opens) ? root.opens : root.tabs[0].value;
       root.current = 0;
       field.input.forceActiveFocus();

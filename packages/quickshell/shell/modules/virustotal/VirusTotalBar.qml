@@ -20,8 +20,9 @@ Item {
 
   KitBarItem {
     id: face
-    icon: "search"
-    tint: VirusTotalService.verdict === "malicious" ? Theme.red
+    icon: "scan"
+    tint: !VirusTotalService.opt("tint", true) ? Theme.foreground0
+        : VirusTotalService.verdict === "malicious" ? Theme.red
         : VirusTotalService.verdict === "suspicious" ? Theme.yellow : Theme.foreground0
   }
 
@@ -35,6 +36,7 @@ Item {
     id: popup
     anchorItem: root
     ipcTarget: "scan"
+    onShown: if (VirusTotalService.clipboardOn) VirusTotalService.readClipboard(content)
     bar: root.bar
     implicitWidth: content.implicitWidth
     implicitHeight: content.implicitHeight

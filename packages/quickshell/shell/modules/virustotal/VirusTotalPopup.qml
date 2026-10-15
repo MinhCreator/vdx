@@ -15,8 +15,11 @@ KitFrame {
 
   signal openWindow()
 
+  // the clipboard's hash or URL, from VirusTotalService.readClipboard
+  function prefill(t) { field.text = t; }
+
   KitHeader {
-    icon: "search"
+    icon: "scan"
     title: "VirusTotal"
     subtitle: root.vs.busy ? "LOOKING UP…" : root.vs.verdictWord(root.vs.verdict)
 
@@ -32,6 +35,7 @@ KitFrame {
   KitLine {}
 
   KitInput {
+    id: field
     width: parent.width
     placeholder: "A hash, a URL or a file path"
     onAccepted: root.vs.scan(text)

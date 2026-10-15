@@ -22,7 +22,6 @@ Rectangle {
     visible: root.checked && !root.partial
     name: "check"
     solid: false
-    round: false
     size: 12
     tint: Theme.foreground0
   }

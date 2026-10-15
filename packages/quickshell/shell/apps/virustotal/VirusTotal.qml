@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Dialogs
 import qs.config
 import qs.kit
 
@@ -15,6 +16,18 @@ Rectangle {
 
   function go() { vs.scan(field.text); }
 
+  // a file of this machine: its path goes in the field and it is looked up
+  // (only its hash is read; Upload sends the file, and only then)
+  FileDialog {
+    id: picker
+    title: "Choose a file to check"
+    fileMode: FileDialog.OpenFile
+    onAccepted: {
+      field.text = decodeURIComponent(selectedFile.toString().replace(/^file:\/\//, ""));
+      root.go();
+    }
+  }
+
   // ---- header ----
   Column {
     id: top
@@ -22,7 +35,7 @@ Rectangle {
     spacing: 14
 
     KitHeader {
-      icon: "search"
+      icon: "scan"
       title: "VirusTotal"
       subtitle: root.vs.busy ? (root.vs.uploading ? "UPLOADING AND ANALYSING…" : "LOOKING UP…")
               : root.vs.error !== "" ? "FAILED" : root.vs.verdictWord(root.vs.verdict)
@@ -34,16 +47,24 @@ Rectangle {
 
       KitInput {
         id: field
-        width: parent.width - scan.width - 12
+        width: parent.width - scan.width - pick.width - 24
         placeholder: "A hash, a URL or a file path"
         onAccepted: root.go()
       }
 
       KitButton {
+        id: pick
+        icon: "folder"
+        text: "File"
+        disabled: root.vs.busy
+        onClicked: picker.open()
+      }
+
+      KitButton {
         id: scan
-        icon: "search"
         text: "Scan"
-        busy: root.vs.busy
+        busy: root.vs.busy && !root.vs.uploading
+        disabled: root.vs.busy
         onClicked: root.go()
       }
     }
@@ -171,6 +192,32 @@ Rectangle {
           }
         }
       }
+
+      // ---- recent: the last lookups, by the history option ----
+      Column {
+        visible: !root.r && root.vs.history.length > 0
+        width: parent.width
+        spacing: 6
+
+        KitLabel { text: "RECENT"; value: root.vs.history.length + "" }
+
+        Repeater {
+          model: root.vs.history
+
+          KitRow {
+            required property var modelData
+
+            label: modelData.target
+            hint: root.vs.verdictWord(modelData.verdict)
+
+            KitButton {
+              anchors.verticalCenter: parent.verticalCenter
+              text: "Scan"
+              onClicked: { field.text = modelData.target; root.go(); }
+            }
+          }
+        }
+      }
     }
   }
 
@@ -197,8 +244,8 @@ Rectangle {
       KitButton {
         id: report
         anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-        icon: "external"
-        text: "Report"
+        icon: root.vs.reportAction === "copy" ? "clipboard" : "external"
+        text: root.vs.reportAction === "copy" ? "Copy link" : "Report"
         disabled: !(root.r?.link)
         onClicked: root.vs.openLink()
       }

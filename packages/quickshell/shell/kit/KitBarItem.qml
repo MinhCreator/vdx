@@ -23,7 +23,7 @@ Item {
       visible: root.icon !== ""
       name: root.icon
       tint: root.tint
-      size: Theme.fontSize + 2
+      size: Theme.fontSize + 2 + ShellSettings.barIconGrow
     }
 
     KitText {

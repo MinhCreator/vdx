@@ -2,11 +2,13 @@
 """VirusTotal for the scanner (apps/virustotal and its bar module). One JSON
 object per command.
 
-    virustotal.py scan <target>     a sha256, a URL or a file path: what VirusTotal knows
-                                    {"ok", "known", "kind", "target", "sha256", "name", "size",
-                                     "stats", "reputation", "detections", "link"}
-                                    a file it has never seen: {"ok", "known": false, "sha256", "size"}
-    virustotal.py upload <path>     sends a file (up to 32 MB) and waits for the verdict; same reply
+    virustotal.py scan <target> [wait]   a sha256, a URL or a file path: what VirusTotal knows
+                                         {"ok", "known", "kind", "target", "sha256", "name", "size",
+                                          "stats", "reputation", "detections", "link"}
+                                         a file it has never seen: {"ok", "known": false, "sha256", "size"}
+    virustotal.py upload <path> [wait]   sends a file (up to 32 MB) and waits for the verdict; same reply
+
+`wait` is how many seconds a new analysis may take (default 90, 10 to 600).
 
 The key comes from VIRUSTOTAL_API_KEY or ~/.config/secrets/env. Only
 `upload` sends a file's contents, and the shell asks before it does.
@@ -18,7 +20,7 @@ API = "https://www.virustotal.com/api/v3"
 GUI = "https://www.virustotal.com/gui"
 SECRETS = Path.home() / ".config/secrets/env"
 MAX_UPLOAD = 32 * 1024 * 1024
-WAIT = 90                                   # seconds a fresh analysis may take
+WAIT = 90                                   # seconds a fresh analysis may take (the argument `wait`)
 STATS = ("malicious", "suspicious", "undetected", "harmless", "timeout")
 
 KEY = ""
@@ -154,9 +156,14 @@ def upload(target):
 
 
 def main():
-    global KEY
-    if len(sys.argv) != 3 or sys.argv[1] not in ("scan", "upload"):
-        fail("usage: virustotal.py scan|upload <target>")
+    global KEY, WAIT
+    if len(sys.argv) not in (3, 4) or sys.argv[1] not in ("scan", "upload"):
+        fail("usage: virustotal.py scan|upload <target> [wait]")
+    if len(sys.argv) == 4:
+        try:
+            WAIT = min(600, max(10, int(sys.argv[3])))
+        except ValueError:
+            fail("wait must be a number of seconds")
     KEY = key()
     try:
         out(scan(sys.argv[2]) if sys.argv[1] == "scan" else upload(sys.argv[2]))

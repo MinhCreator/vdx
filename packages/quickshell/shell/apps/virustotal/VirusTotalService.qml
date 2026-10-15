@@ -7,12 +7,21 @@ import qs.config
 
 // The VirusTotal lookup (scripts/virustotal.py), shared by its window and its
 // bar module. Scan asks what VirusTotal knows about a hash, a URL or a file
-// path; a file it has never seen goes up only when Upload is pressed. The
-// last lookups are kept for the session.
+// path; a file it has never seen goes up only when Upload is pressed. Recent
+// lookups are kept for the window, and between runs when the option is on.
+// Options: Shell Manager › Shell apps (ModuleSettings "virustotal").
 Singleton {
   id: root
 
   readonly property string script: Theme.scriptsDir + "/virustotal.py"
+
+  // ---- options ----
+  function opt(key, fallback) { return ModuleSettings.get("virustotal", key, fallback); }
+  readonly property int historyKeep: opt("historyKeep", 20)
+  readonly property bool keepHistory: opt("keepHistory", false)
+  readonly property int waitSeconds: opt("waitSeconds", 90)
+  readonly property string reportAction: opt("reportAction", "browser")
+  readonly property bool clipboardOn: opt("clipboard", false)
 
   property string target: ""                // what was asked
   property bool busy: false
@@ -48,7 +57,7 @@ Singleton {
     uploading = false;
     error = "";
     result = null;
-    proc.command = ["python3", script, "scan", t];
+    proc.command = ["python3", script, "scan", t, String(waitSeconds)];
     proc.running = true;
   }
 
@@ -57,16 +66,54 @@ Singleton {
     busy = true;
     uploading = true;
     error = "";
-    proc.command = ["python3", script, "upload", result.target];
+    proc.command = ["python3", script, "upload", result.target, String(waitSeconds)];
     proc.running = true;
   }
 
+  // the report: the browser, or the link copied to the clipboard
   function openLink() {
-    if (result?.link) Quickshell.execDetached(["xdg-open", result.link]);
+    if (!result?.link) return;
+    if (reportAction === "copy") Quickshell.execDetached(["wl-copy", result.link]);
+    else Quickshell.execDetached(["xdg-open", result.link]);
+  }
+
+  // the clipboard's text, if it is a hash or a URL, goes into the popup's
+  // field (never scanned by itself): `into` is the field's owner, prefill(text)
+  property var into: null
+  function readClipboard(owner) {
+    into = owner;
+    clipProc.running = true;
   }
 
   function parse(text) {
     try { return JSON.parse(text); } catch (e) { return { ok: false, error: "bad reply from virustotal.py" }; }
+  }
+
+  // the history: newest first, the option's length; written only when kept
+  onKeepHistoryChanged: persist()
+
+  function persist() {
+    state.history = keepHistory ? history : [];
+    stateFile.writeAdapter();
+  }
+
+  function remember(r) {
+    history = [{ target: r.target, verdict: verdictOf(r) }]
+      .concat(history.filter(h => h.target !== r.target)).slice(0, historyKeep);
+    persist();
+  }
+
+  FileView {
+    id: stateFile
+    path: Quickshell.statePath("virustotal.json")
+    printErrors: false
+    onLoaded: if (root.keepHistory) root.history = state.history.slice(0, root.historyKeep)
+    onLoadFailed: stateFile.writeAdapter()
+
+    JsonAdapter {
+      id: state
+      property var history: []
+    }
   }
 
   Process {
@@ -78,8 +125,20 @@ Singleton {
         root.uploading = false;
         if (!r.ok) { root.error = r.error; return; }
         root.result = r;
-        root.history = [{ target: r.target, verdict: root.verdictOf(r) }]
-          .concat(root.history.filter(h => h.target !== r.target)).slice(0, 20);
+        root.remember(r);
+      }
+    }
+  }
+
+  // the clipboard: a hash (64 hex digits) or an http(s) URL
+  Process {
+    id: clipProc
+    command: ["wl-paste", "--no-newline"]
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const t = text.trim();
+        if (root.into && (/^[0-9a-fA-F]{64}$/.test(t) || /^https?:\/\/\S+$/i.test(t)))
+          root.into.prefill(t);
       }
     }
   }

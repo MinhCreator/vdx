@@ -21,7 +21,7 @@ Item {
 
   KitBarItem {
     id: face
-    icon: "download"
+    icon: "package"
     text: !PackagesService.opt("showCount", true) ? ""
         : PackagesService.checkedAt === 0 ? "--" : String(PackagesService.count)
     tint: PackagesService.count > 0 && PackagesService.opt("tint", true) ? Theme.yellow : Theme.foreground0

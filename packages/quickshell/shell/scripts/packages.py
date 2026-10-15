@@ -2,7 +2,11 @@
 """Package manager for the shell (apps/packages and its bar module). One JSON
 object per command.
 
-    packages.py updates             {"ok", "pacman": [{name, from, to, desc}], "aur": [{name, from, to, desc}], "aurError"}
+    packages.py updates             {"ok", "pacman": [{name, from, to, desc, size}], "aur": [{name, from, to, desc}], "aurError"}
+                                    size: the download of the new version, in bytes (0 when unknown)
+    packages.py progress <name=ver>… {"ok", "bytes"}: what the cache holds of those versions, .part included
+    packages.py plan-download <name>… the steps to download them (pacman -Syw) and one script
+    packages.py plan-install <name>…  the steps to install them from the cache (pacman -S) and one script
     packages.py installed           {"ok", "packages": [{name, version, desc, size, date, aur, explicit, apps}]}
     packages.py cache               {"ok", "packages": [{name, installed, versions: [{version, file, size, date}]}]}
     packages.py last-update         the last upgrade in pacman's log, with its cached files
@@ -15,7 +19,7 @@ Updating itself is not here: the shell opens a terminal and runs
 `yay -Syu --sudo pkexec`, so the password comes from the auth panel (apps/auth).
 Removing and rolling back run through RootService from the plans, after the
 panel shows the steps. Errors: {"ok": false, "error": "..."}."""
-import json, re, shlex, subprocess, sys
+import json, os, re, shlex, subprocess, sys
 from pathlib import Path
 
 CACHE = Path("/var/cache/pacman/pkg")
@@ -71,7 +75,44 @@ def updates():
     info = qi() or {}
     for r in pacman + aur:
         r["desc"] = info.get(r["name"], {}).get("desc", "")
+    # what each repo update downloads: the new versions' sizes from the same copy
+    sizes = download_sizes([r["name"] for r in pacman])
+    for r in pacman:
+        r["size"] = sizes.get(r["name"], 0)
     return {"ok": True, "pacman": pacman, "aur": aur, "aurError": err}
+
+
+def temp_db():
+    # the copy of the databases checkupdates syncs (no root needed); it names it by the user id
+    return os.environ.get("CHECKUPDATES_DB") or f"/tmp/checkup-db-{os.getuid()}"
+
+
+def download_sizes(names):
+    # name -> the size of the new version's download, from the copy of the databases
+    if not names:
+        return {}
+    r = run(["pacman", "-Si", "--dbpath", temp_db()] + names)
+    if r is None or r.returncode != 0:
+        return {}
+    out = {}
+    for block in r.stdout.strip().split("\n\n"):
+        f = {k.strip(): v.strip() for k, v in (l.split(" : ", 1) for l in block.splitlines() if " : " in l)}
+        if f.get("Name"):
+            out[f["Name"]] = size_bytes(f.get("Download Size", ""))
+    return out
+
+
+def progress(args):
+    # bytes of the cached files of name=version, finished or still downloading (.part)
+    total = 0
+    for a in args:
+        name, _, ver = a.partition("=")
+        if not NAME.fullmatch(name) or not re.fullmatch(r"[A-Za-z0-9:._+~-]+", ver):
+            fail(f"bad package: {a}")
+        pat = re.compile(rf"^{re.escape(name)}-{re.escape(ver)}-[^-]+\.pkg\.tar(\.\w+)?(\.part)?$")
+        if CACHE.is_dir():
+            total += sum(f.stat().st_size for f in CACHE.iterdir() if pat.match(f.name) and f.is_file())
+    return {"ok": True, "bytes": total}
 
 
 def size_bytes(text):
@@ -221,6 +262,29 @@ def last_update():
             "packages": packages, "missing": missing}
 
 
+def plan_names(names, label, what, template):
+    if not names:
+        fail("nothing picked")
+    for n in names:
+        if not NAME.fullmatch(n):
+            fail(f"bad package name: {n}")
+    cmd = template.format(names=" ".join(shlex.quote(n) for n in names))
+    steps = [{"label": label.format(n=len(names)), "what": what, "command": cmd}]
+    return {"ok": True, "steps": steps, "script": cmd}
+
+
+# the repo updates in the shell: download first (confirmed in the auth panel),
+# then install from the cache (a second confirmation)
+def plan_download(names):
+    return plan_names(names, "Download {n} packages", "pacman -Syw: into the cache, nothing installed",
+                      "pacman -Syw --noconfirm -- {names}")
+
+
+def plan_install(names):
+    return plan_names(names, "Install {n} packages", "pacman -S: from the cache",
+                      "pacman -S --noconfirm -- {names}")
+
+
 def plan_remove(names):
     if not names:
         fail("nothing picked")
@@ -264,6 +328,12 @@ def main():
         out(last_update())
     elif cmd == "plan-remove":
         out(plan_remove(args))
+    elif cmd == "plan-download":
+        out(plan_download(args))
+    elif cmd == "plan-install":
+        out(plan_install(args))
+    elif cmd == "progress":
+        out(progress(args))
     elif cmd == "plan-rollback":
         out(plan_rollback(args))
     else:
