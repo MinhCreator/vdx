@@ -3,17 +3,17 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// Which plugins the bar shows and where, per monitor: three zones, each in
-// order, plus the switched-off ones. Persists in the state dir. Ids that `plugins` no longer
-// knows are dropped; a new plugin joins its default zone on the Main bar and
+// Which modules the bar shows and where, per monitor: three zones, each in
+// order, plus the switched-off ones. Persists in the state dir. Ids that `modules` no longer
+// knows are dropped; a new module joins its default zone on the Main bar and
 // sits on the shelf of the Extra one.
 Singleton {
   id: root
 
-  // Registry, in default order. A new plugin: an entry here + its Component in
+  // Registry, in default order. A new module: an entry here + its Component in
   // Bar.qml. `icon` names a kit/icons SVG, `about` is the manager's one-liner,
-  // `settings` its options page in the plugin's folder (Shell Manager › Plugins).
-  readonly property var plugins: [
+  // `settings` its options page in the module's folder (Shell Manager › Modules).
+  readonly property var modules: [
     { id: "workspaces",    label: "Workspaces",    zone: "left",   icon: "layout", settings: "WorkspacesSettings.qml", about: "Hyprland workspaces" },
     { id: "music",         label: "Music",         zone: "left",   icon: "music", settings: "MusicSettings.qml", about: "Liked tracks from Yandex Music" },
     { id: "radio",         label: "Radio",         zone: "left",   icon: "radio", settings: "RadioSettings.qml", about: "Internet radio stations" },
@@ -25,13 +25,13 @@ Singleton {
     { id: "battery",       label: "Battery",       zone: "right",  icon: "battery", settings: "BatterySettings.qml", about: "Charge, limit, power profile, GPU" },
     { id: "language",      label: "Language",      zone: "right",  icon: "keyboard", about: "Keyboard layout" },
     { id: "ai",            label: "AI",            zone: "right",  icon: "bot", about: "Claude Code limits, local Ollama models" },
-    { id: "shell",         label: "Shell",         zone: "right",  icon: "sliders", about: "Shell Manager: options, plugins, layout" },
+    { id: "shell",         label: "Shell",         zone: "right",  icon: "sliders", about: "Shell Manager: options, modules, layout" },
     { id: "notifications", label: "Notifications", zone: "right",  icon: "bell", settings: "NotificationsSettings.qml", about: "History and unseen dot" },
-    { id: "capture",       label: "Capture",       zone: "right",  icon: "camera", settings: "CaptureSettings.qml", about: "Screenshots and screen recording" },
+    { id: "capture",       label: "Capture",       zone: "right",  icon: "camera", app: "capture", about: "Screenshots and screen recording" },
     { id: "clipboard",     label: "Clipboard",     zone: "right",  icon: "clipboard", settings: "ClipboardSettings.qml", about: "Copy history, images to drag out" },
     { id: "sysmon",        label: "System",        zone: "right",  icon: "cpu", settings: "SysmonSettings.qml", about: "CPU, memory, GPU, disks, network, sensors" },
-    { id: "taskmanager",   label: "Task manager",  zone: "right",  icon: "activity", settings: "apps/taskmanager/TaskManagerSettings.qml", about: "Load and the busiest programs · Super + D: the full window" },
-    { id: "cleaner",       label: "Cleaner",       zone: "right",  icon: "brush", settings: "apps/cleaner/CleanerSettings.qml", about: "What can go, the safe part in one click · Super + X: the full window" },
+    { id: "taskmanager",   label: "Task manager",  zone: "right",  icon: "activity", app: "taskmanager", about: "Load and the busiest programs · Super + D: the full window" },
+    { id: "cleaner",       label: "Cleaner",       zone: "right",  icon: "brush", app: "cleaner", about: "What can go, the safe part in one click · Super + X: the full window" },
     { id: "windows",       label: "Windows",       zone: "right",  icon: "app-window", about: "Window mode — tiling, floating, scrolling — and placing the active window" },
     { id: "chat",          label: "Chat",          zone: "right",  icon: "message", settings: "ChatSettings.qml", about: "A chat with a free opencode model" },
     { id: "folder",        label: "Folder",        zone: "right",  icon: "folder", about: "Modules tucked away, one click from the bar" }
@@ -39,12 +39,12 @@ Singleton {
   readonly property var zones: ["left", "center", "right"]
 
   // Shell apps with options but no place on the bar (their own windows): listed
-  // with the plugins in Shell Manager › Plugins. `settings` is a path from the
+  // with the modules in Shell Manager › Modules. `settings` is a path from the
   // config root.
   readonly property var apps: [
   ]
-  // plugins and apps, for the Shell Manager's options list
-  readonly property var entries: plugins.concat(apps)
+  // modules and apps, for the Shell Manager's options list
+  readonly property var entries: modules.concat(apps)
 
   // Old ids still found in saved layouts: old -> new.
   readonly property var renamed: ({ claude: "ai", plugins: "shell" })
@@ -66,20 +66,20 @@ Singleton {
   function entry(screen) { return state.screens?.[roleOf(screen)] ?? null; }
   function layout(screen) { return normalize(entry(screen)?.zones ?? state.zones); }
   // Not on this bar: what was put away, and — on the Extra bar — what the
-  // saved layout has never seen (a new plugin joins the Main bar only).
+  // saved layout has never seen (a new module joins the Main bar only).
   function hidden(screen) {
     const e = entry(screen);
     const off = (e?.hidden ?? state.hidden).map(id => renamed[id] ?? id);
     if (roleOf(screen) !== "extra" || !e?.zones) return off;
     const known = zones.reduce((all, z) => all.concat(e.zones[z] ?? []), e.folder ?? []).map(id => renamed[id] ?? id);
-    return off.concat(plugins.map(p => p.id).filter(id => !known.includes(id) && !off.includes(id)));
+    return off.concat(modules.map(p => p.id).filter(id => !known.includes(id) && !off.includes(id)));
   }
   function barOn(screen) { return !(entry(screen)?.off ?? false); }
 
   // In the folder (the Folder module's popup) on this bar, in order: off the
   // strip but still there, one click away.
   function inFolder(screen) {
-    const known = plugins.map(p => p.id);
+    const known = modules.map(p => p.id);
     const off = hidden(screen);
     return (entry(screen)?.folder ?? []).map(id => renamed[id] ?? id)
       .filter(id => known.includes(id) && id !== "folder" && !off.includes(id));
@@ -90,8 +90,8 @@ Singleton {
                       : (state.zones !== null || state.hidden.length > 0);
   }
 
-  function icon(id) { return plugins.find(p => p.id === id)?.icon ?? ""; }
-  // A plugin not placed on a monitor's bar is HIDDEN there (`hidden`).
+  function icon(id) { return modules.find(p => p.id === id)?.icon ?? ""; }
+  // A module not placed on a monitor's bar is HIDDEN there (`hidden`).
 
   function visibleIn(zone, screen) {
     const off = hidden(screen).concat(inFolder(screen));
@@ -101,7 +101,7 @@ Singleton {
   // on, but not placed on this monitor's bar
   function unplaced(screen) {
     const off = hidden(screen);
-    return plugins.map(p => p.id).filter(id => off.includes(id));
+    return modules.map(p => p.id).filter(id => off.includes(id));
   }
 
   // Writes the monitor's entry, starting from what it shows now. Only the
@@ -147,7 +147,7 @@ Singleton {
   function reset(screen) { update(screen, { zones: null, hidden: [], folder: [] }); }
 
   function normalize(saved) {
-    const known = new Set(plugins.map(p => p.id));
+    const known = new Set(modules.map(p => p.id));
     const seen = new Set();
     const z = { left: [], center: [], right: [] };
     for (const name of zones)
@@ -155,7 +155,7 @@ Singleton {
         const id = renamed[old] ?? old;
         if (known.has(id) && !seen.has(id)) { z[name].push(id); seen.add(id); }
       }
-    for (const p of plugins)
+    for (const p of modules)
       if (!seen.has(p.id)) z[p.zone].push(p.id);
     return z;
   }

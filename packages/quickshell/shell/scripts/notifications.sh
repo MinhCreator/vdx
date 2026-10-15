@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# notifications.sh — mako backend for plugins/notifications.
+# notifications.sh — mako backend for modules/notifications.
 #
 #   --list    [{id, app, summary, body, urgency}]  shown + history, newest first
 #

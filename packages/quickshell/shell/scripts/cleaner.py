@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""System cleanup for the cleaner (apps/cleaner and its bar plugin). One JSON
+"""System cleanup for the cleaner (apps/cleaner and its bar module). One JSON
 object per command.
 
     cleaner.py scan                 {"ok", "total", "categories": [{id, label, hint, size, root, safe, command?}]}

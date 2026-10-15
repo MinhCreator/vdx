@@ -23,13 +23,13 @@
 - Клавиши: ↑ ↓ PgUp PgDn — выбор, Delete — End, Shift+Delete — Kill,
   Ctrl+F или `/` — поиск.
 
-Процессы опрашиваются только пока окно (или попап плагина в баре —
-`plugins/taskmanager`) открыто.
+Процессы опрашиваются только пока окно (или попап модуля в баре —
+`modules/taskmanager`) открыто.
 
 ## Настройки
 
-Shell Manager › Plugins › Task manager (`PluginSettings` "taskmanager";
-плагин `taskmanager` в реестре `BarLayout`):
+Shell Manager › Modules › Task manager (`ModuleSettings` "taskmanager";
+модуль `taskmanager` в реестре `BarLayout`):
 группировка по программе, только мои процессы, потоки ядра, сортировка,
 частота обновления (1 / 2 / 5 с), подтверждение перед завершением.
 

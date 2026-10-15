@@ -4,7 +4,7 @@
 Manager › Shell apps). **Super+X** или
 `qs -c shell ipc call cleaner <toggle|open|close>`; Escape закрывает.
 Открытие пересканирует, если прошлому скану больше минуты. Коротко то же —
-плагин в баре (`plugins/cleaner`).
+модуль в баре (`modules/cleaner`).
 
 ## Basic
 
@@ -36,7 +36,7 @@ Manager › Shell apps). **Super+X** или
 
 ## Настройки
 
-Shell Manager › Plugins › Cleaner (`PluginSettings` "cleaner"): подтверждение,
+Shell Manager › Modules › Cleaner (`ModuleSettings` "cleaner"): подтверждение,
 AI mode вкл / выкл, модель (Haiku / Sonnet).
 
 ## Файлы
@@ -45,6 +45,6 @@ AI mode вкл / выкл, модель (Haiku / Sonnet).
 |---|---|
 | `CleanerWindow.qml` | Окно, Escape, IPC `cleaner` |
 | `Cleaner.qml` | Шапка с Basic / AI, список, низ с итогом и кнопкой |
-| `CleanerService.qml` | Скан, выбор, очистка, терминал, AI, корзина (общий с плагином) |
+| `CleanerService.qml` | Скан, выбор, очистка, терминал, AI, корзина (общий с модулем) |
 | `CleanerSettings.qml` | Страница опций |
 | `scripts/cleaner.py` | `scan`, `clean`, `plan` (шаги для root), `ai`, `trash` |

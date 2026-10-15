@@ -73,7 +73,7 @@ Column {
         + "(install.py), a theme overrides only the files it colours, and /etc gets copies, never links."
   }
   Paragraph {
-    text: "The shell is one Quickshell config: a bar of plugins, each a script that talks to the system, "
+    text: "The shell is one Quickshell config: a bar of modules, each a script that talks to the system, "
         + "a service that keeps the state and a view that only reads it — all drawn from the same small kit "
         + "of parts, so a new one looks as if it was always there."
   }

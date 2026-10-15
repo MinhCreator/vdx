@@ -1,95 +1,136 @@
 import QtQuick
 import Quickshell
+import qs.bar
 import qs.config
 import qs.kit
 
-// Shell apps: how each of the shell's own windows opens. Per app one row —
-// its icon, name, how it opens now and the key that opens it; a click unfolds a small monitor showing the
-// window as it will open (and a button to open it), then Window (floating /
-// tiled) and, floating, Size (its own, a preset share of the screen, custom
-// pixels) and Position (one of nine spots, at the cursor, custom x, y).
-// Choices apply at once, numbers on Enter; it shows the next time the window
-// opens.
+// Shell apps: the shell's own apps (ShellAppsService.entries) — the list on
+// the left, the chosen one on the right: its name, what it is and the key
+// that opens it; then its own options page (values in ModuleSettings, Reset
+// brings the defaults back), how its window opens (one line; the options in
+// WindowDialog, for the apps with a window of their own) and its module in the bar (shown, where,
+// its own options). Each pane scrolls on its own.
 Column {
   id: root
 
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "app-window"
   readonly property string title: "Shell apps"
-  readonly property string subtitle: ShellAppsService.apps.length + " APPS · APPLIED THE NEXT TIME ONE OPENS"
+  readonly property string subtitle: ShellAppsService.entries.length + " APPS · "
+                                     + ShellAppsService.apps.length + " WITH A WINDOW"
 
-  // groups for the Shell Manager's sidebar: a click scrolls to `y`
-  readonly property var jumps: {
-    appList.implicitHeight;
-    return ShellAppsService.apps.map((a, i) => ({ key: a.id, label: a.title, y: appList.y + (appRepeater.itemAt(i)?.y ?? 0) }));
+  // its own list does the job of the sidebar's group links
+  readonly property var jumps: []
+
+  property string selected: ShellAppsService.entries[0].id
+  readonly property var entry: ShellAppsService.entries.find(e => e.id === selected) ?? null
+  // its window's settings (shellapps.py), when it has one
+  readonly property var window: entry?.window ? (ShellAppsService.apps.find(a => a.id === entry.window) ?? null) : null
+
+  // the tab: the app or its bar module (an app with a module only)
+  property string scope: "app"
+  readonly property bool hasModule: !!entry?.module
+
+  // where its bar module stands on the main bar: hidden | folder | a zone
+  readonly property string screen: BarLayout.mainScreen()
+  readonly property string place: {
+    const id = entry?.module ?? "";
+    if (id === "" || BarLayout.hidden(screen).includes(id)) return "hidden";
+    if (BarLayout.inFolder(screen).includes(id)) return "folder";
+    const l = BarLayout.layout(screen);
+    return BarLayout.zones.find(z => (l[z] ?? []).includes(id)) ?? "hidden";
   }
 
-  // the one app unfolded ("" none): opening one folds the other
-  property string openApp: ""
-  // the sidebar's link unfolds it
-  function jump(id) { openApp = id; }
-  function toggle(id) { openApp = openApp === id ? "" : id; }
+  // another page, scrolled to one of its groups (ShellManager.navigate)
+  signal navigate(string tab, string target)
+  // how its window opens: the dialog over the Shell Manager
+  signal windowSetup(string id)
+
+  // another page (or `ipc call shell open apps`) may name an app, or its
+  // bar module's id
+  function jump(id) {
+    const e = ShellAppsService.entries.find(e => e.id === id || e.module === id);
+    if (e) selected = e.id;
+  }
 
   spacing: 14
 
   onVisibleChanged: if (visible) { ShellAppsService.refresh(); BindsService.refresh(); }
 
-  Column {
-    id: appList
+  Row {
     width: parent.width
-    spacing: 14
+    height: root.height
+    spacing: 18
 
-    Repeater {
-      id: appRepeater
-      model: ShellAppsService.apps
+    EntryList {
+      id: list
+      width: 190
+      height: parent.height
+      title: "APPS"
+      model: ShellAppsService.entries
+      selected: root.selected
+      onPicked: id => root.selected = id
+    }
+
+    // ---- the chosen app: its name, key, window and options, scrolling on their own ----
+    Flickable {
+      id: pane
+      width: parent.width - list.width - parent.spacing
+      height: parent.height
+      contentHeight: details.implicitHeight
+      interactive: contentHeight > height
+      clip: true
+      boundsBehavior: Flickable.StopAtBounds
 
       Column {
-        id: group
-
-        required property var modelData
-        required property int index
-
-        readonly property var app: modelData
-        readonly property var s: modelData.settings
-        readonly property bool floating: s.mode !== "tiled"
-        readonly property var px: ShellAppsService.sizeOf(app, s)
-        readonly property bool unfolded: root.openApp === app.id
-        readonly property string summary: floating ? "Floating · " + px[0] + " × " + px[1] + " · " + ShellAppsService.placeName(s)
-                                                   : "Tiled, in the layout"
-
-        // the numbers being typed, until Enter
-        property string wDraft: String(s.width)
-        property string hDraft: String(s.height)
-        property string xDraft: String(s.x)
-        property string yDraft: String(s.y)
-
-        function set(change) { ShellAppsService.set(app, change); }
-
-        width: appList.width
+        id: details
+        width: pane.width
         spacing: 14
 
-        // the app: its icon, name, how it opens and its key; a click folds the rest in / out
+        // heading: icon, name and about; the key that opens it; Reset
         Item {
           width: parent.width
-          height: header.implicitHeight
+          height: Math.max(heading.implicitHeight, trailing.height)
 
-          KitIcon {
-            id: appIcon
-            anchors.verticalCenter: parent.verticalCenter
-            name: group.app.icon
-            size: 20
-            tint: group.unfolded ? Theme.foreground0 : Theme.foreground2
+          Row {
+            id: heading
+            anchors { left: parent.left; right: trailing.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
+            spacing: 10
+
+            KitIcon {
+              id: headingIcon
+              anchors.verticalCenter: parent.verticalCenter
+              name: root.entry?.icon ?? ""
+              size: 18
+            }
+
+            Column {
+              anchors.verticalCenter: parent.verticalCenter
+              width: heading.width - headingIcon.width - heading.spacing
+              spacing: 2
+
+              KitText {
+                text: root.entry?.label ?? ""
+                font.weight: Font.ExtraBold
+              }
+
+              KitText {
+                width: parent.width
+                text: root.entry?.about ?? ""
+                elide: Text.ElideRight
+                color: Theme.muted
+                font.pixelSize: Theme.fontSize - 2
+              }
+            }
           }
 
-          KitRow {
-            id: header
-            x: appIcon.width + 14
-            width: parent.width - x
-            label: group.app.title
-            hint: group.summary
+          Row {
+            id: trailing
+            anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+            spacing: 6
 
             Repeater {
-              model: BindsService.keysFor(group.app.bind)
+              model: BindsService.keysFor(root.entry?.bind ?? "")
 
               KeyCap {
                 required property string modelData
@@ -98,190 +139,123 @@ Column {
               }
             }
 
-            Item { width: 6; height: 1 }
+            Item { width: 6; height: 1; visible: !!root.entry?.settings }
 
-            KitIcon {
-              anchors.verticalCenter: parent.verticalCenter
-              name: "chevron-down"
-              size: 16
-              tint: Theme.foreground2
-              rotation: group.unfolded ? 180 : 0
-              Behavior on rotation { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+            KitButton {
+              visible: !!root.entry?.settings
+              icon: "rotate-ccw"
+              text: "Reset"
+              disabled: !ModuleSettings.changed(root.selected)
+              onClicked: ModuleSettings.reset(root.selected)
             }
-          }
-
-          MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: root.toggle(group.app.id)
           }
         }
 
-        // what unfolds
-        Item {
+        KitLine {}
+
+        // the app and its bar module, each on its own tab, so every option
+        // says what it belongs to (only for apps with a module)
+        KitChoices {
           width: parent.width
-          height: group.unfolded ? body.implicitHeight : 0
-          opacity: group.unfolded ? 1 : 0
-          clip: true
-          visible: height > 0
+          visible: root.hasModule
+          stretch: true
+          model: [{ label: "App", value: "app", icon: "app-window" },
+                  { label: "Bar module", value: "bar", icon: "layout" }]
+          current: root.scope
+          onPicked: value => root.scope = value
+        }
 
-          Behavior on height { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
-          Behavior on opacity { NumberAnimation { duration: 220 } }
+        // hidden when off: a zero-height item still takes a Column gap
+        // ---- the app: how its window opens first, then its own options ----
+        Column {
+          width: parent.width
+          visible: root.scope === "app"
+          spacing: 14
 
-          Column {
-            id: body
+          // one line: how it opens now; the options in a dialog (WindowDialog)
+          KitRow {
+            visible: root.window !== null
+            label: "Window"
+            hint: !root.window ? "" : root.window.settings.mode === "tiled" ? "Tiled, in the layout"
+                : "Floating · " + ShellAppsService.sizeOf(root.window, root.window.settings).join(" × ")
+                  + " · " + ShellAppsService.placeName(root.window.settings)
+
+            KitButton {
+              icon: "app-window"
+              text: "Set up"
+              onClicked: root.windowSetup(root.window.id)
+            }
+          }
+
+          KitLine { visible: root.window !== null && !!root.entry?.settings }
+
+          Loader {
             width: parent.width
-            spacing: 14
-
-            // the window as it will open
-            Row {
-              width: parent.width
-              spacing: 18
-
-              WindowPreview {
-                width: 220
-                app: group.app
-                settings: group.s
-              }
-
-              Column {
-                width: parent.width - 220 - parent.spacing
-                spacing: 8
-
-                KitText {
-                  width: parent.width
-                  visible: group.app.id !== "shell-manager"
-                  text: "Shows the next time the window opens."
-                  color: Theme.muted
-                  wrapMode: Text.WordWrap
-                  font.pixelSize: Theme.fontSize - 2
-                }
-
-                KitButton {
-                  visible: group.app.id !== "shell-manager"
-                  icon: "external"
-                  text: "Open it"
-                  onClicked: Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", group.app.ipc, "open"])
-                }
-
-                KitText {
-                  width: parent.width
-                  visible: group.app.id === "shell-manager"
-                  text: "Close and reopen this window to see it."
-                  color: Theme.muted
-                  wrapMode: Text.WordWrap
-                  font.pixelSize: Theme.fontSize - 2
-                }
-              }
-            }
-
-            KitRow {
-              wide: true
-              label: "Window"
-              hint: group.floating ? "Over the others, where you put it" : "Takes its place in the layout"
-
-              KitChoices {
-                stretch: true
-                model: [{ label: "Floating", value: "floating" }, { label: "Tiled", value: "tiled" }]
-                current: group.s.mode
-                onPicked: value => group.set({ mode: value })
-              }
-            }
-
-            KitRow {
-              visible: group.floating
-              wide: true
-              label: "Size"
-              hint: group.s.size === "preset" ? "A share of the screen"
-                  : group.s.size === "custom" ? "Your own, in pixels" : group.app.width + " × " + group.app.height + ", the app's own"
-
-              KitChoices {
-                stretch: true
-                model: [{ label: "Default", value: "default" }, { label: "Preset", value: "preset" }, { label: "Custom", value: "custom" }]
-                current: group.s.size
-                onPicked: value => group.set({ size: value })
-              }
-            }
-
-            KitRow {
-              visible: group.floating && group.s.size === "preset"
-              wide: true
-              label: "Preset"
-              hint: {
-                const p = ShellAppsService.presets[group.s.preset] ?? [0, 0];
-                return Math.round(p[0] * 100) + " × " + Math.round(p[1] * 100) + "% of the screen";
-              }
-
-              KitChoices {
-                stretch: true
-                model: [{ label: "Small", value: "small" }, { label: "Medium", value: "medium" }, { label: "Large", value: "large" }]
-                current: group.s.preset
-                onPicked: value => group.set({ preset: value })
-              }
-            }
-
-            PairRow {
-              visible: group.floating && group.s.size === "custom"
-              label: "Width × height"
-              hint: valid ? "Press Enter to apply" : "At least " + ShellAppsService.minWidth + " × " + ShellAppsService.minHeight
-              first: group.wDraft
-              second: group.hDraft
-              onEdited: (a, b) => { group.wDraft = a; group.hDraft = b; }
-              onAccepted: (a, b) => group.set({ size: "custom", width: a, height: b })
-            }
-
-            KitRow {
-              visible: group.floating
-              wide: true
-              label: "Position"
-              hint: group.s.position === "cursor" ? "Centred on the pointer, on screen"
-                  : group.s.position === "custom" ? "From the screen's top-left" : group.s.position.charAt(0).toUpperCase() + group.s.position.slice(1).replace("-", " ") + " of the screen"
-
-              // a spot of the screen, or the pointer, or your own
-              Row {
-                spacing: 10
-
-                PositionGrid {
-                  id: grid
-                  anchors.verticalCenter: parent.verticalCenter
-                  current: group.s.position
-                  onPicked: spot => group.set({ position: spot })
-                }
-
-                KitChoices {
-                  width: parent.width - grid.width - parent.spacing
-                  stretch: true
-                  model: [{ label: "Cursor", value: "cursor" }, { label: "Custom", value: "custom" }]
-                  current: group.s.position
-                  onPicked: value => group.set({ position: value })
-                }
-              }
-            }
-
-            PairRow {
-              visible: group.floating && group.s.position === "custom"
-              label: "X, Y"
-              hint: valid ? "Press Enter to apply; kept on screen" : "Whole pixels"
-              separator: ","
-              first: group.xDraft
-              second: group.yDraft
-              onEdited: (a, b) => { group.xDraft = a; group.yDraft = b; }
-              onAccepted: (a, b) => group.set({ position: "custom", x: a, y: b })
-            }
+            visible: active
+            active: !!root.entry?.settings
+            source: active ? Quickshell.shellPath(root.entry.settings) : ""
           }
         }
 
-        KitText {
+        // ---- its bar module: a short version of the app in the bar ----
+        Column {
           width: parent.width
-          visible: ShellAppsService.error !== "" && ShellAppsService.errorApp === group.app.id
-          text: ShellAppsService.error
-          color: Theme.red
-          wrapMode: Text.WordWrap
-          font.pixelSize: Theme.fontSize - 1
+          visible: root.scope === "bar"
+          spacing: 14
+
+          KitText {
+            width: parent.width
+            wrapMode: Text.WordWrap
+            color: Theme.muted
+            font.pixelSize: Theme.fontSize - 2
+            text: "The app's short version in the bar: a summary and quick actions; a click opens its popup."
+          }
+
+          KitLabel { text: "PLACE"; value: root.place.toUpperCase() }
+
+          KitRow {
+            label: "Show in the bar"
+            hint: "On the main bar"
+
+            KitSwitch {
+              checked: root.place !== "hidden"
+              onToggled: BarLayout.setEnabled(root.entry.module, !checked, root.screen)
+            }
+          }
+
+          KitRow {
+            visible: root.place !== "hidden"
+            label: "Zone and order"
+            hint: "Dragged on the Bar page"
+
+            KitButton {
+              icon: "layout"
+              text: "Arrange"
+              onClicked: root.navigate("bar", "layout")
+            }
+          }
+
+          KitLine { visible: barOptions.active }
+
+          Loader {
+            id: barOptions
+            width: parent.width
+            visible: active
+            active: !!root.entry?.barSettings && root.place !== "hidden"
+            source: active ? Quickshell.shellPath(root.entry.barSettings) : ""
+          }
         }
 
-        KitLine { visible: group.index < ShellAppsService.apps.length - 1 }
+        // an app with nothing to set gets a row in their place, like one
+        KitRow {
+          visible: root.window === null && !root.entry?.settings && !root.entry?.module
+          label: "No options"
+          hint: "It opens with its key or the system menu"
+          labelColor: Theme.foreground2
+        }
       }
     }
   }
+
+  onSelectedChanged: { pane.contentY = 0; scope = "app"; }
 }

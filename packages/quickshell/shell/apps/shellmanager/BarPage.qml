@@ -42,7 +42,7 @@ Column {
   readonly property string focusId: dragId !== "" ? dragId : hoverId
   readonly property int chipHeight: 28
 
-  function plugin(id) { return BarLayout.plugins.find(p => p.id === id) ?? null; }
+  function module(id) { return BarLayout.modules.find(p => p.id === id) ?? null; }
   function ids(zone) {
     return zone === "hidden" ? BarLayout.unplaced(screenName)
          : zone === "folder" ? BarLayout.inFolder(screenName)
@@ -72,7 +72,7 @@ Column {
     dropZone = "";
   }
 
-  // the bands show placed plugins only; the stored order holds the rest too,
+  // the bands show placed modules only; the stored order holds the rest too,
   // so the slot is translated through its visible neighbours
   function drop() {
     if (dragId !== "" && dropZone === "hidden") {
@@ -148,7 +148,7 @@ Column {
       anchors { left: parent.left; right: layoutActions.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
       text: "LAYOUT"
       // what the pointer is on, or how this works
-      value: root.focusId !== "" ? (root.plugin(root.focusId)?.label ?? "").toUpperCase() + " — " + (root.plugin(root.focusId)?.about ?? "").toUpperCase()
+      value: root.focusId !== "" ? (root.module(root.focusId)?.label ?? "").toUpperCase() + " — " + (root.module(root.focusId)?.about ?? "").toUpperCase()
                                  : "DRAG CHIPS TO ARRANGE"
       valueColor: root.focusId !== "" ? Theme.foreground2 : Theme.muted
     }
@@ -260,7 +260,7 @@ Column {
 
                   KitText {
                     anchors.verticalCenter: parent.verticalCenter
-                    text: root.plugin(chip.modelData)?.label ?? chip.modelData
+                    text: root.module(chip.modelData)?.label ?? chip.modelData
                     color: band.zone === "hidden" ? Theme.muted : Theme.foreground0
                     font.pixelSize: Theme.fontSize - 1
                   }
@@ -317,7 +317,7 @@ Column {
       id: ghost
       z: 10
       visible: root.dragId !== ""
-      text: root.plugin(root.dragId)?.label ?? ""
+      text: root.module(root.dragId)?.label ?? ""
       font.weight: Font.ExtraBold
     }
   }

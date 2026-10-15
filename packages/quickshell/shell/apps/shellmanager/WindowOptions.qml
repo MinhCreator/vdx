@@ -1,0 +1,173 @@
+import QtQuick
+import Quickshell
+import qs.config
+import qs.kit
+
+// How one of the shell's windows opens (Shell apps › WINDOW): a small monitor
+// with the window as it will open and a button to open it, then Window
+// (floating / tiled) and, floating, Size (its own, a preset share of the
+// screen, custom pixels) and Position (one of nine spots, at the cursor,
+// custom x, y). Choices apply at once, numbers on Enter; it shows the next
+// time the window opens.
+Column {
+  id: root
+
+  required property var app                 // ShellAppsService.apps entry
+  required property string ipc              // its IPC target: Open it
+  property bool labelled: true              // its WINDOW label (a dialog has a header)
+
+  readonly property var s: app.settings
+  readonly property bool floating: s.mode !== "tiled"
+  readonly property var px: ShellAppsService.sizeOf(app, s)
+
+  // the numbers being typed, until Enter
+  property string wDraft: String(s.width)
+  property string hDraft: String(s.height)
+  property string xDraft: String(s.x)
+  property string yDraft: String(s.y)
+
+  function set(change) { ShellAppsService.set(app, change); }
+
+  spacing: 14
+
+  KitLabel {
+    visible: root.labelled
+    text: "WINDOW"
+    value: root.floating ? ("FLOATING · " + root.px[0] + " × " + root.px[1]) : "TILED"
+  }
+
+  // the window as it will open
+  Row {
+    width: parent.width
+    spacing: 18
+
+    WindowPreview {
+      width: 220
+      app: root.app
+      settings: root.s
+    }
+
+    Column {
+      width: parent.width - 220 - parent.spacing
+      spacing: 8
+
+      KitText {
+        width: parent.width
+        text: root.app.id === "shell-manager" ? "Close and reopen this window to see it." : "Shows the next time the window opens."
+        color: Theme.muted
+        wrapMode: Text.WordWrap
+        font.pixelSize: Theme.fontSize - 2
+      }
+
+      KitButton {
+        visible: root.app.id !== "shell-manager"
+        icon: "external"
+        text: "Open it"
+        onClicked: Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", root.ipc, "open"])
+      }
+    }
+  }
+
+  KitRow {
+    wide: true
+    label: "Window"
+    hint: root.floating ? "Over the others, where you put it" : "Takes its place in the layout"
+
+    KitChoices {
+      stretch: true
+      model: [{ label: "Floating", value: "floating" }, { label: "Tiled", value: "tiled" }]
+      current: root.s.mode
+      onPicked: value => root.set({ mode: value })
+    }
+  }
+
+  KitRow {
+    visible: root.floating
+    wide: true
+    label: "Size"
+    hint: root.s.size === "preset" ? "A share of the screen"
+        : root.s.size === "custom" ? "Your own, in pixels" : root.app.width + " × " + root.app.height + ", the app's own"
+
+    KitChoices {
+      stretch: true
+      model: [{ label: "Default", value: "default" }, { label: "Preset", value: "preset" }, { label: "Custom", value: "custom" }]
+      current: root.s.size
+      onPicked: value => root.set({ size: value })
+    }
+  }
+
+  KitRow {
+    visible: root.floating && root.s.size === "preset"
+    wide: true
+    label: "Preset"
+    hint: {
+      const p = ShellAppsService.presets[root.s.preset] ?? [0, 0];
+      return Math.round(p[0] * 100) + " × " + Math.round(p[1] * 100) + "% of the screen";
+    }
+
+    KitChoices {
+      stretch: true
+      model: [{ label: "Small", value: "small" }, { label: "Medium", value: "medium" }, { label: "Large", value: "large" }]
+      current: root.s.preset
+      onPicked: value => root.set({ preset: value })
+    }
+  }
+
+  PairRow {
+    visible: root.floating && root.s.size === "custom"
+    label: "Width × height"
+    hint: valid ? "Press Enter to apply" : "At least " + ShellAppsService.minWidth + " × " + ShellAppsService.minHeight
+    first: root.wDraft
+    second: root.hDraft
+    onEdited: (a, b) => { root.wDraft = a; root.hDraft = b; }
+    onAccepted: (a, b) => root.set({ size: "custom", width: a, height: b })
+  }
+
+  KitRow {
+    visible: root.floating
+    wide: true
+    label: "Position"
+    hint: root.s.position === "cursor" ? "Centred on the pointer, on screen"
+        : root.s.position === "custom" ? "From the screen's top-left" : root.s.position.charAt(0).toUpperCase() + root.s.position.slice(1).replace("-", " ") + " of the screen"
+
+    // a spot of the screen, or the pointer, or your own
+    Row {
+      spacing: 10
+
+      PositionGrid {
+        id: grid
+        anchors.verticalCenter: parent.verticalCenter
+        current: root.s.position
+        onPicked: spot => root.set({ position: spot })
+      }
+
+      KitChoices {
+        width: parent.width - grid.width - parent.spacing
+        stretch: true
+        model: [{ label: "Cursor", value: "cursor" }, { label: "Custom", value: "custom" }]
+        current: root.s.position
+        onPicked: value => root.set({ position: value })
+      }
+    }
+  }
+
+  PairRow {
+    visible: root.floating && root.s.position === "custom"
+    label: "X, Y"
+    hint: valid ? "Press Enter to apply; kept on screen" : "Whole pixels"
+    separator: ","
+    first: root.xDraft
+    second: root.yDraft
+    onEdited: (a, b) => { root.xDraft = a; root.yDraft = b; }
+    onAccepted: (a, b) => root.set({ position: "custom", x: a, y: b })
+  }
+
+  KitText {
+    width: parent.width
+    visible: ShellAppsService.error !== "" && ShellAppsService.errorApp === root.app.id
+    text: ShellAppsService.error
+    color: Theme.red
+    wrapMode: Text.WordWrap
+    font.pixelSize: Theme.fontSize - 1
+  }
+}

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# music.sh — MPD backend for plugins/music: Yandex Music likes (yandex-music-cli)
+# music.sh — MPD backend for modules/music: Yandex Music likes (yandex-music-cli)
 # and internet radio (radio-cli stations) in one player.
 #
 #   --status            {service, state, pos, length, elapsed, duration, random, repeat,

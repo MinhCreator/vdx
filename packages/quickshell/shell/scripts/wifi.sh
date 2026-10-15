@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# wifi.sh — NetworkManager backend for plugins/wifi/WifiService.qml.
+# wifi.sh — NetworkManager backend for modules/wifi/WifiService.qml.
 # Every command prints one JSON value; --traffic streams one object per second.
 #
 #   --status             {radio, state, ssid, ip, gateway}

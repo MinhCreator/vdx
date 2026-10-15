@@ -4,21 +4,21 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
-import qs.plugins.sysmon
+import qs.modules.sysmon
 
 // The task manager's state (scripts/tasks.py): processes polled while the
 // window is open, the machine's CPU and memory, the view — filtered,
 // grouped by program or one row per process, sorted — and ending what is
 // selected or any row (TERM, or KILL); polled while the window or the bar's
-// popup is open. Options: Shell Manager › Plugins › Task manager
-// (PluginSettings "taskmanager").
+// popup is open. Options: Shell Manager › Modules › Task manager
+// (ModuleSettings "taskmanager").
 Singleton {
   id: root
 
   readonly property string script: Theme.scriptsDir + "/tasks.py"
 
   // ---- options ----
-  function opt(key, fallback) { return PluginSettings.get("taskmanager", key, fallback); }
+  function opt(key, fallback) { return ModuleSettings.get("taskmanager", key, fallback); }
   readonly property bool group: opt("group", true)
   readonly property bool kernel: opt("kernel", false)
   readonly property bool onlyMine: opt("onlyMine", false)
@@ -26,13 +26,13 @@ Singleton {
   readonly property int refreshMs: opt("refresh", 2) * 1000
   readonly property bool confirm: opt("confirm", true)
 
-  function setSort(key) { PluginSettings.set("taskmanager", "sortBy", key); }
+  function setSort(key) { ModuleSettings.set("taskmanager", "sortBy", key); }
 
   // ---- data ----
   property bool open: false                 // the window is up: poll
   property bool popupOpen: false            // … or the bar's popup
   readonly property bool watching: open || popupOpen
-  // GPU and network come from the System plugin's sampler, kept full meanwhile
+  // GPU and network come from the System module's sampler, kept full meanwhile
   onWatchingChanged: watching ? SysmonService.hold() : SysmonService.release()
 
   // ---- gpu, network ----

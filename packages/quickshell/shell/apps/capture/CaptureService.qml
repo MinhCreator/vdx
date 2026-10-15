@@ -5,7 +5,7 @@ import Quickshell
 import Quickshell.Io
 import qs.components
 import qs.config
-import qs.plugins.battery
+import qs.modules.battery
 
 // Screen capture: the state of the overlay (CaptureOverlay) and the recording
 // (CaptureRecording). Super+Shift+S calls `qs -c shell ipc call capture open`;
@@ -61,17 +61,17 @@ Singleton {
   readonly property string mesaOnly: "/usr/share/glvnd/egl_vendor.d/50_mesa.json"
 
   // ---- output ------------------------------------------------------------------
-  // folders from Shell Manager › Plugins › Capture; empty: the defaults
-  readonly property string shotDir: PluginSettings.get("capture", "shotDir", "") || Quickshell.env("HOME") + "/Pictures/Screenshots"
+  // folders from Shell Manager › Modules › Capture; empty: the defaults
+  readonly property string shotDir: ModuleSettings.get("capture", "shotDir", "") || Quickshell.env("HOME") + "/Pictures/Screenshots"
   // after a shot: folder | ask (a Save as window) | clipboard (nothing on disk);
-  // after a recording: folder | ask. Shell Manager › Plugins › Capture, and the panel.
-  readonly property string shotTarget: PluginSettings.get("capture", "shotTarget", "folder")
-  readonly property string videoTarget: PluginSettings.get("capture", "videoTarget", "folder")
+  // after a recording: folder | ask. Shell Manager › Modules › Capture, and the panel.
+  readonly property string shotTarget: ModuleSettings.get("capture", "shotTarget", "folder")
+  readonly property string videoTarget: ModuleSettings.get("capture", "videoTarget", "folder")
   readonly property string cacheDir: Quickshell.env("HOME") + "/.cache/quickshell-capture"
   // a capture waiting for its Save as answer: {kind: shot | video, tmp, path}
   property var pending: null
   property bool recordAsk: false      // the running recording waits for Save as
-  readonly property string videoDir: PluginSettings.get("capture", "videoDir", "") || Quickshell.env("HOME") + "/Videos/Recordings"
+  readonly property string videoDir: ModuleSettings.get("capture", "videoDir", "") || Quickshell.env("HOME") + "/Videos/Recordings"
 
   function stamp() { return Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss"); }
 

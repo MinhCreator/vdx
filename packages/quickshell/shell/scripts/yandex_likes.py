@@ -2,7 +2,7 @@
 # /// script
 # dependencies = ["yandex-music"]
 # ///
-"""yandex_likes.py — like state of local Yandex Music tracks for plugins/music.
+"""yandex_likes.py — like state of local Yandex Music tracks for modules/music.
 
     --likes       {ok, liked: [id], files: {file: id}}
     --like ID     {ok}

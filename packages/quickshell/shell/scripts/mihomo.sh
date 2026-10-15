@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# mihomo.sh — mihomo backend for plugins/mihomo.
+# mihomo.sh — mihomo backend for modules/mihomo.
 #
 #   --status          {service, mode, group, node, provider, delay}
 #   --providers       [{name, nodes}]

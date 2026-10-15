@@ -1,14 +1,14 @@
 import QtQuick
 import qs.config
 
-// A settings row with choices bound to one plugin option (PluginSettings):
-// `plugin`, `key`, `fallback` (the default), `model` [{label, value}].
+// A settings row with choices bound to one module option (ModuleSettings):
+// `module`, `key`, `fallback` (the default), `model` [{label, value}].
 KitRow {
   id: root
 
   wide: true
 
-  property string plugin
+  property string module
   property string key
   property var fallback
   property var model: []
@@ -16,7 +16,7 @@ KitRow {
   KitChoices {
     stretch: true
     model: root.model
-    current: PluginSettings.get(root.plugin, root.key, root.fallback)
-    onPicked: value => PluginSettings.set(root.plugin, root.key, value)
+    current: ModuleSettings.get(root.module, root.key, root.fallback)
+    onPicked: value => ModuleSettings.set(root.module, root.key, value)
   }
 }

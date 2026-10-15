@@ -4,28 +4,28 @@ import Quickshell.Wayland
 import qs.components
 import qs.config
 import qs.kit
-import qs.plugins.ai
-import qs.plugins.audio
-import qs.plugins.battery
-import qs.plugins.brightness
-import qs.plugins.capture
-import qs.plugins.chat
-import qs.plugins.cleaner
-import qs.plugins.clipboard
-import qs.plugins.clock
-import qs.plugins.folder
-import qs.plugins.language
-import qs.plugins.mihomo
-import qs.plugins.music
-import qs.plugins.notifications
-import qs.plugins.sysmon
-import qs.plugins.taskmanager
-import qs.plugins.radio
-import qs.plugins.wifi
-import qs.plugins.windows
-import qs.plugins.workspaces
+import qs.modules.ai
+import qs.modules.audio
+import qs.modules.battery
+import qs.modules.brightness
+import qs.modules.capture
+import qs.modules.chat
+import qs.modules.cleaner
+import qs.modules.clipboard
+import qs.modules.clock
+import qs.modules.folder
+import qs.modules.language
+import qs.modules.mihomo
+import qs.modules.music
+import qs.modules.notifications
+import qs.modules.sysmon
+import qs.modules.taskmanager
+import qs.modules.radio
+import qs.modules.wifi
+import qs.modules.windows
+import qs.modules.workspaces
 
-// Top bar for one screen. Plugins come from BarLayout (three zones, order,
+// Top bar for one screen. Modules come from BarLayout (three zones, order,
 // switched-off ones); separators sit between neighbours of a zone only. The
 // Shell button opens the Shell Manager.
 PanelWindow {
@@ -123,7 +123,7 @@ PanelWindow {
   Component { id: chat; Chat { bar: root } }
   Component { id: folder; Folder { bar: root; modules: root.modules } }
 
-  // The Shell Manager's button; a plugin of its own so it can move between zones.
+  // The Shell Manager's button; a module of its own so it can move between zones.
   Component {
     id: shell
 

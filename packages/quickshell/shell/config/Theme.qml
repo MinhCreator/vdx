@@ -150,7 +150,7 @@ QtObject {
     return orange;
   }
 
-  // Latency color shared by every plugin; no measurement reads as muted.
+  // Latency color shared by every module; no measurement reads as muted.
   readonly property int pingGoodMs: 100
   readonly property int pingFairMs: 300
 

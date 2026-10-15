@@ -1,7 +1,7 @@
 import QtQuick
 import qs.config
 import qs.kit
-import qs.plugins.windows
+import qs.modules.windows
 
 // Windows: how windows behave (hypr/components/windowmode.lua) — the mode
 // (tiling, floating, scrolling), the options of the current one, the gaps,
@@ -12,7 +12,7 @@ Column {
 
   readonly property var ws: WindowsService
   readonly property var o: WindowsService.opts
-  readonly property var mode: ws.modes.find(m => m.value === ws.mode) ?? ws.modes[0]
+  readonly property var mode: ws.current
 
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "columns"
@@ -42,7 +42,7 @@ Column {
 
     KitChoices {
       stretch: true
-      model: root.ws.modes.map(m => ({ label: m.label, value: m.value }))   // icons don't fit three
+      model: root.ws.choices
       current: root.ws.mode
       onPicked: value => root.ws.setMode(value)
     }

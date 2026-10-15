@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# brightness.sh — backlight and night light backend for plugins/brightness.
+# brightness.sh — backlight and night light backend for modules/brightness.
 #
 #   --get                      {brightness}   backlight, %
 #   --set N                    {brightness}   set the backlight to N %

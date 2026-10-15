@@ -3,7 +3,7 @@
 Окно настроек оболочки — обычное плавающее окно Hyprland (правило в
 `hypr/components/rules.lua`, 820×600). Открывается кнопкой `shell` в баре,
 **Super+S** или `qs -c shell ipc call shell toggle`; конкретная страница —
-`… shell open <appearance|bar>` (старые `themes`, `wallpaper`, `plugins`
+`… shell open <appearance|bar>` (старые `themes`, `wallpaper`, `modules`
 ведут туда же). Escape закрывает.
 
 Оформление настроек — правила в `shell/CLAUDE.md` (раздел «Настройки»).
@@ -13,7 +13,7 @@
 прокручивается только то, что под ней. Под открытым разделом —
 его группы (`jumps` страницы): клик плавно прокручивает к группе, полоска
 слева отмечает ту, что сейчас читается (её заголовок у верха окна; в
-конце страницы — последнюю). У Plugins подпунктов нет — там свой список.
+конце страницы — последнюю). У Modules подпунктов нет — там свой список.
 
 ## Разделы
 
@@ -55,17 +55,17 @@
   - **LAYOUT** — сверху маленький предпросмотр бара (что не влезло в свою
     половину — «+N»), под ним строки, как строки настроек: слева
     **LEFT · CENTER · RIGHT · FOLDER · HIDDEN** (FOLDER — модули в попапе
-    модуля Folder, см. `plugins/folder`), справа чипы «значок + название» в
+    модуля Folder, см. `modules/folder`), справа чипы «значок + название» в
     порядке на баре, с переносом (чипы Material), между строками тонкие
     линии. Чип тянут вдоль строки, в другую или в HIDDEN
     (тонкая черта — куда встанет). **Same as <монитор>** копирует раскладку
-    другого бара, **Reset** — по умолчанию. Новый плагин появляется только на
+    другого бара, **Reset** — по умолчанию. Новый модуль появляется только на
     Main;
   - **STYLE** — анимация подчёркивания модуля с открытым попапом.
-- **Plugins** — только настройки: слева список плагинов, справа опции
+- **Modules** — только настройки: слева список модулей, справа опции
   выбранного — его `<Name>Settings.qml` (поле `settings` в реестре), значения в
-  `config/PluginSettings.qml` (`plugins.json`) — и **Reset** к значениям по
-  умолчанию. Показывать ли плагин и где — страница Bar (строка HIDDEN).
+  `config/ModuleSettings.qml` (`modules.json`) — и **Reset** к значениям по
+  умолчанию. Показывать ли модуль и где — страница Bar (строка HIDDEN).
   Сейчас: часы (12h, секунды, дата), батарея / звук / яркость / Wi-Fi (число
   или имя рядом с иконкой), музыка и радио (длина названия), уведомления
   (точка, высота списка), буфер (лимит), захват (папки), мониторинг (число в
@@ -106,7 +106,7 @@
 | `BarPage.qml`, `BarPreview.qml` | Мониторы, полосы чипов раскладки и предпросмотр бара, анимация подчёркивания |
 | `ShellAppsPage.qml`, `ShellAppsService.qml`, `WindowPreview.qml`, `PositionGrid.qml`, `PairRow.qml` | Shell apps: режим, размер и место окон; схема монитора; сетка 3 × 3; строка из двух чисел |
 | `BindsPage.qml`, `BindsService.qml` | Бинды Hyprland по группам: `hyprctl binds -j`, сворачивание рядов |
-| `PluginsPage.qml` | Список плагинов и страница опций выбранного |
+| `ModulesPage.qml` | Список модулей и страница опций выбранного |
 | `ThemeService.qml` | Список тем, их цвета (все роли), переключение, `Theme.live` |
 | `FontService.qml`, `scripts/fonts.py` | Шрифты: список, установка, `monospace`, перезапуск оболочки |
 | `CursorService.qml`, `scripts/cursors.py` | Курсоры: список, установка, превью, цвет (свой / темы / заданный), размер |
@@ -117,5 +117,5 @@
 
 Опции хранят `config/ShellSettings.qml` (`settings.json`: `solidIcons`,
 `underlineAnimation`, `font`, `wallpaperMode`, `wallpaperColor`,
-`wallpaperImages`), `config/PluginSettings.qml` (`plugins.json`) и `bar/BarLayout.qml` (`layout.json`:
+`wallpaperImages`), `config/ModuleSettings.qml` (`modules.json`) и `bar/BarLayout.qml` (`layout.json`:
 раскладка и выключенные модули по ролям мониторов).

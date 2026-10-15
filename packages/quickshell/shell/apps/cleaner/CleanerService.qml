@@ -7,19 +7,19 @@ import qs.apps.auth
 import qs.config
 
 // The cleaner's state (scripts/cleaner.py), shared by its window and its bar
-// plugin. Basic: categories with their size, a pick per category (the safe
+// module. Basic: categories with their size, a pick per category (the safe
 // ones picked at first); cleaning empties the picked user ones at once and
 // hands the system ones, with their steps in words, to RootService: the
 // shell's panel shows them, asks to confirm (and the password the first time). AI: Claude's
 // suggestions from a summary of ~, picked ones go to the Trash. Options:
-// Shell Manager › Plugins › Cleaner (PluginSettings "cleaner").
+// Shell Manager › Modules › Cleaner (ModuleSettings "cleaner").
 Singleton {
   id: root
 
   readonly property string script: Theme.scriptsDir + "/cleaner.py"
 
   // ---- options ----
-  function opt(key, fallback) { return PluginSettings.get("cleaner", key, fallback); }
+  function opt(key, fallback) { return ModuleSettings.get("cleaner", key, fallback); }
   readonly property bool confirm: opt("confirm", true)
   readonly property bool aiOn: opt("ai", true)
   readonly property string model: opt("model", "haiku")
@@ -73,7 +73,7 @@ Singleton {
     scanProc.running = true;
   }
 
-  // a scan older than a minute is redone (the plugin's popup, the window)
+  // a scan older than a minute is redone (the module's popup, the window)
   function freshen() { if (Date.now() - scannedAt > 60000) scan(); }
 
   function run(args) {

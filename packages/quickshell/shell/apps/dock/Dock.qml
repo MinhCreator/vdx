@@ -5,7 +5,7 @@ import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.config
 import qs.kit
-import qs.plugins.windows
+import qs.modules.windows
 
 // The floating mode's taskbar along the bottom of the focused monitor, like
 // Windows: every window of the active workspace — open ones and those

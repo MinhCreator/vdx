@@ -112,7 +112,7 @@ Rectangle {
              { label: "Clipboard", value: "clipboard", icon: "clipboard" }]
           : [{ label: "Folder", value: "folder", icon: "folder" }, { label: "Ask", value: "ask", icon: "list" }]
         current: CaptureService.kind === "shot" ? CaptureService.shotTarget : CaptureService.videoTarget
-        onPicked: value => PluginSettings.set("capture", CaptureService.kind === "shot" ? "shotTarget" : "videoTarget", value)
+        onPicked: value => ModuleSettings.set("capture", CaptureService.kind === "shot" ? "shotTarget" : "videoTarget", value)
       }
     }
 

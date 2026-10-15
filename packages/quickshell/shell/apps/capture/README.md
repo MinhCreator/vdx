@@ -15,7 +15,7 @@ call capture open`) замораживает все экраны и показы
   **Auto**: от сети — любая видеокарта, от батареи — только встроенная
   (рекордер видит одну Mesa и не будит NVIDIA). Нет VAAPI — кодирует
   процессор.
-- **SAVE** (в панели и в Shell Manager › Plugins › Capture): скриншот —
+- **SAVE** (в панели и в Shell Manager › Modules › Capture): скриншот —
   **Folder** (в папку), **Ask** (окно «Save as» с путём: Enter — сохранить,
   Esc — оставить только в буфере), **Clipboard** (только буфер, на диск ничего);
   запись — **Folder** или **Ask** (спросит при остановке; Esc — в папку по
@@ -23,7 +23,7 @@ call capture open`) замораживает все экраны и показы
   `~/.cache/quickshell-capture`. Скриншот в буфер попадает всегда.
 - Каждый раз открывается в Region / Screenshot со скрытым курсором; настройки
   записи запоминаются (`capture.json` в state-папке), папки — в Shell
-  Manager › Plugins › Capture.
+  Manager › Modules › Capture.
 
 ## Без мерцания и без второго курсора
 

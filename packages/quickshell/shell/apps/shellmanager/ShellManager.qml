@@ -10,7 +10,7 @@ import qs.kit
 //   APPEARANCE — theme, icon style, wallpaper, font and cursor;
 //   BAR        — the layout of the bar's zones, modules on / off, underline.
 //   WINDOWS    — the window mode, each mode's options, gaps, the dock.
-//   PLUGINS    — each plugin's own options.
+//   MODULES    — each bar module's own options (the modules; an app's is set with the app).
 //   SHELL APPS — how the shell's own windows open: floating or tiled, size, spot.
 //   BINDS      — Hyprland's keybinds by group, with a search.
 Rectangle {
@@ -22,14 +22,28 @@ Rectangle {
     { value: "appearance", label: "Appearance", icon: "sun" },
     { value: "bar",        label: "Bar",        icon: "layout" },
     { value: "windows",    label: "Windows",    icon: "columns" },
-    { value: "plugins",    label: "Plugins",    icon: "grid" },
+    { value: "modules",    label: "Modules",    icon: "grid" },
     { value: "apps",       label: "Shell apps", icon: "app-window" },
     { value: "binds",      label: "Binds",      icon: "keyboard" },
     { value: "about",      label: "About",      icon: "info" }
   ]
 
+  // the open section's group links, unfolded by a second click on it
+  property bool navOpen: false
+  readonly property bool dialogOpen: windowDialog.visible
+
+  // another page, at one of its groups or (Shell apps) at one app: the
+  // pages' links between each other (an app's bar module and back)
+  function navigate(value, target) {
+    tab = value;
+    const p = pageFor(value);
+    const j = p.jumps.find(x => x.key === target);
+    if (j) Qt.callLater(() => root.jumpTo(j));
+    else if (target && typeof p.jump === "function") p.jump(target);
+  }
+
   function pageFor(value) {
-    return value === "bar" ? bar : value === "plugins" ? plugins : value === "binds" ? binds : value === "apps" ? apps : value === "windows" ? windows : value === "about" ? about : appearance;
+    return value === "bar" ? bar : value === "modules" ? modules : value === "binds" ? binds : value === "apps" ? apps : value === "windows" ? windows : value === "about" ? about : appearance;
   }
   readonly property Item currentPage: pageFor(tab)
 
@@ -106,6 +120,8 @@ Rectangle {
           required property var modelData
 
           readonly property bool active: modelData.value === root.tab
+          readonly property bool hasJumps: root.pageFor(modelData.value).jumps.length > 0
+          readonly property bool unfolded: active && root.navOpen
 
           width: parent.width
           spacing: 2
@@ -131,21 +147,35 @@ Rectangle {
               font.weight: section.active ? Font.ExtraBold : Font.DemiBold
             }
 
+            // the open section with groups: a second click unfolds them
+            KitIcon {
+              anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
+              visible: section.active && section.hasJumps
+              name: "chevron-down"
+              size: 14
+              tint: Theme.foreground2
+              rotation: section.unfolded ? 180 : 0
+              Behavior on rotation { NumberAnimation { duration: Theme.underlineMs; easing.type: Easing.OutCubic } }
+            }
+
             MouseArea {
               id: itemArea
               anchors.fill: parent
               hoverEnabled: true
-              cursorShape: section.active ? Qt.ArrowCursor : Qt.PointingHandCursor
-              onClicked: root.tab = section.modelData.value
+              cursorShape: section.active && !section.hasJumps ? Qt.ArrowCursor : Qt.PointingHandCursor
+              onClicked: {
+                if (section.active) root.navOpen = !root.navOpen;
+                else root.tab = section.modelData.value;
+              }
             }
           }
 
-          // the open page's groups: a click scrolls there. They unfold under
-          // the section as it opens and fold away as another one does.
+          // the open page's groups: a click scrolls there. A second click on
+          // the open section unfolds them; another section folds them away.
           Item {
             width: section.width
-            height: section.active ? subs.implicitHeight : 0
-            opacity: section.active ? 1 : 0
+            height: section.unfolded ? subs.implicitHeight : 0
+            opacity: section.unfolded ? 1 : 0
             clip: true
 
             Behavior on height { NumberAnimation { duration: Theme.underlineMs + 40; easing.type: Easing.OutCubic } }
@@ -258,25 +288,33 @@ Rectangle {
       implicitHeight: Math.max(appearance.visible ? appearance.implicitHeight : 0,
                                bar.visible ? bar.implicitHeight : 0,
                                binds.visible ? binds.implicitHeight : 0,
-                               apps.visible ? apps.implicitHeight : 0,
+                               apps.visible ? apps.height : 0,
                                windows.visible ? windows.implicitHeight : 0,
                                about.visible ? about.implicitHeight : 0,
-                               plugins.visible ? plugins.height : 0)
+                               modules.visible ? modules.height : 0)
 
       AppearancePage { id: appearance; width: parent.width; visible: root.tab === "appearance" }
       BarPage     { id: bar;     width: parent.width; visible: root.tab === "bar" }
       // fills the window and scrolls its two panes itself
-      ShellAppsPage { id: apps;  width: parent.width; visible: root.tab === "apps" }
+      ShellAppsPage { id: apps;  width: parent.width; onNavigate: (t, k) => root.navigate(t, k); onWindowSetup: id => windowDialog.appId = id; height: page.height - pages.y - 20; visible: root.tab === "apps" }
       WindowsPage { id: windows; width: parent.width; visible: root.tab === "windows" }
       AboutPage   { id: about;   width: parent.width; visible: root.tab === "about" }
       BindsPage   { id: binds;   width: parent.width; visible: root.tab === "binds" }
-      PluginsPage { id: plugins; width: parent.width; height: page.height - pages.y - 20; visible: root.tab === "plugins" }
+      ModulesPage { id: modules; width: parent.width; onNavigate: (t, k) => root.navigate(t, k); height: page.height - pages.y - 20; visible: root.tab === "modules" }
     }
+  }
+
+  // over everything: how a shell window opens (Shell apps)
+  WindowDialog {
+    id: windowDialog
+    anchors.fill: parent
+    z: 10
   }
 
   onTabChanged: {
     if (tab === "themes" || tab === "wallpaper") tab = "appearance";
     page.contentY = 0;
     pinnedJump = "";
+    navOpen = false;
   }
 }

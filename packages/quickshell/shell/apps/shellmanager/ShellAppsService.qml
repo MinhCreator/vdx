@@ -14,6 +14,27 @@ Singleton {
 
   readonly property string script: Theme.scriptsDir + "/shellapps.py"
 
+  // ---- the shell's apps (Shell Manager › Shell apps) ----
+  // id; label; icon; bind — the name of the Hyprland bind that opens it;
+  // window — its id in shellapps.py when it is a window of its own (how it
+  // opens is set); settings — its own options page (values in ModuleSettings
+  // under `id`, a path from the config root); module — its bar module
+  // (BarLayout id), barSettings — that module's own options
+  readonly property var entries: [
+    { id: "shell-manager", label: "Shell Manager", icon: "settings", bind: "Shell Manager", window: "shell-manager",
+      about: "The shell's settings: this window" },
+    { id: "taskmanager", label: "Task manager", icon: "activity", bind: "Task manager", window: "task-manager",
+      settings: "apps/taskmanager/TaskManagerSettings.qml", module: "taskmanager",
+      barSettings: "apps/taskmanager/TaskManagerBarSettings.qml", about: "Processes, CPU and memory, End / Kill" },
+    { id: "cleaner", label: "Cleaner", icon: "brush", bind: "Cleaner", window: "cleaner",
+      settings: "apps/cleaner/CleanerSettings.qml", module: "cleaner", about: "Caches, the trash, the system; an AI mode" },
+    { id: "capture", label: "Capture", icon: "camera", bind: "Capture tool",
+      settings: "modules/capture/CaptureSettings.qml", module: "capture", about: "A region, a window or the screen: a shot or a recording" },
+    { id: "launcher", label: "System menu", icon: "grid", bind: "System menu", about: "Apps, files, the shell's actions, power" },
+    { id: "overview", label: "Overview", icon: "columns", bind: "Overview", about: "Every workspace at once, windows dragged between them" },
+    { id: "lock", label: "Lock screen", icon: "lock", bind: "Lock the screen", about: "A session lock with a PAM password" }
+  ]
+
   // ---- state ----
   property var apps: []                     // [{id, title, icon, width, height, settings}]
   property var presets: ({})                // name -> [share of width, of height]

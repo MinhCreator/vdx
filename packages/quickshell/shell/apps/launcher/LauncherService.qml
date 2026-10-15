@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.modules.windows
 
 // The system menu's lists (Launcher.qml shows them): installed apps, files
 // in ~ (fd), the shell's own actions, power. Every item is
@@ -62,15 +63,17 @@ Singleton {
   ]
 
   // ---- the shell's own actions ----
-  readonly property var shellItems: [
+  // the window modes come from WindowsService, as in its popup and page
+  readonly property var shellItems: modeItems.concat([
     { icon: "sun", title: "Appearance", hint: "Theme, wallpaper, font, cursor", run: () => exec(ipc("shell", "open", "appearance")) },
     { icon: "layout", title: "Bar", hint: "Monitors, layout, modules", run: () => exec(ipc("shell", "open", "bar")) },
     { icon: "columns", title: "Windows", hint: "Window mode, gaps, dock", run: () => exec(ipc("shell", "open", "windows")) },
-    { icon: "keyboard", title: "Binds", hint: "Every keybind", run: () => exec(ipc("shell", "open", "binds")) },
-    { icon: "tiling", title: "Tiling", hint: "Window mode", run: () => exec(ipc("windowmode", "set", "tiling")) },
-    { icon: "app-window", title: "Floating", hint: "Window mode", run: () => exec(ipc("windowmode", "set", "floating")) },
-    { icon: "columns", title: "Scrolling", hint: "Window mode", run: () => exec(ipc("windowmode", "set", "scrolling")) }
-  ]
+    { icon: "keyboard", title: "Binds", hint: "Every keybind", run: () => exec(ipc("shell", "open", "binds")) }
+  ])
+
+
+  readonly property var modeItems: WindowsService.modes.map(m => ({ icon: m.icon, title: m.label, hint: "Window mode",
+                                                                   run: () => WindowsService.setMode(m.value) }))
 
   // ---- power ----
   readonly property var powerItems: [

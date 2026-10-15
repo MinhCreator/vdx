@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# battery.sh — battery, power profile and GPU mode backend for plugins/battery.
+# battery.sh — battery, power profile and GPU mode backend for modules/battery.
 #
 #   --status          {present, capacity, status, plugged, energy, energyFull, energyDesign,
 #                      power, cycles, threshold, profile, profiles}   Wh / W / %
