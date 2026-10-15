@@ -35,8 +35,11 @@ Column {
   readonly property int centerCount: BarLayout.visibleIn("center", screenName).length
   readonly property int sideCount: Math.max(BarLayout.visibleIn("left", screenName).length,
                                             BarLayout.visibleIn("right", screenName).length)
-  readonly property real iconGap: Math.max(2, Math.min(14,
-    ((width - (centerCount * 20 + Math.max(0, centerCount - 1) * 14)) / 2 - 12 - 24 - sideCount * 20) / Math.max(1, sideCount - 1)))
+  // room per icon on the fuller side: the gap shrinks first, then the icons
+  readonly property real slot: Math.min(34,
+    ((width - centerCount * 34) / 2 - 12 - 24) / Math.max(1, sideCount))
+  readonly property real iconBox: Math.max(12, Math.min(20, slot - 2))
+  readonly property real iconGap: Math.max(2, slot - iconBox)
 
   function plugin(id) { return BarLayout.plugins.find(p => p.id === id) ?? null; }
 
@@ -213,8 +216,8 @@ Column {
 
               required property string modelData
 
-              width: 20
-              height: 20
+              width: root.iconBox
+              height: root.iconBox
               opacity: root.dragId === modelData ? 0.25 : 1
 
               KitIcon {
@@ -222,11 +225,11 @@ Column {
                 name: BarLayout.icon(icon.modelData)
                 tint: root.hoverId === icon.modelData ? Theme.foreground0 : Theme.foreground2
                 solid: ShellSettings.solidIcons
-                size: 16
+                size: Math.round(root.iconBox * 0.8)
               }
 
               MouseArea {
-                anchors { fill: parent; margins: -5 }
+                anchors { fill: parent; margins: -root.iconGap / 2 }
                 hoverEnabled: true
                 preventStealing: true
                 cursorShape: pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
