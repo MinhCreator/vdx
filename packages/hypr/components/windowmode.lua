@@ -78,8 +78,71 @@ function SnapWindow(spot)
 	hl.dispatch(hl.dsp.window.move({ x = math.floor(x), y = math.floor(y), window = target }))
 end
 
--- the mode chosen last, at every start and reload
+-- the row of columns one step sideways (scrolling): not past the last
+-- column — when the outermost one on that side is already on screen, no move
+function ScrollColumns(dir)
+	local m = hl.get_active_monitor()
+	local ws = m and m.active_workspace
+	if not ws then return end
+	local scale = m.scale or 1
+	local left, right = m.x, m.x + m.width / scale
+	local minX, maxX = nil, nil
+	for _, w in ipairs(hl.get_workspace_windows(ws.id)) do
+		if w.mapped and not w.floating and not w.hidden then
+			local x = type(w.at) == "table" and (w.at.x or w.at[1]) or 0
+			local width = type(w.size) == "table" and (w.size.x or w.size[1]) or 0
+			minX = minX and math.min(minX, x) or x
+			maxX = maxX and math.max(maxX, x + width) or x + width
+		end
+	end
+	if not minX then return end
+	if dir > 0 and maxX <= right + 1 then return end
+	if dir < 0 and minX >= left - 1 then return end
+	hl.dispatch(hl.dsp.layout(dir > 0 and "move +col" or "move -col"))
+end
+
+-- the mode chosen last, at every start and reload (a switch reloads the
+-- config, so the mode's binds and gestures below are set from scratch)
 local f = io.open(stateFile, "r")
 local saved = f and f:read("*l") or "tiling"
 if f then f:close() end
 WindowMode(saved)
+
+-- wheel and touchpad, the mode's way
+local function bind(keys, action, what)
+	hl.bind(keys, action, { description = (saved == "scrolling" and "Scrolling" or "Workspaces") .. " · " .. what })
+end
+
+if saved == "scrolling" then
+	-- a lone window keeps its column width (half the screen) instead of
+	-- filling it, so a second one opens beside it, as in Niri
+	hl.config({ scrolling = { fullscreen_on_one_column = false } })
+	-- every wheel step is the bind's: with a delay, steps inside it would
+	-- reach the app under the pointer and scroll it too
+	hl.config({ binds = { scroll_event_delay = 0 } })
+	-- the row of columns: Super + wheel, or a three-finger swipe sideways
+	-- the layout's own move: the row slides, the pointer stays where it is
+	-- (a focus move would warp it to the newly focused window)
+	bind("SUPER + mouse_down", function() ScrollColumns(1) end, "Next column")
+	bind("SUPER + mouse_up", function() ScrollColumns(-1) end, "Previous column")
+	hl.gesture({ fingers = 3, direction = "left", action = function() ScrollColumns(1) end })
+	hl.gesture({ fingers = 3, direction = "right", action = function() ScrollColumns(-1) end })
+	-- the active column: half the screen <-> the whole of it, then into view
+	bind("SUPER + W", function()
+		local w = hl.get_active_window()
+		if not w then return end
+		local m = w.monitor or hl.get_active_monitor()
+		local width = type(w.size) == "table" and (w.size.x or w.size[1]) or 0
+		local wide = width > (m.width / (m.scale or 1)) * 0.75
+		hl.dispatch(hl.dsp.layout(wide and "colresize 0.5" or "colresize 1.0"))
+		hl.dispatch(hl.dsp.layout("fit active"))
+	end, "Wide / half column")
+	-- workspaces stack up and down: Super + Shift + wheel, a three-finger swipe up / down
+	bind("SUPER + SHIFT + mouse_down", hl.dsp.focus({ workspace = "e+1" }), "Workspace below")
+	bind("SUPER + SHIFT + mouse_up", hl.dsp.focus({ workspace = "e-1" }), "Workspace above")
+	hl.gesture({ fingers = 3, direction = "vertical", action = "workspace" })
+	hl.animation({ leaf = "workspaces", enabled = true, speed = 1, bezier = "smoothOut", style = "slidevert" })
+else
+	bind("SUPER + mouse_down", hl.dsp.focus({ workspace = "e+1" }), "Next workspace")
+	bind("SUPER + mouse_up", hl.dsp.focus({ workspace = "e-1" }), "Previous workspace")
+end

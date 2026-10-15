@@ -18,8 +18,6 @@ bind("Apps", mainMod .. " + Q", hl.dsp.exec_cmd("kitty"), "Terminal")
 bind("Apps", mainMod .. " + E", hl.dsp.exec_cmd("kitty -e elio"), "File manager")
 bind("Apps", mainMod .. " + M", hl.dsp.exec_cmd("kitty -e ncmpcpp"), "Music player")
 bind("Apps", mainMod .. " + R", hl.dsp.exec_cmd("~/.config/rofi/dmenu.sh"), "App launcher")
-bind("Apps", mainMod .. " + SHIFT + D", hl.dsp.exec_cmd("~/.config/rofi/scripts.sh"), "Scripts menu")
-bind("Apps", mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("~/.config/rofi/boot.sh"), "Boot menu")
 bind("Apps", mainMod .. " + Z", hl.dsp.exec_cmd("swaylock"), "Lock the screen")
 
 -- shell
