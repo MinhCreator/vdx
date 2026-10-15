@@ -20,7 +20,7 @@ Item {
 
   KitBarItem {
     id: face
-    icon: "trash"
+    icon: "brush"
   }
 
   MouseArea {

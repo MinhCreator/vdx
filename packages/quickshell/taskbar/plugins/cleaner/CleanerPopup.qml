@@ -24,7 +24,7 @@ KitFrame {
   Timer { id: disarm; interval: 3000; onTriggered: root.armed = false }
 
   KitHeader {
-    icon: "trash"
+    icon: "brush"
     title: "Cleaner"
     subtitle: root.cs.categories.length === 0 ? "SCANNING…" : root.cs.size(root.cs.total).toUpperCase() + " CAN GO"
 
@@ -100,7 +100,7 @@ KitFrame {
     KitButton {
       id: cleanButton
       anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-      icon: root.armed ? "check" : "trash"
+      icon: root.armed ? "check" : "brush"
       text: root.armed ? "Sure?" : "Clean safe"
       selected: root.armed
       busy: root.cs.busy

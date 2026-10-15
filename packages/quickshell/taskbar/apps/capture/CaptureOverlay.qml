@@ -302,7 +302,11 @@ Variants {
         anchors.fill: parent
         hoverEnabled: true
         acceptedButtons: Qt.LeftButton | Qt.RightButton
-        cursorShape: CaptureService.mode === "region" ? Qt.CrossCursor : Qt.PointingHandCursor
+        // no shape of our own until the stills are taken: a crosshair over the
+        // still-transparent overlay would land in the plain still, and differ
+        // from the pointer still enough to pass for "the pointer is gone"
+        cursorShape: !CaptureService.shown ? Qt.BlankCursor
+                   : CaptureService.mode === "region" ? Qt.CrossCursor : Qt.PointingHandCursor
 
         onPressed: mouse => {
           if (mouse.button === Qt.RightButton) { CaptureService.close(); return; }

@@ -14,7 +14,7 @@ Singleton {
   // Bar.qml. `icon` names a kit/icons SVG, `about` is the manager's one-liner,
   // `settings` its options page in the plugin's folder (Shell Manager › Plugins).
   readonly property var plugins: [
-    { id: "workspaces",    label: "Workspaces",    zone: "left",   icon: "layout", about: "Hyprland workspaces" },
+    { id: "workspaces",    label: "Workspaces",    zone: "left",   icon: "layout", settings: "WorkspacesSettings.qml", about: "Hyprland workspaces" },
     { id: "music",         label: "Music",         zone: "left",   icon: "music", settings: "MusicSettings.qml", about: "Liked tracks from Yandex Music" },
     { id: "radio",         label: "Radio",         zone: "left",   icon: "radio", settings: "RadioSettings.qml", about: "Internet radio stations" },
     { id: "clock",         label: "Clock",         zone: "center", icon: "clock", settings: "ClockSettings.qml", about: "Time, click for the date" },
@@ -31,7 +31,7 @@ Singleton {
     { id: "clipboard",     label: "Clipboard",     zone: "right",  icon: "clipboard", settings: "ClipboardSettings.qml", about: "Copy history, images to drag out" },
     { id: "sysmon",        label: "System",        zone: "right",  icon: "cpu", settings: "SysmonSettings.qml", about: "CPU, memory, GPU, disks, network, sensors" },
     { id: "taskmanager",   label: "Task manager",  zone: "right",  icon: "activity", settings: "apps/taskmanager/TaskManagerSettings.qml", about: "Load and the busiest programs · Super+D: the full window" },
-    { id: "cleaner",       label: "Cleaner",       zone: "right",  icon: "trash", settings: "apps/cleaner/CleanerSettings.qml", about: "What can go, the safe part in one click · Super+X: the full window" },
+    { id: "cleaner",       label: "Cleaner",       zone: "right",  icon: "brush", settings: "apps/cleaner/CleanerSettings.qml", about: "What can go, the safe part in one click · Super+X: the full window" },
     { id: "folder",        label: "Folder",        zone: "right",  icon: "folder", about: "Modules tucked away, one click from the bar" }
   ]
   readonly property var zones: ["left", "center", "right"]

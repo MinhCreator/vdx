@@ -12,5 +12,5 @@
     | map(. as $node | {key: .name, value: (
         ((.ports[] | select(.name == $node.active_port) | {port: .description, type}) // {})
         + {active: .active_port,
-           list: [.ports[] | {name, port: .description, type, available: (.availability != "not available")}]})})
+           list: [.ports[] | {name, port: .description, type, available: (.availability != "not available"), unknown: (.availability == "availability unknown")}]})})
     | from_entries'

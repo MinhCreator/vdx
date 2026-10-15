@@ -19,7 +19,11 @@ Item {
   // the Folder opens this module's popup when its tile is clicked
   function openPopup() { popup.toggle(); }
 
-  readonly property string title: [MpdService.player.artist, MpdService.player.title].filter(s => s).join(" - ")
+  // what the bar names: both, the title or the artist (Plugins › Music)
+  readonly property string show: PluginSettings.get("music", "show", "both")
+  readonly property string title: (show === "title" ? [MpdService.player.title]
+                                 : show === "artist" ? [MpdService.player.artist]
+                                 : [MpdService.player.artist, MpdService.player.title]).filter(s => s).join(" - ")
   readonly property string text: MusicService.active && title !== "" ? title : "Music"
 
   implicitWidth: label.implicitWidth

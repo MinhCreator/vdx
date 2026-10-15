@@ -105,6 +105,7 @@ KitFrame {
                 anchors.centerIn: parent
                 visible: station.current && MpdService.busy !== station.modelData.key
                 name: "check"
+                tint: Theme.green
                 size: 14
               }
             }

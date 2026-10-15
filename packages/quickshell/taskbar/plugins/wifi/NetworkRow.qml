@@ -49,6 +49,7 @@ Rectangle {
     anchors { right: bars.left; rightMargin: 10; verticalCenter: parent.verticalCenter }
     opacity: root.current ? 1 : 0
     name: "check"
+    tint: Theme.green
     size: 14
   }
 

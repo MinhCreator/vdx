@@ -308,6 +308,7 @@ Column {
                     anchors.centerIn: parent
                     visible: item.modelData === ThemeService.current && ThemeService.applying !== item.modelData
                     name: "check"
+                    tint: Theme.green
                     size: 14
                   }
                 }

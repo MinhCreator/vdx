@@ -37,7 +37,7 @@ Rectangle {
     spacing: 14
 
     KitHeader {
-      icon: "trash"
+      icon: "brush"
       title: "Cleaner"
       subtitle: (root.cs.categories.length === 0 ? "SCANNING…" : root.cs.size(root.cs.total).toUpperCase() + " CAN GO")
         + (root.tab === "ai" && root.cs.suggestions.length > 0 ? " · " + root.cs.suggestions.length + " SUGGESTIONS" : "")
@@ -239,7 +239,7 @@ Rectangle {
       KitButton {
         id: action
         anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-        icon: root.armed ? "check" : "trash"
+        icon: root.armed ? "check" : root.tab === "ai" ? "trash" : "brush"
         text: root.armed ? "Sure?" : root.tab === "ai" ? "Move to Trash" : "Clean"
         selected: root.armed
         busy: root.cs.busy

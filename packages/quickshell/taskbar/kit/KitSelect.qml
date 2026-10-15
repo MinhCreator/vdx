@@ -153,6 +153,7 @@ Column {
             anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
             visible: option.active
             name: "check"
+            tint: Theme.green
             size: 14
           }
 

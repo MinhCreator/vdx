@@ -22,7 +22,7 @@ RULES = STATE.with_suffix(".lua")
 APPS = [
     {"id": "shell-manager", "title": "Shell Manager", "icon": "settings", "width": 820, "height": 600},
     {"id": "task-manager", "title": "Task Manager", "icon": "activity", "width": 780, "height": 600},
-    {"id": "cleaner", "title": "Cleaner", "icon": "trash", "width": 760, "height": 620},
+    {"id": "cleaner", "title": "Cleaner", "icon": "brush", "width": 760, "height": 620},
 ]
 # share of the monitor
 PRESETS = {"small": [0.5, 0.55], "medium": [0.65, 0.7], "large": [0.8, 0.85]}

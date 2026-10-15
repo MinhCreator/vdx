@@ -35,7 +35,7 @@ Rectangle {
     height: 18
     color: Theme.background0
 
-    KitIcon { anchors.centerIn: parent; name: "check"; size: 12 }
+    KitIcon { anchors.centerIn: parent; name: "check"; size: 12; tint: Theme.green }
   }
 
   MouseArea {

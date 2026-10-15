@@ -35,6 +35,10 @@ Singleton {
   // Whether output or input is still live; the header switch mutes both.
   readonly property bool live: !muted || !(source?.audio?.muted ?? true)
 
+  // headphones in the jack: a sink's headphone port is available (its jack
+  // detection works, unlike the mic's)
+  readonly property bool jackIn: sinks.some(n => (ports[n.name]?.list ?? []).some(p => p.type.startsWith("Head") && p.available))
+
   function nodesOf(type) {
     return Pipewire.nodes.values.filter(n => n.type === type);
   }
@@ -51,7 +55,10 @@ Singleton {
     const entries = [];
     for (const node of nodes) {
       const info = ports[node.name];
-      const list = (info?.list ?? []).filter(p => p.available || p.type === "Speaker" || p.name.includes("internal") || p.name === info.active);
+      // a jack mic that can't tell it is plugged (availability unknown) is
+      // listed only while headphones are in, or when it is the one in use
+      const list = (info?.list ?? []).filter(p => p.name === info.active || p.type === "Speaker" || p.name.includes("internal")
+                                               || (p.available && !(p.unknown && p.type === "Mic" && !root.jackIn)));
       if (list.length === 0)
         entries.push({ key: node.name + "|" + (info?.active ?? ""), node: node, port: "", label: nameOf(node), about: node.description });
       for (const p of list)

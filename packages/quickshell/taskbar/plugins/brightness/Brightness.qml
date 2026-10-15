@@ -19,7 +19,7 @@ Item {
 
   KitBarItem {
     id: label
-    icon: "sun"
+    icon: BrightnessService.nightActive ? "moon" : "sun"
     text: PluginSettings.get("brightness", "percent", true) ? String(BrightnessService.brightness) : ""
     tint: BrightnessService.nightActive ? Theme.orange : Theme.foreground0
   }

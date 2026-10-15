@@ -9,6 +9,9 @@ KitFrame {
 
   readonly property real temperatureSpan: Theme.nightTemperatureMax - Theme.nightTemperatureMin
 
+  // three rows: narrower than the other popups
+  implicitWidth: 300
+
   // ---- header ----------------------------------------------------------------
   KitHeader {
     icon: BrightnessService.nightActive ? "moon" : "sun"
