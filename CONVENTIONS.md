@@ -1,150 +1,92 @@
-# Правила репозитория dotfiles
+# Conventions
 
-Как устроен репозиторий, куда что класть, как коммитить. Обязательно и для
-человека, и для агентов (агентам — ещё `CLAUDE.md`). Если правило мешает —
-меняй правило здесь, а не обходи его.
+Rules for people and agents. If a rule is in the way, change it here.
 
-## 1. Куда что класть
+## Where things go
 
-| Что | Куда | Как попадает в систему |
+| What | Where | How it gets installed |
 |---|---|---|
-| Конфиг программы | `packages/<программа>/` | ссылка в `~/.config/<программа>/` |
-| Файл в домашнем каталоге | `home/` | ссылка в `~/` |
-| Цвета и прочее, что зависит от темы | `themes/<тема>/<программа>/` (новая тема — `themes/mktheme.py`) | перекрывает одноимённый файл пакета |
-| Обои-картинки | `wallpapers/<тема>/`, общие — `wallpapers/common/` | Shell Manager › Appearance читает их прямо из репозитория |
-| Файл в `/etc` | `system/<путь от корня>` | копия через `./install.py system install` |
-| Нужная программа | `deps/pacman.txt` или `deps/aur.txt` | `./install.py deps` |
-| Шаблон секрета | `secrets/*.example` | `./install.py bootstrap` |
-| Заметки, гайды | `docs/` | — |
+| A program's config | `packages/<pkg>/` | linked into `~/.config/<pkg>/` |
+| A file in `~` | `home/` | linked into `~/` |
+| Anything theme-dependent | `themes/<theme>/<pkg>/` | shadows the package file |
+| Wallpapers | `wallpapers/<theme>/`, `wallpapers/common/` | read by the Shell Manager |
+| A file in `/etc` | `system/<path>` | copied by `./install.py system install` |
+| A required program | `deps/pacman.txt`, `deps/aur.txt` | `./install.py deps` |
+| A secret's template | `secrets/*.example` | `./install.py bootstrap` |
+| Notes | `docs/` | — |
 
-- Один пакет — одна программа. Нестандартный путь установки — в
-  `packages/<pkg>/package.toml` (`dir`, `skip`, `[files]`), а не скриптом.
-- Пакет хранит полный рабочий конфиг (база); тема — только то, что от неё
-  зависит. Без активной темы всё должно работать.
-- `/etc` руками не правим для того, что лежит в `system/`: правка в репозитории,
-  затем `./install.py system install`. `./install.py system status` показывает
-  расхождения.
-- Новая программа в конфигах — сразу в `deps/`, под реальным именем пакета
-  (`mihomo-bin`, а не `mihomo`). Проверка: `./install.py deps --check`.
-- `packages/scripts/*.sh` — хелперы для алиасов zsh, их не трогаем без задачи.
+- One package per program. A non-default install path goes in
+  `packages/<pkg>/package.toml` (`dir`, `skip`, `[files]`).
+- A package holds a complete working config; a theme holds only what depends on
+  it. Everything works without an active theme.
+- Real package names in `deps/` (`mihomo-bin`, not `mihomo`);
+  check with `./install.py deps --check`.
 
-## 1a. Цвета и темы
+## Themes
 
-- Одна тема на весь рабочий стол, цвета берутся **по ролям** из
-  `themes/gruvbox/README.md` (фон, текст, рамки, выделение, акценты по смыслу).
-  Хекс вне темы в своих конфигах — ошибка (импортированные темы программ —
-  Zed, btop — могут держать свои промежуточные оттенки).
-- Всё, что зависит от темы, живёт в `themes/<тема>/<программа>/`; пакет хранит
-  рабочую базу (gruvbox). Программа без поддержки темы (Telegram) — в пакете.
-- Новая тема — её цвета в `themes/mktheme.py` и `python3 themes/mktheme.py
-  <имя>`: тот же набор файлов, цвета заменены по ролям. Руками в
-  сгенерированных темах не правим — правим генератор или gruvbox и
-  пересобираем.
-- Переключение — `./install.py theme set <имя>` или Shell Manager; оно же
-  перезагружает Hyprland, mako, kitty, tmux.
+- One theme for the whole desktop; colours by role
+  ([themes/gruvbox/README.md](themes/gruvbox/README.md)). A hex outside a theme
+  is a bug (imported themes of Zed and btop may keep their own shades).
+- A new theme: its colours in `themes/mktheme.py`, then
+  `python3 themes/mktheme.py <name>`. Generated themes are not edited by hand.
+- Switch: `./install.py theme set <name>` or the Shell Manager.
 
-## 1b. Стиль файлов
+## File style
 
-- Первая строка конфига — комментарий `<программа> — <что это за файл>`,
-  вторая — ссылка на документацию (если есть). Скрипт — то же после shebang.
-- Заголовки секций — коротко, обычным регистром (`# Keybindings`), без капса и
-  рамок из символов. QML и Lua внутри файла — `// ---- name ----` /
-  `-- ---- name ----` для крупных разделов.
-- Комментарий объясняет «зачем» или неочевидное, не пересказывает код.
-  Комментарии в коде и конфигах — по-английски, документация — по-русски
-  (README пакетов бара, `CONVENTIONS.md`) или по-английски (корневой README).
-- Файлы, которые программа перезаписывает сама (`btop.conf`, `gh/config.yml`),
-  оставляем в её формате.
+- First line: `<program> — <what this file is>` as a comment, then a link to the
+  docs if there is one; scripts put it after the shebang. QML: a comment right
+  before the root object. Python: the module docstring.
+- Section markers: `# Section` in configs, `// ---- name ----` in QML,
+  `-- ---- name ----` in Lua.
+- Comments explain why or what is not obvious; everything in English.
+- Files a program rewrites itself (`btop.conf`, `gh/config.yml`) keep its format.
 
-## 2. Ссылки
+## Links
 
-- Файлы линкуются по одному. Новый файл в пакете не виден, пока не выполнен
-  `./install.py link`.
-- После любой правки структуры: `./install.py verify` — должно быть `all … ok`.
-- Удалил файл из пакета — `link` сам уберёт устаревшую ссылку.
-- `.theme` — локальное состояние машины, в git не попадает (без него — gruvbox).
+- Files are linked one by one: a new file is invisible until `./install.py link`.
+- After any structural change `./install.py verify` must report `all … ok`.
+- `.theme` is local state, not in git (gruvbox when absent).
 
-## 3. Секреты
+## Secrets
 
-- Не коммитим: токены, ключи, пароли, `hosts.yml`, отрендеренный
-  `mihomo/config.yaml`, `providers/`, файлы с личными данными.
-- Ключи и токены живут в `~/.config/secrets/env` (из `secrets/env.example`) или
-  рядом с программой вне репозитория (токен Яндекс Музыки).
-- Нужен новый секрет — добавь шаблон `*.example` и строку в `.gitignore`,
-  опиши в таблице «Secrets» в README.
-- Исключение по решению владельца: `packages/mihomo/subscriptions.json` в git
-  (репозиторий приватный). Если репозиторий станет публичным — убрать из git и
-  из истории.
-- Перед коммитом смотри `git diff --cached` на предмет ключей и токенов.
+- Never committed: tokens, keys, passwords, `hosts.yml`, the rendered
+  `mihomo/config.yaml`, `providers/`, personal data.
+- Keys live in `~/.config/secrets/env` (from `secrets/env.example`) or next to
+  their program outside the repo.
+- A new secret: a `*.example` template, a `.gitignore` line, a row in the
+  README's Secrets table.
+- Exception: `packages/mihomo/subscriptions.json` is in git while the repository
+  is private.
 
-## 4. Сабмодули
+## Submodules
 
-| Путь | Репозиторий |
-|---|---|
-| `packages/nvim` | diominvd/neovim |
-| `packages/scripts/yandex-music` | diominvd/yandex-music-cli |
-| `packages/scripts/radio` | diominvd/radio-cli |
-| `packages/scripts/vpn` | diominvd/vpn-manager-cli |
+`packages/nvim`, `packages/scripts/yandex-music`, `packages/scripts/radio`,
+`packages/scripts/vpn` change in their own repositories; here only
+`git submodule update --remote <path>` and a `<scope>: bump submodule` commit.
 
-- Код сабмодуля меняем в его репозитории: коммит и push там, потом здесь
-  `git submodule update --remote <путь>` и коммит `<scope>: bump submodule`.
-- Не оставляем незакоммиченные правки внутри сабмодуля: при следующем
-  `submodule update` они потеряются.
+## Commits
 
-## 5. Коммиты
+`scope: what changed` — English, lowercase, imperative, no full stop, ≤ ~72
+characters; a body says why. Scopes: a package name (`hypr`, `quickshell`, …),
+`themes`, `scripts`, `system`, `installer`, `docs`, `repo`.
 
-Формат — одна строка `scope: что сделано`, по-английски, с маленькой буквы, в
-повелительном наклонении, без точки, до ~72 символов. При необходимости —
-пустая строка и тело: зачем, а не что.
+- One commit, one logical change.
+- Nothing broken: `./install.py verify`; `bash -n` for scripts;
+  `qs log -c shell` without errors for the shell.
+- Agents' commits end with a `Co-Authored-By:` trailer.
+
+## Branches
+
+`main` is the default. Published history is not rewritten except by the
+owner's decision, with a backup (`git bundle create … --all`) first. No hooks:
+commands that check out old commits run with `git -c core.hooksPath=/dev/null`
+and end with `./install.py link`.
+
+## Before a push
 
 ```
-quickshell: add battery plugin
-hypr: float and center the portal file chooser at 900x600
-installer: interactive menu, consistent colored output
-```
-
-`scope`:
-- имя пакета — `hypr`, `zsh`, `quickshell`, `nvim`, `mihomo`, …;
-- `themes` — темы; `scripts` — `packages/scripts`; `system` — `system/`;
-- `installer` — `install.py` и `deps/`; `docs` — README, `docs/`, правила;
-- `repo` — структура репозитория, `.gitignore`, переезды.
-
-Правила:
-- Один коммит — одно логическое изменение. Правки разных пакетов — разные
-  коммиты, если они не связаны одной задачей.
-- Без `wip`, `checkpoint`, `fix`, `updates`, `minor tweaks` — сообщение должно
-  объяснять изменение без открытия diff.
-- Не коммитим сломанное: перед коммитом `./install.py verify`, для скриптов —
-  `bash -n`, для quickshell — `qs log -c shell` без ошибок.
-- Коммиты агентов заканчиваются трейлером `Co-Authored-By: …`.
-
-## 6. Ветки и история
-
-- Основная ветка — `main`, она же по умолчанию на GitHub. Короткие ветки для
-  крупных переделок — по желанию, в `main` вливаются без merge-коммитов
-  (rebase или squash).
-- Опубликованную историю не переписываем. Исключение — осознанная чистка по
-  решению владельца: перед ней резервная копия (`git bundle create … --all`
-  и метка `backup/<что>`), сборка на отдельной ветке, проверка
-  `git diff old new` = пусто.
-- Хуков нет. При операциях, которые переключают рабочее дерево на старые
-  коммиты, отключай их явно: `git -c core.hooksPath=/dev/null …`, в конце —
-  `./install.py link`.
-
-## 7. Документация
-
-- `README.md` — установка, команды, устройство. Обновляется в том же коммите,
-  что меняет команды или структуру.
-- `CONVENTIONS.md` (этот файл) — правила; `CLAUDE.md` — коротко для агентов.
-- Бар: `packages/quickshell/shell/CLAUDE.md` (архитектура и UI-правила),
-  `README.md` в каждом плагине.
-- Документация описывает то, что есть. Удалил фичу — удали и её описание.
-
-## 8. Перед push
-
-```
-./install.py verify          # ссылки
-./install.py system status   # /etc совпадает с system/
-git status                   # ничего лишнего, секретов нет
-git log --oneline -5         # сообщения по формату
+./install.py verify
+./install.py system status
+git status
+git log --oneline -5
 ```

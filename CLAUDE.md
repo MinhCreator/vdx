@@ -1,27 +1,21 @@
-# dotfiles — инструкция для агента
+# dotfiles — rules for agents
 
-Перед изменениями прочитай `CONVENTIONS.md` — там все правила репозитория.
-Самое важное для агента:
+Read [CONVENTIONS.md](CONVENTIONS.md) before changing anything. In short:
 
-- Конфиги лежат в `packages/<pkg>/` и линкуются по одному файлу: после
-  добавления или удаления файла — `./install.py link`, затем
-  `./install.py verify`.
-- Тема перекрывает файлы пакета (`themes/<тема>/<pkg>/`). Цвета — только по
-  ролям темы (`themes/gruvbox/README.md`); новая тема — `themes/mktheme.py`,
-  сгенерированные темы руками не правим.
-- Стиль файлов (шапка, заголовки секций, комментарии) — `CONVENTIONS.md` §1b.
-- `/etc` — только через `system/` и `./install.py system install` (нужен sudo:
-  дай пользователю команду, не запускай сам).
-- Новая программа в конфигах — строка в `deps/pacman.txt` или `deps/aur.txt`.
-- Секреты не коммитить. Перед коммитом — `git diff --cached`.
-- Сабмодули (`packages/nvim`, `packages/scripts/{yandex-music,radio,vpn}`)
-  меняются в своих репозиториях.
-- `packages/scripts/*.sh` — хелперы алиасов zsh, без задачи не трогать.
-- Коммиты: `scope: message`, одно логическое изменение, трейлер
-  `Co-Authored-By`. Ветка `main`, опубликованную историю не переписывать без
-  явного решения владельца.
-- Команды, которые переключают рабочее дерево на старые коммиты, —
-  с `git -c core.hooksPath=/dev/null`, в конце `./install.py link`: иначе
-  ссылки в `~/.config` указывают на старое состояние.
-- Бар Quickshell: `packages/quickshell/shell/CLAUDE.md`.
-- Чужие незакоммиченные правки не коммить и не откатывать без спроса.
+- Configs live in `packages/<pkg>/`, linked file by file: after adding or
+  removing a file run `./install.py link`, then `./install.py verify`.
+- Theme files override package files (`themes/<theme>/<pkg>/`). Colours by role
+  only (`themes/gruvbox/README.md`). Generated themes are never edited by hand:
+  change gruvbox or `themes/mktheme.py` and rebuild.
+- `/etc` only through `system/` and `./install.py system install` (sudo: give
+  the user the command, don't run it).
+- A new program used by a config goes to `deps/pacman.txt` or `deps/aur.txt`.
+- No secrets in git; check `git diff --cached` before committing.
+- Submodules (`packages/nvim`, `packages/scripts/{yandex-music,radio,vpn}`) are
+  changed in their own repositories.
+- Commits: `scope: message`, one logical change, a `Co-Authored-By` trailer.
+  Branch `main`; published history is not rewritten without the owner.
+- Commands that check out old commits: `git -c core.hooksPath=/dev/null …`,
+  then `./install.py link`.
+- The shell (Quickshell): `packages/quickshell/shell/CLAUDE.md`.
+- Don't commit or revert someone else's uncommitted changes without asking.

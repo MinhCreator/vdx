@@ -1,174 +1,86 @@
 # dotfiles
 
-Arch Linux / Hyprland / Zsh / Neovim dotfiles with one theme across the whole
-desktop (gruvbox, graphite, ember, khaki), deployed by a
-manifest-based symlink manager in pure Python stdlib — no stow.
+Arch Linux + Hyprland, one theme across the desktop, deployed by `install.py`
+(Python stdlib, per-file symlinks).
 
-| Component | Software |
-|-----------|----------|
-| Desktop | Hyprland (Lua config) + Quickshell bar + Mako + Rofi + Swaylock |
-| Shell | Zsh + Oh My Zsh + Starship |
-| Editor | Neovim (lazy.nvim, LSP, Treesitter, Telescope), Zed |
-| Terminal | Kitty + tmux (TPM) |
-| Music | MPD + ncmpcpp + Yandex Music CLI + radio CLI |
-| VPN | Mihomo (Clash Meta) + `vpn` manager |
-| Other | btop, fastfetch, elio, opencode |
-
----
+| | |
+|---|---|
+| Desktop | Hyprland (Lua config), Quickshell shell, mako |
+| Shell | zsh, Oh My Zsh, Starship |
+| Editor | Neovim, Zed |
+| Terminal | kitty, tmux |
+| Music | MPD, ncmpcpp, Yandex Music and radio CLIs |
+| VPN | Mihomo + `vpn` |
 
 ## Install
 
-On a fresh Arch install (with `git` and `python` ≥ 3.11):
+Fresh Arch with `git` and `python` ≥ 3.11:
 
 ```bash
 git clone --recursive git@github.com:diominvd/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-./install.py setup          # or just ./install.py for the menu
+./install.py setup
 ```
 
-`setup` is idempotent — each step skips what is already in place:
-
-1. **packages** — missing ones from `deps/pacman.txt` (`pacman --needed`) and
-   `deps/aur.txt` (`paru` or `yay`);
-2. **submodules** — nvim and the script CLIs;
-3. **links** — `~/` and `~/.config` symlinks for the active theme;
-4. **secrets** — seeds `~/.config/secrets/env` from `secrets/env.example`;
-5. **shell plugins** — Oh My Zsh, zsh-autosuggestions, zsh-syntax-highlighting,
-   TPM (cloned when missing);
-6. **system files** — `system/` into `/etc` with sudo;
-7. **verify** — reports broken, missing or stale links.
-
-Hyprland must be a build with the Lua config layer (0.55+ or git): the config
-is `hyprland.lua` (`hl.*` API) — https://hypr.land/news/26_lua/
-
----
+`setup` installs `deps/`, submodules, links, the secrets template, zsh / tmux
+plugins and `system/`, then verifies. Each step skips what is in place.
+Hyprland needs the Lua config layer (0.55+).
 
 ## Commands
 
-`./install.py` with no arguments opens a menu: a status overview (theme,
-links, system files, missing packages) and numbered actions.
+`./install.py` alone opens a menu.
 
-| Command | What it does |
-|---------|--------------|
-| `./install.py setup` | Fresh machine: everything above |
-| `./install.py deps [--check]` | Install missing packages (`--check`: only list them) |
-| `./install.py link` | Create/refresh symlinks, drop stale ones (`update` is an alias) |
-| `./install.py force` | Unlink + link everything |
-| `./install.py unlink` | Remove all managed symlinks |
-| `./install.py cleanup` | Remove stale symlinks only |
-| `./install.py status` | Per-package link status |
-| `./install.py verify` | Broken / missing / stale links (non-zero exit on problems) |
-| `./install.py bootstrap [-f]` | Seed secrets from templates |
-| `./install.py system status\|install` | Compare / install `system/` files into `/etc` |
-| `./install.py theme list\|current\|set <name>` | Themes; `set` re-links and reloads Hyprland, mako, kitty, tmux |
+| Command | |
+|---|---|
+| `setup` | everything above |
+| `deps [--check]` | install missing packages |
+| `link` | create / refresh links, drop stale ones |
+| `force` | unlink + link |
+| `unlink` · `cleanup` | remove all links · only stale ones |
+| `status` · `verify` | per-package status · broken, missing, stale links |
+| `bootstrap [-f]` | seed secrets from templates |
+| `system status\|install` | compare / install `system/` into `/etc` |
+| `theme list\|current\|set <name>` | themes; `set` re-links and reloads |
 
-Commands that change or remove things (`force`, `unlink`, `deps`,
-`system install`, `setup`) ask first; `-y` answers yes, and without a terminal
-they do nothing unless `-y` is given.
-
-After adding a file to a package, run `./install.py link` — files are linked
-one by one, so a new one is not visible until then.
-
----
+Destructive commands ask first; `-y` answers yes.
 
 ## Layout
 
 ```
-.dotfiles/
-├── install.py         manager (stdlib only, PEP 723: `uv run install.py`)
-├── deps/              pacman.txt, aur.txt — package lists for `deps` / `setup`
-├── home/              -> ~/                 (.zshenv)
-├── packages/<pkg>/    -> ~/.config/<pkg>/   (one package per program)
-├── themes/<name>/     overlay mirroring packages/ (active theme wins per file)
-│   └── mktheme.py     derives a theme from gruvbox role by role
-├── system/            -> /                  (copied with sudo, never linked)
-├── secrets/           env.example — template for ~/.config/secrets/env
-├── docs/              power management notes
-├── CONVENTIONS.md     repository rules: layout, secrets, submodules, commits
-└── CLAUDE.md          the same rules, short, for coding agents
+install.py     the manager
+deps/          pacman.txt, aur.txt
+home/          -> ~/
+packages/      -> ~/.config/<pkg>/   (package.toml overrides the target)
+themes/<t>/    overlay of packages/, the active theme wins per file
+system/        copied into /etc with sudo
+secrets/       env.example
+wallpapers/    per theme + common/
+docs/          notes
 ```
 
-| Source | Target | Example |
-|--------|--------|---------|
-| `home/<file>` | `~/<file>` | `home/.zshenv` → `~/.zshenv` |
-| `packages/<pkg>/<rel>` | `~/.config/<pkg>/<rel>` | `packages/kitty/kitty.conf` |
-| `themes/<t>/<pkg>/<rel>` | same target, shadows the package file | `themes/gruvbox/kitty/colors.conf` |
-| `system/<path>` | `/<path>` | `system/etc/tlp.d/99-dotfiles.conf` |
+Themes: catppuccin, dracula, ember, everforest, graphite, gruvbox (the
+source), kanagawa, khaki, mono, nord, onedark, rosepine, tokyonight. Colour
+roles: [themes/gruvbox/README.md](themes/gruvbox/README.md).
 
-- **package.toml** (optional, per package) overrides the install dir or single
-  targets:
+The shell (bar, apps, Shell Manager on Super+S):
+[packages/quickshell/shell](packages/quickshell/shell/README.md).
 
-  ```toml
-  dir = "~/.config"                         # default ~/.config/<pkg>
-
-  [files]
-  "starship.toml" = "~/.config/starship.toml"
-  ```
-
-- **Themes.** `gruvbox`, `graphite` (near-black monochrome), `ember` (warm
-  charcoal, coral frames) and `khaki` (near-black, cream text, sand frames). Every program uses the same roles —
-  [`themes/gruvbox/README.md`](themes/gruvbox/README.md) has the colour roles
-  and the rules; `themes/mktheme.py` derives a new theme from its colours. The active
-  one is in `.theme` (local, git-ignored — gruvbox when absent); switch with
-  `./install.py theme set` or the Shell Manager. Mako and Swaylock exist only
-  as theme files.
-- **Never linked:** `.git`, `.gitignore`, `package.toml`, `node_modules`,
-  `README`, `README.md`.
-- **Conflicts:** correct links are kept, wrong ones replaced, real files and
-  directories moved to `.bak`.
-- **System files** are copied, not linked (`/etc` must not point into `$HOME`).
-  `system status` shows drift; `system install` copies and applies
-  (`systemd-tmpfiles --create`, `tlp start`). Keep `/etc/tlp.conf` at the
-  package defaults so the `/etc/tlp.d` drop-in applies.
-
-### Quickshell bar
-
-`packages/quickshell/shell/` — plugins for workspaces, music, radio, clock,
-display, audio, Wi-Fi, Mihomo, battery, language, AI (Claude Code limits +
-local Ollama) and a notification center, all built from one component kit
-(`kit/`, SVG icons). The **Shell Manager** (Super+S or the bar's sliders
-button) is a settings window: themes with live previews, the solid wallpaper
-(theme colour or your own, painted through awww), the bar's icon style and
-zone layout, plugins on / off. Architecture and UI rules:
-[`shell/CLAUDE.md`](packages/quickshell/shell/CLAUDE.md); each plugin has
-its own `README.md`.
-
-### Submodules
-
-| Submodule | Path |
-|-----------|------|
-| Neovim config | `packages/nvim` → github.com/diominvd/neovim |
-| Yandex Music CLI | `packages/scripts/yandex-music` → github.com/diominvd/yandex-music-cli |
-| Radio CLI | `packages/scripts/radio` → github.com/diominvd/radio-cli |
-| VPN manager CLI | `packages/scripts/vpn` → github.com/diominvd/vpn-manager-cli |
-
-Change them in their own repos, then bump the pointer here:
-`git submodule update --remote <path>` and commit.
-
----
+Submodules: `packages/nvim`, `packages/scripts/{yandex-music,radio,vpn}`.
 
 ## Secrets
 
-| Secret | Location | In git? |
-|--------|----------|---------|
-| API keys (GEMINI, ANTHROPIC, OPENAI…) | `~/.config/secrets/env`, sourced by zsh | No |
-| GitHub OAuth token | `~/.config/gh/hosts.yml` | No (ignored) |
-| Mihomo rendered config + providers | `packages/mihomo/config.yaml`, `providers/` | No (ignored) |
-| Mihomo subscriptions | `packages/mihomo/subscriptions.json` | **Yes** (private repo) |
-| Yandex Music token | `~/.config/scripts/yandex-music/token` | No (local file) |
-
----
+| Secret | Where | In git |
+|---|---|---|
+| API keys | `~/.config/secrets/env` | no |
+| GitHub token | `~/.config/gh/hosts.yml` | no |
+| Mihomo config, providers | `packages/mihomo/config.yaml`, `providers/` | no |
+| Mihomo subscriptions | `packages/mihomo/subscriptions.json` | yes (private repo) |
+| Yandex Music token | `~/.config/scripts/yandex-music/token` | no |
 
 ## Troubleshooting
 
-- **Conflicts** → `./install.py force` (real files are kept as `.bak`).
-- **New file not picked up** → `./install.py link`.
-- **Empty submodules** → `git submodule update --init --recursive`.
-- **Broken links** → `./install.py verify`, then `./install.py link`.
-- **Missing programs** → `./install.py deps --check`.
+- Conflicts: `./install.py force` (real files are kept as `.bak`).
+- A new file isn't picked up: `./install.py link`.
+- Empty submodules: `git submodule update --init --recursive`.
 
----
-
-## License
-
-MIT
+Rules: [CONVENTIONS.md](CONVENTIONS.md). License: MIT.

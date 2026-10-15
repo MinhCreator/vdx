@@ -1,5 +1,3 @@
-> **[Русская версия](POWER_MANAGEMENT_RU.md)**
-
 # Power Management — ASUS TUF Dash F15 / Arch Linux
 
 ## Why
@@ -195,8 +193,3 @@ echo balance_performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/energy_
 | RTX 3060 in Hybrid idle | +5–10W |
 | RTX 3060 under load | up to 80W |
 
----
-
-## License
-
-[MIT](https://opensource.org/licenses/MIT)
