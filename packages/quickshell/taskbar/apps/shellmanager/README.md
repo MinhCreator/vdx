@@ -48,11 +48,11 @@
 | `ShellManager.qml` | Навигация и область страницы |
 | `AppearancePage.qml`, `ThemePreview.qml` | Превью, темы, обои; миниатюра темы |
 | `Wallpaper.qml` | Заливка обоев через `awww` |
-| `BarPage.qml`, `BarPreview.qml` | Мониторы, полосы чипов раскладки и предпросмотр бара, стиль значков |
+| `BarPage.qml`, `BarPreview.qml` | Мониторы, полосы чипов раскладки и предпросмотр бара, стиль значков и анимация подчёркивания |
 | `PluginsPage.qml` | Список плагинов и страница опций выбранного |
 | `ThemeService.qml` | Список тем, палитры (все роли), переключение, `Theme.live` |
 | `scripts/themes.sh` | Темы и их цвета по ролям из `Colors.qml` каждой темы |
 
 Опции хранят `config/ShellSettings.qml` (`settings.json`: `solidIcons`,
-`wallpaperMode`, `wallpaperColor`), `config/PluginSettings.qml` (`plugins.json`) и `bar/BarLayout.qml` (`layout.json`:
+`underlineAnimation`, `wallpaperMode`, `wallpaperColor`), `config/PluginSettings.qml` (`plugins.json`) и `bar/BarLayout.qml` (`layout.json`:
 раскладка и выключенные модули по ролям мониторов).

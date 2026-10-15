@@ -11,6 +11,7 @@ Singleton {
   id: root
 
   readonly property bool solidIcons: state.solidIcons
+  readonly property string underlineAnimation: state.underlineAnimation  // none | grow | slide
   readonly property string wallpaperMode: state.wallpaperMode     // theme | custom
   readonly property string wallpaperColor: state.wallpaperColor   // #rrggbb, for custom
 
@@ -30,6 +31,7 @@ Singleton {
     JsonAdapter {
       id: state
       property bool solidIcons: false
+      property string underlineAnimation: "none"
       property string wallpaperMode: "theme"
       property string wallpaperColor: "#32302f"
     }

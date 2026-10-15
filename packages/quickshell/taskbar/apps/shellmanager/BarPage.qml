@@ -337,4 +337,19 @@ Column {
       onPicked: value => ShellSettings.set("solidIcons", value)
     }
   }
+
+  KitRow {
+    label: "Underline"
+    hint: "how the line under an open popup's module appears"
+
+    KitChoices {
+      model: [
+        { label: "None",  value: "none" },
+        { label: "Grow",  value: "grow" },
+        { label: "Slide", value: "slide" }
+      ]
+      current: ShellSettings.underlineAnimation
+      onPicked: value => ShellSettings.set("underlineAnimation", value)
+    }
+  }
 }

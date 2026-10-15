@@ -8,6 +8,8 @@ QtObject {
   property var current: null
   property bool holding: false
   property bool frozen: false
+  // where the last open popup's bar underline stood: { bar, x, width, at }
+  property var lastLine: null
   onHoldingChanged: if (!holding) frozen = false
 
   function open(win) {
