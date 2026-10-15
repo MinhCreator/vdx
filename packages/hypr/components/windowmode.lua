@@ -56,6 +56,12 @@ function WindowMode(mode)
 		end
 	end
 	ArrangeFloating(floated)
+	-- minimizing is the floating mode's (its dock): leaving it, they come back
+	if mode ~= "floating" then
+		for _, w in ipairs(hl.get_windows()) do
+			if w.workspace and w.workspace.name == "special:minimized" then RestoreWindow(w.address) end
+		end
+	end
 end
 
 -- the active window on a part of its monitor (logical pixels, under the bar)
@@ -142,6 +148,7 @@ end
 -- the dock's buttons: a minimized window waits on the special workspace
 -- "minimized" (not shown); restored, it comes to the active workspace
 function MinimizeWindow(address)
+	if not floatAll:is_enabled() then return end
 	local w = address and { address = address } or hl.get_active_window()
 	if not w then return end
 	hl.dispatch(hl.dsp.window.move({ workspace = "special:minimized", window = "address:" .. w.address, follow = false }))
@@ -196,6 +203,42 @@ local f = io.open(stateFile, "r")
 local saved = f and f:read("*l") or "tiling"
 if f then f:close() end
 WindowMode(saved)
+
+-- title bars (hyprbars, AUR hyprland-plugin-hyprbars) — the floating mode's:
+-- the title and close / maximize / minimize, a double click maximizes
+local barsLib = "/usr/lib/libhyprbars.so"
+local barsLoaded = false
+for _, p in ipairs(hl.get_loaded_plugins() or {}) do
+	if p.name == "hyprbars" then barsLoaded = true end
+end
+if not barsLoaded and io.open(barsLib, "r") then
+	hl.plugin.load(barsLib)
+	barsLoaded = true
+end
+if barsLoaded and hl.plugin.hyprbars then
+	local colors = require("components.colors")
+	hl.config({ plugin = { hyprbars = {
+		enabled = saved == "floating",
+		bar_height = 28,
+		bar_color = colors.background0,
+		["col.text"] = colors.foreground0,
+		bar_text_font = "monospace",
+		bar_text_size = 11,
+		bar_text_align = "left",
+		bar_padding = 12,
+		bar_button_padding = 8,
+		bar_precedence_over_border = true,
+		bar_part_of_window = true,
+		on_double_click = "hyprctl eval 'MaximizeWindow()'",
+	} } })
+	-- right to left: the first one stands at the edge
+	local function button(icon, fg, action)
+		hl.plugin.hyprbars.add_button({ bg_color = colors.background0, fg_color = fg, size = 16, icon = icon, action = action })
+	end
+	button("✕", colors.red, "hyprctl eval 'hl.dispatch(hl.dsp.window.close())'")
+	button("□", colors.foreground0, "hyprctl eval 'MaximizeWindow()'")
+	button("–", colors.foreground0, "hyprctl eval 'MinimizeWindow()'")
+end
 
 -- wheel and touchpad, the mode's way
 local function bind(keys, action, what)
