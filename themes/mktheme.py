@@ -127,7 +127,7 @@ def build(name, pal):
         out.write_text(recolor(text, pal))
     f = lambda rel: dst / rel
     # frames have their own colour per theme
-    q = f("quickshell/taskbar/config/Colors.qml")
+    q = f("quickshell/shell/config/Colors.qml")
     q.write_text(re.sub(r'(readonly property color frame:\s*")#[0-9a-fA-F]{6}"', rf'\g<1>#{pal["frame"]}"', q.read_text())
                  .replace("gruvbox theme overlay", f"{name} theme overlay"))
     h = f("hypr/components/colors.lua")

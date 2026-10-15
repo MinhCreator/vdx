@@ -23,5 +23,5 @@
 - Команды, которые переключают рабочее дерево на старые коммиты, —
   с `git -c core.hooksPath=/dev/null`, в конце `./install.py link`: иначе
   ссылки в `~/.config` указывают на старое состояние.
-- Бар Quickshell: `packages/quickshell/taskbar/CLAUDE.md`.
+- Бар Quickshell: `packages/quickshell/shell/CLAUDE.md`.
 - Чужие незакоммиченные правки не коммить и не откатывать без спроса.

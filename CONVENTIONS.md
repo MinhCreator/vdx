@@ -115,7 +115,7 @@ installer: interactive menu, consistent colored output
 - Без `wip`, `checkpoint`, `fix`, `updates`, `minor tweaks` — сообщение должно
   объяснять изменение без открытия diff.
 - Не коммитим сломанное: перед коммитом `./install.py verify`, для скриптов —
-  `bash -n`, для quickshell — `qs log -c taskbar` без ошибок.
+  `bash -n`, для quickshell — `qs log -c shell` без ошибок.
 - Коммиты агентов заканчиваются трейлером `Co-Authored-By: …`.
 
 ## 6. Ветки и история
@@ -136,7 +136,7 @@ installer: interactive menu, consistent colored output
 - `README.md` — установка, команды, устройство. Обновляется в том же коммите,
   что меняет команды или структуру.
 - `CONVENTIONS.md` (этот файл) — правила; `CLAUDE.md` — коротко для агентов.
-- Бар: `packages/quickshell/taskbar/CLAUDE.md` (архитектура и UI-правила),
+- Бар: `packages/quickshell/shell/CLAUDE.md` (архитектура и UI-правила),
   `README.md` в каждом плагине.
 - Документация описывает то, что есть. Удалил фичу — удали и её описание.
 

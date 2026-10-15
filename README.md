@@ -123,14 +123,14 @@ one by one, so a new one is not visible until then.
 
 ### Quickshell bar
 
-`packages/quickshell/taskbar/` — plugins for workspaces, music, radio, clock,
+`packages/quickshell/shell/` — plugins for workspaces, music, radio, clock,
 display, audio, Wi-Fi, Mihomo, battery, language, AI (Claude Code limits +
 local Ollama) and a notification center, all built from one component kit
 (`kit/`, SVG icons). The **Shell Manager** (Super+S or the bar's sliders
 button) is a settings window: themes with live previews, the solid wallpaper
 (theme colour or your own, painted through awww), the bar's icon style and
 zone layout, plugins on / off. Architecture and UI rules:
-[`taskbar/CLAUDE.md`](packages/quickshell/taskbar/CLAUDE.md); each plugin has
+[`shell/CLAUDE.md`](packages/quickshell/shell/CLAUDE.md); each plugin has
 its own `README.md`.
 
 ### Submodules
