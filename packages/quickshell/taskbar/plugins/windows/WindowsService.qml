@@ -27,7 +27,8 @@ Singleton {
   function setMode(value) {
     if (value === mode) return;
     mode = value;
-    run(["bash", "-c", 'mkdir -p "$(dirname "$1")" && printf "%s\\n" "$2" > "$1" && hyprctl eval "WindowMode(\\"$2\\")"',
+    // the config reloads: the mode's windows, binds and gestures set from scratch
+    run(["bash", "-c", 'mkdir -p "$(dirname "$1")" && printf "%s\\n" "$2" > "$1" && hyprctl reload',
          "_", stateFile, value]);
   }
 

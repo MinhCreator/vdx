@@ -19,10 +19,20 @@ Singleton {
 
   function refresh() { if (!proc.running) proc.running = true; }
 
+  // the window mode decides the wheel's and the touchpad's binds
+  property string mode: "tiling"
+  FileView {
+    path: Quickshell.env("HOME") + "/.local/state/dotfiles/window-mode"
+    printErrors: false
+    watchChanges: true
+    onFileChanged: reload()
+    onLoaded: { root.mode = text().trim() || "tiling"; root.refresh(); }
+  }
+
   // modmask bits, in the order they are written
   readonly property var mods: [[64, "Super"], [4, "Ctrl"], [8, "Alt"], [1, "Shift"]]
   readonly property var keyNames: ({
-    "mouse:272": "LMB", "mouse:273": "RMB", "mouse:274": "MMB",
+    "mouse:272": "LMB", "mouse:273": "RMB", "mouse:274": "MMB", "mouse_down": "Wheel ↓", "mouse_up": "Wheel ↑",
     "comma": ",", "period": ".", "left": "←", "right": "→", "up": "↑", "down": "↓",
     "space": "Space", "return": "Enter", "escape": "Esc", "tab": "Tab"
   })
@@ -45,6 +55,13 @@ Singleton {
       byName[group].binds.push({ what: what, keys: keysOf(b) });
     }
     for (const g of groups) g.binds = fold(g.binds);
+    // touchpad gestures aren't binds to hyprctl: those of the window mode (hypr/components/windowmode.lua)
+    if (mode === "scrolling")
+      groups.push({ name: "Touchpad", binds: [
+        { what: "Next column", keys: ["3 fingers ←"] },
+        { what: "Previous column", keys: ["3 fingers →"] },
+        { what: "Workspace above / below", keys: ["3 fingers ↕"] }
+      ] });
     return groups;
   }
 

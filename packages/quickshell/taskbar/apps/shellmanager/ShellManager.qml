@@ -78,10 +78,21 @@ Rectangle {
       KitLine {}
     }
 
-    Column {
+    // the sections scroll when their group links outgrow the window
+    Flickable {
+      id: nav
       x: 12
       y: brand.y + brand.height + 14
       width: parent.width - 24
+      height: parent.height - y - 40
+      contentHeight: navColumn.implicitHeight
+      clip: true
+      interactive: contentHeight > height
+      boundsBehavior: Flickable.StopAtBounds
+
+    Column {
+      id: navColumn
+      width: nav.width
       spacing: 4
 
       Repeater {
@@ -186,6 +197,7 @@ Rectangle {
           }
         }
       }
+    }
     }
 
     KitText {
