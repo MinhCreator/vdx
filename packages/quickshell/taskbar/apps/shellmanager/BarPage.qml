@@ -30,6 +30,8 @@ Column {
   readonly property int rowHeight: 28
   readonly property int columnGap: 16
   readonly property real columnWidth: (width - 3 * columnGap) / 4
+  // every well as tall as the longest column, plus a row to drop into
+  readonly property int maxRows: Math.max(1, ...columnZones.map(z => ids(z).length))
 
   function plugin(id) { return BarLayout.plugins.find(p => p.id === id) ?? null; }
   function ids(zone) { return zone === "hidden" ? BarLayout.unplaced(screenName) : BarLayout.visibleIn(zone, screenName); }
@@ -192,7 +194,7 @@ Column {
           // a filled well, no border: where rows can be dropped
           Rectangle {
             width: parent.width
-            height: Math.max(1, column.ids.length) * root.rowHeight + root.rowHeight
+            height: (root.maxRows + 1) * root.rowHeight
             color: column.target ? Theme.background2 : Theme.background1
 
             Repeater {
