@@ -4,21 +4,18 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Bar: MONITOR (which bar, one bar everywhere, show it), LAYOUT — a strip
-// drawn like the bar itself: icons sit left, centre and right as they do on
-// screen; drag one along it, or down to the hidden ones and back — and STYLE.
-// No boxes: while dragging, a thin line marks where the icon lands.
+// Bar: MONITOR (which bar, one bar everywhere, show it), LAYOUT and STYLE.
+// LAYOUT: a small preview of the bar, then four columns — LEFT, CENTER, RIGHT
+// and HIDDEN — of icon + name rows in bar order. Drag a row up or down, to
+// another column, or into HIDDEN; a thin line marks where it lands. Columns
+// grow downward, so any number of plugins fits and every name stays readable.
 Column {
   id: root
 
   property string dragId: ""
   property string dropZone: ""        // left | center | right | hidden
   property int dropIndex: -1
-  property real markerX: 0
   property string hoverId: ""
-
-  // the strip's three icon groups, registered by them for track()
-  property var groups: ({})
 
   // a monitor in the role being set up (main first)
   property string screenName: BarLayout.mainScreen()
@@ -28,50 +25,32 @@ Column {
   readonly property string other: roles.find(n => n !== screenName) ?? ""
   readonly property var layout: BarLayout.layout(screenName)
   readonly property bool barOn: BarLayout.barOn(screenName)
-  readonly property var hiddenIds: BarLayout.unplaced(screenName)
+  readonly property var columnZones: ["left", "center", "right", "hidden"]
   readonly property string focusId: dragId !== "" ? dragId : hoverId
-  // icons tighten to fit the strip, like the bar fitting its modules
-  // the fuller side decides: each side fits its half, so the centre stays centred
-  readonly property int centerCount: BarLayout.visibleIn("center", screenName).length
-  readonly property int sideCount: Math.max(BarLayout.visibleIn("left", screenName).length,
-                                            BarLayout.visibleIn("right", screenName).length)
-  // room per icon on the fuller side: the gap shrinks first, then the icons
-  readonly property real slot: Math.min(34,
-    ((width - centerCount * 34) / 2 - 12 - 24) / Math.max(1, sideCount))
-  readonly property real iconBox: Math.max(12, Math.min(20, slot - 2))
-  readonly property real iconGap: Math.max(2, slot - iconBox)
+  readonly property int rowHeight: 28
+  readonly property int columnGap: 16
+  readonly property real columnWidth: (width - 3 * columnGap) / 4
 
   function plugin(id) { return BarLayout.plugins.find(p => p.id === id) ?? null; }
+  function ids(zone) { return zone === "hidden" ? BarLayout.unplaced(screenName) : BarLayout.visibleIn(zone, screenName); }
 
-  // where the pointer would drop (strip coordinates): below the strip is
-  // the hidden row; on it, the zone by thirds and the slot by icon centres
+  // where the pointer would drop (columns coordinates): the column under x,
+  // the row gap nearest to y below its title
   function track(x, y) {
-    ghost.x = x - ghost.width / 2;
+    ghost.x = x + 10;
     ghost.y = y - ghost.height / 2;
-    if (y > strip.height + 6) { dropZone = "hidden"; dropIndex = 0; return; }
-    const zone = x < strip.width / 3 ? "left" : x < 2 * strip.width / 3 ? "center" : "right";
-    const group = groups[zone];
-    if (!group) return;
-    const icons = group.icons;
-    let index = 0;
-    for (let i = 0; i < icons.count; i++) {
-      const it = icons.itemAt(i);
-      if (it.mapToItem(strip, it.width / 2, 0).x < x) index = i + 1;
-    }
-    dropZone = zone;
-    dropIndex = index;
-    markerX = icons.count === 0 ? group.x + group.width / 2
-            : index < icons.count ? group.x + icons.itemAt(index).x - 8
-            : group.x + icons.itemAt(icons.count - 1).x + icons.itemAt(icons.count - 1).width + 6;
+    const col = Math.max(0, Math.min(3, Math.floor((x + columnGap / 2) / (columnWidth + columnGap))));
+    dropZone = columnZones[col];
+    dropIndex = Math.max(0, Math.min(ids(dropZone).length, Math.round((y - columns.listY) / rowHeight)));
   }
 
-  // the strip shows placed plugins only; the stored order holds the rest
-  // too, so the slot is translated through its visible neighbours
+  // columns show placed plugins only; the stored order holds the rest too,
+  // so the slot is translated through its visible neighbours
   function drop() {
     if (dragId !== "" && dropZone === "hidden") {
       BarLayout.setEnabled(dragId, false, screenName);
     } else if (dragId !== "" && dropZone !== "") {
-      if (hiddenIds.includes(dragId)) BarLayout.setEnabled(dragId, true, screenName);
+      if (BarLayout.unplaced(screenName).includes(dragId)) BarLayout.setEnabled(dragId, true, screenName);
       const visible = BarLayout.visibleIn(dropZone, screenName);
       const current = visible.indexOf(dragId);
       const slot = current >= 0 && dropIndex > current ? dropIndex - 1 : dropIndex;
@@ -169,216 +148,137 @@ Column {
     }
   }
 
-  Item {
-    id: editor
+  // a glance at the bar; what does not fit a side shows as +N
+  BarPreview {
     visible: root.barOn
     width: parent.width
-    height: hiddenRow.y + hiddenRow.height
+    screenName: root.screenName
+  }
 
-    // the strip: a bar in miniature, icons grouped as on screen
-    Rectangle {
-      id: strip
+  Item {
+    id: columns
+    visible: root.barOn
+    width: parent.width
+    height: columnRow.height
+
+    readonly property real listY: 22      // rows start under the column titles
+
+    Row {
+      id: columnRow
       width: parent.width
-      height: 40
-      color: Theme.background1
+      spacing: root.columnGap
 
       Repeater {
-        model: BarLayout.zones
+        model: root.columnZones
 
-        Row {
-          id: group
+        Column {
+          id: column
 
           required property string modelData
 
-          readonly property alias icons: groupIcons
-
-          anchors.verticalCenter: parent.verticalCenter
-          // the centre group keeps clear of its neighbours
-          x: modelData === "left" ? 12
-           : modelData === "right" ? strip.width - width - 12
-           : Math.max(root.groups.left ? root.groups.left.x + root.groups.left.width + 24 : 0,
-                      Math.min((strip.width - width) / 2,
-                               root.groups.right ? root.groups.right.x - width - 24 : strip.width))
-          spacing: root.iconGap
-
-          Component.onCompleted: {
-            const g = Object.assign({}, root.groups);
-            g[modelData] = group;
-            root.groups = g;
-          }
-
-          Repeater {
-            id: groupIcons
-            model: BarLayout.visibleIn(group.modelData, root.screenName)
-
-            Item {
-              id: icon
-
-              required property string modelData
-
-              width: root.iconBox
-              height: root.iconBox
-              opacity: root.dragId === modelData ? 0.25 : 1
-
-              KitIcon {
-                anchors.centerIn: parent
-                name: BarLayout.icon(icon.modelData)
-                tint: root.hoverId === icon.modelData ? Theme.foreground0 : Theme.foreground2
-                solid: ShellSettings.solidIcons
-                size: Math.round(root.iconBox * 0.8)
-              }
-
-              MouseArea {
-                anchors { fill: parent; margins: -root.iconGap / 2 }
-                hoverEnabled: true
-                preventStealing: true
-                cursorShape: pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
-                onEntered: root.hoverId = icon.modelData
-                onExited: if (root.hoverId === icon.modelData) root.hoverId = ""
-                onPressed: mouse => {
-                  root.dragId = icon.modelData;
-                  const p = mapToItem(strip, mouse.x, mouse.y);
-                  root.track(p.x, p.y);
-                }
-                onPositionChanged: mouse => {
-                  if (root.dragId === "") return;
-                  const p = mapToItem(strip, mouse.x, mouse.y);
-                  root.track(p.x, p.y);
-                }
-                onReleased: root.drop()
-              }
-            }
-          }
-        }
-      }
-
-      // where the dragged icon lands
-      Rectangle {
-        visible: root.dragId !== "" && root.dropZone !== "" && root.dropZone !== "hidden"
-        x: root.markerX
-        y: 8
-        width: 2
-        height: strip.height - 16
-        color: Theme.foreground0
-      }
-    }
-
-    // zone names under their groups
-    Item {
-      id: captions
-      y: strip.height + 6
-      width: parent.width
-      height: 14
-
-      Repeater {
-        model: BarLayout.zones
-
-        KitText {
-          required property string modelData
-          required property int index
+          readonly property var ids: root.ids(modelData)
           readonly property bool target: root.dragId !== "" && root.dropZone === modelData
-          x: index === 0 ? 0 : index === 1 ? (parent.width - width) / 2 : parent.width - width
-          text: modelData.toUpperCase() + " · " + BarLayout.visibleIn(modelData, root.screenName).length
-          color: target ? Theme.foreground0 : Theme.muted
-          font.pixelSize: Theme.fontSize - 3
-          font.letterSpacing: 1
-        }
-      }
-    }
 
-    // hidden on this bar: on, but not placed here
-    Column {
-      id: hiddenRow
+          width: root.columnWidth
 
-      readonly property bool target: root.dragId !== "" && root.dropZone === "hidden"
-
-      y: captions.y + captions.height + 16
-      width: parent.width
-      spacing: 8
-
-      KitText {
-        text: "HIDDEN ON THIS BAR · " + root.hiddenIds.length
-        color: hiddenRow.target ? Theme.foreground0 : Theme.muted
-        font.pixelSize: Theme.fontSize - 3
-        font.letterSpacing: 1
-      }
-
-      Flow {
-        width: parent.width
-        spacing: 18
-
-        Repeater {
-          model: root.hiddenIds
+          KitText {
+            height: columns.listY
+            text: column.modelData.toUpperCase() + " · " + column.ids.length
+            color: column.target ? Theme.foreground0 : Theme.muted
+            font.pixelSize: Theme.fontSize - 3
+            font.letterSpacing: 1
+          }
 
           Item {
-            id: chip
+            width: parent.width
+            height: Math.max(1, column.ids.length) * root.rowHeight + root.rowHeight
 
-            required property string modelData
+            Repeater {
+              model: column.ids
 
-            width: chipRow.implicitWidth
-            height: chipRow.implicitHeight
-            opacity: root.dragId === modelData ? 0.25 : 1
+              Rectangle {
+                id: row
 
-            Row {
-              id: chipRow
-              spacing: 6
+                required property string modelData
+                required property int index
 
-              KitIcon {
-                anchors.verticalCenter: parent.verticalCenter
-                name: BarLayout.icon(chip.modelData)
-                tint: chipArea.containsMouse ? Theme.foreground0 : Theme.muted
-                solid: ShellSettings.solidIcons
-                size: 14
-              }
+                y: index * root.rowHeight
+                width: parent.width
+                height: root.rowHeight
+                color: rowArea.containsMouse && root.dragId === "" ? Theme.background1 : "transparent"
+                opacity: root.dragId === modelData ? 0.25 : 1
 
-              KitText {
-                anchors.verticalCenter: parent.verticalCenter
-                text: root.plugin(chip.modelData)?.label ?? chip.modelData
-                color: chipArea.containsMouse ? Theme.foreground0 : Theme.muted
-                font.pixelSize: Theme.fontSize - 1
+                KitIcon {
+                  id: rowIcon
+                  anchors { left: parent.left; leftMargin: 6; verticalCenter: parent.verticalCenter }
+                  name: BarLayout.icon(row.modelData)
+                  tint: column.modelData === "hidden" ? Theme.muted : Theme.foreground2
+                  solid: ShellSettings.solidIcons
+                  size: 14
+                }
+
+                KitText {
+                  anchors { left: rowIcon.right; leftMargin: 8; right: parent.right; rightMargin: 4; verticalCenter: parent.verticalCenter }
+                  text: root.plugin(row.modelData)?.label ?? row.modelData
+                  elide: Text.ElideRight
+                  color: column.modelData === "hidden" ? Theme.muted : Theme.foreground0
+                  font.pixelSize: Theme.fontSize - 1
+                }
+
+                MouseArea {
+                  id: rowArea
+                  anchors.fill: parent
+                  hoverEnabled: true
+                  preventStealing: true
+                  cursorShape: pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+                  onEntered: root.hoverId = row.modelData
+                  onExited: if (root.hoverId === row.modelData) root.hoverId = ""
+                  onPressed: mouse => {
+                    root.dragId = row.modelData;
+                    const p = mapToItem(columns, mouse.x, mouse.y);
+                    root.track(p.x, p.y);
+                  }
+                  onPositionChanged: mouse => {
+                    if (root.dragId === "") return;
+                    const p = mapToItem(columns, mouse.x, mouse.y);
+                    root.track(p.x, p.y);
+                  }
+                  onReleased: root.drop()
+                }
               }
             }
 
-            MouseArea {
-              id: chipArea
-              anchors.fill: parent
-              hoverEnabled: true
-              preventStealing: true
-              cursorShape: pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
-              onEntered: root.hoverId = chip.modelData
-              onExited: if (root.hoverId === chip.modelData) root.hoverId = ""
-              onPressed: mouse => {
-                root.dragId = chip.modelData;
-                const p = mapToItem(strip, mouse.x, mouse.y);
-                root.track(p.x, p.y);
-              }
-              onPositionChanged: mouse => {
-                if (root.dragId === "") return;
-                const p = mapToItem(strip, mouse.x, mouse.y);
-                root.track(p.x, p.y);
-              }
-              onReleased: root.drop()
+            // empty column: a quiet hint where to drop
+            KitText {
+              visible: column.ids.length === 0
+              x: 6
+              height: root.rowHeight
+              verticalAlignment: Text.AlignVCenter
+              text: root.dragId !== "" ? "drop here" : "empty"
+              color: Theme.muted
+              font.pixelSize: Theme.fontSize - 2
+            }
+
+            // where the dragged row lands
+            Rectangle {
+              visible: column.target
+              y: root.dropIndex * root.rowHeight - 1
+              width: parent.width
+              height: 2
+              color: Theme.foreground0
             }
           }
         }
       }
-
-      KitText {
-        visible: root.hiddenIds.length === 0
-        text: root.dragId !== "" ? "drop here to hide it on this bar" : "Nothing hidden — drag an icon down here to hide it."
-        color: Theme.muted
-        font.pixelSize: Theme.fontSize - 1
-      }
     }
 
-    // the icon being dragged
-    KitIcon {
+    // the row being dragged, following the pointer
+    KitText {
       id: ghost
       z: 10
       visible: root.dragId !== ""
-      name: BarLayout.icon(root.dragId)
-      solid: ShellSettings.solidIcons
-      size: 18
+      text: root.plugin(root.dragId)?.label ?? ""
+      font.weight: Font.ExtraBold
     }
   }
 
@@ -387,7 +287,7 @@ Column {
     visible: root.barOn
     width: parent.width
     text: root.focusId !== "" ? (root.plugin(root.focusId)?.label ?? "") + " — " + (root.plugin(root.focusId)?.about ?? "")
-                              : "Drag icons along the bar to arrange them."
+                              : "Drag a row up or down, to another column, or into HIDDEN."
     color: root.focusId !== "" ? Theme.foreground2 : Theme.muted
     elide: Text.ElideRight
     font.pixelSize: Theme.fontSize - 1
