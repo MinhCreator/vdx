@@ -20,6 +20,7 @@ import qs.plugins.sysmon
 import qs.plugins.taskmanager
 import qs.plugins.radio
 import qs.plugins.wifi
+import qs.plugins.windows
 import qs.plugins.workspaces
 
 // Top bar for one screen. Plugins come from BarLayout (three zones, order,
@@ -34,7 +35,7 @@ PanelWindow {
     workspaces: workspaces, music: music, radio: radio, clock: clock,
     brightness: brightness, audio: audio, wifi: wifi, mihomo: mihomo,
     battery: battery, language: language, ai: ai, notifications: notifications,
-    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, folder: folder
+    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, windows: windows, folder: folder
   })
 
   component Zone: Row {
@@ -113,6 +114,7 @@ PanelWindow {
   Component { id: sysmon; Sysmon { bar: root } }
   Component { id: taskmanager; TaskManagerBar { bar: root } }
   Component { id: cleaner; CleanerBar { bar: root } }
+  Component { id: windows; Windows { bar: root } }
   Component { id: folder; Folder { bar: root; modules: root.modules } }
 
   // The Shell Manager's button; a plugin of its own so it can move between zones.
