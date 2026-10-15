@@ -5,10 +5,10 @@ import qs.config
 import qs.kit
 
 // Bar: MONITOR (which bar, one bar everywhere, show it), LAYOUT and STYLE.
-// LAYOUT: a small preview of the bar, then four columns — LEFT, CENTER, RIGHT
-// and HIDDEN — of icon + name rows in bar order. Drag a row up or down, to
-// another column, or into HIDDEN; a thin line marks where it lands. Columns
-// grow downward, so any number of plugins fits and every name stays readable.
+// LAYOUT: a small preview of the bar, then four bands — LEFT, CENTER, RIGHT
+// and HIDDEN — of icon + name chips in bar order that wrap across the width
+// (Material chips). Drag a chip along a band, to another band or into
+// HIDDEN; a thin line marks where it lands.
 Column {
   id: root
 
@@ -27,26 +27,35 @@ Column {
   readonly property bool barOn: BarLayout.barOn(screenName)
   readonly property var columnZones: ["left", "center", "right", "hidden"]
   readonly property string focusId: dragId !== "" ? dragId : hoverId
-  readonly property int rowHeight: 28
-  readonly property int columnGap: 16
-  readonly property real columnWidth: (width - 3 * columnGap) / 4
-  // every well as tall as the longest column, plus a row to drop into
-  readonly property int maxRows: Math.max(1, ...columnZones.map(z => ids(z).length))
+  readonly property int chipHeight: 28
 
   function plugin(id) { return BarLayout.plugins.find(p => p.id === id) ?? null; }
   function ids(zone) { return zone === "hidden" ? BarLayout.unplaced(screenName) : BarLayout.visibleIn(zone, screenName); }
 
-  // where the pointer would drop (columns coordinates): the column under x,
-  // the row gap nearest to y below its title
+  // where the pointer would drop (zones coordinates): the zone band under y,
+  // then the chip slot in reading order — chips on earlier lines, or left of
+  // the pointer on its line, come before it
   function track(x, y) {
     ghost.x = x + 10;
     ghost.y = y - ghost.height / 2;
-    const col = Math.max(0, Math.min(3, Math.floor((x + columnGap / 2) / (columnWidth + columnGap))));
-    dropZone = columnZones[col];
-    dropIndex = Math.max(0, Math.min(ids(dropZone).length, Math.round((y - columns.listY) / rowHeight)));
+    for (let i = 0; i < bands.count; i++) {
+      const band = bands.itemAt(i);
+      if (y < band.y - 6 || y > band.y + band.height + 6) continue;
+      let index = 0;
+      const chips = band.chips;
+      for (let j = 0; j < chips.count; j++) {
+        const c = chips.itemAt(j);
+        const p = c.mapToItem(zonesArea, c.width / 2, c.height / 2);
+        if (p.y < y - root.chipHeight / 2 || (Math.abs(p.y - y) <= root.chipHeight / 2 && p.x < x)) index = j + 1;
+      }
+      dropZone = band.zone;
+      dropIndex = index;
+      return;
+    }
+    dropZone = "";
   }
 
-  // columns show placed plugins only; the stored order holds the rest too,
+  // the bands show placed plugins only; the stored order holds the rest too,
   // so the slot is translated through its visible neighbours
   function drop() {
     if (dragId !== "" && dropZone === "hidden") {
@@ -157,128 +166,135 @@ Column {
     screenName: root.screenName
   }
 
-  Item {
-    id: columns
+  // four bands, one per zone and HIDDEN: chips of icon + name in bar order
+  // that wrap across the width, so even a full zone takes a line or two
+  Column {
+    id: zonesArea
     visible: root.barOn
     width: parent.width
-    height: columnRow.height
+    spacing: 12
 
-    readonly property real listY: 22      // rows start under the column titles
+    Repeater {
+      id: bands
+      model: root.columnZones
 
-    Row {
-      id: columnRow
-      width: parent.width
-      spacing: root.columnGap
+      Column {
+        id: band
 
-      Repeater {
-        model: root.columnZones
+        required property string modelData
 
-        Column {
-          id: column
+        readonly property string zone: modelData
+        readonly property var ids: root.ids(modelData)
+        readonly property bool target: root.dragId !== "" && root.dropZone === modelData
+        readonly property alias chips: chipRepeater
 
-          required property string modelData
+        width: zonesArea.width
+        spacing: 6
 
-          readonly property var ids: root.ids(modelData)
-          readonly property bool target: root.dragId !== "" && root.dropZone === modelData
+        KitText {
+          text: band.zone.toUpperCase() + " · " + band.ids.length
+          color: band.target ? Theme.foreground0 : Theme.muted
+          font.pixelSize: Theme.fontSize - 3
+          font.letterSpacing: 1
+        }
 
-          width: root.columnWidth
+        // an outlined drop area
+        Rectangle {
+          width: parent.width
+          height: Math.max(root.chipHeight, flow.implicitHeight) + 16
+          color: band.target ? Theme.background1 : "transparent"
+          border.width: 1
+          border.color: band.target ? Theme.foreground2 : Theme.background3
 
-          KitText {
-            height: columns.listY
-            text: column.modelData.toUpperCase() + " · " + column.ids.length
-            color: column.target ? Theme.foreground0 : Theme.muted
-            font.pixelSize: Theme.fontSize - 3
-            font.letterSpacing: 1
-          }
-
-          // an outlined column: where rows can be dropped
-          Rectangle {
-            width: parent.width
-            height: (root.maxRows + 1) * root.rowHeight
-            color: column.target ? Theme.background1 : "transparent"
-            border.width: 1
-            border.color: column.target ? Theme.foreground2 : Theme.background3
+          Flow {
+            id: flow
+            x: 8
+            y: 8
+            width: parent.width - 16
+            spacing: 6
 
             Repeater {
-              model: column.ids
+              id: chipRepeater
+              model: band.ids
 
               Rectangle {
-                id: row
+                id: chip
 
                 required property string modelData
                 required property int index
 
-                y: index * root.rowHeight
-                width: parent.width
-                height: root.rowHeight
-                color: rowArea.containsMouse && root.dragId === "" ? Theme.background1 : "transparent"
+                width: chipRow.implicitWidth + 20
+                height: root.chipHeight
+                color: chipArea.containsMouse && root.dragId === "" ? Theme.background3 : Theme.background1
                 opacity: root.dragId === modelData ? 0.25 : 1
 
-                KitIcon {
-                  id: rowIcon
-                  anchors { left: parent.left; leftMargin: 6; verticalCenter: parent.verticalCenter }
-                  name: BarLayout.icon(row.modelData)
-                  tint: column.modelData === "hidden" ? Theme.muted : Theme.foreground2
-                  solid: ShellSettings.solidIcons
-                  size: 14
+                Row {
+                  id: chipRow
+                  anchors.centerIn: parent
+                  spacing: 6
+
+                  KitIcon {
+                    anchors.verticalCenter: parent.verticalCenter
+                    name: BarLayout.icon(chip.modelData)
+                    tint: band.zone === "hidden" ? Theme.muted : Theme.foreground2
+                    solid: ShellSettings.solidIcons
+                    size: 14
+                  }
+
+                  KitText {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: root.plugin(chip.modelData)?.label ?? chip.modelData
+                    color: band.zone === "hidden" ? Theme.muted : Theme.foreground0
+                    font.pixelSize: Theme.fontSize - 1
+                  }
                 }
 
-                KitText {
-                  anchors { left: rowIcon.right; leftMargin: 8; right: parent.right; rightMargin: 4; verticalCenter: parent.verticalCenter }
-                  text: root.plugin(row.modelData)?.label ?? row.modelData
-                  elide: Text.ElideRight
-                  color: column.modelData === "hidden" ? Theme.muted : Theme.foreground0
-                  font.pixelSize: Theme.fontSize - 1
+                // insertion marker before this chip, or after the last one
+                Rectangle {
+                  readonly property bool after: chip.index === band.ids.length - 1 && root.dropIndex === band.ids.length
+                  visible: band.target && (root.dropIndex === chip.index || after)
+                  x: after ? parent.width + 2 : -4
+                  width: 2
+                  height: parent.height
+                  color: Theme.foreground0
                 }
 
                 MouseArea {
-                  id: rowArea
+                  id: chipArea
                   anchors.fill: parent
                   hoverEnabled: true
                   preventStealing: true
                   cursorShape: pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
-                  onEntered: root.hoverId = row.modelData
-                  onExited: if (root.hoverId === row.modelData) root.hoverId = ""
+                  onEntered: root.hoverId = chip.modelData
+                  onExited: if (root.hoverId === chip.modelData) root.hoverId = ""
                   onPressed: mouse => {
-                    root.dragId = row.modelData;
-                    const p = mapToItem(columns, mouse.x, mouse.y);
+                    root.dragId = chip.modelData;
+                    const p = mapToItem(zonesArea, mouse.x, mouse.y);
                     root.track(p.x, p.y);
                   }
                   onPositionChanged: mouse => {
                     if (root.dragId === "") return;
-                    const p = mapToItem(columns, mouse.x, mouse.y);
+                    const p = mapToItem(zonesArea, mouse.x, mouse.y);
                     root.track(p.x, p.y);
                   }
                   onReleased: root.drop()
                 }
               }
             }
+          }
 
-            // empty column: a quiet hint where to drop
-            KitText {
-              visible: column.ids.length === 0
-              x: 6
-              height: root.rowHeight
-              verticalAlignment: Text.AlignVCenter
-              text: root.dragId !== "" ? "drop here" : "empty"
-              color: Theme.muted
-              font.pixelSize: Theme.fontSize - 2
-            }
-
-            // where the dragged row lands
-            Rectangle {
-              visible: column.target
-              y: root.dropIndex * root.rowHeight - 1
-              width: parent.width
-              height: 2
-              color: Theme.foreground0
-            }
+          KitText {
+            visible: band.ids.length === 0
+            anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
+            text: root.dragId !== "" ? "drop here" : band.zone === "hidden" ? "nothing hidden" : "empty"
+            color: Theme.muted
+            font.pixelSize: Theme.fontSize - 2
           }
         }
       }
     }
 
-    // the row being dragged, following the pointer
+    // the chip being dragged, following the pointer
     KitText {
       id: ghost
       z: 10
@@ -293,7 +309,7 @@ Column {
     visible: root.barOn
     width: parent.width
     text: root.focusId !== "" ? (root.plugin(root.focusId)?.label ?? "") + " — " + (root.plugin(root.focusId)?.about ?? "")
-                              : "Drag a row up or down, to another column, or into HIDDEN."
+                              : "Drag a chip along its zone, to another zone, or into HIDDEN."
     color: root.focusId !== "" ? Theme.foreground2 : Theme.muted
     elide: Text.ElideRight
     font.pixelSize: Theme.fontSize - 1
