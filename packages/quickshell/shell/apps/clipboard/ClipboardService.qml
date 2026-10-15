@@ -7,7 +7,7 @@ import qs.config
 
 // Clipboard history (scripts/clipboard.sh): a `wl-paste --watch` runs for the
 // whole session and stores every new selection; the popup reads the list and
-// calls copy / delete / clear / limit.
+// calls copy / delete / clear / limit. The window reads the list when it opens.
 Singleton {
   id: root
 
@@ -16,8 +16,6 @@ Singleton {
   property int limit: 100
   readonly property var limits: [25, 50, 100, 250, 500]
   property string error: ""
-
-  function popupShown() { refresh(); }
 
   function refresh() { run(listProc, ["list"]); }
 

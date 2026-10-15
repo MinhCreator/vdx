@@ -3,9 +3,9 @@ import qs.config
 import qs.kit
 
 // Clipboard history, newest first: text previews and image thumbnails. Click
-// to copy it back (COPIED, then the popup closes), × to delete it; drag text
-// or an image out into any app. A search
-// field narrows the list; Clear empties it (the limit: Shell Manager › Modules).
+// to copy it back (COPIED, then the window closes), × to delete it; drag text
+// or an image out into any app. A search field narrows the list; Clear empties
+// it (the limit: Shell Manager › Shell apps › Clipboard).
 KitFrame {
   id: root
 
@@ -13,8 +13,13 @@ KitFrame {
   property bool confirmClear: false
   property string copiedId: ""      // the entry just copied: COPIED, then close
 
+  // the bar's popup sets these (ClipboardBar); the window shows all of them
+  property int maxRows: 0                // entries listed, 0 = all
+  property bool search: true          // the search field
+
   readonly property var shown: ClipboardService.entries.filter(e =>
     query.trim() === "" || (e.kind === "text" && e.preview.toLowerCase().includes(query.trim().toLowerCase())))
+    .slice(0, maxRows > 0 ? maxRows : undefined)
 
   signal picked()
 
@@ -44,7 +49,7 @@ KitFrame {
       text: root.confirmClear ? "Sure?" : "Clear"
       disabled: ClipboardService.entries.length === 0
       onClicked: {
-        if (!root.confirmClear) { root.confirmClear = true; return; }
+        if (ModuleSettings.get("clipboard", "confirm", true) && !root.confirmClear) { root.confirmClear = true; return; }
         root.confirmClear = false;
         ClipboardService.clear();
       }
@@ -53,7 +58,7 @@ KitFrame {
 
   KitInput {
     width: parent.width
-    visible: ClipboardService.entries.length > 0
+    visible: root.search && ClipboardService.entries.length > 0
     placeholder: "search text"
     text: root.query
     onTextEdited: root.query = text
@@ -166,10 +171,10 @@ KitFrame {
                 id: thumb
                 visible: item.image
                 source: item.image ? "file://" + item.modelData.path : ""
-                width: Math.min(parent.width, sourceSize.width)
-                height: visible ? Math.min(90, implicitHeight * width / Math.max(1, implicitWidth)) : 0
+                width: parent.width
+                height: visible ? Math.min(240, implicitHeight * width / Math.max(1, implicitWidth)) : 0
                 fillMode: Image.PreserveAspectFit
-                horizontalAlignment: Image.AlignLeft
+                horizontalAlignment: Image.AlignHCenter
                 asynchronous: true
                 cache: false
 

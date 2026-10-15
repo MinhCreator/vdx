@@ -1,10 +1,12 @@
 import QtQuick
 import Quickshell
+import qs.apps.clipboard
 import qs.bar
 import qs.config
 import qs.kit
 
-// Bar module: a clipboard icon; opens the history (Super+B, ipc `clipboard`).
+// Bar module: the clipboard's icon; the popup is the history itself (click to
+// copy back, × to delete), and the full window opens from the app (Shell apps).
 Item {
   id: root
 
@@ -30,16 +32,18 @@ Item {
   BarPopup {
     id: popup
     anchorItem: root
-    ipcTarget: "clipboard"
+    ipcTarget: "clip"
     bar: root.bar
     implicitWidth: content.implicitWidth
     implicitHeight: content.implicitHeight
-    onShown: ClipboardService.popupShown()
+    onShown: ClipboardService.refresh()
 
-    ClipboardPopup {
+    Clipboard {
       id: content
       anchors.fill: parent
-      onPicked: popup.visible = false
+      maxRows: ModuleSettings.get("clipboard", "rows", 0)
+      search: ModuleSettings.get("clipboard", "search", true)
+      onPicked: if (ModuleSettings.get("clipboard", "closeOnCopy", true)) popup.visible = false
     }
   }
 }
