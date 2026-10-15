@@ -35,6 +35,7 @@ bind("Capture", mainMod .. " + P", hl.dsp.exec_cmd("grim - | wl-copy"), "Screens
 bind("Windows", mainMod .. " + C", hl.dsp.window.close(), "Close")
 bind("Windows", mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }), "Float / tile")
 bind("Windows", mainMod .. " + F", hl.dsp.window.fullscreen(), "Fullscreen")
+bind("Windows", mainMod .. " + N", function() MinimizeWindow() end, "Minimize")
 
 -- mouse
 bind("Windows", mainMod .. " + mouse:272", hl.dsp.window.drag(), "Drag", { mouse = true })

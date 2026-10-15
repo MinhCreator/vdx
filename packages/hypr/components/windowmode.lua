@@ -7,9 +7,21 @@
 --               the mouse; windows the mode floated carry the tag
 --               "modefloat" and go back to the layout when it ends;
 --   scrolling — like Niri: the built-in scrolling layout.
--- SnapWindow(spot) puts the active window on a part of its monitor.
+-- SnapWindow(spot) puts the active window on a part of its monitor;
+-- MinimizeWindow / RestoreWindow / MaximizeWindow — the bottom dock's buttons.
+-- The options (gaps, master, column width, floating arrangement) come from
+-- ~/.local/state/dotfiles/windows.lua, written by the Shell Manager › Windows.
 
-local stateFile = os.getenv("HOME") .. "/.local/state/dotfiles/window-mode"
+local stateDir = os.getenv("HOME") .. "/.local/state/dotfiles/"
+local stateFile = stateDir .. "window-mode"
+
+local ok, opts = pcall(dofile, stateDir .. "windows.lua")
+if not ok or type(opts) ~= "table" then opts = {} end
+hl.config({
+	general = { gaps_in = opts.gapsIn or 10, gaps_out = opts.gapsOut or 20 },
+	master = { mfact = opts.mfact or 0.5, new_status = opts.newStatus or "slave" },
+	scrolling = { column_width = opts.columnWidth or 0.5 },
+})
 
 -- floating: new windows float, tagged as the mode's
 local floatAll = hl.window_rule({
@@ -31,20 +43,75 @@ end
 function WindowMode(mode)
 	hl.config({ general = { layout = mode == "scrolling" and "scrolling" or "master" } })
 	floatAll:set_enabled(mode == "floating")
+	local floated = {}
 	for _, w in ipairs(hl.get_windows()) do
 		local target = "address:" .. w.address
 		if mode == "floating" and not w.floating then
 			hl.dispatch(hl.dsp.window.tag({ tag = "+modefloat", window = target }))
 			hl.dispatch(hl.dsp.window.float({ action = "enable", window = target }))
+			table.insert(floated, w)
 		elseif mode ~= "floating" and w.floating and tagged(w) then
 			hl.dispatch(hl.dsp.window.float({ action = "disable", window = target }))
 			hl.dispatch(hl.dsp.window.tag({ tag = "-modefloat", window = target }))
 		end
 	end
+	ArrangeFloating(floated)
 end
 
 -- the active window on a part of its monitor (logical pixels, under the bar)
 local GAP = 8
+
+-- a monitor's work area: x, y, width, height (logical, inside the gaps)
+local function workArea(m)
+	local scale = m.scale or 1
+	local r = type(m.reserved) == "table" and m.reserved or {}
+	local left, top, right, bottom = r[1] or r.left or 0, r[2] or r.top or 0, r[3] or r.right or 0, r[4] or r.bottom or 0
+	return m.x + left + GAP, m.y + top + GAP,
+		m.width / scale - left - right - 2 * GAP, m.height / scale - top - bottom - 2 * GAP
+end
+
+local function place(w, x, y, width, height)
+	local target = "address:" .. w.address
+	hl.dispatch(hl.dsp.window.resize({ x = math.floor(width), y = math.floor(height), window = target }))
+	hl.dispatch(hl.dsp.window.move({ x = math.floor(x), y = math.floor(y), window = target }))
+end
+
+-- windows the floating mode just floated, laid out per workspace the way
+-- opts.arrange says: cascade (a staircase from the top-left), grid (side by
+-- side, no overlap) or center (each in the middle, the same size)
+function ArrangeFloating(list)
+	local byWs = {}
+	for _, w in ipairs(list) do
+		local ws = w.workspace and w.workspace.id or 0
+		if ws > 0 then
+			byWs[ws] = byWs[ws] or {}
+			table.insert(byWs[ws], w)
+		end
+	end
+	local arrange = opts.arrange or "cascade"
+	for _, wins in pairs(byWs) do
+		local ax, ay, aw, ah = workArea(wins[1].monitor or hl.get_active_monitor())
+		local n = #wins
+		if arrange == "grid" then
+			local cols = math.ceil(math.sqrt(n))
+			local rows = math.ceil(n / cols)
+			local cw, ch = (aw - (cols - 1) * GAP) / cols, (ah - (rows - 1) * GAP) / rows
+			for i, w in ipairs(wins) do
+				local c, r = (i - 1) % cols, math.floor((i - 1) / cols)
+				place(w, ax + c * (cw + GAP), ay + r * (ch + GAP), cw, ch)
+			end
+		elseif arrange == "center" then
+			for _, w in ipairs(wins) do place(w, ax + aw * 0.15, ay + ah * 0.1, aw * 0.7, ah * 0.8) end
+		else
+			local step = 40
+			local width, height = aw * 0.6, ah * 0.7
+			for i, w in ipairs(wins) do
+				local k = (i - 1) % math.max(1, math.floor(math.min(aw - width, ah - height) / step) + 1)
+				place(w, ax + k * step, ay + k * step, width, height)
+			end
+		end
+	end
+end
 local SPOTS = {
 	-- spot = { x, y, width, height } as shares of the work area
 	left = { 0, 0, 0.5, 1 }, right = { 0.5, 0, 0.5, 1 },
@@ -60,13 +127,7 @@ function SnapWindow(spot)
 	local w = hl.get_active_window()
 	local s = SPOTS[spot]
 	if not w or not s then return end
-	local m = w.monitor or hl.get_active_monitor()
-	local scale = m.scale or 1
-	local r = type(m.reserved) == "table" and m.reserved or {}
-	local left, top, right, bottom = r[1] or r.left or 0, r[2] or r.top or 0, r[3] or r.right or 0, r[4] or r.bottom or 0
-	local ax, ay = m.x + left + GAP, m.y + top + GAP
-	local aw = m.width / scale - left - right - 2 * GAP
-	local ah = m.height / scale - top - bottom - 2 * GAP
+	local ax, ay, aw, ah = workArea(w.monitor or hl.get_active_monitor())
 	-- neighbours keep a gap between them
 	local x = ax + s[1] * aw + (s[1] > 0 and GAP / 2 or 0)
 	local y = ay + s[2] * ah + (s[2] > 0 and GAP / 2 or 0)
@@ -76,6 +137,34 @@ function SnapWindow(spot)
 	if not w.floating then hl.dispatch(hl.dsp.window.float({ action = "enable", window = target })) end
 	hl.dispatch(hl.dsp.window.resize({ x = math.floor(width), y = math.floor(height), window = target }))
 	hl.dispatch(hl.dsp.window.move({ x = math.floor(x), y = math.floor(y), window = target }))
+end
+
+-- the dock's buttons: a minimized window waits on the special workspace
+-- "minimized" (not shown); restored, it comes to the active workspace
+function MinimizeWindow(address)
+	local w = address and { address = address } or hl.get_active_window()
+	if not w then return end
+	hl.dispatch(hl.dsp.window.move({ workspace = "special:minimized", window = "address:" .. w.address, follow = false }))
+end
+
+function RestoreWindow(address)
+	local target = "address:" .. address
+	hl.dispatch(hl.dsp.window.move({ workspace = hl.get_active_workspace().id, window = target }))
+	hl.dispatch(hl.dsp.focus({ window = target }))
+end
+
+-- floating: the whole work area and back to the middle; otherwise fullscreen
+-- that keeps the bar (maximized)
+function MaximizeWindow()
+	local w = hl.get_active_window()
+	if not w then return end
+	if not w.floating then
+		hl.dispatch(hl.dsp.window.fullscreen({ mode = "maximized" }))
+		return
+	end
+	local _, _, aw = workArea(w.monitor or hl.get_active_monitor())
+	local width = type(w.size) == "table" and (w.size.x or w.size[1]) or 0
+	SnapWindow(width >= aw - 2 and "center" or "maximize")
 end
 
 -- the row of columns one step sideways (scrolling): not past the last
