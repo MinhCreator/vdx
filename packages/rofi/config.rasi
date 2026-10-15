@@ -20,7 +20,7 @@ configuration {
 @import "~/.config/rofi/colors.rasi"
 
 * {
-    font: "JetBrainsMono Nerd Font SemiBold 11";
+    font: "monospace SemiBold 11";
 }
 
 window {

@@ -41,7 +41,7 @@ QtObject {
   readonly property string workspaceIconActive: Colors.workspaceIconActive
 
   // ---- type and bar metrics ---------------------------------------------------
-  readonly property string fontFamily: "JetBrainsMono Nerd Font"
+  readonly property string fontFamily: ShellSettings.font     // the system monospace, Shell Manager › Appearance
   readonly property int fontSize: 13
   readonly property int fontWeight: Font.DemiBold
   readonly property int barHeight: 34

@@ -13,7 +13,7 @@ taskbar/
 ├─ kit/               UI-компоненты (каталог ниже) и icons/ — SVG-иконки (+ icons/solid)
 ├─ components/        ThemeText, Separator, PopupManager, PopupCatcher (клик мимо попапа)
 ├─ config/            Theme (всё общее), Colors (палитра темы), ShellSettings (опции оболочки), PluginSettings (опции плагинов)
-├─ apps/shellmanager/ окно настроек: Appearance (тема, обои), Bar (мониторы, раскладка, модули), Plugins
+├─ apps/shellmanager/ окно настроек: Appearance (тема, обои, шрифт, курсор), Bar (мониторы, раскладка, модули), Plugins
 ├─ apps/capture/      захват экрана (Super+Shift+S): область / окно / экран, скриншот или запись
 ├─ scripts/           бэкенды: *.sh / *.py, на выходе только JSON (или строки, см. шапку)
 └─ plugins/<name>/    <Name>.qml + <Name>Popup.qml + <Name>Service.qml (+ view-файлы, *.json)

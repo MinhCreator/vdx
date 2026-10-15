@@ -4,8 +4,9 @@ import qs.kit
 
 // Appearance: everything that changes how the desktop looks — a live preview
 // beside the theme list (pick one to preview it, Apply to switch),
-// wallpaper (the theme's colour or a custom one); the bar's icon style is
-// shown here but set on the Bar page.
+// wallpaper (the theme's colour or a custom one), the system font (the same
+// preview-and-apply) and the cursor (applied on click); the bar's icon style
+// is shown here but set on the Bar page.
 Column {
   id: root
 
@@ -28,6 +29,13 @@ Column {
   readonly property bool draftValid: /^#?[0-9a-fA-F]{6}$/.test(draft.trim())
 
   function p(role) { return palette[role] ?? Theme[role]; }
+
+  // the font in the preview; Apply installs it if needed and makes it the system one
+  property string fontSelected: FontService.current
+  readonly property var fontRow: FontService.fonts.find(f => f.family === fontSelected) ?? null
+  readonly property var fontRows: FontService.fonts.map(f => ({ key: f.family, label: f.family.replace(" Nerd Font", ""),
+                                                               installed: f.installed, family: f.family }))
+  readonly property var cursorRows: CursorService.cursors.map(c => ({ key: c.name, label: c.name, installed: c.installed }))
 
   function setWallpaper(value) {
     const hex = value.trim().replace(/^#?/, "#").toLowerCase();
@@ -397,5 +405,175 @@ Column {
       onTextEdited: root.draft = text
       onAccepted: if (root.draftValid) root.setWallpaper(root.draft)
     }
+  }
+
+  KitLine {}
+
+  // ---- font ------------------------------------------------------------------------
+  KitLabel {
+    text: "FONT"
+    value: FontService.current.replace(" Nerd Font", "").toUpperCase()
+  }
+
+  // a sample in the selected font beside the list
+  Row {
+    width: parent.width
+    spacing: 14
+
+    Rectangle {
+      width: parent.width - fontList.width - 14
+      height: fontList.height
+      color: "transparent"
+      border.width: Theme.frameWidth
+      border.color: Theme.gray
+
+      // a font installed after the shell started can't be drawn until it restarts
+      readonly property bool drawable: root.fontRow !== null && root.fontRow.installed
+                                       && Qt.fontFamilies().includes(root.fontRow.family)
+
+      Column {
+        x: 14
+        y: 14
+        width: parent.width - 28
+        spacing: 10
+        visible: parent.drawable
+
+        KitText {
+          text: "Appearance"
+          font.family: root.fontSelected
+          font.weight: Font.ExtraBold
+          font.pixelSize: Theme.fontSize + 3
+        }
+
+        KitText {
+          text: "CONNECTED · RULE · 82%"
+          color: Theme.muted
+          font.family: root.fontSelected
+          font.pixelSize: Theme.fontSize - 2
+        }
+
+        KitText {
+          width: parent.width
+          text: "The quick brown fox jumps over the lazy dog."
+          wrapMode: Text.WordWrap
+          font.family: root.fontSelected
+        }
+
+        KitText {
+          text: "0123456789 {}[]() => != -> <="
+          color: Theme.foreground2
+          font.family: root.fontSelected
+        }
+
+        KitText {
+          text: "iIlL1| oO0 ❯ ~/.dotfiles"
+          color: Theme.foreground2
+          font.family: root.fontSelected
+        }
+      }
+
+      KitText {
+        anchors.centerIn: parent
+        width: parent.width - 40
+        visible: !parent.drawable
+        horizontalAlignment: Text.AlignHCenter
+        wrapMode: Text.WordWrap
+        color: Theme.muted
+        text: root.fontRow && !root.fontRow.installed
+          ? "Not installed yet.\nApply downloads it and restarts the shell."
+          : "Installed after the shell started.\nApply restarts the shell to draw it."
+      }
+    }
+
+    Column {
+      id: fontList
+      width: 190
+      height: 240
+      spacing: 8
+
+      PickList {
+        width: parent.width
+        height: parent.height - fontButtons.height - parent.spacing
+        model: root.fontRows
+        selected: root.fontSelected
+        current: FontService.current
+        working: FontService.working
+        onPicked: row => root.fontSelected = row.key
+      }
+
+      Row {
+        id: fontButtons
+        width: parent.width
+        spacing: 6
+
+        KitButton {
+          width: (parent.width - parent.spacing) / 2
+          icon: "x"
+          text: "Cancel"
+          disabled: root.fontSelected === FontService.current || FontService.busy
+          onClicked: root.fontSelected = FontService.current
+        }
+
+        KitButton {
+          width: (parent.width - parent.spacing) / 2
+          icon: root.fontRow && !root.fontRow.installed ? "download" : "check"
+          text: "Apply"
+          busy: FontService.busy
+          disabled: root.fontSelected === FontService.current || root.fontRow === null
+          onClicked: FontService.apply(root.fontRow)
+        }
+      }
+    }
+  }
+
+  KitText {
+    width: parent.width
+    visible: FontService.error !== ""
+    text: FontService.error
+    color: Theme.red
+    wrapMode: Text.WordWrap
+    font.pixelSize: Theme.fontSize - 1
+  }
+
+  KitLine {}
+
+  // ---- cursor ----------------------------------------------------------------------
+  KitLabel {
+    text: "CURSOR"
+    value: CursorService.current.toUpperCase() + " · " + CursorService.size
+  }
+
+  // a click applies it (downloading first when needed)
+  PickList {
+    width: parent.width
+    height: Math.min(6, root.cursorRows.length) * 32 + 2 * Theme.frameWidth
+    model: root.cursorRows
+    selected: CursorService.working || CursorService.current
+    current: CursorService.current
+    working: CursorService.working
+    onPicked: row => {
+      if (row.key !== CursorService.current)
+        CursorService.apply(CursorService.cursors.find(c => c.name === row.key), CursorService.size);
+    }
+  }
+
+  KitRow {
+    label: "Size"
+    hint: "pixels, at scale 1"
+
+    KitChoices {
+      model: [20, 24, 28, 32, 40].map(n => ({ label: String(n), value: n }))
+      current: CursorService.size
+      onPicked: value => CursorService.setSize(value)
+    }
+  }
+
+  KitText {
+    width: parent.width
+    visible: CursorService.error !== ""
+    text: CursorService.error
+    color: Theme.red
+    wrapMode: Text.WordWrap
+    font.pixelSize: Theme.fontSize - 1
   }
 }

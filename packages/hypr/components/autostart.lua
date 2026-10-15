@@ -7,4 +7,6 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("awww-daemon")
 	hl.exec_cmd("qs -c taskbar")
 	hl.exec_cmd("mako")
+	-- the cursor picked in the Shell Manager, at its size
+	hl.exec_cmd("python3 ~/.config/quickshell/taskbar/scripts/cursors.py restore")
 end)

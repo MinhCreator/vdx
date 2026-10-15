@@ -16,7 +16,17 @@
   переключает через `install.py theme set`, **Cancel** возвращает. Оболочка
   перекрашивается на лету, без перезапуска: `ThemeService` кладёт палитру
   активной темы в `Theme.live`. Ниже — обои: образец «Theme» (цвет темы,
-  `background1`), готовые образцы или свой hex.
+  `background1`), готовые образцы или свой hex. Дальше — **FONT**: образец
+  текста выбранным шрифтом и список (Nerd Fonts до ~120 МБ и всё
+  моноширинное, что уже стоит; не скачанные — со значком загрузки). **Apply** при нужде скачивает шрифт в `~/.local/share/fonts` и
+  делает его `monospace` для всей системы: fontconfig
+  (`packages/fontconfig/fonts.conf` подключает выбор из
+  `~/.local/state/dotfiles/font.conf`), kitty, rofi, mako и swaylock просят
+  `monospace`, оболочка берёт `ShellSettings.font`. Шрифт, поставленный после
+  старта оболочки, Qt не видит — тогда Apply перезапускает её. **CURSOR** —
+  клик ставит (и при нужде скачивает в `~/.local/share/icons`) тему курсора,
+  **Size** — размер; применяется сразу (`hyprctl setcursor`, gsettings,
+  XDG `default`) и при каждом старте Hyprland (`cursors.py restore`).
 - **Bar** — группы в одном ритме (заголовок, строки, линия):
   - **MONITOR** — вкладки **Main** / **Extra** (если бары разные), **Same bar
     everywhere** (один бар на всех мониторах; Main — внешний монитор или
@@ -51,8 +61,11 @@
 | `BarPage.qml`, `BarPreview.qml` | Мониторы, полосы чипов раскладки и предпросмотр бара, стиль значков и анимация подчёркивания |
 | `PluginsPage.qml` | Список плагинов и страница опций выбранного |
 | `ThemeService.qml` | Список тем, палитры (все роли), переключение, `Theme.live` |
+| `FontService.qml`, `scripts/fonts.py` | Шрифты: список, установка, `monospace`, перезапуск оболочки |
+| `CursorService.qml`, `scripts/cursors.py` | Курсоры: список, установка, тема и размер |
+| `PickList.qml` | Рамочный список со значками «текущий / качается / скачать» |
 | `scripts/themes.sh` | Темы и их цвета по ролям из `Colors.qml` каждой темы |
 
 Опции хранят `config/ShellSettings.qml` (`settings.json`: `solidIcons`,
-`underlineAnimation`, `wallpaperMode`, `wallpaperColor`), `config/PluginSettings.qml` (`plugins.json`) и `bar/BarLayout.qml` (`layout.json`:
+`underlineAnimation`, `font`, `wallpaperMode`, `wallpaperColor`), `config/PluginSettings.qml` (`plugins.json`) и `bar/BarLayout.qml` (`layout.json`:
 раскладка и выключенные модули по ролям мониторов).
