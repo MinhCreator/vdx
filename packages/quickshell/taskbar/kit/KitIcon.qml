@@ -15,9 +15,10 @@ Item {
   property color tint: Theme.foreground0
   property int size: Theme.fontSize + 3
   property bool solid: ShellSettings.solidIcons
+  property bool round: ShellSettings.roundIcons   // soft corners: icons/round (kit/icons/mkround.py)
 
   // names that have a filled variant in icons/solid
-  readonly property var solidNames: ["app-window", "battery-charging", "battery", "bell", "bot", "brush", "camera", "circle", "clipboard", "clock", "cpu", "cursor", "folder", "grid", "headphones", "keyboard", "laptop", "layout", "leaf", "lock", "mic", "monitor", "moon", "music", "pause", "play", "plug", "radio", "server", "settings", "shield", "skip-back", "skip-forward", "sliders", "speaker", "square", "sun", "trash", "video", "volume", "volume-x", "wifi-off", "wifi", "zap"]
+  readonly property var solidNames: ["app-window", "battery-charging", "battery", "bell", "bot", "brush", "camera", "circle", "clipboard", "clock", "cpu", "cursor", "folder", "grid", "headphones", "info", "keyboard", "laptop", "layout", "leaf", "lock", "mic", "monitor", "moon", "music", "pause", "play", "plug", "radio", "server", "settings", "shield", "skip-back", "skip-forward", "sliders", "speaker", "square", "sun", "trash", "video", "volume", "volume-x", "wifi-off", "wifi", "zap"]
   readonly property bool useSolid: solid && solidNames.includes(name)
 
   implicitWidth: size
@@ -27,7 +28,7 @@ Item {
     id: image
     anchors.fill: parent
     source: root.name === "" ? ""
-      : Qt.resolvedUrl((root.useSolid ? "icons/solid/" : "icons/") + root.name + ".svg")
+      : Qt.resolvedUrl("icons/" + (root.round ? "round/" : "") + (root.useSolid ? "solid/" : "") + root.name + ".svg")
     sourceSize { width: root.size * 2; height: root.size * 2 }
     smooth: true
     visible: false

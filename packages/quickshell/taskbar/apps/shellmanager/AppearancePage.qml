@@ -367,7 +367,7 @@ Column {
   KitLabel {
     id: iconsGroup
     text: "ICONS"
-    value: ShellSettings.solidIcons ? "SOLID" : "OUTLINE"
+    value: (ShellSettings.solidIcons ? "SOLID" : "OUTLINE") + (ShellSettings.roundIcons ? " · ROUNDED" : " · SHARP")
   }
 
   KitRow {
@@ -383,6 +383,22 @@ Column {
       ]
       current: ShellSettings.solidIcons
       onPicked: value => ShellSettings.set("solidIcons", value)
+    }
+  }
+
+  KitRow {
+    wide: true
+    label: "Corners"
+    hint: "line ends and corners of every icon"
+
+    KitChoices {
+      stretch: true
+      model: [
+        { label: "Sharp",   value: false },
+        { label: "Rounded", value: true }
+      ]
+      current: ShellSettings.roundIcons
+      onPicked: value => ShellSettings.set("roundIcons", value)
     }
   }
 

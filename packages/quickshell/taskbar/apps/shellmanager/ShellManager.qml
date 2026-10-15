@@ -22,11 +22,12 @@ Rectangle {
     { value: "bar",        label: "Bar",        icon: "layout" },
     { value: "plugins",    label: "Plugins",    icon: "grid" },
     { value: "apps",       label: "Shell apps", icon: "app-window" },
-    { value: "binds",      label: "Binds",      icon: "keyboard" }
+    { value: "binds",      label: "Binds",      icon: "keyboard" },
+    { value: "about",      label: "About",      icon: "info" }
   ]
 
   function pageFor(value) {
-    return value === "bar" ? bar : value === "plugins" ? plugins : value === "binds" ? binds : value === "apps" ? apps : appearance;
+    return value === "bar" ? bar : value === "plugins" ? plugins : value === "binds" ? binds : value === "apps" ? apps : value === "about" ? about : appearance;
   }
   readonly property Item currentPage: pageFor(tab)
 
@@ -244,12 +245,14 @@ Rectangle {
                                bar.visible ? bar.implicitHeight : 0,
                                binds.visible ? binds.implicitHeight : 0,
                                apps.visible ? apps.implicitHeight : 0,
+                               about.visible ? about.implicitHeight : 0,
                                plugins.visible ? plugins.height : 0)
 
       AppearancePage { id: appearance; width: parent.width; visible: root.tab === "appearance" }
       BarPage     { id: bar;     width: parent.width; visible: root.tab === "bar" }
       // fills the window and scrolls its two panes itself
       ShellAppsPage { id: apps;  width: parent.width; visible: root.tab === "apps" }
+      AboutPage   { id: about;   width: parent.width; visible: root.tab === "about" }
       BindsPage   { id: binds;   width: parent.width; visible: root.tab === "binds" }
       PluginsPage { id: plugins; width: parent.width; height: page.height - pages.y - 20; visible: root.tab === "plugins" }
     }
