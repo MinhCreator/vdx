@@ -8,7 +8,7 @@
 --               "modefloat" and go back to the layout when it ends;
 --   scrolling — like Niri: the built-in scrolling layout.
 -- SnapWindow(spot) puts the active window on a part of its monitor;
--- MinimizeWindow / RestoreWindow / MaximizeWindow — the bottom dock's buttons.
+-- MinimizeWindow / RestoreWindow / MaximizeWindow — the taskbar's buttons.
 -- The options (gaps, master, column width, floating arrangement) come from
 -- ~/.local/state/dotfiles/windows.lua, written by the Shell Manager › Windows.
 
@@ -59,7 +59,7 @@ function WindowMode(mode)
 		end
 	end
 	ArrangeFloating(floated)
-	-- minimizing is the floating mode's (its dock): leaving it, they come back
+	-- minimizing is the floating mode's (its taskbar): leaving it, they come back
 	if mode ~= "floating" then
 		for _, w in ipairs(hl.get_windows()) do
 			if w.workspace and w.workspace.name == "special:minimized" then RestoreWindow(w.address) end
@@ -152,7 +152,7 @@ function SnapWindow(spot)
 	hl.dispatch(hl.dsp.window.move({ x = math.floor(x), y = math.floor(y), window = target }))
 end
 
--- the dock's buttons: a minimized window waits on the special workspace
+-- the taskbar's buttons: a minimized window waits on the special workspace
 -- "minimized" (not shown); restored, it comes to the active workspace
 -- (tagged "min<workspace>": the taskbar shows it on the workspace it left)
 local function windowAt(address)

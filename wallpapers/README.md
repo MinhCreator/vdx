@@ -1,15 +1,5 @@
-# wallpapers — картинки для обоев
+# wallpapers
 
-У каждой темы своя папка (`themes/mktheme.py` заводит её новой теме), плюс
-`common/` — общая для всех тем.
-
-Shell Manager › Appearance › WALLPAPER показывает картинки отсюда: сначала
-`<тема>/` (активной темы), потом `common/` (общие для всех тем). Клик ставит
-картинку активной теме: у каждой темы своя, при смене темы обои меняются
-вместе с ней. Без выбранной картинки тема заливает экран своим цветом.
-
-- Добавить: положить файл в папку или вставить путь в поле **Add image**
-  (копирует в `wallpapers/<активная тема>/`).
-- Форматы — то, что умеет `awww`: jpg, png, webp, gif.
-- Выбор хранится в `settings.json` оболочки (`wallpaperImages`: тема → путь
-  от этой папки), сами картинки — в git.
+`<theme>/` per theme, `common/` for all. The Shell Manager › Appearance lists
+the active theme's folder, then `common/`; the choice is per theme. Formats:
+whatever `awww` reads (jpg, png, webp, gif).

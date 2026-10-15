@@ -97,7 +97,7 @@ QtObject {
   readonly property int rowStackBelow: 480       // a wide KitRow narrower than this puts its control under the label
   readonly property int popupGap: 6
   readonly property int frameWidth: 1          // controls: buttons, selects, fields
-  readonly property int windowFrameWidth: 2    // popup frames, like hypr windows, mako, rofi
+  readonly property int windowFrameWidth: 2    // popup frames, like hypr windows, mako
   readonly property int rowHeight: 24
   readonly property int visibleRows: 8
   readonly property int underlineMs: 180          // popup underline grow / slide

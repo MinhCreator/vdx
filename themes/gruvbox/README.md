@@ -1,36 +1,29 @@
-# gruvbox-material — one theme for the whole desktop
+# gruvbox-material
 
-Source of truth: `quickshell/shell/config/Colors.qml`. Every program below
-uses these values and roles; a new config takes its colours from here.
+The source theme: `themes/mktheme.py` derives every other one from it role by
+role. Values: `quickshell/shell/config/Colors.qml`.
 
-| Role | Hex | Used for |
+| Role | Hex | Use |
 |---|---|---|
-| background0 | `#202020` | base surface: bar, popups, terminal, rofi, mako, lock screen, editor |
-| background1 | `#32302f` | raised: hover, fields, active tab |
-| background2 | `#3c3836` | tmux status cells |
-| background3 | `#45403d` | selection fill, quiet frames, hairlines |
-| foreground0 | `#d4be98` | text, block cursor |
-| foreground1 | `#ddc7a1` | emphasised text |
-| foreground2 | `#bdae93` | secondary text, active frames (focused window) |
-| gray | `#7c6f64` | frames at rest (popups, notifications, rofi) |
+| background0 | `#202020` | surfaces: bar, popups, terminal, editor |
+| background1 | `#32302f` | raised: hover, fields |
+| background2 | `#3c3836` | tmux cells |
+| background3 | `#45403d` | selection, quiet frames, lines |
+| foreground0 | `#d4be98` | text |
+| foreground1 | `#ddc7a1` | emphasis |
+| foreground2 | `#bdae93` | secondary text, focused frames |
+| gray | `#7c6f64` | frames at rest |
 | muted | `#928374` | hints, inactive labels |
 | dim | `#665c54` | disabled |
-| red | `#ea6962` | errors, critical, clipping |
-| orange | `#e78a4e` | special mode (night light), pending action |
-| yellow | `#d8a657` | accent: focus, prompt; warnings |
-| green | `#a9b665` | ok, connected, on |
-| aqua | `#89b482` | |
-| blue | `#7daea3` | |
-| purple | `#d3869b` | |
+| red | `#ea6962` | error |
+| orange | `#e78a4e` | special mode, pending |
+| yellow | `#d8a657` | warning, prompt |
+| green | `#a9b665` | ok, on |
+| aqua, blue, purple | `#89b482`, `#7daea3`, `#d3869b` | terminal palette |
 
-Rules (the bar's style):
-- surfaces step up in tone (`background0 → 1 → 3`), no shadows-as-colour;
-- frames: 1px inside the bar (`Theme.frameWidth`), 2px for windows, notifications and rofi; `gray` at rest, `foreground2` when active / focused;
-- selection is a `background3` fill with bold text, not a colour;
-- colour carries meaning only: green ok, yellow / orange attention, red error.
+Rules: surfaces step up `background0 → 1 → 3`; frames 1px in controls, 2px for
+windows and popups (`gray` at rest, `foreground2` focused); selection is a fill
+plus bold, not a colour; colour carries meaning only.
 
-Where each program keeps it: hypr `components/colors.lua`, kitty `colors.conf`,
-rofi `colors.rasi`, mako `config`, swaylock `config`, gtk `gtk.css`, elio
-`theme.toml`, zed `themes/gruvbox-material.json`, tmux `tmux.conf` (package),
-btop `gruvbox_material_dark` (package), nvim — gruvbox-material, transparent
-over the terminal.
+Files: hypr `components/colors.lua`, kitty `colors.conf`, mako `config`, gtk
+`gtk.css`, elio `theme.toml`, zed `themes/`, tmux and btop (from the packages).

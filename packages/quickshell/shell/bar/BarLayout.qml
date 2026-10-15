@@ -32,7 +32,7 @@ Singleton {
     { id: "sysmon",        label: "System",        zone: "right",  icon: "cpu", settings: "SysmonSettings.qml", about: "CPU, memory, GPU, disks, network, sensors" },
     { id: "taskmanager",   label: "Task manager",  zone: "right",  icon: "activity", about: "Load and the busiest programs · Super + D: the full window" },
     { id: "cleaner",       label: "Cleaner",       zone: "right",  icon: "brush", about: "What can go, the safe part in one click · Super + X: the full window" },
-    { id: "windows",       label: "Windows",       zone: "right",  icon: "app-window", about: "Window mode — tiling, floating, scrolling — and placing the active window" },
+    { id: "windows",       label: "Windows",       zone: "right",  icon: "app-window", about: "Window mode: tiling, floating, scrolling" },
     { id: "chat",          label: "Chat",          zone: "right",  icon: "message", settings: "ChatSettings.qml", about: "A chat with a free opencode model" },
     { id: "folder",        label: "Folder",        zone: "right",  icon: "folder", about: "Modules tucked away, one click from the bar" }
   ]
