@@ -1,9 +1,9 @@
 # AUR — installed with paru or yay when one is available.
 
 mihomo-bin
+yay
 mihomo-tui-bin
 supergfxctl
 wifitui
 elio
 telegram-desktop-bin
-hyprland-plugin-hyprbars
