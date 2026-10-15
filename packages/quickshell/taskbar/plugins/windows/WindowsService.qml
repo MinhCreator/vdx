@@ -78,6 +78,12 @@ Singleton {
   function maximize() { run(["hyprctl", "eval", "MaximizeWindow()"]); }
   function close(address) { run(["hyprctl", "eval", "hl.dispatch(hl.dsp.window.close({ window = \"address:" + address + "\" }))"]); }
 
+  // the system menu switches the mode: `ipc call windows mode floating`
+  IpcHandler {
+    target: "windows"
+    function mode(value: string): void { if (root.modes.some(m => m.value === value)) root.setMode(value); }
+  }
+
   FileView {
     path: root.stateFile
     printErrors: false

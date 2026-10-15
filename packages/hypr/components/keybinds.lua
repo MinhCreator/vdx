@@ -17,14 +17,17 @@ end
 bind("Apps", mainMod .. " + Q", hl.dsp.exec_cmd("kitty"), "Terminal")
 bind("Apps", mainMod .. " + E", hl.dsp.exec_cmd("kitty -e elio"), "File manager")
 bind("Apps", mainMod .. " + M", hl.dsp.exec_cmd("kitty -e ncmpcpp"), "Music player")
-bind("Apps", mainMod .. " + R", hl.dsp.exec_cmd("~/.config/rofi/dmenu.sh"), "App launcher")
-bind("Apps", mainMod .. " + Z", hl.dsp.exec_cmd("swaylock"), "Lock the screen")
+bind("Apps", mainMod .. " + R", hl.dsp.exec_cmd("qs -c taskbar ipc call launcher toggle"), "System menu")
+bind("Apps", mainMod .. " + Z", hl.dsp.exec_cmd("qs -c taskbar ipc call lock lock"), "Lock the screen")
+-- the shell's lock screen: if the shell dies while locked, started again it locks anew
+hl.config({ misc = { allow_session_lock_restore = true } })
 
 -- shell
 bind("Shell", mainMod .. " + S", hl.dsp.exec_cmd("qs -c taskbar ipc call shell toggle"), "Shell Manager")
 bind("Shell", mainMod .. " + B", hl.dsp.exec_cmd("qs -c taskbar ipc call clipboard toggle"), "Clipboard history")
 bind("Shell", mainMod .. " + D", hl.dsp.exec_cmd("qs -c taskbar ipc call taskmanager toggle"), "Task manager")
 bind("Shell", mainMod .. " + X", hl.dsp.exec_cmd("qs -c taskbar ipc call cleaner toggle"), "Cleaner")
+bind("Shell", mainMod .. " + TAB", hl.dsp.exec_cmd("qs -c taskbar ipc call overview toggle"), "Overview")
 
 -- screenshots (both copy to the clipboard)
 -- capture tool: region / window / screen, shot or recording (again: stop recording)

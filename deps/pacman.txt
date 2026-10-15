@@ -58,4 +58,5 @@ ncmpcpp
 # tools
 btop
 fastfetch
+fd
 opencode

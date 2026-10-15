@@ -4,6 +4,10 @@ import Quickshell.Io
 import qs.apps.auth
 import qs.apps.capture
 import qs.apps.cleaner
+import qs.apps.dock
+import qs.apps.launcher
+import qs.apps.lock
+import qs.apps.overview
 import qs.apps.shellmanager
 import qs.apps.taskmanager
 import qs.bar
@@ -20,6 +24,10 @@ Scope {
   ShellManagerWindow {}
   TaskManagerWindow {}
   CleanerWindow {}
+  Dock {}
+  Launcher {}
+  Lock {}
+  Overview {}
 
   // the polkit agent: password requests slide down from under the bar
   AuthPrompt {}
