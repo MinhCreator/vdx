@@ -251,7 +251,8 @@ Variants {
         sourceItem: root.still
         sourceRect: root.target
         textureSize: Qt.size(Math.max(1, Math.round(width * root.scale)), Math.max(1, Math.round(height * root.scale)))
-        live: false
+        // follows the still while selecting (a frozen texture showed as a black square)
+        live: true
         visible: root.hasTarget
       }
 

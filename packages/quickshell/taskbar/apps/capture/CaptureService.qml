@@ -39,10 +39,11 @@ Singleton {
 
   // ---- this capture (reset at every open) ----------------------------------------
   property string mode: "region"      // region | window | screen
+  property string kind: "shot"        // shot | record
   property bool cursor: false         // the pointer in the shot / recording
 
   // ---- saved choices --------------------------------------------------------------
-  readonly property string kind: settings.kind          // shot | record
+
   readonly property string audio: settings.audio        // off | system | mic
   readonly property int fps: settings.fps
   readonly property string quality: settings.quality    // low | medium | high
@@ -72,6 +73,7 @@ Singleton {
     closing = false;
     cursor = false;
     mode = "region";
+    kind = "shot";
     cursorStills = 0;
     plainStills = 0;
     redraw = false;
@@ -122,7 +124,7 @@ Singleton {
   }
 
   function setMode(value) { mode = value; }
-  function setKind(value) { settings.kind = value; }
+  function setKind(value) { kind = value; }
   function setAudio(value) { settings.audio = value; }
   function setFps(value) { settings.fps = value; }
   function setQuality(value) { settings.quality = value; }
@@ -247,7 +249,6 @@ Singleton {
 
     JsonAdapter {
       id: settings
-      property string kind: "shot"
       property string audio: "off"
       property int fps: 60
       property string quality: "medium"
