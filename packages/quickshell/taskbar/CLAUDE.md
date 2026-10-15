@@ -40,8 +40,9 @@ taskbar/
 3. **Бар-модуль** `<Name>.qml` — лицо в баре (`KitBarItem`), `MouseArea`
    (клик → `popup.toggle()`, колесо — быстрое действие), `BarPopup`, который
    форвардит `onShown` / `onHidden` в сервис, и `function openPopup() {
-   popup.toggle(); }` — ей модуль открывается из папки (`plugins/folder`). **Попап** `<Name>Popup.qml` —
-   корень `KitFrame`, только чтение сервиса и вызов его функций.
+   popup.toggle(); }` — ей модуль открывается из папки (`plugins/folder`).
+   **Попап** `<Name>Popup.qml` — корень `KitFrame`, только чтение сервиса и
+   вызов его функций.
 
 ```qml
 Item {
