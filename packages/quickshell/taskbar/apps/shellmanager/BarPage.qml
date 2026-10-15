@@ -191,11 +191,13 @@ Column {
             font.letterSpacing: 1
           }
 
-          // a filled well, no border: where rows can be dropped
+          // an outlined column: where rows can be dropped
           Rectangle {
             width: parent.width
             height: (root.maxRows + 1) * root.rowHeight
-            color: column.target ? Theme.background2 : Theme.background1
+            color: column.target ? Theme.background1 : "transparent"
+            border.width: 1
+            border.color: column.target ? Theme.foreground2 : Theme.background3
 
             Repeater {
               model: column.ids
@@ -209,7 +211,7 @@ Column {
                 y: index * root.rowHeight
                 width: parent.width
                 height: root.rowHeight
-                color: rowArea.containsMouse && root.dragId === "" ? Theme.background3 : "transparent"
+                color: rowArea.containsMouse && root.dragId === "" ? Theme.background1 : "transparent"
                 opacity: root.dragId === modelData ? 0.25 : 1
 
                 KitIcon {
