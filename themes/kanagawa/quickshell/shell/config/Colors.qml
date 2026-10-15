@@ -30,9 +30,9 @@ QtObject {
   // kitty terminal palette (themes/gruvbox/kitty/colors.conf)
   readonly property color muted:  "#938aa9"   // color8 — disconnected / secondary
 
-  // popup frame (and mako / rofi frames); controls use `gray`
+  // popup frame (and mako's); controls use `gray`
   readonly property color frame:  "#7e9cd8"
-  readonly property color dim:    "#4a4a5e"   // rofi `fg` (kitty color0)
+  readonly property color dim:    "#4a4a5e"   // kitty color0
 
   // workspace labels: "{name}" shows names, "{icon}" the icons below.
   readonly property string workspaceFormat: "{name}"     // "{name}" | "{icon}"

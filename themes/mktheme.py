@@ -7,7 +7,7 @@ replaced by the colour of the same role in the new theme.
 
 A new theme: add its colours to THEMES (all roles + frame, frame_active) and
 run it; the result lands in themes/<name> and shows up in the Shell Manager."""
-import re, shutil, sys
+import re, sys
 from pathlib import Path
 
 ROOT = Path.home() / ".dotfiles"
@@ -116,7 +116,9 @@ def recolor(text, pal):
 
 def build(name, pal):
     dst = ROOT / "themes" / name
-    if dst.exists(): shutil.rmtree(dst)
+    # rewritten in place, stale files removed after: the active theme's files
+    # never vanish under a running Hyprland (its autoreload would fail)
+    old = {p for p in dst.rglob("*") if p.is_file()} if dst.exists() else set()
     files = [p for p in SRC.rglob("*") if p.is_file() and p.name != "README.md"]
     extra = {ROOT / "packages/tmux/colors.conf": dst / "tmux/colors.conf",
              ROOT / "packages/btop/themes/current.theme": dst / "btop/themes/current.theme"}
@@ -125,6 +127,9 @@ def build(name, pal):
         out.parent.mkdir(parents=True, exist_ok=True)
         text = src.read_text()
         out.write_text(recolor(text, pal))
+    for p in old - set(extra.values()): p.unlink()
+    for p in sorted(dst.rglob("*"), reverse=True):
+        if p.is_dir() and not any(p.iterdir()): p.rmdir()
     f = lambda rel: dst / rel
     # frames have their own colour per theme
     q = f("quickshell/shell/config/Colors.qml")
