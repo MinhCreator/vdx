@@ -47,7 +47,7 @@ Column {
     // the bar and a popup over the wallpaper, in the selected theme's colours
     Rectangle {
       width: parent.width - themeList.width - 14
-      height: Math.max(170, themeList.height)
+      height: Math.max(200, themeList.height)
       color: root.wallpaper
       border.width: Theme.frameWidth
       border.color: root.p("gray")
@@ -172,7 +172,7 @@ Column {
               readonly property var colors: ThemeService.palettes[modelData] ?? ({})
 
               width: options.width
-              height: 28
+              height: 32
               color: active ? Theme.background3 : itemArea.containsMouse ? Theme.background1 : "transparent"
 
               // the theme's own surface, text and accents
@@ -235,28 +235,29 @@ Column {
           }
         }
       }
-    }
-  }
+    
+      // Apply / Cancel always under the list; live only while previewing
+      Row {
+        width: parent.width
+        spacing: 6
 
-  // only while another theme is previewed
-  KitRow {
-    visible: root.selected !== ThemeService.current || ThemeService.busy
-    label: "Previewing " + root.selected
-    hint: "Apply switches the bar, terminals and Hyprland"
+        KitButton {
+          width: (parent.width - parent.spacing) / 2
+          icon: "x"
+          text: "Cancel"
+          disabled: root.selected === ThemeService.current || ThemeService.busy
+          onClicked: root.selected = ThemeService.current
+        }
 
-    KitButton {
-      visible: root.selected !== ThemeService.current
-      text: "Cancel"
-      disabled: ThemeService.busy
-      onClicked: root.selected = ThemeService.current
-    }
-
-    KitButton {
-      icon: "check"
-      text: "Apply"
-      busy: ThemeService.busy
-      disabled: root.selected === ThemeService.current
-      onClicked: ThemeService.apply(root.selected)
+        KitButton {
+          width: (parent.width - parent.spacing) / 2
+          icon: "check"
+          text: "Apply"
+          busy: ThemeService.busy
+          disabled: root.selected === ThemeService.current
+          onClicked: ThemeService.apply(root.selected)
+        }
+      }
     }
   }
 
