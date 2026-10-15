@@ -18,7 +18,7 @@ Item {
   property bool round: ShellSettings.roundIcons   // soft corners: icons/round (kit/icons/mkround.py)
 
   // names that have a filled variant in icons/solid
-  readonly property var solidNames: ["app-window", "file", "battery-charging", "battery", "bell", "bot", "brush", "camera", "circle", "clipboard", "clock", "columns", "cpu", "cursor", "folder", "grid", "headphones", "info", "keyboard", "laptop", "layout", "leaf", "lock", "message", "mic", "monitor", "moon", "music", "pause", "play", "plug", "radio", "server", "settings", "shield", "skip-back", "skip-forward", "sliders", "speaker", "square", "sun", "trash", "video", "volume", "volume-x", "wifi-off", "wifi", "zap"]
+  readonly property var solidNames: ["app-window", "file", "tiling", "battery-charging", "battery", "bell", "bot", "brush", "camera", "circle", "clipboard", "clock", "columns", "cpu", "cursor", "folder", "grid", "headphones", "info", "keyboard", "laptop", "layout", "leaf", "lock", "message", "mic", "monitor", "moon", "music", "pause", "play", "plug", "radio", "server", "settings", "shield", "skip-back", "skip-forward", "sliders", "speaker", "square", "sun", "trash", "video", "volume", "volume-x", "wifi-off", "wifi", "zap"]
   readonly property bool useSolid: solid && solidNames.includes(name)
 
   implicitWidth: size

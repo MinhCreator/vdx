@@ -43,17 +43,15 @@ KitFrame {
     }
   }
 
-  KitLine {}
+  // ---- place (floating only: in a layout the layout places windows)
+  KitLine { visible: root.ws.mode === "floating" }
 
-  // ---- place
   Column {
+    visible: root.ws.mode === "floating"
     width: parent.width
     spacing: 10
 
-    KitLabel {
-      text: "PLACE THE WINDOW"
-      value: root.ws.mode === "floating" ? "" : "FLOATS IT"
-    }
+    KitLabel { text: "PLACE THE WINDOW" }
 
     Repeater {
       model: [

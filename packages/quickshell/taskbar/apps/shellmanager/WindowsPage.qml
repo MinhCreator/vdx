@@ -4,7 +4,7 @@ import qs.kit
 import qs.plugins.windows
 
 // Windows: how windows behave (hypr/components/windowmode.lua) — the mode
-// (tiling, floating, scrolling), each mode's own options, the gaps and the
+// (tiling, floating, scrolling), the options of the current one, the gaps and the
 // bottom dock of minimized windows. Applied at once: Hyprland reloads.
 Column {
   id: root
@@ -22,7 +22,7 @@ Column {
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [
     { key: "mode",   label: "Mode",   y: modeGroup.y },
-    { key: "layout", label: "Layout", y: layoutGroup.y },
+    { key: "layout", label: root.mode.label, y: layoutGroup.y },
     { key: "gaps",   label: "Gaps",   y: gapsGroup.y },
     { key: "dock",   label: "Dock",   y: dockGroup.y }
   ]
@@ -41,7 +41,7 @@ Column {
 
     KitChoices {
       stretch: true
-      model: root.ws.modes
+      model: root.ws.modes.map(m => ({ label: m.label, value: m.value }))   // icons don't fit three
       current: root.ws.mode
       onPicked: value => root.ws.setMode(value)
     }
@@ -49,13 +49,14 @@ Column {
 
   KitLine {}
 
-  // ---- the modes' own options ----------------------------------------------------------
-  KitLabel { id: layoutGroup; text: "LAYOUT" }
+  // ---- the current mode's own options -------------------------------------------------
+  KitLabel { id: layoutGroup; text: root.mode.label.toUpperCase() }
 
   KitRow {
+    visible: root.ws.mode === "tiling"
     wide: true
     label: "Master size"
-    hint: "Tiling: the main window's share"
+    hint: "The main window's share"
 
     KitChoices {
       stretch: true
@@ -67,8 +68,9 @@ Column {
 
   KitRow {
     wide: true
+    visible: root.ws.mode === "tiling"
     label: "New window"
-    hint: "Tiling: where it opens"
+    hint: "Where it opens"
 
     KitChoices {
       stretch: true
@@ -80,8 +82,9 @@ Column {
 
   KitRow {
     wide: true
+    visible: root.ws.mode === "scrolling"
     label: "Column width"
-    hint: "Scrolling: a new column's share"
+    hint: "A new column's share"
 
     KitChoices {
       stretch: true
@@ -93,8 +96,9 @@ Column {
 
   KitRow {
     wide: true
+    visible: root.ws.mode === "floating"
     label: "Arrange"
-    hint: "Floating: windows as the mode starts"
+    hint: "Windows as the mode starts"
 
     KitChoices {
       stretch: true

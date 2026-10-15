@@ -259,6 +259,7 @@ Rectangle {
                                bar.visible ? bar.implicitHeight : 0,
                                binds.visible ? binds.implicitHeight : 0,
                                apps.visible ? apps.implicitHeight : 0,
+                               windows.visible ? windows.implicitHeight : 0,
                                about.visible ? about.implicitHeight : 0,
                                plugins.visible ? plugins.height : 0)
 
