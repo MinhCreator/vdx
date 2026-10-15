@@ -52,13 +52,9 @@ PanelWindow {
   }
   Timer { id: refresh; interval: 150; onTriggered: Hyprland.refreshToplevels() }
 
-  // a hairline above, like the frame of the bar's popups
-  Rectangle { width: parent.width; height: 1; color: Theme.gray }
-
   Row {
     x: 8
-    y: 1
-    height: parent.height - 1
+    height: parent.height
     spacing: 4
 
     Repeater {

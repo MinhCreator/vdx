@@ -73,7 +73,7 @@ PanelWindow {
   // the dimmed screen
   Rectangle {
     anchors.fill: parent
-    color: Qt.rgba(Theme.background0.r, Theme.background0.g, Theme.background0.b, 0.55)
+    color: Theme.scrim
     opacity: root.ls.open ? 1 : 0
     Behavior on opacity { NumberAnimation { id: fade; duration: 140 } }
 

@@ -26,11 +26,11 @@ Singleton {
 
   // ---- apps ----
   function apps(q) {
-    return DesktopEntries.applications.values
+    return filter(shellApps, q).concat(DesktopEntries.applications.values
       .filter(e => !e.noDisplay && (q === "" || (e.name + " " + e.genericName + " " + (e.keywords ?? []).join(" ")).toLowerCase().includes(q)))
-      .sort((a, b) => a.name.localeCompare(b.name))
       .map(e => ({ image: Quickshell.iconPath(e.icon, true), icon: "app-window", title: e.name,
-                   hint: e.comment || e.genericName, run: () => e.execute() }));
+                   hint: e.comment || e.genericName, run: () => e.execute() })))
+      .sort((a, b) => a.title.localeCompare(b.title));
   }
 
   // ---- files ----
@@ -51,18 +51,22 @@ Singleton {
     stdout: StdioCollector { onStreamFinished: { root.files = text.split("\n").filter(l => l !== ""); root.searching = false; } }
   }
 
+  // ---- the shell's own apps (apps/): listed with the installed ones ----
+  readonly property var shellApps: [
+    { icon: "sliders", title: "Shell Manager", hint: "Settings of the shell", keys: "Super + S", run: () => exec(ipc("shell", "toggle")) },
+    { icon: "grid", title: "Overview", hint: "Every workspace at once", keys: "Super + Tab", run: () => exec(ipc("overview", "toggle")) },
+    { icon: "activity", title: "Task manager", hint: "Processes, CPU, memory", keys: "Super + D", run: () => exec(ipc("taskmanager", "toggle")) },
+    { icon: "brush", title: "Cleaner", hint: "Caches, trash, the system", keys: "Super + X", run: () => exec(ipc("cleaner", "toggle")) },
+    { icon: "camera", title: "Capture", hint: "Screenshot or recording", keys: "Super + Shift + S", run: () => exec(ipc("capture", "open")) },
+    { icon: "clipboard", title: "Clipboard", hint: "History", keys: "Super + B", run: () => exec(ipc("clipboard", "toggle")) }
+  ]
+
   // ---- the shell's own actions ----
   readonly property var shellItems: [
-    { icon: "sliders", title: "Shell Manager", hint: "Settings of the shell", keys: "Super+S", run: () => exec(ipc("shell", "toggle")) },
     { icon: "sun", title: "Appearance", hint: "Theme, wallpaper, font, cursor", run: () => exec(ipc("shell", "open", "appearance")) },
     { icon: "layout", title: "Bar", hint: "Monitors, layout, modules", run: () => exec(ipc("shell", "open", "bar")) },
     { icon: "columns", title: "Windows", hint: "Window mode, gaps, dock", run: () => exec(ipc("shell", "open", "windows")) },
     { icon: "keyboard", title: "Binds", hint: "Every keybind", run: () => exec(ipc("shell", "open", "binds")) },
-    { icon: "grid", title: "Overview", hint: "Every workspace at once", keys: "Super+Tab", run: () => exec(ipc("overview", "toggle")) },
-    { icon: "activity", title: "Task manager", hint: "Processes, CPU, memory", keys: "Super+D", run: () => exec(ipc("taskmanager", "toggle")) },
-    { icon: "brush", title: "Cleaner", hint: "Caches, trash, the system", keys: "Super+X", run: () => exec(ipc("cleaner", "toggle")) },
-    { icon: "camera", title: "Capture", hint: "Screenshot or recording", keys: "Super+Shift+S", run: () => exec(ipc("capture", "open")) },
-    { icon: "clipboard", title: "Clipboard", hint: "History", keys: "Super+B", run: () => exec(ipc("clipboard", "toggle")) },
     { icon: "tiling", title: "Tiling", hint: "Window mode", run: () => exec(ipc("windowmode", "set", "tiling")) },
     { icon: "app-window", title: "Floating", hint: "Window mode", run: () => exec(ipc("windowmode", "set", "floating")) },
     { icon: "columns", title: "Scrolling", hint: "Window mode", run: () => exec(ipc("windowmode", "set", "scrolling")) }
@@ -70,7 +74,7 @@ Singleton {
 
   // ---- power ----
   readonly property var powerItems: [
-    { icon: "lock", title: "Lock", hint: "The lock screen", keys: "Super+Z", run: () => exec(ipc("lock", "lock")) },
+    { icon: "lock", title: "Lock", hint: "The lock screen", keys: "Super + Z", run: () => exec(ipc("lock", "lock")) },
     { icon: "moon", title: "Suspend", hint: "Sleep, locked", run: () => sh("qs -c shell ipc call lock lock; sleep 0.5; systemctl suspend") },
     { icon: "log-out", title: "Log out", hint: "End the Hyprland session", run: () => exec(["hyprctl", "eval", "hl.dispatch(hl.dsp.exit())"]) },
     { icon: "refresh", title: "Reboot", hint: "Restart the computer", run: () => exec(["systemctl", "reboot"]) },

@@ -62,7 +62,7 @@ Column {
         Rectangle {
           implicitHeight: codeColumn.implicitHeight + 16
           color: Theme.background1
-          border.width: 1
+          border.width: Theme.frameWidth
           border.color: Theme.gray
 
           Column {

@@ -30,8 +30,8 @@ Singleton {
     { id: "capture",       label: "Capture",       zone: "right",  icon: "camera", settings: "CaptureSettings.qml", about: "Screenshots and screen recording" },
     { id: "clipboard",     label: "Clipboard",     zone: "right",  icon: "clipboard", settings: "ClipboardSettings.qml", about: "Copy history, images to drag out" },
     { id: "sysmon",        label: "System",        zone: "right",  icon: "cpu", settings: "SysmonSettings.qml", about: "CPU, memory, GPU, disks, network, sensors" },
-    { id: "taskmanager",   label: "Task manager",  zone: "right",  icon: "activity", settings: "apps/taskmanager/TaskManagerSettings.qml", about: "Load and the busiest programs · Super+D: the full window" },
-    { id: "cleaner",       label: "Cleaner",       zone: "right",  icon: "brush", settings: "apps/cleaner/CleanerSettings.qml", about: "What can go, the safe part in one click · Super+X: the full window" },
+    { id: "taskmanager",   label: "Task manager",  zone: "right",  icon: "activity", settings: "apps/taskmanager/TaskManagerSettings.qml", about: "Load and the busiest programs · Super + D: the full window" },
+    { id: "cleaner",       label: "Cleaner",       zone: "right",  icon: "brush", settings: "apps/cleaner/CleanerSettings.qml", about: "What can go, the safe part in one click · Super + X: the full window" },
     { id: "windows",       label: "Windows",       zone: "right",  icon: "app-window", about: "Window mode — tiling, floating, scrolling — and placing the active window" },
     { id: "chat",          label: "Chat",          zone: "right",  icon: "message", settings: "ChatSettings.qml", about: "A chat with a free opencode model" },
     { id: "folder",        label: "Folder",        zone: "right",  icon: "folder", about: "Modules tucked away, one click from the bar" }

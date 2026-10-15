@@ -1,4 +1,5 @@
 import QtQuick
+import qs.config
 
 // A miniature desktop drawn only in a theme's own colours (`colors`, roles
 // from ThemeService): the bar with workspaces and status icons, a terminal
@@ -46,7 +47,7 @@ Rectangle {
     width: parent.width * 0.5
     height: parent.height - y - 5
     color: root.c("background0")
-    border.width: 1
+    border.width: Theme.frameWidth
     border.color: root.c("foreground2")
 
     Column {
@@ -76,7 +77,7 @@ Rectangle {
     width: parent.width * 0.4
     height: parent.height - y - 9
     color: root.c("background0")
-    border.width: 1
+    border.width: Theme.frameWidth
     border.color: root.c("frame")
 
     Column {
@@ -109,7 +110,7 @@ Rectangle {
         width: parent.width * 0.55
         height: 7
         color: "transparent"
-        border.width: 1
+        border.width: Theme.frameWidth
         border.color: root.c("gray")
       }
     }

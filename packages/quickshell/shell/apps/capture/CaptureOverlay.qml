@@ -277,7 +277,7 @@ Variants {
         width: root.fw + 2
         height: root.fh + 2
         color: "transparent"
-        border.width: 1
+        border.width: Theme.frameWidth
         border.color: CaptureService.kind === "record" ? Theme.red : Theme.foreground0
       }
 

@@ -10,7 +10,7 @@ Rectangle {
   width: Math.max(26, keyText.implicitWidth + 14)
   height: 24
   color: Theme.background1
-  border.width: 1
+  border.width: Theme.frameWidth
   border.color: Theme.gray
 
   KitText {

@@ -213,7 +213,7 @@ Column {
           y: 8 + (root.chipHeight - height) / 2
           text: band.zone.toUpperCase() + " · " + band.ids.length
           color: band.target ? Theme.foreground0 : Theme.muted
-          font.pixelSize: Theme.fontSize - 3
+          font.pixelSize: Theme.fontSize - 2
           font.letterSpacing: 1
         }
 

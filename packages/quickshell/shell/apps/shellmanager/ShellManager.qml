@@ -204,7 +204,7 @@ Rectangle {
 
     KitText {
       anchors { left: parent.left; leftMargin: 22; bottom: parent.bottom; bottomMargin: 14 }
-      text: "esc to close"
+      text: "esc close"
       color: Theme.gray
       font.pixelSize: Theme.fontSize - 2
     }

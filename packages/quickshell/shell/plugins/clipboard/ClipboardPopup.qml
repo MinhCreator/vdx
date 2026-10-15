@@ -176,7 +176,7 @@ KitFrame {
                 Rectangle {
                   anchors.fill: parent
                   color: "transparent"
-                  border.width: 1
+                  border.width: Theme.frameWidth
                   border.color: Theme.gray
                 }
               }

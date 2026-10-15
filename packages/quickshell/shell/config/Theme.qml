@@ -92,6 +92,9 @@ QtObject {
   readonly property string languageFormatRu: "RU"
 
   // ---- popups (kit) -------------------------------------------------------
+  // the dimmed screen under the system menu and the overview
+  readonly property color scrim: Qt.rgba(background0.r, background0.g, background0.b, 0.7)
+
   readonly property int popupWidth: 370
   readonly property int controlWidth: 300        // a setting's choices / field (KitRow wide)
   readonly property int rowStackBelow: 480       // a wide KitRow narrower than this puts its control under the label

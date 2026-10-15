@@ -51,7 +51,7 @@ PanelWindow {
 
   Rectangle {
     anchors.fill: parent
-    color: Qt.rgba(Theme.background0.r, Theme.background0.g, Theme.background0.b, 0.8)
+    color: Theme.scrim
 
     MouseArea { anchors.fill: parent; onClicked: root.open = false }
 
@@ -72,10 +72,10 @@ PanelWindow {
           readonly property bool current: root.monitor?.activeWorkspace?.id === modelData
           spacing: 6
 
-          KitText {
-            text: space.modelData + (space.current ? " · ACTIVE" : "")
-            color: space.current ? Theme.foreground0 : Theme.muted
-            font.pixelSize: Theme.fontSize - 2
+          KitLabel {
+            width: frame.width
+            text: String(space.modelData)
+            value: space.current ? "ACTIVE" : ""
           }
 
           // the workspace: a small copy of the monitor
@@ -112,7 +112,7 @@ PanelWindow {
                 width: (ipc.size?.[0] ?? 0) * root.scale
                 height: (ipc.size?.[1] ?? 0) * root.scale
                 color: Theme.background2
-                border.width: 1
+                border.width: Theme.frameWidth
                 border.color: hover.containsMouse ? Theme.foreground0 : Theme.gray
                 Drag.active: hover.drag.active
                 Drag.source: win
@@ -153,7 +153,7 @@ PanelWindow {
       anchors.bottomMargin: 40
       color: Theme.muted
       font.pixelSize: Theme.fontSize - 2
-      text: "click go · drag a window to move it · esc close"
+      text: "click go · drag move · esc close"
     }
   }
 }
