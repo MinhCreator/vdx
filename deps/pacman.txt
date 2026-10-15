@@ -47,6 +47,8 @@ libnotify
 tlp
 tlp-rdw
 upower
+pacman-contrib  # paccache: the cleaner's package cache step
+glib2           # gio trash: the cleaner's AI picks go to the Trash
 
 # music
 mpd
