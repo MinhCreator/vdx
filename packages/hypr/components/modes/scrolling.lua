@@ -13,9 +13,9 @@ bind("Focus", "SUPER + L", hl.dsp.focus({ direction = "right" }), "Right")
 bind("Focus", "SUPER + K", hl.dsp.focus({ direction = "up" }), "Up")
 bind("Focus", "SUPER + J", hl.dsp.focus({ direction = "down" }), "Down")
 
--- a lone window keeps its column width (half the screen) instead of
--- filling it, so a second one opens beside it, as in Niri
-hl.config({ scrolling = { fullscreen_on_one_column = false } })
+-- an empty screen: the first window takes the whole of it; a second one
+-- splits it in half, and the ones after scroll along the row
+hl.config({ scrolling = { fullscreen_on_one_column = true } })
 -- every wheel step is the bind's: with a delay, steps inside it would
 -- reach the app under the pointer and scroll it too
 hl.config({ binds = { scroll_event_delay = 0 } })
@@ -27,13 +27,16 @@ WheelBind("Scrolling", "SUPER", "mouse_up", "left", function() ScrollColumns(-1)
 hl.gesture({ fingers = 3, direction = "left", action = function() ScrollColumns(1) end })
 hl.gesture({ fingers = 3, direction = "right", action = function() ScrollColumns(-1) end })
 
--- the active column: half the screen <-> the whole of it, then into view
+-- the active column: half the screen <-> the whole of it, then into view.
+-- A lone column is kept whole by fullscreen_on_one_column, which would undo
+-- the half: so the option follows the choice (whole = on, half = off)
 bind("Scrolling", "SUPER + W", function()
 	local w = hl.get_active_window()
 	if not w then return end
 	local m = w.monitor or hl.get_active_monitor()
 	local width = type(w.size) == "table" and (w.size.x or w.size[1]) or 0
 	local wide = width > (m.width / (m.scale or 1)) * 0.75
+	hl.config({ scrolling = { fullscreen_on_one_column = not wide } })
 	hl.dispatch(hl.dsp.layout(wide and "colresize 0.5" or "colresize 1.0"))
 	hl.dispatch(hl.dsp.layout("fit active"))
 end, "Wide / half column")

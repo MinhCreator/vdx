@@ -69,18 +69,14 @@ end
 
 -- the active window on a part of its monitor (logical pixels, under the bar)
 local GAP = 8
--- the floating mode's title bar (hyprbars below) stands above the window:
--- the work area starts under it, so a maximized window keeps it off the bar
-local TITLE_BAR = 28
-local titleBar = 0
 
 -- a monitor's work area: x, y, width, height (logical, inside the gaps)
 local function workArea(m)
 	local scale = m.scale or 1
 	local r = type(m.reserved) == "table" and m.reserved or {}
 	local left, top, right, bottom = r[1] or r.left or 0, r[2] or r.top or 0, r[3] or r.right or 0, r[4] or r.bottom or 0
-	return m.x + left + GAP, m.y + top + GAP + titleBar,
-		m.width / scale - left - right - 2 * GAP, m.height / scale - top - bottom - 2 * GAP - titleBar
+	return m.x + left + GAP, m.y + top + GAP,
+		m.width / scale - left - right - 2 * GAP, m.height / scale - top - bottom - 2 * GAP
 end
 
 local function place(w, x, y, width, height)
@@ -90,9 +86,9 @@ local function place(w, x, y, width, height)
 end
 
 -- windows the floating mode just floated, laid out per workspace the way
--- opts.arrange says: cascade (a staircase from the top-left), grid (side by
--- side, no overlap) or center (each in the middle, the same size)
-function ArrangeFloating(list)
+-- `how` (or else opts.arrange) says: cascade (a staircase from the top-left),
+-- grid (side by side, no overlap) or center (each in the middle, the same size)
+function ArrangeFloating(list, how)
 	local byWs = {}
 	for _, w in ipairs(list) do
 		local ws = w.workspace and w.workspace.id or 0
@@ -101,7 +97,7 @@ function ArrangeFloating(list)
 			table.insert(byWs[ws], w)
 		end
 	end
-	local arrange = opts.arrange or "cascade"
+	local arrange = how or opts.arrange or "cascade"
 	for _, wins in pairs(byWs) do
 		local ax, ay, aw, ah = workArea(wins[1].monitor or hl.get_active_monitor())
 		local n = #wins
@@ -125,6 +121,22 @@ function ArrangeFloating(list)
 		end
 	end
 end
+-- the grid (the Windows bar popup's button): the active workspace's windows
+-- floated and placed in a grid; minimized ones wait on their special
+-- workspace and stay out
+function ArrangeGrid()
+	local ws = hl.get_active_workspace()
+	if not ws or ws.id <= 0 then return end
+	local list = {}
+	for _, w in ipairs(hl.get_workspace_windows(ws.id)) do
+		if w.mapped and not w.hidden then
+			if not w.floating then hl.dispatch(hl.dsp.window.float({ action = "enable", window = "address:" .. w.address })) end
+			table.insert(list, w)
+		end
+	end
+	ArrangeFloating(list, "grid")
+end
+
 local SPOTS = {
 	-- spot = { x, y, width, height } as shares of the work area
 	left = { 0, 0, 0.5, 1 }, right = { 0.5, 0, 0.5, 1 },
@@ -183,6 +195,12 @@ function RestoreWindow(address)
 	FocusWindow(address)
 end
 
+-- the window on top of the others, without taking the focus (the switcher's
+-- picked window, as the selection moves)
+function RaiseWindow(address)
+	hl.dispatch(hl.dsp.window.bring_to_top({ window = "address:" .. address }))
+end
+
 -- focus without the pointer jumping to the window (the taskbar's clicks):
 -- the warp comes after the dispatch, so warps stay off for a moment
 function FocusWindow(address)
@@ -233,58 +251,7 @@ end
 local f = io.open(stateFile, "r")
 local saved = f and f:read("*l") or "tiling"
 if f then f:close() end
--- floating windows get a title bar when hyprbars is there (below)
-titleBar = (saved == "floating" and io.open("/usr/lib/libhyprbars.so", "r")) and TITLE_BAR or 0
 WindowMode(saved)
-
--- title bars (hyprbars, AUR hyprland-plugin-hyprbars) — the floating mode's:
--- like macOS, a shade lighter than the window: on the left close / minimize
--- / maximize as red, yellow and
--- green circles whose icon shows under the pointer, the title in the middle;
--- a double click maximizes. Other modes unload it: disabled, it still takes
--- a press on a window's top edge as a drag
-local barsLib = "/usr/lib/libhyprbars.so"
-local barsLoaded = false
-for _, p in ipairs(hl.get_loaded_plugins() or {}) do
-	if p.name == "hyprbars" then barsLoaded = true end
-end
-if saved ~= "floating" then
-	if barsLoaded then hl.exec_cmd("hyprctl plugin unload " .. barsLib) end
-	barsLoaded = false
-elseif not barsLoaded and io.open(barsLib, "r") then
-	-- loaded from outside, once, after this pass: a plugin loaded from the
-	-- config reloads the config, and when it doesn't load (a build for
-	-- another Hyprland) the config asked again on every reload — an endless
-	-- reload → load → reload that blew the stack and crashed Hyprland.
-	-- Loaded, it brings one reload that finds it here; failed, nothing more.
-	hl.exec_cmd("sleep 1; hyprctl plugin load " .. barsLib)
-end
-if barsLoaded and hl.plugin.hyprbars then
-	local colors = require("components.colors")
-	hl.config({ plugin = { hyprbars = {
-		enabled = true,
-		bar_height = TITLE_BAR,
-		bar_color = colors.background1,
-		["col.text"] = colors.foreground0,
-		bar_text_font = "monospace",
-		bar_text_size = 11,
-		bar_text_align = "center",
-		bar_buttons_alignment = "left",
-		bar_padding = 12,
-		bar_button_padding = 8,
-		bar_precedence_over_border = true,
-		bar_part_of_window = true,
-		on_double_click = "hyprctl eval 'MaximizeWindow()'",
-		icon_on_hover = true,
-	} } })
-	-- left to right: the first one stands at the edge
-	local function button(bg, icon, action)
-		hl.plugin.hyprbars.add_button({ bg_color = bg, fg_color = colors.background0, size = 18, icon = icon, action = action })
-	end
-	button(colors.red, "✖", "hyprctl eval 'hl.dispatch(hl.dsp.window.close())'")
-	button(colors.yellow, "━", "hyprctl eval 'MinimizeWindow()'")
-	button(colors.green, "✚", "hyprctl eval 'MaximizeWindow()'")
-end
 
 -- a wheel bind of the modes, on the wheel, the arrows or both
 -- (opts.scrollKeys, Shell Manager › Windows): without a mouse the arrows
