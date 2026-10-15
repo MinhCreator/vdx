@@ -21,8 +21,11 @@ Item {
     font.letterSpacing: 1
   }
 
+  // a long value ends in … rather than running into the caption
   KitText {
-    anchors { right: parent.right; verticalCenter: caption.verticalCenter }
+    anchors { left: caption.right; leftMargin: 12; right: parent.right; verticalCenter: caption.verticalCenter }
+    horizontalAlignment: Text.AlignRight
+    elide: Text.ElideRight
     text: root.value
     color: root.valueColor
     font.pixelSize: Theme.fontSize - 2

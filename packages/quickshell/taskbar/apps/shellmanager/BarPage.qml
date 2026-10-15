@@ -136,6 +136,10 @@ Column {
     KitLabel {
       anchors { left: parent.left; right: layoutActions.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
       text: "LAYOUT"
+      // what the pointer is on, or how this works
+      value: root.focusId !== "" ? (root.plugin(root.focusId)?.label ?? "").toUpperCase() + " — " + (root.plugin(root.focusId)?.about ?? "").toUpperCase()
+                                 : "DRAG CHIPS TO ARRANGE"
+      valueColor: root.focusId !== "" ? Theme.foreground2 : Theme.muted
     }
 
     Row {
@@ -192,9 +196,7 @@ Column {
         readonly property alias chips: chipRepeater
 
         width: zonesArea.width
-        height: area.height + 16
-
-        KitLine { visible: band.index > 0; width: parent.width }
+        height: area.height + 12
 
         KitText {
           y: 8 + (root.chipHeight - height) / 2
@@ -309,16 +311,6 @@ Column {
     }
   }
 
-  // what the pointer is on
-  KitText {
-    visible: root.barOn
-    width: parent.width
-    text: root.focusId !== "" ? (root.plugin(root.focusId)?.label ?? "") + " — " + (root.plugin(root.focusId)?.about ?? "")
-                              : "Drag a chip along its zone, to another zone, or into HIDDEN."
-    color: root.focusId !== "" ? Theme.foreground2 : Theme.muted
-    elide: Text.ElideRight
-    font.pixelSize: Theme.fontSize - 1
-  }
 
   KitLine {}
 
