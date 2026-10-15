@@ -36,6 +36,14 @@ Singleton {
   // The bars are being edited in place (not saved): drag modules on the strip,
   // the shelf below it holds what is not on that bar. `ipc call bar edit` toggles.
   property bool editing: false
+  // the layouts as they were when editing began, for Cancel
+  property string editSnapshot: ""
+  onEditingChanged: if (editing) editSnapshot = JSON.stringify(state.screens ?? {})
+
+  function cancelEdit() {
+    if (editSnapshot !== "") state.screens = JSON.parse(editSnapshot);
+    editing = false;
+  }
   // Old ids still found in saved layouts: old -> new.
   readonly property var renamed: ({ claude: "ai", plugins: "shell" })
 

@@ -18,7 +18,8 @@ Item {
   readonly property string other: Quickshell.screens.map(s => s.name)
     .find(n => BarLayout.roleOf(n) !== BarLayout.roleOf(screenName)) ?? ""
 
-  implicitHeight: 72
+  // grows when the shelf wraps (a narrow monitor, many modules)
+  implicitHeight: Math.max(72, shelfFlow.y + shelfFlow.height + 14)
   Rectangle {
     anchors.fill: parent
     color: root.target ? Theme.background1 : "transparent"
@@ -40,15 +41,17 @@ Item {
   KitText {
     x: Theme.edgeMargin
     y: 10
-    text: "NOT ON THIS BAR · " + root.ids.length
+    text: "EDITING · " + root.screenName.toUpperCase() + "   ·   NOT ON THIS BAR · " + root.ids.length
     color: root.target ? Theme.foreground0 : Theme.muted
     font.pixelSize: Theme.fontSize - 3
     font.letterSpacing: 1
   }
 
-  Row {
+  Flow {
+    id: shelfFlow
     x: Theme.edgeMargin
     y: 28
+    width: parent.width - 2 * Theme.edgeMargin - actions.width - 16
     spacing: 4
 
     Repeater {
@@ -59,18 +62,31 @@ Item {
 
         required property string modelData
 
-        width: 30
+        // icon and name, so the shelf reads without hovering
+        width: chipRow.implicitWidth + 16
         height: 30
         color: area.containsMouse ? Theme.background3 : "transparent"
         border.width: 1
         border.color: area.containsMouse ? Theme.foreground2 : Theme.background3
         opacity: root.bar.dragId === modelData ? 0.25 : 1
 
-        KitIcon {
+        Row {
+          id: chipRow
           anchors.centerIn: parent
-          name: BarLayout.icon(chip.modelData)
-          solid: ShellSettings.solidIcons
-          size: 16
+          spacing: 6
+
+          KitIcon {
+            anchors.verticalCenter: parent.verticalCenter
+            name: BarLayout.icon(chip.modelData)
+            solid: ShellSettings.solidIcons
+            size: 16
+          }
+
+          KitText {
+            anchors.verticalCenter: parent.verticalCenter
+            text: BarLayout.plugins.find(p => p.id === chip.modelData)?.label ?? chip.modelData
+            font.pixelSize: Theme.fontSize - 1
+          }
         }
 
         MouseArea {
@@ -100,13 +116,15 @@ Item {
     x: Theme.edgeMargin
     y: 28
     height: 30
-    text: root.bar.dragId !== "" ? "drop here to take it off this bar" : "everything is on the bar"
+    text: root.bar.dragId !== "" ? "drop here to take it off this bar"
+                                 : "everything is on the bar — drag a module here to take it off"
     color: Theme.muted
     font.pixelSize: Theme.fontSize - 2
   }
 
   Row {
-    anchors { right: parent.right; rightMargin: Theme.edgeMargin; verticalCenter: parent.verticalCenter }
+    id: actions
+    anchors { right: parent.right; rightMargin: Theme.edgeMargin; top: parent.top; topMargin: 22 }
     spacing: 6
 
     KitButton {
@@ -121,6 +139,12 @@ Item {
       text: "Reset"
       disabled: !BarLayout.customized(root.screenName)
       onClicked: BarLayout.reset(root.screenName)
+    }
+
+    KitButton {
+      icon: "x"
+      text: "Cancel"
+      onClicked: BarLayout.cancelEdit()
     }
 
     KitButton {

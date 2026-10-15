@@ -1,5 +1,7 @@
 import QtQuick
 import Quickshell
+import Quickshell.Hyprland
+import Quickshell.Wayland
 import qs.components
 import qs.config
 import qs.kit
@@ -151,8 +153,10 @@ PanelWindow {
           }
 
           MouseArea {
+            id: moduleArea
             z: 11
             enabled: BarLayout.editing
+            hoverEnabled: true
             anchors.fill: parent
             anchors.margins: -2
             preventStealing: true
@@ -169,9 +173,45 @@ PanelWindow {
             }
             onReleased: root.drop()
           }
+
+          // quick remove: × in the corner on hover puts it on the shelf
+          Rectangle {
+            z: 12
+            visible: BarLayout.editing && root.dragId === "" && (moduleArea.containsMouse || removeArea.containsMouse)
+            anchors { right: parent.right; top: parent.top; rightMargin: -8; topMargin: -6 }
+            width: 14
+            height: 14
+            color: removeArea.containsMouse ? Theme.background3 : Theme.background0
+            border.width: 1
+            border.color: removeArea.containsMouse ? Theme.red : Theme.foreground2
+
+            KitIcon {
+              anchors.centerIn: parent
+              name: "x"
+              size: 10
+              tint: removeArea.containsMouse ? Theme.red : Theme.foreground0
+            }
+
+            MouseArea {
+              id: removeArea
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              onClicked: BarLayout.setEnabled(modelData, false, root.modelData.name)
+            }
+          }
         }
       }
     }
+  }
+
+  // editing: the bar on the focused monitor takes the keyboard — Esc is Done
+  WlrLayershell.keyboardFocus: BarLayout.editing && Hyprland.focusedMonitor?.name === modelData.name
+    ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+
+  Item {
+    focus: BarLayout.editing
+    Keys.onEscapePressed: BarLayout.editing = false
   }
 
   screen: modelData
@@ -226,17 +266,38 @@ PanelWindow {
     anchors.fill: parent
     visible: BarLayout.editing
 
+    // the whole strip, outlined: this bar is being edited
+    Rectangle {
+      width: parent.width
+      height: Theme.barHeight
+      color: "transparent"
+      border.width: 1
+      border.color: Theme.foreground2
+    }
+
     Repeater {
       model: [leftZone, centerZone, rightZone]
 
       Rectangle {
         required property Item modelData
 
+        readonly property bool empty: modelData.items.count === 0
+
         x: modelData.x - 4
-        y: modelData.y - 4
+        y: 3
         width: modelData.width + 8
-        height: modelData.height + 8
-        color: "transparent"
+        height: Theme.barHeight - 6
+        color: empty ? (root.dropZone === modelData.name && root.dragId !== "" ? Theme.background3 : Theme.background1) : "transparent"
+
+        // an empty zone says which one it is
+        KitText {
+          visible: parent.empty
+          anchors.centerIn: parent
+          text: parent.modelData.name.toUpperCase()
+          color: Theme.muted
+          font.pixelSize: Theme.fontSize - 3
+          font.letterSpacing: 1
+        }
         border.width: 1
         border.color: root.dragId !== "" && root.dropZone === modelData.name ? Theme.foreground2 : Theme.background3
       }
