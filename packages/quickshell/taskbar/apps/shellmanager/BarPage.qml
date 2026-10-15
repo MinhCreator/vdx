@@ -189,9 +189,11 @@ Column {
             font.letterSpacing: 1
           }
 
-          Item {
+          // a filled well, no border: where rows can be dropped
+          Rectangle {
             width: parent.width
             height: Math.max(1, column.ids.length) * root.rowHeight + root.rowHeight
+            color: column.target ? Theme.background2 : Theme.background1
 
             Repeater {
               model: column.ids
@@ -205,7 +207,7 @@ Column {
                 y: index * root.rowHeight
                 width: parent.width
                 height: root.rowHeight
-                color: rowArea.containsMouse && root.dragId === "" ? Theme.background1 : "transparent"
+                color: rowArea.containsMouse && root.dragId === "" ? Theme.background3 : "transparent"
                 opacity: root.dragId === modelData ? 0.25 : 1
 
                 KitIcon {
