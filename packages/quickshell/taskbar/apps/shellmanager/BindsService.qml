@@ -43,6 +43,13 @@ Singleton {
     return keys.concat([k]);
   }
 
+  // the keys of the bind named `what` ("Task manager"), [] when none
+  function keysFor(what) {
+    for (const g of groups)
+      for (const b of g.binds) if (b.what === what) return b.keys;
+    return [];
+  }
+
   function build(list) {
     const groups = [];
     const byName = {};

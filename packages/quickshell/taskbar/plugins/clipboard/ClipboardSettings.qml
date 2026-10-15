@@ -12,7 +12,7 @@ Column {
   KitRow {
     wide: true
     label: "Keep last"
-    hint: "older entries drop off"
+    hint: "Older entries drop off"
 
     KitChoices {
       stretch: true

@@ -10,7 +10,7 @@ Column {
 
   KitOptionRow {
     plugin: "workspaces"; key: "style"; fallback: "numbers"
-    label: "Workspaces as"; hint: "numbers, or a small square each"
+    label: "Workspaces as"; hint: "Numbers, or a small square each"
     model: [{ label: "Numbers", value: "numbers" }, { label: "Squares", value: "squares" }]
   }
 }

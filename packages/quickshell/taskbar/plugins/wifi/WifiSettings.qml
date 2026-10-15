@@ -8,5 +8,5 @@ Column {
 
   KitLabel { text: "BAR" }
 
-  KitToggleRow { plugin: "wifi"; key: "name"; label: "Network name in the bar"; hint: "off: the icon alone" }
+  KitToggleRow { plugin: "wifi"; key: "name"; label: "Network name in the bar"; hint: "Off: the icon alone" }
 }

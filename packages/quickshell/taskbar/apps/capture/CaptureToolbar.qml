@@ -171,7 +171,7 @@ Rectangle {
 
     KitRow {
       label: "Hide cursor"
-      hint: "keep the pointer out of the picture"
+      hint: "Keep the pointer out of the picture"
 
       KitSwitch {
         checked: !CaptureService.cursor

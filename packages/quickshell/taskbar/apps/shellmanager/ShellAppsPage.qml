@@ -4,7 +4,7 @@ import qs.config
 import qs.kit
 
 // Shell apps: how each of the shell's own windows opens. Per app one row —
-// its name and how it opens now; a click unfolds a small monitor showing the
+// its icon, name, how it opens now and the key that opens it; a click unfolds a small monitor showing the
 // window as it will open (and a button to open it), then Window (floating /
 // tiled) and, floating, Size (its own, a preset share of the screen, custom
 // pixels) and Position (one of nine spots, at the cursor, custom x, y).
@@ -32,7 +32,7 @@ Column {
 
   spacing: 14
 
-  onVisibleChanged: if (visible) ShellAppsService.refresh()
+  onVisibleChanged: if (visible) { ShellAppsService.refresh(); BindsService.refresh(); }
 
   Column {
     id: appList
@@ -54,8 +54,8 @@ Column {
         readonly property bool floating: s.mode !== "tiled"
         readonly property var px: ShellAppsService.sizeOf(app, s)
         readonly property bool unfolded: root.openApp === app.id
-        readonly property string summary: floating ? "floating · " + px[0] + " × " + px[1] + " · " + ShellAppsService.placeName(s)
-                                                   : "tiled, in the layout"
+        readonly property string summary: floating ? "Floating · " + px[0] + " × " + px[1] + " · " + ShellAppsService.placeName(s)
+                                                   : "Tiled, in the layout"
 
         // the numbers being typed, until Enter
         property string wDraft: String(s.width)
@@ -68,16 +68,37 @@ Column {
         width: appList.width
         spacing: 14
 
-        // the app: its name and how it opens; a click folds the rest in / out
+        // the app: its icon, name, how it opens and its key; a click folds the rest in / out
         Item {
           width: parent.width
           height: header.implicitHeight
 
+          KitIcon {
+            id: appIcon
+            anchors.verticalCenter: parent.verticalCenter
+            name: group.app.icon
+            size: 20
+            tint: group.unfolded ? Theme.foreground0 : Theme.foreground2
+          }
+
           KitRow {
             id: header
-            width: parent.width
+            x: appIcon.width + 14
+            width: parent.width - x
             label: group.app.title
             hint: group.summary
+
+            Repeater {
+              model: BindsService.keysFor(group.app.bind)
+
+              KeyCap {
+                required property string modelData
+                anchors.verticalCenter: parent.verticalCenter
+                text: modelData
+              }
+            }
+
+            Item { width: 6; height: 1 }
 
             KitIcon {
               anchors.verticalCenter: parent.verticalCenter
@@ -140,7 +161,7 @@ Column {
                   visible: group.app.id !== "shell-manager"
                   icon: "external"
                   text: "Open it"
-                  onClicked: Quickshell.execDetached(["qs", "-c", "taskbar", "ipc", "call", "taskmanager", "open"])
+                  onClicked: Quickshell.execDetached(["qs", "-c", "taskbar", "ipc", "call", group.app.ipc, "open"])
                 }
 
                 KitText {
@@ -157,7 +178,7 @@ Column {
             KitRow {
               wide: true
               label: "Window"
-              hint: group.floating ? "over the others, where you put it" : "takes its place in the layout"
+              hint: group.floating ? "Over the others, where you put it" : "Takes its place in the layout"
 
               KitChoices {
                 stretch: true
@@ -171,8 +192,8 @@ Column {
               visible: group.floating
               wide: true
               label: "Size"
-              hint: group.s.size === "preset" ? "a share of the screen"
-                  : group.s.size === "custom" ? "your own, in pixels" : group.app.width + " × " + group.app.height + ", the app's own"
+              hint: group.s.size === "preset" ? "A share of the screen"
+                  : group.s.size === "custom" ? "Your own, in pixels" : group.app.width + " × " + group.app.height + ", the app's own"
 
               KitChoices {
                 stretch: true
@@ -202,7 +223,7 @@ Column {
             PairRow {
               visible: group.floating && group.s.size === "custom"
               label: "Width × height"
-              hint: valid ? "press Enter to apply" : "at least " + ShellAppsService.minWidth + " × " + ShellAppsService.minHeight
+              hint: valid ? "Press Enter to apply" : "At least " + ShellAppsService.minWidth + " × " + ShellAppsService.minHeight
               first: group.wDraft
               second: group.hDraft
               onEdited: (a, b) => { group.wDraft = a; group.hDraft = b; }
@@ -213,8 +234,8 @@ Column {
               visible: group.floating
               wide: true
               label: "Position"
-              hint: group.s.position === "cursor" ? "centred on the pointer, on screen"
-                  : group.s.position === "custom" ? "from the screen's top-left" : group.s.position.replace("-", " ") + " of the screen"
+              hint: group.s.position === "cursor" ? "Centred on the pointer, on screen"
+                  : group.s.position === "custom" ? "From the screen's top-left" : group.s.position.charAt(0).toUpperCase() + group.s.position.slice(1).replace("-", " ") + " of the screen"
 
               // a spot of the screen, or the pointer, or your own
               Row {
@@ -240,7 +261,7 @@ Column {
             PairRow {
               visible: group.floating && group.s.position === "custom"
               label: "X, Y"
-              hint: valid ? "press Enter to apply; kept on screen" : "whole pixels"
+              hint: valid ? "Press Enter to apply; kept on screen" : "Whole pixels"
               separator: ","
               first: group.xDraft
               second: group.yDraft

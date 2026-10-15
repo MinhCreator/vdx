@@ -52,7 +52,7 @@ KitFrame {
 
     KitRow {
       label: "Night light"
-      hint: "warmer colours for the evening"
+      hint: "Warmer colours for the evening"
 
       KitSwitch {
         checked: BrightnessService.nightActive

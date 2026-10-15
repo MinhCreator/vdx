@@ -9,7 +9,7 @@ Column {
 
   KitLabel { text: "CLEANING" }
 
-  KitToggleRow { plugin: "cleaner"; key: "confirm"; label: "Ask before cleaning"; hint: "the button asks “Sure?” once" }
+  KitToggleRow { plugin: "cleaner"; key: "confirm"; label: "Ask before cleaning"; hint: "The button asks “Sure?” once" }
 
   KitLine {}
 
@@ -19,7 +19,7 @@ Column {
 
   KitOptionRow {
     plugin: "cleaner"; key: "model"; fallback: "haiku"
-    label: "Model"; hint: "haiku is quick, sonnet looks closer"
+    label: "Model"; hint: "Haiku is quick, sonnet looks closer"
     model: [{ label: "Haiku", value: "haiku" }, { label: "Sonnet", value: "sonnet" }]
   }
 }

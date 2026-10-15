@@ -14,7 +14,7 @@ Column {
 
   KitOptionRow {
     plugin: "capture"; key: "shotTarget"; fallback: "folder"
-    label: "After a screenshot"; hint: "always copied to the clipboard as well"
+    label: "After a screenshot"; hint: "Always copied to the clipboard as well"
     model: [{ label: "Save", value: "folder", icon: "folder" }, { label: "Ask", value: "ask", icon: "list" },
             { label: "Clipboard", value: "clipboard", icon: "clipboard" }]
   }
@@ -39,7 +39,7 @@ Column {
       required property var modelData
 
       label: modelData.label
-      hint: "press Enter to apply; empty: the default"
+      hint: "Press Enter to apply; empty: the default"
       wide: true
 
       KitInput {

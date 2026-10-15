@@ -85,7 +85,7 @@ KitFrame {
     KitRow {
       visible: BatteryService.profiles.includes(Theme.powerSaverProfile)
       label: "Power saver"
-      hint: "quiet profile, longer battery"
+      hint: "Quiet profile, longer battery"
 
       KitSwitch {
         checked: BatteryService.saver
@@ -96,7 +96,7 @@ KitFrame {
     KitSelect {
       id: limit
       label: "Charge limit"
-      hint: "stop charging at"
+      hint: "Stop charging at"
       model: Theme.batteryLimits.map(v => ({ label: v + "%", value: v }))
       current: BatteryService.threshold
       busy: model.some(c => c.value === BatteryService.busy)
@@ -107,7 +107,7 @@ KitFrame {
     KitSelect {
       id: profile
       label: "Profile"
-      hint: "platform profile"
+      hint: "Platform profile"
       model: BatteryService.profiles.map(p => ({ label: p, value: p }))
       current: BatteryService.profile
       busy: model.some(c => c.value === BatteryService.busy)
@@ -119,7 +119,7 @@ KitFrame {
       id: gpu
       visible: BatteryService.gpuMode !== ""
       label: "GPU"
-      hint: root.gpuPending ? (BatteryService.gpuAction || "reboot required").toLowerCase() : "graphics mode"
+      hint: root.gpuPending ? (BatteryService.gpuAction || "Reboot required").toLowerCase().replace(/^./, c => c.toUpperCase()) : "Graphics mode"
       hintColor: root.gpuPending ? Theme.orange : Theme.muted
       model: [
         { label: "Integrated", value: "Integrated" },

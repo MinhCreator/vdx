@@ -32,7 +32,7 @@ Column {
 
   KitRow {
     label: "Search"
-    hint: "by action, group or key"
+    hint: "By action, group or key"
     wide: true
 
     KitInput {
@@ -78,24 +78,10 @@ Column {
             Repeater {
               model: modelData.keys
 
-              // a keycap
-              Rectangle {
+              KeyCap {
                 required property string modelData
-
                 anchors.verticalCenter: parent.verticalCenter
-                width: Math.max(26, keyText.implicitWidth + 14)
-                height: 24
-                color: Theme.background1
-                border.width: 1
-                border.color: Theme.gray
-
-                KitText {
-                  id: keyText
-                  anchors.centerIn: parent
-                  text: parent.modelData
-                  font.pixelSize: Theme.fontSize - 2
-                  font.weight: Font.ExtraBold
-                }
+                text: modelData
               }
             }
           }

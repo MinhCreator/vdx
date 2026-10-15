@@ -96,7 +96,7 @@ KitFrame {
 
     KitSelect {
       label: "Provider"
-      hint: "subscription in use"
+      hint: "Subscription in use"
       model: MihomoService.providers.map(p => ({ label: p.name, value: p.name }))
       current: MihomoService.provider
       onPicked: value => MihomoService.provider = value

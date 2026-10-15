@@ -19,9 +19,9 @@ Singleton {
   readonly property var active: Hyprland.activeToplevel
 
   readonly property var modes: [
-    { value: "tiling", label: "Tiling", icon: "layout", about: "windows share the screen side by side" },
-    { value: "floating", label: "Floating", icon: "app-window", about: "like Windows: drag and resize freely" },
-    { value: "scrolling", label: "Scrolling", icon: "columns", about: "like Niri: a row of columns you scroll" }
+    { value: "tiling", label: "Tiling", icon: "layout", about: "Windows share the screen side by side" },
+    { value: "floating", label: "Floating", icon: "app-window", about: "Like Windows: drag and resize freely" },
+    { value: "scrolling", label: "Scrolling", icon: "columns", about: "Like Niri: a row of columns you scroll" }
   ]
 
   function setMode(value) {

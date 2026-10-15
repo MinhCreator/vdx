@@ -118,7 +118,7 @@ Column {
 
     KitSelect {
       label: "DNS"
-      hint: WifiService.dnsError !== "" ? WifiService.dnsError : "for this network"
+      hint: WifiService.dnsError !== "" ? WifiService.dnsError : "For this network"
       model: WifiService.dnsProviders.map(p => ({ label: p.label, value: p.label }))
       current: WifiService.dnsLabel
       busy: WifiService.dnsBusy

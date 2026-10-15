@@ -114,7 +114,7 @@ Column {
   KitRow {
     visible: Quickshell.screens.length > 1
     label: "Same bar everywhere"
-    hint: BarLayout.shared ? "every monitor shows one bar" : "Main: external monitor, or the laptop alone · Extra: laptop while docked"
+    hint: BarLayout.shared ? "Every monitor shows one bar" : "Main: external monitor, or the laptop alone · Extra: laptop while docked"
 
     KitSwitch {
       checked: BarLayout.shared
@@ -127,7 +127,7 @@ Column {
 
   KitRow {
     label: "Show bar"
-    hint: root.barOn ? "on " + root.screenName : "no bar on " + root.screenName
+    hint: root.barOn ? "On " + root.screenName : "No bar on " + root.screenName
 
     KitSwitch {
       checked: root.barOn
@@ -331,7 +331,7 @@ Column {
   KitRow {
     wide: true
     label: "Underline"
-    hint: "the line under an open module"
+    hint: "The line under an open module"
 
     KitChoices {
       stretch: true

@@ -16,7 +16,7 @@ KitRow {
   signal accepted(string colour)
 
   label: "Custom colour"
-  hint: valid ? "press Enter to apply" : "six hex digits, like #32302f"
+  hint: valid ? "Press Enter to apply" : "Six hex digits, like #32302f"
   wide: true
 
   Row {

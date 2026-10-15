@@ -85,7 +85,7 @@ Column {
   KitRow {
     visible: OllamaService.running && !OllamaService.hasModel(Theme.ollamaCoachModel)
     label: Theme.ollamaCoachModel
-    hint: "model for the nvim coach"
+    hint: "Model for the nvim coach"
 
     KitButton {
       icon: "download"

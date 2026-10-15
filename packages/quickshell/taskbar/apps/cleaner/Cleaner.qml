@@ -145,7 +145,7 @@ Rectangle {
 
       KitRow {
         label: "Analyze"
-        hint: "with " + root.cs.model + ", about 15 seconds"
+        hint: "With " + root.cs.model + ", about 15 seconds"
 
         KitButton {
           icon: "bot"

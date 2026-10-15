@@ -8,5 +8,5 @@ Column {
 
   KitLabel { text: "BAR" }
 
-  KitToggleRow { plugin: "audio"; key: "percent"; label: "Volume in the bar"; hint: "off: the icon alone" }
+  KitToggleRow { plugin: "audio"; key: "percent"; label: "Volume in the bar"; hint: "Off: the icon alone" }
 }

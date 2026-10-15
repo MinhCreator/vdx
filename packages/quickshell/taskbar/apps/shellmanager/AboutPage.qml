@@ -89,7 +89,7 @@ Column {
 
   KitRow {
     label: "diominvd"
-    hint: "made for his own laptop, shared as it is"
+    hint: "Made for his own laptop, shared as it is"
 
     KitButton {
       icon: "external"

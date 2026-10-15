@@ -18,11 +18,12 @@ from pathlib import Path
 STATE = Path.home() / ".local/state/dotfiles/shell-apps.json"
 RULES = STATE.with_suffix(".lua")
 
-# the rule name, the window title and its own size — as in hypr/components/rules.lua
+# the rule name, the window title, its own size, its IPC target and the
+# name of the bind that opens it (keybinds.lua) — as in hypr/components/rules.lua
 APPS = [
-    {"id": "shell-manager", "title": "Shell Manager", "icon": "settings", "width": 820, "height": 600},
-    {"id": "task-manager", "title": "Task Manager", "icon": "activity", "width": 780, "height": 600},
-    {"id": "cleaner", "title": "Cleaner", "icon": "brush", "width": 760, "height": 620},
+    {"id": "shell-manager", "title": "Shell Manager", "icon": "settings", "ipc": "shell", "bind": "Shell Manager", "width": 820, "height": 600},
+    {"id": "task-manager", "title": "Task Manager", "icon": "activity", "ipc": "taskmanager", "bind": "Task manager", "width": 780, "height": 600},
+    {"id": "cleaner", "title": "Cleaner", "icon": "brush", "ipc": "cleaner", "bind": "Cleaner", "width": 760, "height": 620},
 ]
 # share of the monitor
 PRESETS = {"small": [0.5, 0.55], "medium": [0.65, 0.7], "large": [0.8, 0.85]}

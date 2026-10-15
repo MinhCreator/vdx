@@ -373,7 +373,7 @@ Column {
   KitRow {
     wide: true
     label: "Style"
-    hint: "everywhere: the bar, popups and windows"
+    hint: "Everywhere: the bar, popups and windows"
 
     KitChoices {
       stretch: true
@@ -389,7 +389,7 @@ Column {
   KitRow {
     wide: true
     label: "Corners"
-    hint: "line ends and corners of every icon"
+    hint: "Line ends and corners of every icon"
 
     KitChoices {
       stretch: true
@@ -417,8 +417,8 @@ Column {
   KitRow {
     wide: true
     label: "Source"
-    hint: ShellSettings.wallpaperMode === "image" ? "a picture per theme"
-        : ShellSettings.wallpaperMode === "custom" ? "one colour for every theme" : "the theme's own colour"
+    hint: ShellSettings.wallpaperMode === "image" ? "A picture per theme"
+        : ShellSettings.wallpaperMode === "custom" ? "One colour for every theme" : "The theme's own colour"
 
     KitChoices {
       stretch: true
@@ -497,7 +497,7 @@ Column {
   KitRow {
     visible: root.imageWallpaper
     label: "Add image"
-    hint: "copied into this theme's folder"
+    hint: "Copied into this theme's folder"
     wide: true
 
     Row {
@@ -767,8 +767,8 @@ Column {
   KitRow {
     wide: true
     label: "Colour"
-    hint: root.cursorMode === "theme" ? "follows the theme's colours"
-        : root.cursorMode === "custom" ? "your colour, outlined to stand out" : "as the cursor theme draws it"
+    hint: root.cursorMode === "theme" ? "Follows the theme's colours"
+        : root.cursorMode === "custom" ? "Your colour, outlined to stand out" : "As the cursor theme draws it"
 
     KitChoices {
       stretch: true
@@ -793,7 +793,7 @@ Column {
   KitRow {
     wide: true
     label: "Size"
-    hint: "pixels at scale 1, applied at once"
+    hint: "Pixels at scale 1, applied at once"
 
     KitChoices {
       stretch: true

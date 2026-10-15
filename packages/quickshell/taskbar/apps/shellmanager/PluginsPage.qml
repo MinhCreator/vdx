@@ -204,7 +204,7 @@ Column {
         KitRow {
           visible: !root.plugin?.settings
           label: "No options"
-          hint: "nothing to set for this plugin"
+          hint: "Nothing to set for this plugin"
           labelColor: Theme.foreground2
         }
       }

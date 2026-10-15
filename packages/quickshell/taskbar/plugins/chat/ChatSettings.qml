@@ -15,7 +15,7 @@ Column {
   KitSelect {
     width: parent.width
     label: "Model"
-    hint: "a new chat uses it"
+    hint: "A new chat uses it"
     model: ChatService.models.length > 0 ? ChatService.models
          : [{ label: ChatService.nameOf(ChatService.model), value: ChatService.model }]
     current: ChatService.model
@@ -29,6 +29,6 @@ Column {
   KitToggleRow {
     plugin: "chat"; key: "server"
     label: "Background server"
-    hint: "quicker answers; off: one per message"
+    hint: "Quicker answers; off: one per message"
   }
 }
