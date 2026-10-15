@@ -11,6 +11,7 @@ Column {
 
   // the theme shown in the preview; Apply makes it the active one
   property string selected: ThemeService.current
+  property string themeQuery: ""
   readonly property var palette: ThemeService.palettes[selected] ?? ({})
   readonly property bool customWallpaper: ShellSettings.wallpaperMode === "custom"
   readonly property color wallpaper: customWallpaper ? ShellSettings.wallpaperColor : p("background1")
@@ -47,7 +48,7 @@ Column {
     // the bar and a popup over the wallpaper, in the selected theme's colours
     Rectangle {
       width: parent.width - themeList.width - 14
-      height: Math.max(200, themeList.height)
+      height: themeList.height
       color: root.wallpaper
       border.width: Theme.frameWidth
       border.color: root.p("gray")
@@ -138,6 +139,7 @@ Column {
     Column {
       id: themeList
       width: 190
+      height: 240                 // the preview matches it; buttons meet its bottom
       spacing: 8
 
       KitLabel {
@@ -146,90 +148,104 @@ Column {
         value: String(ThemeService.themes.length)
       }
 
+      KitInput {
+        width: parent.width
+        placeholder: "search"
+        text: root.themeQuery
+        onTextEdited: root.themeQuery = text
+      }
+
       // the theme list, framed like an open select
       Rectangle {
         width: parent.width
-        height: options.implicitHeight + 2 * Theme.frameWidth
+        height: themeList.height - y - themeButtons.height - themeList.spacing
         color: "transparent"
         border.width: Theme.frameWidth
         border.color: Theme.gray
 
-        Column {
-          id: options
-          x: Theme.frameWidth
-          y: Theme.frameWidth
-          width: parent.width - 2 * Theme.frameWidth
+        // scrolls inside the frame when the themes outgrow it
+        Flickable {
+          anchors { fill: parent; margins: Theme.frameWidth }
+          contentHeight: options.implicitHeight
+          interactive: contentHeight > height
+          clip: true
+          boundsBehavior: Flickable.StopAtBounds
 
-          Repeater {
-            model: ThemeService.themes
+          Column {
+            id: options
+            width: parent.width
 
-            Rectangle {
-              id: item
+            Repeater {
+              model: ThemeService.themes.filter(t => t.toLowerCase().includes(root.themeQuery.trim().toLowerCase()))
 
-              required property string modelData
+              Rectangle {
+                id: item
 
-              readonly property bool active: modelData === root.selected
-              readonly property var colors: ThemeService.palettes[modelData] ?? ({})
+                required property string modelData
 
-              width: options.width
-              height: 32
-              color: active ? Theme.background3 : itemArea.containsMouse ? Theme.background1 : "transparent"
+                readonly property bool active: modelData === root.selected
+                readonly property var colors: ThemeService.palettes[modelData] ?? ({})
 
-              // the theme's own surface, text and accents
-              Row {
-                id: swatches
-                anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }
-                spacing: 0
+                width: options.width
+                height: 32
+                color: active ? Theme.background3 : itemArea.containsMouse ? Theme.background1 : "transparent"
 
-                Repeater {
-                  model: ["background0", "foreground0", "frame", "green", "blue"]
+                // the theme's own surface, text and accents
+                Row {
+                  id: swatches
+                  anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }
+                  spacing: 0
 
-                  Rectangle {
-                    required property string modelData
-                    width: 7
-                    height: 14
-                    color: item.colors[modelData] ?? "transparent"
+                  Repeater {
+                    model: ["background0", "foreground0", "frame", "green", "blue"]
+
+                    Rectangle {
+                      required property string modelData
+                      width: 7
+                      height: 14
+                      color: item.colors[modelData] ?? "transparent"
+                    }
                   }
                 }
-              }
 
-              KitText {
-                anchors {
-                  left: swatches.right; leftMargin: 10
-                  right: mark.left; rightMargin: 6
-                  verticalCenter: parent.verticalCenter
-                }
-                text: item.modelData
-                elide: Text.ElideRight
-                color: item.active || itemArea.containsMouse ? Theme.foreground0 : Theme.foreground2
-                font.weight: item.active ? Font.ExtraBold : Font.DemiBold
-              }
-
-              Item {
-                id: mark
-                anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
-                width: 14
-                height: 14
-
-                KitSpinner {
-                  anchors.centerIn: parent
-                  visible: ThemeService.applying === item.modelData
+                KitText {
+                  anchors {
+                    left: swatches.right; leftMargin: 10
+                    right: mark.left; rightMargin: 6
+                    verticalCenter: parent.verticalCenter
+                  }
+                  text: item.modelData
+                  elide: Text.ElideRight
+                  color: item.active || itemArea.containsMouse ? Theme.foreground0 : Theme.foreground2
+                  font.weight: item.active ? Font.ExtraBold : Font.DemiBold
                 }
 
-                KitIcon {
-                  anchors.centerIn: parent
-                  visible: item.modelData === ThemeService.current && ThemeService.applying !== item.modelData
-                  name: "check"
-                  size: 14
-                }
-              }
+                Item {
+                  id: mark
+                  anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                  width: 14
+                  height: 14
 
-              MouseArea {
-                id: itemArea
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: item.active ? Qt.ArrowCursor : Qt.PointingHandCursor
-                onClicked: root.selected = item.modelData
+                  KitSpinner {
+                    anchors.centerIn: parent
+                    visible: ThemeService.applying === item.modelData
+                  }
+
+                  KitIcon {
+                    anchors.centerIn: parent
+                    visible: item.modelData === ThemeService.current && ThemeService.applying !== item.modelData
+                    name: "check"
+                    size: 14
+                  }
+                }
+
+                MouseArea {
+                  id: itemArea
+                  anchors.fill: parent
+                  hoverEnabled: true
+                  cursorShape: item.active ? Qt.ArrowCursor : Qt.PointingHandCursor
+                  onClicked: root.selected = item.modelData
+                }
               }
             }
           }
@@ -238,6 +254,7 @@ Column {
     
       // Apply / Cancel always under the list; live only while previewing
       Row {
+        id: themeButtons
         width: parent.width
         spacing: 6
 
