@@ -7,11 +7,15 @@ import qs.kit
 Column {
   spacing: 14
 
+  KitLabel { text: "HISTORY" }
+
   KitRow {
+    wide: true
     label: "Keep last"
     hint: "older entries drop off"
 
     KitChoices {
+      stretch: true
       model: ClipboardService.limits.map(n => ({ label: String(n), value: n }))
       current: ClipboardService.limit
       onPicked: value => ClipboardService.setLimit(value)

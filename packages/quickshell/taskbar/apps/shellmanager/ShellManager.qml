@@ -4,10 +4,11 @@ import qs.config
 import qs.kit
 
 // Shell Manager: settings laid out like a system settings window — sections
-// on the left, the chosen page on the right, scrolling on its own. Under the
+// on the left, the chosen page on the right under its fixed header, scrolling
+// on its own. Under the
 // open section its groups (`jumps` of the page) jump there on a click.
-//   APPEARANCE — theme, wallpaper and icon style under one live preview;
-//   BAR        — the layout of the bar's zones, icon style, modules on / off.
+//   APPEARANCE — theme, icon style, wallpaper, font and cursor;
+//   BAR        — the layout of the bar's zones, modules on / off, underline.
 //   PLUGINS    — each plugin's own options.
 Rectangle {
   id: root
@@ -20,22 +21,25 @@ Rectangle {
     { value: "plugins",    label: "Plugins",    icon: "grid" }
   ]
 
-  readonly property Item currentPage: tab === "bar" ? bar : tab === "plugins" ? plugins : appearance
+  function pageFor(value) { return value === "bar" ? bar : value === "plugins" ? plugins : appearance; }
+  readonly property Item currentPage: pageFor(tab)
 
-  // the group the page shows at its top; a clicked one stays marked while the
-  // page can't scroll it up there (the last groups)
+  // the group being read: the last one whose title is within 40px of the
+  // view's top (under the fixed header), the last group once the page is scrolled to the end. A
+  // clicked one stays marked until the next scroll by hand.
   property string pinnedJump: ""
   readonly property string currentJump: {
     if (pinnedJump !== "") return pinnedJump;
-    if (tab === "plugins") return plugins.selected;
     const list = currentPage.jumps;
-    let key = list.length > 0 ? list[0].key : "";
-    for (const j of list) if (j.y + 20 <= page.contentY + 40) key = j.key;
+    if (list.length === 0) return "";
+    if (page.contentY >= page.contentHeight - page.height - 1 && page.interactive)
+      return list[list.length - 1].key;
+    let key = list[0].key;
+    for (const j of list) if (j.y + pages.y <= page.contentY + 40) key = j.key;
     return key;
   }
 
   function jumpTo(j) {
-    if (j.y < 0) { currentPage.jump(j.key); return; }
     const max = Math.max(0, page.contentHeight - page.height);
     scroll.to = Math.min(max, Math.max(0, j.y));
     scroll.restart();
@@ -51,9 +55,24 @@ Rectangle {
     height: parent.height
     color: Theme.background0
 
+    // the window's own header, level with the page's: its line runs on across
+    Column {
+      id: brand
+      anchors { left: parent.left; leftMargin: 13; right: parent.right; top: parent.top; topMargin: 20 }
+      spacing: 14
+
+      KitHeader {
+        icon: "settings"
+        title: "Shell Manager"
+        subtitle: "SUPER + S"
+      }
+
+      KitLine {}
+    }
+
     Column {
       x: 12
-      y: 20
+      y: brand.y + brand.height + 14
       width: parent.width - 24
       spacing: 4
 
@@ -100,43 +119,60 @@ Rectangle {
             }
           }
 
-          // the open page's groups: a click scrolls there (or selects, on Plugins)
-          Repeater {
-            model: section.active ? root.currentPage.jumps : []
+          // the open page's groups: a click scrolls there. They unfold under
+          // the section as it opens and fold away as another one does.
+          Item {
+            width: section.width
+            height: section.active ? subs.implicitHeight : 0
+            opacity: section.active ? 1 : 0
+            clip: true
 
-            Rectangle {
-              id: sub
+            Behavior on height { NumberAnimation { duration: Theme.underlineMs + 40; easing.type: Easing.OutCubic } }
+            Behavior on opacity { NumberAnimation { duration: Theme.underlineMs + 40 } }
 
-              required property var modelData
+            Column {
+              id: subs
+              width: parent.width
+              spacing: 2
 
-              readonly property bool here: modelData.key === root.currentJump
+              Repeater {
+                model: root.pageFor(section.modelData.value).jumps
 
-              width: section.width
-              height: 26
-              color: subArea.containsMouse ? Theme.background1 : "transparent"
+                Rectangle {
+                  id: sub
 
-              // where the page is, as a thin line beside the name
-              Rectangle {
-                anchors { left: parent.left; leftMargin: 17; top: parent.top; bottom: parent.bottom; margins: 5 }
-                width: 2
-                color: sub.here ? Theme.foreground2 : Theme.background3
-              }
+                  required property var modelData
 
-              KitText {
-                anchors { left: parent.left; leftMargin: 36; right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
-                text: sub.modelData.label
-                elide: Text.ElideRight
-                color: sub.here || subArea.containsMouse ? Theme.foreground0 : Theme.muted
-                font.weight: sub.here ? Font.ExtraBold : Font.DemiBold
-                font.pixelSize: Theme.fontSize - 1
-              }
+                  readonly property bool here: section.active && modelData.key === root.currentJump
 
-              MouseArea {
-                id: subArea
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onClicked: root.jumpTo(sub.modelData)
+                  width: subs.width
+                  height: 26
+                  color: subArea.containsMouse ? Theme.background1 : "transparent"
+
+                  // where the page is, as a thin line beside the name
+                  Rectangle {
+                    anchors { left: parent.left; leftMargin: 17; top: parent.top; bottom: parent.bottom; margins: 5 }
+                    width: 2
+                    color: sub.here ? Theme.foreground2 : Theme.background3
+                  }
+
+                  KitText {
+                    anchors { left: parent.left; leftMargin: 36; right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                    text: sub.modelData.label
+                    elide: Text.ElideRight
+                    color: sub.here || subArea.containsMouse ? Theme.foreground0 : Theme.muted
+                    font.weight: sub.here ? Font.ExtraBold : Font.DemiBold
+                    font.pixelSize: Theme.fontSize - 1
+                  }
+
+                  MouseArea {
+                    id: subArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.jumpTo(sub.modelData)
+                  }
+                }
               }
             }
           }
@@ -160,10 +196,25 @@ Rectangle {
   }
 
   // ---- page --------------------------------------------------------------------
+  // the open page's header stays put; only what is under it scrolls
+  Column {
+    id: header
+    anchors { left: sidebar.right; leftMargin: 25; right: parent.right; rightMargin: 24; top: parent.top; topMargin: 20 }
+    spacing: 14
+
+    KitHeader {
+      icon: root.currentPage.icon
+      title: root.currentPage.title
+      subtitle: root.currentPage.subtitle
+    }
+
+    KitLine {}
+  }
+
   Flickable {
     id: page
-    anchors { left: sidebar.right; leftMargin: 1; right: parent.right; top: parent.top; bottom: parent.bottom }
-    contentHeight: pages.implicitHeight + 40
+    anchors { left: sidebar.right; leftMargin: 1; right: parent.right; top: header.bottom; bottom: parent.bottom }
+    contentHeight: pages.implicitHeight + pages.y + 20
     clip: true
     boundsBehavior: Flickable.StopAtBounds
     interactive: contentHeight > height
@@ -180,7 +231,7 @@ Rectangle {
     Item {
       id: pages
       x: 24
-      y: 20
+      y: 14
       width: page.width - 48
       implicitHeight: Math.max(appearance.visible ? appearance.implicitHeight : 0,
                                bar.visible ? bar.implicitHeight : 0,
@@ -189,7 +240,7 @@ Rectangle {
       AppearancePage { id: appearance; width: parent.width; visible: root.tab === "appearance" }
       BarPage     { id: bar;     width: parent.width; visible: root.tab === "bar" }
       // fills the window and scrolls its two panes itself
-      PluginsPage { id: plugins; width: parent.width; height: page.height - 40; visible: root.tab === "plugins" }
+      PluginsPage { id: plugins; width: parent.width; height: page.height - pages.y - 20; visible: root.tab === "plugins" }
     }
   }
 

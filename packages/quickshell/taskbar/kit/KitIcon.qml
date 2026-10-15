@@ -4,18 +4,20 @@ import qs.config
 
 // An SVG icon from kit/icons, recoloured to `tint`. The files are drawn in
 // white (Lucide-style outlines, square caps), so colorization maps them to any
-// theme colour exactly. `solid` picks the filled variant from icons/solid,
-// falling back to the outline when there is none.
+// theme colour exactly. `solid` (the user's icon style, Shell Manager ›
+// Appearance, unless set) picks the filled variant from icons/solid, falling
+// back to the outline when there is none — line glyphs (check, x, arrows) have
+// nothing to fill, and heart / heart-filled carry meaning (liked or not).
 Item {
   id: root
 
   property string name: ""
   property color tint: Theme.foreground0
   property int size: Theme.fontSize + 3
-  property bool solid: false
+  property bool solid: ShellSettings.solidIcons
 
   // names that have a filled variant in icons/solid
-  readonly property var solidNames: ["battery-charging", "battery", "bell", "bot", "camera", "circle", "clipboard", "clock", "folder", "grid", "headphones", "keyboard", "leaf", "moon", "music", "plug", "radio", "shield", "sliders", "sun", "volume", "volume-x", "wifi-off", "wifi"]
+  readonly property var solidNames: ["app-window", "battery-charging", "battery", "bell", "bot", "camera", "circle", "clipboard", "clock", "cpu", "folder", "grid", "headphones", "keyboard", "laptop", "layout", "leaf", "lock", "mic", "monitor", "moon", "music", "pause", "play", "plug", "radio", "server", "settings", "shield", "skip-back", "skip-forward", "sliders", "speaker", "square", "sun", "trash", "video", "volume", "volume-x", "wifi-off", "wifi", "zap"]
   readonly property bool useSolid: solid && solidNames.includes(name)
 
   implicitWidth: size

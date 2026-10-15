@@ -5,10 +5,12 @@ import Quickshell
 import Quickshell.Io
 import qs.config
 
-// The cursor theme for the Shell Manager (scripts/cursors.py): the list
-// (curated themes and whatever is installed), installing one into
-// ~/.local/share/icons and applying it with a size — at once in Hyprland and
-// GTK, and again at every Hyprland start (`cursors.py restore`).
+// The cursor for the Shell Manager (scripts/cursors.py): the list (curated
+// themes and whatever is installed), previews of the main shapes, installing
+// into ~/.local/share/icons and applying a theme with a size and a colour —
+// its own (original), the active theme's (text colour body, background
+// outline; redone whenever the theme changes) or a custom one. Applied at
+// once in Hyprland and GTK, and again at every Hyprland start (`restore`).
 Singleton {
   id: root
 
@@ -16,27 +18,67 @@ Singleton {
 
   // ---- state ----
   property var cursors: []                  // [{id, name, installed}]
-  property string current: ""
+  property string base: ""                  // the theme in use (before tinting)
   property int size: 24
+  property string mode: "original"          // original | theme | custom
+  property string fill: ""                  // rrggbb, tinted modes
+  property string outline: ""
   property bool busy: false
   property string working: ""               // the theme being installed / applied
   property string error: ""
-  property int pendingSize: 24              // the size to set once an install is done
+
+  // ---- preview ----
+  property var shapes: []                   // [{name, path, width, height}] of `shapesKey`
+  property string shapesKey: ""
+  property string wantedKey: ""
+
+  // the two colours of a mode: the theme's text over its background, or the
+  // custom body with an outline that stands out from it
+  function colours(mode, custom) {
+    if (mode === "theme") return [hex(Theme.foreground0), hex(Theme.background0)];
+    if (mode === "custom") {
+      const c = Qt.color("#" + custom);
+      const light = 0.299 * c.r + 0.587 * c.g + 0.114 * c.b > 0.5;
+      return [custom.toLowerCase(), hex(light ? Theme.background0 : Theme.foreground0)];
+    }
+    return ["", ""];
+  }
+
+  function hex(color) { return String(color).slice(1, 7); }
 
   function refresh() { if (!listProc.running) listProc.running = true; }
 
-  function apply(cursor, size) {
+  function preview(base, mode, custom) {
+    const [f, o] = colours(mode, custom);
+    const key = [base, f, o].join(" ");
+    wantedKey = key;
+    if (key === shapesKey || previewProc.running) return;
+    previewProc.key = key;
+    previewProc.command = ["python3", script, "preview", base].concat(f ? [f, o] : []);
+    previewProc.running = true;
+  }
+
+  function apply(cursor, size, mode, custom) {
     if (busy) return;
     busy = true;
     working = cursor.name;
     error = "";
-    pendingSize = size;
-    run(cursor.installed ? ["set", cursor.name, String(size)] : ["install", cursor.name]);
+    pending = { base: cursor.name, size: size, mode: mode, custom: custom };
+    if (cursor.installed) set();
+    else run(["install", cursor.name]);
   }
 
   function setSize(size) {
-    const c = cursors.find(c => c.name === current);
-    if (c && size !== root.size) apply(c, size);
+    if (size !== root.size && base !== "")
+      apply({ name: base, installed: true }, size, mode, mode === "custom" ? fill : "");
+  }
+
+  property var pending: null
+
+  function set() {
+    const p = pending;
+    const [f, o] = colours(p.mode, p.custom);
+    run(["set", p.base, String(p.size), p.mode].concat(f ? [f, o] : []));
   }
 
   function run(args) {
@@ -46,6 +88,19 @@ Singleton {
 
   function parse(text) {
     try { return JSON.parse(text); } catch (e) { return { ok: false, error: "bad reply from cursors.py" }; }
+  }
+
+  // a theme-coloured cursor follows the theme
+  readonly property string themeColours: hex(Theme.foreground0) + hex(Theme.background0)
+  onThemeColoursChanged: follow.restart()
+  Timer {
+    id: follow
+    interval: 400
+    onTriggered: {
+      if (root.mode !== "theme" || root.base === "" || root.busy) return;
+      if (root.fill + root.outline === root.themeColours) return;
+      root.apply({ name: root.base, installed: true }, root.size, "theme", "");
+    }
   }
 
   Component.onCompleted: refresh()
@@ -58,8 +113,31 @@ Singleton {
         const r = root.parse(text);
         if (!r.ok) { root.error = r.error; return; }
         root.cursors = r.cursors;
-        root.current = r.current;
+        root.base = r.base;
         root.size = r.size;
+        root.mode = r.mode;
+        root.fill = r.fill;
+        root.outline = r.outline;
+        follow.restart();
+      }
+    }
+  }
+
+  Process {
+    id: previewProc
+    property string key: ""
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const r = root.parse(text);
+        root.shapes = r.ok ? r.shapes : [];
+        root.shapesKey = previewProc.key;
+        // the wanted one changed while this ran
+        if (root.wantedKey !== root.shapesKey) {
+          const [b, f, o] = root.wantedKey.split(" ");
+          previewProc.key = root.wantedKey;
+          previewProc.command = ["python3", root.script, "preview", b].concat(f ? [f, o] : []);
+          previewProc.running = true;
+        }
       }
     }
   }
@@ -70,7 +148,7 @@ Singleton {
       onStreamFinished: {
         const r = root.parse(text);
         if (r.ok && actProc.command[2] === "install") {
-          root.run(["set", r.name, String(root.pendingSize)]);
+          root.set();
           return;
         }
         root.busy = false;

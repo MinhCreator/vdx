@@ -12,10 +12,16 @@ import qs.kit
 Column {
   id: root
 
+  // the window's fixed header shows these; the page under it scrolls
+  readonly property string icon: "layout"
+  readonly property string title: "Bar"
+  readonly property string subtitle: Quickshell.screens.filter(s => BarLayout.barOn(s.name)).length + " OF "
+    + Quickshell.screens.length + " MONITORS · " + ShellSettings.underlineAnimation.toUpperCase() + " UNDERLINE"
+
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [
     { key: "monitor", label: "Monitor", y: monitorGroup.y },
-    { key: "layout",  label: "Layout",  y: layoutGroup.visible ? layoutGroup.y : -2 },
+    { key: "layout",  label: "Layout",  y: root.barOn ? layoutGroup.y : -2 },
     { key: "style",   label: "Style",   y: styleGroup.y }
   ].filter(j => j.y > -2)
 
@@ -91,15 +97,6 @@ Column {
   }
 
   spacing: 14
-
-  KitHeader {
-    icon: "layout"
-    title: "Bar"
-    subtitle: Quickshell.screens.filter(s => BarLayout.barOn(s.name)).length + " OF "
-      + Quickshell.screens.length + " MONITORS · " + (ShellSettings.solidIcons ? "SOLID ICONS" : "OUTLINE ICONS")
-  }
-
-  KitLine {}
 
   // ---- monitor -------------------------------------------------------------------
   KitLabel { id: monitorGroup; text: "MONITOR" }
@@ -258,7 +255,6 @@ Column {
                     anchors.verticalCenter: parent.verticalCenter
                     name: BarLayout.icon(chip.modelData)
                     tint: band.zone === "hidden" ? Theme.muted : Theme.foreground2
-                    solid: ShellSettings.solidIcons
                     size: 14
                   }
 
@@ -333,24 +329,12 @@ Column {
   KitLabel { id: styleGroup; text: "STYLE" }
 
   KitRow {
-    label: "Icons"
-    hint: "outlines or filled shapes, on every bar"
-
-    KitChoices {
-      model: [
-        { label: "Outline", value: false },
-        { label: "Solid",   value: true }
-      ]
-      current: ShellSettings.solidIcons
-      onPicked: value => ShellSettings.set("solidIcons", value)
-    }
-  }
-
-  KitRow {
+    wide: true
     label: "Underline"
-    hint: "how the line under an open popup's module appears"
+    hint: "the line under an open module"
 
     KitChoices {
+      stretch: true
       model: [
         { label: "None",  value: "none" },
         { label: "Grow",  value: "grow" },

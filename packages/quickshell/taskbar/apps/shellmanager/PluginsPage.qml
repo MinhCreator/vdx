@@ -6,14 +6,18 @@ import qs.kit
 
 // Plugins: the list on the left, the chosen one's options on the right —
 // its own <Name>Settings.qml (the registry's `settings`), values kept in
-// PluginSettings, Reset to the defaults. The header stays; each pane scrolls on its own. Where a plugin
+// PluginSettings, Reset to the defaults. Each pane scrolls on its own. Where a plugin
 // sits is set on the Bar page.
 Column {
   id: root
 
-  // the sidebar lists the plugins with options; a click (no `y`) selects one
-  readonly property var jumps: BarLayout.plugins.filter(p => p.settings).map(p => ({ key: p.id, label: p.label, y: -1 }))
-  function jump(key) { selected = key; }
+  // the window's fixed header shows these; the page under it scrolls
+  readonly property string icon: "grid"
+  readonly property string title: "Plugins"
+  readonly property string subtitle: BarLayout.plugins.filter(p => p.settings).length + " WITH OPTIONS · " + BarLayout.plugins.length + " IN ALL"
+
+  // its own list does the job of the sidebar's group links
+  readonly property var jumps: []
 
   property string selected: (BarLayout.plugins.find(p => p.settings) ?? BarLayout.plugins[0])?.id ?? ""
   readonly property var plugin: BarLayout.plugins.find(p => p.id === selected) ?? null
@@ -28,18 +32,9 @@ Column {
 
   spacing: 14
 
-  KitHeader {
-    id: header
-    icon: "grid"
-    title: "Plugins"
-    subtitle: BarLayout.plugins.filter(p => p.settings).length + " WITH OPTIONS · " + BarLayout.plugins.length + " IN ALL"
-  }
-
-  KitLine { id: headerLine }
-
   Row {
     width: parent.width
-    height: root.height - header.height - headerLine.height - 2 * root.spacing
+    height: root.height
     spacing: 18
 
     // ---- list: like the theme list — title, search, a framed list -------------------

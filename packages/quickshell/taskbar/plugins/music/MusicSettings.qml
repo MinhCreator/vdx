@@ -6,6 +6,8 @@ import qs.kit
 Column {
   spacing: 14
 
+  KitLabel { text: "BAR" }
+
   KitOptionRow {
     plugin: "music"; key: "titleLength"; fallback: 60
     label: "Title in the bar"; hint: "longer ones end with …"

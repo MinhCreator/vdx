@@ -46,7 +46,8 @@ def families():
     """Installed monospace families: the first name of each fc-list entry."""
     text = subprocess.run(["fc-list", ":spacing=mono", "family"], capture_output=True, text=True).stdout
     names = {line.split(",")[0].strip() for line in text.splitlines() if line.strip()}
-    return {n for n in names if not n.endswith((" Mono", " Propo")) or "Nerd Font" not in n}
+    # not the Nerd Font Mono / Propo variants, not emoji
+    return {n for n in names if (not n.endswith((" Mono", " Propo")) or "Nerd Font" not in n) and "Emoji" not in n}
 
 
 def current():
@@ -59,6 +60,7 @@ def cmd_list():
     fonts = [{"id": i, "family": f, "installed": f in have} for i, f in CURATED.items()]
     known = set(CURATED.values())
     fonts += [{"id": "", "family": f, "installed": True} for f in sorted(have - known, key=str.lower)]
+    fonts.sort(key=lambda f: not f["installed"])     # stable: installed first, order kept
     out({"ok": True, "current": current(), "fonts": fonts})
 
 

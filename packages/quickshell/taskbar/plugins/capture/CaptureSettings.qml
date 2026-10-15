@@ -3,57 +3,31 @@ import qs.apps.capture
 import qs.config
 import qs.kit
 
-// Capture options in the Shell Manager, as full-width groups (the pane is too
-// narrow for label-left rows): what happens after a screenshot and after a
-// recording, then the default folders. A path applies on Enter; empty brings
-// the default back.
+// Capture options in the Shell Manager: what happens after a screenshot and
+// after a recording, then the default folders. A path applies on Enter;
+// empty brings the default back.
 Column {
   id: root
-
   spacing: 14
 
-  Repeater {
-    model: [
-      { key: "shotTarget", title: "AFTER A SCREENSHOT",
-        note: "It is always copied to the clipboard as well.",
-        items: [{ label: "Save", value: "folder", icon: "folder" }, { label: "Ask where", value: "ask", icon: "list" },
-                { label: "Clipboard", value: "clipboard", icon: "clipboard" }] },
-      { key: "videoTarget", title: "AFTER A RECORDING",
-        note: "Ask where opens when you stop; Esc keeps it in the folder below.",
-        items: [{ label: "Save", value: "folder", icon: "folder" }, { label: "Ask where", value: "ask", icon: "list" }] }
-    ]
+  KitLabel { text: "SAVING" }
 
-    Column {
-      id: group
+  KitOptionRow {
+    plugin: "capture"; key: "shotTarget"; fallback: "folder"
+    label: "After a screenshot"; hint: "always copied to the clipboard as well"
+    model: [{ label: "Save", value: "folder", icon: "folder" }, { label: "Ask", value: "ask", icon: "list" },
+            { label: "Clipboard", value: "clipboard", icon: "clipboard" }]
+  }
 
-      required property var modelData
-
-      width: root.width
-      spacing: 8
-
-      KitLabel { text: group.modelData.title }
-
-      KitChoices {
-        width: parent.width
-        stretch: true
-        model: group.modelData.items
-        current: PluginSettings.get("capture", group.modelData.key, "folder")
-        onPicked: value => PluginSettings.set("capture", group.modelData.key, value)
-      }
-
-      KitText {
-        width: parent.width
-        text: group.modelData.note
-        color: Theme.muted
-        wrapMode: Text.WordWrap
-        font.pixelSize: Theme.fontSize - 2
-      }
-    }
+  KitOptionRow {
+    plugin: "capture"; key: "videoTarget"; fallback: "folder"
+    label: "After a recording"; hint: "Ask opens on stop; Esc saves to the folder"
+    model: [{ label: "Save", value: "folder", icon: "folder" }, { label: "Ask", value: "ask", icon: "list" }]
   }
 
   KitLine {}
 
-  KitLabel { text: "FOLDERS"; value: "ENTER TO APPLY" }
+  KitLabel { text: "FOLDERS" }
 
   Repeater {
     model: [
@@ -61,23 +35,16 @@ Column {
       { key: "videoDir", label: "Recordings",  value: CaptureService.videoDir }
     ]
 
-    Column {
-      id: folder
-
+    KitRow {
       required property var modelData
 
-      width: root.width
-      spacing: 6
-
-      KitText {
-        text: folder.modelData.label
-        font.pixelSize: Theme.fontSize - 1
-      }
+      label: modelData.label
+      hint: "press Enter to apply; empty: the default"
+      wide: true
 
       KitInput {
-        width: parent.width
-        text: folder.modelData.value
-        onAccepted: PluginSettings.set("capture", folder.modelData.key, text.trim().replace(/\/+$/, ""))
+        text: modelData.value
+        onAccepted: PluginSettings.set("capture", modelData.key, text.trim().replace(/\/+$/, ""))
       }
     }
   }

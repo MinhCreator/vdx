@@ -7,7 +7,7 @@ import qs.kit
 Column {
   spacing: 14
 
-  KitLabel { text: "BAR TEXT" }
+  KitLabel { text: "BAR" }
 
   KitToggleRow {
     plugin: "sysmon"; key: "barPercent"
@@ -17,7 +17,7 @@ Column {
 
   KitLine {}
 
-  KitLabel { text: "POPUP SECTIONS" }
+  KitLabel { text: "POPUP" }
 
   KitToggleRow { plugin: "sysmon"; key: "cores";   label: "CPU cores";  hint: "a bar per core under the load" }
   KitToggleRow { plugin: "sysmon"; key: "memory";  label: "Memory";     hint: "used, total, swap" }

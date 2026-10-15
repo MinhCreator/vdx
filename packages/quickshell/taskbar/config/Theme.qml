@@ -93,6 +93,8 @@ QtObject {
 
   // ---- popups (kit) -------------------------------------------------------
   readonly property int popupWidth: 370
+  readonly property int controlWidth: 300        // a setting's choices / field (KitRow wide)
+  readonly property int rowStackBelow: 480       // a wide KitRow narrower than this puts its control under the label
   readonly property int popupGap: 6
   readonly property int frameWidth: 1          // controls: buttons, selects, fields
   readonly property int windowFrameWidth: 2    // popup frames, like hypr windows, mako, rofi

@@ -21,7 +21,10 @@ Rectangle {
   border.width: Theme.frameWidth
   border.color: Theme.gray
 
+  WheelGuard { flick: list; z: 1 }
+
   Flickable {
+    id: list
     anchors { fill: parent; margins: Theme.frameWidth }
     contentHeight: rows.implicitHeight
     interactive: contentHeight > height

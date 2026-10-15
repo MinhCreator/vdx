@@ -6,5 +6,7 @@ import qs.kit
 Column {
   spacing: 14
 
+  KitLabel { text: "BAR" }
+
   KitToggleRow { plugin: "audio"; key: "percent"; label: "Volume in the bar"; hint: "off: the icon alone" }
 }

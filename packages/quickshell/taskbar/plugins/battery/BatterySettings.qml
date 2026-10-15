@@ -6,5 +6,7 @@ import qs.kit
 Column {
   spacing: 14
 
+  KitLabel { text: "BAR" }
+
   KitToggleRow { plugin: "battery"; key: "percent"; label: "Charge in the bar"; hint: "off: the icon alone" }
 }

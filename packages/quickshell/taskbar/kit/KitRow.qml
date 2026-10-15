@@ -3,21 +3,35 @@ import qs.config
 
 // A setting row: a label and a dim hint under it on the left, a control (a
 // switch, a button, a value) on the right (children).
+//
+// `wide`: the control is a set of choices or a field — it gets the standard
+// width (Theme.controlWidth, so the right edges line up down a page), and in
+// a narrow place (under Theme.rowStackBelow) it goes under the label, full
+// width. Give a wide KitChoices `stretch: true`.
 Item {
   id: root
 
   property string label: ""
   property string hint: ""
   property color labelColor: Theme.foreground0
+  property bool wide: false
+
+  readonly property bool stacked: wide && width < Theme.rowStackBelow
 
   default property alias trailing: slot.data
 
   width: parent ? parent.width : 0
-  implicitHeight: Math.max(text.implicitHeight, slot.height)
+  implicitHeight: stacked ? text.implicitHeight + 8 + slot.height
+                          : Math.max(text.implicitHeight, slot.height)
 
   Column {
     id: text
-    anchors { left: parent.left; right: slot.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
+    anchors {
+      left: parent.left
+      right: root.stacked ? parent.right : slot.left
+      rightMargin: root.stacked ? 0 : 12
+    }
+    y: root.stacked ? 0 : (root.height - height) / 2
     spacing: 2
 
     KitText {
@@ -32,14 +46,24 @@ Item {
       visible: root.hint !== ""
       text: root.hint
       color: Theme.muted
-      elide: Text.ElideRight
+      elide: root.stacked ? Text.ElideNone : Text.ElideRight
+      wrapMode: root.stacked ? Text.WordWrap : Text.NoWrap
       font.pixelSize: Theme.fontSize - 2
     }
   }
 
   Row {
     id: slot
-    anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+    anchors.right: parent.right
+    y: root.stacked ? text.height + 8 : (root.height - height) / 2
     spacing: 8
+  }
+
+  // the one control of a wide row takes the standard width
+  Binding {
+    when: root.wide && slot.children.length > 0
+    target: slot.children.length > 0 ? slot.children[0] : null
+    property: "width"
+    value: root.stacked ? root.width : Theme.controlWidth
   }
 }

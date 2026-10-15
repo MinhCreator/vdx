@@ -7,8 +7,7 @@ import qs.kit
 // beside the theme list (pick one to preview it, Apply to switch),
 // wallpaper (the theme's colour, a custom one or a picture per theme from
 // ~/.dotfiles/wallpapers), the system font (the same
-// preview-and-apply) and the cursor (applied on click); the bar's icon style
-// is shown here but set on the Bar page.
+// preview-and-apply) and the cursor (applied on click); the icon style for the whole shell.
 Column {
   id: root
 
@@ -33,7 +32,6 @@ Column {
   property string imageDraft: ""
   readonly property color wallpaper: customWallpaper ? ShellSettings.wallpaperColor : p("background1")
   property string draft: ShellSettings.wallpaperColor
-  readonly property bool draftValid: /^#?[0-9a-fA-F]{6}$/.test(draft.trim())
 
   function p(role) { return themeColors[role] ?? Theme[role]; }
 
@@ -42,7 +40,31 @@ Column {
   readonly property var fontRow: FontService.fonts.find(f => f.family === fontSelected) ?? null
   readonly property var fontRows: FontService.fonts.map(f => ({ key: f.family, label: f.family.replace(" Nerd Font", ""),
                                                                installed: f.installed, family: f.family }))
-  readonly property var cursorRows: CursorService.cursors.map(c => ({ key: c.name, label: c.name, installed: c.installed }))
+  // short names: "Bibata-Modern-Classic" reads "Bibata Classic", "phinger-cursors-dark" "phinger dark"
+  function cursorLabel(name) {
+    return name.replace(/-/g, " ").replace("Modern ", "").replace(" cursors", "").replace("Original Classic", "Original");
+  }
+  readonly property var cursorRows: CursorService.cursors.map(c => ({ key: c.name, installed: c.installed, label: cursorLabel(c.name) }))
+
+  // the cursor in the preview and its colour; Apply makes them the system's
+  property string cursorSelected: CursorService.base
+  property string cursorMode: CursorService.mode
+  property string cursorCustom: CursorService.mode === "custom" ? CursorService.fill : "d8a657"
+  readonly property var cursorRow: CursorService.cursors.find(c => c.name === cursorSelected) ?? null
+  readonly property bool cursorCustomValid: /^[0-9a-f]{6}$/.test(cursorCustom)
+  readonly property bool cursorChanged: cursorSelected !== CursorService.base || cursorMode !== CursorService.mode
+                                        || (cursorMode === "custom" && cursorCustom !== CursorService.fill)
+  // the preview follows the selection (a theme-coloured one, the theme too)
+  readonly property string cursorPreviewKey: cursorRow && cursorRow.installed
+    ? [cursorSelected, cursorMode, cursorCustomValid ? cursorCustom : "", CursorService.themeColours].join(" ") : ""
+  onCursorPreviewKeyChanged: if (cursorPreviewKey !== "" && (cursorMode !== "custom" || cursorCustomValid))
+    CursorService.preview(cursorSelected, cursorMode, cursorCustom)
+
+  function resetCursor() {
+    cursorSelected = CursorService.base;
+    cursorMode = CursorService.mode;
+    cursorCustom = CursorService.mode === "custom" ? CursorService.fill : "d8a657";
+  }
 
   function setWallpaper(value) {
     const hex = value.trim().replace(/^#?/, "#").toLowerCase();
@@ -51,9 +73,17 @@ Column {
     draft = hex;
   }
 
+  // the window's fixed header shows these; the page under it scrolls
+  readonly property string icon: "sun"
+  readonly property string title: "Appearance"
+  readonly property string subtitle: (ThemeService.current || "—").toUpperCase()
+    + (currentImage !== "" ? " · IMAGE WALLPAPER" : customWallpaper ? " · CUSTOM WALLPAPER" : " · THEME WALLPAPER")
+    + (ShellSettings.solidIcons ? " · SOLID ICONS" : " · OUTLINE ICONS")
+
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [
     { key: "themes",    label: "Themes",    y: themesGroup.y },
+    { key: "icons",     label: "Icons",     y: iconsGroup.y },
     { key: "wallpaper", label: "Wallpaper", y: wallpaperGroup.y },
     { key: "font",      label: "Font",      y: fontGroup.y },
     { key: "cursor",    label: "Cursor",    y: cursorGroup.y }
@@ -61,20 +91,15 @@ Column {
 
   spacing: 14
 
-  KitHeader {
-    icon: "sun"
-    title: "Appearance"
-    subtitle: (ThemeService.current || "—").toUpperCase()
-      + (root.currentImage !== "" ? " · IMAGE WALLPAPER"
-         : root.customWallpaper ? " · CUSTOM WALLPAPER" : " · THEME WALLPAPER")
-      + (ShellSettings.solidIcons ? " · SOLID ICONS" : " · OUTLINE ICONS")
+  // ---- theme -----------------------------------------------------------------------
+  KitLabel {
+    id: themesGroup
+    text: "THEME"
+    value: (ThemeService.current || "—").toUpperCase() + " · " + ThemeService.themes.length + " IN ALL"
   }
-
-  KitLine {}
 
   // preview on the left, the theme list on the right
   Row {
-    id: themesGroup
     width: parent.width
     spacing: 14
 
@@ -143,7 +168,6 @@ Column {
               required property var modelData
               name: modelData[0]
               tint: root.p(modelData[1])
-              solid: ShellSettings.solidIcons
               size: 14
             }
           }
@@ -186,12 +210,6 @@ Column {
       height: 240                 // the preview matches it; buttons meet its bottom
       spacing: 8
 
-      KitLabel {
-        width: parent.width
-        text: "THEMES"
-        value: String(ThemeService.themes.length)
-      }
-
       KitInput {
         width: parent.width
         placeholder: "search"
@@ -215,8 +233,11 @@ Column {
         border.width: Theme.frameWidth
         border.color: Theme.gray
 
+        WheelGuard { flick: themeFlick; z: 1 }
+
         // scrolls inside the frame when the themes outgrow it
         Flickable {
+          id: themeFlick
           anchors { fill: parent; margins: Theme.frameWidth }
           contentHeight: options.implicitHeight
           interactive: contentHeight > height
@@ -341,6 +362,31 @@ Column {
 
   KitLine {}
 
+  // ---- icons -----------------------------------------------------------------------
+  KitLabel {
+    id: iconsGroup
+    text: "ICONS"
+    value: ShellSettings.solidIcons ? "SOLID" : "OUTLINE"
+  }
+
+  KitRow {
+    wide: true
+    label: "Style"
+    hint: "everywhere: the bar, popups and windows"
+
+    KitChoices {
+      stretch: true
+      model: [
+        { label: "Outline", value: false },
+        { label: "Solid",   value: true }
+      ]
+      current: ShellSettings.solidIcons
+      onPicked: value => ShellSettings.set("solidIcons", value)
+    }
+  }
+
+  KitLine {}
+
   // ---- wallpaper -------------------------------------------------------------------
   KitLabel {
     id: wallpaperGroup
@@ -349,101 +395,43 @@ Column {
                                     : String(root.wallpaper).toUpperCase()
   }
 
-  // the first swatch follows the theme; the rest are fixed colours
-  Flow {
-    width: parent.width
-    spacing: 6
-
-    Rectangle {
-      readonly property bool active: ShellSettings.wallpaperMode === "theme"
-                                     || (root.imageWallpaper && root.currentImage === "")
-
-      width: themeSwatchText.implicitWidth + 44
-      height: 30
-      color: Theme.background1
-      border.width: active || themeSwatchArea.containsMouse ? 2 : 1
-      border.color: active || themeSwatchArea.containsMouse ? Theme.foreground2 : Theme.background3
-
-      KitIcon {
-        id: themeSwatchIcon
-        anchors { left: parent.left; leftMargin: 9; verticalCenter: parent.verticalCenter }
-        name: parent.active ? "check" : "sun"
-        size: 13
-      }
-
-      KitText {
-        id: themeSwatchText
-        anchors { left: themeSwatchIcon.right; leftMargin: 7; verticalCenter: parent.verticalCenter }
-        text: "Theme"
-        font.weight: parent.active ? Font.ExtraBold : Font.DemiBold
-        font.pixelSize: Theme.fontSize - 1
-      }
-
-      MouseArea {
-        id: themeSwatchArea
-        anchors.fill: parent
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
-        onClicked: ShellSettings.set("wallpaperMode", "theme")
-      }
-    }
-
-    Repeater {
-      model: ["#000000", "#111111", "#1d2021", "#282828", "#1e2a2f", "#1f2a1f", "#2a1f1f", "#2a2433", "#30261c"]
-
-      Rectangle {
-        id: swatch
-
-        required property color modelData
-
-        readonly property bool active: root.customWallpaper && String(modelData) === String(ShellSettings.wallpaperColor)
-
-        width: 30
-        height: 30
-        color: modelData
-        border.width: active || swatchArea.containsMouse ? 2 : 1
-        border.color: active || swatchArea.containsMouse ? Theme.foreground2 : Theme.background3
-
-        MouseArea {
-          id: swatchArea
-          anchors.fill: parent
-          hoverEnabled: true
-          cursorShape: Qt.PointingHandCursor
-          onClicked: root.setWallpaper(String(swatch.modelData))
-        }
-      }
-    }
-  }
-
+  // what fills the screen, like the cursor's colour: the theme's colour, a
+  // picture of this theme or a colour of your own; below, only what that needs
   KitRow {
-    label: "Custom colour"
-    hint: root.draftValid ? "press Enter to apply" : "six hex digits, like #32302f"
+    wide: true
+    label: "Source"
+    hint: ShellSettings.wallpaperMode === "image" ? "a picture per theme"
+        : ShellSettings.wallpaperMode === "custom" ? "one colour for every theme" : "the theme's own colour"
 
-    Rectangle {
-      anchors.verticalCenter: parent.verticalCenter
-      width: 24
-      height: 24
-      color: root.draftValid ? root.draft.trim().replace(/^#?/, "#") : "transparent"
-      border.width: 1
-      border.color: Theme.gray
-    }
-
-    KitInput {
-      width: 150
-      placeholder: "#32302f"
-      text: root.draft
-      onTextEdited: root.draft = text
-      onAccepted: if (root.draftValid) root.setWallpaper(root.draft)
+    KitChoices {
+      stretch: true
+      model: [
+        { label: "Theme",  value: "theme" },
+        { label: "Image",  value: "image" },
+        { label: "Custom", value: "custom" }
+      ]
+      current: ShellSettings.wallpaperMode
+      onPicked: value => ShellSettings.set("wallpaperMode", value)
     }
   }
 
-  // pictures: the active theme's folder first, then the shared one
+  // ---- custom: a colour of your own
+  ColourRow {
+    visible: root.customWallpaper
+    value: root.draft
+    onEdited: text => root.draft = text
+    onAccepted: colour => root.setWallpaper(colour)
+  }
+
+  // ---- image: the active theme's folder first, then the shared one
   Flow {
     width: parent.width
+    visible: root.imageWallpaper && themePictures.count + commonPictures.count > 0
     spacing: 6
 
     Repeater {
       model: FolderListModel {
+        id: themePictures
         folder: "file://" + WallpaperService.dir + "/" + ThemeService.current
         nameFilters: WallpaperService.extensions
         showDirs: false
@@ -460,6 +448,7 @@ Column {
 
     Repeater {
       model: FolderListModel {
+        id: commonPictures
         folder: "file://" + WallpaperService.dir + "/common"
         nameFilters: WallpaperService.extensions
         showDirs: false
@@ -475,29 +464,44 @@ Column {
     }
   }
 
+  KitText {
+    width: parent.width
+    visible: root.imageWallpaper && themePictures.count + commonPictures.count === 0
+    text: "No pictures yet — add one below, or put files into wallpapers/" + ThemeService.current + " or wallpapers/common."
+    color: Theme.muted
+    wrapMode: Text.WordWrap
+  }
+
   Connections {
     target: WallpaperService
     function onAdded() { root.imageDraft = ""; }
   }
 
   KitRow {
+    visible: root.imageWallpaper
     label: "Add image"
     hint: "copied into this theme's folder"
+    wide: true
 
-    KitInput {
-      width: 220
-      placeholder: "~/Pictures/wall.jpg"
-      text: root.imageDraft
-      onTextEdited: root.imageDraft = text
-      onAccepted: WallpaperService.add(root.imageDraft, ThemeService.current)
-    }
+    Row {
+      spacing: 8
 
-    KitButton {
-      icon: "download"
-      text: "Add"
-      busy: WallpaperService.busy
-      disabled: root.imageDraft.trim() === ""
-      onClicked: WallpaperService.add(root.imageDraft, ThemeService.current)
+      KitInput {
+        width: parent.width - addImage.width - parent.spacing
+        placeholder: "~/Pictures/wall.jpg"
+        text: root.imageDraft
+        onTextEdited: root.imageDraft = text
+        onAccepted: WallpaperService.add(root.imageDraft, ThemeService.current)
+      }
+
+      KitButton {
+        id: addImage
+        icon: "download"
+        text: "Add"
+        busy: WallpaperService.busy
+        disabled: root.imageDraft.trim() === ""
+        onClicked: WallpaperService.add(root.imageDraft, ThemeService.current)
+      }
     }
   }
 
@@ -645,28 +649,137 @@ Column {
   KitLabel {
     id: cursorGroup
     text: "CURSOR"
-    value: CursorService.current.toUpperCase() + " · " + CursorService.size
+    value: root.cursorLabel(CursorService.base).toUpperCase() + " · " + CursorService.mode.toUpperCase() + " · " + CursorService.size
   }
 
-  // a click applies it (downloading first when needed)
-  PickList {
+  // the main shapes of the selected cursor in the chosen colour, beside the list
+  Row {
     width: parent.width
-    height: Math.min(6, root.cursorRows.length) * 32 + 2 * Theme.frameWidth
-    model: root.cursorRows
-    selected: CursorService.working || CursorService.current
-    current: CursorService.current
-    working: CursorService.working
-    onPicked: row => {
-      if (row.key !== CursorService.current)
-        CursorService.apply(CursorService.cursors.find(c => c.name === row.key), CursorService.size);
+    spacing: 14
+
+    Rectangle {
+      width: parent.width - cursorList.width - 14
+      height: cursorList.height
+      color: Theme.background1
+      border.width: Theme.frameWidth
+      border.color: Theme.gray
+
+      readonly property bool ready: root.cursorRow !== null && root.cursorRow.installed
+                                    && CursorService.shapesKey === CursorService.wantedKey
+
+      Grid {
+        anchors.centerIn: parent
+        visible: parent.ready
+        columns: 4
+        columnSpacing: 26
+        rowSpacing: 22
+
+        Repeater {
+          model: CursorService.shapes
+
+          Image {
+            required property var modelData
+            width: 40
+            height: 40
+            source: "file://" + modelData.path + "?" + CursorService.shapesKey
+            sourceSize: Qt.size(modelData.width, modelData.height)
+            cache: false
+            smooth: true
+          }
+        }
+      }
+
+      KitSpinner {
+        anchors.centerIn: parent
+        visible: root.cursorRow !== null && root.cursorRow.installed && !parent.ready
+      }
+
+      KitText {
+        anchors.centerIn: parent
+        width: parent.width - 40
+        visible: root.cursorRow !== null && !root.cursorRow.installed
+        horizontalAlignment: Text.AlignHCenter
+        wrapMode: Text.WordWrap
+        color: Theme.muted
+        text: "Not installed yet.\nApply downloads it."
+      }
+    }
+
+    Column {
+      id: cursorList
+      width: 190
+      height: 240
+      spacing: 8
+
+      PickList {
+        width: parent.width
+        height: parent.height - cursorButtons.height - parent.spacing
+        model: root.cursorRows
+        selected: root.cursorSelected
+        current: CursorService.base
+        working: CursorService.working
+        onPicked: row => root.cursorSelected = row.key
+      }
+
+      Row {
+        id: cursorButtons
+        width: parent.width
+        spacing: 6
+
+        KitButton {
+          width: (parent.width - parent.spacing) / 2
+          icon: "x"
+          text: "Cancel"
+          disabled: !root.cursorChanged || CursorService.busy
+          onClicked: root.resetCursor()
+        }
+
+        KitButton {
+          width: (parent.width - parent.spacing) / 2
+          icon: root.cursorRow && !root.cursorRow.installed ? "download" : "check"
+          text: "Apply"
+          busy: CursorService.busy
+          disabled: !root.cursorChanged || root.cursorRow === null
+                    || (root.cursorMode === "custom" && !root.cursorCustomValid)
+          onClicked: CursorService.apply(root.cursorRow, CursorService.size, root.cursorMode, root.cursorCustom)
+        }
+      }
     }
   }
 
   KitRow {
-    label: "Size"
-    hint: "pixels, at scale 1"
+    wide: true
+    label: "Colour"
+    hint: root.cursorMode === "theme" ? "follows the theme's colours"
+        : root.cursorMode === "custom" ? "your colour, outlined to stand out" : "as the cursor theme draws it"
 
     KitChoices {
+      stretch: true
+      id: cursorColours
+      model: [
+        { label: "Original", value: "original" },
+        { label: "Theme",    value: "theme" },
+        { label: "Custom",   value: "custom" }
+      ]
+      current: root.cursorMode
+      onPicked: value => root.cursorMode = value
+    }
+  }
+
+  ColourRow {
+    visible: root.cursorMode === "custom"
+    value: "#" + root.cursorCustom
+    onEdited: text => root.cursorCustom = text.trim().replace(/^#/, "").toLowerCase()
+    onAccepted: colour => { if (root.cursorRow) CursorService.apply(root.cursorRow, CursorService.size, "custom", colour.slice(1)); }
+  }
+
+  KitRow {
+    wide: true
+    label: "Size"
+    hint: "pixels at scale 1, applied at once"
+
+    KitChoices {
+      stretch: true
       model: [20, 24, 28, 32, 40].map(n => ({ label: String(n), value: n }))
       current: CursorService.size
       onPicked: value => CursorService.setSize(value)

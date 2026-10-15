@@ -57,7 +57,6 @@ KitFrame {
           KitIcon {
             anchors.horizontalCenter: parent.horizontalCenter
             name: tile.plugin?.icon ?? ""
-            solid: ShellSettings.solidIcons
             size: 18
           }
 
