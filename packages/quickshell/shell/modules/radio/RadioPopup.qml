@@ -7,7 +7,7 @@ import qs.modules.mpd
 KitFrame {
   id: root
 
-  // ---- header ----------------------------------------------------------------
+  // ---- header ----
   KitHeader {
     icon: "radio"
     iconColor: RadioService.active ? Theme.foreground0 : Theme.muted
@@ -24,7 +24,7 @@ KitFrame {
 
   KitLine {}
 
-  // ---- now playing -----------------------------------------------------------
+  // ---- now playing ----
   Column {
     width: parent.width
     visible: RadioService.active
@@ -42,7 +42,7 @@ KitFrame {
 
   KitLine { visible: RadioService.active }
 
-  // ---- stations ----------------------------------------------------------------
+  // ---- stations ----
   Column {
     width: parent.width
     spacing: 8

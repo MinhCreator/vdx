@@ -53,7 +53,7 @@ Singleton {
     stdout: StdioCollector { onStreamFinished: { root.files = text.split("\n").filter(l => l !== ""); root.searching = false; } }
   }
 
-  // ---- the shell's own apps (apps/apps.json, not the menu itself) and the
+  // ---- the shell's own apps (apps/apps.json, not the menu itself) and the ----
   // clipboard, listed with the installed ones; keys from the live binds ----
   function keysOf(bind) { return BindsService.keysFor(bind).join(" + "); }
   readonly property var shellApps: ShellAppsService.entries.filter(e => e.id !== "launcher")

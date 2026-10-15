@@ -30,7 +30,7 @@ Rectangle {
 
   Timer { id: disarm; interval: 3000; onTriggered: root.armed = false }
 
-  // ---- header ------------------------------------------------------------------------
+  // ---- header ----
   Column {
     id: top
     anchors { left: parent.left; right: parent.right; top: parent.top; margins: 24; topMargin: 20 }
@@ -59,7 +59,7 @@ Rectangle {
     KitLine {}
   }
 
-  // ---- list --------------------------------------------------------------------------
+  // ---- list ----
   Flickable {
     id: list
     anchors { left: parent.left; right: parent.right; top: top.bottom; bottom: foot.top; leftMargin: 24; rightMargin: 24; topMargin: 14 }
@@ -200,7 +200,7 @@ Rectangle {
     }
   }
 
-  // ---- foot --------------------------------------------------------------------------
+  // ---- foot ----
   Column {
     id: foot
     anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 24; bottomMargin: 18 }

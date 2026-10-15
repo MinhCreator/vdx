@@ -11,7 +11,7 @@ import qs.config
 Singleton {
   id: root
 
-  // ---- history -----------------------------------------------------------------
+  // ---- history ----
   property var entries: []          // newest first: [{id, kind, preview, path, time}]
   property int limit: 100
   readonly property var limits: [25, 50, 100, 250, 500]

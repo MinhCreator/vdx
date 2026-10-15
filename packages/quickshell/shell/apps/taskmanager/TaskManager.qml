@@ -73,7 +73,7 @@ Rectangle {
   readonly property int colCpu: 70
   readonly property int colMem: 90
 
-  // ---- top: header, meters, column titles ------------------------------------------
+  // ---- top: header, meters, column titles ----
   Column {
     id: top
     anchors { left: parent.left; right: parent.right; top: parent.top; margins: 24; topMargin: 20 }
@@ -167,7 +167,7 @@ Rectangle {
     }
   }
 
-  // ---- table -----------------------------------------------------------------------
+  // ---- table ----
   ListView {
     id: list
     anchors { left: parent.left; right: parent.right; top: top.bottom; bottom: foot.top
@@ -249,7 +249,7 @@ Rectangle {
     color: Theme.muted
   }
 
-  // ---- foot: the selected row and its actions ----------------------------------------
+  // ---- foot: the selected row and its actions ----
   Column {
     id: foot
     anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 24; bottomMargin: 18 }
@@ -313,7 +313,7 @@ Rectangle {
     }
   }
 
-  // ---- keys ------------------------------------------------------------------------
+  // ---- keys ----
   Shortcut { sequences: ["Up"]; onActivated: root.step(-1) }
   Shortcut { sequences: ["Down"]; onActivated: root.step(1) }
   Shortcut { sequences: ["PgUp"]; onActivated: root.step(-10) }

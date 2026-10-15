@@ -47,7 +47,7 @@ Column {
     lineHeight: 1.15
   }
 
-  // ---- philosophy ----------------------------------------------------------------
+  // ---- philosophy ----
   KitLabel { id: philosophy; text: "PHILOSOPHY" }
 
   Paragraph {
@@ -65,7 +65,7 @@ Column {
 
   KitLine {}
 
-  // ---- concept -------------------------------------------------------------------
+  // ---- concept ----
   KitLabel { id: concept; text: "CONCEPT" }
 
   Paragraph {
@@ -84,7 +84,7 @@ Column {
 
   KitLine {}
 
-  // ---- author ---------------------------------------------------------------------
+  // ---- author ----
   KitLabel { id: author; text: "AUTHOR" }
 
   KitRow {
@@ -100,7 +100,7 @@ Column {
 
   KitLine {}
 
-  // ---- system ----------------------------------------------------------------------
+  // ---- system ----
   KitLabel { id: system; text: "SYSTEM"; value: (root.versions.commit ?? "").toUpperCase() }
 
   KitInfo { width: parent.width; label: "Theme"; value: root.versions.theme ?? "--" }

@@ -16,7 +16,7 @@ Column {
 
   spacing: 14
 
-  // ---- header ----------------------------------------------------------------
+  // ---- header ----
   KitHeader {
     icon: WifiService.radioOn ? "wifi" : "wifi-off"
     iconColor: WifiService.connected ? Theme.foreground0 : Theme.muted
@@ -41,7 +41,7 @@ Column {
 
   KitLine {}
 
-  // ---- connection ------------------------------------------------------------
+  // ---- connection ----
   Column {
     width: parent.width
     visible: WifiService.connected
@@ -128,7 +128,7 @@ Column {
 
   KitLine { visible: WifiService.connected }
 
-  // ---- networks --------------------------------------------------------------
+  // ---- networks ----
   Column {
     width: parent.width
     spacing: 8
@@ -160,7 +160,7 @@ Column {
 
   KitLine {}
 
-  // ---- actions ---------------------------------------------------------------
+  // ---- actions ----
   Row {
     spacing: 8
 

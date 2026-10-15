@@ -17,7 +17,7 @@ KitFrame {
     return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
   }
 
-  // ---- header ----------------------------------------------------------------
+  // ---- header ----
   KitHeader {
     icon: "music"
     iconColor: MusicService.active ? Theme.foreground0 : Theme.muted
@@ -52,7 +52,7 @@ KitFrame {
     font.pixelSize: Theme.fontSize - 1
   }
 
-  // ---- now playing -----------------------------------------------------------
+  // ---- now playing ----
   Column {
     width: parent.width
     visible: MusicService.active && root.tab === "playing"
@@ -129,7 +129,7 @@ KitFrame {
       }
     }
 
-    // ---- timeline ------------------------------------------------------------
+    // ---- timeline ----
     Column {
       width: parent.width
       spacing: 2
@@ -161,7 +161,7 @@ KitFrame {
       }
     }
 
-    // ---- controls ------------------------------------------------------------
+    // ---- controls ----
     Item {
       width: parent.width
       height: 30

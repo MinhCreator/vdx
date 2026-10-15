@@ -26,7 +26,7 @@ KitFrame {
     enabled: root.open && !(AudioService.source?.audio?.muted ?? true)
   }
 
-  // ---- header ----------------------------------------------------------------
+  // ---- header ----
   KitHeader {
     icon: !AudioService.live || AudioService.muted ? "volume-x" : root.headphones ? "headphones" : "volume"
     iconColor: AudioService.live && !AudioService.muted ? Theme.foreground0 : Theme.muted
@@ -44,7 +44,7 @@ KitFrame {
 
   KitLine {}
 
-  // ---- output ----------------------------------------------------------------
+  // ---- output ----
   Column {
     width: parent.width
     spacing: 10
@@ -68,7 +68,7 @@ KitFrame {
 
   KitLine {}
 
-  // ---- input -----------------------------------------------------------------
+  // ---- input ----
   Column {
     width: parent.width
     spacing: 10
@@ -119,7 +119,7 @@ KitFrame {
 
   KitLine {}
 
-  // ---- applications ----------------------------------------------------------
+  // ---- applications ----
   Column {
     width: parent.width
     spacing: 8

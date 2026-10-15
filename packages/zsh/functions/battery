@@ -1,1 +1,2 @@
+# zsh — battery level and state (scripts/battery.sh)
 battery() { sh "${HOME}/.config/scripts/battery.sh" }

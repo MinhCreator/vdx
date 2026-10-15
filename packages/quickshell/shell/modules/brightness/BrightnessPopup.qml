@@ -12,7 +12,7 @@ KitFrame {
   // three rows: narrower than the other popups
   implicitWidth: 300
 
-  // ---- header ----------------------------------------------------------------
+  // ---- header ----
   KitHeader {
     icon: BrightnessService.nightActive ? "moon" : "sun"
     iconColor: BrightnessService.nightActive ? Theme.orange : Theme.foreground0
@@ -23,7 +23,7 @@ KitFrame {
 
   KitLine {}
 
-  // ---- backlight / dimming -------------------------------------------------
+  // ---- backlight / dimming ----
   Column {
     width: parent.width
     spacing: 14
@@ -45,7 +45,7 @@ KitFrame {
 
   KitLine {}
 
-  // ---- night light -----------------------------------------------------------
+  // ---- night light ----
   Column {
     width: parent.width
     spacing: 14

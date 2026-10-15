@@ -1,1 +1,2 @@
+# zsh — memory usage (scripts/memory.sh)
 memory() { sh "${HOME}/.config/scripts/memory.sh" }

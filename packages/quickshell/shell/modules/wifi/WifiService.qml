@@ -9,7 +9,7 @@ import qs.config
 Singleton {
   id: root
 
-  // ---- link ----------------------------------------------------------------
+  // ---- link ----
   property bool radioOn: false
   property bool toggling: false                // radio switch in flight
   property string linkState: "unavailable"     // connected | connecting | disconnected | unavailable
@@ -20,7 +20,7 @@ Singleton {
 
   property var networks: []                    // see `wifi.sh --list`
 
-  // ---- popup ---------------------------------------------------------------
+  // ---- popup ----
   property bool popupOpen: false
   property string view: "list"                 // list | password | speedtest
   property var selected: null                  // network of the password view
@@ -30,7 +30,7 @@ Singleton {
   property string connectStatus: ""            // "" | ok | error
   property string connectError: ""
 
-  // ---- DNS -----------------------------------------------------------------
+  // ---- DNS ----
   property var dnsProviders: []                // [{label, servers}], dns_providers.json
   property bool dnsAuto: true
   property string dnsServers: ""
@@ -40,7 +40,7 @@ Singleton {
   readonly property var dnsProvider: dnsProviders.find(p => dnsAuto ? p.servers === "" : p.servers === dnsServers) ?? null
   readonly property string dnsLabel: dnsProvider ? dnsProvider.label : "CUSTOM"
 
-  // ---- link quality (measured only while the popup is open) ----------------
+  // ---- link quality (measured only while the popup is open) ----
   property real pingMs: 0
   property real packetLoss: 0
   property real up: 0
@@ -48,12 +48,12 @@ Singleton {
   property real upTotal: 0
   property real downTotal: 0
 
-  // ---- speedtest -----------------------------------------------------------
+  // ---- speedtest ----
   property bool speedtestBusy: false
   property var speedtest: null                 // see `wifi.sh --speedtest`
   property string speedtestError: ""
 
-  // ---- lifecycle -----------------------------------------------------------
+  // ---- lifecycle ----
   function popupShown() {
     popupOpen = true;
     refresh();
@@ -71,7 +71,7 @@ Singleton {
 
   Component.onCompleted: refreshStatus()
 
-  // ---- views ---------------------------------------------------------------
+  // ---- views ----
   function showList() {
     view = "list";
     selected = null;
@@ -91,7 +91,7 @@ Singleton {
     run(speedtestProc, ["--speedtest"]);
   }
 
-  // ---- actions -------------------------------------------------------------
+  // ---- actions ----
   function toggleRadio() {
     if (toggling) return;
     toggling = true;
@@ -130,7 +130,7 @@ Singleton {
     if (radioOn && !scanProc.running) scanProc.running = true;
   }
 
-  // ---- internals -----------------------------------------------------------
+  // ---- internals ----
   function run(proc, args) {
     proc.command = ["bash", Theme.wifiScript].concat(args);
     proc.running = true;
@@ -164,7 +164,7 @@ Singleton {
     speedtestTimeout.stop();
   }
 
-  // ---- polling -------------------------------------------------------------
+  // ---- polling ----
   Timer {
     interval: Theme.wifiStatusIntervalMs
     running: true
@@ -197,7 +197,7 @@ Singleton {
     onTriggered: if (root.popupOpen) trafficProc.running = true
   }
 
-  // ---- transient results -----------------------------------------------------
+  // ---- transient results ----
   Timer {
     id: radioSettle
     interval: 1500
@@ -232,7 +232,7 @@ Singleton {
     }
   }
 
-  // ---- processes -----------------------------------------------------------
+  // ---- processes ----
   Process {
     id: statusProc
     command: ["bash", Theme.wifiScript, "--status"]

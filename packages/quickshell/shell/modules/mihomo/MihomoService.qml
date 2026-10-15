@@ -9,7 +9,7 @@ import qs.config
 Singleton {
   id: root
 
-  // ---- service -------------------------------------------------------------
+  // ---- service ----
   property bool serviceOn: false
   property bool toggling: false                // start / stop in flight
   property string mode: "rule"
@@ -18,19 +18,19 @@ Singleton {
   property string currentProvider: ""          // provider of that node
   property int currentDelay: 0                 // last measured ping of `current`, ms
 
-  // ---- providers / servers -------------------------------------------------
+  // ---- providers / servers ----
   property var providers: []                   // [{name, nodes}]
   property string provider: ""                 // provider whose servers are listed
   property var nodes: []                       // [{name, alive, delay}]
 
-  // ---- actions -------------------------------------------------------------
+  // ---- actions ----
   property bool updating: false
   property string updateStatus: ""             // "" | ok | error
   property bool pinging: false
   property string pingStatus: ""               // "" | ok | error
   property string error: ""                    // last failed action, shown in the popup
 
-  // ---- traffic (measured only while the popup is open) ---------------------
+  // ---- traffic (measured only while the popup is open) ----
   property real up: 0
   property real down: 0
   property real upTotal: 0
@@ -38,7 +38,7 @@ Singleton {
 
   property bool popupOpen: false
 
-  // ---- lifecycle -----------------------------------------------------------
+  // ---- lifecycle ----
   function popupShown() {
     popupOpen = true;
     error = "";
@@ -54,7 +54,7 @@ Singleton {
 
   Component.onCompleted: refresh()
 
-  // ---- actions -------------------------------------------------------------
+  // ---- actions ----
   function toggleService() {
     if (toggling) return;
     toggling = true;
@@ -85,7 +85,7 @@ Singleton {
   function openMihomoConfig() { run(pathProc, ["--config-path"]); }
   function openProviderConfig(name) { run(pathProc, ["--path", name]); }
 
-  // ---- internals -----------------------------------------------------------
+  // ---- internals ----
   function run(proc, args) {
     proc.command = ["bash", Theme.mihomoScript].concat(args);
     proc.running = true;
@@ -108,7 +108,7 @@ Singleton {
     else nodes = [];
   }
 
-  // ---- polling -------------------------------------------------------------
+  // ---- polling ----
   Timer {
     interval: Theme.mihomoStatusIntervalMs
     running: true
@@ -122,7 +122,7 @@ Singleton {
     onTriggered: if (root.popupOpen) trafficProc.running = true
   }
 
-  // ---- transient results -----------------------------------------------------
+  // ---- transient results ----
   Timer {
     id: toggleSettle
     interval: 1500                             // TUN + controller need a moment
@@ -144,7 +144,7 @@ Singleton {
     onTriggered: root.pingStatus = ""
   }
 
-  // ---- processes -----------------------------------------------------------
+  // ---- processes ----
   Process {
     id: statusProc
     command: ["bash", Theme.mihomoScript, "--status"]

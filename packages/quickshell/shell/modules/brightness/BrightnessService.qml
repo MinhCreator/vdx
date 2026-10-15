@@ -12,10 +12,10 @@ import qs.config
 Singleton {
   id: root
 
-  // ---- backlight -------------------------------------------------------------
+  // ---- backlight ----
   property int brightness: 0                   // %
 
-  // ---- night light -----------------------------------------------------------
+  // ---- night light ----
   readonly property bool nightActive: state.night
   readonly property int temperature: state.temperature
   readonly property int gamma: state.gamma     // %, below 100 dims past the backlight minimum
@@ -25,7 +25,7 @@ Singleton {
 
   property var inSchedule: null                // null until the first check
 
-  // ---- actions -------------------------------------------------------------
+  // ---- actions ----
   function setNight(on) { state.night = on; }
 
   function setTemperature(kelvin) {
@@ -47,7 +47,7 @@ Singleton {
     flushBacklight();
   }
 
-  // ---- internals -----------------------------------------------------------
+  // ---- internals ----
   property bool ready: false                   // state file read; safe to apply
   property int pendingSet: -1
   property int pendingStep: 0
@@ -103,7 +103,7 @@ Singleton {
   onGammaChanged: applyDelay.restart()
   onScheduleChanged: checkSchedule()
 
-  // ---- timers --------------------------------------------------------------
+  // ---- timers ----
   Timer {
     interval: Theme.brightnessIntervalMs
     running: true
@@ -133,7 +133,7 @@ Singleton {
     onTriggered: stateFile.writeAdapter()
   }
 
-  // ---- processes -----------------------------------------------------------
+  // ---- processes ----
   Process {
     id: backlightProc
     stdout: StdioCollector {
@@ -156,7 +156,7 @@ Singleton {
     }
   }
 
-  // ---- files ---------------------------------------------------------------
+  // ---- files ----
   FileView {
     id: stateFile
     path: Quickshell.statePath("brightness.json")

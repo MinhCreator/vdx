@@ -5,11 +5,10 @@ import Quickshell
 // Everything modules read: the theme's colours (from its Colors.qml), type,
 // metrics, intervals, script paths and formatting helpers. Icons are SVGs in
 // kit/icons, not font glyphs.
-
 QtObject {
   id: root
 
-  // ---- colours (from the active theme's Colors.qml) -----------------------
+  // ---- colours (from the active theme's Colors.qml) ----
   // `live` is the active theme's colours read at runtime (ThemeService), so a
   // theme switch recolours everything without reloading the shell.
   property var live: ({})
@@ -40,7 +39,7 @@ QtObject {
   readonly property string workspaceIconDefault: Colors.workspaceIconDefault
   readonly property string workspaceIconActive: Colors.workspaceIconActive
 
-  // ---- type and bar metrics ---------------------------------------------------
+  // ---- type and bar metrics ----
   readonly property string fontFamily: ShellSettings.font     // the system monospace, Shell Manager › Appearance
   readonly property int fontSize: 13
   readonly property int fontWeight: Font.DemiBold
@@ -50,7 +49,7 @@ QtObject {
   readonly property int separatorMargin: 8
   readonly property int workspaceMinWidth: 16
 
-  // ---- polling / restart intervals -----------------------------------------
+  // ---- polling / restart intervals ----
   readonly property int clockIntervalMs: 1000
   readonly property int brightnessIntervalMs: 2000
   readonly property int batteryIntervalMs: 3000
@@ -59,7 +58,7 @@ QtObject {
   readonly property int musicCoverSize: 64
   readonly property int musicUpNext: 9             // queue rows visible before scrolling
 
-  // ---- interaction limits --------------------------------------------------
+  // ---- interaction limits ----
   readonly property int audioMaxPercent: 150
   readonly property int audioScrollStep: 5
   readonly property int brightnessScrollStep: 5
@@ -67,17 +66,17 @@ QtObject {
   readonly property int nightTemperatureMax: 6500   // K
   readonly property int dimGammaMin: 30             // %, lowest gamma of the dim slider
 
-  // ---- battery ---------------------------------------------------------------
+  // ---- battery ----
   readonly property int batteryWarning: 30          // %, yellow
   readonly property int batteryCritical: 15         // %, red
   readonly property var batteryNotifyLevels: [15, 5] // %, low-battery notifications
   readonly property var batteryLimits: [60, 80, 100] // %, charge limit choices
   readonly property string powerSaverProfile: "quiet"  // platform profile of the power saver
 
-  // ---- notifications -------------------------------------------------------
+  // ---- notifications ----
   readonly property int notificationsMax: 100       // kept in history
 
-  // ---- claude code -----------------------------------------------------------
+  // ---- claude code ----
   readonly property int claudeUsageIntervalMs: 300000   // plan limits poll (API)
   readonly property int claudeLocalIntervalMs: 30000    // today's tokens + sessions, popup open
   readonly property int claudeWarning: 75               // %, bar icon yellow
@@ -85,11 +84,11 @@ QtObject {
   readonly property int ollamaIntervalMs: 5000           // status poll while the tab is open
   readonly property string ollamaCoachModel: "qwen2.5:1.5b"   // the nvim habit coach's model
 
-  // ---- language formats ----------------------------------------------------
+  // ---- language formats ----
   readonly property string languageFormatEn: "US"
   readonly property string languageFormatRu: "RU"
 
-  // ---- popups (kit) -------------------------------------------------------
+  // ---- popups (kit) ----
   // the dimmed screen under the system menu and the overview
   readonly property color scrim: Qt.rgba(background0.r, background0.g, background0.b, 0.7)
 
@@ -105,19 +104,19 @@ QtObject {
   readonly property int popupStatusMs: 2500       // how long ok / error marks stay
   readonly property string ellipsis: "\u2026"
 
-  // ---- wifi ----------------------------------------------------------------
+  // ---- wifi ----
   readonly property int wifiStatusIntervalMs: 5000
   readonly property int wifiPingIntervalMs: 3000
   readonly property int wifiTrafficRestartMs: 2000
   readonly property int wifiSpeedtestTimeoutMs: 60000
   readonly property int wifiBarMaxLength: 14
 
-  // ---- mihomo --------------------------------------------------------------
+  // ---- mihomo ----
   readonly property string mihomoGroup: "Proxies"
   readonly property int mihomoStatusIntervalMs: 2000
   readonly property int mihomoTrafficRestartMs: 2000
 
-  // ---- scripts -------------------------------------------------------------
+  // ---- scripts ----
   readonly property string scriptsDir: Quickshell.shellDir + "/scripts"
   readonly property string musicScript: scriptsDir + "/music.sh"
   readonly property string likesScript: scriptsDir + "/yandex_likes.py"
@@ -130,7 +129,7 @@ QtObject {
   readonly property string claudeScript: scriptsDir + "/claude.sh"
   readonly property string ollamaScript: scriptsDir + "/ollama.sh"
 
-  // ---- shared formatting ---------------------------------------------------
+  // ---- shared formatting ----
   // Bytes per second, human-readable.
   function humanRate(bytes) {
     if (bytes < 1024) return Math.round(bytes) + " B/s";

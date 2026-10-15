@@ -1,4 +1,5 @@
 #!/bin/sh
+# memory.sh — memory usage, for the `memory` function
 
 mem_total=$(awk '/^MemTotal/     {print $2}' /proc/meminfo)
 mem_avail=$(awk '/^MemAvailable/ {print $2}' /proc/meminfo)

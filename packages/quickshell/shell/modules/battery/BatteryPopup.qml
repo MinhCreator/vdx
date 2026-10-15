@@ -26,7 +26,7 @@ KitFrame {
     for (const s of selects) if (s !== open) s.expanded = false;
   }
 
-  // ---- header ----------------------------------------------------------------
+  // ---- header ----
   KitHeader {
     icon: BatteryService.charging ? "battery-charging" : BatteryService.plugged ? "plug" : "battery"
     iconColor: BatteryService.capacity <= Theme.batteryCritical && !BatteryService.plugged ? Theme.red : Theme.foreground0
@@ -42,7 +42,7 @@ KitFrame {
 
   KitLine {}
 
-  // ---- charge ----------------------------------------------------------------
+  // ---- charge ----
   Column {
     width: parent.width
     spacing: 8
@@ -75,7 +75,7 @@ KitFrame {
 
   KitLine {}
 
-  // ---- power settings ----------------------------------------------------------
+  // ---- power settings ----
   Column {
     width: parent.width
     spacing: 10

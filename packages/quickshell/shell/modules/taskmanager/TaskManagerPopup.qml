@@ -50,7 +50,7 @@ KitFrame {
 
   KitLine {}
 
-  // ---- load
+  // ---- load ----
   Column {
     width: parent.width
     spacing: 8
@@ -73,7 +73,7 @@ KitFrame {
 
   KitLine {}
 
-  // ---- the busiest
+  // ---- the busiest ----
   Column {
     width: parent.width
     spacing: 6

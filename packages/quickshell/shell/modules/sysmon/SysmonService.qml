@@ -11,25 +11,25 @@ import qs.config
 Singleton {
   id: root
 
-  // ---- cpu -------------------------------------------------------------------
+  // ---- cpu ----
   property int cpu: 0                 // all cores, %
   property var cores: []              // each core, %
   property int freq: 0                // MHz, average
   property var load: [0, 0, 0]
   property int uptime: 0              // s
 
-  // ---- memory ------------------------------------------------------------------
+  // ---- memory ----
   property var mem: ({ total: 0, available: 0, swapTotal: 0, swapFree: 0 })
   readonly property real memUsed: mem.total - mem.available
   readonly property real swapUsed: mem.swapTotal - mem.swapFree
 
-  // ---- gpu, sensors ----------------------------------------------------------------
+  // ---- gpu, sensors ----
   property var igpu: null             // {cur, max} MHz
   property var dgpu: ({ state: "none" })
   property var temps: ({ cpu: null, nvme: [], wifi: null })
   property var fans: []
 
-  // ---- disks, network -----------------------------------------------------------
+  // ---- disks, network ----
   property var disks: []
   property string iface: ""
   property real rxRate: 0             // B/s

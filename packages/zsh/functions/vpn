@@ -1,3 +1,4 @@
+# zsh — `vpn` opens mihomo-tui; `vpn <command>` runs a VPN manager command
 vpn() {
     [[ -z "$1" ]] && { mihomo-tui; return; }
     uv run ~/.config/scripts/vpn/manager.py --"$1"

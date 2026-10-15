@@ -11,7 +11,7 @@ import qs.config
 Singleton {
   id: root
 
-  // ---- battery ---------------------------------------------------------------
+  // ---- battery ----
   property var info: ({})                      // see `battery.sh --status`
 
   readonly property bool present: info.present ?? false
@@ -35,7 +35,7 @@ Singleton {
     return -1;
   }
 
-  // ---- power profile / GPU ---------------------------------------------------
+  // ---- power profile / GPU ----
   readonly property string profile: info.profile ?? ""
   readonly property var profiles: info.profiles ?? []
   readonly property bool saver: profile === Theme.powerSaverProfile
@@ -44,7 +44,7 @@ Singleton {
   property string gpuPending: ""
   property string gpuAction: ""                // supergfxctl's required user action
 
-  // ---- actions -------------------------------------------------------------
+  // ---- actions ----
   property var busy: null                      // value being applied, for its spinner
   property string error: ""
 
@@ -72,7 +72,7 @@ Singleton {
   }
   function setGpuMode(mode) { apply(["--gpu-mode", mode], mode); }
 
-  // ---- internals -----------------------------------------------------------
+  // ---- internals ----
   property var notified: []                    // notify levels already shown this discharge
 
   function run(proc, args) {
@@ -108,7 +108,7 @@ Singleton {
   onCapacityChanged: checkLevel()
   onDischargingChanged: checkLevel()
 
-  // ---- polling -------------------------------------------------------------
+  // ---- polling ----
   Timer {
     interval: Theme.batteryIntervalMs
     running: true
@@ -117,7 +117,7 @@ Singleton {
     onTriggered: root.refresh()
   }
 
-  // ---- processes -----------------------------------------------------------
+  // ---- processes ----
   Process {
     id: statusProc
     stdout: StdioCollector {
@@ -155,7 +155,7 @@ Singleton {
     }
   }
 
-  // ---- files ---------------------------------------------------------------
+  // ---- files ----
   FileView {
     id: stateFile
     path: Quickshell.statePath("battery.json")

@@ -25,7 +25,7 @@ Singleton {
 
   signal queueChanged()
 
-  // ---- playback --------------------------------------------------------------
+  // ---- playback ----
   function control(args) {
     Quickshell.execDetached(["bash", Theme.musicScript].concat(args));
   }
@@ -50,7 +50,7 @@ Singleton {
     run(loadProc, args);
   }
 
-  // ---- internals -----------------------------------------------------------
+  // ---- internals ----
   function run(proc, args) {
     proc.command = ["bash", Theme.musicScript].concat(args);
     proc.running = true;

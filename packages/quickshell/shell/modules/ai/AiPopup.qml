@@ -30,7 +30,7 @@ KitFrame {
     return path.replace(/^\/home\/[^/]+/, "~");
   }
 
-  // ---- header ----------------------------------------------------------------
+  // ---- header ----
   KitHeader {
     icon: "bot"
     title: root.tab === "claude" ? "Claude Code" : "Ollama"
@@ -77,7 +77,7 @@ KitFrame {
     value: ClaudeService.popupOpen && root.tab === "ollama"
   }
 
-  // ---- claude ----------------------------------------------------------------
+  // ---- claude ----
   Column {
     width: parent.width
     visible: root.tab === "claude"

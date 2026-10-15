@@ -6,7 +6,6 @@ import QtQuick
 // This base copy holds the gruvbox colours. A theme replaces the file through
 // install.py's overlay (themes/<t>/quickshell/shell/config/Colors.qml wins);
 // `pragma Singleton` registers it as a singleton.
-
 QtObject {
   id: root
 

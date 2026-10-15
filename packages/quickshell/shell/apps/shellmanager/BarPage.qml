@@ -98,7 +98,7 @@ Column {
 
   spacing: 14
 
-  // ---- monitor -------------------------------------------------------------------
+  // ---- monitor ----
   KitLabel { id: monitorGroup; text: "MONITOR" }
 
   KitChoices {
@@ -137,7 +137,7 @@ Column {
 
   KitLine { visible: root.barOn }
 
-  // ---- layout ----------------------------------------------------------------------
+  // ---- layout ----
   Item {
     id: layoutGroup
     visible: root.barOn
@@ -325,7 +325,7 @@ Column {
 
   KitLine {}
 
-  // ---- style (every bar) -------------------------------------------------------------
+  // ---- style (every bar) ----
   KitLabel { id: styleGroup; text: "STYLE" }
 
   KitRow {

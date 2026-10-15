@@ -1,1 +1,2 @@
+# zsh — disk usage (scripts/disk.sh)
 disk() { sh "${HOME}/.config/scripts/disk.sh" }

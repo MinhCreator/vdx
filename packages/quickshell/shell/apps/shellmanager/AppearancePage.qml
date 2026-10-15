@@ -91,7 +91,7 @@ Column {
 
   spacing: 14
 
-  // ---- theme -----------------------------------------------------------------------
+  // ---- theme ----
   KitLabel {
     id: themesGroup
     text: "THEME"
@@ -103,7 +103,7 @@ Column {
     width: parent.width
     spacing: 14
 
-    // ---- preview -----------------------------------------------------------------
+    // ---- preview ----
     // the bar and a popup over the wallpaper, in the selected theme's colours
     Rectangle {
       width: parent.width - themeList.width - 14
@@ -203,7 +203,7 @@ Column {
       }
     }
 
-    // ---- theme -------------------------------------------------------------------
+    // ---- theme ----
     Column {
       id: themeList
       width: 190
@@ -363,7 +363,7 @@ Column {
 
   KitLine {}
 
-  // ---- icons -----------------------------------------------------------------------
+  // ---- icons ----
   KitLabel {
     id: iconsGroup
     text: "ICONS"
@@ -404,7 +404,7 @@ Column {
 
   KitLine {}
 
-  // ---- wallpaper -------------------------------------------------------------------
+  // ---- wallpaper ----
   KitLabel {
     id: wallpaperGroup
     text: "WALLPAPER"
@@ -432,7 +432,7 @@ Column {
     }
   }
 
-  // ---- custom: a colour of your own
+  // ---- custom: a colour of your own ----
   ColourRow {
     visible: root.customWallpaper
     value: root.draft
@@ -440,7 +440,7 @@ Column {
     onAccepted: colour => root.setWallpaper(colour)
   }
 
-  // ---- image: the active theme's folder first, then the shared one
+  // ---- image: the active theme's folder first, then the shared one ----
   Flow {
     width: parent.width
     visible: root.imageWallpaper && themePictures.count + commonPictures.count > 0
@@ -533,7 +533,7 @@ Column {
 
   KitLine {}
 
-  // ---- font ------------------------------------------------------------------------
+  // ---- font ----
   KitLabel {
     id: fontGroup
     text: "FONT"
@@ -662,7 +662,7 @@ Column {
 
   KitLine {}
 
-  // ---- cursor ----------------------------------------------------------------------
+  // ---- cursor ----
   KitLabel {
     id: cursorGroup
     text: "CURSOR"

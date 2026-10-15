@@ -35,7 +35,7 @@ Item {
     valueColor: root.dimmed ? Theme.gray : Theme.foreground2
   }
 
-  // ---- inline layout ---------------------------------------------------------
+  // ---- inline layout ----
   Item {
     id: iconBox
     visible: !root.captioned

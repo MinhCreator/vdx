@@ -1,4 +1,5 @@
 #!/bin/sh
+# battery.sh — battery level and state, for the `battery` function
 
 BAT=/sys/class/power_supply/BAT0
 

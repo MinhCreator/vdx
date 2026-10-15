@@ -51,7 +51,7 @@ Rectangle {
 
     KitLine {}
 
-    // ---- what and how ---------------------------------------------------------------
+    // ---- what and how ----
     Column {
       width: parent.width
       spacing: 8
@@ -91,7 +91,7 @@ Rectangle {
 
     KitLine {}
 
-    // ---- where it goes: a shot always reaches the clipboard ---------------------------
+    // ---- where it goes: a shot always reaches the clipboard ----
     Column {
       width: parent.width
       spacing: 8
@@ -116,7 +116,7 @@ Rectangle {
       }
     }
 
-    // ---- a recording: its settings ----------------------------------------------------
+    // ---- a recording: its settings ----
     Column {
       visible: CaptureService.kind === "record"
       width: parent.width

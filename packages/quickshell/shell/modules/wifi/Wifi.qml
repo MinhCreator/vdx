@@ -5,6 +5,7 @@ import qs.components
 import qs.config
 import qs.kit
 
+// Bar module: the network's name (or the icon alone), green while connected.
 Item {
   id: root
 

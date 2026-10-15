@@ -72,7 +72,7 @@ Rectangle {
 
   color: Theme.background0
 
-  // ---- navigation --------------------------------------------------------------
+  // ---- navigation ----
   Rectangle {
     id: sidebar
     width: 190
@@ -247,7 +247,7 @@ Rectangle {
     color: Theme.background3
   }
 
-  // ---- page --------------------------------------------------------------------
+  // ---- page ----
   // the open page's header stays put; only what is under it scrolls
   Column {
     id: header

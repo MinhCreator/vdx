@@ -20,7 +20,7 @@ KitFrame {
   readonly property real memPercent: SysmonService.mem.total > 0 ? 100 * SysmonService.memUsed / SysmonService.mem.total : 0
   readonly property var dgpu: SysmonService.dgpu
 
-  // ---- header ----------------------------------------------------------------
+  // ---- header ----
   KitHeader {
     icon: "cpu"
     title: "System"
@@ -30,7 +30,7 @@ KitFrame {
 
   KitLine {}
 
-  // ---- cpu ---------------------------------------------------------------------
+  // ---- cpu ----
   Column {
     width: parent.width
     spacing: 8
@@ -65,7 +65,7 @@ KitFrame {
 
   KitLine { visible: root.on("memory") }
 
-  // ---- memory --------------------------------------------------------------------
+  // ---- memory ----
   Column {
     visible: root.on("memory")
     width: parent.width
@@ -88,7 +88,7 @@ KitFrame {
 
   KitLine { visible: root.on("gpu") }
 
-  // ---- gpu -------------------------------------------------------------------------
+  // ---- gpu ----
   Column {
     visible: root.on("gpu")
     width: parent.width
@@ -131,7 +131,7 @@ KitFrame {
 
   KitLine { visible: root.on("disks") }
 
-  // ---- disks -------------------------------------------------------------------------
+  // ---- disks ----
   Column {
     visible: root.on("disks")
     width: parent.width
@@ -168,7 +168,7 @@ KitFrame {
 
   KitLine { visible: root.on("network") }
 
-  // ---- network, sensors -------------------------------------------------------------
+  // ---- network, sensors ----
   Column {
     visible: root.on("network")
     width: parent.width

@@ -23,7 +23,7 @@ import qs.modules.battery
 Singleton {
   id: root
 
-  // ---- overlay ---------------------------------------------------------------
+  // ---- overlay ----
   property bool armed: false
   property bool shown: false
   property bool closing: false        // the dim and toolbar fade out, then the overlay goes
@@ -37,13 +37,12 @@ Singleton {
   property var windows: []
   property point pointerAt: Qt.point(-1, -1)   // layout coordinates at open
 
-  // ---- this capture (reset at every open) ----------------------------------------
+  // ---- this capture (reset at every open) ----
   property string mode: "region"      // region | window | screen
   property string kind: "shot"        // shot | record
   property bool cursor: false         // the pointer in the shot / recording
 
-  // ---- saved choices --------------------------------------------------------------
-
+  // ---- saved choices ----
   readonly property string audio: settings.audio        // off | system | mic
   readonly property int fps: settings.fps
   readonly property string quality: settings.quality    // low | medium | high
@@ -52,7 +51,7 @@ Singleton {
   readonly property string encoder: settings.encoder
   readonly property string encoderInUse: encoder !== "auto" ? encoder : BatteryService.plugged ? "gpu" : "igpu"
 
-  // ---- recording -------------------------------------------------------------------
+  // ---- recording ----
   readonly property bool recording: recorder.running
   property string recordFile: ""
   property real recordStarted: 0
@@ -60,7 +59,7 @@ Singleton {
   readonly property var presets: ({ low: "medium", medium: "high", high: "very_high" })
   readonly property string mesaOnly: "/usr/share/glvnd/egl_vendor.d/50_mesa.json"
 
-  // ---- output ------------------------------------------------------------------
+  // ---- output ----
   // folders from Shell Manager › Modules › Capture; empty: the defaults
   readonly property string shotDir: ModuleSettings.get("capture", "shotDir", "") || Quickshell.env("HOME") + "/Pictures/Screenshots"
   // after a shot: folder | ask (a Save as window) | clipboard (nothing on disk);
@@ -247,7 +246,7 @@ Singleton {
     }
   }
 
-  // ---- hyprland windows ----------------------------------------------------------
+  // ---- hyprland windows ----
   Process {
     id: windowsProc
     command: ["sh", "-c", "hyprctl -j monitors; echo ---; hyprctl -j clients; echo ---; hyprctl -j cursorpos"]
@@ -270,7 +269,7 @@ Singleton {
     }
   }
 
-  // ---- recording ---------------------------------------------------------------
+  // ---- recording ----
   Process {
     id: recorder
     stderr: StdioCollector { id: recorderErr }
@@ -287,7 +286,7 @@ Singleton {
     }
   }
 
-  // ---- settings ------------------------------------------------------------------
+  // ---- settings ----
   FileView {
     path: Quickshell.statePath("capture.json")
     printErrors: false

@@ -37,7 +37,7 @@ Column {
     height: root.height
     spacing: 18
 
-    // ---- list: like the theme list — title, search, a framed list -------------------
+    // ---- list: like the theme list — title, search, a framed list ----
     EntryList {
       id: list
       width: 190
@@ -51,7 +51,7 @@ Column {
       }
     }
 
-    // ---- the chosen module: its name and options, scrolling on their own ------------
+    // ---- the chosen module: its name and options, scrolling on their own ----
     Flickable {
       id: pane
       width: parent.width - list.width - parent.spacing

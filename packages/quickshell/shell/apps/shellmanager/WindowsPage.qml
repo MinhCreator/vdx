@@ -32,7 +32,7 @@ Column {
 
   spacing: 14
 
-  // ---- mode ----------------------------------------------------------------------------
+  // ---- mode ----
   KitLabel { id: modeGroup; text: "MODE"; value: root.mode.label.toUpperCase() }
 
   KitRow {
@@ -63,7 +63,7 @@ Column {
 
   KitLine {}
 
-  // ---- the current mode's own options -------------------------------------------------
+  // ---- the current mode's own options ----
   KitLabel { id: layoutGroup; text: root.mode.label.toUpperCase() }
 
   KitRow {
@@ -124,7 +124,7 @@ Column {
 
   KitLine {}
 
-  // ---- gaps ----------------------------------------------------------------------------
+  // ---- gaps ----
   KitLabel { id: gapsGroup; text: "LOOK"; value: root.o.gapsIn + " / " + root.o.gapsOut + " PX" }
 
   KitRow {
@@ -175,7 +175,7 @@ Column {
 
   KitLine {}
 
-  // ---- taskbar -------------------------------------------------------------------------
+  // ---- taskbar ----
   KitLabel { id: taskbarGroup; text: "TASKBAR" }
 
   KitRow {

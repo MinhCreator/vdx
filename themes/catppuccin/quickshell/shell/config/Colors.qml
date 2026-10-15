@@ -3,7 +3,6 @@ import QtQuick
 
 // Colors — catppuccin theme overlay (same values as the base copy in
 // packages/quickshell/shell/config/Colors.qml).
-
 QtObject {
   id: root
 

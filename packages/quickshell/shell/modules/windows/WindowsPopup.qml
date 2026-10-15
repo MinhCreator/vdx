@@ -19,7 +19,7 @@ KitFrame {
 
   KitLine {}
 
-  // ---- mode
+  // ---- mode ----
   Column {
     width: parent.width
     spacing: 8

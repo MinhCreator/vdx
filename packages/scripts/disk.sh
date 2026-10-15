@@ -1,4 +1,5 @@
 #!/bin/sh
+# disk.sh — disk usage, for the `disk` function
 
 df -h --output=source,size,used,avail,pcent,target \
     -x tmpfs -x devtmpfs -x efivarfs 2>/dev/null \

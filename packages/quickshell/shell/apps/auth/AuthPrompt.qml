@@ -85,7 +85,7 @@ Scope {
 
         KitLine {}
 
-        // ---- what happens (ours)
+        // ---- what happens (ours) ----
         Column {
           visible: root.ours
           width: parent.width
@@ -126,7 +126,7 @@ Scope {
           }
         }
 
-        // ---- what a program asks (not ours)
+        // ---- what a program asks (not ours) ----
         KitText {
           visible: root.asking && !root.ours
           width: parent.width
@@ -134,7 +134,7 @@ Scope {
           text: root.flow?.message ?? ""
         }
 
-        // ---- the password
+        // ---- the password ----
         KitLine { visible: root.asking && root.ours }
 
         KitInput {
@@ -156,7 +156,7 @@ Scope {
           font.pixelSize: Theme.fontSize - 1
         }
 
-        // ---- foot
+        // ---- foot ----
         Item {
           width: parent.width
           height: buttons.height

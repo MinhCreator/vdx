@@ -142,7 +142,7 @@ Variants {
         onHasContentChanged: if (hasContent) root.checkPlain()
       }
 
-      // ---- pointer-free check --------------------------------------------------------
+      // ---- pointer-free check ----
       // Hyprland applies cursor:invisible on its next key event or a 500 ms tick,
       // so the plain still may still hold the pointer. Where the pointer is,
       // compare it with the pointer still; retake until they differ. Meanwhile
@@ -254,7 +254,7 @@ Variants {
         visible: root.hasTarget
       }
 
-      // ---- dim around the target ---------------------------------------------------
+      // ---- dim around the target ----
       Item {
         anchors.fill: parent
         opacity: root.live ? 1 : 0
@@ -297,7 +297,7 @@ Variants {
         }
       }
 
-      // ---- pointer -----------------------------------------------------------------
+      // ---- pointer ----
       MouseArea {
         anchors.fill: parent
         hoverEnabled: true
@@ -333,7 +333,7 @@ Variants {
         }
       }
 
-      // ---- toolbar -----------------------------------------------------------------
+      // ---- toolbar ----
       CaptureToolbar {
         id: toolbar
         visible: root.toolbarHere && !root.dragging && !root.finishing

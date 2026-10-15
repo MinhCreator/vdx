@@ -16,7 +16,7 @@ KitFrame {
     return Qt.formatDateTime(d, today ? "HH:mm" : "dd.MM HH:mm");
   }
 
-  // ---- header ----------------------------------------------------------------
+  // ---- header ----
   KitHeader {
     icon: "bell"
     iconColor: root.items.length > 0 ? Theme.foreground0 : Theme.muted

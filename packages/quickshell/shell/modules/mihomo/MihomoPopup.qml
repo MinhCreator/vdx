@@ -11,7 +11,7 @@ KitFrame {
 
   signal closeRequested()
 
-  // ---- header ----------------------------------------------------------------
+  // ---- header ----
   KitHeader {
     icon: "shield"
     iconColor: MihomoService.serviceOn ? Theme.foreground0 : Theme.muted
@@ -35,7 +35,7 @@ KitFrame {
 
   KitLine {}
 
-  // ---- connection ------------------------------------------------------------
+  // ---- connection ----
   Column {
     width: parent.width
     visible: MihomoService.serviceOn
@@ -81,7 +81,7 @@ KitFrame {
 
   KitLine { visible: MihomoService.serviceOn }
 
-  // ---- routing ---------------------------------------------------------------
+  // ---- routing ----
   KitText {
     visible: !root.listed
     text: MihomoService.serviceOn ? "No providers configured." : "Mihomo is off. Switch it on to pick a server."
@@ -175,7 +175,7 @@ KitFrame {
 
   KitLine {}
 
-  // ---- actions ---------------------------------------------------------------
+  // ---- actions ----
   Item {
     width: parent.width
     height: 30

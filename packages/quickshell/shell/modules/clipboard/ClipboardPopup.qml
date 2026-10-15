@@ -33,7 +33,7 @@ KitFrame {
     return Qt.formatDateTime(d, today ? "HH:mm" : "dd.MM HH:mm");
   }
 
-  // ---- header ----------------------------------------------------------------
+  // ---- header ----
   KitHeader {
     icon: "clipboard"
     title: "Clipboard"
@@ -68,7 +68,7 @@ KitFrame {
     font.pixelSize: Theme.fontSize - 1
   }
 
-  // ---- history -------------------------------------------------------------------
+  // ---- history ----
   Flickable {
     width: parent.width
     visible: root.shown.length > 0
