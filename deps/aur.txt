@@ -6,3 +6,4 @@ supergfxctl
 wifitui
 elio
 telegram-desktop-bin
+hyprland-plugin-hyprbars

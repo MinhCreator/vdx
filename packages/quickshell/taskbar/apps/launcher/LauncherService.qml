@@ -63,9 +63,9 @@ Singleton {
     { icon: "brush", title: "Cleaner", hint: "Caches, trash, the system", keys: "Super+X", run: () => exec(ipc("cleaner", "toggle")) },
     { icon: "camera", title: "Capture", hint: "Screenshot or recording", keys: "Super+Shift+S", run: () => exec(ipc("capture", "open")) },
     { icon: "clipboard", title: "Clipboard", hint: "History", keys: "Super+B", run: () => exec(ipc("clipboard", "toggle")) },
-    { icon: "tiling", title: "Tiling", hint: "Window mode", run: () => exec(ipc("windows", "mode", "tiling")) },
-    { icon: "app-window", title: "Floating", hint: "Window mode", run: () => exec(ipc("windows", "mode", "floating")) },
-    { icon: "columns", title: "Scrolling", hint: "Window mode", run: () => exec(ipc("windows", "mode", "scrolling")) }
+    { icon: "tiling", title: "Tiling", hint: "Window mode", run: () => exec(ipc("windowmode", "set", "tiling")) },
+    { icon: "app-window", title: "Floating", hint: "Window mode", run: () => exec(ipc("windowmode", "set", "floating")) },
+    { icon: "columns", title: "Scrolling", hint: "Window mode", run: () => exec(ipc("windowmode", "set", "scrolling")) }
   ]
 
   // ---- power ----

@@ -146,7 +146,7 @@ Column {
 
   KitRow {
     label: "Minimized windows"
-    hint: "A bar at the bottom, Super+N minimizes"
+    hint: "Floating: a bar at the bottom, Super+N"
 
     KitSwitch {
       checked: root.o.dock
