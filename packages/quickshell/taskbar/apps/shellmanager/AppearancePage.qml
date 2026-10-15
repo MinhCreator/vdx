@@ -12,6 +12,15 @@ Column {
   // the theme shown in the preview; Apply makes it the active one
   property string selected: ThemeService.current
   property string themeQuery: ""
+  readonly property var themeMatches: ThemeService.themes.filter(t => t.toLowerCase().includes(themeQuery.trim().toLowerCase()))
+
+  // arrows step through the matches, previewing each
+  function stepTheme(delta) {
+    const list = themeMatches;
+    if (list.length === 0) return;
+    const i = list.indexOf(selected);
+    selected = list[Math.max(0, Math.min(list.length - 1, (i < 0 ? 0 : i + delta)))];
+  }
   readonly property var palette: ThemeService.palettes[selected] ?? ({})
   readonly property bool customWallpaper: ShellSettings.wallpaperMode === "custom"
   readonly property color wallpaper: customWallpaper ? ShellSettings.wallpaperColor : p("background1")
@@ -152,7 +161,15 @@ Column {
         width: parent.width
         placeholder: "search"
         text: root.themeQuery
-        onTextEdited: root.themeQuery = text
+        // typing previews the first match, arrows move, Enter applies
+        onTextEdited: {
+          root.themeQuery = text;
+          if (root.themeMatches.length > 0 && !root.themeMatches.includes(root.selected))
+            root.selected = root.themeMatches[0];
+        }
+        onAccepted: if (root.selected !== ThemeService.current) ThemeService.apply(root.selected)
+        Keys.onDownPressed: root.stepTheme(1)
+        Keys.onUpPressed: root.stepTheme(-1)
       }
 
       // the theme list, framed like an open select
@@ -176,7 +193,7 @@ Column {
             width: parent.width
 
             Repeater {
-              model: ThemeService.themes.filter(t => t.toLowerCase().includes(root.themeQuery.trim().toLowerCase()))
+              model: root.themeMatches
 
               Rectangle {
                 id: item
