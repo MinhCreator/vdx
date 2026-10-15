@@ -5,7 +5,8 @@ import Quickshell.Io
 
 // Which plugins the bar shows and where, per monitor: three zones, each in
 // order, plus the switched-off ones. Persists in the state dir. Ids that `plugins` no longer
-// knows are dropped; new plugins join their default zone.
+// knows are dropped; a new plugin joins its default zone on the Main bar and
+// sits on the shelf of the Extra one.
 Singleton {
   id: root
 
@@ -31,6 +32,10 @@ Singleton {
     { id: "sysmon",        label: "System",        zone: "right",  icon: "cpu", settings: "SysmonSettings.qml", about: "CPU, memory, GPU, disks, network, sensors" }
   ]
   readonly property var zones: ["left", "center", "right"]
+
+  // The bars are being edited in place (not saved): drag modules on the strip,
+  // the shelf below it holds what is not on that bar. `ipc call bar edit` toggles.
+  property bool editing: false
   // Old ids still found in saved layouts: old -> new.
   readonly property var renamed: ({ claude: "ai", plugins: "shell" })
 
@@ -50,7 +55,15 @@ Singleton {
   function roleOf(screen) { return shared || screen === mainScreen() ? "main" : "extra"; }
   function entry(screen) { return state.screens?.[roleOf(screen)] ?? null; }
   function layout(screen) { return normalize(entry(screen)?.zones ?? state.zones); }
-  function hidden(screen) { return (entry(screen)?.hidden ?? state.hidden).map(id => renamed[id] ?? id); }
+  // Not on this bar: what was put away, and — on the Extra bar — what the
+  // saved layout has never seen (a new plugin joins the Main bar only).
+  function hidden(screen) {
+    const e = entry(screen);
+    const off = (e?.hidden ?? state.hidden).map(id => renamed[id] ?? id);
+    if (roleOf(screen) !== "extra" || !e?.zones) return off;
+    const known = zones.reduce((all, z) => all.concat(e.zones[z] ?? []), []).map(id => renamed[id] ?? id);
+    return off.concat(plugins.map(p => p.id).filter(id => !known.includes(id) && !off.includes(id)));
+  }
   function barOn(screen) { return !(entry(screen)?.off ?? false); }
   function customized(screen) {
     const e = entry(screen);
@@ -59,11 +72,9 @@ Singleton {
   }
 
   function icon(id) { return plugins.find(p => p.id === id)?.icon ?? ""; }
-  function about(id) { return plugins.find(p => p.id === id)?.about ?? ""; }
-  function label(id) { return plugins.find(p => p.id === id)?.label ?? id; }
   // A plugin switched off (Plugins page) is gone from every bar and from the
-  // layout editor; one that is on but not placed on a monitor's bar sits in
-  // that bar's "not on this bar" tray (`hidden`).
+  // editor; one that is on but not placed on a monitor's bar sits on that
+  // bar's "not on this bar" shelf (`hidden`).
   readonly property var disabled: state.disabled
   function pluginOn(id) { return !disabled.includes(id); }
   function setPluginOn(id, on) { state.disabled = on ? disabled.filter(x => x !== id) : disabled.concat(id); }
@@ -79,10 +90,13 @@ Singleton {
     return plugins.map(p => p.id).filter(id => off.includes(id) && pluginOn(id));
   }
 
-  // Writes the monitor's entry, starting from what it shows now.
+  // Writes the monitor's entry, starting from what it shows now. Only the
+  // two roles are kept.
   function update(screen, change) {
     const e = Object.assign({ zones: entry(screen)?.zones ?? state.zones, hidden: hidden(screen), off: !barOn(screen) }, change);
-    const all = Object.assign({}, state.screens ?? {});
+    const all = {};
+    for (const role of ["main", "extra"])
+      if (state.screens?.[role]) all[role] = state.screens[role];
     all[roleOf(screen)] = e;
     state.screens = all;
   }
@@ -103,9 +117,6 @@ Singleton {
 
   function setBarOn(screen, on) { update(screen, { off: !on }); }
 
-  // An empty bar: every plugin into the tray (Super+S still opens the Shell Manager).
-  function clear(screen) { update(screen, { hidden: plugins.map(p => p.id) }); }
-
   // this bar takes another one's layout (Extra copying Main)
   function copyLayout(from, to) { update(to, { zones: layout(from), hidden: hidden(from) }); }
 
@@ -125,11 +136,25 @@ Singleton {
     return z;
   }
 
+  IpcHandler {
+    target: "bar"
+    function edit(): void { root.editing = !root.editing; }
+  }
+
   FileView {
     path: Quickshell.statePath("layout.json")
     printErrors: false
     onAdapterUpdated: writeAdapter()
     onLoadFailed: writeAdapter()
+    onLoaded: {
+      const keys = Object.keys(state.screens ?? {});
+      if (keys.some(k => k !== "main" && k !== "extra")) {
+        const kept = {};
+        for (const role of ["main", "extra"])
+          if (state.screens[role]) kept[role] = state.screens[role];
+        state.screens = kept;
+      }
+    }
 
     JsonAdapter {
       id: state

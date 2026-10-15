@@ -9,7 +9,7 @@ Quickshell-бар (`qs -c taskbar`). Здесь правила, по котор�
 ```
 taskbar/
 ├─ shell.qml          бары по мониторам, окно Shell Manager, обои, захват экрана; перекраска при смене темы
-├─ bar/               Bar.qml (зоны), BarLayout (реестр плагинов, раскладка), BarPopup (обвязка попапа)
+├─ bar/               Bar.qml (зоны, режим правки), BarShelf (полка правки), BarLayout (реестр плагинов, раскладка), BarPopup (обвязка попапа)
 ├─ kit/               UI-компоненты (каталог ниже) и icons/ — SVG-иконки (+ icons/solid)
 ├─ components/        ThemeText, Separator, PopupManager, PopupCatcher (клик мимо попапа)
 ├─ config/            Theme (всё общее), Colors (палитра темы), ShellSettings (опции оболочки), PluginSettings (опции плагинов)
@@ -176,7 +176,7 @@ SVG в `kit/icons/<name>.svg`, 24×24, белые контуры в стиле L
 5. **Проверка:** `qs log -c taskbar | grep -E 'ERROR|WARN'`; попап открывается
    `qs -c taskbar ipc call <ipcTarget> toggle` (пауза ≥ 1 с между вызовами),
    окно настроек — `ipc call shell open <appearance|bar>`, захват —
-   `ipc call capture <open|close|stop>`; скриншот — `grim -g "X,Y WxH"`
+   `ipc call capture <open|close|stop>`, правка баров — `ipc call bar edit`; скриншот — `grim -g "X,Y WxH"`
    (логические координаты).
 6. Обновить `plugins/<name>/README.md` и этот файл, если появилось правило
    или компонент.
