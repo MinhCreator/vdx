@@ -109,6 +109,36 @@ Singleton {
     }
   }
 
+  // file -> id straight from yandex-music-cli's state.json: known at once and
+  // without the network, so the like button shows for every library track
+  FileView {
+    path: Quickshell.env("HOME") + "/.config/scripts/yandex-music/state.json"
+    watchChanges: true
+    printErrors: false
+    onFileChanged: reload()
+    onLoaded: {
+      try {
+        const ids = JSON.parse(text()).ids ?? {};
+        const map = {};
+        for (const id in ids) map[ids[id].file] = id;
+        root.fileIds = map;
+      } catch (e) {}
+    }
+  }
+
+  // the last known likes, so the heart is right before the network answers
+  FileView {
+    path: Quickshell.statePath("music-likes.json")
+    printErrors: false
+    onAdapterUpdated: writeAdapter()
+    onLoaded: if (root.liked.length === 0) root.liked = likedCache.liked
+
+    JsonAdapter {
+      id: likedCache
+      property var liked: []
+    }
+  }
+
   Process {
     id: likesProc
     command: ["uv", "run", "--script", Theme.likesScript, "--likes"]
@@ -118,6 +148,7 @@ Singleton {
         if (!o?.ok) return;
         root.liked = o.liked;
         root.fileIds = o.files;
+        likedCache.liked = o.liked;
       }
     }
   }
