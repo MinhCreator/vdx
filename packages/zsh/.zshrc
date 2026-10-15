@@ -31,8 +31,5 @@ fi
 # Prompt
 eval "$(starship init zsh)"
 
-# zoxide (fast directory jumps) — optional, skipped when not installed
-command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
-
 # bun completions
 [ -s "$HOME/.local/state/bun/_bun" ] && source "$HOME/.local/state/bun/_bun"

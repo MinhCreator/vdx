@@ -7,7 +7,7 @@ Arch Linux + Hyprland, one theme across the desktop, deployed by `install.py`
 |---|---|
 | Desktop | Hyprland (Lua config), Quickshell shell, mako |
 | Shell | zsh, Oh My Zsh, Starship |
-| Editor | Neovim, Zed |
+| Editor | Neovim |
 | Terminal | kitty, tmux |
 | Music | MPD, ncmpcpp, Yandex Music and radio CLIs |
 | VPN | Mihomo + `vpn` |

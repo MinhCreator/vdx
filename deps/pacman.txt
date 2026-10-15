@@ -17,6 +17,8 @@ mako
 grim
 slurp
 wl-clipboard
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
 gpu-screen-recorder
 intel-media-driver
 brightnessctl
@@ -27,12 +29,14 @@ kitty
 zsh
 starship
 eza
-zoxide
 tmux
+fzf
+ripgrep
+lazygit
 
 # editors
 neovim
-zed
+tree-sitter-cli
 ollama          # optional: local model for the nvim habit coach
 
 # audio, network, power (quickshell plugins)
@@ -40,6 +44,9 @@ pipewire
 pipewire-pulse
 wireplumber
 libpulse
+wiremix
+bluez
+bluez-utils
 networkmanager
 libnotify
 tlp

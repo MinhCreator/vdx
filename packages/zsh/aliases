@@ -8,6 +8,3 @@ alias ff="fastfetch"
 # File System (eza)
 alias ls="eza -l -a --icons --group-directories-first"
 alias tree="eza --tree --level 2"
-
-# Utilites
-alias systemd="systemd-manager-tui"

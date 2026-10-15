@@ -7,3 +7,4 @@ supergfxctl
 wifitui
 elio
 telegram-desktop-bin
+claude-code     # the shell's AI limits module

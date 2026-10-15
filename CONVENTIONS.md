@@ -26,7 +26,7 @@ Rules for people and agents. If a rule is in the way, change it here.
 
 - One theme for the whole desktop; colours by role
   ([themes/gruvbox/README.md](themes/gruvbox/README.md)). A hex outside a theme
-  is a bug (imported themes of Zed and btop may keep their own shades).
+  is a bug (imported themes of btop may keep their own shades).
 - A new theme: its colours in `themes/mktheme.py`, then
   `python3 themes/mktheme.py <name>`. Generated themes are not edited by hand.
 - Switch: `./install.py theme set <name>` or the Shell Manager.
