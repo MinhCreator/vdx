@@ -5,9 +5,9 @@ import qs.config
 import qs.kit
 
 // Bar: MONITOR (which bar, one bar everywhere, show it), LAYOUT and STYLE.
-// LAYOUT: a small preview of the bar, then four bands — LEFT, CENTER, RIGHT
-// and HIDDEN — of icon + name chips in bar order that wrap across the width
-// (Material chips). Drag a chip along a band, to another band or into
+// LAYOUT: a small preview of the bar, then four rows — LEFT, CENTER, RIGHT
+// and HIDDEN — the zone's name on the left, its icon + name chips in bar
+// order on the right, wrapping (Material chips); thin lines, no boxes. Drag a chip along a band, to another band or into
 // HIDDEN; a thin line marks where it lands.
 Column {
   id: root
@@ -172,16 +172,19 @@ Column {
     id: zonesArea
     visible: root.barOn
     width: parent.width
-    spacing: 12
+    spacing: 0
 
     Repeater {
       id: bands
       model: root.columnZones
 
-      Column {
+      // a settings-style row: the zone's name on the left, its chips on the
+      // right, a thin line between rows; no boxes
+      Item {
         id: band
 
         required property string modelData
+        required property int index
 
         readonly property string zone: modelData
         readonly property var ids: root.ids(modelData)
@@ -189,28 +192,30 @@ Column {
         readonly property alias chips: chipRepeater
 
         width: zonesArea.width
-        spacing: 6
+        height: area.height + 16
+
+        KitLine { visible: band.index > 0; width: parent.width }
 
         KitText {
+          y: 8 + (root.chipHeight - height) / 2
           text: band.zone.toUpperCase() + " · " + band.ids.length
           color: band.target ? Theme.foreground0 : Theme.muted
           font.pixelSize: Theme.fontSize - 3
           font.letterSpacing: 1
         }
 
-        // an outlined drop area
+        // the chips; a faint fill marks the row a chip is dragged over
         Rectangle {
-          width: parent.width
-          height: Math.max(root.chipHeight, flow.implicitHeight) + 16
+          id: area
+          x: 110
+          y: 8
+          width: parent.width - x
+          height: Math.max(root.chipHeight, flow.implicitHeight)
           color: band.target ? Theme.background1 : "transparent"
-          border.width: 1
-          border.color: band.target ? Theme.foreground2 : Theme.background3
 
           Flow {
             id: flow
-            x: 8
-            y: 8
-            width: parent.width - 16
+            width: parent.width
             spacing: 6
 
             Repeater {
@@ -285,7 +290,7 @@ Column {
 
           KitText {
             visible: band.ids.length === 0
-            anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
+            anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter }
             text: root.dragId !== "" ? "drop here" : band.zone === "hidden" ? "nothing hidden" : "empty"
             color: Theme.muted
             font.pixelSize: Theme.fontSize - 2

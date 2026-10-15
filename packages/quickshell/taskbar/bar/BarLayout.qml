@@ -69,22 +69,17 @@ Singleton {
   }
 
   function icon(id) { return plugins.find(p => p.id === id)?.icon ?? ""; }
-  // A plugin switched off (Plugins page) is gone from every bar and from the
-  // editor; one that is on but not placed on a monitor's bar sits on that
-  // bar's "not on this bar" shelf (`hidden`).
-  readonly property var disabled: state.disabled
-  function pluginOn(id) { return !disabled.includes(id); }
-  function setPluginOn(id, on) { state.disabled = on ? disabled.filter(x => x !== id) : disabled.concat(id); }
+  // A plugin not placed on a monitor's bar is HIDDEN there (`hidden`).
 
   function visibleIn(zone, screen) {
     const off = hidden(screen);
-    return layout(screen)[zone].filter(id => !off.includes(id) && pluginOn(id));
+    return layout(screen)[zone].filter(id => !off.includes(id));
   }
 
   // on, but not placed on this monitor's bar
   function unplaced(screen) {
     const off = hidden(screen);
-    return plugins.map(p => p.id).filter(id => off.includes(id) && pluginOn(id));
+    return plugins.map(p => p.id).filter(id => off.includes(id));
   }
 
   // Writes the monitor's entry, starting from what it shows now. Only the
@@ -155,7 +150,6 @@ Singleton {
       property var hidden: []
       property var screens: ({})      // role (main | extra) -> {zones, hidden, off}
       property bool shared: false
-      property var disabled: []       // switched off everywhere (Plugins page)
     }
   }
 }

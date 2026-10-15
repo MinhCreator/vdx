@@ -4,10 +4,9 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Plugins: the list on the left with a switch per plugin (dim: off — gone
-// from every bar), the chosen one's options on the right: its own <Name>Settings.qml
-// (the registry's `settings`), values kept in PluginSettings, Reset to the
-// defaults. The header stays; each pane scrolls on its own. Where a plugin
+// Plugins: the list on the left, the chosen one's options on the right —
+// its own <Name>Settings.qml (the registry's `settings`), values kept in
+// PluginSettings, Reset to the defaults. The header stays; each pane scrolls on its own. Where a plugin
 // sits is set on the Bar page.
 Column {
   id: root
@@ -35,7 +34,7 @@ Column {
     // ---- list: framed like an open select, scrolls inside the frame ----------------
     Rectangle {
       id: list
-      width: 220
+      width: 190
       height: Math.min(parent.height, rows.implicitHeight + 2 * Theme.frameWidth)
       color: "transparent"
       border.width: Theme.frameWidth
@@ -61,7 +60,6 @@ Column {
               required property var modelData
 
               readonly property bool active: modelData.id === root.selected
-              readonly property bool on: BarLayout.pluginOn(modelData.id)
 
               width: rows.width
               height: 30
@@ -71,16 +69,15 @@ Column {
                 id: rowIcon
                 anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }
                 name: row.modelData.icon
-                tint: row.active ? Theme.foreground0 : row.on ? Theme.foreground2 : Theme.muted
+                tint: row.active ? Theme.foreground0 : Theme.foreground2
                 size: 14
               }
 
-              // plugins switched off read dimmer
               KitText {
-                anchors { left: rowIcon.right; leftMargin: 8; right: rowSwitch.left; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                anchors { left: rowIcon.right; leftMargin: 8; right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
                 text: row.modelData.label
                 elide: Text.ElideRight
-                color: row.active || rowArea.containsMouse ? Theme.foreground0 : row.on ? Theme.foreground2 : Theme.muted
+                color: row.active || rowArea.containsMouse ? Theme.foreground0 : Theme.foreground2
                 font.weight: row.active ? Font.ExtraBold : Font.DemiBold
               }
 
@@ -90,15 +87,6 @@ Column {
                 hoverEnabled: true
                 cursorShape: row.active ? Qt.ArrowCursor : Qt.PointingHandCursor
                 onClicked: root.selected = row.modelData.id
-              }
-
-              // quick on / off without opening the plugin
-              KitSwitch {
-                id: rowSwitch
-                anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
-                checked: row.on
-                trackColor: row.active ? Theme.background0 : Theme.background3
-                onToggled: BarLayout.setPluginOn(row.modelData.id, !row.on)
               }
             }
           }
