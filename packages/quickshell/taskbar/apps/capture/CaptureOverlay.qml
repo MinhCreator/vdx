@@ -69,6 +69,7 @@ Variants {
     }
     property point pressAt: Qt.point(-1, -1)
     property bool dragging: false
+    property bool finishing: false      // a shot / recording is on its way: the panel stays gone
 
     function clampToScreen(r) {
       const x1 = Math.max(0, r.x), y1 = Math.max(0, r.y);
@@ -86,6 +87,7 @@ Variants {
 
     function finish() {
       if (!hasTarget) return;
+      finishing = true;
       if (CaptureService.kind === "record") {
         CaptureService.startRecording(Qt.rect(target.x + modelData.x, target.y + modelData.y, target.width, target.height));
         return;
@@ -330,7 +332,7 @@ Variants {
       // ---- toolbar -----------------------------------------------------------------
       CaptureToolbar {
         id: toolbar
-        visible: root.toolbarHere && !root.dragging
+        visible: root.toolbarHere && !root.dragging && !root.finishing
         anchors.horizontalCenter: parent.horizontalCenter
         y: Theme.barHeight + (root.live ? 16 : 0)
         opacity: root.live ? 1 : 0
