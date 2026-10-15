@@ -42,7 +42,7 @@ Singleton {
     if (opts[key] === value) return;
     opts[key] = value;
     const lua = "-- written by the Shell Manager › Windows (WindowsService.qml)\nreturn {\n"
-      + ["gapsIn", "gapsOut", "mfact", "columnWidth"].map(k => "\t" + k + " = " + opts[k] + ",\n").join("")
+      + ["gapsIn", "gapsOut", "mfact", "columnWidth", "borders", "shadows"].map(k => "\t" + k + " = " + opts[k] + ",\n").join("")
       + ["newStatus", "arrange", "scrollKeys"].map(k => "\t" + k + " = \"" + opts[k] + "\",\n").join("") + "}\n";
     run(["bash", "-c", 'mkdir -p "$(dirname "$1")" && printf "%s" "$2" > "$1" && hyprctl reload',
          "_", stateDir + "windows.lua", lua]);
@@ -66,6 +66,8 @@ Singleton {
       property real columnWidth: 0.5          // scrolling: a new column's share
       property string arrange: "cascade"      // floating: cascade | grid | center
       property string scrollKeys: "wheel"     // wheel binds on: wheel | arrows | both
+      property bool borders: true             // the windows' frames
+      property bool shadows: true
       property bool dock: true                // the bottom dock with minimized windows
     }
   }

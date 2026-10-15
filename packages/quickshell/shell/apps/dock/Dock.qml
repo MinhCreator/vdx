@@ -8,11 +8,11 @@ import qs.kit
 import qs.plugins.windows
 
 // The floating mode's taskbar along the bottom of the focused monitor, like
-// Windows: the system menu's button, then every window of the active
-// workspace — open ones and those minimized from it (Super+N, Super+↓ or the
-// title bar's button; they wait on special:minimized, tagged min<workspace>
-// by windowmode.lua). A click on the active window minimizes it, on another
-// one brings it forward. Shell Manager › Windows › Taskbar turns it off.
+// Windows: every window of the active workspace — open ones and those
+// minimized from it (Super+J, the title bar's button or a click here; they
+// wait on special:minimized, tagged min<workspace> by windowmode.lua). A
+// click minimizes an open window and brings a minimized one back; the pointer
+// stays where it is. Shell Manager › Windows › Taskbar turns it off.
 PanelWindow {
   id: root
 
@@ -30,17 +30,15 @@ PanelWindow {
     const e = DesktopEntries.heuristicLookup(classOf(t));
     return Quickshell.iconPath(e?.icon ?? classOf(t).toLowerCase(), true);   // "" when the theme has none
   }
-  function hypr(lua) { Quickshell.execDetached(["hyprctl", "eval", lua]); }
   function clicked(t) {
     if (minimized(t)) ws.restore(addr(t));
-    else if (t === active) ws.minimize(addr(t));
-    else hypr("hl.dispatch(hl.dsp.focus({ window = \"address:" + addr(t) + "\" }))");
+    else ws.minimize(addr(t));
   }
 
   screen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0]
   visible: ws.opts.dock && ws.mode === "floating"
   anchors { bottom: true; left: true; right: true }
-  implicitHeight: Theme.barHeight + 4
+  implicitHeight: Theme.barHeight
   exclusiveZone: implicitHeight
   color: Theme.background0
   WlrLayershell.namespace: "taskbar"
@@ -59,28 +57,9 @@ PanelWindow {
 
   Row {
     x: 8
-    y: 4
-    height: parent.height - 6
+    y: 1
+    height: parent.height - 1
     spacing: 4
-
-    // the system menu, like Start
-    Rectangle {
-      width: height
-      height: parent.height
-      color: start.containsMouse ? Theme.background3 : "transparent"
-
-      KitIcon { anchors.centerIn: parent; name: "grid"; size: 18 }
-
-      MouseArea {
-        id: start
-        anchors.fill: parent
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
-        onClicked: Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "launcher", "toggle"])
-      }
-    }
-
-    Rectangle { anchors.verticalCenter: parent.verticalCenter; width: 1; height: 18; color: Theme.gray }
 
     Repeater {
       model: root.windows

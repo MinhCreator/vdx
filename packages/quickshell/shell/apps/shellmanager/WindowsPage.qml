@@ -4,7 +4,8 @@ import qs.kit
 import qs.plugins.windows
 
 // Windows: how windows behave (hypr/components/windowmode.lua) — the mode
-// (tiling, floating, scrolling), the options of the current one, the gaps and the
+// (tiling, floating, scrolling), the options of the current one, the gaps,
+// frames and shadows and the
 // floating mode's taskbar. Applied at once: Hyprland reloads.
 Column {
   id: root
@@ -23,7 +24,7 @@ Column {
   readonly property var jumps: [
     { key: "mode",   label: "Mode",   y: modeGroup.y },
     { key: "layout", label: root.mode.label, y: layoutGroup.y },
-    { key: "gaps",   label: "Gaps",   y: gapsGroup.y },
+    { key: "gaps",   label: "Look",   y: gapsGroup.y },
     { key: "dock",   label: "Taskbar", y: dockGroup.y }
   ]
 
@@ -124,7 +125,7 @@ Column {
   KitLine {}
 
   // ---- gaps ----------------------------------------------------------------------------
-  KitLabel { id: gapsGroup; text: "GAPS"; value: root.o.gapsIn + " / " + root.o.gapsOut + " PX" }
+  KitLabel { id: gapsGroup; text: "LOOK"; value: root.o.gapsIn + " / " + root.o.gapsOut + " PX" }
 
   KitRow {
     wide: true
@@ -149,6 +150,26 @@ Column {
       model: [0, 10, 20, 30].map(v => ({ label: String(v), value: v }))
       current: root.o.gapsOut
       onPicked: value => root.ws.setOption("gapsOut", value)
+    }
+  }
+
+  KitRow {
+    label: "Frames"
+    hint: "A 2px frame round every window"
+
+    KitSwitch {
+      checked: root.o.borders
+      onToggled: root.ws.setOption("borders", !root.o.borders)
+    }
+  }
+
+  KitRow {
+    label: "Shadows"
+    hint: "Under every window"
+
+    KitSwitch {
+      checked: root.o.shadows
+      onToggled: root.ws.setOption("shadows", !root.o.shadows)
     }
   }
 
