@@ -4,7 +4,7 @@ One JSON object per command.
 
     shellapps.py list            {"ok", "presets", "apps": [{id, title, icon, width, height, settings}]}
     shellapps.py set <id> <json> saves one app's settings, rewrites the rules, reloads Hyprland
-    shellapps.py ensure          writes the rules when they are missing (first start) and reloads
+    shellapps.py ensure          writes the rules when they are missing or an app has none yet, and reloads
 
 Settings: {mode: floating | tiled, size: default | preset | custom, preset:
 small | medium | large, width, height, position, x, y}; position is one of
@@ -135,7 +135,8 @@ if __name__ == "__main__":
              "gap": GAP, "top": TOP,
              "apps": [{**a, "settings": settings[a["id"]]} for a in APPS]})
     elif args == ["ensure"]:
-        if not RULES.exists():
+        # an app added to the registry since the last write has no rule yet
+        if not RULES.exists() or any(f'name = "{a["id"]}"' not in RULES.read_text() for a in APPS):
             write(load())
             subprocess.run(["hyprctl", "reload"], capture_output=True)
         out({"ok": True})

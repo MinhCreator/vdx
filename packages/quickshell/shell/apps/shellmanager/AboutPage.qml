@@ -5,7 +5,7 @@ import qs.config
 import qs.kit
 
 // About: what this shell believes, how it is put together, who made it and
-// what it runs on.
+// what it runs on, and a forced restart of the shell.
 Column {
   id: root
 
@@ -107,4 +107,18 @@ Column {
   KitInfo { width: parent.width; label: "Hyprland"; value: root.versions.hypr ?? "--" }
   KitInfo { width: parent.width; label: "Quickshell"; value: root.versions.qs ?? "--" }
   KitInfo { width: parent.width; label: "Kernel"; value: root.versions.kernel ?? "--" }
+
+  // a fresh process: this one is killed, Hyprland starts a new one
+  KitRow {
+    label: "Restart the shell"
+    hint: "Kills Quickshell and starts it anew"
+
+    KitButton {
+      icon: "refresh"
+      text: "Restart"
+      onClicked: Quickshell.execDetached(["sh", "-c",
+        "qs kill -c shell; while qs list -c shell 2>/dev/null | grep -q Instance; do sleep 0.2; done; "
+        + "hyprctl eval 'hl.exec_cmd(\"qs -c shell\")'"])
+    }
+  }
 }

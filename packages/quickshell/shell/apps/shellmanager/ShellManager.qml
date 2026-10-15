@@ -12,7 +12,8 @@ import qs.kit
 //   WINDOWS    — the window mode, each mode's options, gaps, the taskbar.
 //   MODULES    — each bar module's own options (the modules; an app's is set with the app).
 //   SHELL APPS — how the shell's own windows open: floating or tiled, size, spot.
-//   BINDS      — Hyprland's keybinds by group, with a search.
+//   LAUNCHER   — the launcher's (Super+R) rows, width, position and what it opens on.
+//   KEYBINDS   — the keybinds panel's rows, width, position and what it opens on.
 Rectangle {
   id: root
 
@@ -22,9 +23,10 @@ Rectangle {
     { value: "appearance", label: "Appearance", icon: "sun" },
     { value: "bar",        label: "Bar",        icon: "layout" },
     { value: "windows",    label: "Windows",    icon: "app-window" },
-    { value: "modules",    label: "Modules",    icon: "grid" },
-    { value: "apps",       label: "Shell apps", icon: "app-window" },
-    { value: "binds",      label: "Binds",      icon: "keyboard" },
+    { value: "modules",    label: "Modules",    icon: "puzzle" },
+    { value: "apps",       label: "Shell apps", icon: "grid" },
+    { value: "launcher",   label: "Launcher",   icon: "menu" },
+    { value: "keybinds",   label: "Keybinds",   icon: "keyboard" },
     { value: "about",      label: "About",      icon: "info" }
   ]
 
@@ -43,7 +45,7 @@ Rectangle {
   }
 
   function pageFor(value) {
-    return value === "bar" ? bar : value === "modules" ? modules : value === "binds" ? binds : value === "apps" ? apps : value === "windows" ? windows : value === "about" ? about : appearance;
+    return value === "bar" ? bar : value === "modules" ? modules :value === "apps" ? apps : value === "windows" ? windows : value === "about" ? about : value === "launcher" ? launcher :value === "keybinds" ? keybinds : appearance;
   }
   readonly property Item currentPage: pageFor(tab)
 
@@ -234,7 +236,7 @@ Rectangle {
 
     KitText {
       anchors { left: parent.left; leftMargin: 22; bottom: parent.bottom; bottomMargin: 14 }
-      text: "esc close"
+      text: "Esc close"
       color: Theme.gray
       font.pixelSize: Theme.fontSize - 2
     }
@@ -287,10 +289,11 @@ Rectangle {
       width: page.width - 48
       implicitHeight: Math.max(appearance.visible ? appearance.implicitHeight : 0,
                                bar.visible ? bar.implicitHeight : 0,
-                               binds.visible ? binds.implicitHeight : 0,
                                apps.visible ? apps.height : 0,
                                windows.visible ? windows.implicitHeight : 0,
                                about.visible ? about.implicitHeight : 0,
+                               launcher.visible ? launcher.implicitHeight : 0,
+                               keybinds.visible ? keybinds.implicitHeight : 0,
                                modules.visible ? modules.height : 0)
 
       AppearancePage { id: appearance; width: parent.width; visible: root.tab === "appearance" }
@@ -298,8 +301,9 @@ Rectangle {
       // fills the window and scrolls its two panes itself
       ShellAppsPage { id: apps;  width: parent.width; onNavigate: (t, k) => root.navigate(t, k); onWindowSetup: id => windowDialog.appId = id; height: page.height - pages.y - 20; visible: root.tab === "apps" }
       WindowsPage { id: windows; width: parent.width; visible: root.tab === "windows" }
+      LauncherPage { id: launcher; width: parent.width; visible: root.tab === "launcher" }
+      KeybindsPage { id: keybinds; width: parent.width; visible: root.tab === "keybinds" }
       AboutPage   { id: about;   width: parent.width; visible: root.tab === "about" }
-      BindsPage   { id: binds;   width: parent.width; visible: root.tab === "binds" }
       ModulesPage { id: modules; width: parent.width; onNavigate: (t, k) => root.navigate(t, k); height: page.height - pages.y - 20; visible: root.tab === "modules" }
     }
   }

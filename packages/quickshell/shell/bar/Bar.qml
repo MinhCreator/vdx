@@ -12,6 +12,8 @@ import qs.modules.capture
 import qs.modules.chat
 import qs.modules.cleaner
 import qs.modules.clipboard
+import qs.modules.packages
+import qs.modules.virustotal
 import qs.modules.clock
 import qs.modules.folder
 import qs.modules.language
@@ -37,7 +39,7 @@ PanelWindow {
     workspaces: workspaces, music: music, radio: radio, clock: clock,
     brightness: brightness, audio: audio, wifi: wifi, mihomo: mihomo,
     battery: battery, language: language, ai: ai, notifications: notifications,
-    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, windows: windows, chat: chat, folder: folder
+    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, virustotal: virustotal, packages: packages, windows: windows, chat: chat, folder: folder
   })
 
   component Zone: Row {
@@ -115,10 +117,12 @@ PanelWindow {
   Component { id: ai; Ai { bar: root } }
   Component { id: notifications; Notifications { bar: root } }
   Component { id: capture; Capture { bar: root } }
-  Component { id: clipboard; Clipboard { bar: root } }
+  Component { id: clipboard; ClipboardBar { bar: root } }
   Component { id: sysmon; Sysmon { bar: root } }
   Component { id: taskmanager; TaskManagerBar { bar: root } }
   Component { id: cleaner; CleanerBar { bar: root } }
+  Component { id: virustotal; VirusTotalBar { bar: root } }
+  Component { id: packages; PackagesBar { bar: root } }
   Component { id: windows; Windows { bar: root } }
   Component { id: chat; Chat { bar: root } }
   Component { id: folder; Folder { bar: root; modules: root.modules } }

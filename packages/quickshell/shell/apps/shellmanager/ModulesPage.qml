@@ -12,7 +12,7 @@ Column {
   id: root
 
   // the window's fixed header shows these; the page under it scrolls
-  readonly property string icon: "grid"
+  readonly property string icon: "puzzle"
   readonly property string title: "Modules"
   readonly property string subtitle: own.length + " MODULES · " + own.filter(p => p.settings).length + " WITH OPTIONS · " + (BarLayout.modules.length - own.length) + " OF APPS"
 

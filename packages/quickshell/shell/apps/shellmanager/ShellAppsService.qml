@@ -15,7 +15,7 @@ Singleton {
   readonly property string script: Theme.scriptsDir + "/shellapps.py"
 
   // ---- the shell's apps: apps/apps.json, the one registry (the Shell ----
-  // Manager, the system menu, scripts/shellapps.py) ----
+  // Manager, the launcher, scripts/shellapps.py) ----
   // id, label, icon, about; bind — the Hyprland bind that opens it; ipc +
   // open — `qs ipc call <ipc> <open>`; window — {id, title, width, height}
   // when it is a window of its own; settings — its options page (values in

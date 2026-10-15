@@ -3,7 +3,7 @@
 -- https://wiki.hypr.land/Configuring/Basics/Dispatchers/
 --
 -- Every bind carries a description "Group · What it does": hyprctl binds
--- shows it, and the Shell Manager (Super+S › Binds) lists binds by group.
+-- shows it, and the Keybinds app (Super+B) lists them by tab.
 
 local mainMod = "SUPER"
 
@@ -16,18 +16,18 @@ end
 -- apps
 bind("Apps", mainMod .. " + Q", hl.dsp.exec_cmd("kitty"), "Terminal")
 bind("Apps", mainMod .. " + E", hl.dsp.exec_cmd("kitty -e elio"), "File manager")
-bind("Apps", mainMod .. " + M", hl.dsp.exec_cmd("kitty -e ncmpcpp"), "Music player")
-bind("Apps", mainMod .. " + R", hl.dsp.exec_cmd("qs -c shell ipc call launcher toggle"), "System menu")
+bind("Apps", mainMod .. " + R", hl.dsp.exec_cmd("qs -c shell ipc call launcher toggle"), "Launcher")
 bind("Apps", mainMod .. " + Z", hl.dsp.exec_cmd("qs -c shell ipc call lock lock"), "Lock the screen")
 -- the shell's lock screen: if the shell dies while locked, started again it locks anew
 hl.config({ misc = { allow_session_lock_restore = true } })
 
 -- shell
 bind("Shell", mainMod .. " + S", hl.dsp.exec_cmd("qs -c shell ipc call shell toggle"), "Shell Manager")
-bind("Shell", mainMod .. " + B", hl.dsp.exec_cmd("qs -c shell ipc call clipboard toggle"), "Clipboard history")
+bind("Shell", mainMod .. " + B", hl.dsp.exec_cmd("qs -c shell ipc call keybinds toggle"), "Keybinds")
 bind("Shell", mainMod .. " + D", hl.dsp.exec_cmd("qs -c shell ipc call taskmanager toggle"), "Task manager")
-bind("Shell", mainMod .. " + X", hl.dsp.exec_cmd("qs -c shell ipc call cleaner toggle"), "Cleaner")
-bind("Shell", mainMod .. " + TAB", hl.dsp.exec_cmd("qs -c shell ipc call overview toggle"), "Overview")
+bind("Shell", mainMod .. " + X", hl.dsp.exec_cmd("qs -c shell ipc call cleaner toggle"), "Cleaner")-- Super + Tab is the floating mode's window switcher (apps/switcher/Switcher.qml)
+bind("Shell", mainMod .. " + TAB", hl.dsp.exec_cmd("qs -c shell ipc call switcher next"), "Window switcher (floating)")
+bind("Shell", mainMod .. " + SHIFT + TAB", hl.dsp.exec_cmd("qs -c shell ipc call switcher back"), "Window switcher back (floating)")
 
 -- screenshots (both copy to the clipboard)
 -- capture tool: region / window / screen, shot or recording (again: stop recording)

@@ -2,7 +2,7 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// A key as a keycap: Binds lists binds with them, Shell apps the key that
+// A key as a keycap: Keybinds lists binds with them, Shell apps the key that
 // opens each app.
 Rectangle {
   property alias text: keyText.text

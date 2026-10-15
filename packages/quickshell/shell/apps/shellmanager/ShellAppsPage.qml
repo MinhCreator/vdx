@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import qs.apps.keybinds
 import qs.bar
 import qs.config
 import qs.kit
@@ -14,7 +15,7 @@ Column {
   id: root
 
   // the window's fixed header shows these; the page under it scrolls
-  readonly property string icon: "app-window"
+  readonly property string icon: "grid"
   readonly property string title: "Shell apps"
   readonly property string subtitle: ShellAppsService.entries.length + " APPS · "
                                      + ShellAppsService.windows.length + " WITH A WINDOW"
@@ -55,7 +56,7 @@ Column {
 
   spacing: 14
 
-  onVisibleChanged: if (visible) { ShellAppsService.refresh(); BindsService.refresh(); }
+  onVisibleChanged: if (visible) { ShellAppsService.refresh(); KeybindsService.refresh(); }
 
   Row {
     width: parent.width
@@ -130,7 +131,7 @@ Column {
             spacing: 6
 
             Repeater {
-              model: BindsService.keysFor(root.entry?.bind ?? "")
+              model: KeybindsService.keysFor(root.entry?.bind ?? "")
 
               KeyCap {
                 required property string modelData
@@ -214,16 +215,6 @@ Column {
           KitLabel { text: "PLACE"; value: root.place.toUpperCase() }
 
           KitRow {
-            label: "Show in the bar"
-            hint: "On the main bar"
-
-            KitSwitch {
-              checked: root.place !== "hidden"
-              onToggled: BarLayout.setEnabled(root.entry.module, !checked, root.screen)
-            }
-          }
-
-          KitRow {
             visible: root.place !== "hidden"
             label: "Zone and order"
             hint: "Dragged on the Bar page"
@@ -241,7 +232,7 @@ Column {
             id: barOptions
             width: parent.width
             visible: active
-            active: !!root.entry?.moduleSettings && root.place !== "hidden"
+            active: !!root.entry?.moduleSettings
             source: active ? Quickshell.shellPath(root.entry.moduleSettings) : ""
           }
         }
@@ -250,7 +241,7 @@ Column {
         KitRow {
           visible: root.window === null && !root.entry?.settings && !root.entry?.module
           label: "No options"
-          hint: "It opens with its key or the system menu"
+          hint: "Opens with its key or the launcher"
           labelColor: Theme.foreground2
         }
       }

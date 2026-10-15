@@ -3,12 +3,17 @@ import Quickshell
 import Quickshell.Io
 import qs.apps.auth
 import qs.apps.capture
+import qs.apps.clipboard
 import qs.apps.cleaner
+import qs.apps.packages
+import qs.apps.virustotal
+import qs.apps.keybinds
 import qs.apps.taskbar
 import qs.apps.launcher
 import qs.apps.lock
 import qs.apps.overview
 import qs.apps.shellmanager
+import qs.apps.switcher
 import qs.apps.taskmanager
 import qs.bar
 import qs.components
@@ -24,10 +29,16 @@ Scope {
   ShellManagerWindow {}
   TaskManagerWindow {}
   CleanerWindow {}
+  VirusTotalWindow {}
+  PackagesWindow {}
+  ClipboardWindow {}
+  Keybinds {}
   Taskbar {}
   Launcher {}
   Lock {}
   Overview {}
+  // Super+Tab: the floating mode's window switcher (Switcher.step)
+  Switcher {}
 
   // the polkit agent: password requests slide down from under the bar
   AuthPrompt {}
