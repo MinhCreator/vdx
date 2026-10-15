@@ -4,7 +4,7 @@ import qs.config
 
 // An SVG icon from kit/icons, recoloured to `tint`. The files are drawn in
 // white (Lucide-style outlines, square caps), so colorization maps them to any
-// palette colour exactly. `solid` picks the filled variant from icons/solid,
+// theme colour exactly. `solid` picks the filled variant from icons/solid,
 // falling back to the outline when there is none.
 Item {
   id: root

@@ -6,7 +6,9 @@
 `… shell open <appearance|bar>` (старые `themes`, `wallpaper`, `plugins`
 ведут туда же). Escape закрывает.
 
-Слева — разделы, справа — страница с прокруткой.
+Слева — разделы, справа — страница с прокруткой. Под открытым разделом —
+его группы (`jumps` страницы): клик плавно прокручивает к группе, полоска
+слева отмечает ту, что сейчас наверху; на Plugins это плагины с опциями.
 
 ## Разделы
 
@@ -14,9 +16,12 @@
   бар с иконками в цветах состояний, попап) в цветах выбранной темы, справа
   список тем. Клик по теме только показывает её в превью; **Apply**
   переключает через `install.py theme set`, **Cancel** возвращает. Оболочка
-  перекрашивается на лету, без перезапуска: `ThemeService` кладёт палитру
+  перекрашивается на лету, без перезапуска: `ThemeService` кладёт цвета
   активной темы в `Theme.live`. Ниже — обои: образец «Theme» (цвет темы,
-  `background1`), готовые образцы или свой hex. Дальше — **FONT**: образец
+  `background1`), готовые образцы или свой hex, и картинки из
+  `~/.dotfiles/wallpapers` (сначала папка активной темы, потом `common/`):
+  клик ставит картинку активной теме — у каждой темы своя, превью показывает
+  картинку выбранной темы. **Add image** копирует файл по пути в папку темы. Дальше — **FONT**: образец
   текста выбранным шрифтом и список (Nerd Fonts до ~120 МБ и всё
   моноширинное, что уже стоит; не скачанные — со значком загрузки). **Apply** при нужде скачивает шрифт в `~/.local/share/fonts` и
   делает его `monospace` для всей системы: fontconfig
@@ -57,15 +62,17 @@
 | `ShellManagerWindow.qml` | Окно (`FloatingWindow`), Escape, IPC `shell` |
 | `ShellManager.qml` | Навигация и область страницы |
 | `AppearancePage.qml`, `ThemePreview.qml` | Превью, темы, обои; миниатюра темы |
-| `Wallpaper.qml` | Заливка обоев через `awww` |
+| `Wallpaper.qml` | Обои через `awww`: картинка темы или заливка цветом |
+| `WallpaperService.qml`, `WallpaperThumb.qml` | Картинки обоев: выбор для темы, добавление; миниатюра |
 | `BarPage.qml`, `BarPreview.qml` | Мониторы, полосы чипов раскладки и предпросмотр бара, стиль значков и анимация подчёркивания |
 | `PluginsPage.qml` | Список плагинов и страница опций выбранного |
-| `ThemeService.qml` | Список тем, палитры (все роли), переключение, `Theme.live` |
+| `ThemeService.qml` | Список тем, их цвета (все роли), переключение, `Theme.live` |
 | `FontService.qml`, `scripts/fonts.py` | Шрифты: список, установка, `monospace`, перезапуск оболочки |
 | `CursorService.qml`, `scripts/cursors.py` | Курсоры: список, установка, тема и размер |
 | `PickList.qml` | Рамочный список со значками «текущий / качается / скачать» |
 | `scripts/themes.sh` | Темы и их цвета по ролям из `Colors.qml` каждой темы |
 
 Опции хранят `config/ShellSettings.qml` (`settings.json`: `solidIcons`,
-`underlineAnimation`, `font`, `wallpaperMode`, `wallpaperColor`), `config/PluginSettings.qml` (`plugins.json`) и `bar/BarLayout.qml` (`layout.json`:
+`underlineAnimation`, `font`, `wallpaperMode`, `wallpaperColor`,
+`wallpaperImages`), `config/PluginSettings.qml` (`plugins.json`) и `bar/BarLayout.qml` (`layout.json`:
 раскладка и выключенные модули по ролям мониторов).

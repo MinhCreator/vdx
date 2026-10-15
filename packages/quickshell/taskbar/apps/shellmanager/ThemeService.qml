@@ -8,7 +8,7 @@ import qs.config
 // Dotfiles themes (~/.dotfiles/themes/<name>) for the Shell Manager: the list,
 // the active one (.theme, gruvbox when absent) and switching through
 // `install.py theme set`, which relinks every program's colours. The active
-// palette goes to Theme.live, so the shell recolours without a reload.
+// theme's colours go to Theme.live, so the shell recolours without a reload.
 Singleton {
   id: root
 
@@ -19,7 +19,7 @@ Singleton {
   readonly property var roles: ["background0", "background1", "background2", "background3",
                                 "foreground0", "foreground1", "foreground2", "red", "orange", "yellow",
                                 "green", "aqua", "blue", "purple", "gray", "muted", "frame", "dim"]
-  property var palettes: ({})
+  property var colors: ({})
   property string current: ""
   property bool busy: false
   property string applying: ""              // the theme being switched to
@@ -44,19 +44,19 @@ Singleton {
     stdout: StdioCollector {
       onStreamFinished: {
         const [list, active] = text.split("---\n");
-        const palettes = {};
+        const colors = {};
         const names = [];
         for (const line of list.split("\n").filter(l => l !== "")) {
-          const [name, ...colors] = line.split(" ");
+          const [name, ...values] = line.split(" ");
           names.push(name);
-          const palette = {};
-          root.roles.forEach((role, i) => palette[role] = colors[i] ?? "#000000");
-          palettes[name] = palette;
+          const roleColors = {};
+          root.roles.forEach((role, i) => roleColors[role] = values[i] ?? "#000000");
+          colors[name] = roleColors;
         }
-        root.palettes = palettes;
+        root.colors = colors;
         root.themes = names;
         root.current = (active ?? "").trim();
-        Theme.live = palettes[root.current] ?? ({});
+        Theme.live = colors[root.current] ?? ({});
       }
     }
   }

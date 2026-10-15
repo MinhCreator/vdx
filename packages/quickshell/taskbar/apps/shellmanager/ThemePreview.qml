@@ -1,15 +1,15 @@
 import QtQuick
 
-// A miniature desktop drawn only in a theme's own colours (`palette`, roles
+// A miniature desktop drawn only in a theme's own colours (`colors`, roles
 // from ThemeService): the bar with workspaces and status icons, a terminal
 // with a few lines of code, and a popup with a level bar, a selected row and
 // a button.
 Rectangle {
   id: root
 
-  property var palette: ({})
+  property var colors: ({})
 
-  function c(role) { return palette[role] ?? "#000000"; }
+  function c(role) { return colors[role] ?? "#000000"; }
 
   color: c("background1")
   clip: true

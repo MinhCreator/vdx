@@ -12,6 +12,13 @@ import qs.kit
 Column {
   id: root
 
+  // groups for the Shell Manager's sidebar: a click scrolls to `y`
+  readonly property var jumps: [
+    { key: "monitor", label: "Monitor", y: monitorGroup.y },
+    { key: "layout",  label: "Layout",  y: layoutGroup.visible ? layoutGroup.y : -2 },
+    { key: "style",   label: "Style",   y: styleGroup.y }
+  ].filter(j => j.y > -2)
+
   property string dragId: ""
   property string dropZone: ""        // left | center | right | hidden
   property int dropIndex: -1
@@ -95,7 +102,7 @@ Column {
   KitLine {}
 
   // ---- monitor -------------------------------------------------------------------
-  KitLabel { text: "MONITOR" }
+  KitLabel { id: monitorGroup; text: "MONITOR" }
 
   KitChoices {
     visible: root.roles.length > 1 && !BarLayout.shared
@@ -135,6 +142,7 @@ Column {
 
   // ---- layout ----------------------------------------------------------------------
   Item {
+    id: layoutGroup
     visible: root.barOn
     width: parent.width
     height: layoutActions.height
@@ -322,7 +330,7 @@ Column {
   KitLine {}
 
   // ---- style (every bar) -------------------------------------------------------------
-  KitLabel { text: "STYLE" }
+  KitLabel { id: styleGroup; text: "STYLE" }
 
   KitRow {
     label: "Icons"

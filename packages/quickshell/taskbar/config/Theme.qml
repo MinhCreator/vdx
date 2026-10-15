@@ -2,15 +2,15 @@ pragma Singleton
 import QtQuick
 import Quickshell
 
-// Everything modules read: the palette (from the theme's Colors.qml), type,
+// Everything modules read: the theme's colours (from its Colors.qml), type,
 // metrics, intervals, script paths and formatting helpers. Icons are SVGs in
 // kit/icons, not font glyphs.
 
 QtObject {
   id: root
 
-  // ---- palette (from the active theme's Colors.qml) -----------------------
-  // `live` is the active theme's palette read at runtime (ThemeService), so a
+  // ---- colours (from the active theme's Colors.qml) -----------------------
+  // `live` is the active theme's colours read at runtime (ThemeService), so a
   // theme switch recolours everything without reloading the shell.
   property var live: ({})
 

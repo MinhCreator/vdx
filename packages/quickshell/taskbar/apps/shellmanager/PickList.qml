@@ -2,7 +2,7 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// A framed, scrolling list like the palette list: the highlighted row is
+// A framed, scrolling list like the theme list: the highlighted row is
 // `selected`, the one in use carries a check, the one being worked on a
 // spinner, and a row that still has to be downloaded a download mark.
 // Rows: [{ key, label, installed, family? }] — `family` draws the label in

@@ -12,7 +12,7 @@ taskbar/
 ├─ bar/               Bar.qml (зоны), BarLayout (реестр плагинов, раскладка), BarPopup (обвязка попапа)
 ├─ kit/               UI-компоненты (каталог ниже) и icons/ — SVG-иконки (+ icons/solid)
 ├─ components/        ThemeText, Separator, PopupManager, PopupCatcher (клик мимо попапа)
-├─ config/            Theme (всё общее), Colors (палитра темы), ShellSettings (опции оболочки), PluginSettings (опции плагинов)
+├─ config/            Theme (всё общее), Colors (цвета темы), ShellSettings (опции оболочки), PluginSettings (опции плагинов)
 ├─ apps/shellmanager/ окно настроек: Appearance (тема, обои, шрифт, курсор), Bar (мониторы, раскладка, модули), Plugins
 ├─ apps/capture/      захват экрана (Super+Shift+S): область / окно / экран, скриншот или запись
 ├─ scripts/           бэкенды: *.sh / *.py, на выходе только JSON (или строки, см. шапку)
@@ -137,11 +137,11 @@ false`): фокус клавиатуры даёт `HyprlandFocusGrab`, клик 
 
 ## Цвета и темы
 
-`Colors.qml` — палитра активной темы (`themes/<t>/quickshell/.../Colors.qml`
+`Colors.qml` — цвета активной темы (`themes/<t>/quickshell/.../Colors.qml`
 перекрывает базу), `Theme` пробрасывает роли: `background0..3`,
 `foreground0..2`, `gray` (рамки контролов), `frame` (рамка попапа), `muted`,
-`dim`, акценты. Роли и правила палитры — `~/.dotfiles/themes/gruvbox/README.md`.
-Новая тема — палитра в `themes/mktheme.py` и запуск; Shell Manager увидит её
+`dim`, акценты. Роли и правила цветов темы — `~/.dotfiles/themes/gruvbox/README.md`.
+Новая тема — её цвета в `themes/mktheme.py` и запуск; Shell Manager увидит её
 сам (`scripts/themes.sh`). Хардкод цветов в QML запрещён — только `Theme.*`.
 
 ## Иконки

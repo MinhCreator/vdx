@@ -11,6 +11,10 @@ import qs.kit
 Column {
   id: root
 
+  // the sidebar lists the plugins with options; a click (no `y`) selects one
+  readonly property var jumps: BarLayout.plugins.filter(p => p.settings).map(p => ({ key: p.id, label: p.label, y: -1 }))
+  function jump(key) { selected = key; }
+
   property string selected: (BarLayout.plugins.find(p => p.settings) ?? BarLayout.plugins[0])?.id ?? ""
   readonly property var plugin: BarLayout.plugins.find(p => p.id === selected) ?? null
   property string query: ""

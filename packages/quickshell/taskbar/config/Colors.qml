@@ -1,9 +1,9 @@
 pragma Singleton
 import QtQuick
 
-// Colors — palette of the active theme, read through Theme.qml.
+// Colors — colours of the active theme, read through Theme.qml.
 //
-// This base copy holds the gruvbox palette. A theme replaces the file through
+// This base copy holds the gruvbox colours. A theme replaces the file through
 // install.py's overlay (themes/<t>/quickshell/taskbar/config/Colors.qml wins);
 // `pragma Singleton` registers it as a singleton.
 

@@ -13,7 +13,8 @@ Singleton {
   readonly property bool solidIcons: state.solidIcons
   readonly property string font: state.font                       // family, kept in step with fontconfig
   readonly property string underlineAnimation: state.underlineAnimation  // none | grow | slide
-  readonly property string wallpaperMode: state.wallpaperMode     // theme | custom
+  readonly property string wallpaperMode: state.wallpaperMode     // theme | custom | image
+  readonly property var wallpaperImages: state.wallpaperImages     // theme -> path under ~/.dotfiles/wallpapers
   readonly property string wallpaperColor: state.wallpaperColor   // #rrggbb, for custom
 
   // Whether the Shell Manager window is open (not saved).
@@ -36,6 +37,7 @@ Singleton {
       property string underlineAnimation: "none"
       property string wallpaperMode: "theme"
       property string wallpaperColor: "#32302f"
+      property var wallpaperImages: ({})
     }
   }
 }

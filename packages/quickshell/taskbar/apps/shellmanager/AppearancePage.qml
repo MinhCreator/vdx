@@ -1,10 +1,12 @@
 import QtQuick
+import Qt.labs.folderlistmodel
 import qs.config
 import qs.kit
 
 // Appearance: everything that changes how the desktop looks — a live preview
 // beside the theme list (pick one to preview it, Apply to switch),
-// wallpaper (the theme's colour or a custom one), the system font (the same
+// wallpaper (the theme's colour, a custom one or a picture per theme from
+// ~/.dotfiles/wallpapers), the system font (the same
 // preview-and-apply) and the cursor (applied on click); the bar's icon style
 // is shown here but set on the Bar page.
 Column {
@@ -22,13 +24,18 @@ Column {
     const i = list.indexOf(selected);
     selected = list[Math.max(0, Math.min(list.length - 1, (i < 0 ? 0 : i + delta)))];
   }
-  readonly property var palette: ThemeService.palettes[selected] ?? ({})
+  readonly property var themeColors: ThemeService.colors[selected] ?? ({})
   readonly property bool customWallpaper: ShellSettings.wallpaperMode === "custom"
+  readonly property bool imageWallpaper: ShellSettings.wallpaperMode === "image"
+  // the picture of the active theme, and the one the previewed theme would show
+  readonly property string currentImage: imageWallpaper ? WallpaperService.imageFor(ThemeService.current) : ""
+  readonly property string previewImage: imageWallpaper ? WallpaperService.imageFor(selected) : ""
+  property string imageDraft: ""
   readonly property color wallpaper: customWallpaper ? ShellSettings.wallpaperColor : p("background1")
   property string draft: ShellSettings.wallpaperColor
   readonly property bool draftValid: /^#?[0-9a-fA-F]{6}$/.test(draft.trim())
 
-  function p(role) { return palette[role] ?? Theme[role]; }
+  function p(role) { return themeColors[role] ?? Theme[role]; }
 
   // the font in the preview; Apply installs it if needed and makes it the system one
   property string fontSelected: FontService.current
@@ -44,13 +51,22 @@ Column {
     draft = hex;
   }
 
+  // groups for the Shell Manager's sidebar: a click scrolls to `y`
+  readonly property var jumps: [
+    { key: "themes",    label: "Themes",    y: themesGroup.y },
+    { key: "wallpaper", label: "Wallpaper", y: wallpaperGroup.y },
+    { key: "font",      label: "Font",      y: fontGroup.y },
+    { key: "cursor",    label: "Cursor",    y: cursorGroup.y }
+  ]
+
   spacing: 14
 
   KitHeader {
     icon: "sun"
     title: "Appearance"
     subtitle: (ThemeService.current || "—").toUpperCase()
-      + (root.customWallpaper ? " · CUSTOM WALLPAPER" : " · THEME WALLPAPER")
+      + (root.currentImage !== "" ? " · IMAGE WALLPAPER"
+         : root.customWallpaper ? " · CUSTOM WALLPAPER" : " · THEME WALLPAPER")
       + (ShellSettings.solidIcons ? " · SOLID ICONS" : " · OUTLINE ICONS")
   }
 
@@ -58,6 +74,7 @@ Column {
 
   // preview on the left, the theme list on the right
   Row {
+    id: themesGroup
     width: parent.width
     spacing: 14
 
@@ -71,6 +88,16 @@ Column {
       border.color: root.p("gray")
 
       Behavior on color { ColorAnimation { duration: 200 } }
+
+      // the previewed theme's picture, when it has one
+      Image {
+        anchors { fill: parent; margins: Theme.frameWidth }
+        visible: root.previewImage !== ""
+        source: visible ? "file://" + WallpaperService.dir + "/" + root.previewImage : ""
+        sourceSize: Qt.size(width * 2, height * 2)
+        fillMode: Image.PreserveAspectCrop
+        asynchronous: true
+      }
 
       Rectangle {
         id: previewBar
@@ -161,7 +188,7 @@ Column {
 
       KitLabel {
         width: parent.width
-        text: "PALETTES"
+        text: "THEMES"
         value: String(ThemeService.themes.length)
       }
 
@@ -209,7 +236,7 @@ Column {
                 required property string modelData
 
                 readonly property bool active: modelData === root.selected
-                readonly property var colors: ThemeService.palettes[modelData] ?? ({})
+                readonly property var colors: ThemeService.colors[modelData] ?? ({})
 
                 width: options.width
                 height: 32
@@ -316,8 +343,10 @@ Column {
 
   // ---- wallpaper -------------------------------------------------------------------
   KitLabel {
+    id: wallpaperGroup
     text: "WALLPAPER"
-    value: String(root.wallpaper).toUpperCase()
+    value: root.currentImage !== "" ? root.currentImage.split("/").pop().toUpperCase()
+                                    : String(root.wallpaper).toUpperCase()
   }
 
   // the first swatch follows the theme; the rest are fixed colours
@@ -326,7 +355,8 @@ Column {
     spacing: 6
 
     Rectangle {
-      readonly property bool active: !root.customWallpaper
+      readonly property bool active: ShellSettings.wallpaperMode === "theme"
+                                     || (root.imageWallpaper && root.currentImage === "")
 
       width: themeSwatchText.implicitWidth + 44
       height: 30
@@ -407,10 +437,84 @@ Column {
     }
   }
 
+  // pictures: the active theme's folder first, then the shared one
+  Flow {
+    width: parent.width
+    spacing: 6
+
+    Repeater {
+      model: FolderListModel {
+        folder: "file://" + WallpaperService.dir + "/" + ThemeService.current
+        nameFilters: WallpaperService.extensions
+        showDirs: false
+      }
+
+      WallpaperThumb {
+        required property string fileName
+        required property string filePath
+        source: filePath
+        active: root.currentImage === ThemeService.current + "/" + fileName
+        onClicked: WallpaperService.choose(ThemeService.current, ThemeService.current + "/" + fileName)
+      }
+    }
+
+    Repeater {
+      model: FolderListModel {
+        folder: "file://" + WallpaperService.dir + "/common"
+        nameFilters: WallpaperService.extensions
+        showDirs: false
+      }
+
+      WallpaperThumb {
+        required property string fileName
+        required property string filePath
+        source: filePath
+        active: root.currentImage === "common/" + fileName
+        onClicked: WallpaperService.choose(ThemeService.current, "common/" + fileName)
+      }
+    }
+  }
+
+  Connections {
+    target: WallpaperService
+    function onAdded() { root.imageDraft = ""; }
+  }
+
+  KitRow {
+    label: "Add image"
+    hint: "copied into this theme's folder"
+
+    KitInput {
+      width: 220
+      placeholder: "~/Pictures/wall.jpg"
+      text: root.imageDraft
+      onTextEdited: root.imageDraft = text
+      onAccepted: WallpaperService.add(root.imageDraft, ThemeService.current)
+    }
+
+    KitButton {
+      icon: "download"
+      text: "Add"
+      busy: WallpaperService.busy
+      disabled: root.imageDraft.trim() === ""
+      onClicked: WallpaperService.add(root.imageDraft, ThemeService.current)
+    }
+  }
+
+  KitText {
+    width: parent.width
+    visible: WallpaperService.error !== ""
+    text: WallpaperService.error
+    color: Theme.red
+    wrapMode: Text.WordWrap
+    font.pixelSize: Theme.fontSize - 1
+  }
+
   KitLine {}
 
   // ---- font ------------------------------------------------------------------------
   KitLabel {
+    id: fontGroup
     text: "FONT"
     value: FontService.current.replace(" Nerd Font", "").toUpperCase()
   }
@@ -539,6 +643,7 @@ Column {
 
   // ---- cursor ----------------------------------------------------------------------
   KitLabel {
+    id: cursorGroup
     text: "CURSOR"
     value: CursorService.current.toUpperCase() + " · " + CursorService.size
   }
