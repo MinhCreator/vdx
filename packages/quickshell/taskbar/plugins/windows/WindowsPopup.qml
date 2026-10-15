@@ -2,9 +2,9 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// The window mode — tiling, floating (like Windows) or scrolling (like Niri) —
-// and the active window's place: halves, quarters, thirds, the middle or the
-// whole screen, each drawn as a tiny screen with its part filled.
+// The window mode — tiling, floating (like Windows) or scrolling (like Niri).
+// Its options live in the Shell Manager › Windows; floating windows are
+// placed with Super+arrows and their title bars.
 KitFrame {
   id: root
 
@@ -40,43 +40,6 @@ KitFrame {
       color: Theme.muted
       font.pixelSize: Theme.fontSize - 2
       text: root.mode.about
-    }
-  }
-
-  // ---- place (floating only: in a layout the layout places windows)
-  KitLine { visible: root.ws.mode === "floating" }
-
-  Column {
-    visible: root.ws.mode === "floating"
-    width: parent.width
-    spacing: 10
-
-    KitLabel { text: "PLACE THE WINDOW" }
-
-    Repeater {
-      model: [
-        [["left", [0, 0, 0.5, 1]], ["right", [0.5, 0, 0.5, 1]], ["top", [0, 0, 1, 0.5]], ["bottom", [0, 0.5, 1, 0.5]],
-         ["center", [0.15, 0.1, 0.7, 0.8]], ["maximize", [0, 0, 1, 1]]],
-        [["top-left", [0, 0, 0.5, 0.5]], ["top-right", [0.5, 0, 0.5, 0.5]], ["bottom-left", [0, 0.5, 0.5, 0.5]],
-         ["bottom-right", [0.5, 0.5, 0.5, 0.5]]],
-        [["left-third", [0, 0, 1 / 3, 1]], ["middle-third", [1 / 3, 0, 1 / 3, 1]], ["right-third", [2 / 3, 0, 1 / 3, 1]],
-         ["left-two-thirds", [0, 0, 2 / 3, 1]], ["right-two-thirds", [1 / 3, 0, 2 / 3, 1]]]
-      ]
-
-      Row {
-        required property var modelData
-        spacing: 6
-
-        Repeater {
-          model: modelData
-
-          SnapTile {
-            required property var modelData
-            area: modelData[1]
-            onPicked: root.ws.snap(modelData[0])
-          }
-        }
-      }
     }
   }
 }

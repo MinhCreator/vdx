@@ -5,7 +5,7 @@ import qs.plugins.windows
 
 // Windows: how windows behave (hypr/components/windowmode.lua) — the mode
 // (tiling, floating, scrolling), the options of the current one, the gaps and the
-// bottom dock of minimized windows. Applied at once: Hyprland reloads.
+// floating mode's taskbar. Applied at once: Hyprland reloads.
 Column {
   id: root
 
@@ -17,14 +17,14 @@ Column {
   readonly property string icon: "columns"
   readonly property string title: "Windows"
   readonly property string subtitle: mode.label.toUpperCase() + " · GAPS " + o.gapsIn + " / " + o.gapsOut
-                                     + " · DOCK " + (o.dock ? "ON" : "OFF")
+                                     + " · TASKBAR " + (o.dock ? "ON" : "OFF")
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [
     { key: "mode",   label: "Mode",   y: modeGroup.y },
     { key: "layout", label: root.mode.label, y: layoutGroup.y },
     { key: "gaps",   label: "Gaps",   y: gapsGroup.y },
-    { key: "dock",   label: "Dock",   y: dockGroup.y }
+    { key: "dock",   label: "Taskbar", y: dockGroup.y }
   ]
 
   function pct(v) { return Math.round(v * 100) + "%"; }
@@ -142,11 +142,11 @@ Column {
   KitLine {}
 
   // ---- dock ----------------------------------------------------------------------------
-  KitLabel { id: dockGroup; text: "DOCK" }
+  KitLabel { id: dockGroup; text: "TASKBAR" }
 
   KitRow {
-    label: "Minimized windows"
-    hint: "Floating: a bar at the bottom, Super+N"
+    label: "Taskbar"
+    hint: "Floating: this workspace's windows"
 
     KitSwitch {
       checked: root.o.dock

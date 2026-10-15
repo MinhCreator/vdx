@@ -48,9 +48,6 @@ Singleton {
          "_", stateDir + "windows.lua", lua]);
   }
 
-  // spot: left | right | top | bottom | top-left … | left-third … | center | maximize
-  function snap(spot) { run(["hyprctl", "eval", "SnapWindow(\"" + spot + "\")"]); }
-
   function run(command) { Quickshell.execDetached(command); }
 
   FileView {
