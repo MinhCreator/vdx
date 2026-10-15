@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Wayland
 import Quickshell.Widgets
+import qs.components
 import qs.config
 import qs.kit
 import qs.modules.windows
@@ -22,7 +23,6 @@ PanelWindow {
   readonly property var windows: Hyprland.toplevels.values.filter(t =>
     t.workspace?.id === wsId || (t.workspace?.name === "special:minimized" && root.tagsOf(t).includes("min" + wsId)))
 
-  function addr(t) { return t.address.startsWith("0x") ? t.address : "0x" + t.address; }
   function classOf(t) { return t.lastIpcObject?.class ?? ""; }
   function tagsOf(t) { return (t.lastIpcObject?.tags ?? []).map(s => s.replace(/\*$/, "")); }
   function minimized(t) { return t.workspace?.name === "special:minimized"; }
@@ -31,12 +31,12 @@ PanelWindow {
     return Quickshell.iconPath(e?.icon ?? classOf(t).toLowerCase(), true);   // "" when the theme has none
   }
   function clicked(t) {
-    if (minimized(t)) ws.restore(addr(t));
-    else ws.minimize(addr(t));
+    if (minimized(t)) ws.restore(Hypr.addr(t));
+    else ws.minimize(Hypr.addr(t));
   }
 
-  screen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0]
-  visible: ws.opts.dock && ws.mode === "floating"
+  screen: Hypr.focusedScreen
+  visible: ws.opts.taskbar && ws.mode === "floating"
   anchors { bottom: true; left: true; right: true }
   implicitHeight: Theme.barHeight
   exclusiveZone: implicitHeight
@@ -118,7 +118,7 @@ PanelWindow {
           cursorShape: Qt.PointingHandCursor
           acceptedButtons: Qt.LeftButton | Qt.MiddleButton
           // middle click closes, as in a browser's tabs
-          onClicked: mouse => mouse.button === Qt.MiddleButton ? root.ws.close(root.addr(item.modelData)) : root.clicked(item.modelData)
+          onClicked: mouse => mouse.button === Qt.MiddleButton ? root.ws.close(Hypr.addr(item.modelData)) : root.clicked(item.modelData)
         }
       }
     }

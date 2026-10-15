@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import qs.components
 
 // Window mode and snapping (hypr/components/windowmode.lua does the work):
 // tiling, floating (like Windows) or scrolling (like Niri), kept in
@@ -73,14 +74,14 @@ Singleton {
       property string scrollKeys: "wheel"     // wheel binds on: wheel | arrows | both
       property bool borders: true             // the windows' frames
       property bool shadows: true
-      property bool dock: true                // the bottom dock with minimized windows
+      property bool taskbar: true             // floating: the taskbar along the bottom
     }
   }
 
-  // minimized windows wait on special:minimized (windowmode.lua)
-  function minimize(address) { run(["hyprctl", "eval", "MinimizeWindow(" + (address ? "\"" + address + "\"" : "") + ")"]); }
-  function restore(address) { run(["hyprctl", "eval", "RestoreWindow(\"" + address + "\")"]); }
-  function close(address) { run(["hyprctl", "eval", "hl.dispatch(hl.dsp.window.close({ window = \"address:" + address + "\" }))"]); }
+  // the taskbar's actions; minimized windows wait on special:minimized (windowmode.lua)
+  function minimize(address) { Hypr.call("MinimizeWindow(" + (address ? "\"" + address + "\"" : "") + ")"); }
+  function restore(address) { Hypr.call("RestoreWindow(\"" + address + "\")"); }
+  function close(address) { Hypr.call("hl.dispatch(hl.dsp.window.close({ window = \"address:" + address + "\" }))"); }
 
   // the system menu switches the mode: `ipc call windowmode set floating`
   // ("windows" is the bar popup's)

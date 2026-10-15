@@ -27,24 +27,17 @@ Singleton {
     { id: "ai",            label: "AI",            zone: "right",  icon: "bot", about: "Claude Code limits, local Ollama models" },
     { id: "shell",         label: "Shell",         zone: "right",  icon: "sliders", about: "Shell Manager: options, modules, layout" },
     { id: "notifications", label: "Notifications", zone: "right",  icon: "bell", settings: "NotificationsSettings.qml", about: "History and unseen dot" },
-    { id: "capture",       label: "Capture",       zone: "right",  icon: "camera", app: "capture", about: "Screenshots and screen recording" },
+    { id: "capture",       label: "Capture",       zone: "right",  icon: "camera", about: "Screenshots and screen recording" },
     { id: "clipboard",     label: "Clipboard",     zone: "right",  icon: "clipboard", settings: "ClipboardSettings.qml", about: "Copy history, images to drag out" },
     { id: "sysmon",        label: "System",        zone: "right",  icon: "cpu", settings: "SysmonSettings.qml", about: "CPU, memory, GPU, disks, network, sensors" },
-    { id: "taskmanager",   label: "Task manager",  zone: "right",  icon: "activity", app: "taskmanager", about: "Load and the busiest programs · Super + D: the full window" },
-    { id: "cleaner",       label: "Cleaner",       zone: "right",  icon: "brush", app: "cleaner", about: "What can go, the safe part in one click · Super + X: the full window" },
+    { id: "taskmanager",   label: "Task manager",  zone: "right",  icon: "activity", about: "Load and the busiest programs · Super + D: the full window" },
+    { id: "cleaner",       label: "Cleaner",       zone: "right",  icon: "brush", about: "What can go, the safe part in one click · Super + X: the full window" },
     { id: "windows",       label: "Windows",       zone: "right",  icon: "app-window", about: "Window mode — tiling, floating, scrolling — and placing the active window" },
     { id: "chat",          label: "Chat",          zone: "right",  icon: "message", settings: "ChatSettings.qml", about: "A chat with a free opencode model" },
     { id: "folder",        label: "Folder",        zone: "right",  icon: "folder", about: "Modules tucked away, one click from the bar" }
   ]
   readonly property var zones: ["left", "center", "right"]
 
-  // Shell apps with options but no place on the bar (their own windows): listed
-  // with the modules in Shell Manager › Modules. `settings` is a path from the
-  // config root.
-  readonly property var apps: [
-  ]
-  // modules and apps, for the Shell Manager's options list
-  readonly property var entries: modules.concat(apps)
 
   // Old ids still found in saved layouts: old -> new.
   readonly property var renamed: ({ claude: "ai", plugins: "shell" })

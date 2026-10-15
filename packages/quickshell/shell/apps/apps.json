@@ -1,0 +1,23 @@
+[
+  { "id": "shell-manager", "label": "Shell Manager", "icon": "settings", "about": "The shell's settings: this window",
+    "bind": "Shell Manager", "ipc": "shell", "open": "toggle",
+    "window": { "id": "shell-manager", "title": "Shell Manager", "width": 820, "height": 600 } },
+  { "id": "taskmanager", "label": "Task manager", "icon": "activity", "about": "Processes, CPU and memory, End / Kill",
+    "bind": "Task manager", "ipc": "taskmanager", "open": "toggle",
+    "window": { "id": "task-manager", "title": "Task Manager", "width": 780, "height": 600 },
+    "settings": "apps/taskmanager/TaskManagerSettings.qml",
+    "module": "taskmanager", "moduleSettings": "apps/taskmanager/TaskManagerBarSettings.qml" },
+  { "id": "cleaner", "label": "Cleaner", "icon": "brush", "about": "Caches, the trash, the system; an AI mode",
+    "bind": "Cleaner", "ipc": "cleaner", "open": "toggle",
+    "window": { "id": "cleaner", "title": "Cleaner", "width": 760, "height": 620 },
+    "settings": "apps/cleaner/CleanerSettings.qml", "module": "cleaner" },
+  { "id": "capture", "label": "Capture", "icon": "camera", "about": "A region, a window or the screen: a shot or a recording",
+    "bind": "Capture tool", "ipc": "capture", "open": "open",
+    "settings": "modules/capture/CaptureSettings.qml", "module": "capture" },
+  { "id": "launcher", "label": "System menu", "icon": "grid", "about": "Apps, files, the shell's actions, power",
+    "bind": "System menu", "ipc": "launcher", "open": "toggle" },
+  { "id": "overview", "label": "Overview", "icon": "columns", "about": "Every workspace at once, windows dragged between them",
+    "bind": "Overview", "ipc": "overview", "open": "toggle" },
+  { "id": "lock", "label": "Lock screen", "icon": "lock", "about": "A session lock with a PAM password",
+    "bind": "Lock the screen", "ipc": "lock", "open": "lock" }
+]

@@ -4,13 +4,13 @@ One JSON object per command.
 
     shellapps.py list            {"ok", "presets", "apps": [{id, title, icon, width, height, settings}]}
     shellapps.py set <id> <json> saves one app's settings, rewrites the rules, reloads Hyprland
+    shellapps.py ensure          writes the rules when they are missing (first start) and reloads
 
 Settings: {mode: floating | tiled, size: default | preset | custom, preset:
 small | medium | large, width, height, position, x, y}; position is one of
 the nine spots of the screen (top-left … bottom-right, center), cursor or custom.
 Kept in ~/.local/state/dotfiles/shell-apps.json; the Hyprland rules they make
-go to shell-apps.lua next to it, which hypr/components/rules.lua loads (it
-holds the same defaults for when the file is missing). Errors:
+go to shell-apps.lua next to it, which hypr/components/rules.lua loads. Errors:
 {"ok": false, "error": "..."}."""
 import json, subprocess, sys
 from pathlib import Path
@@ -18,13 +18,11 @@ from pathlib import Path
 STATE = Path.home() / ".local/state/dotfiles/shell-apps.json"
 RULES = STATE.with_suffix(".lua")
 
-# the rule name, the window title, its own size, its IPC target and the
-# name of the bind that opens it (keybinds.lua) — as in hypr/components/rules.lua
-APPS = [
-    {"id": "shell-manager", "title": "Shell Manager", "icon": "settings", "ipc": "shell", "bind": "Shell Manager", "width": 820, "height": 600},
-    {"id": "task-manager", "title": "Task Manager", "icon": "activity", "ipc": "taskmanager", "bind": "Task manager", "width": 780, "height": 600},
-    {"id": "cleaner", "title": "Cleaner", "icon": "brush", "ipc": "cleaner", "bind": "Cleaner", "width": 760, "height": 620},
-]
+# the shell's apps with a window of their own (apps/apps.json): the rule
+# name, the window title, its own size, its icon and IPC target
+REGISTRY = Path(__file__).resolve().parent.parent / "apps/apps.json"
+APPS = [{**a["window"], "icon": a["icon"], "ipc": a["ipc"]}
+        for a in json.loads(REGISTRY.read_text()) if "window" in a]
 # share of the monitor
 PRESETS = {"small": [0.5, 0.55], "medium": [0.65, 0.7], "large": [0.8, 0.85]}
 DEFAULT = {"mode": "floating", "size": "default", "preset": "medium", "width": 0, "height": 0,
@@ -84,7 +82,8 @@ def write(all_settings):
     STATE.write_text(json.dumps(all_settings, indent=2) + "\n")
     lines = ["-- written by the Shell Manager (scripts/shellapps.py) — Shell apps", "return {"]
     for app in APPS:
-        lines.append(f'  ["{app["id"]}"] = {rule(app, all_settings[app["id"]])},')
+        body = rule(app, all_settings[app["id"]])[1:].strip()
+        lines.append(f'  {{ name = "{app["id"]}", match = {{ title = "^({app["title"]})$" }}, {body},')
     lines.append("}")
     RULES.write_text("\n".join(lines) + "\n")
 
@@ -135,6 +134,11 @@ if __name__ == "__main__":
         out({"ok": True, "presets": PRESETS, "minWidth": MIN_W, "minHeight": MIN_H, "spots": SPOTS,
              "gap": GAP, "top": TOP,
              "apps": [{**a, "settings": settings[a["id"]]} for a in APPS]})
+    elif args == ["ensure"]:
+        if not RULES.exists():
+            write(load())
+            subprocess.run(["hyprctl", "reload"], capture_output=True)
+        out({"ok": True})
     elif len(args) == 3 and args[0] == "set":
         cmd_set(args[1], args[2])
     out({"ok": False, "error": "usage: shellapps.py list | set <id> <json>"})

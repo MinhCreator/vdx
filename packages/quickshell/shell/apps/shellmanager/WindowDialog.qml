@@ -10,7 +10,7 @@ Item {
   id: root
 
   property string appId: ""                 // shellapps.py id; "" closed
-  readonly property var app: ShellAppsService.apps.find(a => a.id === appId) ?? null
+  readonly property var app: ShellAppsService.windows.find(a => a.id === appId) ?? null
 
   function close() { appId = ""; }
 

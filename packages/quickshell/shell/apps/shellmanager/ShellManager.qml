@@ -9,7 +9,7 @@ import qs.kit
 // open section its groups (`jumps` of the page) jump there on a click.
 //   APPEARANCE — theme, icon style, wallpaper, font and cursor;
 //   BAR        — the layout of the bar's zones, modules on / off, underline.
-//   WINDOWS    — the window mode, each mode's options, gaps, the dock.
+//   WINDOWS    — the window mode, each mode's options, gaps, the taskbar.
 //   MODULES    — each bar module's own options (the modules; an app's is set with the app).
 //   SHELL APPS — how the shell's own windows open: floating or tiled, size, spot.
 //   BINDS      — Hyprland's keybinds by group, with a search.
@@ -21,7 +21,7 @@ Rectangle {
   readonly property var sections: [
     { value: "appearance", label: "Appearance", icon: "sun" },
     { value: "bar",        label: "Bar",        icon: "layout" },
-    { value: "windows",    label: "Windows",    icon: "columns" },
+    { value: "windows",    label: "Windows",    icon: "app-window" },
     { value: "modules",    label: "Modules",    icon: "grid" },
     { value: "apps",       label: "Shell apps", icon: "app-window" },
     { value: "binds",      label: "Binds",      icon: "keyboard" },

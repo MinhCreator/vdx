@@ -14,7 +14,7 @@ Column {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "grid"
   readonly property string title: "Modules"
-  readonly property string subtitle: own.length + " MODULES · " + own.filter(p => p.settings).length + " WITH OPTIONS · " + (BarLayout.entries.length - own.length) + " OF APPS"
+  readonly property string subtitle: own.length + " MODULES · " + own.filter(p => p.settings).length + " WITH OPTIONS · " + (BarLayout.modules.length - own.length) + " OF APPS"
 
   // its own list does the job of the sidebar's group links
   readonly property var jumps: []
@@ -23,7 +23,10 @@ Column {
 
   // a module that is an app's face in the bar (`app`) is set with its app, in
   // Shell apps: listed as a link there
-  readonly property var own: BarLayout.entries.filter(p => !p.app)
+  // the app a module belongs to (apps/apps.json), if any
+  function appOf(id) { return ShellAppsService.entries.find(a => a.module === id) ?? null; }
+
+  readonly property var own: BarLayout.modules.filter(p => !root.appOf(p.id))
   property string selected: (own.find(p => p.settings) ?? own[0])?.id ?? ""
   readonly property var module: own.find(p => p.id === selected) ?? null
 
@@ -40,10 +43,10 @@ Column {
       width: 190
       height: parent.height
       title: "MODULES"
-      model: BarLayout.entries.map(p => p.app ? Object.assign({ link: true }, p) : p)
+      model: BarLayout.modules.map(p => root.appOf(p.id) ? Object.assign({ link: true }, p) : p)
       selected: root.selected
       onPicked: id => {
-        if (BarLayout.entries.find(p => p.id === id)?.app) root.navigate("apps", id);
+        if (root.appOf(id)) root.navigate("apps", id);
         else root.selected = id;
       }
     }

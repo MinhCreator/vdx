@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.apps.shellmanager
 import qs.modules.windows
 
 // The system menu's lists (Launcher.qml shows them): installed apps, files
@@ -52,22 +53,20 @@ Singleton {
     stdout: StdioCollector { onStreamFinished: { root.files = text.split("\n").filter(l => l !== ""); root.searching = false; } }
   }
 
-  // ---- the shell's own apps (apps/): listed with the installed ones ----
-  readonly property var shellApps: [
-    { icon: "sliders", title: "Shell Manager", hint: "Settings of the shell", keys: "Super + S", run: () => exec(ipc("shell", "toggle")) },
-    { icon: "grid", title: "Overview", hint: "Every workspace at once", keys: "Super + Tab", run: () => exec(ipc("overview", "toggle")) },
-    { icon: "activity", title: "Task manager", hint: "Processes, CPU, memory", keys: "Super + D", run: () => exec(ipc("taskmanager", "toggle")) },
-    { icon: "brush", title: "Cleaner", hint: "Caches, trash, the system", keys: "Super + X", run: () => exec(ipc("cleaner", "toggle")) },
-    { icon: "camera", title: "Capture", hint: "Screenshot or recording", keys: "Super + Shift + S", run: () => exec(ipc("capture", "open")) },
-    { icon: "clipboard", title: "Clipboard", hint: "History", keys: "Super + B", run: () => exec(ipc("clipboard", "toggle")) }
-  ]
+  // ---- the shell's own apps (apps/apps.json, not the menu itself) and the
+  // clipboard, listed with the installed ones; keys from the live binds ----
+  function keysOf(bind) { return BindsService.keysFor(bind).join(" + "); }
+  readonly property var shellApps: ShellAppsService.entries.filter(e => e.id !== "launcher")
+    .map(e => ({ icon: e.icon, title: e.label, hint: e.about, keys: keysOf(e.bind), run: () => ShellAppsService.run(e) }))
+    .concat([{ icon: "clipboard", title: "Clipboard", hint: "History", keys: keysOf("Clipboard history"),
+               run: () => exec(ipc("clipboard", "toggle")) }])
 
   // ---- the shell's own actions ----
   // the window modes come from WindowsService, as in its popup and page
   readonly property var shellItems: modeItems.concat([
     { icon: "sun", title: "Appearance", hint: "Theme, wallpaper, font, cursor", run: () => exec(ipc("shell", "open", "appearance")) },
     { icon: "layout", title: "Bar", hint: "Monitors, layout, modules", run: () => exec(ipc("shell", "open", "bar")) },
-    { icon: "columns", title: "Windows", hint: "Window mode, gaps, dock", run: () => exec(ipc("shell", "open", "windows")) },
+    { icon: "app-window", title: "Windows", hint: "Window mode, gaps, taskbar", run: () => exec(ipc("shell", "open", "windows")) },
     { icon: "keyboard", title: "Binds", hint: "Every keybind", run: () => exec(ipc("shell", "open", "binds")) }
   ])
 
@@ -77,7 +76,7 @@ Singleton {
 
   // ---- power ----
   readonly property var powerItems: [
-    { icon: "lock", title: "Lock", hint: "The lock screen", keys: "Super + Z", run: () => exec(ipc("lock", "lock")) },
+    { icon: "lock", title: "Lock", hint: "The lock screen", keys: keysOf("Lock the screen"), run: () => exec(ipc("lock", "lock")) },
     { icon: "moon", title: "Suspend", hint: "Sleep, locked", run: () => sh("qs -c shell ipc call lock lock; sleep 0.5; systemctl suspend") },
     { icon: "log-out", title: "Log out", hint: "End the Hyprland session", run: () => exec(["hyprctl", "eval", "hl.dispatch(hl.dsp.exit())"]) },
     { icon: "refresh", title: "Reboot", hint: "Restart the computer", run: () => exec(["systemctl", "reboot"]) },
@@ -91,6 +90,6 @@ Singleton {
 
   IpcHandler {
     target: "launcher"
-    function toggle(): void { root.open = !root.open; }
+    function toggle(): void { root.open = !root.open; if (root.open) BindsService.refresh(); }
   }
 }

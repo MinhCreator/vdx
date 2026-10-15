@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
+import qs.components
 import qs.config
 import qs.kit
 
@@ -11,10 +12,9 @@ import qs.kit
 // windows where they stand. A click on a window focuses it, on a workspace
 // goes there; a window dragged onto another workspace moves there. Escape,
 // Super+Tab again or a click on the dimmed screen closes.
-PanelWindow {
+ScrimWindow {
   id: root
 
-  property bool open: false
   readonly property var monitor: Hyprland.focusedMonitor
   readonly property real mw: (monitor?.width ?? 1920) / (monitor?.scale ?? 1)
   readonly property real mh: (monitor?.height ?? 1080) / (monitor?.scale ?? 1)
@@ -27,33 +27,22 @@ PanelWindow {
   readonly property int cols: Math.min(spaces.length, 3)
   readonly property real scale: Math.min(0.26, (width - 160 - (cols - 1) * 24) / cols / mw)
 
-  function addr(t) { return t.address.startsWith("0x") ? t.address : "0x" + t.address; }
-  function hypr(lua) { Quickshell.execDetached(["hyprctl", "eval", lua]); }
-  function goTo(id) { open = false; hypr("hl.dispatch(hl.dsp.focus({ workspace = " + id + " }))"); }
-  function focus(t) { open = false; hypr("hl.dispatch(hl.dsp.focus({ window = \"address:" + addr(t) + "\" }))"); }
-  function moveTo(t, id) { hypr("hl.dispatch(hl.dsp.window.move({ workspace = " + id + ", window = \"address:" + addr(t) + "\", follow = false }))"); }
+  function goTo(id) { open = false; Hypr.call("hl.dispatch(hl.dsp.focus({ workspace = " + id + " }))"); }
+  function focus(t) { open = false; Hypr.call("hl.dispatch(hl.dsp.focus({ window = \"" + Hypr.target(t) + "\" }))"); }
+  function moveTo(t, id) { Hypr.call("hl.dispatch(hl.dsp.window.move({ workspace = " + id + ", window = \"" + Hypr.target(t) + "\", follow = false }))"); }
 
   onOpenChanged: if (open) { Hyprland.refreshToplevels(); grid.forceActiveFocus(); }
 
-  screen: Quickshell.screens.find(s => s.name === monitor?.name) ?? Quickshell.screens[0]
-  visible: open
-  anchors { top: true; bottom: true; left: true; right: true }
-  exclusionMode: ExclusionMode.Ignore
-  color: "transparent"
-  WlrLayershell.layer: WlrLayer.Overlay
-  WlrLayershell.namespace: "overview"
-  WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+  namespace: "overview"
+  onDismissed: open = false
 
   IpcHandler {
     target: "overview"
     function toggle(): void { root.open = !root.open; }
   }
 
-  Rectangle {
+  Item {
     anchors.fill: parent
-    color: Theme.scrim
-
-    MouseArea { anchors.fill: parent; onClicked: root.open = false }
 
     Grid {
       id: grid

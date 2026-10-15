@@ -4,7 +4,7 @@ import Quickshell.Io
 import qs.apps.auth
 import qs.apps.capture
 import qs.apps.cleaner
-import qs.apps.dock
+import qs.apps.taskbar
 import qs.apps.launcher
 import qs.apps.lock
 import qs.apps.overview
@@ -24,7 +24,7 @@ Scope {
   ShellManagerWindow {}
   TaskManagerWindow {}
   CleanerWindow {}
-  Dock {}
+  Taskbar {}
   Launcher {}
   Lock {}
   Overview {}

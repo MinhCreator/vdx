@@ -12,7 +12,7 @@ import qs.kit
 Column {
   id: root
 
-  required property var app                 // ShellAppsService.apps entry
+  required property var app                 // ShellAppsService.windows entry
   required property string ipc              // its IPC target: Open it
   property bool labelled: true              // its WINDOW label (a dialog has a header)
 

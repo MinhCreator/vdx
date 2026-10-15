@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Services.Polkit
 import Quickshell.Wayland
+import qs.components
 import qs.config
 import qs.kit
 
@@ -43,7 +44,7 @@ Scope {
     id: panel
 
     visible: root.shown || slide.running
-    screen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0]
+    screen: Hypr.focusedScreen
     anchors.top: true
     margins.top: Theme.popupGap
     exclusionMode: ExclusionMode.Normal     // under the bar, not over it

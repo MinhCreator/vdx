@@ -15,17 +15,17 @@ Column {
   readonly property var mode: ws.current
 
   // the window's fixed header shows these; the page under it scrolls
-  readonly property string icon: "columns"
+  readonly property string icon: "app-window"
   readonly property string title: "Windows"
   readonly property string subtitle: mode.label.toUpperCase() + " · GAPS " + o.gapsIn + " / " + o.gapsOut
-                                     + " · TASKBAR " + (o.dock ? "ON" : "OFF")
+                                     + " · TASKBAR " + (o.taskbar ? "ON" : "OFF")
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [
     { key: "mode",   label: "Mode",   y: modeGroup.y },
     { key: "layout", label: root.mode.label, y: layoutGroup.y },
     { key: "gaps",   label: "Look",   y: gapsGroup.y },
-    { key: "dock",   label: "Taskbar", y: dockGroup.y }
+    { key: "taskbar", label: "Taskbar", y: taskbarGroup.y }
   ]
 
   function pct(v) { return Math.round(v * 100) + "%"; }
@@ -175,16 +175,16 @@ Column {
 
   KitLine {}
 
-  // ---- dock ----------------------------------------------------------------------------
-  KitLabel { id: dockGroup; text: "TASKBAR" }
+  // ---- taskbar -------------------------------------------------------------------------
+  KitLabel { id: taskbarGroup; text: "TASKBAR" }
 
   KitRow {
     label: "Taskbar"
     hint: "Floating: this workspace's windows"
 
     KitSwitch {
-      checked: root.o.dock
-      onToggled: root.o.dock = !root.o.dock
+      checked: root.o.taskbar
+      onToggled: root.o.taskbar = !root.o.taskbar
     }
   }
 }

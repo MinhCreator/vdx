@@ -1,8 +1,7 @@
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
-import Quickshell.Wayland
 import Quickshell.Widgets
+import qs.components
 import qs.config
 import qs.kit
 
@@ -10,7 +9,7 @@ import qs.kit
 // search over one of four lists — Apps, Files (in ~), Shell (the shell's own
 // actions) and Power. Typing filters, ↑ ↓ pick, Enter runs, Tab / Shift+Tab
 // switch the list, Escape or a click on the dimmed screen closes.
-PanelWindow {
+ScrimWindow {
   id: root
 
   readonly property var ls: LauncherService
@@ -44,14 +43,9 @@ PanelWindow {
   onQueryChanged: { current = 0; if (tab === "files") filesTimer.restart(); }
   onCurrentChanged: list.positionViewAtIndex(current, ListView.Contain)
 
-  screen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0]
-  visible: ls.open || fade.running
-  anchors { top: true; bottom: true; left: true; right: true }
-  exclusionMode: ExclusionMode.Ignore
-  color: "transparent"
-  WlrLayershell.layer: WlrLayer.Overlay
-  WlrLayershell.namespace: "launcher"
-  WlrLayershell.keyboardFocus: ls.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+  open: ls.open
+  namespace: "launcher"
+  onDismissed: close()
 
   Connections {
     target: root.ls
@@ -70,14 +64,9 @@ PanelWindow {
     onTriggered: root.ls.searchFiles(root.query)
   }
 
-  // the dimmed screen
-  Rectangle {
+  Item {
     anchors.fill: parent
-    color: Theme.scrim
-    opacity: root.ls.open ? 1 : 0
-    Behavior on opacity { NumberAnimation { id: fade; duration: 140 } }
 
-    MouseArea { anchors.fill: parent; onClicked: root.close() }
     // clicks on the panel don't reach the dimmed screen
     MouseArea { anchors.fill: panel }
 

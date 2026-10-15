@@ -17,7 +17,7 @@ Column {
   readonly property string icon: "app-window"
   readonly property string title: "Shell apps"
   readonly property string subtitle: ShellAppsService.entries.length + " APPS · "
-                                     + ShellAppsService.apps.length + " WITH A WINDOW"
+                                     + ShellAppsService.windows.length + " WITH A WINDOW"
 
   // its own list does the job of the sidebar's group links
   readonly property var jumps: []
@@ -25,7 +25,7 @@ Column {
   property string selected: ShellAppsService.entries[0].id
   readonly property var entry: ShellAppsService.entries.find(e => e.id === selected) ?? null
   // its window's settings (shellapps.py), when it has one
-  readonly property var window: entry?.window ? (ShellAppsService.apps.find(a => a.id === entry.window) ?? null) : null
+  readonly property var window: entry?.window ? (ShellAppsService.windows.find(a => a.id === entry.window.id) ?? null) : null
 
   // the tab: the app or its bar module (an app with a module only)
   property string scope: "app"
@@ -241,8 +241,8 @@ Column {
             id: barOptions
             width: parent.width
             visible: active
-            active: !!root.entry?.barSettings && root.place !== "hidden"
-            source: active ? Quickshell.shellPath(root.entry.barSettings) : ""
+            active: !!root.entry?.moduleSettings && root.place !== "hidden"
+            source: active ? Quickshell.shellPath(root.entry.moduleSettings) : ""
           }
         }
 
