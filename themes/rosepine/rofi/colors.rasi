@@ -1,0 +1,11 @@
+* {
+    bg:       #191724;
+    border:   #c4a7e7;
+    fg:       #908caa;
+    accent:   #e0def4;
+    selected: #403d52;
+    line:     #403d52;
+
+    background-color: @bg;
+    text-color:       @fg;
+}
