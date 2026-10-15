@@ -66,14 +66,18 @@ end
 
 -- the active window on a part of its monitor (logical pixels, under the bar)
 local GAP = 8
+-- the floating mode's title bar (hyprbars below) stands above the window:
+-- the work area starts under it, so a maximized window keeps it off the bar
+local TITLE_BAR = 28
+local titleBar = 0
 
 -- a monitor's work area: x, y, width, height (logical, inside the gaps)
 local function workArea(m)
 	local scale = m.scale or 1
 	local r = type(m.reserved) == "table" and m.reserved or {}
 	local left, top, right, bottom = r[1] or r.left or 0, r[2] or r.top or 0, r[3] or r.right or 0, r[4] or r.bottom or 0
-	return m.x + left + GAP, m.y + top + GAP,
-		m.width / scale - left - right - 2 * GAP, m.height / scale - top - bottom - 2 * GAP
+	return m.x + left + GAP, m.y + top + GAP + titleBar,
+		m.width / scale - left - right - 2 * GAP, m.height / scale - top - bottom - 2 * GAP - titleBar
 end
 
 local function place(w, x, y, width, height)
@@ -147,15 +151,30 @@ end
 
 -- the dock's buttons: a minimized window waits on the special workspace
 -- "minimized" (not shown); restored, it comes to the active workspace
+-- (tagged "min<workspace>": the taskbar shows it on the workspace it left)
+local function windowAt(address)
+	for _, w in ipairs(hl.get_windows()) do
+		if w.address == address then return w end
+	end
+end
+
 function MinimizeWindow(address)
 	if not floatAll:is_enabled() then return end
-	local w = address and { address = address } or hl.get_active_window()
-	if not w then return end
-	hl.dispatch(hl.dsp.window.move({ workspace = "special:minimized", window = "address:" .. w.address, follow = false }))
+	local w = address and windowAt(address) or hl.get_active_window()
+	if not w or not w.workspace or w.workspace.id <= 0 then return end
+	local target = "address:" .. w.address
+	hl.dispatch(hl.dsp.window.tag({ tag = "+min" .. w.workspace.id, window = target }))
+	hl.dispatch(hl.dsp.window.move({ workspace = "special:minimized", window = target, follow = false }))
 end
 
 function RestoreWindow(address)
 	local target = "address:" .. address
+	local w = windowAt(address)
+	local tags = w and (type(w.tags) == "table" and w.tags or { w.tags }) or {}
+	for _, t in ipairs(tags) do
+		local name = tostring(t):gsub("%*$", "")
+		if name:match("^min%d+$") then hl.dispatch(hl.dsp.window.tag({ tag = "-" .. name, window = target })) end
+	end
 	hl.dispatch(hl.dsp.window.move({ workspace = hl.get_active_workspace().id, window = target }))
 	hl.dispatch(hl.dsp.focus({ window = target }))
 end
@@ -202,10 +221,14 @@ end
 local f = io.open(stateFile, "r")
 local saved = f and f:read("*l") or "tiling"
 if f then f:close() end
+-- floating windows get a title bar when hyprbars is there (below)
+titleBar = (saved == "floating" and io.open("/usr/lib/libhyprbars.so", "r")) and TITLE_BAR or 0
 WindowMode(saved)
 
 -- title bars (hyprbars, AUR hyprland-plugin-hyprbars) — the floating mode's:
--- the title and close / maximize / minimize, a double click maximizes
+-- like macOS: on the left close / minimize / maximize as red, yellow and
+-- green circles whose icon shows under the pointer, the title in the middle;
+-- a double click maximizes
 local barsLib = "/usr/lib/libhyprbars.so"
 local barsLoaded = false
 for _, p in ipairs(hl.get_loaded_plugins() or {}) do
@@ -219,25 +242,27 @@ if barsLoaded and hl.plugin.hyprbars then
 	local colors = require("components.colors")
 	hl.config({ plugin = { hyprbars = {
 		enabled = saved == "floating",
-		bar_height = 28,
+		bar_height = TITLE_BAR,
 		bar_color = colors.background0,
 		["col.text"] = colors.foreground0,
 		bar_text_font = "monospace",
 		bar_text_size = 11,
-		bar_text_align = "left",
+		bar_text_align = "center",
+		bar_buttons_alignment = "left",
 		bar_padding = 12,
 		bar_button_padding = 8,
 		bar_precedence_over_border = true,
 		bar_part_of_window = true,
 		on_double_click = "hyprctl eval 'MaximizeWindow()'",
+		icon_on_hover = true,
 	} } })
-	-- right to left: the first one stands at the edge
-	local function button(icon, fg, action)
-		hl.plugin.hyprbars.add_button({ bg_color = colors.background0, fg_color = fg, size = 16, icon = icon, action = action })
+	-- left to right: the first one stands at the edge
+	local function button(bg, icon, action)
+		hl.plugin.hyprbars.add_button({ bg_color = bg, fg_color = colors.background0, size = 18, icon = icon, action = action })
 	end
-	button("✕", colors.red, "hyprctl eval 'hl.dispatch(hl.dsp.window.close())'")
-	button("□", colors.foreground0, "hyprctl eval 'MaximizeWindow()'")
-	button("–", colors.foreground0, "hyprctl eval 'MinimizeWindow()'")
+	button(colors.red, "✖", "hyprctl eval 'hl.dispatch(hl.dsp.window.close())'")
+	button(colors.yellow, "━", "hyprctl eval 'MinimizeWindow()'")
+	button(colors.green, "✚", "hyprctl eval 'MaximizeWindow()'")
 end
 
 -- wheel and touchpad, the mode's way
@@ -275,6 +300,14 @@ if saved == "scrolling" then
 	hl.gesture({ fingers = 3, direction = "vertical", action = "workspace" })
 	hl.animation({ leaf = "workspaces", enabled = true, speed = 1, bezier = "smoothOut", style = "slidevert" })
 else
+	if saved == "floating" then
+		-- like Windows: halves of the screen, maximize, minimize
+		local function fbind(keys, action, what) hl.bind(keys, action, { description = "Floating · " .. what }) end
+		fbind("SUPER + left", function() SnapWindow("left") end, "Left half")
+		fbind("SUPER + right", function() SnapWindow("right") end, "Right half")
+		fbind("SUPER + up", function() MaximizeWindow() end, "Maximize / back")
+		fbind("SUPER + down", function() MinimizeWindow() end, "Minimize")
+	end
 	bind("SUPER + mouse_down", hl.dsp.focus({ workspace = "e+1" }), "Next workspace")
 	bind("SUPER + mouse_up", hl.dsp.focus({ workspace = "e-1" }), "Previous workspace")
 end
