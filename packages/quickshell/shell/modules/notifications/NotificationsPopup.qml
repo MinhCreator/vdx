@@ -10,6 +10,8 @@ KitFrame {
   readonly property var items: NotificationsService.items
   readonly property int fresh: items.filter(n => NotificationsService.isFresh(n)).length
 
+  signal closeRequested()
+
   function when(time) {
     const d = new Date(time);
     const today = d.toDateString() === new Date().toDateString();
@@ -34,7 +36,10 @@ KitFrame {
       icon: "trash"
       text: "Clear"
       disabled: root.items.length === 0
-      onClicked: NotificationsService.clear()
+      onClicked: {
+        NotificationsService.clear();
+        if (ModuleSettings.get("notifications", "closeOnClear", false)) root.closeRequested();
+      }
     }
   }
 

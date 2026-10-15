@@ -19,4 +19,6 @@ Column {
     label: "Rows before scrolling"; hint: "How tall the history gets"
     model: [{ label: "4", value: 4 }, { label: "6", value: 6 }, { label: "10", value: 10 }]
   }
+
+  KitToggleRow { module: "notifications"; key: "closeOnClear"; fallback: false; label: "Close after clear"; hint: "Off: the popup stays open" }
 }

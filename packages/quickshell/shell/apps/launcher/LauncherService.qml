@@ -3,10 +3,12 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.apps.keybinds
 import qs.apps.shellmanager
+import qs.config
 import qs.modules.windows
 
-// The system menu's lists (Launcher.qml shows them): installed apps, files
+// The launcher's lists (Launcher.qml shows them): installed apps, files
 // in ~ (fd), the shell's own actions, power. Every item is
 // { icon | image, title, hint, keys, run() }.
 Singleton {
@@ -16,6 +18,26 @@ Singleton {
   property bool open: false
   property var files: []                    // [path] of the last search
   property bool searching: false
+
+  // ---- tabs: every tab, the order the Shell Manager's Launcher page sets, the hidden ones ----
+  readonly property var allTabs: [
+    { label: "Apps", value: "apps", icon: "grid" },
+    { label: "Files", value: "files", icon: "folder" },
+    { label: "Shell", value: "shell", icon: "sliders" },
+    { label: "Power", value: "power", icon: "power" }
+  ]
+  readonly property var defaultOrder: allTabs.map(t => t.value)
+  // the stored order, a tab added since missing at the end
+  readonly property var orderAll: {
+    const o = ModuleSettings.get("launcher", "order", defaultOrder);
+    return o.concat(defaultOrder.filter(v => !o.includes(v)));
+  }
+  readonly property var hiddenTabs: ModuleSettings.get("launcher", "hidden", [])
+  // the tabs shown, in order (at least one: the first)
+  readonly property var tabs: {
+    const shown = orderAll.filter(v => !hiddenTabs.includes(v)).map(v => allTabs.find(t => t.value === v)).filter(t => t);
+    return shown.length > 0 ? shown : [allTabs[0]];
+  }
 
   readonly property string home: Quickshell.env("HOME")
 
@@ -27,11 +49,17 @@ Singleton {
   function sh(script) { exec(["bash", "-c", script]); }
 
   // ---- apps ----
+  // a Terminal=true entry (nvim, elio…) runs in kitty, the terminal Super + Q opens
+  function runApp(e) {
+    if (!e.runInTerminal) return e.execute();
+    exec(["kitty", "-e"].concat(e.command.filter(a => !/^%[fFuUdDnNickvm]$/.test(a))));
+  }
+
   function apps(q) {
     return filter(shellApps, q).concat(DesktopEntries.applications.values
       .filter(e => !e.noDisplay && (q === "" || (e.name + " " + e.genericName + " " + (e.keywords ?? []).join(" ")).toLowerCase().includes(q)))
       .map(e => ({ image: Quickshell.iconPath(e.icon, true), icon: "app-window", title: e.name,
-                   hint: e.comment || e.genericName, run: () => e.execute() })))
+                   hint: e.comment || e.genericName, run: () => root.runApp(e) })))
       .sort((a, b) => a.title.localeCompare(b.title));
   }
 
@@ -53,13 +81,10 @@ Singleton {
     stdout: StdioCollector { onStreamFinished: { root.files = text.split("\n").filter(l => l !== ""); root.searching = false; } }
   }
 
-  // ---- the shell's own apps (apps/apps.json, not the menu itself) and the ----
-  // clipboard, listed with the installed ones; keys from the live binds ----
-  function keysOf(bind) { return BindsService.keysFor(bind).join(" + "); }
+  // ---- the shell's own apps (apps/apps.json, not the menu itself); keys from the live binds ----
+  function keysOf(bind) { return KeybindsService.keysFor(bind).join(" + "); }
   readonly property var shellApps: ShellAppsService.entries.filter(e => e.id !== "launcher")
     .map(e => ({ icon: e.icon, title: e.label, hint: e.about, keys: keysOf(e.bind), run: () => ShellAppsService.run(e) }))
-    .concat([{ icon: "clipboard", title: "Clipboard", hint: "History", keys: keysOf("Clipboard history"),
-               run: () => exec(ipc("clipboard", "toggle")) }])
 
   // ---- the shell's own actions ----
   // the window modes come from WindowsService, as in its popup and page
@@ -67,7 +92,7 @@ Singleton {
     { icon: "sun", title: "Appearance", hint: "Theme, wallpaper, font, cursor", run: () => exec(ipc("shell", "open", "appearance")) },
     { icon: "layout", title: "Bar", hint: "Monitors, layout, modules", run: () => exec(ipc("shell", "open", "bar")) },
     { icon: "app-window", title: "Windows", hint: "Window mode, gaps, taskbar", run: () => exec(ipc("shell", "open", "windows")) },
-    { icon: "keyboard", title: "Binds", hint: "Every keybind", run: () => exec(ipc("shell", "open", "binds")) }
+    { icon: "keyboard", title: "Keybinds", hint: "Every keybind, by tab", run: () => exec(ipc("keybinds", "open")) }
   ])
 
 
@@ -90,6 +115,6 @@ Singleton {
 
   IpcHandler {
     target: "launcher"
-    function toggle(): void { root.open = !root.open; if (root.open) BindsService.refresh(); }
+    function toggle(): void { root.open = !root.open; if (root.open) KeybindsService.refresh(); }
   }
 }

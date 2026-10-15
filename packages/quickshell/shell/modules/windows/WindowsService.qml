@@ -75,15 +75,19 @@ Singleton {
       property bool borders: true             // the windows' frames
       property bool shadows: true
       property bool taskbar: true             // floating: the taskbar along the bottom
+      property bool switcher: true            // floating: Super+Tab is the window switcher
     }
   }
+
+  // floating: every window of the workspace in a grid (windowmode.lua)
+  function arrangeGrid() { Hypr.call("ArrangeGrid()"); }
 
   // the taskbar's actions; minimized windows wait on special:minimized (windowmode.lua)
   function minimize(address) { Hypr.call("MinimizeWindow(" + (address ? "\"" + address + "\"" : "") + ")"); }
   function restore(address) { Hypr.call("RestoreWindow(\"" + address + "\")"); }
   function close(address) { Hypr.call("hl.dispatch(hl.dsp.window.close({ window = \"address:" + address + "\" }))"); }
 
-  // the system menu switches the mode: `ipc call windowmode set floating`
+  // the launcher switches the mode: `ipc call windowmode set floating`
   // ("windows" is the bar popup's)
   IpcHandler {
     target: "windowmode"

@@ -38,6 +38,8 @@ Item {
     WindowsPopup {
       id: content
       anchors.fill: parent
+      onArranged: if (ModuleSettings.get("windows", "closeOnGrid", false)) popup.toggle()
+      onModePicked: if (ModuleSettings.get("windows", "closeOnMode", false)) popup.toggle()
     }
   }
 }

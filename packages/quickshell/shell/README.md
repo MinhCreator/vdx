@@ -15,7 +15,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | Cleaner | Super+X | `cleaner toggle` |
 | Capture | Super+Shift+S | `capture open\|stop\|close` |
 | System menu | Super+R | `launcher toggle` |
-| Overview | Super+Tab | `overview toggle` |
+| Overview | — | `overview toggle` |
 | Lock screen | Super+Z | `lock lock` |
 | Taskbar | — | floating mode only |
 | Root prompt | — | polkit agent; asks before every root action |

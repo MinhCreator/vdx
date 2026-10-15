@@ -4,7 +4,7 @@ import Quickshell.Wayland
 import qs.config
 
 // A full-screen layer over the focused monitor that dims it (Theme.scrim) and
-// takes the keyboard while open: the system menu and the overview. Children
+// takes the keyboard while open: the launcher, the keybinds and the overview. Children
 // sit on the dimmed screen and fade with it; a click on the screen itself
 // emits dismissed().
 PanelWindow {

@@ -89,7 +89,7 @@ QtObject {
   readonly property string languageFormatRu: "RU"
 
   // ---- popups (kit) ----
-  // the dimmed screen under the system menu and the overview
+  // the dimmed screen under the launcher, the keybinds and the overview
   readonly property color scrim: Qt.rgba(background0.r, background0.g, background0.b, 0.7)
 
   readonly property int popupWidth: 370

@@ -5,7 +5,7 @@ import qs.components
 import qs.config
 import qs.kit
 
-// The system menu (Super+R), like rofi: the screen dims, in the middle a
+// The launcher (Super+R), like rofi: the screen dims, in the middle a
 // search over one of four lists — Apps, Files (in ~), Shell (the shell's own
 // actions) and Power. Typing filters, ↑ ↓ pick, Enter runs, Tab / Shift+Tab
 // switch the list, Escape or a click on the dimmed screen closes.
@@ -13,15 +13,16 @@ ScrimWindow {
   id: root
 
   readonly property var ls: LauncherService
+  // Shell Manager › Launcher (ModuleSettings "launcher")
+  readonly property int rows: ModuleSettings.get("launcher", "rows", 8)
+  readonly property int panelWidth: ({ small: 520, medium: 640, large: 800 })[ModuleSettings.get("launcher", "size", "medium")] ?? 640
+  readonly property string position: ModuleSettings.get("launcher", "position", "top")
+  readonly property string opens: ModuleSettings.get("launcher", "opens", "apps")
+  readonly property bool clearOnClose: ModuleSettings.get("launcher", "clear", true)
   property string tab: "apps"
   property int current: 0
   readonly property string query: field.text.trim().toLowerCase()
-  readonly property var tabs: [
-    { label: "Apps", value: "apps", icon: "grid" },
-    { label: "Files", value: "files", icon: "folder" },
-    { label: "Shell", value: "shell", icon: "sliders" },
-    { label: "Power", value: "power", icon: "power" }
-  ]
+  readonly property var tabs: ls.tabs
   readonly property var items: tab === "apps" ? ls.apps(query)
                              : tab === "files" ? ls.fileItems()
                              : tab === "shell" ? ls.filter(ls.shellItems, query)
@@ -51,8 +52,8 @@ ScrimWindow {
     target: root.ls
     function onOpenChanged() {
       if (!root.ls.open) return;
-      field.text = "";
-      root.tab = "apps";
+      if (root.clearOnClose) field.text = "";
+      root.tab = root.tabs.some(t => t.value === root.opens) ? root.opens : root.tabs[0].value;
       root.current = 0;
       field.input.forceActiveFocus();
     }
@@ -73,8 +74,10 @@ ScrimWindow {
     KitFrame {
       id: panel
       anchors.horizontalCenter: parent.horizontalCenter
-      y: parent.height * 0.18
-      width: 640
+      y: root.position === "center" ? (parent.height - height) / 2
+       : root.position === "bottom" ? parent.height * 0.82 - height
+       : parent.height * 0.18
+      width: root.panelWidth
 
       KitInput {
         id: field
@@ -106,7 +109,7 @@ ScrimWindow {
 
       Item {
         width: parent.width
-        height: 8 * 44
+        height: root.rows * 44
 
         KitText {
           anchors.centerIn: parent
@@ -193,6 +196,8 @@ ScrimWindow {
           }
         }
       }
+
+      KitLine {}
 
       KitText {
         width: parent.width

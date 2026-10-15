@@ -122,6 +122,18 @@ Column {
     }
   }
 
+  KitRow {
+    visible: root.ws.mode === "floating"
+    label: "Switcher"
+    hint: "Super + Tab: this workspace's windows"
+
+    KitSwitch {
+      checked: root.o.switcher
+      onToggled: root.o.switcher = !root.o.switcher
+    }
+  }
+
+
   KitLine {}
 
   // ---- gaps ----

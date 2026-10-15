@@ -55,6 +55,7 @@ Item {
     NotificationsPopup {
       id: content
       anchors.fill: parent
+      onCloseRequested: popup.visible = false
     }
   }
 }

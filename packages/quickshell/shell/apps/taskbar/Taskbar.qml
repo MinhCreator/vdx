@@ -10,18 +10,38 @@ import qs.modules.windows
 
 // The floating mode's taskbar along the bottom of the focused monitor, like
 // Windows: every window of the active workspace — open ones and those
-// minimized from it (Super+J, the title bar's button or a click here; they
-// wait on special:minimized, tagged min<workspace> by windowmode.lua). A
-// click minimizes an open window and brings a minimized one back; the pointer
-// stays where it is. Shell Manager › Windows › Taskbar turns it off.
+// minimized from it (Super+J, or a click here; they wait on special:minimized,
+// tagged min<workspace> by windowmode.lua). A click minimizes an open window
+// and brings a minimized one back; the pointer stays where it is. Shell
+// Manager › Windows › Taskbar turns it off.
 PanelWindow {
   id: root
 
   readonly property var ws: WindowsService
   readonly property int wsId: Hyprland.focusedMonitor?.activeWorkspace?.id ?? 1
   readonly property var active: Hyprland.activeToplevel
-  readonly property var windows: Hyprland.toplevels.values.filter(t =>
-    t.workspace?.id === wsId || (t.workspace?.name === "special:minimized" && root.tagsOf(t).includes("min" + wsId)))
+
+  // what each window's workspace was, kept by address: a minimized window's
+  // tag comes with the IPC refresh, a moment late, and while it lacks the tag
+  // the window dropped out of the row and came back at its end. seq keeps the
+  // order the windows came in. A plain object: writing it notifies nothing.
+  readonly property var cache: ({ origin: {}, seq: {}, count: 0 })
+
+  readonly property var windows: {
+    const origin = {}, seq = {};
+    const out = [];
+    for (const t of Hyprland.toplevels.values) {
+      const a = Hypr.addr(t);
+      const tag = root.tagsOf(t).find(s => /^min\d+$/.test(s));
+      const from = root.minimized(t) ? (root.cache.origin[a] ?? (tag ? +tag.slice(3) : undefined)) : t.workspace?.id;
+      origin[a] = from;
+      seq[a] = root.cache.seq[a] ?? ++root.cache.count;
+      if (from === root.wsId) out.push(t);
+    }
+    root.cache.origin = origin;
+    root.cache.seq = seq;
+    return out.sort((x, y) => seq[Hypr.addr(x)] - seq[Hypr.addr(y)]);
+  }
 
   function classOf(t) { return t.lastIpcObject?.class ?? ""; }
   function tagsOf(t) { return (t.lastIpcObject?.tags ?? []).map(s => s.replace(/\*$/, "")); }
@@ -52,13 +72,21 @@ PanelWindow {
   }
   Timer { id: refresh; interval: 150; onTriggered: Hyprland.refreshToplevels() }
 
+  // keyed by address: a refresh keeps each window's item instead of rebuilding
+  // the row (a new array rebuilt them all, and they flickered)
+  ScriptModel {
+    id: windowModel
+    values: root.windows
+    objectProp: "address"
+  }
+
   Row {
     x: 8
     height: parent.height
     spacing: 4
 
     Repeater {
-      model: root.windows
+      model: windowModel
 
       // a window: its app's icon and title; the active one filled and bold,
       // a minimized one dim
