@@ -11,6 +11,9 @@ Item {
 
   required property PanelWindow bar
 
+  // the Folder opens capture when its tile is clicked
+  function openPopup() { CaptureService.open(); }
+
   property int elapsed: 0
 
   implicitWidth: face.implicitWidth

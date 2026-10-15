@@ -16,6 +16,9 @@ Item {
 
   required property PanelWindow bar
 
+  // the Folder opens this module's popup when its tile is clicked
+  function openPopup() { popup.toggle(); }
+
   // "Station - track on air" while playing, cut like the music label.
   readonly property string text: RadioService.active
     ? [MpdService.player.station, MpdService.player.title].filter(s => s).join(" - ")

@@ -29,7 +29,8 @@ Singleton {
     { id: "notifications", label: "Notifications", zone: "right",  icon: "bell", settings: "NotificationsSettings.qml", about: "History and unseen dot" },
     { id: "capture",       label: "Capture",       zone: "right",  icon: "camera", settings: "CaptureSettings.qml", about: "Screenshots and screen recording" },
     { id: "clipboard",     label: "Clipboard",     zone: "right",  icon: "clipboard", settings: "ClipboardSettings.qml", about: "Copy history, images to drag out" },
-    { id: "sysmon",        label: "System",        zone: "right",  icon: "cpu", settings: "SysmonSettings.qml", about: "CPU, memory, GPU, disks, network, sensors" }
+    { id: "sysmon",        label: "System",        zone: "right",  icon: "cpu", settings: "SysmonSettings.qml", about: "CPU, memory, GPU, disks, network, sensors" },
+    { id: "folder",        label: "Folder",        zone: "right",  icon: "folder", about: "Modules tucked away, one click from the bar" }
   ]
   readonly property var zones: ["left", "center", "right"]
 
@@ -58,13 +59,22 @@ Singleton {
     const e = entry(screen);
     const off = (e?.hidden ?? state.hidden).map(id => renamed[id] ?? id);
     if (roleOf(screen) !== "extra" || !e?.zones) return off;
-    const known = zones.reduce((all, z) => all.concat(e.zones[z] ?? []), []).map(id => renamed[id] ?? id);
+    const known = zones.reduce((all, z) => all.concat(e.zones[z] ?? []), e.folder ?? []).map(id => renamed[id] ?? id);
     return off.concat(plugins.map(p => p.id).filter(id => !known.includes(id) && !off.includes(id)));
   }
   function barOn(screen) { return !(entry(screen)?.off ?? false); }
+
+  // In the folder (the Folder module's popup) on this bar, in order: off the
+  // strip but still there, one click away.
+  function inFolder(screen) {
+    const known = plugins.map(p => p.id);
+    const off = hidden(screen);
+    return (entry(screen)?.folder ?? []).map(id => renamed[id] ?? id)
+      .filter(id => known.includes(id) && id !== "folder" && !off.includes(id));
+  }
   function customized(screen) {
     const e = entry(screen);
-    return e !== null ? (e.zones !== null || e.hidden.length > 0)
+    return e !== null ? (e.zones !== null || e.hidden.length > 0 || (e.folder ?? []).length > 0)
                       : (state.zones !== null || state.hidden.length > 0);
   }
 
@@ -72,7 +82,7 @@ Singleton {
   // A plugin not placed on a monitor's bar is HIDDEN there (`hidden`).
 
   function visibleIn(zone, screen) {
-    const off = hidden(screen);
+    const off = hidden(screen).concat(inFolder(screen));
     return layout(screen)[zone].filter(id => !off.includes(id));
   }
 
@@ -85,7 +95,8 @@ Singleton {
   // Writes the monitor's entry, starting from what it shows now. Only the
   // two roles are kept.
   function update(screen, change) {
-    const e = Object.assign({ zones: entry(screen)?.zones ?? state.zones, hidden: hidden(screen), off: !barOn(screen) }, change);
+    const e = Object.assign({ zones: entry(screen)?.zones ?? state.zones, hidden: hidden(screen),
+                              folder: inFolder(screen), off: !barOn(screen) }, change);
     const all = {};
     for (const role of ["main", "extra"])
       if (state.screens?.[role]) all[role] = state.screens[role];
@@ -98,21 +109,30 @@ Singleton {
     const z = {};
     for (const name of zones) z[name] = current[name].filter(x => x !== id);
     z[zone].splice(Math.max(0, Math.min(index, z[zone].length)), 0, id);
-    update(screen, { zones: z });
+    update(screen, { zones: z, folder: inFolder(screen).filter(x => x !== id) });
   }
 
   // place on / take off one monitor's bar
   function setEnabled(id, on, screen) {
     const off = hidden(screen);
-    update(screen, { hidden: on ? off.filter(x => x !== id) : off.concat(id) });
+    update(screen, { hidden: on ? off.filter(x => x !== id) : off.concat(id),
+                     folder: inFolder(screen).filter(x => x !== id) });
+  }
+
+  // into the folder at `index` (off the strip, out of HIDDEN)
+  function setFolder(id, index, screen) {
+    if (id === "folder") return;
+    const f = inFolder(screen).filter(x => x !== id);
+    f.splice(Math.max(0, Math.min(index, f.length)), 0, id);
+    update(screen, { folder: f, hidden: hidden(screen).filter(x => x !== id) });
   }
 
   function setBarOn(screen, on) { update(screen, { off: !on }); }
 
   // this bar takes another one's layout (Extra copying Main)
-  function copyLayout(from, to) { update(to, { zones: layout(from), hidden: hidden(from) }); }
+  function copyLayout(from, to) { update(to, { zones: layout(from), hidden: hidden(from), folder: inFolder(from) }); }
 
-  function reset(screen) { update(screen, { zones: null, hidden: [] }); }
+  function reset(screen) { update(screen, { zones: null, hidden: [], folder: [] }); }
 
   function normalize(saved) {
     const known = new Set(plugins.map(p => p.id));

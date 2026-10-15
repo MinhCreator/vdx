@@ -10,6 +10,9 @@ Item {
 
   required property PanelWindow bar
 
+  // the Folder opens this module's popup when its tile is clicked
+  function openPopup() { popup.toggle(); }
+
   implicitWidth: face.implicitWidth
   implicitHeight: face.implicitHeight
 

@@ -25,12 +25,16 @@ Column {
   readonly property string other: roles.find(n => n !== screenName) ?? ""
   readonly property var layout: BarLayout.layout(screenName)
   readonly property bool barOn: BarLayout.barOn(screenName)
-  readonly property var columnZones: ["left", "center", "right", "hidden"]
+  readonly property var columnZones: ["left", "center", "right", "folder", "hidden"]
   readonly property string focusId: dragId !== "" ? dragId : hoverId
   readonly property int chipHeight: 28
 
   function plugin(id) { return BarLayout.plugins.find(p => p.id === id) ?? null; }
-  function ids(zone) { return zone === "hidden" ? BarLayout.unplaced(screenName) : BarLayout.visibleIn(zone, screenName); }
+  function ids(zone) {
+    return zone === "hidden" ? BarLayout.unplaced(screenName)
+         : zone === "folder" ? BarLayout.inFolder(screenName)
+         : BarLayout.visibleIn(zone, screenName);
+  }
 
   // where the pointer would drop (zones coordinates): the zone band under y,
   // then the chip slot in reading order — chips on earlier lines, or left of
@@ -60,6 +64,8 @@ Column {
   function drop() {
     if (dragId !== "" && dropZone === "hidden") {
       BarLayout.setEnabled(dragId, false, screenName);
+    } else if (dragId !== "" && dropZone === "folder") {
+      BarLayout.setFolder(dragId, dropIndex, screenName);
     } else if (dragId !== "" && dropZone !== "") {
       if (BarLayout.unplaced(screenName).includes(dragId)) BarLayout.setEnabled(dragId, true, screenName);
       const visible = BarLayout.visibleIn(dropZone, screenName);
@@ -293,7 +299,8 @@ Column {
           KitText {
             visible: band.ids.length === 0
             anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter }
-            text: root.dragId !== "" ? "drop here" : band.zone === "hidden" ? "nothing hidden" : "empty"
+            text: root.dragId !== "" ? "drop here" : band.zone === "hidden" ? "nothing hidden"
+                : band.zone === "folder" ? "empty — modules here open from the Folder icon" : "empty"
             color: Theme.muted
             font.pixelSize: Theme.fontSize - 2
           }

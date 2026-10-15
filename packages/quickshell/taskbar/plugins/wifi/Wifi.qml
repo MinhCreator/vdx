@@ -10,6 +10,9 @@ Item {
 
   required property PanelWindow bar
 
+  // the Folder opens this module's popup when its tile is clicked
+  function openPopup() { popup.toggle(); }
+
   readonly property string name: WifiService.ssid.length > Theme.wifiBarMaxLength
     ? WifiService.ssid.slice(0, Theme.wifiBarMaxLength - 1) + Theme.ellipsis
     : WifiService.ssid

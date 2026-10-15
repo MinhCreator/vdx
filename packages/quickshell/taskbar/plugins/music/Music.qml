@@ -16,6 +16,9 @@ Item {
 
   required property PanelWindow bar
 
+  // the Folder opens this module's popup when its tile is clicked
+  function openPopup() { popup.toggle(); }
+
   readonly property string title: [MpdService.player.artist, MpdService.player.title].filter(s => s).join(" - ")
   readonly property string text: MusicService.active && title !== "" ? title : "Music"
 

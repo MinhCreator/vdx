@@ -38,8 +38,9 @@ taskbar/
    - действия: `busy` / `status` ("" | ok | error), сброс по
      `Theme.popupStatusMs`; текст ошибки — `error`, показывается в попапе.
 3. **Бар-модуль** `<Name>.qml` — лицо в баре (`KitBarItem`), `MouseArea`
-   (клик → `popup.toggle()`, колесо — быстрое действие) и `BarPopup`, который
-   форвардит `onShown` / `onHidden` в сервис. **Попап** `<Name>Popup.qml` —
+   (клик → `popup.toggle()`, колесо — быстрое действие), `BarPopup`, который
+   форвардит `onShown` / `onHidden` в сервис, и `function openPopup() {
+   popup.toggle(); }` — ей модуль открывается из папки (`plugins/folder`). **Попап** `<Name>Popup.qml` —
    корень `KitFrame`, только чтение сервиса и вызов его функций.
 
 ```qml
