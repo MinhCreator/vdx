@@ -37,6 +37,13 @@ THEMES = {
         muted="94827a", dim="574640", red="ff5c57", orange="ff8a5c", yellow="f9c56a",
         green="8fd45f", aqua="5fd3b8", blue="5ea8ff", purple="e48ad8", bright="b09e92",
         frame="e07a5f", frame_active="f07f5c"),
+    "khaki": dict(
+        title="Khaki — near-black, warm cream text, sand frames",
+        background0="141414", background1="1b1b1b", background2="232323", background3="322f26",
+        foreground0="e5d7b2", foreground1="f0e4c4", foreground2="b8ac8e", gray="5a5a5a",
+        muted="8a8270", dim="464239", red="d47766", orange="d9955b", yellow="dcc07a",
+        green="a3b37a", aqua="8fb3a0", blue="7f9aa8", purple="b391a8", bright="a8a08a",
+        frame="9a947a", frame_active="c8bb98"),
 }
 
 def recolor(text, pal):
