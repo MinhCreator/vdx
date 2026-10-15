@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Wayland
 import qs.components
 import qs.config
 import qs.kit
@@ -8,6 +9,7 @@ import qs.plugins.audio
 import qs.plugins.battery
 import qs.plugins.brightness
 import qs.plugins.capture
+import qs.plugins.chat
 import qs.plugins.cleaner
 import qs.plugins.clipboard
 import qs.plugins.clock
@@ -35,7 +37,7 @@ PanelWindow {
     workspaces: workspaces, music: music, radio: radio, clock: clock,
     brightness: brightness, audio: audio, wifi: wifi, mihomo: mihomo,
     battery: battery, language: language, ai: ai, notifications: notifications,
-    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, windows: windows, folder: folder
+    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, windows: windows, chat: chat, folder: folder
   })
 
   component Zone: Row {
@@ -76,6 +78,9 @@ PanelWindow {
   }
   implicitHeight: Theme.barHeight
   exclusiveZone: Theme.barHeight
+  // while a popup is open, a click into it (a text field) takes the keyboard;
+  // otherwise the bar never does
+  WlrLayershell.keyboardFocus: PopupManager.current ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
   color: Theme.background0
 
   Zone {
@@ -115,6 +120,7 @@ PanelWindow {
   Component { id: taskmanager; TaskManagerBar { bar: root } }
   Component { id: cleaner; CleanerBar { bar: root } }
   Component { id: windows; Windows { bar: root } }
+  Component { id: chat; Chat { bar: root } }
   Component { id: folder; Folder { bar: root; modules: root.modules } }
 
   // The Shell Manager's button; a plugin of its own so it can move between zones.
