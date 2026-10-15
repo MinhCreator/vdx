@@ -21,7 +21,7 @@ Rectangle {
   implicitWidth: 400
   implicitHeight: content.implicitHeight + 32
   color: Theme.background0
-  border.width: Theme.frameWidth
+  border.width: Theme.windowFrameWidth      // the popups' frame
   border.color: Theme.frame
 
   // keeps clicks on the panel from reaching the selection below
