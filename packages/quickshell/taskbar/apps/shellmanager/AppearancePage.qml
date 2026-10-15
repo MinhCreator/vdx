@@ -153,7 +153,7 @@ Column {
 
       KitLabel {
         width: parent.width
-        text: "THEME"
+        text: "PALETTES"
         value: String(ThemeService.themes.length)
       }
 
