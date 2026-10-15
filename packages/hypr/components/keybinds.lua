@@ -17,21 +17,21 @@ end
 bind("Apps", mainMod .. " + Q", hl.dsp.exec_cmd("kitty"), "Terminal")
 bind("Apps", mainMod .. " + E", hl.dsp.exec_cmd("kitty -e elio"), "File manager")
 bind("Apps", mainMod .. " + M", hl.dsp.exec_cmd("kitty -e ncmpcpp"), "Music player")
-bind("Apps", mainMod .. " + R", hl.dsp.exec_cmd("qs -c taskbar ipc call launcher toggle"), "System menu")
-bind("Apps", mainMod .. " + Z", hl.dsp.exec_cmd("qs -c taskbar ipc call lock lock"), "Lock the screen")
+bind("Apps", mainMod .. " + R", hl.dsp.exec_cmd("qs -c shell ipc call launcher toggle"), "System menu")
+bind("Apps", mainMod .. " + Z", hl.dsp.exec_cmd("qs -c shell ipc call lock lock"), "Lock the screen")
 -- the shell's lock screen: if the shell dies while locked, started again it locks anew
 hl.config({ misc = { allow_session_lock_restore = true } })
 
 -- shell
-bind("Shell", mainMod .. " + S", hl.dsp.exec_cmd("qs -c taskbar ipc call shell toggle"), "Shell Manager")
-bind("Shell", mainMod .. " + B", hl.dsp.exec_cmd("qs -c taskbar ipc call clipboard toggle"), "Clipboard history")
-bind("Shell", mainMod .. " + D", hl.dsp.exec_cmd("qs -c taskbar ipc call taskmanager toggle"), "Task manager")
-bind("Shell", mainMod .. " + X", hl.dsp.exec_cmd("qs -c taskbar ipc call cleaner toggle"), "Cleaner")
-bind("Shell", mainMod .. " + TAB", hl.dsp.exec_cmd("qs -c taskbar ipc call overview toggle"), "Overview")
+bind("Shell", mainMod .. " + S", hl.dsp.exec_cmd("qs -c shell ipc call shell toggle"), "Shell Manager")
+bind("Shell", mainMod .. " + B", hl.dsp.exec_cmd("qs -c shell ipc call clipboard toggle"), "Clipboard history")
+bind("Shell", mainMod .. " + D", hl.dsp.exec_cmd("qs -c shell ipc call taskmanager toggle"), "Task manager")
+bind("Shell", mainMod .. " + X", hl.dsp.exec_cmd("qs -c shell ipc call cleaner toggle"), "Cleaner")
+bind("Shell", mainMod .. " + TAB", hl.dsp.exec_cmd("qs -c shell ipc call overview toggle"), "Overview")
 
 -- screenshots (both copy to the clipboard)
 -- capture tool: region / window / screen, shot or recording (again: stop recording)
-bind("Capture", mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("qs -c taskbar ipc call capture open"), "Capture tool")
+bind("Capture", mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("qs -c shell ipc call capture open"), "Capture tool")
 bind("Capture", mainMod .. " + P", hl.dsp.exec_cmd("grim - | wl-copy"), "Screenshot to the clipboard")
 
 -- windows
@@ -44,11 +44,8 @@ bind("Windows", mainMod .. " + N", function() MinimizeWindow() end, "Minimize")
 bind("Windows", mainMod .. " + mouse:272", hl.dsp.window.drag(), "Drag", { mouse = true })
 bind("Windows", mainMod .. " + mouse:273", hl.dsp.window.resize(), "Resize", { mouse = true })
 
--- focus
-bind("Focus", mainMod .. " + H", hl.dsp.focus({ direction = "left" }), "Left")
-bind("Focus", mainMod .. " + L", hl.dsp.focus({ direction = "right" }), "Right")
-bind("Focus", mainMod .. " + K", hl.dsp.focus({ direction = "up" }), "Up")
-bind("Focus", mainMod .. " + J", hl.dsp.focus({ direction = "down" }), "Down")
+-- Super + H / J / K / L and the wheel are the window mode's:
+-- components/modes/<mode>.lua (focus, or placing a floating window)
 
 -- move window
 bind("Move", mainMod .. " + SHIFT + H", hl.dsp.window.move({ direction = "left" }), "Left")

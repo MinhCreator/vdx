@@ -10,7 +10,7 @@ hl.window_rule({
   size   = "900 600",
 })
 
--- Quickshell's own windows (taskbar/apps): how each one opens is set in the
+-- Quickshell's own windows (shell/apps): how each one opens is set in the
 -- Shell Manager › Shell apps (scripts/shellapps.py writes the rules to
 -- ~/.local/state/dotfiles/shell-apps.lua and reloads). Without that file:
 -- floating, centred, at the app's own size (the same values as shellapps.py).

@@ -265,49 +265,15 @@ if barsLoaded and hl.plugin.hyprbars then
 	button(colors.green, "✚", "hyprctl eval 'MaximizeWindow()'")
 end
 
--- wheel and touchpad, the mode's way
-local function bind(keys, action, what)
-	hl.bind(keys, action, { description = (saved == "scrolling" and "Scrolling" or "Workspaces") .. " · " .. what })
+-- a wheel bind of the modes, on the wheel, the arrows or both
+-- (opts.scrollKeys, Shell Manager › Windows): without a mouse the arrows
+-- stand in — wheel down / up as arrow `down` / `up` (the mode's file picks them)
+ScrollKeys = opts.scrollKeys or "wheel"
+function WheelBind(group, mods, wheel, arrow, action, what)
+	local o = { description = group .. " · " .. what }
+	if ScrollKeys ~= "arrows" then hl.bind(mods .. " + " .. wheel, action, o) end
+	if ScrollKeys ~= "wheel" then hl.bind(mods .. " + " .. arrow, action, o) end
 end
 
-if saved == "scrolling" then
-	-- a lone window keeps its column width (half the screen) instead of
-	-- filling it, so a second one opens beside it, as in Niri
-	hl.config({ scrolling = { fullscreen_on_one_column = false } })
-	-- every wheel step is the bind's: with a delay, steps inside it would
-	-- reach the app under the pointer and scroll it too
-	hl.config({ binds = { scroll_event_delay = 0 } })
-	-- the row of columns: Super + wheel, or a three-finger swipe sideways
-	-- the layout's own move: the row slides, the pointer stays where it is
-	-- (a focus move would warp it to the newly focused window)
-	bind("SUPER + mouse_down", function() ScrollColumns(1) end, "Next column")
-	bind("SUPER + mouse_up", function() ScrollColumns(-1) end, "Previous column")
-	hl.gesture({ fingers = 3, direction = "left", action = function() ScrollColumns(1) end })
-	hl.gesture({ fingers = 3, direction = "right", action = function() ScrollColumns(-1) end })
-	-- the active column: half the screen <-> the whole of it, then into view
-	bind("SUPER + W", function()
-		local w = hl.get_active_window()
-		if not w then return end
-		local m = w.monitor or hl.get_active_monitor()
-		local width = type(w.size) == "table" and (w.size.x or w.size[1]) or 0
-		local wide = width > (m.width / (m.scale or 1)) * 0.75
-		hl.dispatch(hl.dsp.layout(wide and "colresize 0.5" or "colresize 1.0"))
-		hl.dispatch(hl.dsp.layout("fit active"))
-	end, "Wide / half column")
-	-- workspaces stack up and down: Super + Shift + wheel, a three-finger swipe up / down
-	bind("SUPER + SHIFT + mouse_down", hl.dsp.focus({ workspace = "e+1" }), "Workspace below")
-	bind("SUPER + SHIFT + mouse_up", hl.dsp.focus({ workspace = "e-1" }), "Workspace above")
-	hl.gesture({ fingers = 3, direction = "vertical", action = "workspace" })
-	hl.animation({ leaf = "workspaces", enabled = true, speed = 1, bezier = "smoothOut", style = "slidevert" })
-else
-	if saved == "floating" then
-		-- like Windows: halves of the screen, maximize, minimize
-		local function fbind(keys, action, what) hl.bind(keys, action, { description = "Floating · " .. what }) end
-		fbind("SUPER + left", function() SnapWindow("left") end, "Left half")
-		fbind("SUPER + right", function() SnapWindow("right") end, "Right half")
-		fbind("SUPER + up", function() MaximizeWindow() end, "Maximize / back")
-		fbind("SUPER + down", function() MinimizeWindow() end, "Minimize")
-	end
-	bind("SUPER + mouse_down", hl.dsp.focus({ workspace = "e+1" }), "Next workspace")
-	bind("SUPER + mouse_up", hl.dsp.focus({ workspace = "e-1" }), "Previous workspace")
-end
+-- the mode's own binds, wheel and gestures: components/modes/<mode>.lua
+if not pcall(require, "components.modes." .. saved) then require("components.modes.tiling") end
