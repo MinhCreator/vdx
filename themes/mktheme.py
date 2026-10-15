@@ -136,11 +136,6 @@ def build(name, pal):
     m = f("mako/config")
     m.write_text(re.sub(r"\[urgency=normal\]\nborder-color=#[0-9a-fA-F]{6}", f"[urgency=normal]\nborder-color=#{pal['frame']}",
                         re.sub(r"^border-color=#[0-9a-fA-F]{6}", f"border-color=#{pal['frame']}", m.read_text(), count=1, flags=re.M)))
-    r = f("rofi/colors.rasi")
-    r.write_text(re.sub(r"border:\s*#[0-9a-fA-F]{6};", f"border:   #{pal['frame']};", r.read_text()))
-    rows = "\n".join(f"| {k} | `#{pal[k]}` |" for k in ROLES[:-1] + ["frame", "frame_active"])
-    (dst / "README.md").write_text(f"# {pal['title']}\n\nGenerated from `themes/gruvbox` role by role "
-        f"(same files, same roles — see `themes/gruvbox/README.md` for the rules).\n\n| Role | Hex |\n|---|---|\n{rows}\n")
     # its wallpaper folder (wallpapers/<name>, kept outside the generated tree)
     wp = ROOT / "wallpapers" / name
     wp.mkdir(parents=True, exist_ok=True)
