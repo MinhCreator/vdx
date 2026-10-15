@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Derive dotfiles themes from themes/gruvbox: every gruvbox colour is
-replaced by the colour of the same role in the new palette.
+replaced by the colour of the same role in the new theme.
 
     python3 themes/mktheme.py            # rebuild every theme in THEMES
     python3 themes/mktheme.py ember      # just one
 
-A new theme: add its palette to THEMES (all roles + frame, frame_active) and
+A new theme: add its colours to THEMES (all roles + frame, frame_active) and
 run it; the result lands in themes/<name> and shows up in the Shell Manager."""
 import re, shutil, sys
 from pathlib import Path
@@ -66,7 +66,7 @@ def build(name, pal):
     # frames have their own colour per theme
     q = f("quickshell/taskbar/config/Colors.qml")
     q.write_text(re.sub(r'(readonly property color frame:\s*")#[0-9a-fA-F]{6}"', rf'\g<1>#{pal["frame"]}"', q.read_text())
-                 .replace("gruvbox palette overlay", f"{name} palette overlay"))
+                 .replace("gruvbox theme overlay", f"{name} theme overlay"))
     h = f("hypr/components/colors.lua")
     h.write_text(re.sub(r'frame_active = "rgb\([0-9a-fA-F]{6}\)"', f'frame_active = "rgb({pal["frame_active"]})"', h.read_text())
                  .replace("-- gruvbox-material,", f"-- {name},"))
@@ -78,6 +78,10 @@ def build(name, pal):
     rows = "\n".join(f"| {k} | `#{pal[k]}` |" for k in ROLES[:-1] + ["frame", "frame_active"])
     (dst / "README.md").write_text(f"# {pal['title']}\n\nGenerated from `themes/gruvbox` role by role "
         f"(same files, same roles — see `themes/gruvbox/README.md` for the rules).\n\n| Role | Hex |\n|---|---|\n{rows}\n")
+    # its wallpaper folder (wallpapers/<name>, kept outside the generated tree)
+    wp = ROOT / "wallpapers" / name
+    wp.mkdir(parents=True, exist_ok=True)
+    (wp / ".gitkeep").touch()
     print(name, "->", len(extra), "files")
 
 for n in (sys.argv[1:] or THEMES):

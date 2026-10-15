@@ -1,4 +1,4 @@
-# gruvbox-material — one palette for the whole desktop
+# gruvbox-material — one theme for the whole desktop
 
 Source of truth: `quickshell/taskbar/config/Colors.qml`. Every program below
 uses these values and roles; a new config takes its colours from here.

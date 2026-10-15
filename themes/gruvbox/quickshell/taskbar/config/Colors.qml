@@ -1,7 +1,7 @@
 pragma Singleton
 import QtQuick
 
-// Colors — gruvbox palette overlay (same values as the base copy in
+// Colors — gruvbox theme overlay (same values as the base copy in
 // packages/quickshell/taskbar/config/Colors.qml).
 
 QtObject {

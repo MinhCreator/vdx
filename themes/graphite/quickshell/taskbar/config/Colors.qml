@@ -1,7 +1,7 @@
 pragma Singleton
 import QtQuick
 
-// Colors — graphite palette overlay (same values as the base copy in
+// Colors — graphite theme overlay (same values as the base copy in
 // packages/quickshell/taskbar/config/Colors.qml).
 
 QtObject {

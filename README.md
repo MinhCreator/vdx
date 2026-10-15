@@ -1,7 +1,7 @@
 # dotfiles
 
-Arch Linux / Hyprland / Zsh / Neovim dotfiles with one palette across the whole
-desktop (gruvbox, graphite, ember), deployed by a
+Arch Linux / Hyprland / Zsh / Neovim dotfiles with one theme across the whole
+desktop (gruvbox, graphite, ember, khaki), deployed by a
 manifest-based symlink manager in pure Python stdlib — no stow.
 
 | Component | Software |
@@ -105,10 +105,10 @@ one by one, so a new one is not visible until then.
   "starship.toml" = "~/.config/starship.toml"
   ```
 
-- **Themes.** `gruvbox`, `graphite` (near-black monochrome) and `ember` (warm
-  charcoal, coral frames). Every program uses the same roles —
-  [`themes/gruvbox/README.md`](themes/gruvbox/README.md) has the palette and
-  the rules; `themes/mktheme.py` derives a new theme from a palette. The active
+- **Themes.** `gruvbox`, `graphite` (near-black monochrome), `ember` (warm
+  charcoal, coral frames) and `khaki` (near-black, cream text, sand frames). Every program uses the same roles —
+  [`themes/gruvbox/README.md`](themes/gruvbox/README.md) has the colour roles
+  and the rules; `themes/mktheme.py` derives a new theme from its colours. The active
   one is in `.theme` (local, git-ignored — gruvbox when absent); switch with
   `./install.py theme set` or the Shell Manager. Mako and Swaylock exist only
   as theme files.

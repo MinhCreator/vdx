@@ -7,7 +7,7 @@
   добавления или удаления файла — `./install.py link`, затем
   `./install.py verify`.
 - Тема перекрывает файлы пакета (`themes/<тема>/<pkg>/`). Цвета — только по
-  ролям палитры (`themes/gruvbox/README.md`); новая тема — `themes/mktheme.py`,
+  ролям темы (`themes/gruvbox/README.md`); новая тема — `themes/mktheme.py`,
   сгенерированные темы руками не правим.
 - Стиль файлов (шапка, заголовки секций, комментарии) — `CONVENTIONS.md` §1b.
 - `/etc` — только через `system/` и `./install.py system install` (нужен sudo:
