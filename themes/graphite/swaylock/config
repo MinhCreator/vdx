@@ -1,6 +1,6 @@
 ignore-empty-password
 hide-keyboard-layout
-font=JetBrainsMono Nerd Font
+font=monospace
 font-size=14
 
 color=0e0e0e
