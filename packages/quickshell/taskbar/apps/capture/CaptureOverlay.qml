@@ -92,7 +92,7 @@ Variants {
         CaptureService.startRecording(Qt.rect(target.x + modelData.x, target.y + modelData.y, target.width, target.height));
         return;
       }
-      const path = CaptureService.shotDir + "/Screenshot_" + CaptureService.stamp() + ".png";
+      const path = CaptureService.shotPath();
       crop.scheduleUpdate();
       crop.grabToImage(result => {
         if (result.saveToFile(path)) CaptureService.shotSaved(path);

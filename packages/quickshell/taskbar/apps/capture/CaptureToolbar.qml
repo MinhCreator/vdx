@@ -91,14 +91,29 @@ Rectangle {
 
     KitLine {}
 
-    // ---- a shot: where it goes --------------------------------------------------------
+    // ---- where it goes: a shot always reaches the clipboard ---------------------------
     Column {
-      visible: CaptureService.kind === "shot"
       width: parent.width
-      spacing: 6
+      spacing: 8
 
-      KitInfo { label: "Saved to"; value: root.home(CaptureService.shotDir) }
-      KitInfo { label: "Clipboard"; value: "copied as PNG" }
+      KitLabel {
+        text: "SAVE"
+        value: CaptureService.kind === "shot"
+          ? (CaptureService.shotTarget === "folder" ? root.home(CaptureService.shotDir).toUpperCase()
+             : CaptureService.shotTarget === "ask" ? "ASKS WHERE" : "CLIPBOARD ONLY")
+          : (CaptureService.videoTarget === "folder" ? root.home(CaptureService.videoDir).toUpperCase() : "ASKS WHERE")
+      }
+
+      KitChoices {
+        width: parent.width
+        stretch: true
+        model: CaptureService.kind === "shot"
+          ? [{ label: "Folder", value: "folder", icon: "folder" }, { label: "Ask", value: "ask", icon: "list" },
+             { label: "Clipboard", value: "clipboard", icon: "clipboard" }]
+          : [{ label: "Folder", value: "folder", icon: "folder" }, { label: "Ask", value: "ask", icon: "list" }]
+        current: CaptureService.kind === "shot" ? CaptureService.shotTarget : CaptureService.videoTarget
+        onPicked: value => PluginSettings.set("capture", CaptureService.kind === "shot" ? "shotTarget" : "videoTarget", value)
+      }
     }
 
     // ---- a recording: its settings ----------------------------------------------------
@@ -150,7 +165,6 @@ Rectangle {
         }
       }
 
-      KitInfo { label: "Saved to"; value: root.home(CaptureService.videoDir) }
     }
 
     KitLine {}

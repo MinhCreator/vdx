@@ -63,6 +63,14 @@ Singleton {
   // ---- output ------------------------------------------------------------------
   // folders from Shell Manager › Plugins › Capture; empty: the defaults
   readonly property string shotDir: PluginSettings.get("capture", "shotDir", "") || Quickshell.env("HOME") + "/Pictures/Screenshots"
+  // after a shot: folder | ask (a Save as window) | clipboard (nothing on disk);
+  // after a recording: folder | ask. Shell Manager › Plugins › Capture, and the panel.
+  readonly property string shotTarget: PluginSettings.get("capture", "shotTarget", "folder")
+  readonly property string videoTarget: PluginSettings.get("capture", "videoTarget", "folder")
+  readonly property string cacheDir: Quickshell.env("HOME") + "/.cache/quickshell-capture"
+  // a capture waiting for its Save as answer: {kind: shot | video, tmp, path}
+  property var pending: null
+  property bool recordAsk: false      // the running recording waits for Save as
   readonly property string videoDir: PluginSettings.get("capture", "videoDir", "") || Quickshell.env("HOME") + "/Videos/Recordings"
 
   function stamp() { return Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss"); }
@@ -78,7 +86,7 @@ Singleton {
     plainStills = 0;
     redraw = false;
     plainCapture = false;
-    run(["mkdir", "-p", shotDir]);
+    run(["sh", "-c", 'mkdir -p "$1" "$2"; find "$2" -name "Screenshot_*" -mmin +60 -delete', "sh", shotDir, cacheDir]);
     pointerAt = Qt.point(-1, -1);
     windowsProc.running = true;
     PopupManager.holding = true;
@@ -131,17 +139,53 @@ Singleton {
   function setCursor(value) { cursor = value; }
   function setEncoder(value) { settings.encoder = value; }
 
-  // A cropped still from an overlay, already saved to `path`.
+  // where a new shot is written first: its folder, or the cache until Save as / never
+  function shotPath() {
+    return (shotTarget === "folder" ? shotDir : cacheDir) + "/Screenshot_" + stamp() + ".png";
+  }
+
+  // A cropped still from an overlay, already written to `path`; it always
+  // goes to the clipboard, then to wherever shotTarget says.
   function shotSaved(path) {
     close();
-    run(["sh", "-c", 'wl-copy --type image/png < "$1" && notify-send -a Capture -i "$1" "Screenshot copied" "$1"', "sh", path]);
+    const copy = 'wl-copy --type image/png < "$1" && notify-send -a Capture -i "$1" "$2" "$3"';
+    if (shotTarget === "ask") {
+      run(["sh", "-c", 'wl-copy --type image/png < "$1"', "sh", path]);
+      pending = { kind: "shot", tmp: path, path: shotDir + "/" + path.split("/").pop() };
+    } else {
+      run(["sh", "-c", copy, "sh", path, "Screenshot copied", shotTarget === "folder" ? path : "clipboard only"]);
+    }
+  }
+
+  // Save as answered: move the capture there (a leading ~ is the home folder)
+  function confirmSave(path) {
+    if (!pending) return;
+    const p = pending;
+    pending = null;
+    const target = path.trim().replace(/^~(?=\/|$)/, Quickshell.env("HOME"));
+    run(["sh", "-c", 'mkdir -p "$(dirname "$2")" && mv "$1" "$2" && notify-send -a Capture "$3" "$2" || notify-send -a Capture -u critical "Could not save" "$2"',
+         "sh", p.tmp, target, p.kind === "shot" ? "Screenshot saved" : "Recording saved"]);
+  }
+
+  // Save as dismissed: a shot stays on the clipboard only; a recording is
+  // never thrown away — it goes to its default folder
+  function dismissSave() {
+    if (!pending) return;
+    if (pending.kind === "shot") {
+      run(["rm", "-f", pending.tmp]);
+      pending = null;
+    } else {
+      confirmSave(pending.path);
+    }
   }
 
   // rect in layout coordinates (logical pixels across all monitors);
   // gpu-screen-recorder scales them to the output itself
   function startRecording(rect) {
     close();
-    const file = videoDir + "/Recording_" + stamp() + ".mp4";
+    recordAsk = videoTarget === "ask";
+    const folder = recordAsk ? cacheDir : videoDir;
+    const file = folder + "/Recording_" + stamp() + ".mp4";
     const args = ["gpu-screen-recorder", "-w", "region",
                   "-region", Math.round(rect.width) + "x" + Math.round(rect.height) + "+" + Math.round(rect.x) + "+" + Math.round(rect.y),
                   "-f", String(fps), "-q", presets[quality] ?? "high", "-cursor", cursor ? "yes" : "no",
@@ -152,7 +196,7 @@ Singleton {
     if (encoderInUse === "igpu") args.unshift("env", "__EGL_VENDOR_LIBRARY_FILENAMES=" + mesaOnly);
     recordFile = file;
     // start after the overlay is gone, so it is not in the first frames
-    recordStart.args = ["sh", "-c", 'mkdir -p "$1" && shift && exec "$@"', "sh", videoDir].concat(args);
+    recordStart.args = ["sh", "-c", 'mkdir -p "$1" && shift && exec "$@"', "sh", folder].concat(args);
     recordStart.restart();
   }
 
@@ -232,9 +276,12 @@ Singleton {
     stderr: StdioCollector { id: recorderErr }
     onExited: code => {
       if (root.recordFile === "") return;
-      if (code === 0 || code === 130 || code === 2)
-        root.run(["notify-send", "-a", "Capture", "Recording saved", root.recordFile]);
-      else
+      if (code === 0 || code === 130 || code === 2) {
+        if (root.recordAsk)
+          root.pending = { kind: "video", tmp: root.recordFile, path: root.videoDir + "/" + root.recordFile.split("/").pop() };
+        else
+          root.run(["notify-send", "-a", "Capture", "Recording saved", root.recordFile]);
+      } else
         root.fail("Recording failed", recorderErr.text.trim().split("\n").pop() || "gpu-screen-recorder exited with " + code);
       root.recordFile = "";
     }
