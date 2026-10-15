@@ -38,6 +38,12 @@ Singleton {
   property real writeRate: 0
 
   property bool popupOpen: false
+  // others that want the full snapshot (GPU, network…) while they are open:
+  // hold() when shown, release() when gone (the task manager)
+  property int holders: 0
+  readonly property bool full: popupOpen || holders > 0
+  function hold() { holders++; sample(); }
+  function release() { holders = Math.max(0, holders - 1); }
   property var last: null             // previous snapshot, for the differences
 
   function popupShown() { popupOpen = true; sample(); }
@@ -45,7 +51,7 @@ Singleton {
 
   function sample() {
     if (proc.running) return;
-    proc.command = ["bash", Theme.scriptsDir + "/sysmon.sh"].concat(popupOpen ? [] : ["cpu"]);
+    proc.command = ["bash", Theme.scriptsDir + "/sysmon.sh"].concat(full ? [] : ["cpu"]);
     proc.running = true;
   }
 
@@ -89,7 +95,7 @@ Singleton {
   }
 
   Timer {
-    interval: root.popupOpen ? 1500 : 3000
+    interval: root.full ? 1500 : 3000
     running: true
     repeat: true
     triggeredOnStart: true

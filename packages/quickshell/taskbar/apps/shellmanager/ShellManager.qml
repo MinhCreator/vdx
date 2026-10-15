@@ -10,6 +10,8 @@ import qs.kit
 //   APPEARANCE — theme, icon style, wallpaper, font and cursor;
 //   BAR        — the layout of the bar's zones, modules on / off, underline.
 //   PLUGINS    — each plugin's own options.
+//   SHELL APPS — how the shell's own windows open: floating or tiled, size, spot.
+//   BINDS      — Hyprland's keybinds by group, with a search.
 Rectangle {
   id: root
 
@@ -18,10 +20,14 @@ Rectangle {
   readonly property var sections: [
     { value: "appearance", label: "Appearance", icon: "sun" },
     { value: "bar",        label: "Bar",        icon: "layout" },
-    { value: "plugins",    label: "Plugins",    icon: "grid" }
+    { value: "plugins",    label: "Plugins",    icon: "grid" },
+    { value: "apps",       label: "Shell apps", icon: "app-window" },
+    { value: "binds",      label: "Binds",      icon: "keyboard" }
   ]
 
-  function pageFor(value) { return value === "bar" ? bar : value === "plugins" ? plugins : appearance; }
+  function pageFor(value) {
+    return value === "bar" ? bar : value === "plugins" ? plugins : value === "binds" ? binds : value === "apps" ? apps : appearance;
+  }
   readonly property Item currentPage: pageFor(tab)
 
   // the group being read: the last one whose title is within 40px of the
@@ -40,6 +46,7 @@ Rectangle {
   }
 
   function jumpTo(j) {
+    if (typeof currentPage.jump === "function") currentPage.jump(j.key);   // e.g. unfold it
     const max = Math.max(0, page.contentHeight - page.height);
     scroll.to = Math.min(max, Math.max(0, j.y));
     scroll.restart();
@@ -235,11 +242,15 @@ Rectangle {
       width: page.width - 48
       implicitHeight: Math.max(appearance.visible ? appearance.implicitHeight : 0,
                                bar.visible ? bar.implicitHeight : 0,
+                               binds.visible ? binds.implicitHeight : 0,
+                               apps.visible ? apps.implicitHeight : 0,
                                plugins.visible ? plugins.height : 0)
 
       AppearancePage { id: appearance; width: parent.width; visible: root.tab === "appearance" }
       BarPage     { id: bar;     width: parent.width; visible: root.tab === "bar" }
       // fills the window and scrolls its two panes itself
+      ShellAppsPage { id: apps;  width: parent.width; visible: root.tab === "apps" }
+      BindsPage   { id: binds;   width: parent.width; visible: root.tab === "binds" }
       PluginsPage { id: plugins; width: parent.width; height: page.height - pages.y - 20; visible: root.tab === "plugins" }
     }
   }

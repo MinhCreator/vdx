@@ -17,7 +17,7 @@ Item {
   property bool solid: ShellSettings.solidIcons
 
   // names that have a filled variant in icons/solid
-  readonly property var solidNames: ["app-window", "battery-charging", "battery", "bell", "bot", "camera", "circle", "clipboard", "clock", "cpu", "folder", "grid", "headphones", "keyboard", "laptop", "layout", "leaf", "lock", "mic", "monitor", "moon", "music", "pause", "play", "plug", "radio", "server", "settings", "shield", "skip-back", "skip-forward", "sliders", "speaker", "square", "sun", "trash", "video", "volume", "volume-x", "wifi-off", "wifi", "zap"]
+  readonly property var solidNames: ["app-window", "battery-charging", "battery", "bell", "bot", "camera", "circle", "clipboard", "clock", "cpu", "cursor", "folder", "grid", "headphones", "keyboard", "laptop", "layout", "leaf", "lock", "mic", "monitor", "moon", "music", "pause", "play", "plug", "radio", "server", "settings", "shield", "skip-back", "skip-forward", "sliders", "speaker", "square", "sun", "trash", "video", "volume", "volume-x", "wifi-off", "wifi", "zap"]
   readonly property bool useSolid: solid && solidNames.includes(name)
 
   implicitWidth: size

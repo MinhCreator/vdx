@@ -15,6 +15,8 @@ taskbar/
 ├─ config/            Theme (всё общее), Colors (цвета темы), ShellSettings (опции оболочки), PluginSettings (опции плагинов)
 ├─ apps/shellmanager/ окно настроек: Appearance (тема, обои, шрифт, курсор), Bar (мониторы, раскладка, модули), Plugins
 ├─ apps/capture/      захват экрана (Super+Shift+S): область / окно / экран, скриншот или запись
+├─ apps/taskmanager/  диспетчер задач (Super+D): процессы, CPU / память, End / Kill
+├─ apps/cleaner/      чистильщик (Super+X): кэши, корзина, система через sudo в терминале, режим AI
 ├─ scripts/           бэкенды: *.sh / *.py, на выходе только JSON (или строки, см. шапку)
 └─ plugins/<name>/    <Name>.qml + <Name>Popup.qml + <Name>Service.qml (+ view-файлы, *.json)
 ```
@@ -73,6 +75,15 @@ Item {
   }
 }
 ```
+
+Новое окно оболочки (`FloatingWindow`) — запись в `scripts/shellapps.py`
+(`APPS`: id правила, заголовок, свой размер) и в `shellApps` в
+`hypr/components/rules.lua` (те же значения): тогда Shell Manager › Shell apps
+настраивает, как оно открывается.
+
+Окно без места на баре, но с опциями (диспетчер задач) — запись в
+`BarLayout.apps` (`settings` — путь от корня конфига); Shell Manager › Plugins
+показывает `BarLayout.entries` (плагины + такие окна).
 
 Регистрация — запись в `bar/BarLayout.qml` (`plugins`: id, label, зона,
 `icon` — имя SVG из `kit/icons`, `about`) и `Component { id: x; X { bar: root } }`
@@ -198,7 +209,9 @@ Appearance › Icons), `solid:` вручную не задают. Новая и�
    перезапуск. Правки существующих файлов подхватываются на лету (кроме
    функций `IpcHandler` — для них тоже перезапуск).
 4. **Перезапуск:** `kill <pid>` (pid из `qs list --all`), убедиться, что
-   инстансов 0, `setsid qs -c taskbar -d`, проверить, что инстанс ровно один.
+   инстансов 0, `hyprctl eval 'hl.exec_cmd("qs -c taskbar")'` (бар получает
+   окружение Hyprland, а не терминала агента — иначе всё, что он запускает,
+   наследует переменные чужой сессии), проверить, что инстанс ровно один.
    `qs kill` роняет бар, он сам поднимается с неработающим IPC.
 5. **Проверка:** `qs log -c taskbar | grep -E 'ERROR|WARN'`; попап открывается
    `qs -c taskbar ipc call <ipcTarget> toggle` (пауза ≥ 1 с между вызовами),
@@ -235,6 +248,13 @@ Appearance › Icons), `solid:` вручную не задают. Новая и�
 - `Process` с `running: true` стартует сразу; повтор — только если
   `!proc.running`. Колесо на layer-shell доходит только до `MouseArea`.
 - Пользователь видит изменения сразу — ломать конфиг даже временно нельзя.
+- Никаких привязок `parent: parent.parent` (переподвесить элемент выше): после
+  переподвешивания привязка считается заново, лезет вверх по дереву — цикл.
+  Так однажды встала вся сессия. `MouseArea` на весь блок — соседом в общем
+  `Item`, не внутри `KitRow`.
+- Рискованную правку окна (новые привязки, анимации высоты) сначала гонять в
+  песочнице: копия конфига, `qs -p <копия>` под `systemd-run --user --scope
+  -p MemoryMax=600M -p CPUQuota=50%`, следить за `ps -o pcpu,rss`.
 
 ## Каталог kit (`kit/`)
 

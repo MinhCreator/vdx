@@ -2,7 +2,9 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.apps.capture
+import qs.apps.cleaner
 import qs.apps.shellmanager
+import qs.apps.taskmanager
 import qs.bar
 import qs.components
 
@@ -15,6 +17,8 @@ Scope {
   }
 
   ShellManagerWindow {}
+  TaskManagerWindow {}
+  CleanerWindow {}
 
   Wallpaper {}
 

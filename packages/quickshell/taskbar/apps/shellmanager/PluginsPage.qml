@@ -14,15 +14,15 @@ Column {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "grid"
   readonly property string title: "Plugins"
-  readonly property string subtitle: BarLayout.plugins.filter(p => p.settings).length + " WITH OPTIONS · " + BarLayout.plugins.length + " IN ALL"
+  readonly property string subtitle: BarLayout.entries.filter(p => p.settings).length + " WITH OPTIONS · " + BarLayout.entries.length + " IN ALL"
 
   // its own list does the job of the sidebar's group links
   readonly property var jumps: []
 
-  property string selected: (BarLayout.plugins.find(p => p.settings) ?? BarLayout.plugins[0])?.id ?? ""
-  readonly property var plugin: BarLayout.plugins.find(p => p.id === selected) ?? null
+  property string selected: (BarLayout.entries.find(p => p.settings) ?? BarLayout.entries[0])?.id ?? ""
+  readonly property var plugin: BarLayout.entries.find(p => p.id === selected) ?? null
   property string query: ""
-  readonly property var matches: BarLayout.plugins.filter(p => p.label.toLowerCase().includes(query.trim().toLowerCase()))
+  readonly property var matches: BarLayout.entries.filter(p => p.label.toLowerCase().includes(query.trim().toLowerCase()))
 
   function step(delta) {
     const i = matches.findIndex(p => p.id === selected);
@@ -47,7 +47,7 @@ Column {
       KitLabel {
         width: parent.width
         text: "PLUGINS"
-        value: String(BarLayout.plugins.length)
+        value: String(BarLayout.entries.length)
       }
 
       // typing jumps to the first match, arrows move through the matches
@@ -196,7 +196,8 @@ Column {
           width: parent.width
           visible: active
           active: !!root.plugin?.settings
-          source: active ? Quickshell.shellPath("plugins/" + root.plugin.id + "/" + root.plugin.settings) : ""
+          source: active ? Quickshell.shellPath(root.plugin.settings.includes("/") ? root.plugin.settings
+                                                 : "plugins/" + root.plugin.id + "/" + root.plugin.settings) : ""
         }
 
         // a plugin without options gets a row in their place, like one

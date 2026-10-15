@@ -30,9 +30,19 @@ Singleton {
     { id: "capture",       label: "Capture",       zone: "right",  icon: "camera", settings: "CaptureSettings.qml", about: "Screenshots and screen recording" },
     { id: "clipboard",     label: "Clipboard",     zone: "right",  icon: "clipboard", settings: "ClipboardSettings.qml", about: "Copy history, images to drag out" },
     { id: "sysmon",        label: "System",        zone: "right",  icon: "cpu", settings: "SysmonSettings.qml", about: "CPU, memory, GPU, disks, network, sensors" },
+    { id: "taskmanager",   label: "Task manager",  zone: "right",  icon: "activity", settings: "apps/taskmanager/TaskManagerSettings.qml", about: "Load and the busiest programs · Super+D: the full window" },
+    { id: "cleaner",       label: "Cleaner",       zone: "right",  icon: "trash", settings: "apps/cleaner/CleanerSettings.qml", about: "What can go, the safe part in one click · Super+X: the full window" },
     { id: "folder",        label: "Folder",        zone: "right",  icon: "folder", about: "Modules tucked away, one click from the bar" }
   ]
   readonly property var zones: ["left", "center", "right"]
+
+  // Shell apps with options but no place on the bar (their own windows): listed
+  // with the plugins in Shell Manager › Plugins. `settings` is a path from the
+  // config root.
+  readonly property var apps: [
+  ]
+  // plugins and apps, for the Shell Manager's options list
+  readonly property var entries: plugins.concat(apps)
 
   // Old ids still found in saved layouts: old -> new.
   readonly property var renamed: ({ claude: "ai", plugins: "shell" })

@@ -1,0 +1,286 @@
+#!/usr/bin/env python3
+"""System cleanup for the cleaner (apps/cleaner and its bar plugin). One JSON
+object per command.
+
+    cleaner.py scan                 {"ok", "total", "categories": [{id, label, hint, size, root, safe, command?}]}
+    cleaner.py clean <id>…          empties those user categories          {"ok", "freed"}
+    cleaner.py terminal <id>…       runs the root ones' commands in a terminal (sudo asks there)
+    cleaner.py ai [model]           Claude suggests what in ~ could go     {"ok", "suggestions": [{path, size, why, risk}]}
+    cleaner.py trash <path>…        moves suggested paths to the Trash     {"ok", "freed"}
+
+User categories are caches that rebuild themselves, the thumbnails and the
+Trash: emptied in place. Root ones (pacman's cache, orphans, the journal,
+core dumps) only ever run in a terminal, where sudo asks for the password.
+The AI mode hands Claude a summary of ~ (sizes, ages — no file contents) with
+no tools; it may only suggest paths from that summary, never protected ones
+(the dotfiles, keys, config), and they go to the Trash, not away.
+Errors: {"ok": false, "error": "..."}."""
+import json, os, re, shutil, subprocess, sys, time
+from pathlib import Path
+
+HOME = Path.home()
+CACHE = HOME / ".cache"
+CONTEXT = HOME / ".cache/dotfiles/cleaner-ai.json"     # what the AI was shown: the only paths it may name
+
+# id, label, hint, folders whose contents go, safe (checked by default)
+USER = [
+    ("trash", "Trash", "files you deleted", [HOME / ".local/share/Trash/files", HOME / ".local/share/Trash/info"], True),
+    ("thumbnails", "Thumbnails", "file manager previews", [CACHE / "thumbnails"], True),
+    ("aur", "AUR builds", "yay / paru build folders", [CACHE / "yay", CACHE / "paru"], True),
+    ("dev", "Developer caches", "pip, npm, uv, go, cargo downloads",
+     [CACHE / "pip", CACHE / "npm", HOME / ".npm/_cacache", CACHE / "uv", CACHE / "go-build",
+      HOME / ".cargo/registry/cache"], True),
+    ("shaders", "Shader caches", "GPU shaders, built again on demand",
+     [CACHE / "mesa_shader_cache", CACHE / "nvidia/GLCache", HOME / ".nv/ComputeCache"], True),
+    ("browsers", "Browser caches", "close the browsers first",
+     [CACHE / "BraveSoftware", CACHE / "mozilla", CACHE / "chromium", CACHE / "google-chrome"], False),
+]
+# id, label, hint, size probe, command (run with sudo in a terminal)
+ROOT = [
+    ("pacman", "Package cache", "keeps the newest version of each", "pacman",
+     "sudo paccache -rk1 && sudo paccache -ruk0"),
+    ("orphans", "Orphan packages", "dependencies nothing needs now", "orphans",
+     "pacman -Qdtq >/dev/null && sudo pacman -Rns $(pacman -Qdtq) || echo 'No orphans.'"),
+    ("journal", "System journal", "keeps the last two weeks", "journal", "sudo journalctl --vacuum-time=2weeks"),
+    ("coredumps", "Crash dumps", "core dumps of crashed programs", "coredumps",
+     "sudo find /var/lib/systemd/coredump -type f -delete"),
+]
+PROTECTED = [HOME / p for p in (".dotfiles", ".ssh", ".gnupg", ".config", ".local/share/keyrings",
+                                ".password-store", ".local/state", ".mozilla", ".thunderbird")]
+
+
+def out(obj):
+    print(json.dumps(obj))
+    sys.exit(0 if obj.get("ok") else 1)
+
+
+def size_of(path):
+    """Bytes under a path, not following symlinks; 0 when it isn't there."""
+    total = 0
+    try:
+        if path.is_symlink() or path.is_file():
+            return path.lstat().st_size
+        for root, dirs, files in os.walk(path, followlinks=False):
+            for name in files:
+                try:
+                    total += os.lstat(os.path.join(root, name)).st_size
+                except OSError:
+                    pass
+    except OSError:
+        pass
+    return total
+
+
+def probe(kind):
+    try:
+        if kind == "pacman":
+            return size_of(Path("/var/cache/pacman/pkg"))
+        if kind == "coredumps":
+            return size_of(Path("/var/lib/systemd/coredump"))
+        if kind == "journal":
+            text = subprocess.run(["journalctl", "--disk-usage"], capture_output=True, text=True).stdout
+            m = re.search(r"take up ([\d.]+)([KMGT]?)", text)
+            if m:
+                return int(float(m.group(1)) * 1024 ** "BKMGT".index(m.group(2) or "B"))
+        if kind == "orphans":
+            names = subprocess.run(["pacman", "-Qdtq"], capture_output=True, text=True).stdout.split()
+            if not names:
+                return 0
+            info = subprocess.run(["pacman", "-Qi"] + names, capture_output=True, text=True).stdout
+            total = 0
+            for value, unit in re.findall(r"Installed Size\s*:\s*([\d.]+)\s*(\w+)", info):
+                total += int(float(value) * {"B": 1, "KiB": 1024, "MiB": 1024 ** 2, "GiB": 1024 ** 3}.get(unit, 1))
+            return total
+    except (OSError, ValueError):
+        pass
+    return 0
+
+
+def cmd_scan():
+    cats = []
+    for cid, label, hint, dirs, safe in USER:
+        size = sum(size_of(d) for d in dirs)
+        cats.append({"id": cid, "label": label, "hint": hint, "size": size, "root": False, "safe": safe})
+    for cid, label, hint, kind, command in ROOT:
+        cats.append({"id": cid, "label": label, "hint": hint, "size": probe(kind), "root": True, "safe": True,
+                     "command": command})
+    out({"ok": True, "total": sum(c["size"] for c in cats), "categories": cats})
+
+
+def empty(folder):
+    """Removes what is inside `folder` (not the folder itself); bytes freed."""
+    freed = 0
+    if not folder.is_dir() or folder.is_symlink():
+        return 0
+    for child in folder.iterdir():
+        size = size_of(child)
+        try:
+            if child.is_dir() and not child.is_symlink():
+                shutil.rmtree(child)
+            else:
+                child.unlink()
+            freed += size
+        except OSError:
+            pass
+    return freed
+
+
+def cmd_clean(ids):
+    known = {c[0]: c for c in USER}
+    bad = [i for i in ids if i not in known]
+    if bad:
+        out({"ok": False, "error": f"not a user category: {bad[0]}"})
+    freed = sum(empty(d) for i in ids for d in known[i][3])
+    out({"ok": True, "freed": freed})
+
+
+def cmd_terminal(ids):
+    known = {c[0]: c for c in ROOT}
+    bad = [i for i in ids if i not in known]
+    if bad or not ids:
+        out({"ok": False, "error": f"not a root category: {bad[0] if bad else '(none)'}"})
+    steps = "; ".join(f"echo; echo '── {known[i][1]}'; {known[i][4]}" for i in ids)
+    script = f"{steps}; echo; read -rp 'Done. Enter closes this window.' _"
+    subprocess.Popen(["kitty", "--title", "Cleaner", "bash", "-c", script], start_new_session=True,
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    out({"ok": True})
+
+
+# ---- AI ----------------------------------------------------------------------------
+
+def summary():
+    """Folders of ~ three levels down from 100 MB, files from 200 MB, with ages."""
+    now = time.time()
+    rows = []
+    du = subprocess.run(["du", "-x", "-B1", "-d", "3", "--threshold=100M", str(HOME)],
+                        capture_output=True, text=True).stdout
+    for line in du.splitlines():
+        size, path = line.split("\t", 1)
+        p = Path(path)
+        if p == HOME:
+            continue
+        rows.append((path, int(size), "dir"))
+    found = subprocess.run(["find", str(HOME), "-xdev", "-type", "f", "-size", "+200M", "-printf", "%s\t%p\n"],
+                           capture_output=True, text=True).stdout
+    for line in found.splitlines():
+        size, path = line.split("\t", 1)
+        rows.append((path, int(size), "file"))
+    items = []
+    for path, size, kind in sorted(rows, key=lambda r: -r[1])[:120]:
+        try:
+            age = int((now - os.lstat(path).st_mtime) / 86400)
+        except OSError:
+            continue
+        items.append({"path": path.replace(str(HOME), "~", 1), "kind": kind, "mb": size // 1048576, "days": age})
+    return items
+
+
+def protected(path):
+    p = Path(os.path.realpath(path))
+    if p == HOME or HOME not in p.parents:
+        return True
+    return any(p == q or q in p.parents or p in q.parents for q in PROTECTED)
+
+
+PROMPT = """You help free disk space in a Linux (Arch) user's home folder. Below is a list
+of its biggest folders and files: path (~ is home), kind, size in MB, days since
+it last changed. You see no contents.
+
+Suggest at most 15 entries from THIS LIST that are most likely safe to delete:
+caches, build output (node_modules, target, .venv, __pycache__, dist) of
+projects untouched for long, old downloads, installers, ISO images, archives
+next to their unpacked folder, leftovers of uninstalled programs. Prefer big
+and old. Skip anything that may hold the user's own work (documents, photos,
+code that changed recently, mail, games' saves) and anything you are unsure
+of. Never name a folder that contains another entry you would keep.
+
+Answer with ONLY this JSON, nothing else:
+{"suggestions": [{"path": "<exactly as listed>", "why": "<under 70 characters>", "risk": "low" | "medium"}]}
+
+The list:
+"""
+
+
+def claude_env():
+    """The environment for `claude -p`: the signed-in account, not an API key
+    left in the session (it wins over the login and may be stale), and no
+    Claude Code session this was started from."""
+    return {k: v for k, v in os.environ.items()
+            if k != "ANTHROPIC_API_KEY" and k != "CLAUDECODE" and not k.startswith("CLAUDE_CODE_")}
+
+
+def cmd_ai(model):
+    items = summary()
+    CONTEXT.parent.mkdir(parents=True, exist_ok=True)
+    CONTEXT.write_text(json.dumps(items))
+    listing = "\n".join(f'{i["path"]}\t{i["kind"]}\t{i["mb"]} MB\t{i["days"]} d' for i in items)
+    try:
+        run = subprocess.run(["claude", "-p", PROMPT + listing, "--model", model, "--output-format", "json",
+                              "--tools", "", "--no-session-persistence", "--max-budget-usd", "0.50"],
+                             capture_output=True, text=True, timeout=240, cwd=str(CACHE), env=claude_env())
+    except FileNotFoundError:
+        out({"ok": False, "error": "claude is not installed"})
+    except subprocess.TimeoutExpired:
+        out({"ok": False, "error": "Claude took too long (4 min)"})
+    try:
+        reply = json.loads(run.stdout)
+        text = reply.get("result", "") if isinstance(reply, dict) else ""
+        if reply.get("is_error"):
+            out({"ok": False, "error": "Claude: " + (text or "error")[:200]})
+        text = re.sub(r"^```(?:json)?|```$", "", text.strip(), flags=re.M).strip()
+        wanted = json.loads(text[text.index("{"):text.rindex("}") + 1])["suggestions"]
+    except (ValueError, KeyError, TypeError, AttributeError):
+        out({"ok": False, "error": "Claude's answer wasn't the list: " + (run.stderr or run.stdout)[:200]})
+    shown = {i["path"]: i for i in items}
+    suggestions = []
+    for s in wanted:
+        item = shown.get(s.get("path"))
+        if not item:
+            continue                                     # not from the list: ignored
+        real = str(HOME / item["path"][2:]) if item["path"].startswith("~/") else item["path"]
+        if protected(real) or not os.path.lexists(real):
+            continue
+        suggestions.append({"path": item["path"], "size": item["mb"] * 1048576, "days": item["days"],
+                            "kind": item["kind"], "why": str(s.get("why", ""))[:90],
+                            "risk": "medium" if s.get("risk") == "medium" else "low"})
+    out({"ok": True, "suggestions": suggestions})
+
+
+def cmd_trash(paths):
+    try:
+        shown = {i["path"] for i in json.loads(CONTEXT.read_text())}
+    except (OSError, ValueError):
+        shown = set()
+    freed, errors = 0, []
+    for path in paths:
+        if path not in shown:
+            errors.append(f"{path}: not in the last analysis")
+            continue
+        real = str(HOME / path[2:]) if path.startswith("~/") else path
+        if protected(real):
+            errors.append(f"{path}: protected")
+            continue
+        size = size_of(Path(real))
+        moved = subprocess.run(["gio", "trash", real], capture_output=True, text=True)
+        if moved.returncode == 0:
+            freed += size
+        else:
+            errors.append(f"{path}: {moved.stderr.strip()[:80]}")
+    if errors:
+        out({"ok": False, "error": "; ".join(errors[:3]), "freed": freed})
+    out({"ok": True, "freed": freed})
+
+
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    if args == ["scan"]:
+        cmd_scan()
+    elif len(args) >= 2 and args[0] == "clean":
+        cmd_clean(args[1:])
+    elif len(args) >= 2 and args[0] == "terminal":
+        cmd_terminal(args[1:])
+    elif args[:1] == ["ai"] and len(args) <= 2:
+        cmd_ai(args[1] if len(args) == 2 else "haiku")
+    elif len(args) >= 2 and args[0] == "trash":
+        cmd_trash(args[1:])
+    out({"ok": False, "error": "usage: cleaner.py scan | clean <id>… | terminal <id>… | ai [model] | trash <path>…"})

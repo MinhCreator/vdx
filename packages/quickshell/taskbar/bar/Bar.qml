@@ -8,6 +8,7 @@ import qs.plugins.audio
 import qs.plugins.battery
 import qs.plugins.brightness
 import qs.plugins.capture
+import qs.plugins.cleaner
 import qs.plugins.clipboard
 import qs.plugins.clock
 import qs.plugins.folder
@@ -16,6 +17,7 @@ import qs.plugins.mihomo
 import qs.plugins.music
 import qs.plugins.notifications
 import qs.plugins.sysmon
+import qs.plugins.taskmanager
 import qs.plugins.radio
 import qs.plugins.wifi
 import qs.plugins.workspaces
@@ -32,7 +34,7 @@ PanelWindow {
     workspaces: workspaces, music: music, radio: radio, clock: clock,
     brightness: brightness, audio: audio, wifi: wifi, mihomo: mihomo,
     battery: battery, language: language, ai: ai, notifications: notifications,
-    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, folder: folder
+    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, folder: folder
   })
 
   component Zone: Row {
@@ -109,6 +111,8 @@ PanelWindow {
   Component { id: capture; Capture { bar: root } }
   Component { id: clipboard; Clipboard { bar: root } }
   Component { id: sysmon; Sysmon { bar: root } }
+  Component { id: taskmanager; TaskManagerBar { bar: root } }
+  Component { id: cleaner; CleanerBar { bar: root } }
   Component { id: folder; Folder { bar: root; modules: root.modules } }
 
   // The Shell Manager's button; a plugin of its own so it can move between zones.
