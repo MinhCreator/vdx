@@ -13,6 +13,13 @@ Column {
 
   property string selected: (BarLayout.plugins.find(p => p.settings) ?? BarLayout.plugins[0])?.id ?? ""
   readonly property var plugin: BarLayout.plugins.find(p => p.id === selected) ?? null
+  property string query: ""
+  readonly property var matches: BarLayout.plugins.filter(p => p.label.toLowerCase().includes(query.trim().toLowerCase()))
+
+  function step(delta) {
+    const i = matches.findIndex(p => p.id === selected);
+    if (matches.length > 0) selected = matches[Math.max(0, Math.min(matches.length - 1, i < 0 ? 0 : i + delta))].id;
+  }
 
 
   spacing: 14
@@ -31,62 +38,88 @@ Column {
     height: root.height - header.height - headerLine.height - 2 * root.spacing
     spacing: 18
 
-    // ---- list: framed like an open select, scrolls inside the frame ----------------
-    Rectangle {
+    // ---- list: like the theme list — title, search, a framed list -------------------
+    Column {
       id: list
       width: 190
-      height: Math.min(parent.height, rows.implicitHeight + 2 * Theme.frameWidth)
-      color: "transparent"
-      border.width: Theme.frameWidth
-      border.color: Theme.gray
+      height: parent.height
+      spacing: 8
 
-      Flickable {
-        anchors { fill: parent; margins: Theme.frameWidth }
-        contentHeight: rows.implicitHeight
-        interactive: contentHeight > height
-        clip: true
-        boundsBehavior: Flickable.StopAtBounds
+      KitLabel {
+        width: parent.width
+        text: "PLUGINS"
+        value: String(BarLayout.plugins.length)
+      }
 
-        Column {
-          id: rows
-          width: parent.width
+      // typing jumps to the first match, arrows move through the matches
+      KitInput {
+        width: parent.width
+        placeholder: "search"
+        text: root.query
+        onTextEdited: {
+          root.query = text;
+          if (root.matches.length > 0 && !root.matches.some(p => p.id === root.selected))
+            root.selected = root.matches[0].id;
+        }
+        Keys.onDownPressed: root.step(1)
+        Keys.onUpPressed: root.step(-1)
+      }
 
-          Repeater {
-            model: BarLayout.plugins
+      Rectangle {
+        width: parent.width
+        height: Math.min(list.height - y, rows.implicitHeight + 2 * Theme.frameWidth)
+        color: "transparent"
+        border.width: Theme.frameWidth
+        border.color: Theme.gray
 
-            Rectangle {
-              id: row
+        Flickable {
+          anchors { fill: parent; margins: Theme.frameWidth }
+          contentHeight: rows.implicitHeight
+          interactive: contentHeight > height
+          clip: true
+          boundsBehavior: Flickable.StopAtBounds
 
-              required property var modelData
+          Column {
+            id: rows
+            width: parent.width
 
-              readonly property bool active: modelData.id === root.selected
+            Repeater {
+              model: root.matches
 
-              width: rows.width
-              height: 30
-              color: active ? Theme.background3 : rowArea.containsMouse ? Theme.background1 : "transparent"
+              Rectangle {
+                id: row
 
-              KitIcon {
-                id: rowIcon
-                anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }
-                name: row.modelData.icon
-                tint: row.active ? Theme.foreground0 : Theme.foreground2
-                size: 14
-              }
+                required property var modelData
 
-              KitText {
-                anchors { left: rowIcon.right; leftMargin: 8; right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
-                text: row.modelData.label
-                elide: Text.ElideRight
-                color: row.active || rowArea.containsMouse ? Theme.foreground0 : Theme.foreground2
-                font.weight: row.active ? Font.ExtraBold : Font.DemiBold
-              }
+                readonly property bool active: modelData.id === root.selected
 
-              MouseArea {
-                id: rowArea
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: row.active ? Qt.ArrowCursor : Qt.PointingHandCursor
-                onClicked: root.selected = row.modelData.id
+                width: rows.width
+                height: 32
+                color: active ? Theme.background3 : rowArea.containsMouse ? Theme.background1 : "transparent"
+
+                KitIcon {
+                  id: rowIcon
+                  anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }
+                  name: row.modelData.icon
+                  tint: row.active ? Theme.foreground0 : Theme.foreground2
+                  size: 14
+                }
+
+                KitText {
+                  anchors { left: rowIcon.right; leftMargin: 8; right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                  text: row.modelData.label
+                  elide: Text.ElideRight
+                  color: row.active || rowArea.containsMouse ? Theme.foreground0 : Theme.foreground2
+                  font.weight: row.active ? Font.ExtraBold : Font.DemiBold
+                }
+
+                MouseArea {
+                  id: rowArea
+                  anchors.fill: parent
+                  hoverEnabled: true
+                  cursorShape: row.active ? Qt.ArrowCursor : Qt.PointingHandCursor
+                  onClicked: root.selected = row.modelData.id
+                }
               }
             }
           }
