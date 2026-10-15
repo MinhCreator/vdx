@@ -4,13 +4,16 @@ object per command.
 
     cleaner.py scan                 {"ok", "total", "categories": [{id, label, hint, size, root, safe, command?}]}
     cleaner.py clean <id>…          empties those user categories          {"ok", "freed"}
-    cleaner.py terminal <id>…       runs the root ones' commands in a terminal (sudo asks there)
+    cleaner.py plan <id>…           the root ones' steps and one script for pkexec
+                                    {"ok", "steps": [{label, what, command}], "script", "size"}
     cleaner.py ai [model]           Claude suggests what in ~ could go     {"ok", "suggestions": [{path, size, why, risk}]}
     cleaner.py trash <path>…        moves suggested paths to the Trash     {"ok", "freed"}
 
 User categories are caches that rebuild themselves, the thumbnails and the
 Trash: emptied in place. Root ones (pacman's cache, orphans, the journal,
-core dumps) only ever run in a terminal, where sudo asks for the password.
+core dumps) are only planned here: the shell shows the steps and runs the
+script itself through pkexec (apps/auth, RootService), so polkit's
+five-minute password memory holds between runs.
 The AI mode hands Claude a summary of ~ (sizes, ages — no file contents) with
 no tools; it may only suggest paths from that summary, never protected ones
 (the dotfiles, keys, config), and they go to the Trash, not away.
@@ -35,15 +38,15 @@ USER = [
     ("browsers", "Browser caches", "close the browsers first",
      [CACHE / "BraveSoftware", CACHE / "mozilla", CACHE / "chromium", CACHE / "google-chrome"], False),
 ]
-# id, label, hint, size probe, command (run with sudo in a terminal)
+# id, label, hint, size probe, command (run as root through pkexec)
 ROOT = [
     ("pacman", "Package cache", "keeps the newest version of each", "pacman",
-     "sudo paccache -rk1 && sudo paccache -ruk0"),
+     "paccache -rk1 && paccache -ruk0"),
     ("orphans", "Orphan packages", "dependencies nothing needs now", "orphans",
-     "pacman -Qdtq >/dev/null && sudo pacman -Rns $(pacman -Qdtq) || echo 'No orphans.'"),
-    ("journal", "System journal", "keeps the last two weeks", "journal", "sudo journalctl --vacuum-time=2weeks"),
+     'o=$(pacman -Qdtq); if [ -n "$o" ]; then pacman -Rns --noconfirm $o; fi'),
+    ("journal", "System journal", "keeps the last two weeks", "journal", "journalctl --vacuum-time=2weeks"),
     ("coredumps", "Crash dumps", "core dumps of crashed programs", "coredumps",
-     "sudo find /var/lib/systemd/coredump -type f -delete"),
+     "find /var/lib/systemd/coredump -type f -delete"),
 ]
 PROTECTED = [HOME / p for p in (".dotfiles", ".ssh", ".gnupg", ".config", ".local/share/keyrings",
                                 ".password-store", ".local/state", ".mozilla", ".thunderbird")]
@@ -134,16 +137,35 @@ def cmd_clean(ids):
     out({"ok": True, "freed": freed})
 
 
-def cmd_terminal(ids):
+def detail(cid):
+    """What a system step is about to do, in words, with what it will touch."""
+    if cid == "pacman":
+        pkgs = Path("/var/cache/pacman/pkg")
+        n = sum(1 for f in pkgs.glob("*.pkg.tar.*") if not f.name.endswith(".sig")) if pkgs.is_dir() else 0
+        return f"removes old versions of {n} cached packages, keeps the newest; uninstalled ones go"
+    if cid == "orphans":
+        names = subprocess.run(["pacman", "-Qdtq"], capture_output=True, text=True).stdout.split()
+        if not names:
+            return "nothing to remove"
+        shown = ", ".join(names[:8]) + (f" and {len(names) - 8} more" if len(names) > 8 else "")
+        return f"uninstalls {len(names)}: {shown}"
+    if cid == "journal":
+        return "deletes system log entries older than two weeks"
+    if cid == "coredumps":
+        d = Path("/var/lib/systemd/coredump")
+        n = sum(1 for _ in d.iterdir()) if d.is_dir() else 0
+        return f"deletes {n} crash dumps"
+    return ""
+
+
+def cmd_plan(ids):
     known = {c[0]: c for c in ROOT}
     bad = [i for i in ids if i not in known]
     if bad or not ids:
-        out({"ok": False, "error": f"not a root category: {bad[0] if bad else '(none)'}"})
-    steps = "; ".join(f"echo; echo '── {known[i][1]}'; {known[i][4]}" for i in ids)
-    script = f"{steps}; echo; read -rp 'Done. Enter closes this window.' _"
-    subprocess.Popen(["kitty", "--title", "Cleaner", "bash", "-c", script], start_new_session=True,
-                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    out({"ok": True})
+        out({"ok": False, "error": f"not a system category: {bad[0] if bad else '(none)'}"})
+    steps = [{"label": known[i][1], "what": detail(i), "command": known[i][4]} for i in ids]
+    out({"ok": True, "steps": steps, "script": "; ".join(known[i][4] for i in ids),
+         "size": sum(probe(known[i][3]) for i in ids)})
 
 
 # ---- AI ----------------------------------------------------------------------------
@@ -277,10 +299,10 @@ if __name__ == "__main__":
         cmd_scan()
     elif len(args) >= 2 and args[0] == "clean":
         cmd_clean(args[1:])
-    elif len(args) >= 2 and args[0] == "terminal":
-        cmd_terminal(args[1:])
+    elif len(args) >= 2 and args[0] == "plan":
+        cmd_plan(args[1:])
     elif args[:1] == ["ai"] and len(args) <= 2:
         cmd_ai(args[1] if len(args) == 2 else "haiku")
     elif len(args) >= 2 and args[0] == "trash":
         cmd_trash(args[1:])
-    out({"ok": False, "error": "usage: cleaner.py scan | clean <id>… | terminal <id>… | ai [model] | trash <path>…"})
+    out({"ok": False, "error": "usage: cleaner.py scan | clean <id>… | plan <id>… | ai [model] | trash <path>…"})

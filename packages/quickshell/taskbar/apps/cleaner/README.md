@@ -13,11 +13,12 @@ Manager › Shell apps). **Super+X** или
 - **YOUR FILES** — Trash, миниатюры, сборки yay / paru, кэши pip / npm / uv /
   go / cargo, кэши шейдеров (всё пересобирается само), кэши браузеров
   (выключены: сначала закрыть браузер). Очищаются сразу, содержимое папок.
-- **SYSTEM · NEEDS SUDO** — кэш pacman (`paccache -rk1`, `-ruk0`), сироты
-  (`pacman -Rns $(pacman -Qdtq)`), журнал (`--vacuum-time=2weeks`), дампы
-  падений. Только в терминале: **Clean** открывает kitty с этими командами,
-  пароль спрашивает sudo там (графического агента polkit нет — пароль через
-  бар не просим).
+- **SYSTEM · ASKS YOUR PASSWORD** — кэш pacman (`paccache -rk1`, `-ruk0`),
+  сироты (`pacman -Rns --noconfirm`), журнал (`--vacuum-time=2weeks`), дампы
+  падений. `cleaner.py plan` отдаёт шаги словами (какие пакеты, сколько
+  дампов) и скрипт; панель оболочки (`apps/auth`) показывает их на
+  подтверждение и запускает одним `pkexec` — пароль в первый раз, потом 5 минут
+  только подтверждение. После — пересканирование: сколько ушло.
 
 Внизу — сколько выбрано и **Clean** (с опцией подтверждения — «Sure?»).
 
@@ -46,4 +47,4 @@ AI mode вкл / выкл, модель (Haiku / Sonnet).
 | `Cleaner.qml` | Шапка с Basic / AI, список, низ с итогом и кнопкой |
 | `CleanerService.qml` | Скан, выбор, очистка, терминал, AI, корзина (общий с плагином) |
 | `CleanerSettings.qml` | Страница опций |
-| `scripts/cleaner.py` | `scan`, `clean`, `terminal`, `ai`, `trash` |
+| `scripts/cleaner.py` | `scan`, `clean`, `plan` (шаги для root), `ai`, `trash` |

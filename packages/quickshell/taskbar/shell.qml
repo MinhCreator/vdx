@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.apps.auth
 import qs.apps.capture
 import qs.apps.cleaner
 import qs.apps.shellmanager
@@ -19,6 +20,9 @@ Scope {
   ShellManagerWindow {}
   TaskManagerWindow {}
   CleanerWindow {}
+
+  // the polkit agent: password requests slide down from under the bar
+  AuthPrompt {}
 
   Wallpaper {}
 

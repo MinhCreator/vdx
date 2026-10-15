@@ -16,7 +16,8 @@ taskbar/
 ├─ apps/shellmanager/ окно настроек: Appearance (тема, обои, шрифт, курсор), Bar (мониторы, раскладка, модули), Plugins
 ├─ apps/capture/      захват экрана (Super+Shift+S): область / окно / экран, скриншот или запись
 ├─ apps/taskmanager/  диспетчер задач (Super+D): процессы, CPU / память, End / Kill
-├─ apps/cleaner/      чистильщик (Super+X): кэши, корзина, система через sudo в терминале, режим AI
+├─ apps/cleaner/      чистильщик (Super+X): кэши, корзина, система через pkexec, режим AI
+├─ apps/auth/         панель root: подтверждение каждого root-действия, polkit-агент (пароль)
 ├─ scripts/           бэкенды: *.sh / *.py, на выходе только JSON (или строки, см. шапку)
 └─ plugins/<name>/    <Name>.qml + <Name>Popup.qml + <Name>Service.qml (+ view-файлы, *.json)
 ```

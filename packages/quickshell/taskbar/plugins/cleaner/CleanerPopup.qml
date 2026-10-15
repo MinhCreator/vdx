@@ -5,7 +5,7 @@ import qs.config
 import qs.kit
 
 // The cleaner in brief: what can go, by category (the system ones marked
-// sudo), Clean safe — your caches, thumbnails and Trash at once — and a
+// root), Clean safe — your caches, thumbnails and Trash at once — and a
 // button to the full window for the rest and the AI mode.
 KitFrame {
   id: root
@@ -64,7 +64,7 @@ KitFrame {
         KitText {
           id: sizeText
           anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-          text: (modelData.root ? "sudo · " : "") + root.cs.size(modelData.size)
+          text: (modelData.root ? "root · " : "") + root.cs.size(modelData.size)
           color: modelData.root ? Theme.muted : Theme.foreground2
         }
       }

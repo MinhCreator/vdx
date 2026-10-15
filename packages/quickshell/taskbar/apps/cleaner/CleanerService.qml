@@ -3,12 +3,14 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.apps.auth
 import qs.config
 
 // The cleaner's state (scripts/cleaner.py), shared by its window and its bar
 // plugin. Basic: categories with their size, a pick per category (the safe
 // ones picked at first); cleaning empties the picked user ones at once and
-// opens a terminal for the system ones (sudo asks there). AI: Claude's
+// hands the system ones, with their steps in words, to RootService: the
+// shell's panel shows them, asks to confirm (and the password the first time). AI: Claude's
 // suggestions from a summary of ~, picked ones go to the Trash. Options:
 // Shell Manager › Plugins › Cleaner (PluginSettings "cleaner").
 Singleton {
@@ -81,7 +83,7 @@ Singleton {
     actProc.running = true;
   }
 
-  // the picked categories: user ones here, system ones in a terminal
+  // the picked categories: user ones here, system ones through pkexec
   function clean(ids) {
     if (busy) return;
     const list = ids ?? pickedUser.concat(pickedRoot).map(c => c.id);
@@ -89,9 +91,47 @@ Singleton {
     const sys = list.filter(id => categories.find(c => c.id === id)?.root);
     pendingRoot = sys;
     if (user.length > 0) run(["clean"].concat(user));
-    else if (sys.length > 0) run(["terminal"].concat(sys));
+    else if (sys.length > 0) plan(sys);
   }
   property var pendingRoot: []
+
+  // the system part: its plan, then RootService runs it after a confirmation
+  property var planIds: []
+  property real planSize: 0
+  function plan(ids) {
+    busy = true;
+    planIds = ids;
+    planProc.command = ["python3", script, "plan"].concat(ids);
+    planProc.running = true;
+  }
+
+  Process {
+    id: planProc
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const r = root.parse(text);
+        if (!r.ok) { root.busy = false; root.done(false, r.error); return; }
+        root.planSize = r.size;
+        if (!RootService.request("Cleaner", "Clean the system", r.steps, r.script, "cleaner")) {
+          root.busy = false;
+          root.done(false, "another root action is waiting");
+        }
+      }
+    }
+  }
+
+  Connections {
+    target: RootService
+    function onFinished(tag, ok, error) {
+      if (tag !== "cleaner") return;
+      root.busy = false;
+      if (!ok) { root.done(false, error === "cancelled" ? "System part cancelled" : error); root.scan(); return; }
+      root.afterSystem = true;
+      root.scan();
+    }
+  }
+  // the scan after a system clean tells how much went
+  property bool afterSystem: false
 
   function cleanSafe() { clean(categories.filter(c => !c.root && c.safe && c.size > 0).map(c => c.id)); }
 
@@ -136,6 +176,11 @@ Singleton {
         root.categories = r.categories;
         root.total = r.total;
         root.scannedAt = Date.now();
+        if (root.afterSystem) {
+          root.afterSystem = false;
+          const left = r.categories.filter(c => root.planIds.includes(c.id)).reduce((s, c) => s + c.size, 0);
+          root.done(true, "Freed " + root.size(Math.max(0, root.planSize - left)) + " from the system");
+        }
         if (first) {
           const p = {};
           for (const c of r.categories) p[c.id] = c.safe && c.size > 0;
@@ -153,14 +198,13 @@ Singleton {
         const what = actProc.command[2];
         root.busy = false;
         if (what === "clean" && r.ok && root.pendingRoot.length > 0) {
-          root.done(true, "Freed " + root.size(r.freed) + " · the system part opens in a terminal");
-          root.run(["terminal"].concat(root.pendingRoot));
+          root.done(true, "Freed " + root.size(r.freed) + " · now the system part");
+          root.plan(root.pendingRoot);
           root.pendingRoot = [];
           return;
         }
         if (!r.ok) root.done(false, r.error);
         else if (what === "clean") root.done(true, "Freed " + root.size(r.freed));
-        else if (what === "terminal") root.done(true, "The terminal asks for your password");
         else if (what === "trash") {
           root.done(true, "Moved " + root.size(r.freed) + " to the Trash");
           root.suggestions = root.suggestions.filter(s => !root.aiPicked[s.path]);

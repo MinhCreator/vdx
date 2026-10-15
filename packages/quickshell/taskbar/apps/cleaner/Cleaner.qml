@@ -5,7 +5,8 @@ import qs.kit
 // The cleaner's content: a header with Basic / AI, the list scrolling under
 // it, and a foot with what the click will free and the button.
 //   Basic — categories in two groups, YOUR FILES (emptied at once) and
-//   SYSTEM (needs sudo: a terminal opens), each with its size and a switch;
+//   SYSTEM (root: one password, asked by the shell's panel), each with its
+//   size and a switch;
 //   AI    — Claude's suggestions from a summary of ~ (sizes and ages, never
 //   contents), each with why and its size; picked ones go to the Trash.
 Rectangle {
@@ -77,7 +78,7 @@ Rectangle {
       Repeater {
         model: [
           { title: "YOUR FILES", root: false },
-          { title: "SYSTEM · NEEDS SUDO", root: true }
+          { title: "SYSTEM · ASKS YOUR PASSWORD", root: true }
         ]
 
         Column {
@@ -231,7 +232,7 @@ Rectangle {
           color: root.cs.status === "error" ? Theme.red : root.cs.status === "ok" ? Theme.green : Theme.muted
           text: root.cs.message !== "" ? root.cs.message
               : root.tab === "ai" ? "picked items go to the Trash"
-              : root.cs.pickedRoot.length > 0 ? "the system part opens a terminal for sudo" : "your files are emptied at once"
+              : root.cs.pickedRoot.length > 0 ? "the system part asks for your password" : "your files are emptied at once"
         }
       }
 

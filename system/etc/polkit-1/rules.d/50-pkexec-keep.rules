@@ -1,0 +1,11 @@
+// pkexec for wheel members in their own (local, active) session: the password
+// once, then five minutes without it — polkit keeps the answer for the process
+// that called pkexec. The shell (quickshell, apps/auth) is that process for
+// its root actions, so each one still shows its confirmation panel, just
+// without the password after the first. Installed by `./install.py system install`.
+polkit.addRule(function (action, subject) {
+  if (action.id == "org.freedesktop.policykit.exec" &&
+      subject.isInGroup("wheel") && subject.local && subject.active) {
+    return polkit.Result.AUTH_ADMIN_KEEP;
+  }
+});
