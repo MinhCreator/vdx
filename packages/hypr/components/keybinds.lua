@@ -26,9 +26,7 @@ bind("Shell", mainMod .. " + S", hl.dsp.exec_cmd("qs -c shell ipc call shell tog
 bind("Shell", mainMod .. " + B", hl.dsp.exec_cmd("qs -c shell ipc call keybinds toggle"), "Keybinds")
 bind("Shell", mainMod .. " + D", hl.dsp.exec_cmd("qs -c shell ipc call taskmanager toggle"), "Task manager")
 bind("Shell", mainMod .. " + X", hl.dsp.exec_cmd("qs -c shell ipc call cleaner toggle"), "Cleaner")
--- Super + Tab: the floating mode's window switcher (apps/switcher/Switcher.qml)
-bind("Shell", mainMod .. " + TAB", hl.dsp.exec_cmd("qs -c shell ipc call switcher next"), "Window switcher (floating)")
-bind("Shell", mainMod .. " + SHIFT + TAB", hl.dsp.exec_cmd("qs -c shell ipc call switcher back"), "Window switcher back (floating)")
+-- Super + Tab (the window switcher) is the floating mode's: modes/floating.lua
 
 -- screenshots (both copy to the clipboard)
 -- capture tool: region / window / screen, shot or recording (again: stop recording)

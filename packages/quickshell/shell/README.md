@@ -62,7 +62,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | VirusTotal | — | `virustotal toggle` |
 | Clipboard | — | `clipboard toggle` |
 | Keybinds | Super+B | `keybinds toggle\|open\|close` |
-| Window switcher | Super+Tab | `switcher toggle\|open\|close` |
+| Window switcher | Super+Tab (floating mode) | `switcher toggle\|open\|close` |
 | Overview | — | `overview toggle` |
 | Lock screen | Super+Z | `lock lock` |
 | Taskbar | — | floating mode only |
