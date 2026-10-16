@@ -161,6 +161,8 @@ def components_problems() -> list[str]:
             if not any(base.exists() for base in [ROOT / p, PKG / p, *(d / p for d in THEME.iterdir() if d.is_dir())]):
                 out.append(f"{where}: [{n}] links {p!r}: no such file or folder")
         out += [f"{where}: [{n}] system {p!r}: not in system/" for p in c["system"] if not (SYSTEM / p).is_file()]
+        out += [f"{where}: [{n}] user_units {p!r}: no such file" for p in c["user_units"]
+                if not (ROOT / p).is_file() and not any(p.startswith(s + "/") for s in c["submodules"])]
         out += [f"{where}: [{n}] submodule {p!r}: not in .gitmodules" for p in c["submodules"] if p not in submodule_paths()]
     # every tracked config file has an owner (one no component owns is linked everywhere)
     for f in tracked():

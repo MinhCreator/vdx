@@ -12,13 +12,12 @@ installed in the Shell Manager; a missing file means every module is there.
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 
 from . import components
-from .paths import HOME
+from .paths import STATE
 
-STATE = Path(os.environ.get("XDG_STATE_HOME") or HOME / ".local" / "state") / "dotfiles" / "components.json"
+FILE = STATE / "components.json"
 
 
 def render(on: set[str], cat: dict) -> str:
@@ -30,7 +29,7 @@ def render(on: set[str], cat: dict) -> str:
     return json.dumps({"off": off}, indent=2, ensure_ascii=False) + "\n"
 
 
-def apply(target: Path = STATE) -> bool:
+def apply(target: Path = FILE) -> bool:
     """Write the file when it changed; True then."""
     cat = components.load()
     text = render(components.selected(cat=cat), cat)

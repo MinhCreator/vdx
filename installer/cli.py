@@ -40,8 +40,8 @@ def main() -> None:
         "-f", "--force", action="store_true", help="overwrite existing files")
     sub.add_parser("deps", help="install missing packages of the selected components", parents=[yes]).add_argument(
         "--check", action="store_true", help="only list what is missing")
-    sub.add_parser("setup", help="fresh machine: preflight, packages, submodules, links, secrets, plugins, system",
-                   parents=[yes])
+    sub.add_parser("setup", help="fresh machine, or bring this one up to date: preflight, plan, steps",
+                   parents=[yes]).add_argument("--dry-run", action="store_true", help="show the plan, change nothing")
     sy = sub.add_parser("system", help="root-owned files under system/ (copied with sudo)", parents=[yes])
     sy.add_argument("s_action", choices=["status", "install"])
     se = sub.add_parser("secrets", help="secret files from private/: status or restore")

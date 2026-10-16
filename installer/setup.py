@@ -1,28 +1,21 @@
-"""dotfiles installer — secrets, shell plugins, submodules and the full setup of a fresh machine."""
+"""dotfiles installer — `setup` (the steps are in steps.py), `bootstrap` and `secrets`."""
 
 from __future__ import annotations
 
+import json
 import os
+import re
 import shutil
 import subprocess
 import sys
+import time
+from pathlib import Path
 
-from . import components
-from .deps import cmd_deps
-from .links import cmd_link, cmd_verify
-from .paths import HOME, ROOT, SEED, TGT
+from . import steps
+from .links import cmd_verify
+from .paths import ROOT, SEED, STATE, TGT
 from .preflight import preflight
-from .system import cmd_system_install
-from .ui import added, confirm, heading, note, ok, short
-
-OMZ = HOME / ".local" / "share" / "oh-my-zsh"       # matches $ZSH in .zshrc
-OMZ_INSTALL = "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
-# repos cloned once when missing: (target, url)
-CLONES = [
-    (OMZ / "custom" / "plugins" / "zsh-autosuggestions", "https://github.com/zsh-users/zsh-autosuggestions"),
-    (OMZ / "custom" / "plugins" / "zsh-syntax-highlighting", "https://github.com/zsh-users/zsh-syntax-highlighting"),
-    (TGT / "tmux" / "plugins" / "tpm", "https://github.com/tmux-plugins/tpm"),
-]
+from .ui import added, confirm, dim, err, heading, note, ok, short, warn
 
 
 def cmd_bootstrap(args) -> int:
@@ -56,43 +49,78 @@ def cmd_secrets(args) -> int:
     return 0
 
 
-def shell_extras(args=None) -> int:
-    heading("Shell plugins")
-    if not OMZ.is_dir():
-        added("oh-my-zsh")
-        script = subprocess.run(["curl", "-fsSL", OMZ_INSTALL], capture_output=True, text=True, check=True).stdout
-        subprocess.run(["sh", "-c", script, "", "--unattended", "--keep-zshrc"],
-                       env={**os.environ, "ZSH": str(OMZ), "RUNZSH": "no", "CHSH": "no"}, check=True)
-    for target, url in CLONES:
-        if not target.is_dir():
-            added(short(target))
-            subprocess.run(["git", "clone", "--depth", "1", "-q", url, str(target)], check=True)
-    ok("oh-my-zsh, zsh plugins and TPM in place")
-    return 0
+class Log:
+    """stdout copied, colours stripped, into the setup's log file."""
+
+    def __init__(self, path: Path, out):
+        self.file, self.out = path.open("a"), out
+
+    def write(self, text: str) -> int:
+        self.file.write(ANSI.sub("", text))
+        return self.out.write(text)
+
+    def flush(self) -> None:
+        self.file.flush()
+        self.out.flush()
+
+    def isatty(self) -> bool:
+        return self.out.isatty()
 
 
-def submodules(args=None) -> int:
-    """Only the selected components' submodules (someone else's VPN is not cloned)."""
-    heading("Submodules")
-    cat = components.load()
-    paths = components.unique(components.selected(cat=cat), cat, "submodules")
-    if not paths:
-        ok("no submodules selected")
-        return 0
-    subprocess.run(["git", "-C", str(ROOT), "submodule", "update", "--init", "--recursive", "--", *paths], check=True)
-    ok(f"{len(paths)} submodule(s) up to date")
-    return 0
+ANSI = re.compile(r"\x1b\[[0-9;]*m")
 
 
 def cmd_setup(args) -> int:
-    """Fresh machine, idempotent: every step skips what is already in place."""
-    heading("Setup: packages, submodules, links, secrets, shell plugins, system files")
+    """A fresh machine, or one to bring up to date: preflight, the plan, then
+    every step with something to do. Idempotent; a failed step stops the run,
+    and the next run skips what is done."""
+    STATE.mkdir(parents=True, exist_ok=True)
+    stamp = time.strftime("%Y-%m-%dT%H-%M-%S")
+    log = STATE / f"setup-{stamp}.log"
+    real, sys.stdout = sys.stdout, Log(log, sys.stdout)
+    try:
+        return setup(args, stamp, log)
+    finally:
+        sys.stdout.flush()
+        sys.stdout = real
+
+
+def setup(args, stamp: str, log: Path) -> int:
+    dry = getattr(args, "dry_run", False)
+    heading("Setup" + (dim(" (dry run: nothing is changed)") if dry else ""))
     if not preflight():
         return 1
-    if not confirm("Run the full setup (asks for sudo for packages and /etc)?", args):
+    ctx = steps.context(args)
+    heading(f"Plan {dim('· ' + str(len(ctx.on)) + ' components · ./install.py components')}")
+    rows = steps.plan(ctx)
+    steps.show_plan(rows)
+    todo = [s for s, pending, _ in rows if pending]
+    if dry or not todo:
+        print()
+        ok("nothing to do" if not todo else f"{len(todo)} step(s) would run")
+        return 0
+    if not confirm(f"Run {len(todo)} step(s)? (sudo is asked for packages, /etc and services)", args):
         return 1
     args.yes = True
-    args.s_action = "restore"
-    for step in (cmd_deps, submodules, cmd_link, cmd_bootstrap, cmd_secrets, shell_extras, cmd_system_install):
-        step(args)
-    return cmd_verify(args)
+    journal = {"started": stamp, "log": str(log), "steps": {}}
+    for step in todo:
+        heading(step.title)
+        try:
+            if step.pending(ctx):               # an earlier step may have done it
+                step.run(ctx)
+            journal["steps"][step.name] = "done"
+        except (subprocess.CalledProcessError, RuntimeError, OSError) as e:
+            journal["steps"][step.name] = f"failed: {e}"
+            (STATE / "setup.json").write_text(json.dumps(journal, indent=2) + "\n")
+            err(f"{step.title}: {e}")
+            note(f"fix it and run setup again: what is done is skipped · log: {short(log)}")
+            return 1
+    (STATE / "setup.json").write_text(json.dumps({**journal, "finished": time.strftime("%Y-%m-%dT%H-%M-%S")}, indent=2) + "\n")
+    code = cmd_verify(args)
+    left = [line for _, _, manual in steps.plan(ctx) for line in manual]
+    if left:
+        heading("Left to do by hand")
+        for line in left:
+            warn(line)
+    note(f"log: {short(log)}")
+    return code

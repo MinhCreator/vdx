@@ -15,7 +15,7 @@ from .paths import ROOT
 CATALOG = ROOT / "components.toml"
 GROUPS = ["core", "desktop", "terminal", "editor", "apps", "music", "network", "ai", "personal", "hardware"]
 LISTS = {"requires", "suggests", "auto", "pacman", "aur", "links", "submodules", "modules",
-         "system", "services", "user_services", "secrets"}
+         "system", "services", "user_services", "user_units", "masks", "secrets"}
 FIELDS = LISTS | {"group", "about", "default", "hint"}
 
 

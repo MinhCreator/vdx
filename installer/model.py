@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 import subprocess
+import time
 import tomllib
 from pathlib import Path
 
@@ -17,6 +18,7 @@ from .paths import (
     PRUNE,
     ROOT,
     SKIP,
+    STATE,
     SYSTEM,
     TGT,
     THEME,
@@ -160,24 +162,32 @@ def is_same(tgt: Path, src: Path) -> bool:
         return False
 
 
-def resolve_conflict(tgt: Path) -> None:
-    """Make room for a symlink. Backs up real files/dirs with .bak."""
+BACKUP = STATE / "backup" / time.strftime("%Y-%m-%dT%H-%M-%S")   # one folder per run
+
+
+def resolve_conflict(tgt: Path, backup: Path | None = None) -> None:
+    """Make room for a symlink. A real file or folder is moved into this run's
+    backup folder under its path from ~ (never overwritten, never deleted)."""
     if not tgt.exists() and not tgt.is_symlink():
         return
     if tgt.is_symlink():
         tgt.unlink(missing_ok=True)
         return
-    bak = tgt.with_name(tgt.name + ".bak")             # kitty.conf -> kitty.conf.bak
-    if tgt.is_dir():
-        if not any(c.is_file() and not c.is_symlink() for c in tgt.rglob("*")):
-            shutil.rmtree(tgt)
-            return
-        if bak.exists():
-            shutil.rmtree(bak)
-    elif bak.exists():
-        bak.unlink()
-    shutil.move(str(tgt), str(bak))
-    warn(f"backed up {short(tgt)} -> .bak")
+    if tgt.is_dir() and not any(c.is_file() and not c.is_symlink() for c in tgt.rglob("*")):
+        shutil.rmtree(tgt)
+        return
+    backup = BACKUP if backup is None else backup
+    try:
+        dest = backup / tgt.relative_to(HOME)
+    except ValueError:
+        dest = backup / str(tgt).lstrip("/")
+    n = 1
+    while dest.exists() or dest.is_symlink():
+        dest = dest.with_name(f"{dest.name.rsplit('.~', 1)[0]}.~{n}")
+        n += 1
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.move(str(tgt), str(dest))
+    warn(f"backed up {short(tgt)} -> {short(dest)}")
 
 
 def create_symlink(src: Path, tgt: Path) -> None:

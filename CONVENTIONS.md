@@ -64,6 +64,21 @@ workspaces = { eDP-1 = "1-10" }     # first of each range is the output's defaul
 The repo's hypr config loads them through `components/machine.lua` and has a
 default for each (preferred mode on every output, `us`, no GPU env).
 
+### Setup
+
+`./install.py setup` = preflight, then the plan (`installer/steps.py`: every
+step says what it would change — `--dry-run` stops there), then the steps
+with work. A failed step stops the run; the next run finds the finished ones
+with nothing to do. Never done by the installer, only listed "by hand":
+group membership, rival services, boot settings (`hint`). State in
+`~/.local/state/dotfiles/`: `setup-<time>.log`, `setup.json` (the journal),
+`backup/<time>/` (real files a link replaced, by their path from `~`),
+`components.json` (for the shell).
+
+A new kind of setup work is a `Step` subclass in `STEPS` with `pending()`
+that only looks and `run()` that is idempotent, plus a test in
+`tests/test_steps.py`.
+
 ### Preflight
 
 `setup` and `deps` first run the environment check (Arch, not root, tools),
@@ -207,7 +222,7 @@ Each is listed in `submodules` of its component and cloned only with it.
 | Command | |
 |---|---|
 | `./install.py` | menu with a status overview |
-| `setup [-y]` | preflight, packages, submodules, links, secrets, plugins, `/etc` |
+| `setup [--dry-run] [-y]` | preflight, the plan, then each step with work (packages, AUR helper, submodules, links, secrets, plugins, `/etc`, units, services, shell, nvim) |
 | `components [list\|add\|remove <name>…]` | what is on this machine |
 | `machine [show\|detect]` | the hardware profile |
 | `link` · `verify` · `status` | links: create · check · per package |

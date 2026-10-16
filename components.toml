@@ -19,6 +19,8 @@
 #   modules      the shell's bar modules it brings (shown "not installed" without it)
 #   system       files under system/ (copied into / by `system install`)
 #   services, user_services   systemd units to enable (system / --user)
+#   user_units   unit files (repo paths) copied into ~/.config/systemd/user
+#   masks        system units masked (they fight a service of this component)
 #   secrets      keys of private/manifest.json it uses
 #   hint         a manual step printed, never done (boot loader, initramfs, ...)
 
@@ -27,7 +29,7 @@
 [core]
 group = "core"
 about = "What the installer itself needs"
-pacman = ["git", "python", "uv", "curl", "jq"]
+pacman = ["git", "python", "uv", "curl", "jq", "base-devel"]
 aur = ["yay"]
 secrets = ["secrets/env"]
 
@@ -193,6 +195,7 @@ submodules = ["packages/scripts/vpn"]
 links = ["mihomo", "mihomo-tui", "scripts/vpn", "zsh/functions/vpn"]
 modules = ["mihomo"]
 system = ["etc/pacman.d/hooks/mihomo-caps.hook"]
+user_units = ["packages/scripts/vpn/mihomo.service"]
 user_services = ["mihomo.service"]
 secrets = ["mihomo/subscriptions.json"]
 
@@ -283,6 +286,7 @@ auto = ["laptop"]
 pacman = ["tlp", "tlp-rdw"]
 system = ["etc/tlp.d/99-dotfiles.conf", "etc/tmpfiles.d/quickshell-power.conf"]
 services = ["tlp.service"]
+masks = ["systemd-rfkill.service", "systemd-rfkill.socket"]
 
 [asus]
 group = "hardware"

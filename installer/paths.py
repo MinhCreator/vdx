@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -14,6 +15,9 @@ SYSTEM = ROOT / "system"
 
 THEME_FILE = ROOT / ".theme"          # local, git-ignored; DEFAULT_THEME when absent
 DEFAULT_THEME = "gruvbox"
+
+# the installer's own state: logs, the setup journal, backups, what the shell reads
+STATE = Path(os.environ.get("XDG_STATE_HOME") or HOME / ".local" / "state") / "dotfiles"
 
 # names that are never treated as config files
 SKIP = {".git", ".gitignore", ".DS_Store", "node_modules", "package.toml", "README", "README.md"}
