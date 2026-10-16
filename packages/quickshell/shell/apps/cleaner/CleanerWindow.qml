@@ -16,7 +16,10 @@ FloatingWindow {
   implicitHeight: 620
   color: Theme.background0
 
-  onVisibleChanged: if (visible) CleanerService.freshen()
+  onVisibleChanged: if (visible) {
+    CleanerService.freshen();
+    PopupManager.closeModule("cleaner");
+  }
 
   Cleaner {
     anchors.fill: parent

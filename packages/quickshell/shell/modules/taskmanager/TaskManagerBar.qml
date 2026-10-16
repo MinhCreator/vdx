@@ -34,6 +34,7 @@ Item {
     id: popup
     anchorItem: root
     ipcTarget: "tasks"
+    moduleId: "taskmanager"
     bar: root.bar
     implicitWidth: content.implicitWidth
     implicitHeight: content.implicitHeight

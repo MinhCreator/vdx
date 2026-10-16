@@ -20,6 +20,7 @@ FloatingWindow {
   onVisibleChanged: if (visible) {
     content.tab = PackagesService.opt("startTab", "updates");
     PackagesService.freshen(false);
+    PopupManager.closeModule("packages");
   }
 
   Packages {

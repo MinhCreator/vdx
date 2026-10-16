@@ -22,6 +22,9 @@ PopupWindow {
   // answers (PopupManager.ipcOwner). Empty disables it.
   property string ipcTarget: ""
 
+  // the module's id (apps.json `module`): its app's window closes this popup
+  property string moduleId: ""
+
   // Escape closes the popup. A popup with its own Escape handling (nested
   // views going back first) turns this off.
   property bool closeOnEscape: true

@@ -33,6 +33,7 @@ Item {
     id: popup
     anchorItem: root
     ipcTarget: "clip"
+    moduleId: "clipboard"
     bar: root.bar
     implicitWidth: content.implicitWidth
     implicitHeight: content.implicitHeight

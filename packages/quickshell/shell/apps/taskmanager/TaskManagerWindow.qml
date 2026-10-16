@@ -18,6 +18,7 @@ FloatingWindow {
 
   onVisibleChanged: {
     TaskManagerService.open = visible;
+    if (visible) PopupManager.closeModule("taskmanager");
     if (!visible) TaskManagerService.query = "";
   }
 

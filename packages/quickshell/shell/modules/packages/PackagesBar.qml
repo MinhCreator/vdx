@@ -37,6 +37,7 @@ Item {
     id: popup
     anchorItem: root
     ipcTarget: "updates"
+    moduleId: "packages"
     bar: root.bar
     implicitWidth: content.implicitWidth
     implicitHeight: content.implicitHeight

@@ -36,6 +36,7 @@ Item {
     id: popup
     anchorItem: root
     ipcTarget: "scan"
+    moduleId: "virustotal"
     onShown: if (VirusTotalService.clipboardOn) VirusTotalService.readClipboard(content)
     bar: root.bar
     implicitWidth: content.implicitWidth

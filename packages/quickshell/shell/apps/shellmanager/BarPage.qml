@@ -4,7 +4,7 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Bar: MONITOR (which bar, one bar everywhere, show it), LAYOUT and STYLE.
+// Bar: MONITOR (which bar, one bar everywhere, show it), LAYOUT, STYLE and POPUPS.
 // LAYOUT: a small preview of the bar, then a row per band — LEFT, CENTER,
 // RIGHT, FOLDER and HIDDEN — its chips in bar order (KitChipBands). Drag a chip
 // along a band or to another one; this page decides what each drop means.
@@ -21,7 +21,8 @@ Column {
   readonly property var jumps: [
     { key: "monitor", label: "Monitor", y: monitorGroup.y },
     { key: "layout",  label: "Layout",  y: root.barOn ? layoutGroup.y : -2 },
-    { key: "style",   label: "Style",   y: styleGroup.y }
+    { key: "style",   label: "Style",   y: styleGroup.y },
+    { key: "popups", label: "Popups", y: popupsGroup.y }
   ].filter(j => j.y > -2)
 
   readonly property string focusId: chips.dragId !== "" ? chips.dragId : chips.hoverId
@@ -199,6 +200,21 @@ Column {
       ]
       current: ShellSettings.barIconGrow
       onPicked: value => ShellSettings.set("barIconGrow", value)
+    }
+  }
+
+  KitLine {}
+
+  // ---- popups (every bar) ----
+  KitLabel { id: popupsGroup; text: "POPUPS" }
+
+  KitRow {
+    label: "Close on app open"
+    hint: "Its popup, when its window opens"
+
+    KitSwitch {
+      checked: ShellSettings.closeModulePopups
+      onToggled: ShellSettings.set("closeModulePopups", !checked)
     }
   }
 }

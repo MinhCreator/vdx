@@ -16,6 +16,8 @@ FloatingWindow {
   implicitHeight: 600
   color: Theme.background0
 
+  onVisibleChanged: if (visible) PopupManager.closeModule("virustotal");
+
   VirusTotal {
     anchors.fill: parent
   }

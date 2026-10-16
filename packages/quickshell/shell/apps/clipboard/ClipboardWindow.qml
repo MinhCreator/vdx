@@ -16,7 +16,10 @@ FloatingWindow {
   implicitHeight: 560
   color: Theme.background0
 
-  onVisibleChanged: if (visible) ClipboardService.refresh()
+  onVisibleChanged: if (visible) {
+    ClipboardService.refresh();
+    PopupManager.closeModule("clipboard");
+  }
 
   Clipboard {
     anchors.fill: parent

@@ -1,6 +1,7 @@
 pragma Singleton
 import QtQuick
 import Quickshell.Hyprland
+import qs.config
 
 // Keeps at most one popup open across the bar: opening one hides the previous.
 // `holding` keeps an open popup while the capture overlay takes the focus;
@@ -44,5 +45,10 @@ QtObject {
 
   function close(win) {
     if (current === win) current = null;
+  }
+
+  // An app's window opened from its bar module closes that module's popup.
+  function closeModule(id) {
+    if (ShellSettings.closeModulePopups && current?.moduleId === id) current.visible = false;
   }
 }

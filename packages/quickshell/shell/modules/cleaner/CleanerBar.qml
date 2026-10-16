@@ -33,6 +33,7 @@ Item {
     id: popup
     anchorItem: root
     ipcTarget: "clean"
+    moduleId: "cleaner"
     bar: root.bar
     implicitWidth: content.implicitWidth
     implicitHeight: content.implicitHeight
