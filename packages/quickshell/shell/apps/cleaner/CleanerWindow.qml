@@ -16,10 +16,12 @@ FloatingWindow {
   implicitHeight: 620
   color: Theme.background0
 
+  // Hyprland closing the window (Super+C) hides it but leaves FloatingWindow's
+  // own visible set, so the next `visible = true` would do nothing: reset it.
   onVisibleChanged: if (visible) {
     CleanerService.freshen();
     Qt.callLater(() => PopupManager.closeModule("cleaner"));
-  }
+  } else visible = false;
 
   Cleaner {
     anchors.fill: parent

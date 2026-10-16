@@ -16,10 +16,12 @@ FloatingWindow {
   implicitHeight: 560
   color: Theme.background0
 
+  // Hyprland closing the window (Super+C) hides it but leaves FloatingWindow's
+  // own visible set, so the next `visible = true` would do nothing: reset it.
   onVisibleChanged: if (visible) {
     ClipboardService.refresh();
     Qt.callLater(() => PopupManager.closeModule("clipboard"));
-  }
+  } else visible = false;
 
   // the same content as the bar's popup, in the window's look (flat, like Cleaner)
   Clipboard {

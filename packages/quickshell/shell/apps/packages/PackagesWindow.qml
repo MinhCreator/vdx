@@ -16,12 +16,14 @@ FloatingWindow {
   implicitHeight: 620
   color: Theme.background0
 
+  // Hyprland closing the window (Super+C) hides it but leaves FloatingWindow's
+  // own visible set, so the next `visible = true` would do nothing: reset it.
   // each time it opens: on the option's tab, the lists up to date
   onVisibleChanged: if (visible) {
     content.tab = PackagesService.opt("startTab", "updates");
     PackagesService.freshen(false);
     Qt.callLater(() => PopupManager.closeModule("packages"));
-  }
+  } else visible = false;
 
   Packages {
     id: content
