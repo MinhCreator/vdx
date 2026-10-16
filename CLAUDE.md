@@ -23,6 +23,8 @@ Read [CONVENTIONS.md](CONVENTIONS.md) before changing anything. In short:
   changed in their own repositories.
 - Commits: the rules in CONVENTIONS.md (## Commits). Branch `main`; published
   history is not rewritten without the owner.
+- Before each commit run the three checks of "Before a commit" (security,
+  tests, docs) and tell the user their result.
 - Commands that check out old commits: `git -c core.hooksPath=/dev/null …`,
   then `./install.py link`.
 - The shell (Quickshell): `packages/quickshell/shell/CLAUDE.md`.

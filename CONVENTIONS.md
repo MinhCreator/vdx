@@ -311,6 +311,26 @@ Why, in a few short lines when the subject does not say it.
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 ```
 
+### Before a commit
+
+Every commit answers three checks first.
+
+- Security: no tokens, keys or personal data in the diff; `/etc` only through
+  `system/`, no sudo run by an agent; hardware values from `.machine.toml`,
+  never the repo; no untrusted input in shell, QML or Lua exec strings; no
+  downloaded code or scripts without the owner's say-so.
+- Tests: an installer or behaviour change adds or updates a test in `tests/`;
+  when none is needed and that is not obvious, one line in the body says why.
+  A change to what `setup` does also runs `tests/fresh-machine.sh`. Tests the
+  change breaks are fixed in the same commit, not skipped.
+- Docs: a doc the change makes wrong is fixed in the same commit (the
+  installer module's docstring, its section here or in the README, the
+  component's README, `packages/quickshell/shell/CLAUDE.md` for shell rules).
+  Find them by grepping the docs for the names the change touches (function,
+  key, file, option). No new docs unless asked.
+- Agents tell the user the three answers, one line each (security / tests /
+  docs), then commit.
+
 ## Branches
 
 `main` is the default. Published history is not rewritten except by the
