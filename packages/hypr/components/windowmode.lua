@@ -223,14 +223,12 @@ function MaximizeWindow()
 	SnapWindow(width >= aw - 2 and "center" or "maximize")
 end
 
--- the row of columns one step sideways (scrolling): not past the last
--- column — when the outermost one on that side is already on screen, no move
-function ScrollColumns(dir)
+-- the scrolling row on the active monitor: the monitor and the row's left
+-- and right ends (the tiled windows' outer edges; nil without any)
+local function rowSpan()
 	local m = hl.get_active_monitor()
 	local ws = m and m.active_workspace
-	if not ws then return end
-	local scale = m.scale or 1
-	local left, right = m.x, m.x + m.width / scale
+	if not ws then return m end
 	local minX, maxX = nil, nil
 	for _, w in ipairs(hl.get_workspace_windows(ws.id)) do
 		if w.mapped and not w.floating and not w.hidden then
@@ -240,10 +238,50 @@ function ScrollColumns(dir)
 			maxX = maxX and math.max(maxX, x + width) or x + width
 		end
 	end
+	return m, minX, maxX
+end
+
+-- the row of columns one step sideways (scrolling): not past the last
+-- column — when the outermost one on that side is already on screen, no move
+function ScrollColumns(dir)
+	local m, minX, maxX = rowSpan()
 	if not minX then return end
+	local left, right = m.x, m.x + m.width / (m.scale or 1)
 	if dir > 0 and maxX <= right + 1 then return end
 	if dir < 0 and minX >= left - 1 then return end
 	hl.dispatch(hl.dsp.layout(dir > 0 and "move +col" or "move -col"))
+end
+
+-- the row against the screen's edges (scrolling): a column made narrower at
+-- the end of the row leaves the screen empty past it, so the row slides back
+-- until its end meets the edge, as far as the row reaches past the other one
+-- ("move +N" slides the windows N pixels to the right). The move focuses
+-- the column in the middle of the screen, which then fits itself into view:
+-- the focus goes back to the window that had it, and fitting that one into
+-- view leaves the row against the edge.
+function SettleColumns()
+	local active = hl.get_active_window()
+	local m, minX, maxX = rowSpan()
+	if not minX then return end
+	-- where the row's ends sit on screen: inside the reserved area, the outer
+	-- gap and the frame
+	local r = type(m.reserved) == "table" and m.reserved or {}
+	local out = hl.get_config("general.gaps_out")
+	local border = hl.get_config("general.border_size")
+	border = type(border) == "number" and border or 0
+	local outL = (type(out) == "table" and out.left or tonumber(out) or 0) + border
+	local outR = (type(out) == "table" and out.right or tonumber(out) or 0) + border
+	local left = m.x + (r[1] or r.left or 0) + outL
+	local right = m.x + m.width / (m.scale or 1) - (r[3] or r.right or 0) - outR
+	local by
+	if maxX < right - 1 and minX < left - 1 then
+		by = "+" .. math.floor(math.min(right - maxX, left - minX))
+	elseif minX > left + 1 and maxX > right + 1 then
+		by = "-" .. math.floor(math.min(minX - left, maxX - right))
+	end
+	if not by then return end
+	hl.dispatch(hl.dsp.layout("move " .. by))
+	if active then FocusWindow(active.address) end
 end
 
 -- one desk up / down (the wheel, the swipe): desks 1-10 only, so past the

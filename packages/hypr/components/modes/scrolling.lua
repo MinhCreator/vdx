@@ -27,11 +27,15 @@ WheelBind("Scrolling", "SUPER", "mouse_up", "left", function() ScrollColumns(-1)
 hl.gesture({ fingers = 3, direction = "left", action = function() ScrollColumns(1) end })
 hl.gesture({ fingers = 3, direction = "right", action = function() ScrollColumns(-1) end })
 
--- the active column: half the screen <-> the whole of it, then into view.
+-- the active column: half the screen <-> the whole of it. Only colresize:
+-- it sets the width of the focused column alone and brings it into view
+-- itself. No "fit": "fit visible" splits the screen evenly between all the
+-- columns on it (other columns change too, and a column alone on screen
+-- goes back to the whole width), "fit active" is colresize 1.0 again.
 -- A lone column is kept whole by fullscreen_on_one_column, which would undo
 -- the half: so the option follows the choice (whole = on, half = off).
--- "fit active" stretches the column to the whole screen, so going to the
--- half uses "fit visible", which only brings the column into view.
+-- The last column made half would leave the screen empty past it: the row
+-- slides back to the edge (SettleColumns).
 bind("Scrolling", "SUPER + W", function()
 	local w = hl.get_active_window()
 	if not w then return end
@@ -40,7 +44,7 @@ bind("Scrolling", "SUPER + W", function()
 	local wide = width > (m.width / (m.scale or 1)) * 0.75
 	hl.config({ scrolling = { fullscreen_on_one_column = not wide } })
 	hl.dispatch(hl.dsp.layout(wide and "colresize 0.5" or "colresize 1.0"))
-	hl.dispatch(hl.dsp.layout(wide and "fit visible" or "fit active"))
+	SettleColumns()
 end, "Wide / half column")
 
 WheelBind("Scrolling", "SUPER + SHIFT", "mouse_down", "down", function() StepWorkspace(1) end, "Workspace below")
