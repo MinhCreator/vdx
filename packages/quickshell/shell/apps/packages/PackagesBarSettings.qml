@@ -23,4 +23,6 @@ Column {
   }
 
   KitToggleRow { module: "packages"; key: "popupRollback"; label: "Roll back button"; hint: "Rolls back the last upgrade" }
+
+  KitToggleRow { module: "packages"; key: "closeOnOpen"; label: "Close popup on open"; hint: "When its window opens" }
 }

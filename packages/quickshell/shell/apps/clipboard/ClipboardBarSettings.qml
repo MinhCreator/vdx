@@ -17,4 +17,6 @@ Column {
   KitToggleRow { module: "clipboard"; key: "search"; label: "Search field"; hint: "Narrows the list as you type" }
 
   KitToggleRow { module: "clipboard"; key: "closeOnCopy"; label: "Close after copying"; hint: "Off: the popup stays open" }
+
+  KitToggleRow { module: "clipboard"; key: "closeOnOpen"; label: "Close popup on open"; hint: "When its window opens" }
 }

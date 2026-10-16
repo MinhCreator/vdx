@@ -13,4 +13,6 @@ Column {
     label: "Programs listed"; hint: "The busiest, in the bar's popup"
     model: [{ label: "3", value: 3 }, { label: "5", value: 5 }, { label: "8", value: 8 }]
   }
+
+  KitToggleRow { module: "taskmanager"; key: "closeOnOpen"; label: "Close popup on open"; hint: "When its window opens" }
 }

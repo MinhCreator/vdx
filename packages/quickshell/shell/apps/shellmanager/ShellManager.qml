@@ -8,7 +8,7 @@ import qs.kit
 // on its own. Under the open section its groups (`jumps` of the page) jump
 // there on a click.
 //   APPEARANCE — theme, icon style, wallpaper, font and cursor;
-//   BAR        — the layout of the bar's zones, modules on / off, underline, popups.
+//   BAR        — the layout of the bar's zones, modules on / off, underline.
 //   MEDIA      — the music pauses while another app plays sound.
 //   WINDOWS    — the window mode, each mode's options, gaps, the taskbar.
 //   MODULES    — each bar module's own options (the modules; an app's is set with the app).

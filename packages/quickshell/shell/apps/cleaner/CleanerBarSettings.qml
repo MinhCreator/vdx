@@ -13,4 +13,6 @@ Column {
     label: "Categories listed"; hint: "The biggest, in the bar's popup"
     model: [{ label: "3", value: 3 }, { label: "6", value: 6 }, { label: "10", value: 10 }]
   }
+
+  KitToggleRow { module: "cleaner"; key: "closeOnOpen"; label: "Close popup on open"; hint: "When its window opens" }
 }

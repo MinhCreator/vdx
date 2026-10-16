@@ -49,6 +49,6 @@ QtObject {
 
   // An app's window opened from its bar module closes that module's popup.
   function closeModule(id) {
-    if (ShellSettings.closeModulePopups && current?.moduleId === id) current.visible = false;
+    if (current?.moduleId === id && ModuleSettings.get(id, "closeOnOpen", true)) current.visible = false;
   }
 }

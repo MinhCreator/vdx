@@ -19,7 +19,6 @@ Singleton {
   readonly property string wallpaperMode: state.wallpaperMode     // theme | custom | image
   readonly property var wallpaperImages: state.wallpaperImages     // theme -> path under ~/.dotfiles/wallpapers
   readonly property string wallpaperColor: state.wallpaperColor   // #rrggbb, for custom
-  readonly property bool closeModulePopups: state.closeModulePopups  // an app's window closes its bar module's popup
   readonly property bool pauseMusic: state.pauseMusic             // MPD pauses while another app plays sound
   readonly property bool resumeMusic: state.resumeMusic           // ...and resumes once that sound stops
 
@@ -47,7 +46,6 @@ Singleton {
       property string wallpaperMode: "theme"
       property string wallpaperColor: "#32302f"
       property var wallpaperImages: ({})
-      property bool closeModulePopups: true
       property bool pauseMusic: false
       property bool resumeMusic: true
     }

@@ -16,4 +16,6 @@ Column {
   KitLabel { text: "POPUP" }
 
   KitToggleRow { module: "virustotal"; key: "clipboard"; fallback: false; label: "Read the clipboard"; hint: "Fills the field with a hash or URL" }
+
+  KitToggleRow { module: "virustotal"; key: "closeOnOpen"; label: "Close popup on open"; hint: "When its window opens" }
 }
