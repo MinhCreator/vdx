@@ -9,6 +9,7 @@ import qs.kit
 // there on a click.
 //   APPEARANCE — theme, icon style, wallpaper, font and cursor;
 //   BAR        — the layout of the bar's zones, modules on / off, underline.
+//   MEDIA      — the music pauses while another app plays sound.
 //   WINDOWS    — the window mode, each mode's options, gaps, the taskbar.
 //   MODULES    — each bar module's own options (the modules; an app's is set with the app).
 //   SHELL APPS — how the shell's own windows open: floating or tiled, size, spot.
@@ -33,6 +34,7 @@ Rectangle {
   readonly property var sections: [
     { value: "appearance", label: "Appearance", icon: "sun" },
     { value: "bar",        label: "Bar",        icon: "layout" },
+    { value: "media",      label: "Media",      icon: "music" },
     { value: "windows",    label: "Windows",    icon: "app-window" },
     { value: "modules",    label: "Modules",    icon: "puzzle" },
     { value: "apps",       label: "Shell apps", icon: "grid" },
@@ -56,7 +58,7 @@ Rectangle {
   }
 
   function pageFor(value) {
-    return ({ bar: bar, windows: windows, modules: modules, apps: apps, launcher: launcher,
+    return ({ bar: bar, media: media, windows: windows, modules: modules, apps: apps, launcher: launcher,
               keybinds: keybinds, about: about })[value] ?? appearance;
   }
   readonly property Item currentPage: pageFor(tab)
@@ -302,6 +304,7 @@ Rectangle {
       width: page.width - 48
       implicitHeight: Math.max(appearance.visible ? appearance.implicitHeight : 0,
                                bar.visible ? bar.implicitHeight : 0,
+                               media.visible ? media.implicitHeight : 0,
                                apps.visible ? apps.height : 0,
                                windows.visible ? windows.implicitHeight : 0,
                                about.visible ? about.implicitHeight : 0,
@@ -311,6 +314,7 @@ Rectangle {
 
       AppearancePage { id: appearance; width: parent.width; visible: root.tab === "appearance" }
       BarPage     { id: bar;     width: parent.width; visible: root.tab === "bar" }
+      MediaPage   { id: media;   width: parent.width; visible: root.tab === "media" }
       // fills the window and scrolls its two panes itself
       ShellAppsPage { id: apps;  width: parent.width; onNavigate: (t, k) => root.navigate(t, k); onWindowSetup: id => windowDialog.appId = id; height: page.height - pages.y - 20; visible: root.tab === "apps" }
       WindowsPage { id: windows; width: parent.width; visible: root.tab === "windows" }

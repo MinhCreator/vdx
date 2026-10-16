@@ -9,7 +9,7 @@
 #   --queue             [{pos, artist, title}]
 #   --stations          [{key, name}]
 #   --cover FILE        {ok, path}       embedded cover, cached under ~/.cache
-#   --play [POS] | --stop | --toggle | --next | --prev | --seek SECONDS | --random
+#   --play [POS] | --pause | --stop | --toggle | --next | --prev | --seek SECONDS | --random
 #   --repeat            cycle repeat: off -> all -> one -> off
 #   --radio KEY         play a station
 #   --likes             rebuild the likes queue (manager.py --init)
@@ -113,6 +113,7 @@ case "${1:-}" in
     --stations) jq -c 'to_entries | map({key, name: .value.name})' "$STATIONS" ;;
     --cover)    cmd_cover "${2:-}" ;;
     --play)     mpd_up; mpc -q play ${2:+"$2"} && ok ;;
+    --pause)    mpc -q pause && ok ;;
     --stop)     mpc -q stop && ok ;;
     --toggle)   mpc -q toggle && ok ;;
     --next)     mpc -q next && ok ;;

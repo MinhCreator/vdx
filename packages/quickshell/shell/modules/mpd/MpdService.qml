@@ -14,6 +14,7 @@ Singleton {
 
   readonly property bool service: player.service ?? false
   readonly property bool playing: player.state === "playing"
+  readonly property bool paused: player.state === "paused"
   readonly property bool stopped: !service || player.state === "stop" || source === ""
   readonly property string source: player.source ?? ""     // likes | radio | ""
   readonly property string file: player.file ?? ""
@@ -31,6 +32,7 @@ Singleton {
   }
 
   function toggle() { control(["--toggle"]); }
+  function pause() { control(["--pause"]); }
   function stop() { control(["--stop"]); }
   function next() { control(["--next"]); }
   function prev() { control(["--prev"]); }

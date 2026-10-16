@@ -17,6 +17,7 @@ import qs.apps.switcher
 import qs.apps.taskmanager
 import qs.bar
 import qs.components
+import qs.modules.audio
 
 // Entry point: a bar on every screen that has one on (BarLayout), recoloured when the dotfiles theme changes.
 Scope {
@@ -44,6 +45,9 @@ Scope {
   AuthPrompt {}
 
   Wallpaper {}
+
+  // Modules › Audio: the music pauses while another app plays sound
+  AudioPause {}
 
   PopupCatcher {}
 
