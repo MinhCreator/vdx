@@ -86,7 +86,8 @@ Cleaner, VirusTotal, Packages, Windows, Chat, Folder.
 
 | What | Needs |
 |---|---|
-| Battery limit, power profile | `system/etc/tmpfiles.d/quickshell-power.conf` |
+| Battery limit | `system/etc/tmpfiles.d/quickshell-power.conf` |
+| Power profile | `system/etc/udev/rules.d/90-quickshell-power.rules` |
 | Headset mic | `system/etc/tmpfiles.d/headset-mic.conf` |
 | Root actions without a password for 5 min | `system/etc/polkit-1/rules.d/50-pkexec-keep.rules` |
 | Ollama service switch | `system/etc/polkit-1/rules.d/50-ollama.rules` |

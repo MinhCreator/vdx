@@ -49,10 +49,6 @@ class Selection(unittest.TestCase):
         self.assertEqual(got, {"etc/polkit-1/rules.d/50-pkexec-keep.rules"})
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class LaterNotes(unittest.TestCase):
     def test_boot_only_tmpfiles_say_so(self):
         notes = system.later_notes("/etc/tmpfiles.d/headset-mic.conf", "w! /sys/x - - - - 1\n")
@@ -64,4 +60,27 @@ class LaterNotes(unittest.TestCase):
 
     def test_modprobe_waits_for_a_reboot(self):
         self.assertEqual(len(system.later_notes("/etc/modprobe.d/x.conf", "")), 1)
+
+
+class PlatformProfileRule(unittest.TestCase):
+    """The profile's mode is set when its device appears: tmpfiles runs too early for it."""
+
+    rule = model.SYSTEM / "etc/udev/rules.d/90-quickshell-power.rules"
+
+    def test_a_copied_rule_re_adds_the_device(self):
+        self.assertIn("/etc/udev/rules.d", system.SYSTEM_APPLY)
+        self.assertIn("platform-profile", " ".join(system.SYSTEM_APPLY["/etc/udev/rules.d"]))
+
+    def test_rule_sets_the_profile_file(self):
+        text = self.rule.read_text()
+        self.assertIn('SUBSYSTEM=="platform-profile"', text)
+        self.assertIn("/sys/firmware/acpi/platform_profile", text)
+        self.assertIn("chgrp wheel", text)
+
+    def test_laptop_component_installs_the_rule(self):
+        self.assertIn("etc/udev/rules.d/90-quickshell-power.rules", components.load()["laptop"]["system"])
+
+
+if __name__ == "__main__":
+    unittest.main()
 

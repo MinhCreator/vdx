@@ -1,0 +1,4 @@
+# The platform profile (asus-wmi) is created after systemd-tmpfiles has run, so the
+# z line in tmpfiles.d/quickshell-power.conf misses it: its mode is set here, when
+# the device appears. Wheel members set the profile from the battery plugin.
+ACTION=="add", SUBSYSTEM=="platform-profile", RUN+="/usr/bin/chgrp wheel /sys/firmware/acpi/platform_profile", RUN+="/usr/bin/chmod 0664 /sys/firmware/acpi/platform_profile"

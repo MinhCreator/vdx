@@ -175,7 +175,7 @@ component brings all fail `check components`.
    `installer/detect.py` with every condition (board, codec at its address)
    and a hardware component with `auto = ["quirk:<name>"]`.
 4. Agents don't run sudo: give the owner `./install.py system install`.
-5. What runs after a copy: `SYSTEM_APPLY` (tmpfiles, tlp) and pacman hooks
+5. What runs after a copy: `SYSTEM_APPLY` (tmpfiles, tlp, udev) and pacman hooks
    in `installer/system.py`; modprobe applies after a reboot.
 6. Boot changes (kernel cmdline, mkinitcpio) are never automated: a `hint`.
 

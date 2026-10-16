@@ -284,7 +284,7 @@ group = "hardware"
 about = "Battery: TLP, the charge limit and power profiles from the bar"
 auto = ["laptop"]
 pacman = ["tlp", "tlp-rdw"]
-system = ["etc/tlp.d/99-dotfiles.conf", "etc/tmpfiles.d/quickshell-power.conf"]
+system = ["etc/tlp.d/99-dotfiles.conf", "etc/tmpfiles.d/quickshell-power.conf", "etc/udev/rules.d/90-quickshell-power.rules"]
 services = ["tlp.service"]
 masks = ["systemd-rfkill.service", "systemd-rfkill.socket"]
 

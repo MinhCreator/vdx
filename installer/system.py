@@ -21,6 +21,8 @@ from .ui import added, confirm, dim, err, heading, note, ok, warn
 SYSTEM_APPLY = {
     "/etc/tmpfiles.d": ["systemd-tmpfiles", "--create", "{}"],
     "/etc/tlp.d": ["tlp", "start"],
+    # a rule for a device that is already there: re-add it so the rule runs now
+    "/etc/udev/rules.d": ["udevadm", "trigger", "--subsystem-match=platform-profile", "--action=add"],
 }
 # what can't be applied at once
 SYSTEM_LATER = {

@@ -9,7 +9,8 @@
 #   --gpu             {mode, pending, action}
 #   --gpu-mode MODE   {ok, error}   supergfxctl mode, applied after logout / reboot
 #
-# Writing the limit and the profile needs /etc/tmpfiles.d/quickshell-power.conf.
+# Writing the limit and the profile needs system/etc/tmpfiles.d/quickshell-power.conf
+# (the limit) and system/etc/udev/rules.d/90-quickshell-power.rules (the profile).
 
 PROFILE=/sys/firmware/acpi/platform_profile
 
@@ -60,7 +61,7 @@ cmd_status() {
 
 write() {
     if { printf '%s' "$2" > "$1"; } 2>/dev/null; then ok
-    else error "permission denied: install quickshell-power.conf"; fi
+    else error "permission denied: run ./install.py system install (quickshell-power)"; fi
 }
 
 cmd_gpu() {
