@@ -10,9 +10,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-from . import components
+from . import components, detect
 from .links import link_problems
-from .model import build_entries
+from .model import PLACEHOLDER, build_entries, system_files
 from .paths import PKG, ROOT, SKIP, SYSTEM, THEME
 from .ui import err, heading, ok, warn
 
@@ -185,6 +185,12 @@ def components_problems() -> list[str]:
     for f in sorted(SYSTEM.rglob("*")) if SYSTEM.is_dir() else []:
         if f.is_file() and f.name not in SKIP and str(f.relative_to(SYSTEM)) not in claimed:
             out.append(f"{rel(f)}: no component installs it")
+    # placeholders name a text value of the machine profile
+    keys = {k.upper() for k, v in detect.hardware(ROOT / "nonexistent").items() if isinstance(v, str)}
+    for f in system_files(every=True):
+        for m in set(PLACEHOLDER.findall(f.read_bytes())):
+            if m.decode() not in keys:
+                out.append(f"{rel(f)}: @{m.decode()}@: no such machine value (have {', '.join(sorted(keys))})")
     # the bar: every module comes with a component, every module named exists
     layout = PKG / "quickshell" / "shell" / "bar" / "BarLayout.qml"
     if layout.is_file():

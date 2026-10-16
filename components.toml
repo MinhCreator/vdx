@@ -192,6 +192,7 @@ aur = ["mihomo-bin", "mihomo-tui-bin"]
 submodules = ["packages/scripts/vpn"]
 links = ["mihomo", "mihomo-tui", "scripts/vpn", "zsh/functions/vpn"]
 modules = ["mihomo"]
+system = ["etc/pacman.d/hooks/mihomo-caps.hook"]
 user_services = ["mihomo.service"]
 secrets = ["mihomo/subscriptions.json"]
 
@@ -234,6 +235,12 @@ group = "personal"
 about = "Restore secret files from the private repo (private/)"
 default = false
 
+[airpods]
+group = "personal"
+about = "AirPods over Bluetooth: no adapter autosuspend, no ERTM"
+default = false
+system = ["etc/modprobe.d/btusb-airpods.conf"]
+
 # ---- hardware ----
 
 [gpu-intel]
@@ -256,6 +263,12 @@ pacman = ["nvidia-utils", "libva-nvidia-driver"]
 hint = """the kernel driver is yours to pick: nvidia-open (linux) or nvidia-open-dkms (other kernels);
 then `options nvidia-drm modeset=1` in /etc/modprobe.d, nvidia nvidia_modeset nvidia_uvm nvidia_drm
 in MODULES of /etc/mkinitcpio.conf, `sudo mkinitcpio -P`, reboot"""
+
+[nvidia-laptop]
+group = "hardware"
+about = "NVIDIA dGPU of a hybrid laptop sleeps when unused (runtime PM)"
+auto = ["gpu:nvidia", "hybrid", "laptop"]
+system = ["etc/modprobe.d/nvidia-pm.conf"]
 
 [laptop]
 group = "hardware"

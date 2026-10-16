@@ -1,0 +1,13 @@
+# pacman — mihomo runs as a user service and needs these capabilities for TUN
+# and port 53; an upgrade replaces the binary and drops them, so set them again.
+# Installed by `./install.py system install` (which also runs it once).
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = mihomo-bin
+
+[Action]
+Description = Granting mihomo network capabilities...
+When = PostTransaction
+Exec = /usr/bin/setcap cap_net_admin,cap_net_bind_service=ep /usr/bin/mihomo

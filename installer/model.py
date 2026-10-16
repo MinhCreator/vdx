@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 import tomllib
 from pathlib import Path
 
-from . import components
+from . import components, machine
 from .paths import (
     DEFAULT_THEME,
     HOME,
@@ -190,21 +191,73 @@ def link_counts(entries: list[tuple[Path, Path, str]]) -> tuple[int, int]:
     return good, len(entries) - good
 
 
-def system_state() -> list[tuple[Path, Path, str]]:
-    """(src, dst, state) for every file under system/; state is ok, differs,
-    missing or unreadable (a root-only folder, /etc/polkit-1/rules.d)."""
+def system_files(every: bool = False) -> list[Path]:
+    """Files under system/ of the selected components (every one with `every`)."""
+    files = [f for f in sorted(SYSTEM.rglob("*")) if f.is_file() and f.name not in SKIP] if SYSTEM.is_dir() else []
+    if every:
+        return files
+    cat = components.load()
+    keep = set(components.unique(components.selected(cat=cat), cat, "system"))
+    claimed = {p for c in cat.values() for p in c["system"]}
+    # a file no component claims is installed everywhere (`check components` names it)
+    return [f for f in files if str(f.relative_to(SYSTEM)) in keep or str(f.relative_to(SYSTEM)) not in claimed]
+
+
+PLACEHOLDER = re.compile(rb"@([A-Z_]+)@")
+
+
+def render(src: Path, hw: dict | None = None) -> bytes:
+    """A system file with @KEY@ replaced by this machine's hardware value
+    (@BATTERY@ -> BAT1); ValueError when the machine has no such value."""
+    data = src.read_bytes()
+    if not PLACEHOLDER.search(data):
+        return data
+    hw = machine.hardware() if hw is None else hw
+
+    def value(m: re.Match) -> bytes:
+        v = hw.get(m.group(1).decode().lower())
+        if not isinstance(v, str) or not v:
+            raise ValueError(f"{m.group(0).decode()}: this machine has no {m.group(1).decode().lower()}")
+        return v.encode()
+
+    return PLACEHOLDER.sub(value, data)
+
+
+def system_state(every: bool = False) -> list[tuple[Path, Path, str]]:
+    """(src, dst, state) for the selected system files; state is ok, differs,
+    missing, unreadable (a root-only folder, /etc/polkit-1/rules.d) or
+    unrenderable (a placeholder this machine has no value for)."""
     out = []
-    for src in sorted(SYSTEM.rglob("*")) if SYSTEM.is_dir() else []:
-        if not src.is_file() or src.name in SKIP:
-            continue
+    for src in system_files(every):
         dst = Path("/") / src.relative_to(SYSTEM)
         try:
-            state = "ok" if dst.read_bytes() == src.read_bytes() else "differs"
+            want = render(src)
+        except ValueError:
+            out.append((src, dst, "unrenderable"))
+            continue
+        try:
+            state = "ok" if dst.read_bytes() == want else "differs"
         except FileNotFoundError:
             state = "missing"
         except OSError:
             state = "unreadable"
         out.append((src, dst, state))
+    return out
+
+
+def system_leftovers() -> list[Path]:
+    """/etc files of components that are off, still there as we wrote them."""
+    on = {src for src in system_files()}
+    out = []
+    for src in system_files(every=True):
+        if src in on:
+            continue
+        dst = Path("/") / src.relative_to(SYSTEM)
+        try:
+            if dst.read_bytes() == render(src):
+                out.append(dst)
+        except (OSError, ValueError):
+            pass
     return out
 
 
