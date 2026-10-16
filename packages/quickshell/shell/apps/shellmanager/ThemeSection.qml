@@ -92,7 +92,7 @@ Column {
           // each module in an active state, tinted the way the bar tints it
           Repeater {
             model: [["sun", "orange"], ["volume-x", "red"], ["wifi", "green"], ["shield", "green"],
-                    ["battery", "green"], ["bell", "gray"]]
+                    ["battery-full", "green"], ["bell", "gray"]]
 
             KitIcon {
               required property var modelData
