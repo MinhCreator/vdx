@@ -76,7 +76,7 @@ PanelWindow {
   Row {
     x: 8
     height: parent.height
-    spacing: 4
+    spacing: Theme.gapHair
 
     Repeater {
       model: windowModel

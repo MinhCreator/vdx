@@ -164,7 +164,7 @@ Rectangle {
       Row {
         visible: root.ps.count > 0
         width: parent.width
-        spacing: 12
+        spacing: Theme.gapWide
 
         PackageCheck {
           anchors.verticalCenter: parent.verticalCenter
@@ -268,7 +268,7 @@ Rectangle {
       Row {
         visible: root.shown.length > 0
         width: parent.width
-        spacing: 12
+        spacing: Theme.gapWide
 
         PackageCheck {
           anchors.verticalCenter: parent.verticalCenter
@@ -446,7 +446,7 @@ Rectangle {
   Column {
     id: foot
     anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
-    spacing: 12
+    spacing: Theme.gapWide
 
     KitLine {}
 
@@ -457,7 +457,7 @@ Rectangle {
 
       Column {
         id: info
-        anchors { left: parent.left; right: actions.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
+        anchors { left: parent.left; right: actions.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
         spacing: Theme.gapTight
 
         KitText {

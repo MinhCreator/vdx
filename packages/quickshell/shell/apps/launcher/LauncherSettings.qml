@@ -78,7 +78,7 @@ Column {
     height: tabsReset.height
 
     KitLabel {
-      anchors { left: parent.left; right: tabsReset.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
+      anchors { left: parent.left; right: tabsReset.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
       text: "TABS"
       // what the pointer is on, or how this works
       value: root.focusId !== "" ? root.tab(root.focusId).label.toUpperCase() : "DRAG TO ORDER OR HIDE"

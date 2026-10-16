@@ -56,7 +56,7 @@ KitFrame {
   Column {
     width: parent.width
     visible: MusicService.active && root.tab === "playing"
-    spacing: 12
+    spacing: Theme.gapWide
 
     Item {
       width: parent.width
@@ -89,11 +89,11 @@ KitFrame {
 
       Column {
         anchors {
-          left: cover.right; leftMargin: 12
-          right: like.left; rightMargin: 8
+          left: cover.right; leftMargin: Theme.gapWide
+          right: like.left; rightMargin: Theme.gapMedium
           verticalCenter: parent.verticalCenter
         }
-        spacing: 4
+        spacing: Theme.gapHair
 
         KitText {
           width: parent.width

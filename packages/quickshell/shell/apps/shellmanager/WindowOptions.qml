@@ -132,7 +132,7 @@ Column {
 
     // a spot of the screen, or the pointer, or your own
     Row {
-      spacing: 10
+      spacing: Theme.gapLoose
 
       PositionGrid {
         id: grid

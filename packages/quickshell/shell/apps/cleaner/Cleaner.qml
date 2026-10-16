@@ -204,7 +204,7 @@ Rectangle {
   Column {
     id: foot
     anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
-    spacing: 12
+    spacing: Theme.gapWide
 
     KitLine {}
 
@@ -213,7 +213,7 @@ Rectangle {
       height: action.height
 
       Column {
-        anchors { left: parent.left; right: action.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
+        anchors { left: parent.left; right: action.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
         spacing: Theme.gapTight
 
         KitText {

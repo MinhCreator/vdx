@@ -51,8 +51,8 @@ Rectangle {
 
           KitText {
             anchors {
-              left: parent.left; leftMargin: 10
-              right: mark.left; rightMargin: 6
+              left: parent.left; leftMargin: Theme.gapLoose
+              right: mark.left; rightMargin: Theme.gapSmall
               verticalCenter: parent.verticalCenter
             }
             text: row.modelData.label
@@ -65,7 +65,7 @@ Rectangle {
 
           Item {
             id: mark
-            anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+            anchors { right: parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
             width: 14
             height: 14
 

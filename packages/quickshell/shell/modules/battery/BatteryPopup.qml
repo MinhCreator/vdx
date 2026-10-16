@@ -79,7 +79,7 @@ KitFrame {
   // ---- power settings ----
   Column {
     width: parent.width
-    spacing: 10
+    spacing: Theme.gapLoose
 
     KitLabel { text: "POWER" }
 

@@ -39,7 +39,7 @@ KitFrame {
   Column {
     width: parent.width
     visible: MihomoService.serviceOn
-    spacing: 10
+    spacing: Theme.gapLoose
 
     KitLabel {
       text: "CONNECTION"
@@ -92,7 +92,7 @@ KitFrame {
   Column {
     width: parent.width
     visible: root.listed
-    spacing: 10
+    spacing: Theme.gapLoose
 
     KitSelect {
       label: "Provider"
@@ -136,7 +136,7 @@ KitFrame {
             color: current ? Theme.background3 : area.containsMouse ? Theme.background1 : "transparent"
 
             KitText {
-              anchors { left: parent.left; leftMargin: 10; right: ping.left; rightMargin: 10; verticalCenter: parent.verticalCenter }
+              anchors { left: parent.left; leftMargin: Theme.gapLoose; right: ping.left; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               text: server.modelData.name
               elide: Text.ElideRight
               color: server.current || area.containsMouse ? Theme.foreground0 : Theme.foreground2
@@ -145,7 +145,7 @@ KitFrame {
 
             KitText {
               id: ping
-              anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
+              anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               text: server.delay > 0 ? server.delay + " ms" : "—"
               color: Theme.pingColor(server.delay)
               font.pixelSize: Theme.fontSize - 1

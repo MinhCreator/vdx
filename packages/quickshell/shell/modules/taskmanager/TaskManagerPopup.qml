@@ -88,14 +88,14 @@ KitFrame {
         height: 28
 
         KitText {
-          anchors { left: parent.left; right: cpuText.left; rightMargin: 10; verticalCenter: parent.verticalCenter }
+          anchors { left: parent.left; right: cpuText.left; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
           text: row.modelData.name + (row.modelData.count > 1 ? "  ×" + row.modelData.count : "")
           elide: Text.ElideRight
         }
 
         KitText {
           id: cpuText
-          anchors { right: memText.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
+          anchors { right: memText.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
           width: 52
           horizontalAlignment: Text.AlignRight
           text: row.modelData.cpu.toFixed(1) + "%"
@@ -104,7 +104,7 @@ KitFrame {
 
         KitText {
           id: memText
-          anchors { right: endButton.left; rightMargin: 10; verticalCenter: parent.verticalCenter }
+          anchors { right: endButton.left; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
           width: 64
           horizontalAlignment: Text.AlignRight
           text: Theme.shortSize(row.modelData.mem)

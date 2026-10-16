@@ -32,7 +32,7 @@ Rectangle {
   KitIcon {
     id: lock
     visible: root.modelData.secure
-    anchors { left: name.right; leftMargin: 6; verticalCenter: parent.verticalCenter }
+    anchors { left: name.right; leftMargin: Theme.gapSmall; verticalCenter: parent.verticalCenter }
     name: "lock"
     tint: Theme.muted
     size: 12
@@ -46,7 +46,7 @@ Rectangle {
 
   KitIcon {
     id: check
-    anchors { right: bars.left; rightMargin: 10; verticalCenter: parent.verticalCenter }
+    anchors { right: bars.left; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
     opacity: root.current ? 1 : 0
     name: "check"
     tint: Theme.green
@@ -55,7 +55,7 @@ Rectangle {
 
   Item {
     id: bars
-    anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
+    anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
     width: 18
     height: 14
 

@@ -163,7 +163,7 @@ Rectangle {
   ListView {
     id: list
     anchors { left: parent.left; right: parent.right; top: head.bottom; bottom: foot.top
-              leftMargin: 24; rightMargin: 24; topMargin: 6; bottomMargin: 6 }
+              leftMargin: 24; rightMargin: 24; topMargin: Theme.gapSmall; bottomMargin: Theme.gapSmall }
     clip: true
     boundsBehavior: Flickable.StopAtBounds
     model: root.tm.rows
@@ -180,7 +180,7 @@ Rectangle {
       color: active ? Theme.background3 : rowArea.containsMouse ? Theme.background1 : "transparent"
 
       KitText {
-        anchors { left: parent.left; leftMargin: 10; right: userText.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
+        anchors { left: parent.left; leftMargin: Theme.gapLoose; right: userText.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
         text: row.modelData.name
         elide: Text.ElideRight
         font.weight: row.active ? Font.ExtraBold : Font.DemiBold
@@ -245,7 +245,7 @@ Rectangle {
   Column {
     id: foot
     anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
-    spacing: 12
+    spacing: Theme.gapWide
 
     KitLine {}
 
@@ -254,7 +254,7 @@ Rectangle {
       height: endButton.height
 
       Column {
-        anchors { left: parent.left; right: buttons.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
+        anchors { left: parent.left; right: buttons.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
         spacing: Theme.gapTight
 
         KitText {

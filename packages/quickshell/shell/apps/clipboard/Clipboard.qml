@@ -87,7 +87,7 @@ KitFrame {
     Column {
       id: rows
       width: parent.width
-      spacing: 10
+      spacing: Theme.gapLoose
 
       Repeater {
         model: root.shown
@@ -130,7 +130,7 @@ KitFrame {
 
                 KitText {
                   id: kind
-                  anchors { left: parent.left; right: time.left; rightMargin: 8 }
+                  anchors { left: parent.left; right: time.left; rightMargin: Theme.gapMedium }
                   text: root.copiedId === item.modelData.id ? "COPIED"
                       : item.image ? "IMAGE · " + thumb.sourceSize.width + "×" + thumb.sourceSize.height : "TEXT"
                   elide: Text.ElideRight

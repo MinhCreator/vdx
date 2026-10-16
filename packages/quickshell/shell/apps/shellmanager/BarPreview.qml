@@ -34,7 +34,7 @@ Rectangle {
 
       anchors.verticalCenter: parent.verticalCenter
       x: modelData === "left" ? 12 : modelData === "center" ? (root.width - width) / 2 : root.width - width - 12
-      spacing: 10
+      spacing: Theme.gapLoose
 
       Repeater {
         model: group.modelData === "center" ? group.ids : root.shown(group.ids)

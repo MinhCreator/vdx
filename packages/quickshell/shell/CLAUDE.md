@@ -46,8 +46,9 @@ in Modules.
 
 Minimal, monospace, sharp corners, near-monochrome. Reference: the Wi-Fi popup.
 
-- Spacing: the gaps between a column's items are `Theme.gapTight` (2),
-  `gapSmall` (6), `gapMedium` (8) and `gapGroup` (14); no other literals.
+- Spacing: the gaps and edge insets are `Theme.gapHair` (4), `gapTight` (2),
+  `gapSmall` (6), `gapMedium` (8), `gapLoose` (10), `gapWide` (12) and `gapGroup`
+  (14); a value that is used once stays a literal.
 - Popup: `KitHeader` → `KitLine` → groups separated by `KitLine` → footer.
   No backgrounds under groups.
 - Window: the frame is `Theme.windowPadding` (24) on every side and nothing else:

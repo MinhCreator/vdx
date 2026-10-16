@@ -75,7 +75,7 @@ KitFrame {
     Column {
       id: rows
       width: parent.width
-      spacing: 10
+      spacing: Theme.gapLoose
 
       Repeater {
         model: root.items
@@ -110,7 +110,7 @@ KitFrame {
 
             KitText {
               id: app
-              anchors { left: dot.right; leftMargin: dot.visible ? 8 : 0; right: time.left; rightMargin: 8 }
+              anchors { left: dot.right; leftMargin: dot.visible ? 8 : 0; right: time.left; rightMargin: Theme.gapMedium }
               text: (item.modelData.app || "—").toUpperCase()
               elide: Text.ElideRight
               color: Theme.muted

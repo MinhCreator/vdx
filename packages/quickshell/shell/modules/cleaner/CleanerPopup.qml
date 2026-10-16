@@ -55,7 +55,7 @@ KitFrame {
         height: 24
 
         KitText {
-          anchors { left: parent.left; right: sizeText.left; rightMargin: 10; verticalCenter: parent.verticalCenter }
+          anchors { left: parent.left; right: sizeText.left; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
           text: modelData.label
           elide: Text.ElideRight
           color: modelData.root ? Theme.foreground2 : Theme.foreground0
@@ -78,7 +78,7 @@ KitFrame {
     height: cleanButton.height
 
     Column {
-      anchors { left: parent.left; right: cleanButton.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
+      anchors { left: parent.left; right: cleanButton.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
       spacing: Theme.gapTight
 
       KitText {

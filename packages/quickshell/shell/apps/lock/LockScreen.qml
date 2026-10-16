@@ -174,7 +174,7 @@ Rectangle {
     anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 48 }
     visible: root.main && root.opt("power", true)
     opacity: root.intro
-    spacing: 10
+    spacing: Theme.gapLoose
 
     Row {
       anchors.horizontalCenter: parent.horizontalCenter

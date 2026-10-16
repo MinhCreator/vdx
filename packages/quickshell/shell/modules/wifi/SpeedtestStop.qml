@@ -14,7 +14,7 @@ Column {
   readonly property real nameWidth: Math.ceil(Math.max(18, nameMetrics.advanceWidth)) + 1
   readonly property real naturalWidth: Math.max(nameWidth, Math.ceil(hintMetrics.advanceWidth) + 1)
 
-  spacing: 4
+  spacing: Theme.gapHair
 
   TextMetrics { id: nameMetrics; font: nameText.font; text: root.name }
   TextMetrics { id: hintMetrics; font: hintText.font; text: root.hint }

@@ -83,7 +83,7 @@ KitFrame {
             color: current ? Theme.background3 : area.containsMouse ? Theme.background1 : "transparent"
 
             KitText {
-              anchors { left: parent.left; leftMargin: 10; right: mark.left; rightMargin: 8; verticalCenter: parent.verticalCenter }
+              anchors { left: parent.left; leftMargin: Theme.gapLoose; right: mark.left; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
               text: station.modelData.name
               elide: Text.ElideRight
               color: station.current || area.containsMouse ? Theme.foreground0 : Theme.foreground2
@@ -92,7 +92,7 @@ KitFrame {
 
             Item {
               id: mark
-              anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
+              anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               width: 14
               height: 14
 

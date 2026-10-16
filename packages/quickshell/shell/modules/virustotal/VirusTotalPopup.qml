@@ -83,7 +83,7 @@ KitFrame {
     height: upload.height
 
     KitText {
-      anchors { left: parent.left; right: upload.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
+      anchors { left: parent.left; right: upload.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
       elide: Text.ElideRight
       color: Theme.muted
       text: root.vs.canUpload ? "Upload sends the file to VirusTotal" : "Enter scans"

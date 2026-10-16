@@ -26,7 +26,7 @@ Rectangle {
 
   KitText {
     id: prompt
-    anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
+    anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
     text: "❯"
     color: textInput.activeFocus ? Theme.yellow : Theme.gray
   }
@@ -35,7 +35,7 @@ Rectangle {
     id: textInput
     // a password stands in the middle of the field: the right margin matches the prompt's side
     readonly property bool masked: echoMode === TextInput.Password
-    anchors { left: prompt.right; leftMargin: 8; right: parent.right; rightMargin: masked ? prompt.width + 18 : 10; top: parent.top; bottom: parent.bottom }
+    anchors { left: prompt.right; leftMargin: Theme.gapMedium; right: parent.right; rightMargin: masked ? prompt.width + 18 : 10; top: parent.top; bottom: parent.bottom }
     verticalAlignment: TextInput.AlignVCenter
     horizontalAlignment: masked ? TextInput.AlignHCenter : TextInput.AlignLeft
     leftPadding: masked ? font.letterSpacing : 0   // the spacing trails every square, the last one too

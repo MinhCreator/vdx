@@ -34,7 +34,7 @@ Item {
   Column {
     id: caption
     anchors {
-      left: icon.right; leftMargin: 8
+      left: icon.right; leftMargin: Theme.gapMedium
       right: actionRow.left; rightMargin: actionRow.width > 0 ? 10 : 0
     }
     spacing: 3

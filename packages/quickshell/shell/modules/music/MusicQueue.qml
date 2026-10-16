@@ -45,7 +45,7 @@ Column {
 
     // re-fetch the likes from Yandex Music
     KitButton {
-      anchors { right: searchButton.left; rightMargin: 8 }
+      anchors { right: searchButton.left; rightMargin: Theme.gapMedium }
       icon: "refresh"
       busy: MusicService.updating
       onClicked: MusicService.runUpdate()
@@ -101,7 +101,7 @@ Column {
 
           KitText {
             id: number
-            anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
+            anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
             width: 32
             text: row.modelData.pos
             color: row.current ? Theme.foreground0 : Theme.gray
@@ -111,7 +111,7 @@ Column {
           Column {
             anchors {
               left: number.right; leftMargin: 4
-              right: parent.right; rightMargin: 10
+              right: parent.right; rightMargin: Theme.gapLoose
               verticalCenter: parent.verticalCenter
             }
             spacing: 1

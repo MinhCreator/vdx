@@ -95,8 +95,8 @@ Column {
 
           Row {
             id: heading
-            anchors { left: parent.left; right: trailing.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
-            spacing: 10
+            anchors { left: parent.left; right: trailing.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
+            spacing: Theme.gapLoose
 
             KitIcon {
               id: headingIcon

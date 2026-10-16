@@ -85,7 +85,7 @@ KitFrame {
 
     Column {
       width: parent.width
-      spacing: 12
+      spacing: Theme.gapWide
 
       KitLabel { text: "PLAN LIMITS" }
 
@@ -186,7 +186,7 @@ KitFrame {
 
             KitText {
               id: name
-              anchors { left: parent.left; right: statusText.left; rightMargin: 8 }
+              anchors { left: parent.left; right: statusText.left; rightMargin: Theme.gapMedium }
               text: session.modelData.name || "—"
               elide: Text.ElideRight
               font.weight: Font.ExtraBold

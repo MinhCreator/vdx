@@ -55,7 +55,7 @@ KitFrame {
         height: 24
 
         KitText {
-          anchors { left: parent.left; right: versions.left; rightMargin: 10; verticalCenter: parent.verticalCenter }
+          anchors { left: parent.left; right: versions.left; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
           elide: Text.ElideRight
           text: modelData.name
         }

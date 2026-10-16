@@ -43,7 +43,7 @@ Rectangle {
 
     Row {
       width: parent.width
-      spacing: 12
+      spacing: Theme.gapWide
 
       KitInput {
         id: field
@@ -225,7 +225,7 @@ Rectangle {
   Column {
     id: foot
     anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
-    spacing: 12
+    spacing: Theme.gapWide
 
     KitLine {}
 
@@ -234,7 +234,7 @@ Rectangle {
       height: report.height
 
       KitText {
-        anchors { left: parent.left; right: report.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
+        anchors { left: parent.left; right: report.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
         elide: Text.ElideRight
         font.pixelSize: Theme.fontSize - 2
         color: Theme.muted

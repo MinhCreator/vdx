@@ -1,5 +1,6 @@
 import QtQuick
 import qs.kit
+import qs.config
 
 // A KitRow with its checkbox on the left, so the boxes line up down a list.
 // The row's controls (children) go on the right, as in any KitRow.
@@ -14,7 +15,7 @@ Row {
   signal toggled()
 
   width: parent ? parent.width : 0
-  spacing: 12
+  spacing: Theme.gapWide
 
   PackageCheck {
     anchors.verticalCenter: parent.verticalCenter

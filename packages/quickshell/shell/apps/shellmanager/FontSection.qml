@@ -41,7 +41,7 @@ Column {
         x: 14
         y: 14
         width: parent.width - 28
-        spacing: 10
+        spacing: Theme.gapLoose
         visible: parent.drawable
 
         KitText {

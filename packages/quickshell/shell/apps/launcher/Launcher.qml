@@ -180,7 +180,7 @@ ScrimWindow {
             KitText {
               id: keys
               anchors.right: parent.right
-              anchors.rightMargin: 12
+              anchors.rightMargin: Theme.gapWide
               anchors.verticalCenter: parent.verticalCenter
               text: row.modelData.keys ?? ""
               color: Theme.muted

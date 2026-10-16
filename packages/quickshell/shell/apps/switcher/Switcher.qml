@@ -30,7 +30,7 @@ ScrimWindow {
   // the grid: cells of 240 px, at most 5 in a row
   readonly property int cellWidth: 240
   readonly property int thumbHeight: 150
-  readonly property int spacing: 12
+  readonly property int spacing: Theme.gapWide
   readonly property int columns: Math.max(1, Math.min(5, windows.length))
 
   function order(t) { return t.lastIpcObject?.focusHistoryID ?? 1000; }

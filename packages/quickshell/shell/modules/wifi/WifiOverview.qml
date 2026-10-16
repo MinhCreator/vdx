@@ -45,7 +45,7 @@ Column {
   Column {
     width: parent.width
     visible: WifiService.connected
-    spacing: 10
+    spacing: Theme.gapLoose
 
     KitLabel { text: "CONNECTION"; value: WifiService.gateway ? "GATEWAY " + WifiService.gateway : "" }
 

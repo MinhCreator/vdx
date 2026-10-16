@@ -31,7 +31,7 @@ Column {
   // ---- path ----
   Column {
     width: parent.width
-    spacing: 12
+    spacing: Theme.gapWide
 
     KitLabel { text: "PATH" }
 
@@ -146,7 +146,7 @@ Column {
     Column {
       id: throughput
       anchors.verticalCenter: parent.verticalCenter
-      spacing: 4
+      spacing: Theme.gapHair
 
       KitLabel { width: 140; text: "THROUGHPUT NOW" }
 

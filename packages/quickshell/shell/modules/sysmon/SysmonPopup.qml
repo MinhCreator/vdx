@@ -47,7 +47,7 @@ KitFrame {
     Row {
       visible: root.on("cores")
       width: parent.width
-      spacing: 4
+      spacing: Theme.gapHair
 
       Repeater {
         model: SysmonService.cores

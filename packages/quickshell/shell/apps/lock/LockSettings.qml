@@ -37,7 +37,7 @@ Column {
 
       KitSlider {
         id: blurSlider
-        anchors { left: parent.left; right: blurValue.left; rightMargin: 10; verticalCenter: parent.verticalCenter }
+        anchors { left: parent.left; right: blurValue.left; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
         value: root.opt("blur", 60) / 100
         onMoved: v => { if (!pressed) ModuleSettings.set("lock", "blur", Math.round(v * 100)); }
         onReleased: v => ModuleSettings.set("lock", "blur", Math.round(v * 100))

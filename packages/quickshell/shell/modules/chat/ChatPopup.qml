@@ -63,7 +63,7 @@ KitFrame {
           required property var modelData
 
           width: lines.width
-          spacing: 4
+          spacing: Theme.gapHair
 
           KitText {
             text: modelData.role === "user" ? "YOU" : modelData.role === "error" ? "ERROR" : root.modelName.toUpperCase()

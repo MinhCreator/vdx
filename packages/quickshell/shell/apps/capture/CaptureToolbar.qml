@@ -120,7 +120,7 @@ Rectangle {
     Column {
       visible: CaptureService.kind === "record"
       width: parent.width
-      spacing: 12
+      spacing: Theme.gapWide
 
       Repeater {
         model: [

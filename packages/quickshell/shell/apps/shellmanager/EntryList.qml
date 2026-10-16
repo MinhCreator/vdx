@@ -80,14 +80,14 @@ Column {
 
             KitIcon {
               id: rowIcon
-              anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }
+              anchors { left: parent.left; leftMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
               name: row.modelData.icon
               tint: row.active ? Theme.foreground0 : row.modelData.link || row.modelData.off ? Theme.muted : Theme.foreground2
               size: 14
             }
 
             KitText {
-              anchors { left: rowIcon.right; leftMargin: 8; right: parent.right; rightMargin: row.modelData.link ? 26 : 8; verticalCenter: parent.verticalCenter }
+              anchors { left: rowIcon.right; leftMargin: Theme.gapMedium; right: parent.right; rightMargin: row.modelData.link ? 26 : 8; verticalCenter: parent.verticalCenter }
               text: row.modelData.label
               elide: Text.ElideRight
               color: row.active || rowArea.containsMouse ? Theme.foreground0 : row.modelData.link || row.modelData.off ? Theme.muted : Theme.foreground2
@@ -96,7 +96,7 @@ Column {
 
             // set elsewhere: a click goes there
             KitIcon {
-              anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+              anchors { right: parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
               visible: !!row.modelData.link
               name: "external"
               size: 12

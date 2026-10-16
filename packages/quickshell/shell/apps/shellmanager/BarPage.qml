@@ -112,7 +112,7 @@ Column {
     height: layoutActions.height
 
     KitLabel {
-      anchors { left: parent.left; right: layoutActions.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
+      anchors { left: parent.left; right: layoutActions.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
       text: "LAYOUT"
       // what the pointer is on, or how this works
       value: root.focusId !== "" ? (root.module(root.focusId)?.label ?? "").toUpperCase() + " — " + (root.module(root.focusId)?.about ?? "").toUpperCase()

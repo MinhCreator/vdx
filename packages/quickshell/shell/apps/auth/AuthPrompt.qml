@@ -88,7 +88,7 @@ Scope {
         Column {
           visible: root.ours
           width: parent.width
-          spacing: 12
+          spacing: Theme.gapWide
 
           Repeater {
             model: RootService.steps
@@ -161,7 +161,7 @@ Scope {
           height: buttons.height
 
           KitText {
-            anchors { left: parent.left; right: buttons.left; rightMargin: 10; verticalCenter: parent.verticalCenter }
+            anchors { left: parent.left; right: buttons.left; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
             visible: root.ours && !root.asking
             wrapMode: Text.WordWrap
             color: Theme.muted

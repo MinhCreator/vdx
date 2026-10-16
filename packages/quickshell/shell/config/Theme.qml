@@ -92,6 +92,9 @@ QtObject {
   readonly property int gapSmall: 6
   readonly property int gapMedium: 8
   readonly property int gapGroup: 14
+  readonly property int gapLoose: 10          // also an edge inset of a row
+  readonly property int gapWide: 12
+  readonly property int gapHair: 4
   readonly property int popupPadding: 16       // a popup's frame, every side (KitFrame)
   readonly property int popupWidth: 370
   // a window's frame: the gap to its edges on every side, and the space the

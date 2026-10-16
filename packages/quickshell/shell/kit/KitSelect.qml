@@ -36,7 +36,7 @@ Column {
 
     Column {
       id: text
-      anchors { left: parent.left; right: box.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
+      anchors { left: parent.left; right: box.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
       spacing: Theme.gapTight
 
       KitText {
@@ -69,14 +69,14 @@ Column {
       Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
       KitText {
-        anchors { left: parent.left; leftMargin: 10; right: mark.left; rightMargin: 6; verticalCenter: parent.verticalCenter }
+        anchors { left: parent.left; leftMargin: Theme.gapLoose; right: mark.left; rightMargin: Theme.gapSmall; verticalCenter: parent.verticalCenter }
         text: root.selected?.label ?? "—"
         elide: Text.ElideRight
       }
 
       Item {
         id: mark
-        anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+        anchors { right: parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
         width: 14
         height: 14
 
@@ -154,14 +154,14 @@ Column {
             color: active ? Theme.background3 : optionArea.containsMouse ? Theme.background1 : "transparent"
 
             KitText {
-              anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
+              anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               text: option.modelData.label
               color: option.active || optionArea.containsMouse ? Theme.foreground0 : Theme.foreground2
               font.weight: option.active ? Font.ExtraBold : Font.DemiBold
             }
 
             KitIcon {
-              anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
+              anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               visible: option.active
               name: "check"
               tint: Theme.green

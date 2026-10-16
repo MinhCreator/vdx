@@ -137,7 +137,7 @@ Rectangle {
     Column {
       id: navColumn
       width: nav.width
-      spacing: 4
+      spacing: Theme.gapHair
 
       Repeater {
         model: root.sections
@@ -161,7 +161,7 @@ Rectangle {
             visible: !!section.modelData.caption
 
             KitText {
-              anchors { left: parent.left; leftMargin: 10; bottom: parent.bottom; bottomMargin: 4 }
+              anchors { left: parent.left; leftMargin: Theme.gapLoose; bottom: parent.bottom; bottomMargin: 4 }
               text: section.modelData.caption ?? ""
               color: Theme.gray
               font.pixelSize: Theme.fontSize - 2
@@ -178,14 +178,14 @@ Rectangle {
 
             KitIcon {
               id: itemIcon
-              anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
+              anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               name: section.modelData.icon
               tint: section.active ? Theme.foreground0 : Theme.foreground2
               size: 16
             }
 
             KitText {
-              anchors { left: itemIcon.right; leftMargin: 10; verticalCenter: parent.verticalCenter }
+              anchors { left: itemIcon.right; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               text: section.modelData.label
               color: section.active ? Theme.foreground0 : Theme.foreground2
               font.weight: section.active ? Font.ExtraBold : Font.DemiBold
@@ -193,7 +193,7 @@ Rectangle {
 
             // the open section with groups: a second click unfolds them
             KitIcon {
-              anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
+              anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               visible: section.active && section.hasJumps
               name: "chevron-down"
               size: 14
@@ -252,7 +252,7 @@ Rectangle {
                   }
 
                   KitText {
-                    anchors { left: parent.left; leftMargin: 36; right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                    anchors { left: parent.left; leftMargin: 36; right: parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
                     text: sub.modelData.label
                     elide: Text.ElideRight
                     color: sub.here || subArea.containsMouse ? Theme.foreground0 : Theme.muted

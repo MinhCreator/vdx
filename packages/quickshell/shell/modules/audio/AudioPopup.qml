@@ -47,7 +47,7 @@ KitFrame {
   // ---- output ----
   Column {
     width: parent.width
-    spacing: 10
+    spacing: Theme.gapLoose
 
     KitLabel { text: "OUTPUT" }
 
@@ -71,7 +71,7 @@ KitFrame {
   // ---- input ----
   Column {
     width: parent.width
-    spacing: 10
+    spacing: Theme.gapLoose
 
     KitLabel { text: "INPUT" }
 

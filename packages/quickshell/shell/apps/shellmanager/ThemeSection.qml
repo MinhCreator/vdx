@@ -63,7 +63,7 @@ Column {
         color: page.p("background0")
 
         Row {
-          anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
+          anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
           spacing: Theme.gapSmall
 
           Repeater {
@@ -86,7 +86,7 @@ Column {
         }
 
         Row {
-          anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
+          anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
           spacing: Theme.gapMedium
 
           // each module in an active state, tinted the way the bar tints it
@@ -196,7 +196,7 @@ Column {
                 // the theme's own surface, text and accents
                 Row {
                   id: swatches
-                  anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }
+                  anchors { left: parent.left; leftMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
                   spacing: 0
 
                   Repeater {
@@ -213,8 +213,8 @@ Column {
 
                 KitText {
                   anchors {
-                    left: swatches.right; leftMargin: 10
-                    right: mark.left; rightMargin: 6
+                    left: swatches.right; leftMargin: Theme.gapLoose
+                    right: mark.left; rightMargin: Theme.gapSmall
                     verticalCenter: parent.verticalCenter
                   }
                   text: item.modelData
@@ -225,7 +225,7 @@ Column {
 
                 Item {
                   id: mark
-                  anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                  anchors { right: parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
                   width: 14
                   height: 14
 

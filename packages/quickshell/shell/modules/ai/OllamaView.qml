@@ -44,7 +44,7 @@ Column {
         height: 30
 
         KitText {
-          anchors { left: parent.left; right: info.left; rightMargin: 8; verticalCenter: parent.verticalCenter }
+          anchors { left: parent.left; right: info.left; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
           text: model.modelData.name
           elide: Text.ElideRight
           color: model.vram > 0 ? Theme.foreground0 : Theme.foreground2
@@ -53,7 +53,7 @@ Column {
 
         KitText {
           id: info
-          anchors { right: unload.left; rightMargin: 8; verticalCenter: parent.verticalCenter }
+          anchors { right: unload.left; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
           text: Theme.humanSize(model.modelData.size) + (model.vram > 0 ? " · " + Theme.humanSize(model.vram) + " loaded" : "")
           color: model.vram > 0 ? Theme.green : Theme.muted
           font.pixelSize: Theme.fontSize - 2
