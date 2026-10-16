@@ -15,8 +15,8 @@ set -euo pipefail
 
 NAME=dotfiles-fresh
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-PICK=("${@:-zsh kitty tmux btop fastfetch gh scripts vpn}")
-PICK=(${PICK[*]})
+PICK=("$@")
+[[ ${#PICK[@]} -gt 0 ]] || PICK=(zsh kitty tmux btop fastfetch gh scripts vpn)
 
 step() { printf '\n\033[1;36m==>\033[0m \033[1m%s\033[0m\n' "$*"; }
 as_root() { podman exec "$NAME" bash -c "$1"; }
