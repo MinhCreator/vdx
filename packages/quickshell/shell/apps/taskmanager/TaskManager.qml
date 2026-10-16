@@ -244,7 +244,7 @@ Rectangle {
   // ---- foot: the selected row and its actions ----
   Column {
     id: foot
-    anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 24; bottomMargin: 18 }
+    anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 24; bottomMargin: 24 }
     spacing: 12
 
     KitLine {}

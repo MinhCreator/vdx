@@ -309,7 +309,7 @@ Rectangle {
 
   Flickable {
     id: page
-    anchors { left: sidebar.right; leftMargin: 1; right: parent.right; top: header.bottom; bottom: parent.bottom }
+    anchors { left: sidebar.right; leftMargin: 1; right: parent.right; top: header.bottom; bottom: parent.bottom; bottomMargin: 24 }
     contentHeight: pages.implicitHeight + pages.y + 20
     clip: true
     boundsBehavior: Flickable.StopAtBounds

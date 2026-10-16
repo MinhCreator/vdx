@@ -25,7 +25,7 @@ FloatingWindow {
 
   // the same content as the bar's popup, in the window's look (flat, like Cleaner)
   Clipboard {
-    anchors.fill: parent
+    anchors { fill: parent; topMargin: -3 }
     framed: false
     padding: 24
     onPicked: root.visible = false
