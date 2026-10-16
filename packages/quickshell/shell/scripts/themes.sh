@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Dotfiles themes for the Shell Manager.
+# themes.sh — the dotfiles themes for the Shell Manager.
 # Prints one line per theme: "<name> <colour per role in $roles>"
 # (from themes/<name>/quickshell/shell/config/Colors.qml), then "---" and the
 # active theme (.theme, gruvbox when absent).

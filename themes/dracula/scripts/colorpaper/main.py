@@ -5,6 +5,12 @@
 #     "Pillow",
 # ]
 # ///
+"""colorpaper — an image recoloured to the active theme's palette (a wallpaper
+in the desktop's colours); every theme ships its own copy with its colours.
+
+    uv run ~/.config/scripts/colorpaper/main.py <input> <output> [--no-dither]
+    uv run ~/.config/scripts/colorpaper/main.py --info
+"""
 
 import argparse
 import sys

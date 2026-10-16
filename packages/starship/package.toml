@@ -1,1 +1,2 @@
+# starship — install target: starship.toml goes to ~/.config itself, not ~/.config/starship/
 dir = "~/.config"
