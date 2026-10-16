@@ -43,6 +43,13 @@ Singleton {
   // Old ids still found in saved layouts: old -> new.
   readonly property var renamed: ({ claude: "ai", plugins: "shell" })
 
+  // Modules whose components are off on this machine (`./install.py
+  // components`), id -> the components that would bring it: kept off every
+  // bar and shown as not installed in the Shell Manager; the saved layout
+  // keeps their place for when they come back.
+  property var notInstalled: ({})
+  function installed(id) { return !(id in notInstalled); }
+
   // Every function takes the screen name, but settings belong to its role:
   // "main" — the external monitor when one is connected, else the only one
   // (the laptop takes over the main bar when undocked); "extra" — the laptop
@@ -76,7 +83,7 @@ Singleton {
     const known = modules.map(p => p.id);
     const off = hidden(screen);
     return (entry(screen)?.folder ?? []).map(id => renamed[id] ?? id)
-      .filter(id => known.includes(id) && id !== "folder" && !off.includes(id));
+      .filter(id => known.includes(id) && id !== "folder" && !off.includes(id) && installed(id));
   }
   function customized(screen) {
     const e = entry(screen);
@@ -88,13 +95,13 @@ Singleton {
 
   function visibleIn(zone, screen) {
     const off = hidden(screen).concat(inFolder(screen));
-    return layout(screen)[zone].filter(id => !off.includes(id));
+    return layout(screen)[zone].filter(id => !off.includes(id) && installed(id));
   }
 
   // on, but not placed on this monitor's bar
   function unplaced(screen) {
     const off = hidden(screen);
-    return modules.map(p => p.id).filter(id => off.includes(id));
+    return modules.map(p => p.id).filter(id => off.includes(id) && installed(id));
   }
 
   // Writes the monitor's entry, starting from what it shows now. Only the
@@ -151,6 +158,18 @@ Singleton {
     for (const p of modules)
       if (!seen.has(p.id)) z[p.zone].push(p.id);
     return z;
+  }
+
+  // written by `./install.py link`; no file: every module is there
+  FileView {
+    path: (Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state") + "/dotfiles/components.json"
+    watchChanges: true
+    printErrors: false
+    onFileChanged: reload()
+    onLoaded: {
+      try { root.notInstalled = JSON.parse(text()).off ?? {}; } catch (e) { root.notInstalled = {}; }
+    }
+    onLoadFailed: root.notInstalled = {}
   }
 
   FileView {

@@ -143,6 +143,9 @@ after the repo's default; a test in `tests/test_hypr.py`. `check hypr` runs
 
 Follow `packages/quickshell/shell/CLAUDE.md`, then put the module id in
 `modules` of the component it depends on (`quickshell` for core ones).
+`link` writes `~/.local/state/dotfiles/components.json` (`installer/shell.py`):
+modules whose components are all off. `BarLayout` keeps them off every bar
+(their saved place stays) and the Shell Manager lists them as not installed.
 
 ### Add a secret
 
@@ -166,7 +169,7 @@ Generated themes are never edited by hand; `check themes` finds stale ones.
 
 Code in `installer/` (one module per concern: `paths`, `ui`, `model`, `links`,
 `theme`, `system`, `deps`, `setup`, `check`, `menu`, `cli`, `detect`,
-`machine`, `components`, `choose`, `preflight`, `hypr`). Stdlib only, Python ≥ 3.11.
+`machine`, `components`, `choose`, `preflight`, `hypr`, `shell`). Stdlib only, Python ≥ 3.11.
 A behaviour change comes with a test in `tests/` (fake `/sys` trees in
 `tests/fakesys.py`; nothing touches the real machine). Compare the output of
 `status`, `verify`, `system status`, `deps --check` before and after a

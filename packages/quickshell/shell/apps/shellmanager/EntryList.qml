@@ -4,8 +4,9 @@ import qs.kit
 
 // The list on the left of Modules and Shell apps: a caps title with the
 // count, a search (typing jumps to the first match, arrows move through the
-// matches) and a framed list of entries {id, label, icon, link?}; the chosen
-// one filled and bold, a link (set elsewhere) muted with an arrow. A click or an arrow emits picked(id).
+// matches) and a framed list of entries {id, label, icon, link?, off?}; the
+// chosen one filled and bold, a link (set elsewhere) muted with an arrow, an
+// entry that is off (not installed) muted. A click or an arrow emits picked(id).
 Column {
   id: root
 
@@ -81,7 +82,7 @@ Column {
               id: rowIcon
               anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }
               name: row.modelData.icon
-              tint: row.active ? Theme.foreground0 : row.modelData.link ? Theme.muted : Theme.foreground2
+              tint: row.active ? Theme.foreground0 : row.modelData.link || row.modelData.off ? Theme.muted : Theme.foreground2
               size: 14
             }
 
@@ -89,7 +90,7 @@ Column {
               anchors { left: rowIcon.right; leftMargin: 8; right: parent.right; rightMargin: row.modelData.link ? 26 : 8; verticalCenter: parent.verticalCenter }
               text: row.modelData.label
               elide: Text.ElideRight
-              color: row.active || rowArea.containsMouse ? Theme.foreground0 : row.modelData.link ? Theme.muted : Theme.foreground2
+              color: row.active || rowArea.containsMouse ? Theme.foreground0 : row.modelData.link || row.modelData.off ? Theme.muted : Theme.foreground2
               font.weight: row.active ? Font.ExtraBold : Font.DemiBold
             }
 

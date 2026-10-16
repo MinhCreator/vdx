@@ -42,7 +42,7 @@ Column {
       width: 190
       height: parent.height
       title: "MODULES"
-      model: BarLayout.modules.map(p => root.appOf(p.id) ? Object.assign({ link: true }, p) : p)
+      model: BarLayout.modules.map(p => Object.assign({ link: !!root.appOf(p.id), off: !BarLayout.installed(p.id) }, p))
       selected: root.selected
       onPicked: id => {
         if (root.appOf(id)) root.navigate("apps", id);
@@ -115,18 +115,26 @@ Column {
 
         KitLine {}
 
+        // its components are off on this machine: nothing to set until installed
+        KitRow {
+          visible: root.module !== null && !BarLayout.installed(root.selected)
+          label: "Not installed"
+          hint: "components add " + (BarLayout.notInstalled[root.selected] ?? []).join(" or ")
+          labelColor: Theme.foreground2
+        }
+
         // hidden when off: a zero-height item still takes a Column gap
         Loader {
           width: parent.width
           visible: active
-          active: !!root.module?.settings
+          active: !!root.module?.settings && BarLayout.installed(root.selected)
           source: active ? Quickshell.shellPath(root.module.settings.includes("/") ? root.module.settings
                                                  : "modules/" + root.module.id + "/" + root.module.settings) : ""
         }
 
         // a module without options gets a row in their place, like one
         KitRow {
-          visible: !root.module?.settings
+          visible: !root.module?.settings && BarLayout.installed(root.selected)
           label: "No options"
           hint: "Nothing to set for this module"
           labelColor: Theme.foreground2
