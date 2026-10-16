@@ -109,14 +109,24 @@ class Backups(unittest.TestCase):
             self.assertFalse((Path(tmp) / "backup").exists())
 
 
-class Conflicts(unittest.TestCase):
+class Services(unittest.TestCase):
+    CTX = steps.Ctx(None, {"laptop": {"services": ["tlp.service"], "user_services": [], "masks": []}}, {"laptop"})
+
     def test_a_running_rival_is_named(self):
-        ctx = steps.Ctx(None, {"laptop": {"services": ["tlp.service"], "user_services": []}}, {"laptop"})
-        with mock.patch.object(steps, "active", side_effect=lambda u: u == "power-profiles-daemon.service"), \
+        with mock.patch.object(steps, "systemd_running", return_value=True), \
+             mock.patch.object(steps, "active", side_effect=lambda u: u == "power-profiles-daemon.service"), \
              mock.patch.object(steps, "enabled", return_value="enabled"):
-            lines = steps.Services().by_hand(ctx)
+            lines = steps.Services().by_hand(self.CTX)
         self.assertEqual(len(lines), 1)
         self.assertIn("power-profiles-daemon.service is running and fights tlp.service", lines[0])
+
+    def test_without_systemd_nothing_is_enabled_only_listed(self):
+        with mock.patch.object(steps, "systemd_running", return_value=False):
+            self.assertEqual(steps.Services().pending(self.CTX), [])
+            lines = steps.Services().by_hand(self.CTX)
+        self.assertEqual(len(lines), 1)
+        self.assertIn("systemd is not running", lines[0])
+        self.assertIn("tlp.service", lines[0])
 
 
 if __name__ == "__main__":
