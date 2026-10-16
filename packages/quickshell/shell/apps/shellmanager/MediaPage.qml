@@ -4,6 +4,7 @@ import qs.kit
 
 // Media: what the shell does with the music — MPD pauses while another app
 // plays sound (a video in the browser) and resumes once that sound stops.
+// A group's one-line intro sits under its label; rows keep short hints.
 Column {
   id: root
 
@@ -19,9 +20,16 @@ Column {
 
   KitLabel { text: "MUSIC" }
 
+  KitText {
+    width: parent.width
+    color: Theme.muted
+    font.pixelSize: Theme.fontSize - 2
+    text: "Any player that reports playing over MPRIS: browsers, mpv, Spotify."
+  }
+
   KitRow {
     label: "Pause on other sound"
-    hint: "MPD pauses while another app plays"
+    hint: "Pauses MPD while a player plays"
 
     KitSwitch {
       checked: ShellSettings.pauseMusic
@@ -32,7 +40,7 @@ Column {
   KitRow {
     visible: ShellSettings.pauseMusic
     label: "Resume when it stops"
-    hint: "Only music this paused"
+    hint: "Only music the shell paused"
 
     KitSwitch {
       checked: ShellSettings.resumeMusic
