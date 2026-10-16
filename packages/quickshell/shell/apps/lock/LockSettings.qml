@@ -3,24 +3,15 @@ import Quickshell
 import qs.config
 import qs.kit
 
-// Lock screen: what the lock (Super+Z) shows — the background, the clock,
-// the blur, the date, the user and the monitors it shows on; then the
-// controls on it: the keyboard layout, the power buttons and the cursor that
-// hides after a few still seconds (ModuleSettings "lock"; apps/lock reads them).
+// Lock screen options in Shell apps (ModuleSettings "lock"): what the lock
+// (Super+Z) shows — the background, the clock, the blur, the date, the user and
+// the monitors it shows on; then the controls on it: the keyboard layout, the
+// power buttons and the cursor that hides after a few still seconds (apps/lock
+// reads them).
 Column {
   id: root
 
   function opt(key, fallback) { return ModuleSettings.get("lock", key, fallback); }
-
-  // the window's fixed header shows these; the page under it scrolls
-  readonly property string icon: "lock"
-  readonly property string title: "Lock screen"
-  readonly property string subtitle: "SUPER + Z · " + String(root.opt("background", "solid")).toUpperCase()
-                                     + " · " + String(root.opt("screen", "all")).toUpperCase()
-                                     + " · " + String(root.opt("clock", "24h")).toUpperCase()
-
-  // no groups for the sidebar
-  readonly property var jumps: []
 
   spacing: 14
 

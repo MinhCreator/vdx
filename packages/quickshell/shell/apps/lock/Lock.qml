@@ -10,7 +10,7 @@ import qs.config
 // with LockScreen on every monitor (dark but for one, if so set); the password goes through PAM (its
 // `login` service). If the shell dies while locked, Hyprland
 // keeps the screen locked; `qs -c shell` started again locks it anew
-// (misc.allow_session_lock_restore). Options: Shell Manager › Lock screen
+// (misc.allow_session_lock_restore). Options: Shell Manager › Shell apps › Lock screen
 // (ModuleSettings "lock").
 Scope {
   id: root

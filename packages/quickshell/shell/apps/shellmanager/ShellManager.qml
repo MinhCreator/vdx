@@ -11,46 +11,48 @@ import qs.kit
 //   LOOK     — how it looks and moves
 //     APPEARANCE — theme, icon style, wallpaper, font and cursor;
 //     ANIMATIONS — how the shell moves: all on / off, speed, each part on its own.
-//   DESKTOP  — the desktop itself and the panels over it
+//   DESKTOP  — the desktop itself
 //     BAR        — the layout of the bar's zones, modules on / off.
 //     WINDOWS    — the window mode, each mode's options, gaps, the taskbar.
-//     LAUNCHER   — the launcher's (Super+R) rows, width, position and what it opens on.
-//     KEYBINDS   — the keybinds panel's rows, width, position and what it opens on.
-//     LOCK       — the lock screen's background and clock, its layout, power buttons, cursor.
 //   SHELL    — the shell's own apps and parts
-//     SHELL APPS — how the shell's own windows open: floating or tiled, size, spot.
-//     MODULES    — each bar module's own options (an app's is set with the app).
-//     MEDIA      — the music pauses while another app plays sound.
-//     ABOUT      — how the Shell Manager opens, the ideas behind it, versions.
+//     SHELL APPS — each app: its options, its window, its bar module; the launcher,
+//                  keybinds and lock screen are here too, and the Shell Manager's own opening.
+//     MODULES    — each bar module's own options (the music's pause is the audio's).
+//     ABOUT      — the ideas behind it, the author, versions.
 Rectangle {
   id: root
 
   property string tab: "appearance"
 
-  // opening: the main page, or the page it was left on (About › Shell manager).
+  // opening: the main page, or the page it was left on (Shell apps › Shell Manager).
   // A page named by `shell open <page>` is set after this, so it wins.
   Connections {
     target: ShellSettings
     function onManagerOpenChanged() {
       if (ShellSettings.managerOpen)
-        root.tab = ShellSettings.managerStart === "last" ? ShellSettings.managerTab : "appearance";
+        root.tab = ShellSettings.managerStart === "last" ? root.resolve(ShellSettings.managerTab).tab : "appearance";
     }
   }
 
   // `caption` opens a group in the sidebar
   readonly property var sections: [
-    { value: "appearance", label: "Appearance",  icon: "sun",        caption: "LOOK" },
-    { value: "animations", label: "Animations",  icon: "zap" },
-    { value: "bar",        label: "Bar",         icon: "layout",     caption: "DESKTOP" },
-    { value: "windows",    label: "Windows",     icon: "app-window" },
-    { value: "launcher",   label: "Launcher",    icon: "menu" },
-    { value: "keybinds",   label: "Keybinds",    icon: "keyboard" },
-    { value: "lock",       label: "Lock screen", icon: "lock" },
-    { value: "apps",       label: "Shell apps",  icon: "grid",       caption: "SHELL" },
-    { value: "modules",    label: "Modules",     icon: "puzzle" },
-    { value: "media",      label: "Media",       icon: "music" },
-    { value: "about",      label: "About",       icon: "info" }
+    { value: "appearance", label: "Appearance", icon: "sun",        caption: "LOOK" },
+    { value: "animations", label: "Animations", icon: "zap" },
+    { value: "bar",        label: "Bar",        icon: "layout",     caption: "DESKTOP" },
+    { value: "windows",    label: "Windows",    icon: "app-window" },
+    { value: "apps",       label: "Shell apps", icon: "grid",       caption: "SHELL" },
+    { value: "modules",    label: "Modules",    icon: "puzzle" },
+    { value: "about",      label: "About",      icon: "info" }
   ]
+
+  // the pages that moved: Launcher, Keybinds and Lock screen are apps (Shell
+  // apps), Media is the audio's (Modules). Their old names still open them:
+  // `shell open lock`, a saved last page.
+  function resolve(value, target) {
+    if (["launcher", "keybinds", "lock"].includes(value)) return { tab: "apps", target: value };
+    if (value === "media") return { tab: "modules", target: "audio" };
+    return { tab: value, target: target ?? "" };
+  }
 
   // the open section's group links, unfolded by a second click on it
   property bool navOpen: false
@@ -59,16 +61,16 @@ Rectangle {
   // another page, at one of its groups or (Shell apps) at one app: the
   // pages' links between each other (an app's bar module and back)
   function navigate(value, target) {
-    tab = value;
-    const p = pageFor(value);
-    const j = p.jumps.find(x => x.key === target);
+    const r = resolve(value, target);
+    tab = r.tab;
+    const p = pageFor(r.tab);
+    const j = p.jumps.find(x => x.key === r.target);
     if (j) Qt.callLater(() => root.jumpTo(j));
-    else if (target && typeof p.jump === "function") p.jump(target);
+    else if (r.target && typeof p.jump === "function") p.jump(r.target);
   }
 
   function pageFor(value) {
-    return ({ bar: bar, animations: animations, media: media, windows: windows, modules: modules, apps: apps, launcher: launcher,
-              keybinds: keybinds, lock: lock, about: about })[value] ?? appearance;
+    return ({ bar: bar, animations: animations, windows: windows, modules: modules, apps: apps, about: about })[value] ?? appearance;
   }
   readonly property Item currentPage: pageFor(tab)
 
@@ -332,25 +334,17 @@ Rectangle {
       implicitHeight: Math.max(appearance.visible ? appearance.implicitHeight : 0,
                                bar.visible ? bar.implicitHeight : 0,
                                animations.visible ? animations.implicitHeight : 0,
-                               media.visible ? media.implicitHeight : 0,
                                apps.visible ? apps.height : 0,
                                windows.visible ? windows.implicitHeight : 0,
                                about.visible ? about.implicitHeight : 0,
-                               launcher.visible ? launcher.implicitHeight : 0,
-                               keybinds.visible ? keybinds.implicitHeight : 0,
-                               lock.visible ? lock.implicitHeight : 0,
                                modules.visible ? modules.height : 0)
 
       AppearancePage { id: appearance; width: parent.width; visible: root.tab === "appearance" }
       BarPage     { id: bar;     width: parent.width; visible: root.tab === "bar" }
       AnimationsPage { id: animations; width: parent.width; visible: root.tab === "animations" }
-      MediaPage   { id: media;   width: parent.width; visible: root.tab === "media" }
       // fills the window and scrolls its two panes itself
       ShellAppsPage { id: apps;  width: parent.width; onNavigate: (t, k) => root.navigate(t, k); onWindowSetup: id => windowDialog.appId = id; height: page.height - pages.y - 20; visible: root.tab === "apps" }
       WindowsPage { id: windows; width: parent.width; visible: root.tab === "windows" }
-      LauncherPage { id: launcher; width: parent.width; visible: root.tab === "launcher" }
-      KeybindsPage { id: keybinds; width: parent.width; visible: root.tab === "keybinds" }
-      LockPage    { id: lock;    width: parent.width; visible: root.tab === "lock" }
       AboutPage   { id: about;   width: parent.width; visible: root.tab === "about" }
       ModulesPage { id: modules; width: parent.width; onNavigate: (t, k) => root.navigate(t, k); height: page.height - pages.y - 20; visible: root.tab === "modules" }
     }
@@ -368,7 +362,7 @@ Rectangle {
 
   onTabChanged: {
     if (Motion.pages) pageAnim.restart();
-    ShellSettings.set("managerTab", tab);   // kept for About › Shell manager › Last page
+    ShellSettings.set("managerTab", tab);   // kept for Shell apps › Shell Manager › Last page
     page.contentY = 0;
     pinnedJump = "";
     navOpen = false;

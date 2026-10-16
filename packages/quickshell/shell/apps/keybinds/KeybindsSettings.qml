@@ -2,23 +2,12 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// Keybinds in the Shell Manager (ModuleSettings "keybinds"; the panel itself
+// Keybinds options in Shell apps (ModuleSettings "keybinds"; the panel itself
 // is apps/keybinds/Keybinds.qml, Super+B): the panel as the launcher's — rows
 // before the list scrolls, its width and where it sits — then the tab it
 // opens on and the search's clearing.
 Column {
   id: root
-
-  function opt(key, fallback) { return ModuleSettings.get("keybinds", key, fallback); }
-
-  // the window's fixed header shows these; the page under it scrolls
-  readonly property string icon: "keyboard"
-  readonly property string title: "Keybinds"
-  readonly property string subtitle: root.opt("rows", 8) + " ROWS · " + String(root.opt("size", "medium")).toUpperCase()
-                                     + " · " + String(root.opt("position", "top")).toUpperCase()
-
-  // no groups for the sidebar
-  readonly property var jumps: []
 
   spacing: 14
 

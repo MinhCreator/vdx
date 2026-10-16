@@ -21,6 +21,9 @@ Column {
 
   signal navigate(string tab, string target)
 
+  // another page names a module (Media's pause is Audio's): it is chosen here
+  function jump(id) { if (own.some(p => p.id === id)) selected = id; }
+
   // the app a module belongs to (apps/apps.json), if any: such a module is set
   // with its app, in Shell apps, and listed here as a link there
   function appOf(id) { return ShellAppsService.entries.find(a => a.module === id) ?? null; }

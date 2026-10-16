@@ -3,25 +3,15 @@ import qs.apps.launcher
 import qs.config
 import qs.kit
 
-// Launcher: how the system menu (Super+R) looks — rows in the list, the
-// panel's width and where it sits; then its TABS: ORDER, the tabs in the order
+// Launcher options in Shell apps (ModuleSettings "launcher"): the panel — rows
+// in the list, width, where it sits; then its TABS: ORDER, the tabs in the order
 // they show, and HIDDEN below them (KitChipBands). Drag a chip along a band to
 // reorder it, into HIDDEN to hide it, back into ORDER to show it; one tab always
-// stays shown. Then the tab it opens on and whether the search clears on close
-// (ModuleSettings "launcher").
+// stays shown. Then the tab it opens on and whether the search clears on close.
 Column {
   id: root
 
   function opt(key, fallback) { return ModuleSettings.get("launcher", key, fallback); }
-
-  // the window's fixed header shows these; the page under it scrolls
-  readonly property string icon: "menu"
-  readonly property string title: "Launcher"
-  readonly property string subtitle: root.opt("rows", 8) + " ROWS · " + String(root.opt("size", "medium")).toUpperCase()
-                                     + " · " + String(root.opt("position", "top")).toUpperCase()
-
-  // no groups for the sidebar
-  readonly property var jumps: []
 
   spacing: 14
 

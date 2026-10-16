@@ -15,7 +15,7 @@ ScrimWindow {
   id: root
 
   readonly property var kb: KeybindsService
-  // Shell Manager › Keybinds (ModuleSettings "keybinds"), as the launcher's
+  // Shell apps › Keybinds in the Shell Manager (ModuleSettings "keybinds"), as the launcher's
   readonly property int rows: ModuleSettings.get("keybinds", "rows", 8)
   readonly property int panelWidth: ({ small: 520, medium: 640, large: 800 })[ModuleSettings.get("keybinds", "size", "medium")] ?? 640
   readonly property string position: ModuleSettings.get("keybinds", "position", "top")

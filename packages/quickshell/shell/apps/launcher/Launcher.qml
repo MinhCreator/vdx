@@ -12,7 +12,7 @@ ScrimWindow {
   id: root
 
   readonly property var ls: LauncherService
-  // Shell Manager › Launcher (ModuleSettings "launcher")
+  // Shell apps › Launcher in the Shell Manager (ModuleSettings "launcher")
   readonly property int rows: ModuleSettings.get("launcher", "rows", 8)
   readonly property int panelWidth: ({ small: 520, medium: 640, large: 800 })[ModuleSettings.get("launcher", "size", "medium")] ?? 640
   readonly property string position: ModuleSettings.get("launcher", "position", "top")

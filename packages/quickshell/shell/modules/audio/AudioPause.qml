@@ -7,7 +7,7 @@ import qs.modules.mpd
 // in the browser, say — and resumes when that sound stops, if this paused it.
 // "Playing" is MPRIS: a player (a browser, mpv, …) reports whether it plays,
 // which a PipeWire stream does not (a browser's stream runs while idle too).
-// Options in Shell Manager › Media (ShellSettings pauseMusic, resumeMusic). Runs
+// Options in Shell Manager › Modules › Audio (ShellSettings pauseMusic, resumeMusic). Runs
 // from shell.qml, so it works whether or not the Audio module is on the bar.
 QtObject {
   id: root
