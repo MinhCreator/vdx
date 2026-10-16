@@ -7,9 +7,11 @@ import shutil
 import subprocess
 import sys
 
+from . import components
 from .deps import cmd_deps
 from .links import cmd_link, cmd_verify
 from .paths import HOME, ROOT, SEED, TGT
+from .preflight import preflight
 from .system import cmd_system_install
 from .ui import added, confirm, heading, note, ok, short
 
@@ -70,15 +72,23 @@ def shell_extras(args=None) -> int:
 
 
 def submodules(args=None) -> int:
+    """Only the selected components' submodules (someone else's VPN is not cloned)."""
     heading("Submodules")
-    subprocess.run(["git", "-C", str(ROOT), "submodule", "update", "--init", "--recursive"], check=True)
-    ok("submodules up to date")
+    cat = components.load()
+    paths = components.unique(components.selected(cat=cat), cat, "submodules")
+    if not paths:
+        ok("no submodules selected")
+        return 0
+    subprocess.run(["git", "-C", str(ROOT), "submodule", "update", "--init", "--recursive", "--", *paths], check=True)
+    ok(f"{len(paths)} submodule(s) up to date")
     return 0
 
 
 def cmd_setup(args) -> int:
     """Fresh machine, idempotent: every step skips what is already in place."""
     heading("Setup: packages, submodules, links, secrets, shell plugins, system files")
+    if not preflight():
+        return 1
     if not confirm("Run the full setup (asks for sudo for packages and /etc)?", args):
         return 1
     args.yes = True

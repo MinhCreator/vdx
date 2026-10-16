@@ -1,4 +1,4 @@
-"""dotfiles installer — `check`: the repo itself (links, syntax, themes, deps, the shell, the repo)."""
+"""dotfiles installer — `check`: the repo itself (links, syntax, themes, components, tests, the shell, the repo)."""
 
 from __future__ import annotations
 
@@ -10,9 +10,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+from . import components
 from .links import link_problems
-from .model import build_entries, read_list
-from .paths import PKG, ROOT, THEME
+from .model import build_entries
+from .paths import PKG, ROOT, SKIP, SYSTEM, THEME
 from .ui import err, heading, ok, warn
 
 # `check` looks at the repo, not at the machine: links, the syntax of every
@@ -145,20 +146,81 @@ def theme_problems() -> list[str]:
     return stale + ([r.stderr.strip()] if r.returncode and not stale else [])
 
 
-def deps_problems() -> list[str]:
-    repo, aur = read_list("pacman.txt"), read_list("aur.txt")
-    out = []
-    for name, names in (("pacman.txt", repo), ("aur.txt", aur)):
-        out += [f"deps/{name}: {p} listed twice" for p in sorted({p for p in names if names.count(p) > 1})]
-    out += [f"deps: {p} is in both lists" for p in sorted(set(repo) & set(aur))]
+def components_problems() -> list[str]:
+    """The catalog, and that it covers the repo: files, submodules, system/, bar modules, packages."""
+    out = components.problems()
+    if out:
+        return out
+    cat = components.load()
+    table = components.claims(cat)
+    where = "components.toml"
+    # every path a component names exists
+    for n, c in cat.items():
+        for p in c["links"]:
+            if not any(base.exists() for base in [ROOT / p, PKG / p, *(d / p for d in THEME.iterdir() if d.is_dir())]):
+                out.append(f"{where}: [{n}] links {p!r}: no such file or folder")
+        out += [f"{where}: [{n}] system {p!r}: not in system/" for p in c["system"] if not (SYSTEM / p).is_file()]
+        out += [f"{where}: [{n}] submodule {p!r}: not in .gitmodules" for p in c["submodules"] if p not in submodule_paths()]
+    # every tracked config file has an owner (one no component owns is linked everywhere)
+    for f in tracked():
+        r = rel(f)
+        top, _, rest = r.partition("/")
+        if top == "home":
+            key = r
+        elif top == "packages":
+            key = rest
+        elif top == "themes" and rest.count("/") >= 2:
+            key = rest.split("/", 1)[1]
+        else:
+            continue
+        if Path(key).name not in SKIP and components.owner(key, table) is None:
+            out.append(f"{r}: no component links it")
+    for p in submodule_paths():
+        name = components.owner(p.removeprefix("packages/"), table)
+        if name is None or p not in cat[name]["submodules"]:
+            out.append(f"{p}: submodule of no component (list it in submodules of the one that links it)")
+    # system/: each file belongs to one component
+    claimed = [p for c in cat.values() for p in c["system"]]
+    out += [f"{where}: system {p!r} is claimed twice" for p in sorted({p for p in claimed if claimed.count(p) > 1})]
+    for f in sorted(SYSTEM.rglob("*")) if SYSTEM.is_dir() else []:
+        if f.is_file() and f.name not in SKIP and str(f.relative_to(SYSTEM)) not in claimed:
+            out.append(f"{rel(f)}: no component installs it")
+    # the bar: every module comes with a component, every module named exists
+    layout = PKG / "quickshell" / "shell" / "bar" / "BarLayout.qml"
+    if layout.is_file():
+        ids = set(re.findall(r'\{ id: "(\w+)",', layout.read_text()))
+        named = {m for c in cat.values() for m in c["modules"]}
+        out += [f"bar module {m!r}: no component brings it" for m in sorted(ids - named)]
+        out += [f"{where}: module {m!r}: not in bar/BarLayout.qml" for m in sorted(named - ids)]
+    # packages are real, and in the right list
+    repo = components.unique(set(cat), cat, "pacman")
+    aur = components.unique(set(cat), cat, "aur")
     if shutil.which("pacman"):
         env = {**os.environ, "LC_ALL": "C"}
-        r = subprocess.run(["pacman", "-Si", *sorted(set(repo))], capture_output=True, text=True, env=env)
-        out += [f"deps/pacman.txt: {p} is in no repository"
+        r = subprocess.run(["pacman", "-Si", *repo], capture_output=True, text=True, env=env)
+        out += [f"{where}: pacman {p}: in no repository"
                 for p in re.findall(r"package '([^']+)' was not found", r.stderr)]
         known = set(subprocess.run(["pacman", "-Slq"], capture_output=True, text=True).stdout.split())
-        out += [f"deps/aur.txt: {p} is in a repository — move it to pacman.txt" for p in aur if p in known]
+        out += [f"{where}: aur {p}: is in a repository — move it to pacman" for p in aur if p in known]
     return out
+
+
+def test_problems() -> list[str]:
+    """The installer's own tests (tests/); their failures, one line each."""
+    if not (ROOT / "tests").is_dir():
+        return []
+    r = subprocess.run([sys.executable, "-m", "unittest", "discover", "-s", "tests", "-t", ".", "-q"],
+                       cwd=ROOT, capture_output=True, text=True,
+                       env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"})
+    if r.returncode == 0:
+        return []
+    lines = [line for line in r.stderr.splitlines() if line.startswith(("FAIL:", "ERROR:"))]
+    return lines or [r.stderr.strip().splitlines()[-1] if r.stderr.strip() else "tests failed"]
+
+
+def submodule_paths() -> list[str]:
+    f = ROOT / ".gitmodules"
+    return re.findall(r"^\s*path\s*=\s*(\S+)", f.read_text(), re.M) if f.is_file() else []
 
 
 def qml_strings(expr: str) -> list[str]:
@@ -269,7 +331,8 @@ CHECKS = {
     "links": lambda: link_problems(build_entries()),
     "syntax": syntax_problems,
     "themes": theme_problems,
-    "deps": deps_problems,
+    "components": components_problems,
+    "tests": test_problems,
     "shell": shell_problems,
     "repo": repo_problems,
 }

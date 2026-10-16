@@ -1,0 +1,279 @@
+# components — what the installer can put on a machine: one entry, one checkbox
+#
+# A component is a dotfiles package, an optional feature or a piece of hardware.
+# Which are on: [components] selected in .machine.toml (`./install.py components`);
+# without it every component is on except hardware that wasn't detected.
+#
+#   group        wizard screen: core (always on, hidden), desktop, terminal, editor,
+#                apps, music, network, ai, personal, hardware
+#   about        one line for the wizard
+#   default      on for a new machine (default true; hardware: when `auto` holds)
+#   requires     components switched on with this one, which can't be switched off
+#   suggests     components ticked along with this one, which can be unticked
+#   auto         hardware only: every term must hold — gpu:<vendor>, hybrid, laptop,
+#                asus, quirk:<name> (`./install.py machine`)
+#   pacman, aur  packages; a name may be shared by several components
+#   links        paths under packages/ (or home/...); the longest one that matches a
+#                file owns it, theme overlays follow their package
+#   submodules   initialised only when the component is on
+#   modules      the shell's bar modules it brings (shown "not installed" without it)
+#   system       files under system/ (copied into / by `system install`)
+#   services, user_services   systemd units to enable (system / --user)
+#   secrets      keys of private/manifest.json it uses
+#   hint         a manual step printed, never done (boot loader, initramfs, ...)
+
+# ---- core ----
+
+[core]
+group = "core"
+about = "What the installer itself needs"
+pacman = ["git", "python", "uv", "curl", "jq"]
+aur = ["yay"]
+secrets = ["secrets/env"]
+
+# ---- desktop ----
+
+[hypr]
+group = "desktop"
+about = "Hyprland: the compositor, its binds, rules and window modes"
+suggests = ["quickshell", "mako", "gtk", "kitty"]
+pacman = ["hyprland", "xdg-desktop-portal-hyprland", "xdg-desktop-portal-gtk",
+          "pipewire", "pipewire-pulse", "wireplumber", "grim", "slurp", "wl-clipboard"]
+links = ["hypr"]
+user_services = ["pipewire.socket", "pipewire-pulse.socket", "wireplumber.service"]
+
+[quickshell]
+group = "desktop"
+about = "The shell: bar, popups, launcher, Shell Manager and its apps"
+requires = ["hypr"]
+suggests = ["mako", "gtk"]
+pacman = ["quickshell", "awww", "hyprsunset", "brightnessctl", "gpu-screen-recorder", "wiremix",
+          "libpulse", "bluez", "bluez-utils", "networkmanager", "libnotify", "upower",
+          "pacman-contrib", "glib2", "fd", "xdg-utils", "ttf-jetbrains-mono-nerd"]
+links = ["quickshell"]
+modules = ["workspaces", "clock", "brightness", "audio", "wifi", "battery", "language", "shell",
+           "notifications", "capture", "clipboard", "sysmon", "taskmanager", "cleaner", "packages",
+           "windows", "folder"]
+system = ["etc/polkit-1/rules.d/50-pkexec-keep.rules"]
+services = ["NetworkManager.service", "bluetooth.service"]
+
+[mako]
+group = "desktop"
+about = "Notifications, in the theme's colours"
+pacman = ["mako"]
+links = ["mako"]
+
+[gtk]
+group = "desktop"
+about = "GTK 3 colours and the system monospace font"
+pacman = ["ttf-jetbrains-mono-nerd"]
+links = ["gtk-3.0", "fontconfig"]
+
+# ---- terminal ----
+
+[kitty]
+group = "terminal"
+about = "kitty, the terminal"
+pacman = ["kitty"]
+links = ["kitty"]
+
+[zsh]
+group = "terminal"
+about = "zsh with Oh My Zsh, its plugins and the Starship prompt"
+pacman = ["zsh", "starship", "eza", "fzf"]
+links = ["zsh", "starship", "home/.zshenv"]
+
+[tmux]
+group = "terminal"
+about = "tmux with TPM"
+pacman = ["tmux"]
+links = ["tmux"]
+
+[btop]
+group = "terminal"
+about = "btop, the resource monitor"
+pacman = ["btop"]
+links = ["btop"]
+
+[fastfetch]
+group = "terminal"
+about = "fastfetch, the system summary"
+pacman = ["fastfetch"]
+links = ["fastfetch"]
+
+[gh]
+group = "terminal"
+about = "GitHub CLI"
+pacman = ["github-cli"]
+links = ["gh"]
+secrets = ["gh/hosts.yml"]
+
+[lazygit]
+group = "terminal"
+about = "lazygit, the git TUI"
+pacman = ["lazygit"]
+
+[scripts]
+group = "terminal"
+about = "Small helpers: battery, disk, memory, volume, colorpaper"
+requires = ["zsh"]
+links = ["scripts/battery.sh", "scripts/disk.sh", "scripts/memory.sh", "scripts/colorpaper",
+         "zsh/functions/battery", "zsh/functions/disk", "zsh/functions/memory", "zsh/functions/volume"]
+
+# ---- editor ----
+
+[nvim]
+group = "editor"
+about = "Neovim with LSP, Mason, DAP and AI plugins"
+suggests = ["lazygit"]
+pacman = ["neovim", "tree-sitter-cli", "ripgrep", "fd", "base-devel", "unzip", "nodejs", "npm"]
+submodules = ["packages/nvim"]
+links = ["nvim"]
+
+# ---- apps ----
+
+[elio]
+group = "apps"
+about = "elio, the terminal file manager (Super + E)"
+default = false
+aur = ["elio"]
+links = ["elio"]
+
+[telegram]
+group = "apps"
+about = "Telegram Desktop and its theme"
+default = false
+aur = ["telegram-desktop-bin"]
+links = ["telegram"]
+
+[virustotal]
+group = "apps"
+about = "VirusTotal lookups in the shell (needs an API key)"
+default = false
+requires = ["quickshell"]
+modules = ["virustotal"]
+
+# ---- music ----
+
+[mpd]
+group = "music"
+about = "MPD, mpc and ncmpcpp"
+default = false
+pacman = ["mpd", "mpc", "ncmpcpp"]
+links = ["mpd", "ncmpcpp"]
+user_services = ["mpd.service"]
+
+[yandex-music]
+group = "music"
+about = "Yandex Music likes in MPD: the `music` command and the bar module"
+default = false
+requires = ["mpd"]
+submodules = ["packages/scripts/yandex-music"]
+links = ["scripts/yandex-music", "zsh/functions/music"]
+modules = ["music"]
+secrets = ["yandex-music/token"]
+
+[radio]
+group = "music"
+about = "Internet radio in MPD: the `radio` command and the bar module"
+default = false
+requires = ["mpd"]
+submodules = ["packages/scripts/radio"]
+links = ["scripts/radio", "zsh/functions/radio"]
+modules = ["radio"]
+
+# ---- network ----
+
+[vpn]
+group = "network"
+about = "Mihomo proxy, mihomo-tui and the `vpn` command"
+default = false
+aur = ["mihomo-bin", "mihomo-tui-bin"]
+submodules = ["packages/scripts/vpn"]
+links = ["mihomo", "mihomo-tui", "scripts/vpn", "zsh/functions/vpn"]
+modules = ["mihomo"]
+user_services = ["mihomo.service"]
+secrets = ["mihomo/subscriptions.json"]
+
+[wifitui]
+group = "network"
+about = "wifitui, a Wi-Fi TUI"
+default = false
+aur = ["wifitui"]
+
+# ---- ai ----
+
+[ollama]
+group = "ai"
+about = "Local models with Ollama (the nvim habit coach, the AI module)"
+default = false
+pacman = ["ollama"]
+modules = ["ai"]
+system = ["etc/polkit-1/rules.d/50-ollama.rules"]
+
+[claude-code]
+group = "ai"
+about = "Claude Code (its limits in the AI module, the cleaner's AI mode)"
+default = false
+aur = ["claude-code"]
+modules = ["ai"]
+
+[opencode]
+group = "ai"
+about = "opencode, and the bar's chat with its free models"
+default = false
+pacman = ["opencode"]
+links = ["opencode"]
+modules = ["chat"]
+secrets = ["opencode/service.json"]
+
+# ---- personal ----
+
+[private]
+group = "personal"
+about = "Restore secret files from the private repo (private/)"
+default = false
+
+# ---- hardware ----
+
+[gpu-intel]
+group = "hardware"
+about = "Intel graphics: VA-API and Vulkan"
+auto = ["gpu:intel"]
+pacman = ["intel-media-driver", "vulkan-intel"]
+
+[gpu-amd]
+group = "hardware"
+about = "AMD graphics: VA-API and Vulkan"
+auto = ["gpu:amd"]
+pacman = ["mesa", "vulkan-radeon"]
+
+[gpu-nvidia]
+group = "hardware"
+about = "NVIDIA graphics: utilities and VA-API"
+auto = ["gpu:nvidia"]
+pacman = ["nvidia-utils", "libva-nvidia-driver"]
+hint = """the kernel driver is yours to pick: nvidia-open (linux) or nvidia-open-dkms (other kernels);
+then `options nvidia-drm modeset=1` in /etc/modprobe.d, nvidia nvidia_modeset nvidia_uvm nvidia_drm
+in MODULES of /etc/mkinitcpio.conf, `sudo mkinitcpio -P`, reboot"""
+
+[laptop]
+group = "hardware"
+about = "Battery: TLP, the charge limit and power profiles from the bar"
+auto = ["laptop"]
+pacman = ["tlp", "tlp-rdw"]
+system = ["etc/tlp.d/99-dotfiles.conf", "etc/tmpfiles.d/quickshell-power.conf"]
+services = ["tlp.service"]
+
+[asus]
+group = "hardware"
+about = "ASUS hybrid graphics: supergfxctl (switch the dGPU off)"
+auto = ["asus", "hybrid"]
+aur = ["supergfxctl"]
+services = ["supergfxd.service"]
+
+[asus-fx516pm-headset-mic]
+group = "hardware"
+about = "Headset mic on the ALC294 combo jack (ASUS TUF Dash F15 only)"
+auto = ["quirk:asus-fx516pm-headset-mic"]
+system = ["etc/tmpfiles.d/headset-mic.conf"]

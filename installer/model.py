@@ -8,9 +8,9 @@ import subprocess
 import tomllib
 from pathlib import Path
 
+from . import components
 from .paths import (
     DEFAULT_THEME,
-    DEPS,
     HOME,
     PKG,
     PRUNE,
@@ -81,12 +81,21 @@ def sources_for(pkg: str) -> list[tuple[str, Path]]:
     return [(rel, th / rel if th and (th / rel).is_file() else base / rel) for rel in sorted(rels)]
 
 
-def build_entries() -> list[tuple[Path, Path, str]]:
+def build_entries(every: bool = False) -> list[tuple[Path, Path, str]]:
+    """(source, target, package) of every link; only the selected components'
+    files unless `every` (a file no component owns is always linked)."""
     entries: list[tuple[Path, Path, str]] = []
+    cat = components.load()
+    table = components.claims(cat)
+    on = None if every else components.selected(cat=cat)
+
+    def wanted(key: str) -> bool:
+        name = components.owner(key, table)
+        return on is None or name is None or name in on
 
     if (ROOT / "home").is_dir():
         for f in sorted((ROOT / "home").iterdir()):
-            if f.is_file() and f.name not in SKIP:
+            if f.is_file() and f.name not in SKIP and wanted(f"home/{f.name}"):
                 entries.append((f, HOME / f.name, "(home)"))
 
     for pkg in pkg_names():
@@ -95,7 +104,7 @@ def build_entries() -> list[tuple[Path, Path, str]]:
         files_map = man.get("files") or {}
         pkg_skip = set(man.get("skip") or [])
         for rel, src in sources_for(pkg):
-            if Path(rel).name in SKIP or rel in pkg_skip:
+            if Path(rel).name in SKIP or rel in pkg_skip or not wanted(f"{pkg}/{rel}"):
                 continue
             tgt = expand(str(files_map[rel])) if rel in files_map else idir / rel
             entries.append((src, tgt, pkg))
@@ -199,16 +208,16 @@ def system_state() -> list[tuple[Path, Path, str]]:
     return out
 
 
-def read_list(name: str) -> list[str]:
-    f = DEPS / name
-    if not f.is_file():
-        return []
-    return [w for w in (l.split("#", 1)[0].strip() for l in f.read_text().splitlines()) if w]
+def wanted_packages() -> tuple[list[str], list[str]]:
+    """(pacman, aur) names of the selected components."""
+    cat = components.load()
+    on = components.selected(cat=cat)
+    return components.unique(on, cat, "pacman"), components.unique(on, cat, "aur")
 
 
 def missing_packages() -> tuple[list[str], list[str]]:
     if not shutil.which("pacman"):
         return [], []
     installed = set(subprocess.run(["pacman", "-Qq"], capture_output=True, text=True).stdout.split())
-    return ([p for p in read_list("pacman.txt") if p not in installed],
-            [p for p in read_list("aur.txt") if p not in installed])
+    repo, aur = wanted_packages()
+    return [p for p in repo if p not in installed], [p for p in aur if p not in installed]

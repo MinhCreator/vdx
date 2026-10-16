@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import subprocess
 
+from . import components
 from .check import cmd_check
 from .deps import cmd_deps
 from .links import cmd_force, cmd_link, cmd_status, cmd_unlink, cmd_verify
@@ -37,11 +38,16 @@ def overview() -> None:
                             capture_output=True, text=True).stdout.strip()
 
     def row(label: str, value: str, healthy: bool) -> None:
-        print(f"  {(green('●') if healthy else yellow('●'))} {label:9s} {value}")
+        print(f"  {(green('●') if healthy else yellow('●'))} {label:10s} {value}")
 
     print(f"\n  {bold('dotfiles')}  {dim(short(ROOT))}  {dim(branch)}\n")
     profile = load()
     row("machine", describe(hardware(profile)) + ("" if profile else " · not saved"), profile is not None)
+    cat = components.load()
+    on = components.selected(profile, cat)
+    total = [n for n, c in cat.items() if c["group"] != "core"]
+    row("components", f"{len([n for n in total if n in on])} of {len(total)} on"
+        + ("" if components.saved(profile) is not None else " · nothing chosen yet"), True)
     row("theme", active_theme() or "none", active_theme() is not None)
     row("links", f"{good} ok" + (f" · {bad} problem(s)" if bad else "") + (f" · {stale} stale" if stale else ""),
         not bad and not stale)

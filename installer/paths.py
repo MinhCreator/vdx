@@ -11,7 +11,6 @@ PKG = ROOT / "packages"
 THEME = ROOT / "themes"
 SEED = ROOT / "templates" / "secrets"
 SYSTEM = ROOT / "system"
-DEPS = ROOT / "deps"
 
 THEME_FILE = ROOT / ".theme"          # local, git-ignored; DEFAULT_THEME when absent
 DEFAULT_THEME = "gruvbox"

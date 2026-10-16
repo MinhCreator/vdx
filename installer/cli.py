@@ -7,6 +7,7 @@ import subprocess
 import sys
 
 from .check import CHECKS, cmd_check
+from .choose import cmd_components
 from .deps import cmd_deps
 from .links import cmd_cleanup, cmd_force, cmd_link, cmd_status, cmd_unlink, cmd_verify
 from .machine import cmd_machine
@@ -33,13 +34,13 @@ def main() -> None:
     sub.add_parser("cleanup", help="remove stale symlinks only")
     sub.add_parser("status", help="per-package link status")
     sub.add_parser("verify", help="check for broken/missing/stale links")
-    sub.add_parser("check", help="check the repo: links, syntax, themes, deps, shell, repo").add_argument(
+    sub.add_parser("check", help="check the repo: links, syntax, themes, components, tests, shell, repo").add_argument(
         "groups", nargs="*", metavar="group", help=", ".join(CHECKS) + " (default: all)")
     sub.add_parser("bootstrap", help="copy seed templates to ~/.config").add_argument(
         "-f", "--force", action="store_true", help="overwrite existing files")
-    sub.add_parser("deps", help="install missing packages from deps/", parents=[yes]).add_argument(
+    sub.add_parser("deps", help="install missing packages of the selected components", parents=[yes]).add_argument(
         "--check", action="store_true", help="only list what is missing")
-    sub.add_parser("setup", help="fresh machine: deps, submodules, links, secrets, plugins, system",
+    sub.add_parser("setup", help="fresh machine: preflight, packages, submodules, links, secrets, plugins, system",
                    parents=[yes])
     sy = sub.add_parser("system", help="root-owned files under system/ (copied with sudo)", parents=[yes])
     sy.add_argument("s_action", choices=["status", "install"])
@@ -52,6 +53,9 @@ def main() -> None:
     tsub.add_parser("set", help="switch theme").add_argument("t_name")
     ma = sub.add_parser("machine", help="this machine's profile: show or detect (.machine.toml)", parents=[yes])
     ma.add_argument("m_action", choices=["show", "detect"], nargs="?", default="show")
+    co = sub.add_parser("components", help="what is installed: list, add or remove components", parents=[yes])
+    co.add_argument("c_action", choices=["list", "add", "remove"], nargs="?", default="list")
+    co.add_argument("names", nargs="*", metavar="component")
 
     args = p.parse_args()
     commands = {
@@ -59,7 +63,7 @@ def main() -> None:
         "cleanup": cmd_cleanup, "status": cmd_status, "verify": cmd_verify, "check": cmd_check,
         "bootstrap": cmd_bootstrap, "deps": cmd_deps, "setup": cmd_setup,
         "system": cmd_system, "theme": cmd_theme, "secrets": cmd_secrets,
-        "machine": cmd_machine,
+        "machine": cmd_machine, "components": cmd_components,
     }
     if args.cmd not in commands:
         p.print_help()
