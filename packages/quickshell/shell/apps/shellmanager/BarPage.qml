@@ -181,4 +181,15 @@ Column {
       onPicked: value => ShellSettings.set("barIconGrow", value)
     }
   }
+
+  // a right click on a module opens its options (the module's own page)
+  KitRow {
+    label: "Settings on right click"
+    hint: "Opens a module's options"
+
+    KitSwitch {
+      checked: ShellSettings.barRightSettings
+      onToggled: ShellSettings.set("barRightSettings", !checked)
+    }
+  }
 }

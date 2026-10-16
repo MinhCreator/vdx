@@ -48,10 +48,10 @@ Column {
   signal windowSetup(string id)
 
   // another page (or `ipc call shell open apps`) may name an app, or its
-  // bar module's id
+  // bar module's id; a module's id opens the app on its bar-module tab
   function jump(id) {
     const e = ShellAppsService.entries.find(e => e.id === id || e.module === id);
-    if (e) selected = e.id;
+    if (e) { selected = e.id; scope = e.id === id ? "app" : "bar"; }
   }
 
   spacing: 14

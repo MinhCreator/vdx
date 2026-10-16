@@ -21,6 +21,7 @@ Singleton {
   readonly property string wallpaperColor: state.wallpaperColor   // #rrggbb, for custom
   readonly property bool pauseMusic: state.pauseMusic             // MPD pauses while another app plays sound
   readonly property bool resumeMusic: state.resumeMusic           // ...and resumes once that sound stops
+  readonly property bool barRightSettings: state.barRightSettings // a right click on a bar module opens its options
   // animations (Shell Manager › Animations; Motion reads them)
   readonly property bool motion: state.motion                     // all of them on / off
   readonly property string motionSpeed: state.motionSpeed         // slow | normal | fast
@@ -57,6 +58,7 @@ Singleton {
       property var wallpaperImages: ({})
       property bool pauseMusic: false
       property bool resumeMusic: true
+      property bool barRightSettings: true
       property bool motion: true
       property string motionSpeed: "normal"
       property string motionPopups: "slide"

@@ -73,6 +73,8 @@ Minimal, monospace, sharp corners, near-monochrome. Reference: the Wi-Fi popup.
   values `ModuleSettings.get("<id>", "<key>", default)` (`modules.json`). The
   default lives in the module.
 - Applied at once, except pickers with a preview (Apply) and fields (Enter).
+- A right click on a bar module opens its options page (Bar › Settings on right
+  click, `bar/Bar.qml` `openSettings`): a module needs no code for it.
 
 ## Work
 

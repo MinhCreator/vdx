@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
+import qs.apps.shellmanager
 import qs.components
 import qs.config
 import qs.kit
@@ -42,6 +43,15 @@ PanelWindow {
     shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, virustotal: virustotal, packages: packages, windows: windows, chat: chat, folder: folder
   })
 
+  // a module's options in the Shell Manager (a right click on it): an app's
+  // bar module on the app's tab, the others on their page under Modules
+  function openSettings(id) {
+    const app = ShellAppsService.entries.find(a => a.module === id) ?? null;
+    const has = app ? !!app.moduleSettings : !!BarLayout.modules.find(p => p.id === id)?.settings;
+    if (has) Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "shell", "open",
+                                      (app ? "apps" : "modules") + ":" + id]);
+  }
+
   component Zone: Row {
     id: zone
 
@@ -64,9 +74,23 @@ PanelWindow {
           visible: index > 0
         }
 
-        Loader {
+        // the module; a right click on it opens its options. A pointer handler,
+        // not an overlay: hover, the cursor and the wheel stay with the module
+        Item {
           anchors.verticalCenter: parent.verticalCenter
-          sourceComponent: zone.modules[modelData] ?? null
+          width: slot.width
+          height: slot.height
+
+          Loader {
+            id: slot
+            sourceComponent: zone.modules[modelData] ?? null
+          }
+
+          TapHandler {
+            acceptedButtons: Qt.RightButton
+            enabled: ShellSettings.barRightSettings
+            onTapped: root.openSettings(modelData)
+          }
         }
       }
     }
