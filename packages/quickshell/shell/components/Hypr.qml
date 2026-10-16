@@ -28,4 +28,16 @@ Singleton {
 
   // Lua in Hyprland's config state (hypr/components: SnapWindow, MinimizeWindow…)
   function call(lua) { Quickshell.execDetached(["hyprctl", "eval", lua]); }
+
+  // Toggle of a shell window (its IpcHandler): it closes when it is the focused
+  // one. Up elsewhere (another workspace, behind others) it is mapped again
+  // here, which Hyprland puts on the workspace in use: no second press needed.
+  function toggleWindow(win) {
+    if (win.visible && Hyprland.activeToplevel?.title !== win.title) {
+      win.visible = false;
+      Qt.callLater(() => win.visible = true);
+    } else {
+      win.visible = !win.visible;
+    }
+  }
 }

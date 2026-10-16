@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.components
 import qs.config
 
 // VirusTotal as a window of its own (how it opens: Shell Manager › Shell
@@ -26,7 +27,7 @@ FloatingWindow {
 
   IpcHandler {
     target: "virustotal"
-    function toggle(): void { root.visible = !root.visible; }
+    function toggle(): void { Hypr.toggleWindow(root); }
     function open(): void { root.visible = true; }
     function close(): void { root.visible = false; }
   }

@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.components
 import qs.config
 
 // The task manager as a window of its own (its window rule comes from scripts/shellapps.py (Shell Manager › Shell apps)). Super+D or
@@ -36,7 +37,7 @@ FloatingWindow {
 
   IpcHandler {
     target: "taskmanager"
-    function toggle(): void { root.visible = !root.visible; }
+    function toggle(): void { Hypr.toggleWindow(root); }
     function open(): void { root.visible = true; }
     function close(): void { root.visible = false; }
   }
