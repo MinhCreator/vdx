@@ -207,7 +207,10 @@ Code in `installer/` (one module per concern: `paths`, `ui`, `model`, `links`,
 `theme`, `system`, `deps`, `setup`, `check`, `menu`, `cli`, `detect`,
 `machine`, `components`, `choose`, `preflight`, `hypr`, `shell`). Stdlib only, Python ≥ 3.11.
 A behaviour change comes with a test in `tests/` (fake `/sys` trees in
-`tests/fakesys.py`; nothing touches the real machine). Compare the output of
+`tests/fakesys.py`; nothing touches the real machine). A change to what setup
+does is also run on a clean Arch: `tests/fresh-machine.sh [component…]`
+(podman; clones the committed repo as a new user, runs setup unattended,
+then doctor, verify, a second setup with nothing to do, uninstall). Compare the output of
 `status`, `verify`, `system status`, `deps --check` before and after a
 refactor.
 

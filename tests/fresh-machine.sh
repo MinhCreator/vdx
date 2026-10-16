@@ -51,13 +51,15 @@ step "verify"
 as_user "./install.py verify" || fail "verify"
 
 step "setup again: nothing to do"
-as_user "./install.py setup --dry-run | tail -1" | tee /dev/stderr | grep -q "nothing to do" || fail "a second setup still has work"
+again=$(as_user "./install.py setup --dry-run | tail -1")
+echo "$again"
+grep -q "nothing to do" <<<"$again" || fail "a second setup still has work"
 
 step "login shell"
 as_user "getent passwd tester | cut -d: -f7" | grep -q zsh || fail "the login shell is not zsh"
 
 step "uninstall"
-as_user "./install.py uninstall -y --system >/dev/null && ./install.py verify" && fail "links left after uninstall"
+as_user "./install.py uninstall -y --system >/dev/null && ./install.py verify >/dev/null" && fail "links left after uninstall"
 as_user "test -z \"\$(find ~ -lname '*/.dotfiles/*' 2>/dev/null)\"" || fail "a link into the repo survived"
 
 printf '\n\033[32mOK\033[0m fresh machine: %s\n' "${PICK[*]}"
