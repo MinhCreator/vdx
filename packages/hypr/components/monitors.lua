@@ -2,24 +2,13 @@
 -- https://wiki.hypr.land/Configuring/Basics/Monitors/
 -- https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/
 
-hl.monitor({
-	output = "eDP-1",
-	mode = "1920x1080@144.00",
-	position = "0x0",
-	scale = 1.2,
-})
-
-hl.monitor({
-	output = "HDMI-A-1",
-	mode = "1920x1080@144.00",
-	position = "1600x0",
-	scale = 1,
-})
-
-hl.workspace_rule({ workspace = "1", monitor = "HDMI-A-1", default = true })
-for i = 2, 8 do
-	hl.workspace_rule({ workspace = tostring(i), monitor = "HDMI-A-1" })
+-- this machine's outputs and workspace rules: machine/monitors.lua, from
+-- .machine.toml; without it every output takes its preferred mode
+if not require("components.machine").load("monitors") then
+	hl.monitor({
+		output = "",
+		mode = "preferred",
+		position = "auto",
+		scale = "auto",
+	})
 end
-
-hl.workspace_rule({ workspace = "9", monitor = "eDP-1", default = true })
-hl.workspace_rule({ workspace = "10", monitor = "eDP-1" })

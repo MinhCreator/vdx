@@ -48,10 +48,26 @@ backlight, codecs, outputs, DMI) into `[hardware]` of `.machine.toml`.
 Wrong values are fixed in `[override]`, which detect keeps. Code:
 `installer/detect.py` (readers take a fake root for tests).
 
+`[hypr]` holds this machine's Hyprland settings; `link` writes them to
+`~/.config/hypr/machine/{gpu,input,monitors}.lua` (real files, marked as
+generated — never edit them, edit the profile):
+
+```toml
+[hypr]
+gpu_env = "nvidia"                  # nvidia | none; default nvidia only without an iGPU
+layouts = "us,ru"
+layout_options = "grp:caps_toggle"
+monitors = [{ output = "eDP-1", mode = "1920x1080@144.00", position = "0x0", scale = 1.2 }]
+workspaces = { eDP-1 = "1-10" }     # first of each range is the output's default
+```
+
+The repo's hypr config loads them through `components/machine.lua` and has a
+default for each (preferred mode on every output, `us`, no GPU env).
+
 ### Preflight
 
 `setup` and `deps` first run the environment check (Arch, not root, tools),
-`check components` and the tests; one problem stops them before sudo.
+`check components`, `check hypr` and the tests; one problem stops them before sudo.
 
 ## Recipes
 
@@ -114,6 +130,15 @@ component brings all fail `check components`.
    in `installer/system.py`; modprobe applies after a reboot.
 6. Boot changes (kernel cmdline, mkinitcpio) are never automated: a `hint`.
 
+### A setting that differs per machine
+
+Hardware-bound values (GPU env, outputs, layouts) never go in the repo's
+config. Hyprland: a key in `[hypr]` rendered by `installer/hypr.py` into
+`machine/<name>.lua`, loaded with `require("components.machine").load("<name>")`
+after the repo's default; a test in `tests/test_hypr.py`. `check hypr` runs
+`Hyprland --verify-config` on copies of the config with and without
+`machine/`, so both a configured and a new machine must parse.
+
 ### Add a bar module or a shell app
 
 Follow `packages/quickshell/shell/CLAUDE.md`, then put the module id in
@@ -141,7 +166,7 @@ Generated themes are never edited by hand; `check themes` finds stale ones.
 
 Code in `installer/` (one module per concern: `paths`, `ui`, `model`, `links`,
 `theme`, `system`, `deps`, `setup`, `check`, `menu`, `cli`, `detect`,
-`machine`, `components`, `choose`, `preflight`). Stdlib only, Python ≥ 3.11.
+`machine`, `components`, `choose`, `preflight`, `hypr`). Stdlib only, Python ≥ 3.11.
 A behaviour change comes with a test in `tests/` (fake `/sys` trees in
 `tests/fakesys.py`; nothing touches the real machine). Compare the output of
 `status`, `verify`, `system status`, `deps --check` before and after a
@@ -185,7 +210,7 @@ Each is listed in `submodules` of its component and cloned only with it.
 | `link` · `verify` · `status` | links: create · check · per package |
 | `deps [--check]` | missing packages of the selected components |
 | `system status\|install` | `/etc` files of the selected components |
-| `check [group…]` | links, syntax, themes, components, tests, shell, repo |
+| `check [group…]` | links, syntax, themes, components, tests, hypr, shell, repo |
 | `theme list\|current\|set <name>` | themes |
 | `secrets [status\|restore]` | `private/` |
 

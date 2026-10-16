@@ -10,6 +10,7 @@ are not (the file is written by the installer).
 from __future__ import annotations
 
 import json
+import re
 import tomllib
 
 from . import detect
@@ -54,8 +55,13 @@ def value(v) -> str:
     if isinstance(v, list):
         return "[" + ", ".join(value(x) for x in v) + "]"
     if isinstance(v, dict):
-        return "{ " + ", ".join(f"{k} = {value(x)}" for k, x in v.items()) + " }"
+        return "{ " + ", ".join(f"{key(k)} = {value(x)}" for k, x in v.items()) + " }"
     raise TypeError(f"no TOML for {type(v).__name__}")
+
+
+def key(k: str) -> str:
+    """A TOML key, quoted unless it is a bare one."""
+    return k if re.fullmatch(r"[A-Za-z0-9_-]+", k) else json.dumps(k, ensure_ascii=False)
 
 
 def dumps(profile: dict) -> str:
@@ -68,9 +74,9 @@ def dumps(profile: dict) -> str:
         lines += ["", f"[{table}]"]
         for k, v in keys.items():
             if isinstance(v, list) and v and isinstance(v[0], dict):
-                lines += [f"{k} = ["] + [f"  {value(x)}," for x in v] + ["]"]
+                lines += [f"{key(k)} = ["] + [f"  {value(x)}," for x in v] + ["]"]
             else:
-                lines.append(f"{k} = {value(v)}")
+                lines.append(f"{key(k)} = {value(v)}")
     return "\n".join(lines) + "\n"
 
 

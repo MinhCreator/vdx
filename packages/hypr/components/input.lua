@@ -3,8 +3,7 @@
 
 hl.config({
 	input = {
-		kb_layout = "us,ru",
-		kb_options = "grp:caps_toggle",
+		kb_layout = "us",
 		follow_mouse = 1,
 		repeat_rate = 50,
 		repeat_delay = 300,
@@ -15,3 +14,6 @@ hl.config({
 		},
 	},
 })
+
+-- this machine's layouts (and how to switch them): machine/input.lua, from .machine.toml
+require("components.machine").load("input")

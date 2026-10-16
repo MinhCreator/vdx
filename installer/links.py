@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from . import hypr
 from .model import (
     active_theme,
     build_entries,
@@ -31,6 +32,8 @@ def cmd_link(args) -> int:
         added(short(tgt))
         created += 1
     ok(f"{created} created · {len(entries) - created} up to date · {stale} stale removed")
+    if hypr.wanted():
+        hypr.apply()
     return 0
 
 

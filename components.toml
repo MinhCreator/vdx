@@ -11,7 +11,7 @@
 #   requires     components switched on with this one, which can't be switched off
 #   suggests     components ticked along with this one, which can be unticked
 #   auto         hardware only: every term must hold — gpu:<vendor>, hybrid, laptop,
-#                asus, quirk:<name> (`./install.py machine`)
+#                asus, quirk:<name>; !term negates (`./install.py machine`)
 #   pacman, aur  packages; a name may be shared by several components
 #   links        paths under packages/ (or home/...); the longest one that matches a
 #                file owns it, theme overlays follow their package
@@ -257,12 +257,18 @@ pacman = ["mesa", "vulkan-radeon"]
 
 [gpu-nvidia]
 group = "hardware"
-about = "NVIDIA graphics: utilities and VA-API"
+about = "NVIDIA graphics: utilities"
 auto = ["gpu:nvidia"]
-pacman = ["nvidia-utils", "libva-nvidia-driver"]
+pacman = ["nvidia-utils"]
 hint = """the kernel driver is yours to pick: nvidia-open (linux) or nvidia-open-dkms (other kernels);
 then `options nvidia-drm modeset=1` in /etc/modprobe.d, nvidia nvidia_modeset nvidia_uvm nvidia_drm
 in MODULES of /etc/mkinitcpio.conf, `sudo mkinitcpio -P`, reboot"""
+
+[nvidia-only]
+group = "hardware"
+about = "NVIDIA as the only GPU: video decoding on it (VA-API) and its Hyprland env"
+auto = ["gpu:nvidia", "!hybrid"]
+pacman = ["libva-nvidia-driver"]
 
 [nvidia-laptop]
 group = "hardware"

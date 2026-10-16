@@ -28,7 +28,9 @@ def load() -> dict[str, dict]:
 
 
 def holds(term: str, hw: dict) -> bool:
-    """One `auto` term against the hardware."""
+    """One `auto` term against the hardware; `!term` holds when term doesn't."""
+    if term.startswith("!"):
+        return not holds(term[1:], hw)
     t = detect.traits(hw)
     kind, _, arg = term.partition(":")
     if kind == "gpu":
@@ -140,7 +142,7 @@ def problems(cat: dict | None = None) -> list[str]:
         if c.get("group") == "hardware" and not c["auto"]:
             out.append(f"{where}: hardware needs auto")
         for term in c["auto"]:
-            kind, _, arg = term.partition(":")
+            kind, _, arg = term.removeprefix("!").partition(":")
             if kind not in ("gpu", "quirk", "hybrid", "laptop", "asus"):
                 out.append(f"{where}: auto {term!r}: unknown term")
             elif kind == "quirk" and arg not in detect.QUIRKS:

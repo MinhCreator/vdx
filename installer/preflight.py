@@ -10,7 +10,7 @@ import shutil
 import sys
 
 from . import detect
-from .check import components_problems, test_problems
+from .check import components_problems, hypr_problems, test_problems
 from .ui import err, heading, ok
 
 
@@ -32,6 +32,7 @@ def preflight() -> bool:
     heading("Preflight")
     failed = False
     for name, run in (("environment", environment_problems), ("components", components_problems),
+                      ("hypr", hypr_problems),
                       ("tests", test_problems)):
         problems = run()
         if not problems:

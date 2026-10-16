@@ -8,12 +8,13 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
-from . import components, detect
+from . import components, detect, hypr, machine
 from .links import link_problems
 from .model import PLACEHOLDER, build_entries, system_files
-from .paths import PKG, ROOT, SKIP, SYSTEM, THEME
+from .paths import PKG, ROOT, SKIP, SYSTEM, TGT, THEME
 from .ui import err, heading, ok, warn
 
 # `check` looks at the repo, not at the machine: links, the syntax of every
@@ -185,6 +186,8 @@ def components_problems() -> list[str]:
     for f in sorted(SYSTEM.rglob("*")) if SYSTEM.is_dir() else []:
         if f.is_file() and f.name not in SKIP and str(f.relative_to(SYSTEM)) not in claimed:
             out.append(f"{rel(f)}: no component installs it")
+    # this machine's [hypr] would write a working config
+    out += [f".machine.toml: {p}" for p in hypr.problems(machine.load() or {})]
     # placeholders name a text value of the machine profile
     keys = {k.upper() for k, v in detect.hardware(ROOT / "nonexistent").items() if isinstance(v, str)}
     for f in system_files(every=True):
@@ -222,6 +225,27 @@ def test_problems() -> list[str]:
         return []
     lines = [line for line in r.stderr.splitlines() if line.startswith(("FAIL:", "ERROR:"))]
     return lines or [r.stderr.strip().splitlines()[-1] if r.stderr.strip() else "tests failed"]
+
+
+def hypr_problems() -> list[str]:
+    """Hyprland's own parser on the config as linked, and on a copy without
+    machine/ (a new machine's): nothing is applied to the running session."""
+    if not shutil.which("Hyprland") or not (TGT / "hypr" / "hyprland.lua").exists():
+        return []
+    out = []
+    with tempfile.TemporaryDirectory() as tmp:
+        for variant in ("this machine", "a new machine"):
+            copy = Path(tmp) / variant.replace(" ", "-")
+            shutil.copytree(TGT / "hypr", copy, symlinks=False, ignore=shutil.ignore_patterns("plugins"))
+            if variant == "a new machine":
+                shutil.rmtree(copy / "machine", ignore_errors=True)
+            r = subprocess.run(["Hyprland", "--verify-config", "-c", str(copy / "hyprland.lua")],
+                               capture_output=True, text=True, timeout=60)
+            result = (r.stdout + r.stderr).split("Config parsing result:")[-1].strip()
+            if result != "config ok":
+                out += [f"hypr ({variant}): {line.replace(str(copy), '~/.config/hypr')}"
+                        for line in result.splitlines() if line.strip()][:5]
+    return out
 
 
 def submodule_paths() -> list[str]:
@@ -339,6 +363,7 @@ CHECKS = {
     "themes": theme_problems,
     "components": components_problems,
     "tests": test_problems,
+    "hypr": hypr_problems,
     "shell": shell_problems,
     "repo": repo_problems,
 }
