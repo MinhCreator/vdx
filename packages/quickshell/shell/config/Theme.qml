@@ -94,7 +94,6 @@ QtObject {
   readonly property int frameWidth: 1          // controls: buttons, selects, fields
   readonly property int windowFrameWidth: 2    // popup frames, like hypr windows, mako
   readonly property int visibleRows: 8
-  readonly property int underlineMs: 180          // popup underline grow / slide
   readonly property int popupStatusMs: 2500       // how long ok / error marks stay
   readonly property string ellipsis: "\u2026"
 

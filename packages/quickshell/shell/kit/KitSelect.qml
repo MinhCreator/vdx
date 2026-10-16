@@ -65,6 +65,9 @@ Column {
       border.color: root.expanded || boxArea.containsMouse ? Theme.foreground2 : Theme.gray
       opacity: root.disabled ? 0.4 : 1
 
+      Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+      Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+
       KitText {
         anchors { left: parent.left; leftMargin: 10; right: mark.left; rightMargin: 6; verticalCenter: parent.verticalCenter }
         text: root.selected?.label ?? "—"
@@ -90,7 +93,7 @@ Column {
           size: 14
           rotation: root.expanded ? 180 : 0
 
-          Behavior on rotation { NumberAnimation { duration: 150 } }
+          Behavior on rotation { enabled: Motion.controls; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
         }
       }
 
@@ -119,6 +122,13 @@ Column {
       visible: root.expanded
       width: parent.width
       height: options.implicitHeight + 2 * Theme.frameWidth
+
+      // the choices drop in: a fade and a few pixels down
+      property real shown: 1
+      transform: Translate { y: -6 * (1 - list.shown) }
+      opacity: shown
+      onVisibleChanged: if (visible && Motion.controls) dropIn.restart()
+      NumberAnimation { id: dropIn; target: list; property: "shown"; from: 0; to: 1; duration: Motion.normal; easing.type: Motion.easing }
       color: root.overlay ? Theme.background0 : "transparent"
       border.width: Theme.frameWidth
       border.color: Theme.gray

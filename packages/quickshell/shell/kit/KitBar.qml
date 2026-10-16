@@ -17,6 +17,6 @@ Rectangle {
     height: parent.height
     color: root.tint
 
-    Behavior on width { NumberAnimation { duration: 200 } }
+    Behavior on width { enabled: Motion.controls; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
   }
 }

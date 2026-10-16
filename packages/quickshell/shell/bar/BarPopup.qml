@@ -86,6 +86,7 @@ PopupWindow {
     if (visible) {
       PopupManager.open(root);       // closes the previous popup: its line is the slide's start
       underline.start();
+      root.comeIn();
       root.shown();
     } else {
       root.closedAt = Date.now();
@@ -108,14 +109,60 @@ PopupWindow {
     enabled: root.ipcTarget !== "" && PopupManager.ipcOwner(root.ipcTarget) === root
     function toggle(): void { root.toggle(); }
   }
-  Component.onCompleted: if (ipcTarget !== "") PopupManager.addIpc(ipcTarget, root)
   Component.onDestruction: if (ipcTarget !== "") PopupManager.removeIpc(ipcTarget, root)
 
   // hidden, not closed, while the capture overlay's still copy stands in for it
   Binding {
     target: root.contentItem
     property: "opacity"
-    value: PopupManager.frozen ? 0 : 1
+    value: PopupManager.frozen ? 0 : root.reveal
+  }
+
+  // ---- coming in ----
+  // Motion.popupStyle: fade — the popup fades in; slide — it also comes
+  // down from under the bar; grow — it also unfolds from its top edge.
+  // `reveal` runs 0 → 1 once the window is up (see underline.settle).
+  property real reveal: 1
+  property int revealWait: 0
+
+  property Translate slideIn: Translate {
+    y: Motion.popupStyle === "slide" ? -14 * (1 - root.reveal) : 0
+  }
+  property Scale growIn: Scale {
+    origin.y: 0
+    origin.x: root.alignLeft ? 0 : root.width
+    yScale: Motion.popupStyle === "grow" ? 0.9 + 0.1 * root.reveal : 1
+    xScale: Motion.popupStyle === "grow" ? 0.97 + 0.03 * root.reveal : 1
+  }
+
+  function comeIn() {
+    revealAnim.stop();
+    if (!Motion.popups) { reveal = 1; return; }
+    reveal = 0;
+    revealWait = 1;
+  }
+
+  NumberAnimation {
+    id: revealAnim
+    target: root
+    property: "reveal"
+    to: 1
+    duration: Motion.normal
+    easing.type: Motion.easing
+  }
+
+  FrameAnimation {
+    running: root.revealWait > 0
+    onTriggered: {
+      if (root.revealWait === 1 || (frameTime > 0.025 && root.revealWait < 20)) { root.revealWait++; return; }
+      root.revealWait = 0;
+      revealAnim.restart();
+    }
+  }
+
+  Component.onCompleted: {
+    if (ipcTarget !== "") PopupManager.addIpc(ipcTarget, root);
+    contentItem.transform = [slideIn, growIn];
   }
 
   // The face's color: the first KitBarItem (icon + tint) inside the module.
@@ -135,7 +182,7 @@ PopupWindow {
   //
   // ShellSettings.underlineAnimation: none — appears in place; grow — opens
   // from the middle; slide — moves over from the popup that just closed on
-  // this bar (grows when there is none).
+  // this bar (grows when there is none). Motion.bar off: none.
   Rectangle {
     id: underline
     parent: root.bar.contentItem
@@ -148,8 +195,8 @@ PopupWindow {
     property bool active: false
     property bool smooth: false
 
-    Behavior on x { enabled: underline.smooth; NumberAnimation { duration: Theme.underlineMs; easing.type: Easing.OutCubic } }
-    Behavior on width { enabled: underline.smooth; NumberAnimation { duration: Theme.underlineMs; easing.type: Easing.OutCubic } }
+    Behavior on x { enabled: underline.smooth; NumberAnimation { duration: Motion.ms(180); easing.type: Motion.easing } }
+    Behavior on width { enabled: underline.smooth; NumberAnimation { duration: Motion.ms(180); easing.type: Motion.easing } }
 
     function target() {
       const p = root.anchorItem.mapToItem(root.bar.contentItem, 0, 0);
@@ -158,7 +205,7 @@ PopupWindow {
 
     function start() {
       const t = target();
-      const mode = ShellSettings.underlineAnimation;
+      const mode = Motion.bar ? ShellSettings.underlineAnimation : "none";
       const last = PopupManager.lastLine;
       smooth = false;
       if (mode === "slide" && last && last.bar === root.bar && Date.now() - last.at < 500) {

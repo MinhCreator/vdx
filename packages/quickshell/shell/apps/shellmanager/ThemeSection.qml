@@ -42,7 +42,7 @@ Column {
       border.width: Theme.frameWidth
       border.color: page.p("gray")
 
-      Behavior on color { ColorAnimation { duration: 200 } }
+      Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.normal } }
 
       // the previewed theme's picture, when it has one
       Image {

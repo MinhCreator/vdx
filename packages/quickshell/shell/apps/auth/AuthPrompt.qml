@@ -67,7 +67,7 @@ Scope {
         y: root.shown ? 0 : -600           // from above the window's top (it clips); not its own height: a loop
         focus: true
 
-        Behavior on y { NumberAnimation { id: slide; duration: 220; easing.type: Easing.OutCubic } }
+        Behavior on y { enabled: Motion.panels; NumberAnimation { id: slide; duration: Motion.ms(220); easing.type: Motion.easing } }
 
         // the confirm look: Enter runs, Escape cancels (the password field has its own)
         Keys.onReturnPressed: if (root.ours && !root.asking && !RootService.running) RootService.run()

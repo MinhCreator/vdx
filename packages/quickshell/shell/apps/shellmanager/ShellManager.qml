@@ -8,7 +8,8 @@ import qs.kit
 // on its own. Under the open section its groups (`jumps` of the page) jump
 // there on a click.
 //   APPEARANCE — theme, icon style, wallpaper, font and cursor;
-//   BAR        — the layout of the bar's zones, modules on / off, underline.
+//   BAR        — the layout of the bar's zones, modules on / off.
+//   ANIMATIONS — how the shell moves: all on / off, speed, each part on its own.
 //   MEDIA      — the music pauses while another app plays sound.
 //   WINDOWS    — the window mode, each mode's options, gaps, the taskbar.
 //   MODULES    — each bar module's own options (the modules; an app's is set with the app).
@@ -35,6 +36,7 @@ Rectangle {
   readonly property var sections: [
     { value: "appearance", label: "Appearance", icon: "sun" },
     { value: "bar",        label: "Bar",        icon: "layout" },
+    { value: "animations", label: "Animations", icon: "zap" },
     { value: "media",      label: "Media",      icon: "music" },
     { value: "windows",    label: "Windows",    icon: "app-window" },
     { value: "modules",    label: "Modules",    icon: "puzzle" },
@@ -60,7 +62,7 @@ Rectangle {
   }
 
   function pageFor(value) {
-    return ({ bar: bar, media: media, windows: windows, modules: modules, apps: apps, launcher: launcher,
+    return ({ bar: bar, animations: animations, media: media, windows: windows, modules: modules, apps: apps, launcher: launcher,
               keybinds: keybinds, lock: lock, about: about })[value] ?? appearance;
   }
   readonly property Item currentPage: pageFor(tab)
@@ -150,6 +152,7 @@ Rectangle {
             width: parent.width
             height: 34
             color: section.active ? Theme.background3 : itemArea.containsMouse ? Theme.background1 : "transparent"
+            Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.quick } }
 
             KitIcon {
               id: itemIcon
@@ -174,7 +177,7 @@ Rectangle {
               size: 14
               tint: Theme.foreground2
               rotation: section.unfolded ? 180 : 0
-              Behavior on rotation { NumberAnimation { duration: Theme.underlineMs; easing.type: Easing.OutCubic } }
+              Behavior on rotation { enabled: Motion.pages; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
             }
 
             MouseArea {
@@ -197,8 +200,8 @@ Rectangle {
             opacity: section.unfolded ? 1 : 0
             clip: true
 
-            Behavior on height { NumberAnimation { duration: Theme.underlineMs + 40; easing.type: Easing.OutCubic } }
-            Behavior on opacity { NumberAnimation { duration: Theme.underlineMs + 40 } }
+            Behavior on height { enabled: Motion.pages; NumberAnimation { duration: Motion.ms(220); easing.type: Motion.easing } }
+            Behavior on opacity { enabled: Motion.pages; NumberAnimation { duration: Motion.ms(220) } }
 
             Column {
               id: subs
@@ -299,13 +302,16 @@ Rectangle {
       easing.type: Easing.OutCubic
     }
 
+    // a new page comes in: a fade and a short move from the right
     Item {
       id: pages
-      x: 24
+      x: 24 + 16 * (1 - pageIn.shown)
+      opacity: pageIn.shown
       y: 14
       width: page.width - 48
       implicitHeight: Math.max(appearance.visible ? appearance.implicitHeight : 0,
                                bar.visible ? bar.implicitHeight : 0,
+                               animations.visible ? animations.implicitHeight : 0,
                                media.visible ? media.implicitHeight : 0,
                                apps.visible ? apps.height : 0,
                                windows.visible ? windows.implicitHeight : 0,
@@ -317,6 +323,7 @@ Rectangle {
 
       AppearancePage { id: appearance; width: parent.width; visible: root.tab === "appearance" }
       BarPage     { id: bar;     width: parent.width; visible: root.tab === "bar" }
+      AnimationsPage { id: animations; width: parent.width; visible: root.tab === "animations" }
       MediaPage   { id: media;   width: parent.width; visible: root.tab === "media" }
       // fills the window and scrolls its two panes itself
       ShellAppsPage { id: apps;  width: parent.width; onNavigate: (t, k) => root.navigate(t, k); onWindowSetup: id => windowDialog.appId = id; height: page.height - pages.y - 20; visible: root.tab === "apps" }
@@ -336,7 +343,11 @@ Rectangle {
     z: 10
   }
 
+  QtObject { id: pageIn; property real shown: 1 }
+  NumberAnimation { id: pageAnim; target: pageIn; property: "shown"; from: 0; to: 1; duration: Motion.ms(240); easing.type: Motion.easing }
+
   onTabChanged: {
+    if (Motion.pages) pageAnim.restart();
     ShellSettings.set("managerTab", tab);   // kept for About › Shell manager › Last page
     page.contentY = 0;
     pinnedJump = "";

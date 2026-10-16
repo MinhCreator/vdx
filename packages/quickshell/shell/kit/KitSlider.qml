@@ -47,6 +47,8 @@ Item {
     readonly property int size: area.containsMouse || root.pressed ? 14 : 12
     width: size
     height: size
+    Behavior on width { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
+    Behavior on height { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
     anchors.verticalCenter: parent.verticalCenter
     x: root.shown * (root.width - width)
     color: root.fill

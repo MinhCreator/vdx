@@ -20,6 +20,7 @@ Rectangle {
   color: "transparent"
   border.width: Theme.frameWidth
   border.color: textInput.activeFocus || hover.hovered ? Theme.foreground2 : Theme.gray
+  Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
   HoverHandler { id: hover; cursorShape: Qt.IBeamCursor }
 

@@ -21,6 +21,15 @@ Singleton {
   readonly property string wallpaperColor: state.wallpaperColor   // #rrggbb, for custom
   readonly property bool pauseMusic: state.pauseMusic             // MPD pauses while another app plays sound
   readonly property bool resumeMusic: state.resumeMusic           // ...and resumes once that sound stops
+  // animations (Shell Manager › Animations; Motion reads them)
+  readonly property bool motion: state.motion                     // all of them on / off
+  readonly property string motionSpeed: state.motionSpeed         // slow | normal | fast
+  readonly property string motionPopups: state.motionPopups       // none | fade | slide | grow
+  readonly property bool motionPanels: state.motionPanels         // launcher, keybinds, switcher, overview
+  readonly property bool motionControls: state.motionControls     // buttons, switches, selects, level bars
+  readonly property bool motionBar: state.motionBar               // workspaces, bar values
+  readonly property bool motionPages: state.motionPages           // Shell Manager pages and sidebar
+  readonly property bool motionLock: state.motionLock             // the lock screen coming in, a wrong password
 
   // Whether the Shell Manager window is open (not saved).
   property bool managerOpen: false
@@ -48,6 +57,14 @@ Singleton {
       property var wallpaperImages: ({})
       property bool pauseMusic: false
       property bool resumeMusic: true
+      property bool motion: true
+      property string motionSpeed: "normal"
+      property string motionPopups: "slide"
+      property bool motionPanels: true
+      property bool motionControls: true
+      property bool motionBar: true
+      property bool motionPages: true
+      property bool motionLock: true
     }
   }
 }

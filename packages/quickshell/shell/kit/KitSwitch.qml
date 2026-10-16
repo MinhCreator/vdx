@@ -26,7 +26,8 @@ Rectangle {
     x: root.checked ? root.width - width - 3 : 3
     color: root.checked ? Theme.foreground0 : Theme.gray
 
-    Behavior on x { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
+    Behavior on x { enabled: Motion.controls; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
+    Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
   }
 
   MouseArea {

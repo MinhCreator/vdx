@@ -5,7 +5,8 @@ import qs.kit
 
 // Hyprland workspaces across all outputs; special workspaces are hidden.
 // Drawn as digits, squares, dots or dashes (Modules › Workspaces). Focused
-// and visible workspaces are highlighted; a click activates.
+// and visible workspaces are highlighted; a click activates. Colours fade
+// and a new workspace opens up (Motion.bar).
 Row {
   id: root
 
@@ -18,6 +19,22 @@ Row {
   // desk 10 is key 0, so it sorts first: 0 1 2 … 9
   function order(ws) { return ws.id === 10 ? 0 : ws.id }
   readonly property var ordered: Hyprland.workspaces.values.slice().sort((a, b) => order(a) - order(b))
+
+  // the Repeater remakes every item when the list changes: only a workspace
+  // not seen before opens up; the ones there at start do not
+  property var seen: ({})
+  property bool started: false
+  function isNew(id) {
+    const fresh = started && !seen[id];
+    seen[id] = true;
+    return fresh;
+  }
+  Component.onCompleted: Qt.callLater(() => started = true)
+  // a workspace closed and opened again is new again
+  onOrderedChanged: {
+    const ids = ordered.map(w => String(w.id));
+    for (const id of Object.keys(seen)) if (!ids.includes(id)) delete seen[id];
+  }
 
   Repeater {
     model: root.ordered
@@ -34,8 +51,14 @@ Row {
         ? (highlighted ? Theme.yellow : Theme.foreground0)
         : (highlighted ? Theme.foreground1 : Theme.gray)
 
-      implicitWidth: root.shape ? (root.style === "dashes" ? 14 : 10) : Math.max(label.implicitWidth, Theme.workspaceMinWidth) + 4
+      implicitWidth: (root.shape ? (root.style === "dashes" ? 14 : 10) : Math.max(label.implicitWidth, Theme.workspaceMinWidth) + 4) * grow
       implicitHeight: label.implicitHeight
+
+      // a new workspace opens up from nothing and fades in (Motion.bar)
+      property real grow: 1
+      opacity: grow
+      Component.onCompleted: if (root.isNew(modelData.id) && Motion.bar) growIn.start()
+      NumberAnimation { id: growIn; target: workspace; property: "grow"; from: 0; to: 1; duration: Motion.normal; easing.type: Motion.easing }
 
       // the shapes: a filled one for the focused / visible, an outline for the
       // rest (dots are round); dashes are always filled, in the tone
@@ -49,7 +72,7 @@ Row {
         border.width: root.style === "dashes" || workspace.highlighted ? 0 : 1
         border.color: workspace.tone
 
-        Behavior on color { ColorAnimation { duration: 500; easing.type: Easing.OutSine } }
+        Behavior on color { enabled: Motion.bar; ColorAnimation { duration: Motion.slow; easing.type: Easing.OutSine } }
       }
 
       KitText {
@@ -60,7 +83,7 @@ Row {
         text: workspace.modelData.id === 10 ? "0" : workspace.modelData.name.replace(/^name:/, "")
         color: workspace.tone
 
-        Behavior on color { ColorAnimation { duration: 500; easing.type: Easing.OutSine } }
+        Behavior on color { enabled: Motion.bar; ColorAnimation { duration: Motion.slow; easing.type: Easing.OutSine } }
       }
 
       MouseArea {

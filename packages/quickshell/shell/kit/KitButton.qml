@@ -25,6 +25,9 @@ Rectangle {
   border.color: selected || hovered ? Theme.foreground2 : Theme.gray
   opacity: disabled ? 0.4 : 1
 
+  Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+  Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+
   Row {
     id: content
     anchors.centerIn: parent

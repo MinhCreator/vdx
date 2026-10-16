@@ -62,10 +62,10 @@ Rectangle {
     border.width: Theme.frameWidth
     border.color: Theme.frame
 
-    Behavior on x { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
-    Behavior on y { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
-    Behavior on width { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
-    Behavior on height { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+    Behavior on x { enabled: Motion.pages; NumberAnimation { duration: Motion.ms(160); easing.type: Motion.easing } }
+    Behavior on y { enabled: Motion.pages; NumberAnimation { duration: Motion.ms(160); easing.type: Motion.easing } }
+    Behavior on width { enabled: Motion.pages; NumberAnimation { duration: Motion.ms(160); easing.type: Motion.easing } }
+    Behavior on height { enabled: Motion.pages; NumberAnimation { duration: Motion.ms(160); easing.type: Motion.easing } }
 
     // its title strip
     Rectangle {

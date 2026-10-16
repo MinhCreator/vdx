@@ -15,7 +15,7 @@ Column {
   readonly property string icon: "layout"
   readonly property string title: "Bar"
   readonly property string subtitle: Quickshell.screens.filter(s => BarLayout.barOn(s.name)).length + " OF "
-    + Quickshell.screens.length + " MONITORS · " + ShellSettings.underlineAnimation.toUpperCase() + " UNDERLINE"
+    + Quickshell.screens.length + " MONITORS"
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [
@@ -167,23 +167,6 @@ Column {
 
   // ---- style (every bar) ----
   KitLabel { id: styleGroup; text: "STYLE" }
-
-  KitRow {
-    wide: true
-    label: "Underline"
-    hint: "The line under an open module"
-
-    KitChoices {
-      stretch: true
-      model: [
-        { label: "None",  value: "none" },
-        { label: "Grow",  value: "grow" },
-        { label: "Slide", value: "slide" }
-      ]
-      current: ShellSettings.underlineAnimation
-      onPicked: value => ShellSettings.set("underlineAnimation", value)
-    }
-  }
 
   KitRow {
     wide: true

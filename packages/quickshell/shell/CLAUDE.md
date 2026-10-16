@@ -11,7 +11,7 @@ bar/           Bar (zones), BarLayout (module registry, layout), BarPopup
 modules/<id>/  bar modules: <Name>.qml, <Name>Popup.qml, <Name>Service.qml
 kit/           UI components, icons/ (outline, solid/)
 components/    Hypr (helpers), ScrimWindow, PopupManager, PopupCatcher, Separator
-config/        Theme, Colors (from the active theme), ShellSettings, ModuleSettings
+config/        Theme, Colors (from the active theme), ShellSettings, ModuleSettings, Motion
 scripts/       backends: one JSON object per command, commands in the header
 ```
 
@@ -61,6 +61,10 @@ Minimal, monospace, sharp corners, near-monochrome. Reference: the Wi-Fi popup.
 - Icons: Material Symbols SVG in `kit/icons`, `fill="#ffffff"`; every icon
   has a filled twin of the same name in `solid/`.
 - Refactors keep the look; a new look is prototyped on one popup first.
+- Motion: every animation goes through `config/Motion.qml` — a Behavior takes
+  `enabled: Motion.<part>` (popups, panels, controls, bar, pages, lock) and a
+  duration from it (`quick`, `normal`, `slow`, `ms()`), easing `Motion.easing`;
+  set in Shell Manager › Animations.
 
 ## Settings
 

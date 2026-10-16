@@ -9,7 +9,9 @@ import qs.kit
 // the date, the user, a password field with the keyboard layout beside it
 // (a click switches it) and the power buttons; a wrong password says so in
 // red. The background is the theme's, the wallpaper or the blurred desktop;
-// the cursor hides after a few still seconds. Not `main`: a dark monitor —
+// the cursor hides after a few still seconds. With Motion.lock it comes in
+// (the background fades, the rest rises) and the field shakes on a wrong
+// password. Not `main`: a dark monitor —
 // its hidden field still takes the keys and shares the text with the shown
 // one. Options: ModuleSettings "lock".
 Rectangle {
@@ -35,6 +37,12 @@ Rectangle {
 
   SystemClock { id: clock; precision: SystemClock.Minutes }
 
+  // ---- coming in ----
+  // the screen is locked from the first frame (the colour); only what is on
+  // it fades and rises
+  property real intro: Motion.lock ? 0 : 1
+  NumberAnimation on intro { running: Motion.lock; from: 0; to: 1; duration: Motion.ms(520); easing.type: Motion.easing }
+
   // ---- background ----
   Image {
     id: wallpaper
@@ -42,6 +50,7 @@ Rectangle {
     visible: root.main && root.background !== "solid" && root.image !== "" && status === Image.Ready
     source: root.main && root.background !== "solid" ? root.image : ""
     fillMode: Image.PreserveAspectCrop
+    opacity: root.intro
     cache: false                         // the snapshot is a new picture under the same name
     layer.enabled: root.background === "blur"
     layer.effect: MultiEffect { blurEnabled: true; blur: root.opt("blur", 60) / 100; blurMax: 64 }
@@ -50,13 +59,15 @@ Rectangle {
   Rectangle {
     anchors.fill: parent
     visible: root.main && root.background !== "solid"
+    opacity: root.intro
     color: Theme.scrim
   }
 
   // ---- centre ----
   Column {
     anchors.centerIn: parent
-    opacity: root.main ? 1 : 0             // not hidden: the field must take keys
+    opacity: (root.main ? 1 : 0) * root.intro   // not hidden: the field must take keys
+    transform: Translate { y: 24 * (1 - root.intro) }
     width: 360
     spacing: 14
 
@@ -88,8 +99,24 @@ Rectangle {
 
     // the field keeps the centre; the layout stands out to its right
     Item {
+      id: fieldBox
       width: parent.width
       height: field.height
+      transform: Translate { id: shake }
+
+      // a wrong password: a short shake from side to side
+      SequentialAnimation {
+        id: shakeAnim
+        NumberAnimation { target: shake; property: "x"; to: -10; duration: 50; easing.type: Easing.OutQuad }
+        NumberAnimation { target: shake; property: "x"; to: 8; duration: 70 }
+        NumberAnimation { target: shake; property: "x"; to: -5; duration: 60 }
+        NumberAnimation { target: shake; property: "x"; to: 0; duration: 60; easing.type: Easing.OutQuad }
+      }
+
+      Connections {
+        target: root.lock
+        function onErrorChanged() { if (root.lock.error !== "" && Motion.lock) shakeAnim.restart(); }
+      }
 
       KitInput {
         id: field
@@ -146,6 +173,7 @@ Rectangle {
 
     anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 48 }
     visible: root.main && root.opt("power", true)
+    opacity: root.intro
     spacing: 10
 
     Row {
