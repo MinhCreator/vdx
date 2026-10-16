@@ -71,8 +71,9 @@ characters; a body says why. Scopes: a package name (`hypr`, `quickshell`, …),
 `themes`, `scripts`, `system`, `installer`, `docs`, `repo`.
 
 - One commit, one logical change.
-- Nothing broken: `./install.py verify`; `bash -n` for scripts;
-  `qs log -c shell` without errors for the shell.
+- Nothing broken: `./install.py check` (links, syntax of every file, themes,
+  deps, the shell's registry and icons); `qs log -c shell` without errors for
+  the shell.
 - Agents' commits end with a `Co-Authored-By:` trailer.
 
 ## Branches
@@ -85,7 +86,7 @@ and end with `./install.py link`.
 ## Before a push
 
 ```
-./install.py verify
+./install.py check
 ./install.py system status
 git status
 git log --oneline -5

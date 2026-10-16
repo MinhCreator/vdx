@@ -2,16 +2,19 @@
 """Derive dotfiles themes from themes/gruvbox: every gruvbox colour is
 replaced by the colour of the same role in the new theme.
 
-    python3 themes/mktheme.py            # rebuild every theme in THEMES
-    python3 themes/mktheme.py ember      # just one
+    python3 themes/mktheme.py              # rebuild every theme in THEMES
+    python3 themes/mktheme.py ember        # just one
+    python3 themes/mktheme.py --check      # report generated files that are out of date
 
 A new theme: add its colours to THEMES (all roles + frame, frame_active) and
 run it; the result lands in themes/<name> and shows up in the Shell Manager."""
 import re, sys
 from pathlib import Path
 
-ROOT = Path.home() / ".dotfiles"
+ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "themes/gruvbox"
+# package files that carry gruvbox's colours themselves: every other theme recolours them
+FROM_PACKAGES = ["tmux/colors.conf", "btop/themes/current.theme"]
 
 ROLES = ["background0", "background1", "background2", "background3", "foreground0", "foreground1",
          "foreground2", "gray", "muted", "dim", "red", "orange", "yellow", "green", "aqua", "blue",
@@ -114,38 +117,68 @@ def recolor(text, pal):
     table.update({k: pal[v] for k, v in EXTRA.items()})
     return re.sub(r"(?i)([0-9a-f]{6})", lambda m: table.get(m.group(1).lower(), m.group(1)), text)
 
+
+def render(name, pal):
+    """The theme's files, {path under themes/<name>: text}: gruvbox's own files
+    and FROM_PACKAGES recoloured role by role, then the frames' own colours."""
+    sources = {ROOT / "packages" / rel: rel for rel in FROM_PACKAGES}
+    sources.update({p: str(p.relative_to(SRC)) for p in sorted(SRC.rglob("*")) if p.is_file() and p.name != "README.md"})
+    files = {rel: recolor(src.read_text(), pal) for src, rel in sources.items()}
+    q = "quickshell/shell/config/Colors.qml"
+    files[q] = (re.sub(r'(readonly property color frame:\s*")#[0-9a-fA-F]{6}"', rf'\g<1>#{pal["frame"]}"', files[q])
+                .replace("gruvbox theme overlay", f"{name} theme overlay"))
+    h = "hypr/components/colors.lua"
+    files[h] = (re.sub(r'frame_active = "rgb\([0-9a-fA-F]{6}\)"', f'frame_active = "rgb({pal["frame_active"]})"', files[h])
+                .replace("-- gruvbox-material,", f"-- {name},"))
+    m = "mako/config"
+    files[m] = re.sub(r"\[urgency=normal\]\nborder-color=#[0-9a-fA-F]{6}", f"[urgency=normal]\nborder-color=#{pal['frame']}",
+                      re.sub(r"^border-color=#[0-9a-fA-F]{6}", f"border-color=#{pal['frame']}", files[m], count=1, flags=re.M))
+    return files
+
+
 def build(name, pal):
     dst = ROOT / "themes" / name
+    files = render(name, pal)
     # rewritten in place, stale files removed after: the active theme's files
     # never vanish under a running Hyprland (its autoreload would fail)
     old = {p for p in dst.rglob("*") if p.is_file()} if dst.exists() else set()
-    files = [p for p in SRC.rglob("*") if p.is_file() and p.name != "README.md"]
-    extra = {ROOT / "packages/tmux/colors.conf": dst / "tmux/colors.conf",
-             ROOT / "packages/btop/themes/current.theme": dst / "btop/themes/current.theme"}
-    for src in files: extra[src] = dst / src.relative_to(SRC)
-    for src, out in extra.items():
+    for rel, text in files.items():
+        out = dst / rel
         out.parent.mkdir(parents=True, exist_ok=True)
-        text = src.read_text()
-        out.write_text(recolor(text, pal))
-    for p in old - set(extra.values()): p.unlink()
+        out.write_text(text)
+    for p in old - {dst / rel for rel in files}:
+        p.unlink()
     for p in sorted(dst.rglob("*"), reverse=True):
-        if p.is_dir() and not any(p.iterdir()): p.rmdir()
-    f = lambda rel: dst / rel
-    # frames have their own colour per theme
-    q = f("quickshell/shell/config/Colors.qml")
-    q.write_text(re.sub(r'(readonly property color frame:\s*")#[0-9a-fA-F]{6}"', rf'\g<1>#{pal["frame"]}"', q.read_text())
-                 .replace("gruvbox theme overlay", f"{name} theme overlay"))
-    h = f("hypr/components/colors.lua")
-    h.write_text(re.sub(r'frame_active = "rgb\([0-9a-fA-F]{6}\)"', f'frame_active = "rgb({pal["frame_active"]})"', h.read_text())
-                 .replace("-- gruvbox-material,", f"-- {name},"))
-    m = f("mako/config")
-    m.write_text(re.sub(r"\[urgency=normal\]\nborder-color=#[0-9a-fA-F]{6}", f"[urgency=normal]\nborder-color=#{pal['frame']}",
-                        re.sub(r"^border-color=#[0-9a-fA-F]{6}", f"border-color=#{pal['frame']}", m.read_text(), count=1, flags=re.M)))
+        if p.is_dir() and not any(p.iterdir()):
+            p.rmdir()
     # its wallpaper folder (wallpapers/<name>, kept outside the generated tree)
     wp = ROOT / "wallpapers" / name
     wp.mkdir(parents=True, exist_ok=True)
     (wp / ".gitkeep").touch()
-    print(name, "->", len(extra), "files")
+    print(name, "->", len(files), "files")
 
-for n in (sys.argv[1:] or THEMES):
-    build(n, THEMES[n])
+
+def stale(name, pal):
+    """Paths under themes/<name> that differ from what render() would write."""
+    dst = ROOT / "themes" / name
+    files = render(name, pal)
+    have = {str(p.relative_to(dst)) for p in dst.rglob("*") if p.is_file()} if dst.exists() else set()
+    differ = [rel for rel, text in files.items() if not (dst / rel).is_file() or (dst / rel).read_text() != text]
+    return sorted(differ + [rel + " (extra)" for rel in have - set(files)])
+
+
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    check = "--check" in args
+    names = [a for a in args if a != "--check"] or list(THEMES)
+    unknown = [n for n in names if n not in THEMES]
+    if unknown:
+        sys.exit(f"unknown theme: {', '.join(unknown)} (have: {', '.join(THEMES)})")
+    if not check:
+        for n in names:
+            build(n, THEMES[n])
+        sys.exit(0)
+    problems = [f"themes/{n}/{rel}" for n in names for rel in stale(n, THEMES[n])]
+    for p in problems:
+        print(p)
+    sys.exit(1 if problems else 0)

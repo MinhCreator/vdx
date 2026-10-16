@@ -38,6 +38,7 @@ Hyprland needs the Lua config layer (0.55+).
 | `force` | unlink + link |
 | `unlink` · `cleanup` | remove all links · only stale ones |
 | `status` · `verify` | per-package status · broken, missing, stale links |
+| `check [group…]` | the repo itself: links, syntax, themes, deps, shell, repo |
 | `bootstrap [-f]` | seed secrets from templates |
 | `system status\|install` | compare / install `system/` into `/etc` |
 | `theme list\|current\|set <name>` | themes; `set` re-links and reloads |
@@ -79,7 +80,7 @@ Submodules: `packages/nvim`, `packages/scripts/{yandex-music,radio,vpn}`.
 
 ## Troubleshooting
 
-- Conflicts: `./install.py force` (real files are kept as `.bak`).
+- Conflicts: `./install.py force` (real files are kept as `<name>.bak`).
 - A new file isn't picked up: `./install.py link`.
 - Empty submodules: `git submodule update --init --recursive`.
 
