@@ -70,7 +70,8 @@ default for each (preferred mode on every output, `us`, no GPU env).
 pull, so new installer code runs. `doctor` is `check` for the machine: the
 setup plan's pending work plus what it can't see (services not running,
 mihomo's capabilities, Hyprland's config errors, `machine/` out of step,
-changed hardware); a new health check is a line in `health()`. `uninstall`
+a session still on another GPU environment — `hl.env` applies only when
+Hyprland starts, so a `gpu_env` change needs a new login — changed hardware); a new health check is a line in `health()`. `uninstall`
 and `rollback` only remove links, files carrying `hypr.MARK` and /etc files
 identical to ours; a file in the way of a restore stays in its backup.
 

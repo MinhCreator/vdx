@@ -15,12 +15,16 @@ loads when present (components/machine.lua). From [hypr] of the profile:
 from __future__ import annotations
 
 import json
+import os
 import re
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 
 from . import components, detect, machine
 from .paths import TGT
-from .ui import added, removed
+from .ui import added, removed, warn
 
 DIR = TGT / "hypr" / "machine"
 MARK = "written by ./install.py from .machine.toml"
@@ -126,6 +130,35 @@ def problems(profile: dict) -> list[str]:
     return out
 
 
+def session_env() -> dict[str, str | None] | None:
+    """The GPU variables the running Hyprland hands to what it starts; None
+    without a session. hl.env sets them at runtime, so /proc/<pid>/environ
+    doesn't show them: Hyprland is asked itself."""
+    if not os.environ.get("HYPRLAND_INSTANCE_SIGNATURE") or not shutil.which("hyprctl"):
+        return None
+    with tempfile.TemporaryDirectory() as tmp:
+        out = Path(tmp) / "env.json"
+        keys = "{" + ", ".join(json.dumps(k) for k, _ in NVIDIA_ENV) + "}"
+        lua = (f"local f = io.open({json.dumps(str(out))}, 'w'); for _, k in ipairs({keys}) do "
+               "f:write(k, '=', os.getenv(k) or '', '\\n') end; f:close()")
+        subprocess.run(["hyprctl", "eval", lua], capture_output=True, text=True, timeout=10)
+        if not out.is_file():
+            return None
+        pairs = (line.split("=", 1) for line in out.read_text().splitlines() if "=" in line)
+        return {k: v or None for k, v in pairs}
+
+
+def stale_session(profile: dict, env: dict | None = None) -> list[str]:
+    """GPU variables the session has but the profile doesn't want (or the
+    reverse): they change only when Hyprland starts again."""
+    env = session_env() if env is None else env
+    if env is None:
+        return []
+    hw = machine.hardware(profile)
+    want = dict(NVIDIA_ENV) if gpu_env(profile, hw) == "nvidia" else {}
+    return [f"{k}={env.get(k) or '(unset)'}" for k, _ in NVIDIA_ENV if env.get(k) != want.get(k)]
+
+
 def out_of_step(profile: dict, target: Path = DIR) -> list[str]:
     """Generated files that differ from what the profile asks for (hand-written ones aside)."""
     if problems(profile):
@@ -175,6 +208,11 @@ def apply(profile: dict | None = None, target: Path = DIR, quiet: bool = False) 
             f.write_text(text)
             changes += 1
             quiet or added(f"{f} (generated)")
+        else:
+            continue
+        if name == "gpu" and not quiet and os.environ.get("HYPRLAND_INSTANCE_SIGNATURE"):
+            # hl.env applies at start: the session keeps handing out the old values
+            warn("the GPU environment changes when Hyprland starts: log out and back in")
     return changes
 
 

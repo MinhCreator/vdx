@@ -58,6 +58,35 @@ class Render(unittest.TestCase):
                 self.assertEqual(r.returncode, 0, r.stderr)
 
 
+class Session(unittest.TestCase):
+    """The running Hyprland keeps the env it started with (the Brave video bug)."""
+    NVIDIA = dict(hypr.NVIDIA_ENV)
+    CLEAN = {k: None for k, _ in hypr.NVIDIA_ENV}
+
+    def stale(self, profile, env):
+        from unittest import mock
+        with mock.patch.object(hypr.machine, "hardware", return_value=HYBRID):
+            return hypr.stale_session(profile, env)
+
+    def test_old_nvidia_env_after_switching_to_none(self):
+        found = self.stale({"hypr": {"gpu_env": "none"}}, self.NVIDIA)
+        self.assertIn("LIBVA_DRIVER_NAME=nvidia", found)
+        self.assertEqual(len(found), len(hypr.NVIDIA_ENV))
+
+    def test_in_step(self):
+        self.assertEqual(self.stale({"hypr": {"gpu_env": "none"}}, self.CLEAN), [])
+        self.assertEqual(self.stale({"hypr": {"gpu_env": "nvidia"}}, self.NVIDIA), [])
+
+    def test_the_other_way_round(self):
+        self.assertIn("LIBVA_DRIVER_NAME=(unset)", self.stale({"hypr": {"gpu_env": "nvidia"}}, self.CLEAN))
+
+    def test_no_session_no_verdict(self):
+        from unittest import mock
+        with mock.patch.dict(hypr.os.environ, {}, clear=True):
+            self.assertIsNone(hypr.session_env())
+            self.assertEqual(hypr.stale_session({"hypr": {"gpu_env": "none"}}), [])
+
+
 class Problems(unittest.TestCase):
     def test_ranges(self):
         self.assertEqual(hypr.workspace_numbers("1-3, 7"), [1, 2, 3, 7])

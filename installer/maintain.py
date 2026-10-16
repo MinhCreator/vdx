@@ -101,6 +101,9 @@ def health(ctx: steps.Ctx) -> list[tuple[str, str, str]]:
         if stale := hypr.out_of_step(profile):
             out.append(("err", f"hypr machine/ out of step with the profile: {', '.join(stale)}", "./install.py link"))
         out += [("err", f".machine.toml {p}", "fix [hypr] in .machine.toml") for p in hypr.problems(profile)]
+        if stale := hypr.stale_session(profile):
+            out.append(("err", f"the session still has another GPU environment ({', '.join(stale)}): apps it starts "
+                               "may fail to show video", "log out of Hyprland and back in"))
         if os.environ.get("HYPRLAND_INSTANCE_SIGNATURE") and shutil.which("hyprctl"):
             errors = subprocess.run(["hyprctl", "configerrors"], capture_output=True, text=True).stdout.strip()
             if errors and errors != "no errors":
