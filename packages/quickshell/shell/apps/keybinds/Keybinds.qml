@@ -21,6 +21,7 @@ ScrimWindow {
   readonly property string position: ModuleSettings.get("keybinds", "position", "top")
   readonly property string opens: ModuleSettings.get("keybinds", "opens", "mode")
   readonly property bool clearOnClose: ModuleSettings.get("keybinds", "clear", true)
+  readonly property bool english: ModuleSettings.get("keybinds", "english", true)
 
   property string tab: "mode"
   property string query: ""
@@ -66,6 +67,7 @@ ScrimWindow {
     function onOpenChanged() {
       if (!root.kb.open) return;
       root.reset();
+      if (root.english) Hypr.englishLayout();
       root.kb.refresh();
       field.input.forceActiveFocus();
     }

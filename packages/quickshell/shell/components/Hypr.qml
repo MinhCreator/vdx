@@ -26,6 +26,15 @@ Singleton {
     return Quickshell.iconPath(e?.icon ?? classOf(t).toLowerCase(), true);
   }
 
+  // The main keyboard switches to its layout called us (Hyprland's index in
+  // the layouts list); the name and the layouts come as one line from hyprctl.
+  function englishLayout() {
+    Quickshell.execDetached(["bash", "-c",
+      "IFS=$'\\t' read -r n l < <(hyprctl devices -j | jq -r '[.keyboards[] | select(.main)][0] | [.name, .layout] | @tsv'); "
+      + "i=$(printf '%s' \"$l\" | tr ',' '\\n' | grep -nx us | head -1 | cut -d: -f1); "
+      + "[ -n \"$i\" ] && hyprctl switchxkblayout \"$n\" $((i-1)) >/dev/null"]);
+  }
+
   // Lua in Hyprland's config state (hypr/components: SnapWindow, MinimizeWindow…)
   function call(lua) { Quickshell.execDetached(["hyprctl", "eval", lua]); }
 

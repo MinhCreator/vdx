@@ -53,7 +53,7 @@ ScrimWindow {
     function onOpenChanged() {
       if (!root.ls.open) return;
       if (root.clearOnClose) field.text = "";
-      if (root.english) root.ls.englishLayout();
+      if (root.english) Hypr.englishLayout();
       root.tab = root.tabs.some(t => t.value === root.opens) ? root.opens : root.tabs[0].value;
       root.current = 0;
       field.input.forceActiveFocus();
