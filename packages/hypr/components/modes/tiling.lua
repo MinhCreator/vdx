@@ -11,5 +11,5 @@ bind("Focus", "SUPER + L", hl.dsp.focus({ direction = "right" }), "Right")
 bind("Focus", "SUPER + K", hl.dsp.focus({ direction = "up" }), "Up")
 bind("Focus", "SUPER + J", hl.dsp.focus({ direction = "down" }), "Down")
 
-WheelBind("Workspaces", "SUPER", "mouse_down", "down", hl.dsp.focus({ workspace = "e+1" }), "Next workspace")
-WheelBind("Workspaces", "SUPER", "mouse_up", "up", hl.dsp.focus({ workspace = "e-1" }), "Previous workspace")
+WheelBind("Workspaces", "SUPER", "mouse_down", "down", function() StepWorkspace(1) end, "Next workspace")
+WheelBind("Workspaces", "SUPER", "mouse_up", "up", function() StepWorkspace(-1) end, "Previous workspace")

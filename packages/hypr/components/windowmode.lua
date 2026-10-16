@@ -246,6 +246,15 @@ function ScrollColumns(dir)
 	hl.dispatch(hl.dsp.layout(dir > 0 and "move +col" or "move -col"))
 end
 
+-- one desk up / down (the wheel, the swipe): desks 1-10 only, so past the
+-- ends nothing moves and no eleventh desk opens (e+1 would open one)
+function StepWorkspace(dir)
+	local ws = hl.get_active_workspace()
+	local to = (ws and ws.id or 1) + dir
+	if to < 1 or to > 10 then return end
+	hl.dispatch(hl.dsp.focus({ workspace = to }))
+end
+
 -- the mode chosen last, at every start and reload (a switch reloads the
 -- config, so the mode's binds and gestures below are set from scratch)
 local f = io.open(stateFile, "r")

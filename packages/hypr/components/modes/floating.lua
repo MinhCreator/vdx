@@ -12,5 +12,5 @@ bind("Floating", "SUPER + L", function() SnapWindow("right") end, "Right half")
 bind("Floating", "SUPER + K", function() MaximizeWindow() end, "Maximize / back")
 bind("Floating", "SUPER + J", function() MinimizeWindow() end, "Minimize")
 
-WheelBind("Workspaces", "SUPER", "mouse_down", "down", hl.dsp.focus({ workspace = "e+1" }), "Next workspace")
-WheelBind("Workspaces", "SUPER", "mouse_up", "up", hl.dsp.focus({ workspace = "e-1" }), "Previous workspace")
+WheelBind("Workspaces", "SUPER", "mouse_down", "down", function() StepWorkspace(1) end, "Next workspace")
+WheelBind("Workspaces", "SUPER", "mouse_up", "up", function() StepWorkspace(-1) end, "Previous workspace")
