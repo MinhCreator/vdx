@@ -1,7 +1,8 @@
 # dotfiles
 
 Arch Linux + Hyprland, one theme across the desktop, deployed by `install.py`
-(Python stdlib, per-file symlinks).
+(Python stdlib, per-file symlinks): a wizard picks what goes on the machine,
+the hardware is detected, nothing personal is installed unless asked for.
 
 | | |
 |---|---|
@@ -9,22 +10,31 @@ Arch Linux + Hyprland, one theme across the desktop, deployed by `install.py`
 | Shell | zsh, Oh My Zsh, Starship |
 | Editor | Neovim |
 | Terminal | kitty, tmux |
-| Music | MPD, ncmpcpp, Yandex Music and radio CLIs |
-| VPN | Mihomo + `vpn` |
+| Music | MPD, ncmpcpp, Yandex Music and radio CLIs (optional) |
+| VPN | Mihomo + `vpn` (optional) |
 
 ## Install
 
-Fresh Arch with `git` and `python` ≥ 3.11:
+Arch Linux, a user with sudo, `git` and `python` ≥ 3.11:
 
 ```bash
-git clone --recursive git@github.com:diominvd/dotfiles.git ~/.dotfiles
+sudo pacman -S --needed git python
+git clone https://github.com/diominvd/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-./install.py setup
+./install.py install
 ```
 
-`setup` installs `deps/`, submodules, links, the secrets template, zsh / tmux
-plugins and `system/`, then verifies. Each step skips what is in place.
-Hyprland needs the Lua config layer (0.55+).
+The wizard shows the machine and the checks, the detected hardware, every
+component by group (desktop, terminal, editor, apps, music, network, AI),
+the theme and keyboard, then a summary; nothing is written before it. Then
+`setup` runs: preflight, the plan, packages (yay is built when missing),
+submodules, links, plugins, `/etc` files (a diff first), services, the
+login shell. Each step skips what is in place; boot settings (the NVIDIA
+driver, mkinitcpio) are only listed for you.
+
+Without the wizard: `./install.py components set <name>…`, then
+`./install.py setup` (`--dry-run` shows the plan). Hyprland needs the Lua
+config layer (0.55+); log in from a tty and run `start-hyprland`.
 
 ## Commands
 
@@ -32,31 +42,33 @@ Hyprland needs the Lua config layer (0.55+).
 
 | Command | |
 |---|---|
-| `setup` | everything above |
-| `deps [--check]` | install missing packages |
-| `link` | create / refresh links, drop stale ones |
-| `force` | unlink + link |
-| `unlink` · `cleanup` | remove all links · only stale ones |
-| `status` · `verify` | per-package status · broken, missing, stale links |
-| `check [group…]` | the repo itself: links, syntax, themes, deps, shell, repo |
-| `bootstrap [-f]` | seed secrets from templates |
-| `system status\|install` | compare / install `system/` into `/etc` |
+| `install` | the wizard, then `setup` |
+| `setup [--dry-run]` | install / bring up to date what is chosen |
+| `update` | `git pull`, then `setup` |
+| `doctor` | this machine's health, each problem with its fix |
+| `components [list\|add\|remove\|set]` | what is on this machine |
+| `machine [show\|detect]` | the detected hardware (`.machine.toml`) |
 | `theme list\|current\|set <name>` | themes; `set` re-links and reloads |
+| `link` · `verify` · `status` | links: create · check · per package |
+| `check [group…]` | the repo itself: links, syntax, themes, components, tests, hypr, shell |
+| `uninstall [--system]` · `rollback` | take it off · put replaced files back |
 
-Destructive commands ask first; `-y` answers yes.
+Destructive commands ask first; `-y` answers yes. All of them:
+[CONVENTIONS.md](CONVENTIONS.md#commands).
 
 ## Layout
 
 ```
-install.py     the manager
-deps/          pacman.txt, aur.txt
-home/          -> ~/
-packages/      -> ~/.config/<pkg>/   (package.toml overrides the target)
-themes/<t>/    overlay of packages/, the active theme wins per file
-system/        copied into /etc with sudo
-templates/     secrets/env.example
-wallpapers/    per theme + common/
-docs/          notes
+install.py        the installer (code in installer/, tests in tests/)
+components.toml   what can be installed: one entry per checkbox
+.machine.toml     this machine: hardware, overrides, the choice (local)
+home/             -> ~/
+packages/         -> ~/.config/<pkg>/   (package.toml overrides the target)
+themes/<t>/       overlay of packages/, the active theme wins per file
+system/           copied into / with sudo
+templates/        secrets/env.example
+wallpapers/       per theme + common/
+docs/             notes
 ```
 
 Themes: catppuccin, dracula, ember, everforest, graphite, gruvbox (the
@@ -66,7 +78,8 @@ roles: [themes/gruvbox/README.md](themes/gruvbox/README.md).
 The shell (bar, apps, Shell Manager on Super+S):
 [packages/quickshell/shell](packages/quickshell/shell/README.md).
 
-Submodules: `packages/nvim`, `packages/scripts/{yandex-music,radio,vpn}`.
+Submodules (cloned with their component): `packages/nvim`,
+`packages/scripts/{yandex-music,radio,vpn}`.
 
 ## Secrets
 
@@ -82,8 +95,12 @@ Submodules: `packages/nvim`, `packages/scripts/{yandex-music,radio,vpn}`.
 
 ## Troubleshooting
 
-- Conflicts: `./install.py force` (real files are kept as `<name>.bak`).
+- Something off: `./install.py doctor` names it and the command that fixes it.
+- A real file was in the way of a link: it is in
+  `~/.local/state/dotfiles/backup/<time>/`; `./install.py rollback` puts it back.
 - A new file isn't picked up: `./install.py link`.
-- Empty submodules: `git submodule update --init --recursive`.
+- Video in the browser shows nothing after a GPU change: log out of Hyprland
+  and back in (its environment is set at start).
+- Logs of each setup: `~/.local/state/dotfiles/setup-<time>.log`.
 
-Rules: [CONVENTIONS.md](CONVENTIONS.md). License: MIT.
+Rules for changing anything: [CONVENTIONS.md](CONVENTIONS.md). License: MIT.

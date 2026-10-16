@@ -30,6 +30,8 @@ Imports: `import qs.<dir>` from the config root. Singletons: `pragma Singleton`
 4. Popup — root `KitFrame`; reads the service, calls its functions.
 5. Register: `BarLayout.modules` (id, label, zone, icon, about, settings) and a
    `Component` in `bar/Bar.qml`. A renamed id goes to `BarLayout.renamed`.
+6. Its id in `modules` of a component in `components.toml` (`quickshell` for
+   core ones): a module whose components are all off is "not installed".
 
 ## An app
 

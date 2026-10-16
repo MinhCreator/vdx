@@ -12,7 +12,9 @@ Two tools are used: **TLP** and **supergfxctl**.
 
 **What it is:** A power management daemon. Automatically applies CPU, Wi-Fi, and device settings when switching between battery and AC.
 
-**Install:**
+**Install:** `./install.py setup` on a laptop (component `laptop`, on when a
+battery is detected) installs `tlp tlp-rdw`, enables `tlp.service` and masks
+`systemd-rfkill.service` / `.socket`. By hand:
 ```bash
 sudo pacman -S tlp tlp-rdw
 sudo systemctl enable --now tlp
@@ -59,7 +61,10 @@ tlp-stat -s
 
 **What it is:** A utility for ASUS laptops that manages GPU switching via `asus_wmi`. Allows fully powering off the discrete GPU.
 
-**Install:**
+**Install:** `./install.py setup` on an ASUS laptop with two GPUs (component
+`asus`) installs it and enables `supergfxd`; the dGPU's runtime power
+management (`/etc/modprobe.d/nvidia-pm.conf`, component `nvidia-laptop`)
+comes with any hybrid NVIDIA laptop. By hand:
 ```bash
 yay -S supergfxctl
 sudo systemctl enable --now supergfxd

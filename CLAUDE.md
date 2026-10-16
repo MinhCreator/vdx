@@ -15,7 +15,9 @@ Read [CONVENTIONS.md](CONVENTIONS.md) before changing anything. In short:
 - Hardware comes from `.machine.toml` (`./install.py machine`), never assumed:
   `/etc` files use `@KEY@` placeholders, machine-specific fixes are quirks.
 - An installer change comes with a test in `tests/`; `./install.py check`
-  (incl. `components`, `tests`) is green before a commit.
+  (incl. `components`, `tests`, `hypr`) is green before a commit. A change
+  to what `setup` does is also run on a clean Arch: `tests/fresh-machine.sh`.
+- `./install.py doctor` is the machine's health (check is the repo's).
 - No secrets in git; check `git diff --cached` before committing.
 - Submodules (`packages/nvim`, `packages/scripts/{yandex-music,radio,vpn}`) are
   changed in their own repositories.
