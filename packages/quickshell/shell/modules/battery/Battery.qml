@@ -20,8 +20,8 @@ Item {
 
   KitBarItem {
     id: label
-    icon: BatteryService.saver ? "leaf" : BatteryService.charging ? "battery-charging"
-        : BatteryService.plugged ? "battery-plugged" : "battery"
+    icon: BatteryService.saver ? "leaf" : BatteryService.charging ? "battery-bolt"
+        : BatteryService.plugged ? "battery-full" : BatteryService.levelIcon
     text: ModuleSettings.get("battery", "percent", true) ? String(BatteryService.capacity) : ""
     tint: BatteryService.saver ? Theme.green
          : BatteryService.charging ? Theme.green

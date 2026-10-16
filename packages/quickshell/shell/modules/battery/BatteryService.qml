@@ -39,6 +39,9 @@ Singleton {
   readonly property string profile: info.profile ?? ""
   readonly property var profiles: info.profiles ?? []
   readonly property bool saver: profile === Theme.powerSaverProfile
+  // Material battery_android: bars 0–6 by charge, full at 100
+  readonly property string levelIcon: capacity >= 100 ? "battery-full"
+    : "battery-" + Math.min(6, Math.floor(capacity * 7 / 100))
 
   property string gpuMode: ""
   property string gpuPending: ""
