@@ -3,6 +3,7 @@
 # fresh-machine.sh — the installer on a clean Arch, in a podman container.
 #
 #   tests/fresh-machine.sh [component ...]     default: a small terminal set + vpn
+#   tests/fresh-machine.sh defaults            a new user's path: setup picks the defaults
 #
 # Clones the committed repo as a new user would, picks the components, runs
 # setup unattended, then checks what a user would: doctor, verify, a second
@@ -35,8 +36,13 @@ step "clone, as a new user would"
 podman exec -u tester "$NAME" bash -c "git config --global --add safe.directory '*' &&
                                        git clone -q /src /home/tester/.dotfiles"
 
-step "machine, components: ${PICK[*]}"
-as_user "./install.py machine detect -y >/dev/null && ./install.py components set ${PICK[*]} -y | tail -n +2"
+if [[ ${PICK[*]} == defaults ]]; then
+    step "machine; no components chosen: setup takes the defaults"
+    as_user "./install.py machine detect -y >/dev/null"
+else
+    step "machine, components: ${PICK[*]}"
+    as_user "./install.py machine detect -y >/dev/null && ./install.py components set ${PICK[*]} -y | tail -n +2"
+fi
 
 step "setup --dry-run"
 as_user "./install.py setup --dry-run"
