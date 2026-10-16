@@ -18,7 +18,7 @@ FloatingWindow {
 
   onVisibleChanged: if (visible) {
     CleanerService.freshen();
-    PopupManager.closeModule("cleaner");
+    Qt.callLater(() => PopupManager.closeModule("cleaner"));
   }
 
   Cleaner {

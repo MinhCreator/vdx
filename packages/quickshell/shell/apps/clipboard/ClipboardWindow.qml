@@ -18,7 +18,7 @@ FloatingWindow {
 
   onVisibleChanged: if (visible) {
     ClipboardService.refresh();
-    PopupManager.closeModule("clipboard");
+    Qt.callLater(() => PopupManager.closeModule("clipboard"));
   }
 
   Clipboard {
