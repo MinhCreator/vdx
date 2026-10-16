@@ -10,7 +10,8 @@
 #   --dns get            {ok, auto, servers}
 #   --dns set [SERVERS]  {ok, error}         comma-separated; empty means DHCP
 #   --ping               {ok, ping, loss}    gateway RTT (ms), packet loss (%)
-#   --speedtest          {ok, down, up, ping, jitter, duration, ip, server}  Mbps / ms / s
+#   --speedtest          {ok, down, up, ping, jitter, best, worst, lan, duration,
+#                         ip, server, dev, gateway}  Mbps / ms / s; lan = gateway RTT
 #   --traffic            {up, down}  bytes in the last second, one line a second
 
 set -u
@@ -142,7 +143,9 @@ cmd_dns() {
 }
 
 # "rtt min/avg/max/mdev = 1.2/2.3/3.4/0.5 ms"
+rtt_min()  { sed -nE 's|^rtt [^=]+= ([0-9.]+)/.*|\1|p'; }
 rtt_avg()  { sed -nE 's|^rtt [^=]+= [0-9.]+/([0-9.]+)/.*|\1|p'; }
+rtt_max()  { sed -nE 's|^rtt [^=]+= [0-9.]+/[0-9.]+/([0-9.]+)/.*|\1|p'; }
 rtt_mdev() { sed -nE 's|^rtt [^=]+= [0-9.]+/[0-9.]+/[0-9.]+/([0-9.]+) ms.*|\1|p'; }
 
 cmd_ping() {
@@ -157,11 +160,18 @@ cmd_ping() {
 }
 
 cmd_speedtest() {
-  local host=speed.cloudflare.com ip pings t0 down up
+  local host=speed.cloudflare.com d gw="" ip pings lpings="" lfile t0 down up
   command -v curl >/dev/null || { error "curl is required"; return; }
 
+  d=$(dev)
+  [ -n "$d" ] && gw=$(dev_field "$d" IP4.GATEWAY | head -n1)
+  lfile=$(mktemp)
+  [ -n "$gw" ] && { ping -c 5 -W 1 -q "$gw" >"$lfile" 2>/dev/null & }
   ip=$(curl -s --max-time 3 https://api.ipify.org)
   pings=$(ping -c 5 -W 1 -q 1.1.1.1 2>/dev/null)
+  wait
+  lpings=$(<"$lfile")
+  rm -f "$lfile"
   t0=$EPOCHREALTIME
   down=$(curl -s -o /dev/null -w '%{speed_download}' --connect-timeout 5 --max-time 20 \
          "https://$host/__down?bytes=10000000")
@@ -175,10 +185,14 @@ cmd_speedtest() {
   jq -cn --argjson down "$down" --argjson up "$up" \
          --argjson ping "$(num "$(rtt_avg <<<"$pings")")" \
          --argjson jitter "$(num "$(rtt_mdev <<<"$pings")")" \
+         --argjson best "$(num "$(rtt_min <<<"$pings")")" \
+         --argjson worst "$(num "$(rtt_max <<<"$pings")")" \
+         --argjson lan "$(num "$(rtt_avg <<<"$lpings")")" \
          --argjson duration "$(awk -v a="$t0" -v b="$EPOCHREALTIME" 'BEGIN{print b-a}')" \
-         --arg ip "$ip" --arg server "$host" \
+         --arg ip "$ip" --arg server "$host" --arg dev "$d" --arg gateway "$gw" \
     '{ok:true, down:($down*8/1e6), up:($up*8/1e6), ping:$ping, jitter:$jitter,
-      duration:$duration, ip:$ip, server:$server}'
+      best:$best, worst:$worst, lan:$lan, duration:$duration, ip:$ip, server:$server,
+      dev:$dev, gateway:$gateway}'
 }
 
 cmd_traffic() {
