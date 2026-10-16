@@ -21,8 +21,11 @@ FloatingWindow {
     Qt.callLater(() => PopupManager.closeModule("clipboard"));
   }
 
+  // the same content as the bar's popup, in the window's look (flat, like Cleaner)
   Clipboard {
     anchors.fill: parent
+    framed: false
+    padding: 24
     onPicked: root.visible = false
   }
 
