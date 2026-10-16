@@ -41,6 +41,14 @@ PopupWindow {
     if (Date.now() - closedAt > 300) visible = !visible;
   }
 
+  // Takes the corner under the module again while open, for a change the module
+  // makes on purpose (Radio on / off), not for every title change.
+  function reanchor() {
+    if (!visible) return;
+    root.anchorX = -1;
+    anchor.updateAnchor();
+  }
+
   anchor.window: root.bar
   anchor.edges: Edges.Bottom | (alignLeft ? Edges.Left : Edges.Right)
   anchor.gravity: Edges.Bottom | (alignLeft ? Edges.Right : Edges.Left)

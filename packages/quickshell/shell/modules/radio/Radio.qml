@@ -19,6 +19,12 @@ Item {
   // the Folder opens this module's popup when its tile is clicked
   function openPopup() { popup.toggle(); }
 
+  // on / off changes the module's width: the open popup moves under it
+  Connections {
+    target: RadioService
+    function onActiveChanged() { Qt.callLater(popup.reanchor); }
+  }
+
   // "Station - track on air" while playing, cut like the music label.
   readonly property string text: RadioService.active
     ? [MpdService.player.station, MpdService.player.title].filter(s => s).join(" - ")
