@@ -14,6 +14,7 @@ import qs.modules.chat
 import qs.modules.cleaner
 import qs.modules.clipboard
 import qs.modules.packages
+import qs.modules.display
 import qs.modules.virustotal
 import qs.modules.clock
 import qs.modules.folder
@@ -40,7 +41,7 @@ PanelWindow {
     workspaces: workspaces, music: music, radio: radio, clock: clock,
     brightness: brightness, audio: audio, wifi: wifi, mihomo: mihomo,
     battery: battery, language: language, ai: ai, notifications: notifications,
-    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, virustotal: virustotal, packages: packages, windows: windows, chat: chat, folder: folder
+    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, virustotal: virustotal, packages: packages, display: display, windows: windows, chat: chat, folder: folder
   })
 
   // a module's options in the Shell Manager (a right click on it): an app's
@@ -147,6 +148,7 @@ PanelWindow {
   Component { id: cleaner; CleanerBar { bar: root } }
   Component { id: virustotal; VirusTotalBar { bar: root } }
   Component { id: packages; PackagesBar { bar: root } }
+  Component { id: display; DisplayBar { bar: root } }
   Component { id: windows; Windows { bar: root } }
   Component { id: chat; Chat { bar: root } }
   Component { id: folder; Folder { bar: root; modules: root.modules } }

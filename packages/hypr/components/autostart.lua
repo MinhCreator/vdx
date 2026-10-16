@@ -14,4 +14,6 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("mako")
 	-- the cursor picked in the Shell Manager, at its size
 	hl.exec_cmd("python3 ~/.config/quickshell/shell/scripts/cursors.py restore")
+	-- the monitor scales and positions picked in the Display window, over the machine profile
+	hl.exec_cmd("python3 ~/.config/quickshell/shell/scripts/display.py restore")
 end)

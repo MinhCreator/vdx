@@ -59,6 +59,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | Capture | Super+Shift+S | `capture open\|stop\|close` |
 | System menu | Super+R | `launcher toggle` |
 | Packages | — | `packages toggle` |
+| Display | — | `display toggle` |
 | VirusTotal | — | `virustotal toggle` |
 | Clipboard | — | `clipboard toggle` |
 | Keybinds | Super+B | `keybinds toggle\|open\|close` |

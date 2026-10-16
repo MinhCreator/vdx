@@ -1,0 +1,84 @@
+import QtQuick
+import Quickshell
+import qs.apps.display
+import qs.config
+import qs.kit
+
+// The display in brief: each monitor's scale, the GTK text size, and a button
+// to the full window.
+KitFrame {
+  id: root
+
+  readonly property var ds: DisplayService
+
+  function pct(f) { return Math.round(f * 100) + "%"; }
+
+  signal openWindow()
+
+  KitHeader {
+    icon: "monitor"
+    title: "Display"
+    subtitle: ds.monitors.length + (ds.monitors.length === 1 ? " MONITOR" : " MONITORS")
+        + " · TEXT " + root.pct(ds.textFactor)
+
+    KitButton {
+      icon: "external"
+      onClicked: {
+        root.openWindow();
+        Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "display", "open"]);
+      }
+    }
+  }
+
+  KitLine {}
+
+  Column {
+    width: parent.width
+    spacing: 14
+
+    Repeater {
+      model: root.ds.monitors
+
+      Column {
+        required property var modelData
+
+        width: parent.width
+        spacing: 6
+
+        KitLabel { text: modelData.name; value: root.pct(modelData.scale) }
+
+        KitChoices {
+          width: parent.width
+          stretch: true
+          disabled: root.ds.busy
+          model: modelData.scales.map(s => ({ label: root.pct(s), value: s }))
+          current: modelData.scale
+          busyValue: root.ds.working === "scale:" + modelData.name ? root.ds.pending : null
+          onPicked: value => root.ds.setScale(modelData.name, value)
+        }
+      }
+    }
+
+    KitLine {}
+
+    KitLabel { text: "TEXT SIZE"; value: root.pct(root.ds.textFactor) }
+
+    KitChoices {
+      width: parent.width
+      stretch: true
+      disabled: root.ds.busy
+      model: root.ds.textScales.map(f => ({ label: root.pct(f), value: f }))
+      current: root.ds.textFactor
+      busyValue: root.ds.working === "text" ? root.ds.pending : null
+      onPicked: value => root.ds.setText(value)
+    }
+
+    KitText {
+      visible: root.ds.error !== ""
+      width: parent.width
+      text: root.ds.error
+      color: Theme.red
+      wrapMode: Text.WordWrap
+    }
+  }
+}

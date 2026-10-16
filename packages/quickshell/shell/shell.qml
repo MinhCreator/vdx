@@ -4,6 +4,7 @@ import Quickshell.Io
 import qs.apps.auth
 import qs.apps.capture
 import qs.apps.clipboard
+import qs.apps.display
 import qs.apps.cleaner
 import qs.apps.packages
 import qs.apps.virustotal
@@ -32,6 +33,7 @@ Scope {
   CleanerWindow {}
   VirusTotalWindow {}
   PackagesWindow {}
+  DisplayWindow {}
   ClipboardWindow {}
   Keybinds {}
   Taskbar {}

@@ -34,6 +34,7 @@ Singleton {
     { id: "cleaner",       label: "Cleaner",       zone: "right",  icon: "brush", about: "What can go, the safe part in one click · Super + X: the full window" },
     { id: "virustotal",    label: "VirusTotal",    zone: "right",  icon: "scan", about: "A hash, URL or file checked against VirusTotal" },
     { id: "packages",      label: "Packages",      zone: "right",  icon: "package", about: "Pending updates, one click to update · the full window" },
+    { id: "display",       label: "Display",       zone: "right",  icon: "monitor", about: "Monitor scale, position and text size · the full window" },
     { id: "windows",       label: "Windows",       zone: "right",  icon: "app-window", settings: "WindowsSettings.qml", about: "Window mode: tiling, floating, scrolling" },
     { id: "chat",          label: "Chat",          zone: "right",  icon: "message", settings: "ChatSettings.qml", about: "A chat with a free opencode model" },
     { id: "folder",        label: "Folder",        zone: "right",  icon: "folder", about: "Modules tucked away, one click from the bar" }

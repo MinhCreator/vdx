@@ -55,7 +55,7 @@ pacman = ["quickshell", "awww", "hyprsunset", "brightnessctl", "gpu-screen-recor
 links = ["quickshell"]
 modules = ["workspaces", "clock", "brightness", "audio", "wifi", "battery", "language", "shell",
            "notifications", "capture", "clipboard", "sysmon", "taskmanager", "cleaner", "packages",
-           "windows", "folder"]
+           "display", "windows", "folder"]
 system = ["etc/polkit-1/rules.d/50-pkexec-keep.rules"]
 services = ["NetworkManager.service", "bluetooth.service"]
 
