@@ -199,10 +199,11 @@ def apply(profile: dict | None = None, target: Path = DIR, quiet: bool = False) 
         if old is not None and MARK not in old:
             continue                                    # written by hand: not ours to touch
         if text is None:
-            if old is not None:
-                f.unlink()
-                changes += 1
-                quiet or removed(f"{f} (generated)")
+            if old is None:
+                continue
+            f.unlink()
+            changes += 1
+            quiet or removed(f"{f} (generated)")
         elif text != old:
             target.mkdir(parents=True, exist_ok=True)
             f.write_text(text)

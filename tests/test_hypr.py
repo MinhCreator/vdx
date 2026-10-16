@@ -128,6 +128,17 @@ class Apply(unittest.TestCase):
         self.run_apply({})
         self.assertEqual((self.dir / "monitors.lua").read_text(), "-- mine\n")
 
+    def test_the_logout_warning_only_when_the_gpu_file_changes(self):
+        import io
+        from unittest import mock
+        none = {"hypr": {**TUF["hypr"], "gpu_env": "none"}}
+        with mock.patch.dict(hypr.os.environ, {"HYPRLAND_INSTANCE_SIGNATURE": "x"}), \
+             mock.patch.object(hypr.machine, "hardware", return_value=HYBRID):
+            for profile, warned in ((TUF, True), (TUF, False), (none, True), (none, False)):
+                with mock.patch("sys.stdout", new=io.StringIO()) as out:
+                    hypr.apply(profile, self.dir)
+                self.assertEqual("log out" in out.getvalue(), warned, profile["hypr"]["gpu_env"])
+
     def test_a_broken_profile_writes_nothing(self):
         self.assertEqual(self.run_apply({"hypr": {"gpu_env": "amd"}}), 0)
         self.assertEqual(list(self.dir.iterdir()), [])

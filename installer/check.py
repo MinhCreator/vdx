@@ -288,7 +288,10 @@ def shell_problems() -> list[str]:
     if not SHELL.is_dir():
         return []
     out = []
-    srel = lambda p: str(p.relative_to(SHELL))
+
+    def srel(p: Path) -> str:
+        return str(p.relative_to(SHELL))
+
     qml = {p: p.read_text() for p in sorted(SHELL.rglob("*.qml"))}
     # icons: every outline icon has its solid twin, every name written out exists
     icons = SHELL / "kit" / "icons"

@@ -7,7 +7,6 @@ is not in a state the installer was written for, so it stops before sudo.
 from __future__ import annotations
 
 import shutil
-import sys
 
 from . import detect
 from .check import components_problems, hypr_problems, test_problems
@@ -22,8 +21,6 @@ def environment_problems() -> list[str]:
     if env["distro"] != "arch":
         out.append(f"distro {env['distro']!r}: only Arch Linux is supported")
     out += [f"{tool}: not found" for tool in ("pacman", "git", "sudo") if not shutil.which(tool)]
-    if sys.version_info < (3, 11):
-        out.append(f"python {sys.version.split()[0]}: 3.11 or newer is needed")
     return out
 
 

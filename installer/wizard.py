@@ -10,6 +10,7 @@ q quit. Nothing is written before the summary is confirmed.
 
 from __future__ import annotations
 
+import contextlib
 import curses
 import locale
 import textwrap
@@ -150,10 +151,8 @@ class UI:
     def put(self, y: int, x: int, text: str, attr: int = 0) -> None:
         h, w = self.scr.getmaxyx()
         if 0 <= y < h and x < w - 1:
-            try:
+            with contextlib.suppress(curses.error):     # the bottom-right cell can't be written
                 self.scr.addnstr(y, x, text, w - 1 - x, attr)
-            except curses.error:
-                pass
 
     def key(self) -> str:
         k = self.scr.get_wch()

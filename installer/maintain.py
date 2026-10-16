@@ -108,10 +108,10 @@ def health(ctx: steps.Ctx) -> list[tuple[str, str, str]]:
             errors = subprocess.run(["hyprctl", "configerrors"], capture_output=True, text=True).stdout.strip()
             if errors and errors != "no errors":
                 out.append(("err", f"Hyprland reports: {errors.splitlines()[0]}", "hyprctl configerrors"))
-    if ctx.has("quickshell") and os.environ.get("WAYLAND_DISPLAY") and shutil.which("qs"):
-        if "Process ID" not in subprocess.run(["qs", "list", "--all"], capture_output=True, text=True).stdout:
-            out.append(("warn", "the shell is not running", "qs -c shell -d"))
-    if (BACKUPS.is_dir() and any(BACKUPS.iterdir())):
+    if ctx.has("quickshell") and os.environ.get("WAYLAND_DISPLAY") and shutil.which("qs") \
+            and "Process ID" not in subprocess.run(["qs", "list", "--all"], capture_output=True, text=True).stdout:
+        out.append(("warn", "the shell is not running", "qs -c shell -d"))
+    if BACKUPS.is_dir() and any(BACKUPS.iterdir()):
         n = sum(1 for _ in BACKUPS.iterdir())
         out.append(("warn", f"{n} backup folder(s) of replaced files", f"look in {short(BACKUPS)}; ./install.py rollback puts them back"))
     return out
