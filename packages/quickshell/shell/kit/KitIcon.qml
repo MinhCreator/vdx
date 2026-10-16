@@ -14,15 +14,19 @@ Item {
   property int size: Theme.fontSize + 3
   property bool solid: ShellSettings.solidIcons
 
-  implicitWidth: size
-  implicitHeight: size
+  // the battery glyphs are wide and short, so drawn alone they look smaller
+  // than the others: their box is a third larger, the glyph's height matches
+  readonly property real optical: name.startsWith("battery-") ? 1.35 : 1
+
+  implicitWidth: size * optical
+  implicitHeight: size * optical
 
   Image {
     id: image
     anchors.fill: parent
     source: root.name === "" ? ""
       : Qt.resolvedUrl("icons/" + (root.solid ? "solid/" : "") + root.name + ".svg")
-    sourceSize { width: root.size * 2; height: root.size * 2 }
+    sourceSize { width: root.implicitWidth * 2; height: root.implicitHeight * 2 }
     smooth: true
     visible: false
   }
