@@ -9,7 +9,13 @@ Read [CONVENTIONS.md](CONVENTIONS.md) before changing anything. In short:
   change gruvbox or `themes/mktheme.py` and rebuild.
 - `/etc` only through `system/` and `./install.py system install` (sudo: give
   the user the command, don't run it).
-- A new program used by a config goes to `deps/pacman.txt` or `deps/aur.txt`.
+- Everything installable is a component in `components.toml` (packages,
+  links, `/etc` files, bar modules); a new program goes in `pacman`/`aur` of
+  the component that needs it, a new file must be owned by one (`links`).
+- Hardware comes from `.machine.toml` (`./install.py machine`), never assumed:
+  `/etc` files use `@KEY@` placeholders, machine-specific fixes are quirks.
+- An installer change comes with a test in `tests/`; `./install.py check`
+  (incl. `components`, `tests`) is green before a commit.
 - No secrets in git; check `git diff --cached` before committing.
 - Submodules (`packages/nvim`, `packages/scripts/{yandex-music,radio,vpn}`) are
   changed in their own repositories.
