@@ -28,6 +28,14 @@ SYSTEM_LATER = {
 }
 
 
+def later_notes(dst, text: str) -> list[str]:
+    """What a copied file does only after the next boot."""
+    out = [later for prefix, later in SYSTEM_LATER.items() if str(dst).startswith(prefix + "/")]
+    if str(dst).startswith("/etc/tmpfiles.d/") and re.search(r"^w! ", text, re.M):
+        out.append("its w! lines apply at the next boot (before PipeWire holds the card)")
+    return out
+
+
 def show_diff(src, dst) -> None:
     """The change a copy makes, as a unified diff (nothing when / is unreadable)."""
     try:
@@ -99,9 +107,8 @@ def cmd_system(args) -> int:
                 subprocess.run(["sudo", *(a.replace("{}", str(dst)) for a in cmd)], check=False)
         if str(dst).startswith("/etc/pacman.d/hooks/"):
             run_hook(dst)
-        for prefix, later in SYSTEM_LATER.items():
-            if str(dst).startswith(prefix + "/"):
-                note(later)
+        for later in later_notes(dst, render(src)):
+            note(later)
     print_hints()
     return 0
 

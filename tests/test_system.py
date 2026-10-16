@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from installer import components, model
+from installer import components, model, system
 
 
 class Render(unittest.TestCase):
@@ -51,3 +51,17 @@ class Selection(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LaterNotes(unittest.TestCase):
+    def test_boot_only_tmpfiles_say_so(self):
+        notes = system.later_notes("/etc/tmpfiles.d/headset-mic.conf", "w! /sys/x - - - - 1\n")
+        self.assertEqual(len(notes), 1)
+        self.assertIn("next boot", notes[0])
+
+    def test_tmpfiles_without_boot_lines_say_nothing(self):
+        self.assertEqual(system.later_notes("/etc/tmpfiles.d/x.conf", "w /sys/x - - - - 1\n"), [])
+
+    def test_modprobe_waits_for_a_reboot(self):
+        self.assertEqual(len(system.later_notes("/etc/modprobe.d/x.conf", "")), 1)
+
