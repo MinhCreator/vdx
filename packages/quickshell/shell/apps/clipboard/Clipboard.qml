@@ -153,7 +153,7 @@ KitFrame {
                   anchors { right: parent.right; verticalCenter: parent.verticalCenter }
                   visible: item.hot
                   name: "x"
-                  size: 14
+                  size: Theme.iconSmall
                   tint: remove.containsMouse ? Theme.red : Theme.foreground2
                 }
               }

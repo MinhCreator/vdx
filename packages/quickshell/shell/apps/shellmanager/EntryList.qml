@@ -22,7 +22,7 @@ Column {
     const i = matches.findIndex(p => p.id === selected);
     if (matches.length > 0) picked(matches[Math.max(0, Math.min(matches.length - 1, i < 0 ? 0 : i + delta))].id);
   }
-  width: 190
+  width: Theme.sideWidth
   height: parent.height
   spacing: Theme.gapMedium
 
@@ -83,7 +83,7 @@ Column {
               anchors { left: parent.left; leftMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
               name: row.modelData.icon
               tint: row.active ? Theme.foreground0 : row.modelData.link || row.modelData.off ? Theme.muted : Theme.foreground2
-              size: 14
+              size: Theme.iconSmall
             }
 
             KitText {

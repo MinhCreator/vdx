@@ -80,7 +80,7 @@ Rectangle {
                        && (row.modelData.key === root.current || !row.modelData.installed)
               name: row.modelData.key === root.current ? "check" : "download"
               tint: row.modelData.key === root.current ? Theme.green : Theme.muted
-              size: 14
+              size: Theme.iconSmall
             }
           }
 

@@ -106,7 +106,7 @@ KitFrame {
                 visible: station.current && MpdService.busy !== station.modelData.key
                 name: "check"
                 tint: Theme.green
-                size: 14
+                size: Theme.iconSmall
               }
             }
 

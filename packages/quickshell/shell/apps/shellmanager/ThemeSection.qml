@@ -98,7 +98,7 @@ Column {
               required property var modelData
               name: modelData[0]
               tint: page.p(modelData[1])
-              size: 14
+              size: Theme.iconSmall
             }
           }
         }
@@ -136,7 +136,7 @@ Column {
     // ---- theme ----
     Column {
       id: themeList
-      width: 190
+      width: Theme.sideWidth
       height: 240                 // the preview matches it; buttons meet its bottom
       spacing: Theme.gapMedium
 
@@ -239,7 +239,7 @@ Column {
                     visible: item.modelData === ThemeService.current && ThemeService.applying !== item.modelData
                     name: "check"
                     tint: Theme.green
-                    size: 14
+                    size: Theme.iconSmall
                   }
                 }
 

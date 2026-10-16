@@ -83,7 +83,7 @@ KitFrame {
           visible: MusicService.cover === ""
           name: "music"
           tint: Theme.gray
-          size: 24
+          size: Theme.iconLarge
         }
       }
 

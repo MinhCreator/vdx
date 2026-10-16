@@ -93,7 +93,7 @@ Column {
 
     Column {
       id: fontList
-      width: 190
+      width: Theme.sideWidth
       height: 240
       spacing: Theme.gapMedium
 

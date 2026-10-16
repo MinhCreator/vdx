@@ -44,7 +44,7 @@ Rectangle {
           anchors.verticalCenter: parent.verticalCenter
           name: BarLayout.icon(modelData)
           tint: Theme.foreground2
-          size: 14
+          size: Theme.iconSmall
         }
       }
 

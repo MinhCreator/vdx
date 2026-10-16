@@ -95,6 +95,10 @@ QtObject {
   readonly property int gapLoose: 10          // also an edge inset of a row
   readonly property int gapWide: 12
   readonly property int gapHair: 4
+  // icons and the widths of a side column (Shell Manager's pages, the sidebar)
+  readonly property int iconSmall: 14
+  readonly property int iconLarge: 24
+  readonly property int sideWidth: 190
   readonly property int popupPadding: 16       // a popup's frame, every side (KitFrame)
   readonly property int popupWidth: 370
   // a window's frame: the gap to its edges on every side, and the space the

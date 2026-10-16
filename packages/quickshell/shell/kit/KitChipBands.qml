@@ -122,7 +122,7 @@ Column {
                   anchors.verticalCenter: parent.verticalCenter
                   name: board.iconOf(chip.modelData)
                   tint: band.zone === "hidden" ? Theme.muted : Theme.foreground2
-                  size: 14
+                  size: Theme.iconSmall
                 }
 
                 KitText {

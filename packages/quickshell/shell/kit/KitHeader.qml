@@ -27,7 +27,7 @@ Item {
       anchors.verticalCenter: parent.verticalCenter
       name: root.icon
       tint: root.iconColor
-      size: 24
+      size: Theme.iconLarge
     }
   }
 

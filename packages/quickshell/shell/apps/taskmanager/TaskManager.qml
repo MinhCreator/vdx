@@ -163,7 +163,7 @@ Rectangle {
   ListView {
     id: list
     anchors { left: parent.left; right: parent.right; top: head.bottom; bottom: foot.top
-              leftMargin: 24; rightMargin: 24; topMargin: Theme.gapSmall; bottomMargin: Theme.gapSmall }
+              leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: Theme.gapSmall; bottomMargin: Theme.gapSmall }
     clip: true
     boundsBehavior: Flickable.StopAtBounds
     model: root.tm.rows

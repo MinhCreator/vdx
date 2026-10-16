@@ -90,7 +90,7 @@ Column {
           visible: !root.busy
           name: "chevron-down"
           tint: Theme.foreground2
-          size: 14
+          size: Theme.iconSmall
           rotation: root.expanded ? 180 : 0
 
           Behavior on rotation { enabled: Motion.controls; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
@@ -165,7 +165,7 @@ Column {
               visible: option.active
               name: "check"
               tint: Theme.green
-              size: 14
+              size: Theme.iconSmall
             }
 
             MouseArea {

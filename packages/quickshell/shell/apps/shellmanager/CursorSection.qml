@@ -96,7 +96,7 @@ Column {
 
     Column {
       id: cursorList
-      width: 190
+      width: Theme.sideWidth
       height: 240
       spacing: Theme.gapMedium
 

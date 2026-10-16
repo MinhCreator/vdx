@@ -50,7 +50,7 @@ Rectangle {
     opacity: root.current ? 1 : 0
     name: "check"
     tint: Theme.green
-    size: 14
+    size: Theme.iconSmall
   }
 
   Item {

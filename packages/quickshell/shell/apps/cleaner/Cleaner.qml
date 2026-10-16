@@ -62,7 +62,7 @@ Rectangle {
   // ---- list ----
   Flickable {
     id: list
-    anchors { left: parent.left; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: 24; rightMargin: 24; topMargin: 14 }
+    anchors { left: parent.left; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: 14 }
     contentHeight: (root.tab === "ai" ? ai.implicitHeight : basic.implicitHeight) + 14
     clip: true
     boundsBehavior: Flickable.StopAtBounds

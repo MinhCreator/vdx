@@ -93,6 +93,6 @@ Rectangle {
     x: root.pointerX - 2
     y: root.pointerY - 2
     name: "cursor"
-    size: 14
+    size: Theme.iconSmall
   }
 }

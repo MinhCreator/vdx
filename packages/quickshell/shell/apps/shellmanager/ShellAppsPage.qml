@@ -65,7 +65,7 @@ Column {
 
     EntryList {
       id: list
-      width: 190
+      width: Theme.sideWidth
       height: parent.height
       title: "APPS"
       model: ShellAppsService.entries

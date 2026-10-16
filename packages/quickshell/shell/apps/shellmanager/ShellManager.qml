@@ -103,7 +103,7 @@ Rectangle {
   // ---- navigation ----
   Rectangle {
     id: sidebar
-    width: 190
+    width: Theme.sideWidth
     height: parent.height
     color: Theme.background0
 
@@ -196,7 +196,7 @@ Rectangle {
               anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               visible: section.active && section.hasJumps
               name: "chevron-down"
-              size: 14
+              size: Theme.iconSmall
               tint: Theme.foreground2
               rotation: section.unfolded ? 180 : 0
               Behavior on rotation { enabled: Motion.pages; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }

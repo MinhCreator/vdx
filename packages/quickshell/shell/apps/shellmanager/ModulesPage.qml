@@ -42,7 +42,7 @@ Column {
     // ---- list: like the theme list — title, search, a framed list ----
     EntryList {
       id: list
-      width: 190
+      width: Theme.sideWidth
       height: parent.height
       title: "MODULES"
       model: BarLayout.modules.map(p => Object.assign({ link: !!root.appOf(p.id), off: !BarLayout.installed(p.id) }, p))
