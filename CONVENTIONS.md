@@ -17,8 +17,9 @@ Rules for people and agents. If a rule is in the way, change it here.
 
 - One package per program. A non-default install path goes in
   `packages/<pkg>/package.toml` (`dir`, `skip`, `[files]`).
-- A package holds a complete working config; a theme holds only what depends on
-  it. Everything works without an active theme.
+- A package holds the config; a theme holds only what depends on its colours.
+  The colour files themselves (hypr `colors.lua`, kitty `colors.conf`, …) live
+  in the themes alone, so a theme is always active: `.theme`, else gruvbox.
 - Real package names in `deps/` (`mihomo-bin`, not `mihomo`);
   check with `./install.py deps --check`.
 

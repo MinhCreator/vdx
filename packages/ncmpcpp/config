@@ -1,16 +1,13 @@
-# ncmpcpp — terminal MPD client (Super+M)
+# ncmpcpp — terminal MPD client (`music` in zsh)
 # https://github.com/ncmpcpp/ncmpcpp
 
 # Directories & Editor
-ncmpcpp_directory = ~/.config/ncmpcpp
 mpd_music_dir     = ~/Music/yandex
 lyrics_directory  = ""
 external_editor   = nvim
 
 # Behaviour
-startup_screen = "playlist"
-
-# General Behavior
+startup_screen                   = "playlist"
 message_delay_time               = 1
 playlist_disable_highlight_delay = 2
 autocenter_mode                  = "no"
@@ -27,7 +24,7 @@ lyrics_fetchers           = tags, genius, tekstowo, plyrics, justsomelyrics, jah
 visualizer_data_source = /tmp/mpd.fifo
 visualizer_output_name = "Visualizer"
 visualizer_type        = "spectrum"
-visualizer_look        = "●●" 
+visualizer_look        = "●●"
 visualizer_color       = "3, 7, 5"
 
 # Interface & Visibility

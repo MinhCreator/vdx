@@ -1,9 +1,7 @@
-# config.template.yaml
+# mihomo — template of ~/.config/mihomo/config.yaml
 #
-# This is the template for ~/.config/mihomo/config.yaml. Do NOT edit
-# config.yaml directly — it is generated from this file plus
-# subscriptions.json by `vpn --render` (called automatically by
-# `vpn --update` and by the mihomo widget's UPDATE button).
+# Don't edit config.yaml itself: `vpn --render` writes it from this file and
+# subscriptions.json (`vpn --update` and the bar's Mihomo › Update run it).
 #
 # To add, remove or change a provider: edit subscriptions.json. The
 # proxy-providers block and the group's `use:` list are filled in from there.

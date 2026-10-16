@@ -84,9 +84,9 @@ supergfxctl -m Hybrid
 
 Switching takes effect after reboot.
 
-**Check current mode:**
+**Check current mode** (`-S` is the dGPU's power status, `-P` a pending switch):
 ```bash
-supergfxctl -S
+supergfxctl -g
 ```
 
 **Verify dGPU is off:**
@@ -135,7 +135,8 @@ Check the charge threshold:
 cat /sys/class/power_supply/BAT0/charge_control_end_threshold
 ```
 
-If not 100 — reset:
+If not 100 — the bar's Battery › Charge limit sets it (and re-applies it at every
+start); pick 100% there, or reset it by hand:
 ```bash
 echo 100 | sudo tee /sys/class/power_supply/BAT0/charge_control_end_threshold
 ```
