@@ -54,7 +54,7 @@ home/          -> ~/
 packages/      -> ~/.config/<pkg>/   (package.toml overrides the target)
 themes/<t>/    overlay of packages/, the active theme wins per file
 system/        copied into /etc with sudo
-secrets/       env.example
+templates/     secrets/env.example
 wallpapers/    per theme + common/
 docs/          notes
 ```
@@ -72,11 +72,13 @@ Submodules: `packages/nvim`, `packages/scripts/{yandex-music,radio,vpn}`.
 
 | Secret | Where | In git |
 |---|---|---|
+| All of the below, one place | `private/` (private repo, `private/secrets.py restore`) | no |
 | API keys | `~/.config/secrets/env` | no |
 | GitHub token | `~/.config/gh/hosts.yml` | no |
+| Mihomo subscriptions | `packages/mihomo/subscriptions.json` (template: `.example`) | no |
 | Mihomo config, providers | `packages/mihomo/config.yaml`, `providers/` | no |
-| Mihomo subscriptions | `packages/mihomo/subscriptions.json` | yes (private repo) |
 | Yandex Music token | `~/.config/scripts/yandex-music/token` | no |
+| opencode password | `~/.config/opencode/service.json` | no |
 
 ## Troubleshooting
 

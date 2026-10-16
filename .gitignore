@@ -3,6 +3,9 @@ __pycache__/
 
 # secrets & local runtime data (never commit)
 packages/mihomo/config.yaml
+packages/mihomo/subscriptions.json
+# private repo with all secret files (see secrets.py there)
+private/
 packages/mihomo/providers/
 packages/gh/hosts.yml
 packages/opencode/node_modules

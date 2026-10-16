@@ -13,8 +13,8 @@ Read [CONVENTIONS.md](CONVENTIONS.md) before changing anything. In short:
 - No secrets in git; check `git diff --cached` before committing.
 - Submodules (`packages/nvim`, `packages/scripts/{yandex-music,radio,vpn}`) are
   changed in their own repositories.
-- Commits: `scope: message`, one logical change, a `Co-Authored-By` trailer.
-  Branch `main`; published history is not rewritten without the owner.
+- Commits: the rules in CONVENTIONS.md (## Commits). Branch `main`; published
+  history is not rewritten without the owner.
 - Commands that check out old commits: `git -c core.hooksPath=/dev/null …`,
   then `./install.py link`.
 - The shell (Quickshell): `packages/quickshell/shell/CLAUDE.md`.

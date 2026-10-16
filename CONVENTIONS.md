@@ -12,7 +12,7 @@ Rules for people and agents. If a rule is in the way, change it here.
 | Wallpapers | `wallpapers/<theme>/`, `wallpapers/common/` | read by the Shell Manager |
 | A file in `/etc` | `system/<path>` | copied by `./install.py system install` |
 | A required program | `deps/pacman.txt`, `deps/aur.txt` | `./install.py deps` |
-| A secret's template | `secrets/*.example` | `./install.py bootstrap` |
+| A secret's template | `templates/secrets/*.example` | `./install.py bootstrap` |
 | Notes | `docs/` | — |
 
 - One package per program. A non-default install path goes in
@@ -52,12 +52,12 @@ Rules for people and agents. If a rule is in the way, change it here.
 
 - Never committed: tokens, keys, passwords, `hosts.yml`, the rendered
   `mihomo/config.yaml`, `providers/`, personal data.
-- Keys live in `~/.config/secrets/env` (from `secrets/env.example`) or next to
-  their program outside the repo.
+- All real secret files are in the private repo `private/` (gitignored here),
+  which `private/secrets.py` copies to their places: `status`, `restore`,
+  `collect`. The file list is `private/manifest.json`.
+- Keys live in `~/.config/secrets/env` (from `templates/secrets/env.example`).
 - A new secret: a `*.example` template, a `.gitignore` line, a row in the
-  README's Secrets table.
-- Exception: `packages/mihomo/subscriptions.json` is in git while the repository
-  is private.
+  README's Secrets table, and an entry in `private/manifest.json`.
 
 ## Submodules
 
@@ -71,11 +71,25 @@ Rules for people and agents. If a rule is in the way, change it here.
 characters; a body says why. Scopes: a package name (`hypr`, `quickshell`, …),
 `themes`, `scripts`, `system`, `installer`, `docs`, `repo`.
 
-- One commit, one logical change.
+- One commit is one whole change: a feature, a fix, a refactor, a cleanup. Not
+  a single line or a small tweak split off from the change it belongs to.
+- No WIP, fixup, "misc" or "tidy" subjects. A half-done change waits until it
+  is finished.
+- The body says why in a few short lines when the subject does not.
+- Co-authors: one `Co-Authored-By:` trailer per model that helped write the
+  change, for example `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
+  Agents add their own model's trailer.
 - Nothing broken: `./install.py check` (links, syntax of every file, themes,
   deps, the shell's registry and icons); `qs log -c shell` without errors for
   the shell.
-- Agents' commits end with a `Co-Authored-By:` trailer.
+
+```
+scope: what changed
+
+Why, in a few short lines when the subject does not say it.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+```
 
 ## Branches
 
