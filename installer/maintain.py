@@ -59,7 +59,8 @@ def cmd_update(args) -> int:
                 print(f"      {line}")
     # the pull may have changed the installer itself: setup runs in a new process
     sys.stdout.flush()
-    flags = [f for f, on in (("--dry-run", getattr(args, "dry_run", False)), ("-y", getattr(args, "yes", False))) if on]
+    flags = [f for f, on in (("--dry-run", getattr(args, "dry_run", False)), ("-y", getattr(args, "yes", False)),
+                             ("--noconfirm", getattr(args, "noconfirm", False))) if on]
     os.execv(sys.executable, [sys.executable, str(ROOT / "install.py"), "setup", *flags])
 
 

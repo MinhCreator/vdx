@@ -128,6 +128,14 @@ class Update(unittest.TestCase):
         argv = execv.call_args[0][1]
         self.assertEqual(argv[-2:], ["setup", "--dry-run"])
 
+    def test_noconfirm_reaches_setup(self):
+        def git(*cmd):
+            return subprocess.CompletedProcess(cmd, 0, "origin/main\n" if cmd[0] == "rev-parse" else "", "")
+        with mock.patch.object(maintain, "git", side_effect=git), \
+             mock.patch.object(maintain.os, "execv") as execv, mock.patch("sys.stdout", new=io.StringIO()):
+            maintain.cmd_update(argparse.Namespace(dry_run=False, yes=True, noconfirm=True))
+        self.assertEqual(execv.call_args[0][1][-3:], ["setup", "-y", "--noconfirm"])
+
     def test_a_failed_pull_stops_before_setup(self):
         def git(*cmd):
             if cmd[0] == "pull":

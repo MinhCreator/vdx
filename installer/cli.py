@@ -30,8 +30,9 @@ def main() -> None:
     p = argparse.ArgumentParser(description="dotfiles manager — run without arguments for a menu")
     sub = p.add_subparsers(dest="cmd")
     sub.add_parser("link", help="create/refresh all symlinks")
-    sub.add_parser("update", help="git pull, then setup with the new code", parents=[yes]).add_argument(
-        "--dry-run", action="store_true", help="show incoming commits and the plan, change nothing")
+    up = sub.add_parser("update", help="git pull, then setup with the new code", parents=[yes])
+    up.add_argument("--dry-run", action="store_true", help="show incoming commits and the plan, change nothing")
+    up.add_argument("--noconfirm", action="store_true", help="pass --noconfirm to pacman, yay and makepkg")
     sub.add_parser("doctor", help="this machine's health, each problem with its fix")
     un = sub.add_parser("uninstall", help="links and generated files off; backups back on request", parents=[yes])
     un.add_argument("--system", action="store_true", help="also remove our unchanged files from /etc (sudo)")

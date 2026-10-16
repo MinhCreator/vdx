@@ -241,8 +241,10 @@ def hypr_problems() -> list[str]:
             shutil.copytree(TGT / "hypr", copy, symlinks=False, ignore=shutil.ignore_patterns("plugins"))
             if variant == "a new machine":
                 shutil.rmtree(copy / "machine", ignore_errors=True)
+            # Hyprland won't start, even to parse, without a runtime dir (ssh, sudo -u, a container)
+            env = {**os.environ, "XDG_RUNTIME_DIR": os.environ.get("XDG_RUNTIME_DIR") or tmp}
             r = subprocess.run(["Hyprland", "--verify-config", "-c", str(copy / "hyprland.lua")],
-                               capture_output=True, text=True, timeout=60)
+                               capture_output=True, text=True, timeout=60, env=env)
             result = (r.stdout + r.stderr).split("Config parsing result:")[-1].strip()
             if result != "config ok":
                 out += [f"hypr ({variant}): {line.replace(str(copy), '~/.config/hypr')}"
