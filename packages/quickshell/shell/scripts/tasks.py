@@ -8,7 +8,7 @@
 `cpu` (machine and per process) is the share of all cores since the previous
 `list` (0–100), from a snapshot in ~/.cache/dotfiles/tasks.json — the first
 call reads 0. `mem` is the resident size in bytes. Errors: {"ok": false, "error": "..."}."""
-import json, os, pwd, signal, sys, time
+import json, os, pwd, signal, sys
 from pathlib import Path
 
 SNAPSHOT = Path.home() / ".cache/dotfiles/tasks.json"
