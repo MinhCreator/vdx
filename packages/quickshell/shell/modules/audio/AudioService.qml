@@ -25,9 +25,10 @@ Singleton {
   readonly property bool headphones: (ports[sink?.name]?.type ?? "").startsWith("Head")
 
   // Device lists for the popup: one entry per port, so the built-in card shows
-  // both "Speakers" and "Headphones". Built-in speakers and mic stay listed
-  // with the jack in; other unplugged ports are left out.
-  readonly property var outputs: entriesOf(sinks)
+  // both "Speakers" and "Headphones". The speakers are hidden while the codec
+  // reports them unavailable (headphones in); other unplugged ports are left out.
+  // headphones in: the HDMI / DisplayPort sinks are left out too, unless one is in use
+  readonly property var outputs: entriesOf(sinks.filter(n => !(jackIn && ports[n.name]?.type === "HDMI" && n.name !== sink?.name)))
   readonly property var inputs: entriesOf(sources)
   readonly property string outputKey: keyOf(sink)
   readonly property string inputKey: keyOf(source)
@@ -57,7 +58,7 @@ Singleton {
       const info = ports[node.name];
       // a jack mic that can't tell it is plugged (availability unknown) is
       // listed only while headphones are in, or when it is the one in use
-      const list = (info?.list ?? []).filter(p => p.name === info.active || p.type === "Speaker" || p.name.includes("internal")
+      const list = (info?.list ?? []).filter(p => p.name === info.active || (p.type === "Speaker" && p.available) || p.name.includes("internal")
                                                || (p.available && !(p.unknown && p.type === "Mic" && !root.jackIn)));
       if (list.length === 0)
         entries.push({ key: node.name + "|" + (info?.active ?? ""), node: node, port: "", label: nameOf(node), about: node.description });
