@@ -13,7 +13,7 @@ import qs.modules.windows
 // minimized from it (Super+J, or a click here; they wait on special:minimized,
 // tagged min<workspace> by windowmode.lua). A click minimizes an open window
 // and brings a minimized one back; the pointer stays where it is. Shell
-// Manager › Windows › Taskbar turns it off.
+// Manager › Windows › Floating › Taskbar turns it off.
 PanelWindow {
   id: root
 

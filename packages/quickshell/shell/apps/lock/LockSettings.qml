@@ -81,7 +81,7 @@ Column {
 
   KitToggleRow { module: "lock"; key: "power"; fallback: true; label: "Power buttons"; hint: "Suspend, reboot, shut down" }
 
-  KitToggleRow { module: "lock"; key: "hideCursor"; fallback: true; label: "Hide cursor"; hint: "Shows again when the mouse moves" }
+  KitToggleRow { module: "lock"; key: "hideCursor"; fallback: true; label: "Hide cursor when idle"; hint: "Shows again when the mouse moves" }
 
   KitOptionRow {
     visible: root.opt("hideCursor", true)

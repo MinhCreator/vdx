@@ -4,10 +4,10 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Bar: MONITOR (which bar, one bar everywhere, show it), LAYOUT and STYLE.
-// LAYOUT: a small preview of the bar, then a row per band — LEFT, CENTER,
-// RIGHT, FOLDER and HIDDEN — its chips in bar order (KitChipBands). Drag a chip
-// along a band or to another one; this page decides what each drop means.
+// Bar: MONITOR (which bar, one bar everywhere, show it) and LAYOUT: a small
+// preview of the bar, then a row per band — LEFT, CENTER, RIGHT, FOLDER and
+// HIDDEN — its chips in bar order (KitChipBands). Drag a chip along a band or
+// to another one; this page decides what each drop means. Under it the icon size.
 Column {
   id: root
 
@@ -20,8 +20,7 @@ Column {
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [
     { key: "monitor", label: "Monitor", y: monitorGroup.y },
-    { key: "layout",  label: "Layout",  y: root.barOn ? layoutGroup.y : -2 },
-    { key: "style",   label: "Style",   y: styleGroup.y }
+    { key: "layout",  label: "Layout",  y: root.barOn ? layoutGroup.y : -2 }
   ].filter(j => j.y > -2)
 
   readonly property string focusId: chips.dragId !== "" ? chips.dragId : chips.hoverId
@@ -165,9 +164,7 @@ Column {
 
   KitLine {}
 
-  // ---- style (every bar) ----
-  KitLabel { id: styleGroup; text: "STYLE" }
-
+  // the icons' size: for every bar
   KitRow {
     wide: true
     label: "Icon size"

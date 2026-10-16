@@ -5,28 +5,30 @@ import qs.modules.windows
 
 // Windows: how windows behave (hypr/components/windowmode.lua) — the mode
 // (tiling, floating, scrolling), the options of the current one, the gaps,
-// frames and shadows and the floating mode's taskbar. Applied at once:
-// Hyprland reloads.
+// frames and shadows, and FLOATING: the switcher and the taskbar, which only
+// the floating mode has. Applied at once: Hyprland reloads.
 Column {
   id: root
 
   readonly property var ws: WindowsService
   readonly property var o: WindowsService.opts
   readonly property var mode: ws.current
+  readonly property bool floating: ws.mode === "floating"
 
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "app-window"
   readonly property string title: "Windows"
   readonly property string subtitle: mode.label.toUpperCase() + " · GAPS " + o.gapsIn + " / " + o.gapsOut
-                                     + " · TASKBAR " + (o.taskbar ? "ON" : "OFF")
+                                     + (floating ? " · TASKBAR " + (o.taskbar ? "ON" : "OFF") : "")
 
-  // groups for the Shell Manager's sidebar: a click scrolls to `y`
+  // groups for the Shell Manager's sidebar: a click scrolls to `y`; FLOATING
+  // is only there in the floating mode
   readonly property var jumps: [
     { key: "mode",   label: "Mode",   y: modeGroup.y },
     { key: "layout", label: root.mode.label, y: layoutGroup.y },
-    { key: "gaps",   label: "Look",   y: gapsGroup.y },
-    { key: "taskbar", label: "Taskbar", y: taskbarGroup.y }
-  ]
+    { key: "floating", label: "Floating", y: floating ? floatingGroup.y : -2 },
+    { key: "gaps",   label: "Look",   y: gapsGroup.y }
+  ].filter(j => j.y > -2)
 
   function pct(v) { return Math.round(v * 100) + "%"; }
 
@@ -122,8 +124,13 @@ Column {
     }
   }
 
+  KitLine {}
+
+  // ---- floating only: the switcher and the taskbar ----
+  KitLabel { id: floatingGroup; visible: root.floating; text: "FLOATING" }
+
   KitRow {
-    visible: root.ws.mode === "floating"
+    visible: root.floating
     label: "Switcher"
     hint: "Super + Tab: this workspace's windows"
 
@@ -133,7 +140,18 @@ Column {
     }
   }
 
-  KitLine {}
+  KitRow {
+    visible: root.floating
+    label: "Taskbar"
+    hint: "This workspace's windows, in a bar"
+
+    KitSwitch {
+      checked: root.o.taskbar
+      onToggled: root.o.taskbar = !root.o.taskbar
+    }
+  }
+
+  KitLine { visible: root.floating }
 
   // ---- gaps ----
   KitLabel { id: gapsGroup; text: "LOOK"; value: root.o.gapsIn + " / " + root.o.gapsOut + " PX" }
@@ -184,18 +202,4 @@ Column {
     }
   }
 
-  KitLine {}
-
-  // ---- taskbar ----
-  KitLabel { id: taskbarGroup; text: "TASKBAR" }
-
-  KitRow {
-    label: "Taskbar"
-    hint: "Floating: this workspace's windows"
-
-    KitSwitch {
-      checked: root.o.taskbar
-      onToggled: root.o.taskbar = !root.o.taskbar
-    }
-  }
 }
