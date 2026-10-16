@@ -319,6 +319,8 @@ Every commit answers three checks first.
   `system/`, no sudo run by an agent; hardware values from `.machine.toml`,
   never the repo; no untrusted input in shell, QML or Lua exec strings; no
   downloaded code or scripts without the owner's say-so.
+- Lint: `ruff check` (config `ruff.toml`) is clean for the Python, `shellcheck`
+  for the shell scripts; a failure is fixed in the same commit.
 - Tests: an installer or behaviour change adds or updates a test in `tests/`;
   when none is needed and that is not obvious, one line in the body says why.
   A change to what `setup` does also runs `tests/fresh-machine.sh`. Tests the

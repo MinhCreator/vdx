@@ -1,0 +1,8 @@
+# Lint for the Python in the repo: `ruff check` from the repo root.
+# The repo keeps several imports on one line (`import json, sys`), so E401 is off.
+line-length = 120
+target-version = "py311"
+
+[lint]
+select = ["E", "F", "W", "B", "UP"]
+ignore = ["E401", "E501", "E701", "E702", "E731", "E741", "UP007", "UP045"]
