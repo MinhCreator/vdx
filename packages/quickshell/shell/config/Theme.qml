@@ -88,6 +88,11 @@ QtObject {
   readonly property color scrim: Qt.rgba(background0.r, background0.g, background0.b, 0.7)
 
   readonly property int popupWidth: 370
+  // a window's frame: the gap to its edges on every side, and the space the
+  // title's line keeps above its capitals (the header draws that far into its box)
+  readonly property int windowPadding: 24
+  readonly property int headerInset: 3
+  readonly property int textDescent: 2          // the line box under a text's baseline, past its ink
   readonly property int controlWidth: 300        // a setting's choices / field (KitRow wide)
   readonly property int rowStackBelow: 480       // a wide KitRow narrower than this puts its control under the label
   readonly property int popupGap: 6

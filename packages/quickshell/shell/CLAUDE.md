@@ -47,6 +47,10 @@ Minimal, monospace, sharp corners, near-monochrome. Reference: the Wi-Fi popup.
 
 - Popup: `KitHeader` → `KitLine` → groups separated by `KitLine` → footer.
   No backgrounds under groups.
+- Window: the frame is `Theme.windowPadding` (24) on every side and nothing else:
+  the header sits at `windowPadding - Theme.headerInset`, a footer at
+  `bottomMargin: Theme.windowPadding`. A `KitFrame` window sets `headerInset`
+  and `bottomInset` (`Theme.textDescent`) instead of offsets. Popups keep 16.
 - Header: icon, title in normal case, subtitle in caps joined by ` · `.
 - Group: `KitLabel` in caps (a noun, current value on the right), then rows.
 - Row: `KitRow` — label (capitalised) and hint (sentence case, no full stop,

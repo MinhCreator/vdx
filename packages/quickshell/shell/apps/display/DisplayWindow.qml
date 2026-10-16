@@ -12,7 +12,7 @@ FloatingWindow {
 
   title: "Display"
   visible: false
-  implicitWidth: 520
+  implicitWidth: 528
   implicitHeight: content.implicitHeight
   color: Theme.background0
 

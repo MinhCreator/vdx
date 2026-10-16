@@ -31,7 +31,7 @@ Rectangle {
   // ---- header ----
   Column {
     id: head
-    anchors { left: parent.left; right: parent.right; top: parent.top; margins: 24; topMargin: 20 }
+    anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.windowPadding; topMargin: Theme.windowPadding - Theme.headerInset }
     spacing: 14
 
     KitHeader {
@@ -224,7 +224,7 @@ Rectangle {
   // ---- foot ----
   Column {
     id: foot
-    anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 24; bottomMargin: 24 }
+    anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
     spacing: 12
 
     KitLine {}

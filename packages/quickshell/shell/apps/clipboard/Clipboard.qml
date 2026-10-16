@@ -78,7 +78,7 @@ KitFrame {
     width: parent.width
     visible: root.shown.length > 0
     // the popup caps it at 440; the window stops it at the frame's bottom padding
-    height: Math.min(contentHeight, root.framed ? 440 : root.height - 2 * root.padding - y)
+    height: Math.min(contentHeight, root.framed ? 440 : root.height - 2 * root.padding + root.headerInset - y)
     contentHeight: rows.implicitHeight
     interactive: contentHeight > height
     clip: true

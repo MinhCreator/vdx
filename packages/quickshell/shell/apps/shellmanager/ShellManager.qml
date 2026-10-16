@@ -295,7 +295,7 @@ Rectangle {
   // the open page's header stays put; only what is under it scrolls
   Column {
     id: header
-    anchors { left: sidebar.right; leftMargin: 25; right: parent.right; rightMargin: 24; top: parent.top; topMargin: 20 }
+    anchors { left: sidebar.right; leftMargin: 25; right: parent.right; rightMargin: Theme.windowPadding; top: parent.top; topMargin: Theme.windowPadding - Theme.headerInset }
     spacing: 14
 
     KitHeader {
@@ -309,7 +309,7 @@ Rectangle {
 
   Flickable {
     id: page
-    anchors { left: sidebar.right; leftMargin: 1; right: parent.right; top: header.bottom; bottom: parent.bottom; bottomMargin: 24 }
+    anchors { left: sidebar.right; leftMargin: 1; right: parent.right; top: header.bottom; bottom: parent.bottom; bottomMargin: Theme.windowPadding }
     contentHeight: pages.implicitHeight + pages.y + 20
     clip: true
     boundsBehavior: Flickable.StopAtBounds
