@@ -59,6 +59,7 @@ Singleton {
       onStreamFinished: {
         const r = root.parse(text);
         if (!r.ok) { root.error = r.error; return; }
+        root.error = "";              // a good list clears the error of an earlier action
         root.monitors = r.monitors;
         root.textFactor = r.text;
         root.textScales = r.textScales;
