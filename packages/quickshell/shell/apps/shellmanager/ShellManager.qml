@@ -15,6 +15,7 @@ import qs.kit
 //   SHELL APPS — how the shell's own windows open: floating or tiled, size, spot.
 //   LAUNCHER   — the launcher's (Super+R) rows, width, position and what it opens on.
 //   KEYBINDS   — the keybinds panel's rows, width, position and what it opens on.
+//   LOCK       — the lock screen's background and clock, its layout, power buttons, cursor.
 //   ABOUT      — how the Shell Manager opens, the ideas behind it, versions.
 Rectangle {
   id: root
@@ -40,6 +41,7 @@ Rectangle {
     { value: "apps",       label: "Shell apps", icon: "grid" },
     { value: "launcher",   label: "Launcher",   icon: "menu" },
     { value: "keybinds",   label: "Keybinds",   icon: "keyboard" },
+    { value: "lock",       label: "Lock screen", icon: "lock" },
     { value: "about",      label: "About",      icon: "info" }
   ]
 
@@ -59,7 +61,7 @@ Rectangle {
 
   function pageFor(value) {
     return ({ bar: bar, media: media, windows: windows, modules: modules, apps: apps, launcher: launcher,
-              keybinds: keybinds, about: about })[value] ?? appearance;
+              keybinds: keybinds, lock: lock, about: about })[value] ?? appearance;
   }
   readonly property Item currentPage: pageFor(tab)
 
@@ -310,6 +312,7 @@ Rectangle {
                                about.visible ? about.implicitHeight : 0,
                                launcher.visible ? launcher.implicitHeight : 0,
                                keybinds.visible ? keybinds.implicitHeight : 0,
+                               lock.visible ? lock.implicitHeight : 0,
                                modules.visible ? modules.height : 0)
 
       AppearancePage { id: appearance; width: parent.width; visible: root.tab === "appearance" }
@@ -320,6 +323,7 @@ Rectangle {
       WindowsPage { id: windows; width: parent.width; visible: root.tab === "windows" }
       LauncherPage { id: launcher; width: parent.width; visible: root.tab === "launcher" }
       KeybindsPage { id: keybinds; width: parent.width; visible: root.tab === "keybinds" }
+      LockPage    { id: lock;    width: parent.width; visible: root.tab === "lock" }
       AboutPage   { id: about;   width: parent.width; visible: root.tab === "about" }
       ModulesPage { id: modules; width: parent.width; onNavigate: (t, k) => root.navigate(t, k); height: page.height - pages.y - 20; visible: root.tab === "modules" }
     }

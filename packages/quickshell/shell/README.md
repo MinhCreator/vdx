@@ -64,7 +64,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | Keybinds | Super+B | `keybinds toggle\|open\|close` |
 | Window switcher | Super+Tab (floating mode) | `switcher toggle\|open\|close` |
 | Overview | — | `overview toggle` |
-| Lock screen | Super+Z | `lock lock` |
+| Lock screen | Super+Z | `lock lock` (options: Shell Manager › Lock screen) |
 | Taskbar | — | floating mode only |
 | Root prompt | — | polkit agent; asks before every root action |
 
