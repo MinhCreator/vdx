@@ -9,6 +9,7 @@ import sys
 from .check import CHECKS, cmd_check
 from .deps import cmd_deps
 from .links import cmd_cleanup, cmd_force, cmd_link, cmd_status, cmd_unlink, cmd_verify
+from .machine import cmd_machine
 from .menu import menu
 from .setup import cmd_bootstrap, cmd_secrets, cmd_setup
 from .system import cmd_system
@@ -49,6 +50,8 @@ def main() -> None:
     tsub.add_parser("list", help="list available themes")
     tsub.add_parser("current", help="show active theme")
     tsub.add_parser("set", help="switch theme").add_argument("t_name")
+    ma = sub.add_parser("machine", help="this machine's profile: show or detect (.machine.toml)", parents=[yes])
+    ma.add_argument("m_action", choices=["show", "detect"], nargs="?", default="show")
 
     args = p.parse_args()
     commands = {
@@ -56,6 +59,7 @@ def main() -> None:
         "cleanup": cmd_cleanup, "status": cmd_status, "verify": cmd_verify, "check": cmd_check,
         "bootstrap": cmd_bootstrap, "deps": cmd_deps, "setup": cmd_setup,
         "system": cmd_system, "theme": cmd_theme, "secrets": cmd_secrets,
+        "machine": cmd_machine,
     }
     if args.cmd not in commands:
         p.print_help()

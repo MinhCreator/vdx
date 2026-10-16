@@ -8,6 +8,7 @@ import subprocess
 from .check import cmd_check
 from .deps import cmd_deps
 from .links import cmd_force, cmd_link, cmd_status, cmd_unlink, cmd_verify
+from .machine import describe, hardware, load
 from .model import (
     active_theme,
     build_entries,
@@ -39,6 +40,8 @@ def overview() -> None:
         print(f"  {(green('●') if healthy else yellow('●'))} {label:9s} {value}")
 
     print(f"\n  {bold('dotfiles')}  {dim(short(ROOT))}  {dim(branch)}\n")
+    profile = load()
+    row("machine", describe(hardware(profile)) + ("" if profile else " · not saved"), profile is not None)
     row("theme", active_theme() or "none", active_theme() is not None)
     row("links", f"{good} ok" + (f" · {bad} problem(s)" if bad else "") + (f" · {stale} stale" if stale else ""),
         not bad and not stale)

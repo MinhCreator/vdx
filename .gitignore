@@ -11,3 +11,4 @@ packages/gh/hosts.yml
 packages/opencode/node_modules
 # local machine state
 .theme
+.machine.toml
