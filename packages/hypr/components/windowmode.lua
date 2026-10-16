@@ -1,7 +1,7 @@
 -- Hyprland — window mode and snapping
--- Three ways windows behave, picked in the Shell Manager or the bar's windows
--- plugin (scripts/windowmode.sh writes the choice to
--- ~/.local/state/dotfiles/window-mode and calls WindowMode here):
+-- Three ways windows behave, picked in the Shell Manager or the bar's Windows
+-- module (WindowsService.qml writes the choice to
+-- ~/.local/state/dotfiles/window-mode and reloads; WindowMode applies it):
 --   tiling    — the master layout (appearance.lua);
 --   floating  — like Windows: every window floats, dragged and resized with
 --               the mouse; windows the mode floated carry the tag
@@ -256,11 +256,11 @@ WindowMode(saved)
 -- a wheel bind of the modes, on the wheel, the arrows or both
 -- (opts.scrollKeys, Shell Manager › Windows): without a mouse the arrows
 -- stand in — wheel down / up as arrow `down` / `up` (the mode's file picks them)
-ScrollKeys = opts.scrollKeys or "wheel"
+local scrollKeys = opts.scrollKeys or "wheel"
 function WheelBind(group, mods, wheel, arrow, action, what)
 	local o = { description = group .. " · " .. what }
-	if ScrollKeys ~= "arrows" then hl.bind(mods .. " + " .. wheel, action, o) end
-	if ScrollKeys ~= "wheel" then hl.bind(mods .. " + " .. arrow, action, o) end
+	if scrollKeys ~= "arrows" then hl.bind(mods .. " + " .. wheel, action, o) end
+	if scrollKeys ~= "wheel" then hl.bind(mods .. " + " .. arrow, action, o) end
 end
 
 -- the mode's own binds, wheel and gestures: components/modes/<mode>.lua

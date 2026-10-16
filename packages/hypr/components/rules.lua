@@ -3,11 +3,11 @@
 -- https://wiki.hypr.land/Configuring/Basics/Window-Rules/
 
 hl.window_rule({
-  name  = "portal-filechooser",
-  match = { class = "^(xdg-desktop-portal-gtk)$" },
-  float  = true,
-  center = true,
-  size   = "900 600",
+	name = "portal-filechooser",
+	match = { class = "^(xdg-desktop-portal-gtk)$" },
+	float = true,
+	center = true,
+	size = "900 600",
 })
 
 -- the shell's own windows: how each opens is set in the Shell Manager › Shell
