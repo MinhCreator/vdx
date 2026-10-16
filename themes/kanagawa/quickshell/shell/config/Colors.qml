@@ -1,8 +1,9 @@
 pragma Singleton
 import QtQuick
 
-// Colors — kanagawa theme overlay (same values as the base copy in
-// packages/quickshell/shell/config/Colors.qml).
+// Colors — kanagawa theme overlay: the colours Theme.qml starts with (a theme
+// switch reaches it live through ThemeService). Every theme has its copy;
+// themes/mktheme.py makes the others from gruvbox's.
 QtObject {
   id: root
 
@@ -33,9 +34,4 @@ QtObject {
   // popup frame (and mako's); controls use `gray`
   readonly property color frame:  "#7e9cd8"
   readonly property color dim:    "#4a4a5e"   // kitty color0
-
-  // workspace labels: "{name}" shows names, "{icon}" the icons below.
-  readonly property string workspaceFormat: "{name}"     // "{name}" | "{icon}"
-  readonly property string workspaceIconDefault: ""      // used when format = "{icon}"
-  readonly property string workspaceIconActive: ""       // used when format = "{icon}"
 }
