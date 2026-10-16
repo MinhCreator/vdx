@@ -2,12 +2,13 @@
 """Package manager for the shell (apps/packages and its bar module). One JSON
 object per command.
 
-    packages.py updates             {"ok", "pacman": [{name, from, to, desc, size}], "aur": [{name, from, to, desc}], "aurError"}
+    packages.py updates             {"ok", "pacman": [{name, from, to, desc, size, repo}], "aur": [{name, from, to, desc, repo}], "aurError"}
                                     size: the download of the new version, in bytes (0 when unknown)
     packages.py progress <name=ver>… {"ok", "bytes"}: what the cache holds of those versions, .part included
     packages.py plan-download <name>… the steps to download them (pacman -Syw) and one script
     packages.py plan-install <name>…  the steps to install them from the cache (pacman -S) and one script
-    packages.py installed           {"ok", "packages": [{name, version, desc, size, date, aur, explicit, apps}]}
+    packages.py installed           {"ok", "packages": [{name, version, desc, size, date, aur, repo, explicit, apps}]}
+                                    repo: the sync repo it comes from (core, extra, …), "aur" when none has it
     packages.py cache               {"ok", "packages": [{name, installed, versions: [{version, file, size, date}]}]}
     packages.py last-update         the last upgrade in pacman's log, with its cached files
                                     {"ok", "date", "packages": [{name, from, to, file}], "missing": [{name, from}]}
@@ -68,10 +69,15 @@ def updates():
         err = "yay is not installed"
     else:
         aur = parse_updates(yay.stdout)
-    # what each update is: the description of the installed version
+    # what each update is: the description of the installed version, and its repo
     info = qi() or {}
+    where = repos()
     for r in pacman + aur:
         r["desc"] = info.get(r["name"], {}).get("desc", "")
+    for r in pacman:
+        r["repo"] = where.get(r["name"], "")
+    for r in aur:
+        r["repo"] = "aur"
     # what each repo update downloads: the new versions' sizes from the same copy
     sizes = download_sizes([r["name"] for r in pacman])
     for r in pacman:
@@ -180,6 +186,17 @@ def qi():
     return packages
 
 
+def repos():
+    # pacman -Sl: name -> the sync repo that has it (the first, as pacman picks)
+    r = run(["pacman", "-Sl"])
+    where = {}
+    for line in (r.stdout if r else "").splitlines():
+        parts = line.split()
+        if len(parts) >= 2:
+            where.setdefault(parts[1], parts[0])
+    return where
+
+
 def installed():
     info = qi()
     if info is None:
@@ -187,8 +204,10 @@ def installed():
     foreign = set((run(["pacman", "-Qmq"]) or subprocess.CompletedProcess([], 1, "")).stdout.split())
     explicit = set((run(["pacman", "-Qeq"]) or subprocess.CompletedProcess([], 1, "")).stdout.split())
     apps = desktop_apps()
+    where = repos()
     packages = [{"name": name, "version": i["version"], "desc": i["desc"], "size": i["size"],
-                 "date": i["date"], "aur": name in foreign, "explicit": name in explicit,
+                 "date": i["date"], "aur": name in foreign,
+                 "repo": "aur" if name in foreign else where.get(name, ""), "explicit": name in explicit,
                  "apps": apps.get(name, [])} for name, i in info.items()]
     packages.sort(key=lambda p: p["name"])
     return {"ok": True, "packages": packages}

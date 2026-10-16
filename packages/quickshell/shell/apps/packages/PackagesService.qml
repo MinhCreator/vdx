@@ -31,14 +31,14 @@ Singleton {
   readonly property bool confirm: opt("confirm", true)
 
   readonly property int count: pacman.length + (aurOn ? aur.length : 0)
-  // every pending update in one list: {name, from, to, desc, aur}
+  // every pending update in one list: {name, from, to, desc, repo, aur}
   readonly property var pending: pacman.map(p => Object.assign({ aur: false }, p))
       .concat(aurOn ? aur.map(p => Object.assign({ aur: true }, p)) : [])
   property var updPicked: ({})              // name -> bool
   readonly property var pickedUpdates: pending.filter(p => updPicked[p.name] === true)
 
   // ---- installed ----
-  property var installed: []                // [{name, version, desc, size, aur, explicit, apps}]
+  property var installed: []                // [{name, version, desc, size, aur, repo, explicit, apps}]
   property bool loading: false
   property var picked: ({})                 // name -> bool
   readonly property var pickedNames: Object.keys(picked).filter(n => picked[n])

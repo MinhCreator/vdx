@@ -18,11 +18,12 @@ Rectangle {
   property string tab: "updates"
 
   // installed
-  property string filter: "all"             // all | apps | aur
+  property string filter: "all"             // all | apps | repo | aur
   property string sortBy: PackagesService.opt("sortBy", "name")   // name | size | date; the option is the start
   readonly property string query: field.text.trim().toLowerCase()
   readonly property var shown: ps.installed.filter(p =>
-      (filter === "all" || (filter === "apps" && p.apps.length > 0) || (filter === "aur" && p.aur))
+      (filter === "all" || (filter === "apps" && p.apps.length > 0)
+       || (filter === "repo" && !p.aur) || (filter === "aur" && p.aur))
       && (query === "" || p.name.toLowerCase().includes(query) || p.desc.toLowerCase().includes(query)
           || p.apps.some(a => a.toLowerCase().includes(query))))
       .sort((a, b) => sortBy === "size" ? b.size - a.size
@@ -47,6 +48,18 @@ Rectangle {
   onTabChanged: armed = false
 
   Timer { id: disarm; interval: 3000; onTriggered: root.armed = false }
+
+  // list columns: name + hint (hint() keeps it to ~36 chars), source,
+  // version (takes what is left, so no gap opens in the middle), size
+  readonly property int nameWidth: 250
+  readonly property int sourceWidth: 72
+  readonly property int sizeWidth: 90
+  readonly property real versionWidth: list.width - 28 - nameWidth - 12 - sourceWidth - sizeWidth - 16
+
+  // where a package comes from: its repo (core, extra, …) or AUR
+  function source(p) {
+    return p.aur ? "AUR" : (p.repo || "—");
+  }
 
   // a row's hint, per the shell's rules: sentence case, no full stop, short
   function hint(text) {
@@ -174,14 +187,20 @@ Rectangle {
           required property var modelData
 
           label: modelData.name
-          hint: root.hint((modelData.aur ? "AUR · " : "") + modelData.desc)
+          hint: root.hint(modelData.desc)
           checked: root.ps.updPicked[modelData.name] === true
           onToggled: root.ps.pickUpdate(modelData.name, !checked)
 
           KitText {
             anchors.verticalCenter: parent.verticalCenter
-            width: 170
-            horizontalAlignment: Text.AlignRight
+            width: root.sourceWidth
+            text: root.source(modelData)
+            color: modelData.aur ? Theme.foreground2 : Theme.muted
+          }
+
+          KitText {
+            anchors.verticalCenter: parent.verticalCenter
+            width: root.versionWidth
             elide: Text.ElideLeft
             text: modelData.from + " → " + modelData.to
             color: Theme.foreground2
@@ -190,7 +209,7 @@ Rectangle {
           // what the repo update downloads; AUR builds have no download size
           KitText {
             anchors.verticalCenter: parent.verticalCenter
-            width: 70
+            width: root.sizeWidth
             horizontalAlignment: Text.AlignRight
             text: modelData.aur ? "—" : Theme.shortSize(modelData.size)
             color: Theme.muted
@@ -229,7 +248,8 @@ Rectangle {
           width: 150
           boxWidth: 150
           overlay: true
-          model: [{ label: "All types", value: "all" }, { label: "Apps", value: "apps" }, { label: "AUR", value: "aur" }]
+          model: [{ label: "All types", value: "all" }, { label: "Apps", value: "apps" },
+                  { label: "Pacman", value: "repo" }, { label: "AUR", value: "aur" }]
           current: root.filter
           onPicked: value => root.filter = value
         }
@@ -277,7 +297,22 @@ Rectangle {
 
           KitText {
             anchors.verticalCenter: parent.verticalCenter
-            width: 90
+            width: root.sourceWidth
+            text: root.source(modelData)
+            color: modelData.aur ? Theme.foreground2 : Theme.muted
+          }
+
+          KitText {
+            anchors.verticalCenter: parent.verticalCenter
+            width: root.versionWidth
+            elide: Text.ElideLeft
+            text: modelData.version
+            color: Theme.foreground2
+          }
+
+          KitText {
+            anchors.verticalCenter: parent.verticalCenter
+            width: root.sizeWidth
             horizontalAlignment: Text.AlignRight
             text: root.sortBy === "date" ? root.day(modelData.date) : Theme.shortSize(modelData.size)
             color: Theme.foreground2
