@@ -15,8 +15,12 @@ Row {
 
   spacing: shape ? 4 : 0
 
+  // desk 10 is key 0, so it sorts first: 0 1 2 … 9
+  function order(ws) { return ws.id === 10 ? 0 : ws.id }
+  readonly property var ordered: Hyprland.workspaces.values.slice().sort((a, b) => order(a) - order(b))
+
   Repeater {
-    model: Hyprland.workspaces
+    model: root.ordered
 
     Item {
       id: workspace
@@ -52,7 +56,8 @@ Row {
         id: label
         anchors.centerIn: parent
         visible: !root.shape
-        text: workspace.modelData.name.replace(/^name:/, "")
+        // desk 10 is the key 0 (SUPER+0)
+        text: workspace.modelData.id === 10 ? "0" : workspace.modelData.name.replace(/^name:/, "")
         color: workspace.tone
 
         Behavior on color { ColorAnimation { duration: 500; easing.type: Easing.OutSine } }
