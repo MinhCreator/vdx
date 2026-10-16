@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 import qs.config
 
 // Wallpaper through awww: the active theme's picture from ~/.dotfiles/wallpapers
@@ -30,6 +31,16 @@ Scope {
 
   onKeyChanged: apply()
   Component.onCompleted: apply()
+
+  // a monitor plugged in later has no picture yet (awww sets only the outputs
+  // it knows of): apply again once it is up, else it shows Hyprland's default
+  Connections {
+    target: Hyprland
+    function onRawEvent(event) {
+      if (event.name.startsWith("monitoradded")) addedTimer.restart();
+    }
+  }
+  Timer { id: addedTimer; interval: 500; onTriggered: root.apply() }
 
   Process { id: proc }
 }
