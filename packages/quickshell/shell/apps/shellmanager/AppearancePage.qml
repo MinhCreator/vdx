@@ -36,7 +36,7 @@ Column {
     { key: "cursor",    label: "Cursor",    y: cursorSection.y }
   ]
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   ThemeSection { id: themeSection; width: parent.width; page: root }
   KitLine {}

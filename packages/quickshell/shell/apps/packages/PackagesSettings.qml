@@ -6,7 +6,7 @@ import qs.kit
 // what opens and when it checks, what is listed, how removing and updating
 // behave. The bar module's own row is PackagesBarSettings (Shell apps › BAR).
 Column {
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "OPENING" }
 

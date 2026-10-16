@@ -6,7 +6,7 @@ import qs.kit
 // list comes from `opencode models`), and opencode's background server.
 Column {
   id: root
-  spacing: 14
+  spacing: Theme.gapGroup
 
   Component.onCompleted: ChatService.loadModels()
 

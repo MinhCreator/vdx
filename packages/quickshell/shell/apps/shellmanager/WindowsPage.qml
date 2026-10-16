@@ -32,7 +32,7 @@ Column {
 
   function pct(v) { return Math.round(v * 100) + "%"; }
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   // ---- mode ----
   KitLabel { id: modeGroup; text: "MODE"; value: root.mode.label.toUpperCase() }

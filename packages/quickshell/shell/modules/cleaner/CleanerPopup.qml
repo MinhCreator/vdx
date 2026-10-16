@@ -41,7 +41,7 @@ KitFrame {
 
   Column {
     width: parent.width
-    spacing: 6
+    spacing: Theme.gapSmall
 
     KitLabel { text: "BIGGEST"; value: root.cs.scanning ? "SCANNING" : "" }
 
@@ -79,7 +79,7 @@ KitFrame {
 
     Column {
       anchors { left: parent.left; right: cleanButton.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
-      spacing: 2
+      spacing: Theme.gapTight
 
       KitText {
         width: parent.width

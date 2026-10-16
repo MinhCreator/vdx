@@ -46,7 +46,7 @@ KitFrame {
   // ---- charge ----
   Column {
     width: parent.width
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitLabel {
       text: "CHARGE"

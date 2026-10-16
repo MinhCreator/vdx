@@ -20,7 +20,7 @@ Column {
     page.selected = list[Math.max(0, Math.min(list.length - 1, (i < 0 ? 0 : i + delta)))];
   }
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel {
     id: themesGroup
@@ -31,7 +31,7 @@ Column {
   // preview on the left, the theme list on the right
   Row {
     width: parent.width
-    spacing: 14
+    spacing: Theme.gapGroup
 
     // ---- preview ----
     // the bar and a popup over the wallpaper, in the selected theme's colours
@@ -64,7 +64,7 @@ Column {
 
         Row {
           anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
-          spacing: 6
+          spacing: Theme.gapSmall
 
           Repeater {
             model: 4
@@ -87,7 +87,7 @@ Column {
 
         Row {
           anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
-          spacing: 8
+          spacing: Theme.gapMedium
 
           // each module in an active state, tinted the way the bar tints it
           Repeater {
@@ -138,7 +138,7 @@ Column {
       id: themeList
       width: 190
       height: 240                 // the preview matches it; buttons meet its bottom
-      spacing: 8
+      spacing: Theme.gapMedium
 
       KitInput {
         width: parent.width
@@ -260,7 +260,7 @@ Column {
       Row {
         id: themeButtons
         width: parent.width
-        spacing: 6
+        spacing: Theme.gapSmall
 
         KitButton {
           width: (parent.width - parent.spacing) / 2

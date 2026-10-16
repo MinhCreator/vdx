@@ -132,7 +132,7 @@ KitFrame {
     // ---- timeline ----
     Column {
       width: parent.width
-      spacing: 2
+      spacing: Theme.gapTight
 
       KitSlider {
         id: timeline
@@ -176,7 +176,7 @@ KitFrame {
 
       Row {
         anchors.centerIn: parent
-        spacing: 8
+        spacing: Theme.gapMedium
 
         KitButton { icon: "skip-back"; onClicked: MpdService.prev() }
 

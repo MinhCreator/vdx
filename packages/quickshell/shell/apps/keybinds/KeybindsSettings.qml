@@ -9,7 +9,7 @@ import qs.kit
 Column {
   id: root
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "LAYOUT" }
 

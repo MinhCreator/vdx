@@ -26,7 +26,7 @@ KitFrame {
   // ---- backlight / dimming ----
   Column {
     width: parent.width
-    spacing: 14
+    spacing: Theme.gapGroup
 
     KitSliderRow {
       label: "BRIGHTNESS"
@@ -48,7 +48,7 @@ KitFrame {
   // ---- night light ----
   Column {
     width: parent.width
-    spacing: 14
+    spacing: Theme.gapGroup
 
     KitRow {
       label: "Night light"

@@ -6,7 +6,7 @@ import qs.kit
 // what the list shows and how, then ending. The bar module's own row is
 // TaskManagerBarSettings (Shell apps › BAR).
 Column {
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "LIST" }
 

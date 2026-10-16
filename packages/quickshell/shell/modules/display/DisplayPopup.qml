@@ -34,7 +34,7 @@ KitFrame {
 
   Column {
     width: parent.width
-    spacing: 14
+    spacing: Theme.gapGroup
 
     Repeater {
       model: root.ds.monitors
@@ -43,7 +43,7 @@ KitFrame {
         required property var modelData
 
         width: parent.width
-        spacing: 6
+        spacing: Theme.gapSmall
 
         KitLabel { text: modelData.name; value: root.pct(modelData.scale) }
 

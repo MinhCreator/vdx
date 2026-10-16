@@ -41,7 +41,7 @@ KitFrame {
 
   Column {
     width: parent.width
-    spacing: 6
+    spacing: Theme.gapSmall
 
     KitLabel { text: "PENDING"; value: root.ps.aurError !== "" ? "AUR UNAVAILABLE" : "" }
 

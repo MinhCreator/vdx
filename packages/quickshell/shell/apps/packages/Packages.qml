@@ -90,7 +90,7 @@ Rectangle {
   Column {
     id: head
     anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.windowPadding; topMargin: Theme.windowPadding - Theme.headerInset }
-    spacing: 14
+    spacing: Theme.gapGroup
 
     KitHeader {
       icon: "package"
@@ -131,7 +131,7 @@ Rectangle {
       id: updates
       width: list.width
       visible: root.tab === "updates"
-      spacing: 14
+      spacing: Theme.gapGroup
 
       KitText {
         visible: root.ps.aurError !== ""
@@ -145,7 +145,7 @@ Rectangle {
       Column {
         visible: root.ps.stage !== ""
         width: parent.width
-        spacing: 6
+        spacing: Theme.gapSmall
 
         KitLabel {
           text: root.ps.stage === "downloading" ? "DOWNLOADING" : "INSTALLING"
@@ -230,12 +230,12 @@ Rectangle {
       id: installed
       width: list.width
       visible: root.tab === "installed"
-      spacing: 14
+      spacing: Theme.gapGroup
 
       // one toolbar: search, then the two dropdowns on the right
       Row {
         width: parent.width
-        spacing: 8
+        spacing: Theme.gapMedium
 
         KitInput {
           id: field
@@ -333,7 +333,7 @@ Rectangle {
       id: cacheList
       width: list.width
       visible: root.tab === "cache"
-      spacing: 14
+      spacing: Theme.gapGroup
 
       KitLabel {
         text: "LAST UPGRADE"
@@ -458,7 +458,7 @@ Rectangle {
       Column {
         id: info
         anchors { left: parent.left; right: actions.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
-        spacing: 2
+        spacing: Theme.gapTight
 
         KitText {
           width: parent.width
@@ -493,7 +493,7 @@ Rectangle {
       Row {
         id: actions
         anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-        spacing: 8
+        spacing: Theme.gapMedium
 
         KitButton {
           visible: root.tab === "updates"

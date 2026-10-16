@@ -1,11 +1,12 @@
 import QtQuick
 import qs.kit
+import qs.config
 
 // The VirusTotal bar module's options (Shell apps › BAR, under the module's
 // place): how the icon shows a verdict, and what the popup takes from the
 // clipboard when it opens.
 Column {
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "ICON" }
 

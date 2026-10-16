@@ -22,7 +22,7 @@ Column {
     { key: "parts",   label: "Parts",   y: partsGroup.y }
   ]
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   // ---- general ----
   KitLabel { id: generalGroup; text: "GENERAL" }

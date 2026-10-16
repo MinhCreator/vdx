@@ -20,7 +20,7 @@ KitRow {
   wide: true
 
   Row {
-    spacing: 8
+    spacing: Theme.gapMedium
 
     Rectangle {
       id: swatch

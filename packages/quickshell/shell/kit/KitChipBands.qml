@@ -96,7 +96,7 @@ Column {
         Flow {
           id: flow
           width: parent.width
-          spacing: 6
+          spacing: Theme.gapSmall
 
           Repeater {
             id: chipRepeater
@@ -116,7 +116,7 @@ Column {
               Row {
                 id: chipRow
                 anchors.centerIn: parent
-                spacing: 6
+                spacing: Theme.gapSmall
 
                 KitIcon {
                   anchors.verticalCenter: parent.verticalCenter

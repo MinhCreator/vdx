@@ -8,7 +8,7 @@ Rectangle {
   id: root
 
   default property alias content: column.data
-  property int padding: 16
+  property int padding: Theme.popupPadding
   property bool framed: true
   // a window whose first item is a KitHeader: its top sits this much higher
   property int headerInset: 0
@@ -26,6 +26,6 @@ Rectangle {
     x: root.padding
     y: root.padding - root.headerInset
     width: root.width - 2 * root.padding
-    spacing: 14
+    spacing: Theme.gapGroup
   }
 }

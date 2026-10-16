@@ -13,7 +13,7 @@ Column {
 
   function opt(key, fallback) { return ModuleSettings.get("launcher", key, fallback); }
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   // ---- tabs: what each band holds ----
   readonly property string focusId: chips.dragId !== "" ? chips.dragId : chips.hoverId

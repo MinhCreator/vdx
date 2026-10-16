@@ -7,7 +7,7 @@ import qs.kit
 Column {
   id: root
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitText {
     width: parent.width
@@ -22,7 +22,7 @@ Column {
   Column {
     width: parent.width
     visible: OllamaService.running
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitLabel {
       text: "MODELS (" + OllamaService.models.length + ")"

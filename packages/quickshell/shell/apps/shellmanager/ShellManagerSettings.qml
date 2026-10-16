@@ -4,7 +4,7 @@ import qs.kit
 
 // The Shell Manager's own options in Shell apps (ShellSettings, not a module's).
 Column {
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "OPENING" }
 

@@ -54,7 +54,7 @@ Column {
     if (e) { selected = e.id; scope = e.id === id ? "app" : "bar"; }
   }
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   onVisibleChanged: if (visible) { ShellAppsService.refresh(); KeybindsService.refresh(); }
 
@@ -86,7 +86,7 @@ Column {
       Column {
         id: details
         width: pane.width
-        spacing: 14
+        spacing: Theme.gapGroup
 
         // heading: icon, name and about; the key that opens it; Reset
         Item {
@@ -108,7 +108,7 @@ Column {
             Column {
               anchors.verticalCenter: parent.verticalCenter
               width: heading.width - headingIcon.width - heading.spacing
-              spacing: 2
+              spacing: Theme.gapTight
 
               KitText {
                 text: root.entry?.label ?? ""
@@ -128,7 +128,7 @@ Column {
           Row {
             id: trailing
             anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-            spacing: 6
+            spacing: Theme.gapSmall
 
             Repeater {
               model: KeybindsService.keysFor(root.entry?.bind ?? "")
@@ -170,7 +170,7 @@ Column {
         Column {
           width: parent.width
           visible: root.scope === "app"
-          spacing: 14
+          spacing: Theme.gapGroup
 
           // one line: how it opens now; the options in a dialog (WindowDialog)
           KitRow {
@@ -201,7 +201,7 @@ Column {
         Column {
           width: parent.width
           visible: root.scope === "bar"
-          spacing: 14
+          spacing: Theme.gapGroup
 
           KitText {
             width: parent.width

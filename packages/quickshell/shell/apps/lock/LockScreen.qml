@@ -69,7 +69,7 @@ Rectangle {
     opacity: (root.main ? 1 : 0) * root.intro   // not hidden: the field must take keys
     transform: Translate { y: 24 * (1 - root.intro) }
     width: 360
-    spacing: 14
+    spacing: Theme.gapGroup
 
     KitText {
       anchors.horizontalCenter: parent.horizontalCenter
@@ -91,7 +91,7 @@ Rectangle {
     Row {
       anchors.horizontalCenter: parent.horizontalCenter
       visible: root.opt("user", true)
-      spacing: 8
+      spacing: Theme.gapMedium
 
       KitIcon { anchors.verticalCenter: parent.verticalCenter; name: "lock"; size: 16; tint: Theme.foreground2 }
       KitText { anchors.verticalCenter: parent.verticalCenter; text: root.lock.user }
@@ -178,7 +178,7 @@ Rectangle {
 
     Row {
       anchors.horizontalCenter: parent.horizontalCenter
-      spacing: 6
+      spacing: Theme.gapSmall
 
       KitButton {
         id: suspend

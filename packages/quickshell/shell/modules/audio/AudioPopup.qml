@@ -122,7 +122,7 @@ KitFrame {
   // ---- applications ----
   Column {
     width: parent.width
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitLabel { text: "APPLICATIONS (" + AudioService.streams.length + ")" }
 
@@ -140,7 +140,7 @@ KitFrame {
         required property var modelData
 
         width: parent.width
-        spacing: 2
+        spacing: Theme.gapTight
 
         KitText {
           width: parent.width

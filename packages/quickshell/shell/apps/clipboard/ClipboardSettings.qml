@@ -5,7 +5,7 @@ import qs.kit
 // Clipboard options in the Shell Manager (Shell apps › Clipboard): how many
 // entries to keep (stored by scripts/clipboard.sh next to the history).
 Column {
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "HISTORY" }
 

@@ -181,7 +181,7 @@ KitFrame {
     height: 30
 
     Row {
-      spacing: 8
+      spacing: Theme.gapMedium
 
       KitButton {
         icon: "zap"
@@ -203,7 +203,7 @@ KitFrame {
     // open in the editor: the provider's subscription, mihomo's config
     Row {
       anchors.right: parent.right
-      spacing: 8
+      spacing: Theme.gapMedium
 
       KitButton {
         icon: "server"

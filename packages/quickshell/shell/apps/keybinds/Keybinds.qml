@@ -124,7 +124,7 @@ ScrimWindow {
         Column {
           id: list
           width: parent.width
-          spacing: 14
+          spacing: Theme.gapGroup
 
           KitText {
             width: parent.width
@@ -144,7 +144,7 @@ ScrimWindow {
               required property int index
 
               width: list.width
-              spacing: 14
+              spacing: Theme.gapGroup
 
               KitLabel {
                 text: section.modelData.name.toUpperCase()

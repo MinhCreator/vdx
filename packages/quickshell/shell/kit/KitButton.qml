@@ -31,7 +31,7 @@ Rectangle {
   Row {
     id: content
     anchors.centerIn: parent
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitIcon {
       anchors.verticalCenter: parent.verticalCenter

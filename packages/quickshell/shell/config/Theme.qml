@@ -87,6 +87,12 @@ QtObject {
   // the dimmed screen under the launcher, the keybinds and the overview
   readonly property color scrim: Qt.rgba(background0.r, background0.g, background0.b, 0.7)
 
+  // the spacing scale: between the items of a column, in px
+  readonly property int gapTight: 2
+  readonly property int gapSmall: 6
+  readonly property int gapMedium: 8
+  readonly property int gapGroup: 14
+  readonly property int popupPadding: 16       // a popup's frame, every side (KitFrame)
   readonly property int popupWidth: 370
   // a window's frame: the gap to its edges on every side, and the space the
   // title's line keeps above its capitals (the header draws that far into its box)

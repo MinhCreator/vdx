@@ -4,7 +4,7 @@ import qs.kit
 
 // Brightness options in the Shell Manager.
 Column {
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "BAR" }
 

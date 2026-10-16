@@ -27,7 +27,7 @@ KitFrame {
   // ---- mode ----
   Column {
     width: parent.width
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitLabel { text: "MODE" }
 
@@ -53,7 +53,7 @@ KitFrame {
   Column {
     visible: root.ws.mode === "floating"
     width: parent.width
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitLine {}
 

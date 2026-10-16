@@ -19,7 +19,7 @@ Item {
   Row {
     id: row
     anchors.verticalCenter: parent.verticalCenter
-    spacing: 6
+    spacing: Theme.gapSmall
 
     KitIcon {
       anchors.verticalCenter: parent.verticalCenter

@@ -4,7 +4,7 @@ import qs.kit
 
 // Notifications options in the Shell Manager: the bell, then the popup.
 Column {
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "BAR" }
 

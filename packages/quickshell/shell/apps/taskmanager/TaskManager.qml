@@ -69,7 +69,7 @@ Rectangle {
   Column {
     id: head
     anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.windowPadding; topMargin: Theme.windowPadding - Theme.headerInset }
-    spacing: 14
+    spacing: Theme.gapGroup
 
     KitHeader {
       icon: "activity"
@@ -112,7 +112,7 @@ Rectangle {
           readonly property real now: modelData.values[at] ?? 0
 
           width: (parent.width - 3 * parent.spacing) / 4
-          spacing: 8
+          spacing: Theme.gapMedium
 
           KitLabel {
             width: parent.width
@@ -255,7 +255,7 @@ Rectangle {
 
       Column {
         anchors { left: parent.left; right: buttons.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
-        spacing: 2
+        spacing: Theme.gapTight
 
         KitText {
           width: parent.width
@@ -281,7 +281,7 @@ Rectangle {
       Row {
         id: buttons
         anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-        spacing: 6
+        spacing: Theme.gapSmall
 
         KitButton {
           id: endButton

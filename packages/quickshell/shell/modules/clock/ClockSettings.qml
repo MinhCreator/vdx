@@ -4,7 +4,7 @@ import qs.kit
 
 // Clock options in the Shell Manager: what the bar shows.
 Column {
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "BAR" }
 

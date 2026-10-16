@@ -32,7 +32,7 @@ Column {
   onCurrentPosChanged: Qt.callLater(scrollToCurrent)
   onSearchingChanged: if (!searching) Qt.callLater(scrollToCurrent)
 
-  spacing: 8
+  spacing: Theme.gapMedium
 
   Item {
     width: parent.width

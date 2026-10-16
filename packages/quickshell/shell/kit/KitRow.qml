@@ -32,7 +32,7 @@ Item {
       rightMargin: root.stacked ? 0 : 12
     }
     y: root.stacked ? 0 : (root.height - height) / 2
-    spacing: 2
+    spacing: Theme.gapTight
 
     KitText {
       width: parent.width
@@ -56,7 +56,7 @@ Item {
     id: slot
     anchors.right: parent.right
     y: root.stacked ? text.height + 8 : (root.height - height) / 2
-    spacing: 8
+    spacing: Theme.gapMedium
   }
 
   // the one control of a wide row takes the standard width

@@ -1,10 +1,11 @@
 import QtQuick
 import qs.kit
+import qs.config
 
 // The clipboard's bar popup options (Shell apps › Bar module): how much of
 // the history it lists and what it keeps on screen. The window is not affected.
 Column {
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "POPUP" }
 

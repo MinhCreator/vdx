@@ -1,10 +1,11 @@
 import QtQuick
 import qs.kit
+import qs.config
 
 // The task manager's bar module options (Shell apps › BAR, under the
 // module's place): how much its popup lists.
 Column {
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "POPUP" }
 

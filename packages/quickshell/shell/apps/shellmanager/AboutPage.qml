@@ -24,7 +24,7 @@ Column {
 
   property var versions: ({})
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   onVisibleChanged: if (visible && !versionProc.running) versionProc.running = true
 

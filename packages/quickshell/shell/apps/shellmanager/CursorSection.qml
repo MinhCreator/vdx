@@ -33,7 +33,7 @@ Column {
     cursorCustom = CursorService.mode === "custom" ? CursorService.fill : "d8a657";
   }
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel {
     id: cursorGroup
@@ -44,7 +44,7 @@ Column {
   // the main shapes of the selected cursor in the chosen colour, beside the list
   Row {
     width: parent.width
-    spacing: 14
+    spacing: Theme.gapGroup
 
     Rectangle {
       width: parent.width - cursorList.width - 14
@@ -98,7 +98,7 @@ Column {
       id: cursorList
       width: 190
       height: 240
-      spacing: 8
+      spacing: Theme.gapMedium
 
       PickList {
         width: parent.width
@@ -113,7 +113,7 @@ Column {
       Row {
         id: cursorButtons
         width: parent.width
-        spacing: 6
+        spacing: Theme.gapSmall
 
         KitButton {
           width: (parent.width - parent.spacing) / 2

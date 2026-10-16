@@ -13,7 +13,7 @@ Column {
   readonly property var fontRows: FontService.fonts.map(f => ({ key: f.family, label: f.family.replace(" Nerd Font", ""),
                                                                installed: f.installed, family: f.family }))
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel {
     id: fontGroup
@@ -24,7 +24,7 @@ Column {
   // a sample in the selected font beside the list
   Row {
     width: parent.width
-    spacing: 14
+    spacing: Theme.gapGroup
 
     Rectangle {
       width: parent.width - fontList.width - 14
@@ -95,7 +95,7 @@ Column {
       id: fontList
       width: 190
       height: 240
-      spacing: 8
+      spacing: Theme.gapMedium
 
       PickList {
         width: parent.width
@@ -110,7 +110,7 @@ Column {
       Row {
         id: fontButtons
         width: parent.width
-        spacing: 6
+        spacing: Theme.gapSmall
 
         KitButton {
           width: (parent.width - parent.spacing) / 2

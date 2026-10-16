@@ -46,7 +46,7 @@ KitFrame {
     Column {
       id: lines
       width: log.width
-      spacing: 14
+      spacing: Theme.gapGroup
 
       KitText {
         visible: root.cs.messages.length === 0
@@ -83,7 +83,7 @@ KitFrame {
 
       Row {
         visible: root.cs.busy
-        spacing: 8
+        spacing: Theme.gapMedium
         KitSpinner {}
         KitText { text: "thinking…"; color: Theme.muted }
       }

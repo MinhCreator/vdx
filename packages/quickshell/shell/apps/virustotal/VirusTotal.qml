@@ -32,7 +32,7 @@ Rectangle {
   Column {
     id: head
     anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.windowPadding; topMargin: Theme.windowPadding - Theme.headerInset }
-    spacing: 14
+    spacing: Theme.gapGroup
 
     KitHeader {
       icon: "scan"
@@ -84,7 +84,7 @@ Rectangle {
     Column {
       id: body
       width: list.width
-      spacing: 14
+      spacing: Theme.gapGroup
 
       KitText {
         visible: root.vs.error !== ""
@@ -136,7 +136,7 @@ Rectangle {
       Column {
         visible: root.r?.known === true
         width: parent.width
-        spacing: 6
+        spacing: Theme.gapSmall
 
         KitLabel { text: "VERDICT"; value: root.vs.verdictWord(root.vs.verdict) }
 
@@ -168,7 +168,7 @@ Rectangle {
       Column {
         visible: root.r?.known === true && root.r.detections.length > 0
         width: parent.width
-        spacing: 6
+        spacing: Theme.gapSmall
 
         KitLabel { text: "FLAGGED BY"; value: (root.r?.detections?.length ?? 0) + " ENGINES" }
 
@@ -197,7 +197,7 @@ Rectangle {
       Column {
         visible: !root.r && root.vs.history.length > 0
         width: parent.width
-        spacing: 6
+        spacing: Theme.gapSmall
 
         KitLabel { text: "RECENT"; value: root.vs.history.length + "" }
 

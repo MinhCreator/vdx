@@ -27,7 +27,7 @@ Column {
     return out.filter(p => p.code || p.text !== "");
   }
 
-  spacing: 8
+  spacing: Theme.gapMedium
 
   Repeater {
     model: root.parts
@@ -70,7 +70,7 @@ Column {
             x: 10
             y: 8
             width: parent.width - 20
-            spacing: 6
+            spacing: Theme.gapSmall
 
             Item {
               width: parent.width

@@ -35,7 +35,7 @@ Rectangle {
     x: 16
     y: 16
     width: parent.width - 32
-    spacing: 14
+    spacing: Theme.gapGroup
 
     KitHeader {
       icon: CaptureService.kind === "record" ? "video" : "camera"
@@ -54,7 +54,7 @@ Rectangle {
     // ---- what and how ----
     Column {
       width: parent.width
-      spacing: 8
+      spacing: Theme.gapMedium
 
       KitLabel { text: "WHAT" }
 
@@ -73,7 +73,7 @@ Rectangle {
 
     Column {
       width: parent.width
-      spacing: 8
+      spacing: Theme.gapMedium
 
       KitLabel { text: "AS" }
 
@@ -94,7 +94,7 @@ Rectangle {
     // ---- where it goes: a shot always reaches the clipboard ----
     Column {
       width: parent.width
-      spacing: 8
+      spacing: Theme.gapMedium
 
       KitLabel {
         text: "SAVE"
@@ -140,7 +140,7 @@ Rectangle {
           required property var modelData
 
           width: parent.width
-          spacing: 8
+          spacing: Theme.gapMedium
 
           KitLabel {
             text: setting.modelData.title

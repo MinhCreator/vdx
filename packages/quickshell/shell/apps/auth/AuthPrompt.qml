@@ -172,7 +172,7 @@ Scope {
           Row {
             id: buttons
             anchors.right: parent.right
-            spacing: 6
+            spacing: Theme.gapSmall
 
             KitButton {
               icon: "x"

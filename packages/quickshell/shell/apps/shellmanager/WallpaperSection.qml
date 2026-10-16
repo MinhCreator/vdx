@@ -20,7 +20,7 @@ Column {
     draft = hex;
   }
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel {
     id: wallpaperGroup
@@ -61,7 +61,7 @@ Column {
   Flow {
     width: parent.width
     visible: page.imageWallpaper && themePictures.count + commonPictures.count > 0
-    spacing: 6
+    spacing: Theme.gapSmall
 
     Repeater {
       model: FolderListModel {
@@ -118,7 +118,7 @@ Column {
     wide: true
 
     Row {
-      spacing: 8
+      spacing: Theme.gapMedium
 
       KitInput {
         width: parent.width - addImage.width - parent.spacing

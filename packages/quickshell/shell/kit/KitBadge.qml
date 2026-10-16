@@ -9,7 +9,7 @@ Row {
   property string text: ""
   property color tint: Theme.foreground2
 
-  spacing: 6
+  spacing: Theme.gapSmall
 
   Rectangle {
     anchors.verticalCenter: parent.verticalCenter

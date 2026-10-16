@@ -13,7 +13,7 @@ Column {
 
   function opt(key, fallback) { return ModuleSettings.get("lock", key, fallback); }
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   // ---- look ----
   KitLabel { text: "LOOK" }

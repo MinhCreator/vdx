@@ -24,7 +24,7 @@ Column {
   signal picked(var value)
 
   width: parent ? parent.width : 0
-  spacing: 6
+  spacing: Theme.gapSmall
   z: expanded ? 10 : 0
 
   onDisabledChanged: if (disabled) expanded = false
@@ -37,7 +37,7 @@ Column {
     Column {
       id: text
       anchors { left: parent.left; right: box.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
-      spacing: 2
+      spacing: Theme.gapTight
 
       KitText {
         width: parent.width

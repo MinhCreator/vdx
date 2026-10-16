@@ -5,7 +5,7 @@ import qs.kit
 // Sysmon options in the Shell Manager: the bar's text and which popup
 // sections show.
 Column {
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "BAR" }
 

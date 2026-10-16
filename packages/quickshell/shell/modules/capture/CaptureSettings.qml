@@ -8,7 +8,7 @@ import qs.kit
 // empty brings the default back.
 Column {
   id: root
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "SAVING" }
 

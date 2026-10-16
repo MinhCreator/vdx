@@ -14,7 +14,7 @@ Column {
                                   : signal >= 25 ? "Fair" : "Weak"
   readonly property bool measured: WifiService.connected && WifiService.pingMs > 0
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   // ---- header ----
   KitHeader {
@@ -131,7 +131,7 @@ Column {
   // ---- networks ----
   Column {
     width: parent.width
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitLabel {
       text: !WifiService.radioOn ? "WI-FI IS OFF" : "NETWORKS (" + WifiService.networks.length + ")"
@@ -162,7 +162,7 @@ Column {
 
   // ---- actions ----
   Row {
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitButton {
       icon: "refresh"

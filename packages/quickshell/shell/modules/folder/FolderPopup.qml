@@ -34,7 +34,7 @@ KitFrame {
     visible: root.ids.length > 0
     width: parent.width
     columns: 3
-    spacing: 6
+    spacing: Theme.gapSmall
 
     Repeater {
       model: root.ids
@@ -52,7 +52,7 @@ KitFrame {
 
         Column {
           anchors.centerIn: parent
-          spacing: 6
+          spacing: Theme.gapSmall
 
           KitIcon {
             anchors.horizontalCenter: parent.horizontalCenter

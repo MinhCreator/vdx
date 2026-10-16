@@ -5,7 +5,7 @@ import qs.kit
 // Cleaner options in the Shell Manager (ModuleSettings "cleaner"): cleaning,
 // then the AI mode.
 Column {
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "CLEANING" }
 

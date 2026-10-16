@@ -56,7 +56,7 @@ Variants {
 
       Row {
         anchors.right: parent.right
-        spacing: 6
+        spacing: Theme.gapSmall
 
         KitButton {
           icon: "x"

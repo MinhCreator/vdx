@@ -28,7 +28,7 @@ Column {
 
   function set(change) { ShellAppsService.set(app, change); }
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel {
     visible: root.labelled
@@ -49,7 +49,7 @@ Column {
 
     Column {
       width: parent.width - 220 - parent.spacing
-      spacing: 8
+      spacing: Theme.gapMedium
 
       KitText {
         width: parent.width

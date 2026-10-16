@@ -34,7 +34,7 @@ Rectangle {
   Column {
     id: head
     anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.windowPadding; topMargin: Theme.windowPadding - Theme.headerInset }
-    spacing: 14
+    spacing: Theme.gapGroup
 
     KitHeader {
       icon: "brush"
@@ -73,7 +73,7 @@ Rectangle {
       id: basic
       width: list.width
       visible: root.tab === "basic"
-      spacing: 14
+      spacing: Theme.gapGroup
 
       Repeater {
         model: [
@@ -90,7 +90,7 @@ Rectangle {
           readonly property var items: root.cs.categories.filter(c => c.root === modelData.root)
 
           width: basic.width
-          spacing: 14
+          spacing: Theme.gapGroup
 
           KitLabel {
             text: group.modelData.title
@@ -133,7 +133,7 @@ Rectangle {
       id: ai
       width: list.width
       visible: root.tab === "ai"
-      spacing: 14
+      spacing: Theme.gapGroup
 
       KitText {
         width: parent.width
@@ -214,7 +214,7 @@ Rectangle {
 
       Column {
         anchors { left: parent.left; right: action.left; rightMargin: 12; verticalCenter: parent.verticalCenter }
-        spacing: 2
+        spacing: Theme.gapTight
 
         KitText {
           width: parent.width

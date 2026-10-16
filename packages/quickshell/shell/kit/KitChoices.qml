@@ -16,7 +16,7 @@ Row {
 
   signal picked(var value)
 
-  spacing: 6
+  spacing: Theme.gapSmall
 
   Repeater {
     model: root.model

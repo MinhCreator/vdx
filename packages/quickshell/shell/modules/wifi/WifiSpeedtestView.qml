@@ -24,7 +24,7 @@ Column {
     return Math.log(1 + mbps) / Math.log(1001);
   }
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLine {}
 
@@ -51,7 +51,7 @@ Column {
       }
 
       width: parent.width
-      spacing: 6
+      spacing: Theme.gapSmall
 
       TextMetrics { id: legMetrics; font.family: Theme.fontFamily; font.pixelSize: Theme.fontSize - 1; text: "9999 ms" }
 
@@ -100,7 +100,7 @@ Column {
         required property var modelData
 
         width: (metrics.width - 2 * metrics.gap) / 3
-        spacing: 6
+        spacing: Theme.gapSmall
 
         KitLabel { text: modelData.label }
 

@@ -81,7 +81,7 @@ KitFrame {
   Column {
     width: parent.width
     visible: root.tab === "claude"
-    spacing: 14
+    spacing: Theme.gapGroup
 
     Column {
       width: parent.width
@@ -145,7 +145,7 @@ KitFrame {
 
     Column {
       width: parent.width
-      spacing: 6
+      spacing: Theme.gapSmall
 
       KitLabel { text: "TODAY"; value: (ClaudeService.today.messages ?? 0) + " MESSAGES" }
 
@@ -159,7 +159,7 @@ KitFrame {
 
     Column {
       width: parent.width
-      spacing: 8
+      spacing: Theme.gapMedium
 
       KitLabel {
         text: "SESSIONS (" + ClaudeService.sessions.length + ")"
@@ -178,7 +178,7 @@ KitFrame {
           readonly property bool busy: modelData.status === "busy"
 
           width: parent.width
-          spacing: 2
+          spacing: Theme.gapTight
 
           Item {
             width: parent.width

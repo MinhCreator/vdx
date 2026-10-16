@@ -28,7 +28,7 @@ KitFrame {
   Column {
     width: parent.width
     visible: RadioService.active
-    spacing: 6
+    spacing: Theme.gapSmall
 
     KitLabel { text: "NOW PLAYING" }
 
@@ -45,7 +45,7 @@ KitFrame {
   // ---- stations ----
   Column {
     width: parent.width
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitLabel { text: "STATIONS (" + RadioService.stations.length + ")" }
 

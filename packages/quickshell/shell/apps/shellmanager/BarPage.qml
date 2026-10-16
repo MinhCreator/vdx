@@ -63,7 +63,7 @@ Column {
     }
   }
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   // ---- monitor ----
   KitLabel { id: monitorGroup; text: "MONITOR" }
@@ -123,7 +123,7 @@ Column {
     Row {
       id: layoutActions
       anchors.right: parent.right
-      spacing: 6
+      spacing: Theme.gapSmall
 
       KitButton {
         visible: root.other !== "" && !BarLayout.shared

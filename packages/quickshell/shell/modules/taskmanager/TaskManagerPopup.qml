@@ -46,7 +46,7 @@ KitFrame {
   // ---- load ----
   Column {
     width: parent.width
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitLabel { text: "CPU"; value: Math.round(root.tm.cpu) + "%"; valueColor: Theme.loadColor(root.tm.cpu) }
     KitBar { value: root.tm.cpu / 100; tint: Theme.loadColor(root.tm.cpu) }
@@ -69,7 +69,7 @@ KitFrame {
   // ---- the busiest ----
   Column {
     width: parent.width
-    spacing: 6
+    spacing: Theme.gapSmall
 
     KitLabel {
       text: root.tm.sortBy === "mem" ? "TOP BY MEMORY" : root.tm.sortBy === "name" ? "BY NAME" : "TOP BY CPU"

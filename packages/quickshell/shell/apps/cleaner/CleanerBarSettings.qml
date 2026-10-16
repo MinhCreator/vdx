@@ -1,10 +1,11 @@
 import QtQuick
 import qs.kit
+import qs.config
 
 // The cleaner's bar popup options (Shell apps › Bar module): how many of the
 // biggest categories it lists.
 Column {
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "POPUP" }
 

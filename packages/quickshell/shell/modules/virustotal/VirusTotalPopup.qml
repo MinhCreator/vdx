@@ -43,7 +43,7 @@ KitFrame {
 
   Column {
     width: parent.width
-    spacing: 6
+    spacing: Theme.gapSmall
 
     KitText {
       visible: root.vs.error !== ""

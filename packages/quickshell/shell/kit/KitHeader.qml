@@ -61,6 +61,6 @@ Item {
   Row {
     id: actionRow
     anchors { right: parent.right; verticalCenter: caption.verticalCenter }
-    spacing: 8
+    spacing: Theme.gapMedium
   }
 }

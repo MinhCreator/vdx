@@ -6,7 +6,7 @@ import qs.kit
 Column {
   id: root
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   onVisibleChanged: if (visible) field.input.forceActiveFocus()
 
@@ -14,7 +14,7 @@ Column {
 
   Column {
     width: parent.width
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitLabel { text: "PASSWORD" }
 
@@ -41,7 +41,7 @@ Column {
 
   Row {
     anchors.right: parent.right
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitButton {
       text: "Cancel"

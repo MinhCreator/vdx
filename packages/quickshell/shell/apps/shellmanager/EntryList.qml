@@ -24,7 +24,7 @@ Column {
   }
   width: 190
   height: parent.height
-  spacing: 8
+  spacing: Theme.gapMedium
 
   KitLabel {
     width: parent.width

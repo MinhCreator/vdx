@@ -20,7 +20,7 @@ KitRow {
   wide: true
 
   Row {
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitInput {
       width: (parent.width - sep.width - 2 * parent.spacing) / 2

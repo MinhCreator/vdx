@@ -10,7 +10,7 @@ Row {
   readonly property int level: strength >= 75 ? 4 : strength >= 50 ? 3 : strength >= 25 ? 2 : strength > 0 ? 1 : 0
   readonly property color tint: strength > 0 ? Theme.qualityColor(strength, 60, 30) : Theme.muted
 
-  spacing: 2
+  spacing: Theme.gapTight
 
   Repeater {
     model: 4

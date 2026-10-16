@@ -6,7 +6,7 @@ import qs.kit
 // AudioPause.qml pauses while another app plays sound (the shell's own
 // options, kept in ShellSettings).
 Column {
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel { text: "BAR" }
 

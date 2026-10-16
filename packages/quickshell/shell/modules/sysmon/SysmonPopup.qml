@@ -32,7 +32,7 @@ KitFrame {
   // ---- cpu ----
   Column {
     width: parent.width
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitLabel {
       text: "CPU"
@@ -68,7 +68,7 @@ KitFrame {
   Column {
     visible: root.on("memory")
     width: parent.width
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitLabel {
       text: "MEMORY"
@@ -91,7 +91,7 @@ KitFrame {
   Column {
     visible: root.on("gpu")
     width: parent.width
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitLabel { text: "GPU" }
 
@@ -134,7 +134,7 @@ KitFrame {
   Column {
     visible: root.on("disks")
     width: parent.width
-    spacing: 8
+    spacing: Theme.gapMedium
 
     KitLabel {
       text: "DISKS"
@@ -171,7 +171,7 @@ KitFrame {
   Column {
     visible: root.on("network")
     width: parent.width
-    spacing: 6
+    spacing: Theme.gapSmall
 
     KitLabel { text: "NETWORK"; value: SysmonService.iface.toUpperCase() }
 
@@ -186,7 +186,7 @@ KitFrame {
   Column {
     visible: root.on("sensors")
     width: parent.width
-    spacing: 6
+    spacing: Theme.gapSmall
 
     KitLabel { text: "SENSORS" }
 

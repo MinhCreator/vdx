@@ -111,7 +111,7 @@ Rectangle {
     Column {
       id: brand
       anchors { left: parent.left; leftMargin: 13; right: parent.right; top: parent.top; topMargin: 20 }
-      spacing: 14
+      spacing: Theme.gapGroup
 
       KitHeader {
         icon: "settings"
@@ -152,7 +152,7 @@ Rectangle {
           readonly property bool unfolded: active && root.navOpen
 
           width: parent.width
-          spacing: 2
+          spacing: Theme.gapTight
 
           // the group's caption, above its first section
           Item {
@@ -228,7 +228,7 @@ Rectangle {
             Column {
               id: subs
               width: parent.width
-              spacing: 2
+              spacing: Theme.gapTight
 
               Repeater {
                 model: root.pageFor(section.modelData.value).jumps
@@ -296,7 +296,7 @@ Rectangle {
   Column {
     id: header
     anchors { left: sidebar.right; leftMargin: 25; right: parent.right; rightMargin: Theme.windowPadding; top: parent.top; topMargin: Theme.windowPadding - Theme.headerInset }
-    spacing: 14
+    spacing: Theme.gapGroup
 
     KitHeader {
       icon: root.currentPage.icon

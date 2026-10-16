@@ -32,7 +32,7 @@ Column {
   property string selected: (own.find(p => p.settings) ?? own[0])?.id ?? ""
   readonly property var module: own.find(p => p.id === selected) ?? null
 
-  spacing: 14
+  spacing: Theme.gapGroup
 
   Row {
     width: parent.width
@@ -66,7 +66,7 @@ Column {
       Column {
         id: details
         width: pane.width
-        spacing: 14
+        spacing: Theme.gapGroup
 
         // heading: icon, name and about; Reset brings the options' defaults back
         Item {
@@ -88,7 +88,7 @@ Column {
             Column {
               anchors.verticalCenter: parent.verticalCenter
               width: heading.width - headingIcon.width - heading.spacing
-              spacing: 2
+              spacing: Theme.gapTight
 
               KitText {
                 text: root.module?.label ?? ""

@@ -4,7 +4,7 @@ import qs.kit
 
 // Appearance › ICONS: outline or solid, for the whole shell.
 Column {
-  spacing: 14
+  spacing: Theme.gapGroup
 
   KitLabel {
     text: "ICONS"
