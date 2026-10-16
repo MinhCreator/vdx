@@ -49,8 +49,10 @@ def main() -> None:
     sub.add_parser("deps", help="install missing packages of the selected components", parents=[yes]).add_argument(
         "--check", action="store_true", help="only list what is missing")
     sub.add_parser("install", help="the wizard: pick components and settings, then setup")
-    sub.add_parser("setup", help="fresh machine, or bring this one up to date: preflight, plan, steps",
-                   parents=[yes]).add_argument("--dry-run", action="store_true", help="show the plan, change nothing")
+    st = sub.add_parser("setup", help="fresh machine, or bring this one up to date: preflight, plan, steps",
+                        parents=[yes])
+    st.add_argument("--dry-run", action="store_true", help="show the plan, change nothing")
+    st.add_argument("--noconfirm", action="store_true", help="pass --noconfirm to pacman, yay and makepkg")
     sy = sub.add_parser("system", help="root-owned files under system/ (copied with sudo)", parents=[yes])
     sy.add_argument("s_action", choices=["status", "install"])
     se = sub.add_parser("secrets", help="secret files from private/: status or restore")
@@ -63,7 +65,7 @@ def main() -> None:
     ma = sub.add_parser("machine", help="this machine's profile: show or detect (.machine.toml)", parents=[yes])
     ma.add_argument("m_action", choices=["show", "detect"], nargs="?", default="show")
     co = sub.add_parser("components", help="what is installed: list, add or remove components", parents=[yes])
-    co.add_argument("c_action", choices=["list", "add", "remove"], nargs="?", default="list")
+    co.add_argument("c_action", choices=["list", "add", "remove", "set"], nargs="?", default="list")
     co.add_argument("names", nargs="*", metavar="component")
 
     args = p.parse_args()

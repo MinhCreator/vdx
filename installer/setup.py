@@ -11,8 +11,10 @@ import sys
 import time
 from pathlib import Path
 
-from . import steps
+from . import components, detect, machine, steps
+from .choose import save as save_selection
 from .links import cmd_verify
+from .model import find_managed
 from .paths import ROOT, SEED, STATE, TGT
 from .preflight import preflight
 from .ui import added, confirm, dim, err, heading, note, ok, short, warn
@@ -92,7 +94,19 @@ def setup(args, stamp: str, log: Path) -> int:
     heading("Setup" + (dim(" (dry run: nothing is changed)") if dry else ""))
     if not preflight():
         return 1
+    profile = machine.load() or {}
+    fresh = components.saved(profile) is None and not find_managed()
+    if fresh:
+        # a fresh machine that skipped the wizard gets the catalog's defaults,
+        # not "everything" (which keeps a machine set up before choices whole)
+        cat = components.load()
+        picked = components.closure(components.defaults(cat, profile.get("hardware") or detect.hardware()), cat)
+        note("no components chosen on a fresh machine: the defaults — ./install.py components to change")
+        if not dry:
+            save_selection(picked, cat)
     ctx = steps.context(args)
+    if fresh and dry:
+        ctx.on = picked
     heading(f"Plan {dim('· ' + str(len(ctx.on)) + ' components · ./install.py components')}")
     rows = steps.plan(ctx)
     steps.show_plan(rows)

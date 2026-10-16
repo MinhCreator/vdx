@@ -172,6 +172,7 @@ def environment(root: Path = Path("/")) -> dict:
         "distro": osr.get("ID", "unknown"),
         "hyprland": hypr,
         "aur_helper": next((h for h in ("paru", "yay") if shutil.which(h)), ""),
+        "user": user.pw_name,
         "shell": user.pw_shell,
         "groups": groups,
         "root": os.getuid() == 0,

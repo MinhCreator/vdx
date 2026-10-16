@@ -59,6 +59,18 @@ class Ctx:
         return components.unique(self.on, self.cat, key)
 
 
+def noconfirm(ctx: Ctx) -> list[str]:
+    """--noconfirm for pacman, yay and makepkg when setup was asked for it."""
+    return ["--noconfirm"] if getattr(ctx.args, "noconfirm", False) else []
+
+
+def systemd_running(user: bool = False) -> bool:
+    """False in a container or a chroot: units can't be enabled there."""
+    if not Path("/run/systemd/system").is_dir():
+        return False
+    return not user or subprocess.run(["systemctl", "--user", "is-system-running"], capture_output=True).returncode in (0, 1)
+
+
 def quiet(cmd: list[str]) -> subprocess.CompletedProcess:
     return subprocess.run(cmd, capture_output=True, text=True)
 
@@ -88,7 +100,7 @@ class Packages(Step):
 
     def run(self, ctx):
         repo, _ = missing_packages()
-        subprocess.run(["sudo", "pacman", "-S", "--needed", *repo], check=True)
+        subprocess.run(["sudo", "pacman", "-S", "--needed", *noconfirm(ctx), *repo], check=True)
 
 
 def aur_helper() -> str | None:
@@ -106,7 +118,7 @@ class AurHelper(Step):
         with tempfile.TemporaryDirectory() as tmp:
             subprocess.run(["git", "clone", "--depth", "1", "-q", "https://aur.archlinux.org/yay-bin.git", tmp + "/yay-bin"],
                            check=True)
-            subprocess.run(["makepkg", "-si", "--needed"], cwd=tmp + "/yay-bin", check=True)
+            subprocess.run(["makepkg", "-si", "--needed", *noconfirm(ctx)], cwd=tmp + "/yay-bin", check=True)
 
 
 class Aur(Step):
@@ -121,7 +133,7 @@ class Aur(Step):
         helper = aur_helper()
         if not helper:
             raise RuntimeError("no AUR helper: the aur-helper step did not finish")
-        subprocess.run([helper, "-S", "--needed", *aur], check=True)
+        subprocess.run([helper, "-S", "--needed", *noconfirm(ctx), *aur], check=True)
 
 
 def uninitialised_submodules(paths: list[str]) -> list[str]:
@@ -285,9 +297,10 @@ class Services(Step):
     name, title = "services", "Services"
 
     def todo(self, ctx):
-        system = [u for u in ctx.each("services") if enabled(u) not in ("enabled", "static", "not-found")]
-        user = [u for u in ctx.each("user_services") if enabled(u, True) not in ("enabled", "static", "not-found")]
-        masks = [u for u in ctx.each("masks") if enabled(u) != "masked"]
+        on, user_on = systemd_running(), systemd_running(user=True)
+        system = [u for u in ctx.each("services") if on and enabled(u) not in ("enabled", "static", "not-found")]
+        user = [u for u in ctx.each("user_services") if user_on and enabled(u, True) not in ("enabled", "static", "not-found")]
+        masks = [u for u in ctx.each("masks") if on and enabled(u) != "masked"]
         return system, user, masks
 
     def pending(self, ctx):
@@ -296,6 +309,9 @@ class Services(Step):
                 + [f"mask {u}" for u in masks])
 
     def by_hand(self, ctx):
+        if not systemd_running():
+            units = ctx.each("services") + ctx.each("user_services") + ctx.each("masks")
+            return [f"systemd is not running here (a container, a chroot): enable after boot — {' '.join(units)}"] if units else []
         out = []
         for ours, theirs in CONFLICTS.items():
             if ours in ctx.each("services") + ctx.each("user_services"):
@@ -326,7 +342,9 @@ class LoginShell(Step):
         return [f"chsh -s {zsh} (now {current})"] if Path(current).name != "zsh" else []
 
     def run(self, ctx):
-        subprocess.run(["chsh", "-s", shutil.which("zsh")], check=True)
+        # through sudo like every system step: chsh itself asks for the password through PAM
+        subprocess.run(["sudo", "chsh", "-s", shutil.which("zsh"), os.environ.get("USER") or detect.environment()["user"]],
+                       check=True)
 
 
 class Groups(Step):

@@ -58,7 +58,16 @@ def cmd_components(args) -> int:
         note(f"have: {', '.join(n for n, c in cat.items() if c['group'] != 'core')}")
         return 2
 
-    if action == "add":
+    if action == "set":
+        new = components.closure(set(names), cat)
+        heading("Setting the components: " + ", ".join(names))
+        for n in [n for n in cat if n in new - on]:
+            note(f"+ {n}")
+        for n in [n for n in cat if n in on - new]:
+            note(f"- {n}")
+        if on - new and not confirm("Remove the links of those that go (installed packages stay)?", args):
+            return 1
+    elif action == "add":
         new = components.closure(on | set(names), cat)
         heading("Adding " + ", ".join(names))
         if new == on:
