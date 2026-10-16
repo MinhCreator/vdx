@@ -16,6 +16,7 @@ from .setup import cmd_bootstrap, cmd_secrets, cmd_setup
 from .system import cmd_system
 from .theme import cmd_theme
 from .ui import err
+from .wizard import cmd_install
 
 
 def main() -> None:
@@ -40,6 +41,7 @@ def main() -> None:
         "-f", "--force", action="store_true", help="overwrite existing files")
     sub.add_parser("deps", help="install missing packages of the selected components", parents=[yes]).add_argument(
         "--check", action="store_true", help="only list what is missing")
+    sub.add_parser("install", help="the wizard: pick components and settings, then setup")
     sub.add_parser("setup", help="fresh machine, or bring this one up to date: preflight, plan, steps",
                    parents=[yes]).add_argument("--dry-run", action="store_true", help="show the plan, change nothing")
     sy = sub.add_parser("system", help="root-owned files under system/ (copied with sudo)", parents=[yes])
@@ -63,7 +65,7 @@ def main() -> None:
         "cleanup": cmd_cleanup, "status": cmd_status, "verify": cmd_verify, "check": cmd_check,
         "bootstrap": cmd_bootstrap, "deps": cmd_deps, "setup": cmd_setup,
         "system": cmd_system, "theme": cmd_theme, "secrets": cmd_secrets,
-        "machine": cmd_machine, "components": cmd_components,
+        "machine": cmd_machine, "components": cmd_components, "install": cmd_install,
     }
     if args.cmd not in commands:
         p.print_help()

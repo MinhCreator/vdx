@@ -24,6 +24,7 @@ from .setup import cmd_setup
 from .system import cmd_system_install
 from .theme import cmd_theme
 from .ui import bold, clear, cyan, dim, err, green, heading, short, warn, yellow
+from .wizard import cmd_install
 
 
 def overview() -> None:
@@ -59,6 +60,7 @@ def overview() -> None:
 
 
 MENU = [
+    ("install", "Install", "the wizard: pick components and settings, then set up", cmd_install),
     ("link", "Link", "create / refresh symlinks", cmd_link),
     ("status", "Status", "per-package link status", cmd_status),
     ("verify", "Verify", "broken / missing / stale links", cmd_verify),

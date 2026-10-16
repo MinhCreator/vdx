@@ -64,6 +64,17 @@ workspaces = { eDP-1 = "1-10" }     # first of each range is the output's defaul
 The repo's hypr config loads them through `components/machine.lua` and has a
 default for each (preferred mode on every output, `us`, no GPU env).
 
+### The wizard
+
+`./install.py install` (`installer/wizard.py`, curses): welcome with the
+checks → hardware → one screen per component group → settings (theme,
+layouts, the switch key) → summary; only the confirmed summary writes
+`.machine.toml` and `.theme`, then `setup` runs. It opens on the saved
+choice; on a machine set up before choices were saved, on what is on now;
+only a fresh machine gets the catalog's defaults. The choice logic is
+`Picks` (tested in `tests/test_wizard.py`); a new screen is a method of `UI`
+added to `run()`'s pages.
+
 ### Setup
 
 `./install.py setup` = preflight, then the plan (`installer/steps.py`: every
@@ -222,6 +233,7 @@ Each is listed in `submodules` of its component and cloned only with it.
 | Command | |
 |---|---|
 | `./install.py` | menu with a status overview |
+| `install` | the wizard: hardware, components by group, settings, summary — then `setup` |
 | `setup [--dry-run] [-y]` | preflight, the plan, then each step with work (packages, AUR helper, submodules, links, secrets, plugins, `/etc`, units, services, shell, nvim) |
 | `components [list\|add\|remove <name>…]` | what is on this machine |
 | `machine [show\|detect]` | the hardware profile |
