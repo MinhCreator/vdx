@@ -1,31 +1,19 @@
 #!/bin/sh
 # memory.sh — memory usage, for the `memory` function
 
-mem_total=$(awk '/^MemTotal/     {print $2}' /proc/meminfo)
-mem_avail=$(awk '/^MemAvailable/ {print $2}' /proc/meminfo)
-swap_total=$(awk '/^SwapTotal/   {print $2}' /proc/meminfo)
-swap_free=$(awk '/^SwapFree/     {print $2}' /proc/meminfo)
-
-mem_used=$(( mem_total - mem_avail ))
-swap_used=$(( swap_total - swap_free ))
-
-mem_used_mb=$(awk "BEGIN {printf \"%.0f\", $mem_used/1024}")
-mem_total_mb=$(awk "BEGIN {printf \"%.0f\", $mem_total/1024}")
-mem_pct=$(awk "BEGIN {printf \"%.0f\", $mem_used/$mem_total*100}")
-
-if   [ "$mem_pct" -ge 90 ]; then icon="▰▰▰▰▰"
-elif [ "$mem_pct" -ge 70 ]; then icon="▰▰▰▰▱"
-elif [ "$mem_pct" -ge 50 ]; then icon="▰▰▰▱▱"
-elif [ "$mem_pct" -ge 30 ]; then icon="▰▰▱▱▱"
-elif [ "$mem_pct" -ge 10 ]; then icon="▰▱▱▱▱"
-else                              icon="▱▱▱▱▱"
-fi
-
-out="${icon} ${mem_used_mb}/${mem_total_mb}MB | ${mem_pct}%"
-
-if [ "$swap_total" -gt 0 ] && [ "$swap_used" -gt 0 ]; then
-    swap_used_mb=$(awk "BEGIN {printf \"%.0f\", $swap_used/1024}")
-    out="${out} | sw ${swap_used_mb}MB"
-fi
-
-echo "$out"
+awk '
+/^MemTotal:/     { total = $2 }
+/^MemAvailable:/ { avail = $2 }
+/^SwapTotal:/    { swap_total = $2 }
+/^SwapFree:/     { swap_free = $2 }
+END {
+    used = total - avail
+    pct = int(used / total * 100 + 0.5)
+    filled = pct >= 90 ? 5 : pct >= 70 ? 4 : pct >= 50 ? 3 : pct >= 30 ? 2 : pct >= 10 ? 1 : 0
+    bar = ""
+    for (i = 1; i <= 5; i++) bar = bar (i <= filled ? "▰" : "▱")
+    out = sprintf("%s %.0f/%.0fMB | %d%%", bar, used / 1024, total / 1024, pct)
+    swap = swap_total - swap_free
+    if (swap > 0) out = out sprintf(" | sw %.0fMB", swap / 1024)
+    print out
+}' /proc/meminfo

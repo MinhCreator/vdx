@@ -6,14 +6,9 @@ source "$ZDOTDIR/exports"
 # Local secrets (not tracked by git)
 [[ -f "$HOME/.config/secrets/env" ]] && source "$HOME/.config/secrets/env"
 
-# History: shared across sessions, with timestamps
-setopt share_history inc_append_history extended_history
-export HISTTIMEFORMAT="%F %T "
-
-# Oh My Zsh
+# Oh My Zsh (its lib/history.zsh shares the history across sessions, with timestamps)
 export ZSH="$HOME/.local/share/oh-my-zsh"
 export ZSH_CACHE_DIR="$XDG_CACHE_HOME/zsh"
-export ZSH_CUSTOM="$ZSH/custom"
 ZSH_THEME=""
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
 export ZSH_COMPDUMP="$XDG_CACHE_HOME/zsh/zcompdump"
@@ -30,6 +25,3 @@ fi
 
 # Prompt
 eval "$(starship init zsh)"
-
-# bun completions
-[ -s "$HOME/.local/state/bun/_bun" ] && source "$HOME/.local/state/bun/_bun"

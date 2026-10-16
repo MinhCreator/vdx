@@ -1,30 +1,21 @@
 #!/bin/sh
 # battery.sh — battery level and state, for the `battery` function
 
-BAT=/sys/class/power_supply/BAT0
+BAT=$(ls -d /sys/class/power_supply/BAT* 2>/dev/null | head -n 1)
+[ -r "$BAT/status" ] || { echo "no battery"; exit 1; }
 
-bat_status=$(cat "$BAT/status")
-bat_capacity=$(cat "$BAT/capacity")
-bat_energy_now=$(cat "$BAT/energy_now")
-bat_power_now=$(cat "$BAT/power_now")
-
-bat_power_w=$(awk "BEGIN {printf \"%.1f\", $bat_power_now/1000000}")
-
-bat_time="--:--"
-if [ "$bat_power_now" -gt 0 ]; then
-    bat_time=$(awk "BEGIN {
-        t = $bat_energy_now / $bat_power_now
-        h = int(t)
-        m = int((t - h) * 60)
-        printf \"%dh %02dm\", h, m
-    }")
-fi
-
-case $bat_status in
-    Charging)    bat_icon="↑" ;;
-    Discharging) bat_icon="↓" ;;
-    Full)        bat_icon="=" ;;
-    *)           bat_icon="?" ;;
+case $(cat "$BAT/status") in
+    Charging)    icon="↑" ;;
+    Discharging) icon="↓" ;;
+    Full)        icon="=" ;;
+    *)           icon="?" ;;
 esac
 
-echo "${bat_icon} ${bat_capacity}% | ${bat_power_w}W | ${bat_time}"
+# energy in µWh, power in µW: watts, and the time the energy lasts at this draw
+awk -v icon="$icon" -v cap="$(cat "$BAT/capacity")" \
+    -v energy="$(cat "$BAT/energy_now" 2>/dev/null || echo 0)" \
+    -v power="$(cat "$BAT/power_now" 2>/dev/null || echo 0)" 'BEGIN {
+    time = "--:--"
+    if (power > 0) { t = energy / power; time = sprintf("%dh %02dm", int(t), int((t - int(t)) * 60)) }
+    printf "%s %s%% | %.1fW | %s\n", icon, cap, power / 1000000, time
+}'
