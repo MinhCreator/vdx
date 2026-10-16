@@ -14,7 +14,7 @@ Layout:
   themes/<name>/   -> theme overrides, mirrors the packages/ tree
   system/          -> /                  (root-owned files, copied with sudo)
   deps/            -> pacman.txt / aur.txt package lists for `deps` and `setup`
-  secrets/env.example -> bootstrap template for ~/.config/secrets/env
+  templates/secrets/env.example -> bootstrap template for ~/.config/secrets/env
   .theme           -> active theme name (local; DEFAULT_THEME when absent or gone)
 
 `./install.py check` checks the repo itself: links, syntax, themes, packages,
@@ -46,7 +46,7 @@ HOME = Path.home()
 TGT = HOME / ".config"
 PKG = ROOT / "packages"
 THEME = ROOT / "themes"
-SEED = ROOT / "secrets"
+SEED = ROOT / "templates" / "secrets"
 SYSTEM = ROOT / "system"
 DEPS = ROOT / "deps"
 
@@ -471,6 +471,19 @@ def cmd_bootstrap(args) -> int:
     return 0
 
 
+def cmd_secrets(args) -> int:
+    """Secret files from the private repo (private/, see private/secrets.py)."""
+    script = ROOT / "private" / "secrets.py"
+    heading("Secrets (private/)")
+    if not script.is_file():
+        note("private/ is not cloned: git clone git@github.com:diominvd/secrets.git private")
+        return 0
+    action = getattr(args, "s_action", "status")
+    sys.stdout.flush()
+    subprocess.run([sys.executable, "-I", str(script), action], check=True)
+    return 0
+
+
 def cmd_system(args) -> int:
     """Root-owned files are copied, not linked: /etc must not point into $HOME."""
     state = system_state()
@@ -551,7 +564,8 @@ def cmd_setup(args) -> int:
     if not confirm("Run the full setup (asks for sudo for packages and /etc)?", args):
         return 1
     args.yes = True
-    for step in (cmd_deps, submodules, cmd_link, cmd_bootstrap, shell_extras, cmd_system_install):
+    args.s_action = "restore"
+    for step in (cmd_deps, submodules, cmd_link, cmd_bootstrap, cmd_secrets, shell_extras, cmd_system_install):
         step(args)
     return cmd_verify(args)
 
@@ -958,6 +972,8 @@ def main() -> None:
                    parents=[yes])
     sy = sub.add_parser("system", help="root-owned files under system/ (copied with sudo)", parents=[yes])
     sy.add_argument("s_action", choices=["status", "install"])
+    se = sub.add_parser("secrets", help="secret files from private/: status or restore")
+    se.add_argument("s_action", choices=["status", "restore"], nargs="?", default="status")
     te = sub.add_parser("theme", help="theme management")
     tsub = te.add_subparsers(dest="t_action", required=True)
     tsub.add_parser("list", help="list available themes")
@@ -969,7 +985,7 @@ def main() -> None:
         "link": cmd_link, "update": cmd_link, "force": cmd_force, "unlink": cmd_unlink,
         "cleanup": cmd_cleanup, "status": cmd_status, "verify": cmd_verify, "check": cmd_check,
         "bootstrap": cmd_bootstrap, "deps": cmd_deps, "setup": cmd_setup,
-        "system": cmd_system, "theme": cmd_theme,
+        "system": cmd_system, "theme": cmd_theme, "secrets": cmd_secrets,
     }
     if args.cmd not in commands:
         p.print_help()

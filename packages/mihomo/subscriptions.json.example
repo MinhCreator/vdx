@@ -1,0 +1,14 @@
+{
+    "headers": {
+        "User-Agent": "<user-agent>",
+        "x-hwid": "<device-id>"
+    },
+    "subscriptions": [
+        {
+            "name": "<name>",
+            "url": "<subscription-url>",
+            "path": "~/.config/mihomo/providers/<name>.yaml",
+            "decode": false
+        }
+    ]
+}
