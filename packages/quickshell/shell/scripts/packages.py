@@ -19,8 +19,9 @@ object per command.
 The repo updates, removing and rolling back run through RootService from the
 plans, after the auth panel (apps/auth) shows the steps. The AUR updates are
 not here: the shell opens a terminal running `yay -S --needed --sudo pkexec`. Errors: {"ok": false, "error": "..."}."""
-import json, os, re, shlex, subprocess, sys
+import os, re, shlex, subprocess, sys
 from pathlib import Path
+from backend import out, fail, run
 
 CACHE = Path("/var/cache/pacman/pkg")
 LOCAL = Path("/var/lib/pacman/local")
@@ -30,22 +31,6 @@ NAME = re.compile(r"[A-Za-z0-9@._+-]+")
 PKG = re.compile(r"^(?P<name>.+)-(?P<ver>[^-]+-[^-]+)-(?P<arch>[^-.]+)\.pkg\.tar(\.\w+)?$")
 UPDATE = re.compile(r"^(\S+) (\S+) -> (\S+)$")
 UNITS = {"B": 1, "KiB": 1024, "MiB": 1024 ** 2, "GiB": 1024 ** 3}
-
-
-def out(obj):
-    print(json.dumps(obj))
-    sys.exit(0 if obj.get("ok") else 1)
-
-
-def fail(msg):
-    out({"ok": False, "error": msg})
-
-
-def run(args, timeout=120):
-    try:
-        return subprocess.run(args, capture_output=True, text=True, timeout=timeout)
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        return None
 
 
 def parse_updates(text):

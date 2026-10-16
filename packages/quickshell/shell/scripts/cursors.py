@@ -20,6 +20,7 @@ kept in ~/.local/state/dotfiles/cursor.json. Errors: {"ok": false, "error": "...
 import json, shutil, struct, subprocess, sys, tarfile, tempfile, urllib.request, zlib
 from array import array
 from pathlib import Path
+from backend import out
 
 ICONS = Path.home() / ".local/share/icons"
 STATE = Path.home() / ".local/state/dotfiles/cursor.json"
@@ -50,11 +51,6 @@ SHAPES = {
     "grab": ["grabbing", "closedhand", "fleur", "move"],
     "not-allowed": ["not-allowed", "crossed_circle", "forbidden", "circle"],
 }
-
-
-def out(obj):
-    print(json.dumps(obj))
-    sys.exit(0 if obj.get("ok") else 1)
 
 
 def theme_dir(name):
@@ -114,7 +110,7 @@ def tinter(fill, outline):
         if a == 0:
             return px
         lum = min(1.0, (0.299 * r + 0.587 * g + 0.114 * b) / a)
-        nr, ng, nb = (round((fc + (oc - fc) * lum) * a / 255) for fc, oc in zip(f, o))
+        nr, ng, nb = (round((fc + (oc - fc) * lum) * a / 255) for fc, oc in zip(f, o, strict=True))
         return a << 24 | nr << 16 | ng << 8 | nb
 
     def tint(raw):
@@ -136,6 +132,11 @@ def tint_file(data, tint):
     return bytes(buf)
 
 
+def unpremultiply(c, a):
+    """One premultiplied channel back to straight alpha."""
+    return min(255, c * 255 // a) if a else 0
+
+
 def write_png(path, w, h, bgra):
     """Straight-alpha RGBA PNG from premultiplied BGRA."""
     rows = bytearray()
@@ -143,8 +144,7 @@ def write_png(path, w, h, bgra):
         rows.append(0)
         for x in range(w):
             b, g, r, a = bgra[4 * (y * w + x):4 * (y * w + x) + 4]
-            un = (lambda c: min(255, c * 255 // a)) if a else (lambda c: 0)
-            rows += bytes((un(r), un(g), un(b), a))
+            rows += bytes((unpremultiply(r, a), unpremultiply(g, a), unpremultiply(b, a), a))
     def chunk(tag, body):
         return struct.pack(">I", len(body)) + tag + body + struct.pack(">I", zlib.crc32(tag + body))
     path.write_bytes(b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 6, 0, 0, 0))

@@ -14,8 +14,9 @@ Scales and positions are kept in ~/.local/state/dotfiles/display.json. The boot
 values of a monitor stay the ones in .machine.toml [hypr]; this overrides them.
 Text size reaches GTK apps only (Qt and the shell keep theirs).
 Errors: {"ok": false, "error": "..."}."""
-import json, subprocess, sys
+import json, sys
 from pathlib import Path
+from backend import out, fail, run
 
 STATE = Path.home() / ".local/state/dotfiles/display.json"
 SCALES = [1.0, 1.25, 1.5, 1.75, 2.0]        # the choices offered; the current one is added
@@ -24,24 +25,15 @@ SCHEMA = "org.gnome.desktop.interface"
 KEY = "text-scaling-factor"
 
 
-def out(obj):
-    print(json.dumps(obj))
-    sys.exit(0 if obj.get("ok") else 1)
-
-
-def fail(msg):
-    out({"ok": False, "error": msg})
-
-
-def run(cmd):
-    try:
-        return subprocess.run(cmd, capture_output=True, text=True, timeout=10)
-    except (OSError, subprocess.TimeoutExpired) as e:
-        fail(f"{cmd[0]}: {e}")
+def run_or_fail(cmd):
+    r = run(cmd)
+    if r is None:
+        fail(f"{cmd[0]}: not available or it took too long")
+    return r
 
 
 def monitors():
-    r = run(["hyprctl", "monitors", "-j"])
+    r = run_or_fail(["hyprctl", "monitors", "-j"])
     if r.returncode != 0:
         fail("hyprctl monitors failed")
     try:
@@ -51,7 +43,7 @@ def monitors():
 
 
 def text_factor():
-    r = run(["gsettings", "get", SCHEMA, KEY])
+    r = run_or_fail(["gsettings", "get", SCHEMA, KEY])
     try:
         return float(r.stdout.strip())
     except ValueError:
@@ -89,7 +81,7 @@ def apply(m, scale=None, pos=None):
     mode = f"{m['width']}x{m['height']}@{m['refreshRate']:.2f}"
     lua = (f'hl.monitor({{ output = "{m["name"]}", mode = "{mode}", '
            f'position = "{x}x{y}", scale = {lua_num(scale)} }})')
-    r = run(["hyprctl", "eval", lua])
+    r = run_or_fail(["hyprctl", "eval", lua])
     if r.returncode != 0 or "error" in (r.stdout + r.stderr).lower():
         fail(f"hyprctl eval: {(r.stdout + r.stderr).strip() or 'failed'}")
 
@@ -154,7 +146,7 @@ def cmd_text(value):
         fail(f"text size is a number: {value!r}")
     if not 0.5 <= factor <= 3:
         fail(f"text size out of range: {factor:g}")
-    r = run(["gsettings", "set", SCHEMA, KEY, lua_num(factor)])
+    r = run_or_fail(["gsettings", "set", SCHEMA, KEY, lua_num(factor)])
     if r.returncode != 0:
         fail(r.stderr.strip() or "gsettings failed")
     out({"ok": True})

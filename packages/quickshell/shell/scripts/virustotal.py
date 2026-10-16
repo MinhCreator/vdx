@@ -15,6 +15,7 @@ The key comes from VIRUSTOTAL_API_KEY or ~/.config/secrets/env. Only
 Errors: {"ok": false, "error": "..."}."""
 import base64, hashlib, json, os, re, sys, time, urllib.error, urllib.parse, urllib.request, uuid
 from pathlib import Path
+from backend import out, fail
 
 API = "https://www.virustotal.com/api/v3"
 GUI = "https://www.virustotal.com/gui"
@@ -28,15 +29,6 @@ KEY = ""
 
 class NotFound(Exception):
     pass
-
-
-def out(obj):
-    print(json.dumps(obj))
-    sys.exit(0 if obj.get("ok") else 1)
-
-
-def fail(msg):
-    out({"ok": False, "error": msg})
 
 
 def key():
@@ -61,18 +53,18 @@ def call(method, path, body=None, headers=None):
             return json.loads(r.read() or b"{}")
     except urllib.error.HTTPError as e:
         if e.code == 404:
-            raise NotFound()
+            raise NotFound() from e
         if e.code in (401, 403):
-            raise RuntimeError("VirusTotal refuses the API key")
+            raise RuntimeError("VirusTotal refuses the API key") from e
         if e.code == 429:
-            raise RuntimeError("too many requests: the free key allows 4 a minute")
+            raise RuntimeError("too many requests: the free key allows 4 a minute") from e
         try:
             msg = json.loads(e.read())["error"]["message"]
         except Exception:
             msg = f"HTTP {e.code}"
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
     except urllib.error.URLError as e:
-        raise RuntimeError(f"no connection to VirusTotal: {e.reason}")
+        raise RuntimeError(f"no connection to VirusTotal: {e.reason}") from e
 
 
 def sha256_file(path):

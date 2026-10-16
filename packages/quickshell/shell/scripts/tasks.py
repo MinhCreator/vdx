@@ -10,15 +10,11 @@
 call reads 0. `mem` is the resident size in bytes. Errors: {"ok": false, "error": "..."}."""
 import json, os, pwd, signal, sys
 from pathlib import Path
+from backend import out
 
 SNAPSHOT = Path.home() / ".cache/dotfiles/tasks.json"
 PAGE = os.sysconf("SC_PAGE_SIZE")
 ME = os.getuid()
-
-
-def out(obj):
-    print(json.dumps(obj))
-    sys.exit(0 if obj.get("ok") else 1)
 
 
 def cpu_times():

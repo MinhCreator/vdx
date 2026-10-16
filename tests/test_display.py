@@ -7,12 +7,15 @@ import contextlib
 import importlib.util
 import io
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
 
-SCRIPT = Path(__file__).resolve().parent.parent / "packages/quickshell/shell/scripts/display.py"
+SCRIPTS = Path(__file__).resolve().parent.parent / "packages/quickshell/shell/scripts"
+sys.path.insert(0, str(SCRIPTS))   # display.py imports backend.py from its folder
+SCRIPT = SCRIPTS / "display.py"
 spec = importlib.util.spec_from_file_location("display", SCRIPT)
 display = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(display)

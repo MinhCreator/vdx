@@ -12,7 +12,8 @@ modules/<id>/  bar modules: <Name>.qml, <Name>Popup.qml, <Name>Service.qml
 kit/           UI components, icons/ (outline, solid/)
 components/    Hypr (helpers), ScrimWindow, PopupManager, PopupCatcher, Separator
 config/        Theme, Colors (from the active theme), ShellSettings, ModuleSettings, Motion
-scripts/       backends: one JSON object per command, commands in the header
+scripts/       backends: one JSON object per command, commands in the header;
+               out / fail / run come from backend.py (the folder is on sys.path)
 ```
 
 Imports: `import qs.<dir>` from the config root. Singletons: `pragma Singleton`

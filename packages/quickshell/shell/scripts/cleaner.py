@@ -21,6 +21,7 @@ no tools; it may only suggest paths from that summary, never protected ones
 Errors: {"ok": false, "error": "..."}."""
 import json, os, re, shutil, subprocess, sys, time
 from pathlib import Path
+from backend import out
 
 HOME = Path.home()
 CACHE = HOME / ".cache"
@@ -53,18 +54,13 @@ PROTECTED = [HOME / p for p in (".dotfiles", ".ssh", ".gnupg", ".config", ".loca
                                 ".password-store", ".local/state", ".mozilla", ".thunderbird")]
 
 
-def out(obj):
-    print(json.dumps(obj))
-    sys.exit(0 if obj.get("ok") else 1)
-
-
 def size_of(path):
     """Bytes under a path, not following symlinks; 0 when it isn't there."""
     total = 0
     try:
         if path.is_symlink() or path.is_file():
             return path.lstat().st_size
-        for root, dirs, files in os.walk(path, followlinks=False):
+        for root, _dirs, files in os.walk(path, followlinks=False):
             for name in files:
                 try:
                     total += os.lstat(os.path.join(root, name)).st_size

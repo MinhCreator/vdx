@@ -14,6 +14,7 @@ go to shell-apps.lua next to it, which hypr/components/rules.lua loads. Errors:
 {"ok": false, "error": "..."}."""
 import json, subprocess, sys
 from pathlib import Path
+from backend import out
 
 STATE = Path.home() / ".local/state/dotfiles/shell-apps.json"
 RULES = STATE.with_suffix(".lua")
@@ -34,11 +35,6 @@ SPOTS = {"top-left": (0, 0), "top": (0.5, 0), "top-right": (1, 0),
          "bottom-left": (0, 1), "bottom": (0.5, 1), "bottom-right": (1, 1)}
 GAP = 12            # from the screen's edges
 TOP = 34 + GAP      # under the bar (Theme.barHeight)
-
-
-def out(obj):
-    print(json.dumps(obj))
-    sys.exit(0 if obj.get("ok") else 1)
 
 
 def load():

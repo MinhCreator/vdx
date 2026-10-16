@@ -10,8 +10,9 @@ name itself in ~/.config/kitty/font.conf, it reloads that live):
 ~/.config/fontconfig/fonts.conf (packages/fontconfig) includes the choice,
 ~/.local/state/dotfiles/font.conf, ahead of its own default. Errors:
 {"ok": false, "error": "..."}."""
-import json, shutil, subprocess, sys, tarfile, tempfile, urllib.request
+import shutil, subprocess, sys, tarfile, tempfile, urllib.request
 from pathlib import Path
+from backend import out
 
 FONTS = Path.home() / ".local/share/fonts"
 CHOICE = Path.home() / ".local/state/dotfiles/font.conf"
@@ -35,11 +36,6 @@ CURATED = {
     "VictorMono": "VictorMono Nerd Font",
     "AtkinsonHyperlegibleMono": "AtkynsonMono Nerd Font",
 }
-
-
-def out(obj):
-    print(json.dumps(obj))
-    sys.exit(0 if obj.get("ok") else 1)
 
 
 def families():
