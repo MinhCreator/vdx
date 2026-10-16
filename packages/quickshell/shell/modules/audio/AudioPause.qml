@@ -20,6 +20,15 @@ QtObject {
 
   property bool pausedHere: false     // the music was paused by this, not by hand
 
+  // The music is taken back by hand (played or stopped) while this paused it:
+  // from now on it is the user's, and nothing resumes it. Our own pause and
+  // resume come through here too, harmlessly: the pause only stops playback,
+  // and the resume clears the flag before it plays.
+  readonly property bool mpdPlaying: MpdService.playing
+  readonly property bool mpdStopped: MpdService.stopped
+  onMpdPlayingChanged: if (mpdPlaying) pausedHere = false;
+  onMpdStoppedChanged: pausedHere = false;
+
   onOtherSoundChanged: {
     if (otherSound) {
       if (pauseOn && MpdService.playing) {
