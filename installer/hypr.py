@@ -126,6 +126,33 @@ def problems(profile: dict) -> list[str]:
     return out
 
 
+def out_of_step(profile: dict, target: Path = DIR) -> list[str]:
+    """Generated files that differ from what the profile asks for (hand-written ones aside)."""
+    if problems(profile):
+        return []
+    out = []
+    for name, text in render(profile).items():
+        f = target / f"{name}.lua"
+        old = f.read_text() if f.is_file() else None
+        if old is not None and MARK not in old:
+            continue
+        if old != text:
+            out.append(f"{name}.lua")
+    return out
+
+
+def remove_generated(target: Path = DIR) -> list[Path]:
+    """Every file `apply` wrote (they carry MARK); hand-written ones stay."""
+    gone = []
+    for f in sorted(target.glob("*.lua")) if target.is_dir() else []:
+        if MARK in f.read_text():
+            f.unlink()
+            gone.append(f)
+    if target.is_dir() and not any(target.iterdir()):
+        target.rmdir()
+    return gone
+
+
 def apply(profile: dict | None = None, target: Path = DIR, quiet: bool = False) -> int:
     """Write what changed, remove what is no longer asked for; the count of changes.
     Only files carrying MARK are ever removed or replaced."""

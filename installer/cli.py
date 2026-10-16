@@ -11,6 +11,7 @@ from .choose import cmd_components
 from .deps import cmd_deps
 from .links import cmd_cleanup, cmd_force, cmd_link, cmd_status, cmd_unlink, cmd_verify
 from .machine import cmd_machine
+from .maintain import cmd_doctor, cmd_rollback, cmd_uninstall, cmd_update
 from .menu import menu
 from .setup import cmd_bootstrap, cmd_secrets, cmd_setup
 from .system import cmd_system
@@ -29,7 +30,13 @@ def main() -> None:
     p = argparse.ArgumentParser(description="dotfiles manager — run without arguments for a menu")
     sub = p.add_subparsers(dest="cmd")
     sub.add_parser("link", help="create/refresh all symlinks")
-    sub.add_parser("update", help="alias of link")
+    sub.add_parser("update", help="git pull, then setup with the new code", parents=[yes]).add_argument(
+        "--dry-run", action="store_true", help="show incoming commits and the plan, change nothing")
+    sub.add_parser("doctor", help="this machine's health, each problem with its fix")
+    un = sub.add_parser("uninstall", help="links and generated files off; backups back on request", parents=[yes])
+    un.add_argument("--system", action="store_true", help="also remove our unchanged files from /etc (sudo)")
+    sub.add_parser("rollback", help="backed-up files back in place of the links", parents=[yes]).add_argument(
+        "stamp", nargs="?", help="one backup folder (default: all, oldest first)")
     sub.add_parser("force", help="unlink + link", parents=[yes])
     sub.add_parser("unlink", help="remove all managed symlinks", parents=[yes])
     sub.add_parser("cleanup", help="remove stale symlinks only")
@@ -61,7 +68,8 @@ def main() -> None:
 
     args = p.parse_args()
     commands = {
-        "link": cmd_link, "update": cmd_link, "force": cmd_force, "unlink": cmd_unlink,
+        "link": cmd_link, "update": cmd_update, "doctor": cmd_doctor,
+        "uninstall": cmd_uninstall, "rollback": cmd_rollback, "force": cmd_force, "unlink": cmd_unlink,
         "cleanup": cmd_cleanup, "status": cmd_status, "verify": cmd_verify, "check": cmd_check,
         "bootstrap": cmd_bootstrap, "deps": cmd_deps, "setup": cmd_setup,
         "system": cmd_system, "theme": cmd_theme, "secrets": cmd_secrets,

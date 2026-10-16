@@ -64,6 +64,16 @@ workspaces = { eDP-1 = "1-10" }     # first of each range is the output's defaul
 The repo's hypr config loads them through `components/machine.lua` and has a
 default for each (preferred mode on every output, `us`, no GPU env).
 
+### Update, doctor, uninstall
+
+`installer/maintain.py`. `update` re-executes `install.py setup` after the
+pull, so new installer code runs. `doctor` is `check` for the machine: the
+setup plan's pending work plus what it can't see (services not running,
+mihomo's capabilities, Hyprland's config errors, `machine/` out of step,
+changed hardware); a new health check is a line in `health()`. `uninstall`
+and `rollback` only remove links, files carrying `hypr.MARK` and /etc files
+identical to ours; a file in the way of a restore stays in its backup.
+
 ### The wizard
 
 `./install.py install` (`installer/wizard.py`, curses): welcome with the
@@ -233,6 +243,9 @@ Each is listed in `submodules` of its component and cloned only with it.
 | Command | |
 |---|---|
 | `./install.py` | menu with a status overview |
+| `update [--dry-run]` | `git pull --ff-only`, then `setup` with the new code |
+| `doctor` | this machine's health, each problem with its fix |
+| `uninstall [--system]` · `rollback [stamp]` | links and generated files off · backed-up files back |
 | `install` | the wizard: hardware, components by group, settings, summary — then `setup` |
 | `setup [--dry-run] [-y]` | preflight, the plan, then each step with work (packages, AUR helper, submodules, links, secrets, plugins, `/etc`, units, services, shell, nvim) |
 | `components [list\|add\|remove <name>…]` | what is on this machine |

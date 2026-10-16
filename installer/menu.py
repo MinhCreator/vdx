@@ -10,6 +10,7 @@ from .check import cmd_check
 from .deps import cmd_deps
 from .links import cmd_force, cmd_link, cmd_status, cmd_unlink, cmd_verify
 from .machine import describe, hardware, load
+from .maintain import cmd_doctor, cmd_uninstall, cmd_update
 from .model import (
     active_theme,
     build_entries,
@@ -61,6 +62,8 @@ def overview() -> None:
 
 MENU = [
     ("install", "Install", "the wizard: pick components and settings, then set up", cmd_install),
+    ("update", "Update", "git pull, then set up what changed", cmd_update),
+    ("doctor", "Doctor", "this machine's health, each problem with its fix", cmd_doctor),
     ("link", "Link", "create / refresh symlinks", cmd_link),
     ("status", "Status", "per-package link status", cmd_status),
     ("verify", "Verify", "broken / missing / stale links", cmd_verify),
@@ -71,6 +74,7 @@ MENU = [
     ("setup", "Setup", "full setup for a fresh machine", cmd_setup),
     ("force", "Re-link", "remove and recreate every symlink", cmd_force),
     ("unlink", "Unlink", "remove every managed symlink", cmd_unlink),
+    ("uninstall", "Uninstall", "links and generated files off, backups back", cmd_uninstall),
 ]
 
 

@@ -77,11 +77,13 @@ def cmd_setup(args) -> int:
     STATE.mkdir(parents=True, exist_ok=True)
     stamp = time.strftime("%Y-%m-%dT%H-%M-%S")
     log = STATE / f"setup-{stamp}.log"
-    real, sys.stdout = sys.stdout, Log(log, sys.stdout)
+    real, tee = sys.stdout, Log(log, sys.stdout)
+    sys.stdout = tee
     try:
         return setup(args, stamp, log)
     finally:
-        sys.stdout.flush()
+        tee.flush()
+        tee.file.close()
         sys.stdout = real
 
 
