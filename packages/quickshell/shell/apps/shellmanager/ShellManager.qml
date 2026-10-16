@@ -103,14 +103,15 @@ Rectangle {
   // ---- navigation ----
   Rectangle {
     id: sidebar
-    width: Theme.sideWidth
+    // the list's width plus the window's frame on its left: the labels keep their room
+    width: Theme.sideWidth + Theme.windowPadding
     height: parent.height
     color: Theme.background0
 
     // the window's own header, level with the page's: its line runs on across
     Column {
       id: brand
-      anchors { left: parent.left; leftMargin: 13; right: parent.right; top: parent.top; topMargin: 20 }
+      anchors { left: parent.left; leftMargin: Theme.windowPadding; right: parent.right; top: parent.top; topMargin: Theme.windowPadding - Theme.headerInset }
       spacing: Theme.gapGroup
 
       KitHeader {
@@ -125,9 +126,11 @@ Rectangle {
     // the sections scroll when their group links outgrow the window
     Flickable {
       id: nav
-      x: 12
-      y: brand.y + brand.height + 14
-      width: parent.width - 24
+      x: Theme.windowPadding
+      // the group captions sit 9 px into their 28 px boxes: the list starts that much higher,
+      // so its first caption lines up with the page's first label (THEME)
+      y: brand.y + brand.height + 14 - 9
+      width: parent.width - 2 * Theme.windowPadding
       height: parent.height - y - 40
       contentHeight: navColumn.implicitHeight
       clip: true
@@ -277,7 +280,7 @@ Rectangle {
     }
 
     KitText {
-      anchors { left: parent.left; leftMargin: 22; bottom: parent.bottom; bottomMargin: 14 }
+      anchors { left: parent.left; leftMargin: Theme.windowPadding; bottom: parent.bottom; bottomMargin: 14 }
       text: "Esc close"
       color: Theme.gray
       font.pixelSize: Theme.fontSize - 2
@@ -295,7 +298,7 @@ Rectangle {
   // the open page's header stays put; only what is under it scrolls
   Column {
     id: header
-    anchors { left: sidebar.right; leftMargin: 25; right: parent.right; rightMargin: Theme.windowPadding; top: parent.top; topMargin: Theme.windowPadding - Theme.headerInset }
+    anchors { left: sidebar.right; leftMargin: Theme.windowPadding; right: parent.right; rightMargin: Theme.windowPadding; top: parent.top; topMargin: Theme.windowPadding - Theme.headerInset }
     spacing: Theme.gapGroup
 
     KitHeader {
