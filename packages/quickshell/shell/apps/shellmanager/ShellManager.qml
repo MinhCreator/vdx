@@ -7,17 +7,21 @@ import qs.kit
 // on the left, the chosen page on the right under its fixed header, scrolling
 // on its own. Under the open section its groups (`jumps` of the page) jump
 // there on a click.
-//   APPEARANCE — theme, icon style, wallpaper, font and cursor;
-//   BAR        — the layout of the bar's zones, modules on / off.
-//   ANIMATIONS — how the shell moves: all on / off, speed, each part on its own.
-//   MEDIA      — the music pauses while another app plays sound.
-//   WINDOWS    — the window mode, each mode's options, gaps, the taskbar.
-//   MODULES    — each bar module's own options (the modules; an app's is set with the app).
-//   SHELL APPS — how the shell's own windows open: floating or tiled, size, spot.
-//   LAUNCHER   — the launcher's (Super+R) rows, width, position and what it opens on.
-//   KEYBINDS   — the keybinds panel's rows, width, position and what it opens on.
-//   LOCK       — the lock screen's background and clock, its layout, power buttons, cursor.
-//   ABOUT      — how the Shell Manager opens, the ideas behind it, versions.
+// The sections come in three groups, by what the user is after:
+//   LOOK     — how it looks and moves
+//     APPEARANCE — theme, icon style, wallpaper, font and cursor;
+//     ANIMATIONS — how the shell moves: all on / off, speed, each part on its own.
+//   DESKTOP  — the desktop itself and the panels over it
+//     BAR        — the layout of the bar's zones, modules on / off.
+//     WINDOWS    — the window mode, each mode's options, gaps, the taskbar.
+//     LAUNCHER   — the launcher's (Super+R) rows, width, position and what it opens on.
+//     KEYBINDS   — the keybinds panel's rows, width, position and what it opens on.
+//     LOCK       — the lock screen's background and clock, its layout, power buttons, cursor.
+//   SHELL    — the shell's own apps and parts
+//     SHELL APPS — how the shell's own windows open: floating or tiled, size, spot.
+//     MODULES    — each bar module's own options (an app's is set with the app).
+//     MEDIA      — the music pauses while another app plays sound.
+//     ABOUT      — how the Shell Manager opens, the ideas behind it, versions.
 Rectangle {
   id: root
 
@@ -33,18 +37,19 @@ Rectangle {
     }
   }
 
+  // `caption` opens a group in the sidebar
   readonly property var sections: [
-    { value: "appearance", label: "Appearance", icon: "sun" },
-    { value: "bar",        label: "Bar",        icon: "layout" },
-    { value: "animations", label: "Animations", icon: "zap" },
-    { value: "media",      label: "Media",      icon: "music" },
-    { value: "windows",    label: "Windows",    icon: "app-window" },
-    { value: "modules",    label: "Modules",    icon: "puzzle" },
-    { value: "apps",       label: "Shell apps", icon: "grid" },
-    { value: "launcher",   label: "Launcher",   icon: "menu" },
-    { value: "keybinds",   label: "Keybinds",   icon: "keyboard" },
+    { value: "appearance", label: "Appearance",  icon: "sun",        caption: "LOOK" },
+    { value: "animations", label: "Animations",  icon: "zap" },
+    { value: "bar",        label: "Bar",         icon: "layout",     caption: "DESKTOP" },
+    { value: "windows",    label: "Windows",     icon: "app-window" },
+    { value: "launcher",   label: "Launcher",    icon: "menu" },
+    { value: "keybinds",   label: "Keybinds",    icon: "keyboard" },
     { value: "lock",       label: "Lock screen", icon: "lock" },
-    { value: "about",      label: "About",      icon: "info" }
+    { value: "apps",       label: "Shell apps",  icon: "grid",       caption: "SHELL" },
+    { value: "modules",    label: "Modules",     icon: "puzzle" },
+    { value: "media",      label: "Media",       icon: "music" },
+    { value: "about",      label: "About",       icon: "info" }
   ]
 
   // the open section's group links, unfolded by a second click on it
@@ -146,6 +151,21 @@ Rectangle {
 
           width: parent.width
           spacing: 2
+
+          // the group's caption, above its first section
+          Item {
+            width: section.width
+            height: 28
+            visible: !!section.modelData.caption
+
+            KitText {
+              anchors { left: parent.left; leftMargin: 10; bottom: parent.bottom; bottomMargin: 4 }
+              text: section.modelData.caption ?? ""
+              color: Theme.gray
+              font.pixelSize: Theme.fontSize - 2
+              font.weight: Font.DemiBold
+            }
+          }
 
           Rectangle {
             id: item
