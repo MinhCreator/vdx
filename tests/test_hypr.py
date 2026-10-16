@@ -37,7 +37,18 @@ class Render(unittest.TestCase):
         self.assertEqual(rules[9], 'hl.workspace_rule({ workspace = "10", monitor = "eDP-1" })')
 
     def test_nothing_set_is_nothing_written(self):
-        self.assertEqual(hypr.render({}, {"gpus": [{"vendor": "amd"}]}), {"gpu": None, "input": None, "monitors": None})
+        self.assertEqual(hypr.render({}, {"gpus": [{"vendor": "amd"}]}),
+                         {"gpu": None, "input": None, "monitors": None, "autostart": None})
+
+    def test_input_level_is_an_autostart_file(self):
+        text = hypr.render({"hypr": {"input_level": 15}}, {})["autostart"]
+        self.assertIn('hl.on("hyprland.start"', text)
+        self.assertIn("set-source-volume @DEFAULT_SOURCE@ 15%", text)
+        self.assertEqual(hypr.problems({"hypr": {"input_level": 15}}), [])
+
+    def test_input_level_must_be_a_percent(self):
+        for bad in (150, -1, "15", True, 15.5):
+            self.assertTrue(hypr.problems({"hypr": {"input_level": bad}}), bad)
 
     def test_nvidia_env_by_default_only_without_an_igpu(self):
         self.assertIsNotNone(hypr.render({}, NVIDIA_ONLY)["gpu"])
@@ -51,7 +62,10 @@ class Render(unittest.TestCase):
     @unittest.skipUnless(shutil.which("luac"), "luac is not installed")
     def test_lua_parses(self):
         with tempfile.TemporaryDirectory() as tmp:
-            for name, text in hypr.render(TUF, HYBRID).items():
+            profile = {**TUF, "hypr": {**TUF["hypr"], "input_level": 15}}
+            for name, text in hypr.render(profile, HYBRID).items():
+                if text is None:
+                    continue
                 f = Path(tmp) / f"{name}.lua"
                 f.write_text(text)
                 r = subprocess.run(["luac", "-p", str(f)], capture_output=True, text=True)

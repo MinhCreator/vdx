@@ -8,6 +8,7 @@ loads when present (components/machine.lua). From [hypr] of the profile:
   layouts      "us,ru"               keyboard layouts; options: layout_options
   monitors     [{output, mode, position, scale}, ...]
   workspaces   {"<output>" = "1-8", ...}   the first of each is its default
+  input_level  0..100                      built-in mic level at session start (%)
 
 `link` keeps the files in step; one the profile no longer asks for is removed.
 """
@@ -103,6 +104,15 @@ def render(profile: dict, hw: dict | None = None) -> dict[str, str | None]:
         files["monitors"] = "\n".join(lines).rstrip("\n") + "\n"
     else:
         files["monitors"] = None
+
+    if cfg.get("input_level") is not None:
+        files["autostart"] = "\n".join(header("autostart")) + (
+            'hl.on("hyprland.start", function()\n'
+            "\t-- the built-in mic clips at 100% in a quiet room; its source shows a few seconds into the session, so this retries\n"
+            f"\thl.exec_cmd(\"sh -c 'for i in $(seq 40); do pactl set-source-volume @DEFAULT_SOURCE@ {int(cfg['input_level'])}% 2>/dev/null && exit 0; sleep 0.5; done'\")\n"
+            "end)\n")
+    else:
+        files["autostart"] = None
     return files
 
 
@@ -127,6 +137,9 @@ def problems(profile: dict) -> list[str]:
             workspace_numbers(spec)
         except ValueError as e:
             out.append(f"[hypr] {e}")
+    level = cfg.get("input_level")
+    if level is not None and not (isinstance(level, int) and not isinstance(level, bool) and 0 <= level <= 100):
+        out.append("[hypr] input_level: a whole percent, 0 to 100")
     return out
 
 

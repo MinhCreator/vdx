@@ -2,6 +2,9 @@
 -- hyprland.start fires once at startup, not on config reload.
 -- https://wiki.hypr.land/Configuring/Basics/Autostart/
 
+-- this machine's start-up parts (the mic level), if the profile asks for them
+require("components.machine").load("autostart")
+
 hl.on("hyprland.start", function()
 	-- the bar fills it with the theme's (or the user's) solid colour
 	hl.exec_cmd("awww-daemon")
