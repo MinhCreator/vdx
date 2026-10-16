@@ -127,9 +127,8 @@ Rectangle {
     Flickable {
       id: nav
       x: Theme.windowPadding
-      // the group captions sit 9 px into their 28 px boxes: the list starts that much higher,
-      // so its first caption lines up with the page's first label (THEME)
-      y: brand.y + brand.height + 14 - 9
+      // the page's first label sits this far under the header: the list starts there too
+      y: brand.y + brand.height + Theme.gapGroup
       width: parent.width - 2 * Theme.windowPadding
       height: parent.height - y - 40
       contentHeight: navColumn.implicitHeight
@@ -149,22 +148,27 @@ Rectangle {
           id: section
 
           required property var modelData
+          required property int index
 
           readonly property bool active: modelData.value === root.tab
           readonly property bool hasJumps: root.pageFor(modelData.value).jumps.length > 0
           readonly property bool unfolded: active && root.navOpen
+          // a group after the first starts a gap of gapGroup between the groups' captions
+          readonly property int lead: index > 0 ? Theme.gapGroup - Theme.gapHair : 0
 
           width: parent.width
           spacing: Theme.gapTight
 
-          // the group's caption, above its first section
+          // the group's caption, above its first section: its text sits on the top of the
+          // box, so the first caption starts where the page's label does
           Item {
             width: section.width
-            height: 28
+            height: section.lead + captionText.implicitHeight + Theme.gapHair
             visible: !!section.modelData.caption
 
             KitText {
-              anchors { left: parent.left; leftMargin: Theme.gapLoose; bottom: parent.bottom; bottomMargin: 4 }
+              id: captionText
+              anchors { left: parent.left; leftMargin: Theme.gapLoose; top: parent.top; topMargin: section.lead }
               text: section.modelData.caption ?? ""
               color: Theme.gray
               font.pixelSize: Theme.fontSize - 2
@@ -332,7 +336,7 @@ Rectangle {
       id: pages
       x: 24 + 16 * (1 - pageIn.shown)
       opacity: pageIn.shown
-      y: 14
+      y: Theme.gapGroup
       width: page.width - 48
       implicitHeight: Math.max(appearance.visible ? appearance.implicitHeight : 0,
                                bar.visible ? bar.implicitHeight : 0,
