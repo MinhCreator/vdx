@@ -14,8 +14,14 @@ QtObject {
   readonly property bool pauseOn: ShellSettings.pauseMusic
   readonly property bool resumeOn: ShellSettings.resumeMusic
 
-  // an output stream of another app is running (MPD's own stream does not count)
-  readonly property bool otherSound: AudioService.streams.some(n => n.state === PwNodeState.Running && !isMusic(n))
+  // an output stream of another app is running (MPD's own stream does not count):
+  // PwNode has no state, its links do; a link reports it only while bound
+  readonly property var streamLinks: Pipewire.links.values.filter(l => AudioService.streams.includes(l.source))
+  readonly property bool otherSound: streamLinks.some(l => l.state === PwLinkState.Active && !isMusic(l.source))
+
+  property PwObjectTracker tracker: PwObjectTracker {
+    objects: root.streamLinks
+  }
 
   property bool pausedHere: false     // the music was paused by this, not by hand
 
