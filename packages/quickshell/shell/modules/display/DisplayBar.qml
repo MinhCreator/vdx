@@ -5,8 +5,8 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Bar module: the GTK text size; the popup sets each monitor's scale and the
-// text size, and its button opens the full window (arrangement lives there).
+// Bar module: the scale of this bar's monitor; the popup sets each monitor's
+// scale and the text size, and its button opens the full window (arrangement lives there).
 Item {
   id: root
 
@@ -18,10 +18,17 @@ Item {
   implicitWidth: face.implicitWidth
   implicitHeight: face.implicitHeight
 
+  // the scale of the monitor this bar sits on (each screen has its own bar)
+  function scaleText() {
+    const name = root.bar.screen ? root.bar.screen.name : "";
+    const m = DisplayService.monitors.find(o => o.name === name);
+    return m ? Math.round(m.scale * 100) + "%" : "--";
+  }
+
   KitBarItem {
     id: face
     icon: "monitor"
-    text: DisplayService.monitors.length > 0 ? Math.round(DisplayService.textFactor * 100) + "%" : "--"
+    text: root.scaleText()
   }
 
   MouseArea {
