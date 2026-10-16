@@ -104,6 +104,19 @@ class Doctor(unittest.TestCase):
         self.assertTrue(any("mihomo lacks" in what for _, what, _ in found))
 
 
+class NoSystemd(unittest.TestCase):
+    def test_enabled_units_are_not_expected_to_run_without_systemd(self):
+        cat = {"net": {"services": ["NetworkManager.service"], "user_services": ["wireplumber.service"]}}
+        ctx = steps.Ctx(None, cat, {"net"}, {"hardware": {}})
+        with mock.patch.object(steps, "systemd_running", return_value=False), \
+             mock.patch.object(steps, "enabled", return_value="enabled"), \
+             mock.patch.object(steps, "active", return_value=False), \
+             mock.patch.object(maintain.detect, "hardware", return_value={}), \
+             mock.patch.object(maintain.detect, "environment", return_value={"hyprland": ""}), \
+             mock.patch.object(maintain, "BACKUPS", Path("/nonexistent")):
+            self.assertEqual(maintain.health(ctx), [])
+
+
 class Update(unittest.TestCase):
     def test_setup_runs_in_a_new_process_with_the_same_flags(self):
         def git(*cmd):

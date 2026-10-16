@@ -83,10 +83,12 @@ def health(ctx: steps.Ctx) -> list[tuple[str, str, str]]:
     env = detect.environment()
     if env["hyprland"] and tuple(map(int, env["hyprland"].split("."))) < (0, 55):
         out.append(("err", f"Hyprland {env['hyprland']}: the Lua config needs 0.55+", "sudo pacman -Syu hyprland"))
-    for unit in ctx.each("services"):
+    # a container or a chroot runs nothing: "enabled but not running" means nothing there
+    running = steps.systemd_running()
+    for unit in ctx.each("services") if running else []:
         if steps.enabled(unit) == "enabled" and not steps.active(unit):
             out.append(("err", f"{unit} is enabled but not running", f"systemctl status {unit}"))
-    for unit in ctx.each("user_services"):
+    for unit in ctx.each("user_services") if steps.systemd_running(user=True) else []:
         if steps.enabled(unit, True) == "enabled" and \
                 subprocess.run(["systemctl", "--user", "is-active", unit], capture_output=True, text=True).stdout.strip() != "active" \
 :
