@@ -29,7 +29,9 @@ hl.gesture({ fingers = 3, direction = "right", action = function() ScrollColumns
 
 -- the active column: half the screen <-> the whole of it, then into view.
 -- A lone column is kept whole by fullscreen_on_one_column, which would undo
--- the half: so the option follows the choice (whole = on, half = off)
+-- the half: so the option follows the choice (whole = on, half = off).
+-- "fit active" stretches the column to the whole screen, so going to the
+-- half uses "fit visible", which only brings the column into view.
 bind("Scrolling", "SUPER + W", function()
 	local w = hl.get_active_window()
 	if not w then return end
@@ -38,7 +40,7 @@ bind("Scrolling", "SUPER + W", function()
 	local wide = width > (m.width / (m.scale or 1)) * 0.75
 	hl.config({ scrolling = { fullscreen_on_one_column = not wide } })
 	hl.dispatch(hl.dsp.layout(wide and "colresize 0.5" or "colresize 1.0"))
-	hl.dispatch(hl.dsp.layout("fit active"))
+	hl.dispatch(hl.dsp.layout(wide and "fit visible" or "fit active"))
 end, "Wide / half column")
 
 WheelBind("Scrolling", "SUPER + SHIFT", "mouse_down", "down", hl.dsp.focus({ workspace = "e+1" }), "Workspace below")
