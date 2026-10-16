@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Io
 import qs.config
 import qs.modules.sysmon
+import "../../kit/reply.js" as Reply
 
 // The task manager's state (scripts/tasks.py), polled while its window or
 // its bar popup is open: the processes, the machine's CPU and memory, the
@@ -123,7 +124,7 @@ Singleton {
   function refresh() { if (!listProc.running) listProc.running = true; }
 
   function parse(text) {
-    try { return JSON.parse(text); } catch (e) { return { ok: false, error: "bad reply from tasks.py" }; }
+    return Reply.parse(text, "tasks.py");
   }
 
   Timer {

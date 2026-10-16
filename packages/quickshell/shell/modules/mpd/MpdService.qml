@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // MPD player shared by the music and radio modules (scripts/music.sh): one
 // state stream and the playback commands. Each module adds its own data on top
@@ -59,7 +60,7 @@ Singleton {
   }
 
   function parse(text) {
-    try { return JSON.parse(text); } catch (e) { return null; }
+    return Reply.parse(text, "music.sh", null);
   }
 
   Timer {

@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Io
 import qs.apps.auth
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // The cleaner's state (scripts/cleaner.py), shared by its window and its bar
 // module. Basic: categories with their size, a pick per category (the safe
@@ -143,7 +144,7 @@ Singleton {
   }
 
   function parse(text) {
-    try { return JSON.parse(text); } catch (e) { return { ok: false, error: "bad reply from cleaner.py" }; }
+    return Reply.parse(text, "cleaner.py");
   }
 
   Timer {

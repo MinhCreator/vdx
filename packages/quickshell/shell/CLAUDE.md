@@ -9,7 +9,7 @@ shell.qml      bars per monitor and every app
 apps/          the shell's apps; apps.json is their registry
 bar/           Bar (zones), BarLayout (module registry, layout), BarPopup
 modules/<id>/  bar modules: <Name>.qml, <Name>Popup.qml, <Name>Service.qml
-kit/           UI components, icons/ (outline, solid/)
+kit/           UI components, icons/ (outline, solid/), reply.js (a backend's JSON reply)
 components/    Hypr (helpers), ScrimWindow, PopupManager, PopupCatcher, Separator
 config/        Theme, Colors (from the active theme), ShellSettings, ModuleSettings, Motion
 scripts/       backends: one JSON object per command, commands in the header;
@@ -24,7 +24,7 @@ Imports: `import qs.<dir>` from the config root. Singletons: `pragma Singleton`
 1. Script `scripts/<id>.sh|py` — the only code that talks to the system. Errors:
    `{"ok": false, "error": "..."}`. None when Quickshell has the data.
 2. Service (singleton) — state and actions, owns every `Process` / `Timer`;
-   sections `// ---- name ----`; one `run()`, one `parse()`; `popupShown()` /
+   sections `// ---- name ----`; one `run()`, `parse()` through kit/reply.js; `popupShown()` /
    `popupHidden()` for work done only while open; `busy`, `status`, `error`.
 3. Bar face — `KitBarItem`, a `MouseArea` (click toggles, wheel = quick action),
    `BarPopup` with `ipcTarget`, `function openPopup()` (for the Folder).

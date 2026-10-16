@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // The VirusTotal lookup (scripts/virustotal.py), shared by its window and its
 // bar module. Scan asks what VirusTotal knows about a hash, a URL or a file
@@ -86,7 +87,7 @@ Singleton {
   }
 
   function parse(text) {
-    try { return JSON.parse(text); } catch (e) { return { ok: false, error: "bad reply from virustotal.py" }; }
+    return Reply.parse(text, "virustotal.py");
   }
 
   // the history: newest first, the option's length; written only when kept

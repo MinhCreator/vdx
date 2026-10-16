@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // How the shell's own windows open (scripts/shellapps.py): floating or tiled;
 // floating at the app's size, a preset share of the monitor or a custom one;
@@ -78,7 +79,7 @@ Singleton {
   }
 
   function parse(text) {
-    try { return JSON.parse(text); } catch (e) { return { ok: false, error: "bad reply from shellapps.py" }; }
+    return Reply.parse(text, "shellapps.py");
   }
 
   Component.onCompleted: refresh()

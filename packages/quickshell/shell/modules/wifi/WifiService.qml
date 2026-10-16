@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // Wi-Fi state and actions on top of scripts/wifi.sh. The bar module and the
 // popup only read these properties and call these functions.
@@ -133,7 +134,7 @@ Singleton {
   }
 
   function parse(text) {
-    try { return JSON.parse(text); } catch (e) { return null; }
+    return Reply.parse(text, "wifi.sh", null);
   }
 
   function refresh() {

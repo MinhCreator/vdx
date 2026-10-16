@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Io
 import qs.apps.auth
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // The package manager's state (scripts/packages.py), shared by its window and
 // its bar module: pending updates from the repos and the AUR, the installed
@@ -75,7 +76,7 @@ Singleton {
   }
 
   function parse(text) {
-    try { return JSON.parse(text); } catch (e) { return { ok: false, error: "bad reply from packages.py" }; }
+    return Reply.parse(text, "packages.py");
   }
 
   // ---- checks ----

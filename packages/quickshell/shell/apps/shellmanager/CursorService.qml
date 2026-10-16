@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // The cursor for the Shell Manager (scripts/cursors.py): the list (curated
 // themes and whatever is installed), previews of the main shapes, installing
@@ -87,7 +88,7 @@ Singleton {
   }
 
   function parse(text) {
-    try { return JSON.parse(text); } catch (e) { return { ok: false, error: "bad reply from cursors.py" }; }
+    return Reply.parse(text, "cursors.py");
   }
 
   // a theme-coloured cursor follows the theme

@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // The display settings (scripts/display.py): each monitor's scale, applied at
 // once in Hyprland and kept for the next start; the text size for GTK apps.
@@ -47,7 +48,7 @@ Singleton {
   }
 
   function parse(raw) {
-    try { return JSON.parse(raw); } catch (e) { return { ok: false, error: "bad reply from display.py" }; }
+    return Reply.parse(raw, "display.py");
   }
 
   Component.onCompleted: refresh()

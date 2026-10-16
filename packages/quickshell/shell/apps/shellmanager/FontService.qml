@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // The system monospace font for the Shell Manager (scripts/fonts.py): the list
 // (curated Nerd Fonts and whatever monospace is installed), installing one into
@@ -38,7 +39,7 @@ Singleton {
   }
 
   function parse(text) {
-    try { return JSON.parse(text); } catch (e) { return { ok: false, error: "bad reply from fonts.py" }; }
+    return Reply.parse(text, "fonts.py");
   }
 
   // the running shell only knows the fonts it found at start
