@@ -281,6 +281,8 @@ def wanted_packages() -> tuple[list[str], list[str]]:
 def missing_packages() -> tuple[list[str], list[str]]:
     if not shutil.which("pacman"):
         return [], []
-    installed = set(subprocess.run(["pacman", "-Qq"], capture_output=True, text=True).stdout.split())
     repo, aur = wanted_packages()
-    return [p for p in repo if p not in installed], [p for p in aur if p not in installed]
+    # pacman -T names what no installed package satisfies, provides included:
+    # yay-bin satisfies yay, nvidia-open-dkms satisfies nvidia-open
+    missing = set(subprocess.run(["pacman", "-T", *repo, *aur], capture_output=True, text=True).stdout.split())
+    return [p for p in repo if p in missing], [p for p in aur if p in missing]

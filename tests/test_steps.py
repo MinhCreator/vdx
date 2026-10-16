@@ -71,6 +71,13 @@ class Setup(unittest.TestCase):
         self.assertEqual((a.runs, b.runs, c.runs), (1, 2, 1))
         self.assertIn("finished", json.loads((self.state / "setup.json").read_text()))
 
+    def test_a_step_with_work_only_after_an_earlier_one_still_runs(self):
+        a = Fake("a")
+        b = Fake("b")
+        b.pending = lambda ctx: [] if b.done or not a.done else ["do b"]    # chsh once zsh is in
+        self.assertEqual(self.run_setup([a, b]), 0)
+        self.assertEqual((a.runs, b.runs), (1, 1))
+
     def test_nothing_pending_runs_nothing(self):
         a = Fake("a")
         a.done = True

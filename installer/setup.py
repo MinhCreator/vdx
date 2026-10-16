@@ -119,11 +119,14 @@ def setup(args, stamp: str, log: Path) -> int:
         return 1
     args.yes = True
     journal = {"started": stamp, "log": str(log), "steps": {}}
-    for step in todo:
+    # every step is asked again right before it runs: the plan was made before
+    # the packages, the submodules and the rest of the earlier steps were in
+    for step in steps.STEPS:
+        if not step.pending(ctx):
+            continue
         heading(step.title)
         try:
-            if step.pending(ctx):               # an earlier step may have done it
-                step.run(ctx)
+            step.run(ctx)
             journal["steps"][step.name] = "done"
         except (subprocess.CalledProcessError, RuntimeError, OSError) as e:
             journal["steps"][step.name] = f"failed: {e}"
