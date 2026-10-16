@@ -1,8 +1,8 @@
 import QtQuick
 import Quickshell.Hyprland
 import Quickshell.Io
-import qs.components
 import qs.config
+import qs.kit
 
 // Active keyboard layout as a short code. The initial value comes from
 // `hyprctl devices` (Hyprland doesn't replay activelayout on connect), changes
@@ -15,7 +15,7 @@ Item {
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
 
-  ThemeText {
+  KitText {
     id: label
     anchors { left: parent.left; verticalCenter: parent.verticalCenter }
     text: {

@@ -1,12 +1,11 @@
 import QtQuick
 import Quickshell.Hyprland
-import qs.components
 import qs.config
+import qs.kit
 
 // Hyprland workspaces across all outputs; special workspaces are hidden.
-// Drawn as digits, squares, dots or dashes (Modules ›
-// Workspaces); the theme's icons replace digits when it sets workspaceFormat
-// "{icon}". Focused and visible workspaces are highlighted; click activates.
+// Drawn as digits, squares, dots or dashes (Modules › Workspaces). Focused
+// and visible workspaces are highlighted; a click activates.
 Row {
   id: root
 
@@ -49,17 +48,11 @@ Row {
         Behavior on color { ColorAnimation { duration: 500; easing.type: Easing.OutSine } }
       }
 
-      ThemeText {
+      KitText {
         id: label
         anchors.centerIn: parent
         visible: !root.shape
-        text: {
-          if (Theme.workspaceFormat === "{icon}") {
-            if (workspace.modelData.focused && Theme.workspaceIconActive !== "") return Theme.workspaceIconActive;
-            if (Theme.workspaceIconDefault !== "") return Theme.workspaceIconDefault;
-          }
-          return workspace.modelData.name.replace(/^name:/, "");
-        }
+        text: workspace.modelData.name.replace(/^name:/, "")
         color: workspace.tone
 
         Behavior on color { ColorAnimation { duration: 500; easing.type: Easing.OutSine } }

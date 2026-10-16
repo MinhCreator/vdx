@@ -9,10 +9,11 @@ import qs.config
 // The package manager's state (scripts/packages.py), shared by its window and
 // its bar module: pending updates from the repos and the AUR, the installed
 // packages (the picked ones can be removed), pacman's cache with its versions,
-// and the rollback of the last upgrade. Updating opens a terminal running
-// `yay -Syu --sudo pkexec`: yay shows the AUR builds there, and the password
-// comes from the auth panel. Removing and rolling back go to RootService,
-// which shows the steps first.
+// and the rollback of the last upgrade. The repo updates (download, then
+// install from the cache), removing and rolling back go to RootService, which
+// shows the steps first. The AUR updates open a terminal running
+// `yay -S --needed --sudo pkexec`: yay shows the builds there, and the password
+// comes from the auth panel.
 Singleton {
   id: root
 
@@ -52,12 +53,6 @@ Singleton {
   property bool busy: false
   property string status: ""                // "" | ok | error
   property string message: ""
-
-  function size(bytes) {
-    if (bytes < 1048576) return Math.round(bytes / 1024) + " KB";
-    if (bytes < 1073741824) return Math.round(bytes / 1048576) + " MB";
-    return (bytes / 1073741824).toFixed(1) + " GB";
-  }
 
   function pick(name, on) { pickMany([name], on); }
 
@@ -187,7 +182,7 @@ Singleton {
   function updateAur() {
     if (aurPicked.length === 0) return;
     Quickshell.execDetached(["kitty", "-e", "bash", "-c",
-      "yay -Sy --needed --sudo pkexec \"$@\"; echo; read -rp 'press Enter to close ' _",
+      "yay -S --needed --sudo pkexec \"$@\"; echo; read -rp 'press Enter to close ' _",
       "bash"].concat(aurPicked.map(p => p.name)));
     updPicked = ({});
   }

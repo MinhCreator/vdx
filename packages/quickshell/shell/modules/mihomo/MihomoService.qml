@@ -25,9 +25,7 @@ Singleton {
 
   // ---- actions ----
   property bool updating: false
-  property string updateStatus: ""             // "" | ok | error
   property bool pinging: false
-  property string pingStatus: ""               // "" | ok | error
   property string error: ""                    // last failed action, shown in the popup
 
   // ---- traffic (measured only while the popup is open) ----
@@ -69,7 +67,6 @@ Singleton {
   function pingNodes() {
     if (!serviceOn || provider === "" || pinging) return;
     pinging = true;
-    pingStatus = "";
     error = "";
     run(pingProc, ["--ping", provider]);
   }
@@ -77,7 +74,6 @@ Singleton {
   function runUpdate() {
     if (updating) return;
     updating = true;
-    updateStatus = "";
     error = "";
     run(updateProc, ["--update"]);
   }
@@ -122,7 +118,7 @@ Singleton {
     onTriggered: if (root.popupOpen) trafficProc.running = true
   }
 
-  // ---- transient results ----
+  // ---- after a toggle ----
   Timer {
     id: toggleSettle
     interval: 1500                             // TUN + controller need a moment
@@ -130,18 +126,6 @@ Singleton {
       root.toggling = false;
       root.refresh();
     }
-  }
-
-  Timer {
-    id: updateClear
-    interval: Theme.popupStatusMs
-    onTriggered: root.updateStatus = ""
-  }
-
-  Timer {
-    id: pingClear
-    interval: Theme.popupStatusMs
-    onTriggered: root.pingStatus = ""
   }
 
   // ---- processes ----
@@ -203,9 +187,7 @@ Singleton {
       onStreamFinished: {
         const o = root.parse(text);
         root.pinging = false;
-        root.pingStatus = o?.ok ? "ok" : "error";
         if (!o?.ok) root.error = o?.error ?? "ping failed";
-        pingClear.restart();
         root.refreshNodes();
         root.refreshStatus();
       }
@@ -218,9 +200,7 @@ Singleton {
       onStreamFinished: {
         const o = root.parse(text);
         root.updating = false;
-        root.updateStatus = o?.ok ? "ok" : "error";
         if (!o?.ok) root.error = o?.error ?? "update failed";
-        updateClear.restart();
         root.refresh();
       }
     }

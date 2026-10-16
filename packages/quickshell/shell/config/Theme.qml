@@ -34,11 +34,6 @@ QtObject {
   readonly property color frame:  live.frame ?? Colors.frame
   readonly property color dim:    live.dim ?? Colors.dim
 
-  // per-theme workspace label style
-  readonly property string workspaceFormat: Colors.workspaceFormat
-  readonly property string workspaceIconDefault: Colors.workspaceIconDefault
-  readonly property string workspaceIconActive: Colors.workspaceIconActive
-
   // ---- type and bar metrics ----
   readonly property string fontFamily: ShellSettings.font     // the system monospace, Shell Manager › Appearance
   readonly property int fontSize: 13
@@ -98,7 +93,6 @@ QtObject {
   readonly property int popupGap: 6
   readonly property int frameWidth: 1          // controls: buttons, selects, fields
   readonly property int windowFrameWidth: 2    // popup frames, like hypr windows, mako
-  readonly property int rowHeight: 24
   readonly property int visibleRows: 8
   readonly property int underlineMs: 180          // popup underline grow / slide
   readonly property int popupStatusMs: 2500       // how long ok / error marks stay
@@ -161,6 +155,18 @@ QtObject {
     if (n < 1e6) return (n / 1e3).toFixed(1) + "k";
     if (n < 1e9) return (n / 1e6).toFixed(1) + "M";
     return (n / 1e9).toFixed(2) + "B";
+  }
+
+  // Load of a resource in %: yellow from 70, red from 90.
+  function loadColor(percent) {
+    return percent >= 90 ? red : percent >= 70 ? yellow : foreground0;
+  }
+
+  // Sizes in lists, compact: 312 KB, 48 MB, 1.4 GB.
+  function shortSize(bytes) {
+    if (bytes < 1048576) return Math.round(bytes / 1024) + " KB";
+    if (bytes < 1073741824) return Math.round(bytes / 1048576) + " MB";
+    return (bytes / 1073741824).toFixed(1) + " GB";
   }
 
   // Cumulative byte counters, human-readable.

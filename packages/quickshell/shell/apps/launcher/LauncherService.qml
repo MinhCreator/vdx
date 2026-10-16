@@ -90,9 +90,9 @@ Singleton {
     stdout: StdioCollector { onStreamFinished: { root.files = text.split("\n").filter(l => l !== ""); root.searching = false; } }
   }
 
-  // ---- the shell's own apps (apps/apps.json, not the menu itself); keys from the live binds ----
+  // ---- the shell's own apps (apps/apps.json); keys from the live binds ----
   function keysOf(bind) { return KeybindsService.keysFor(bind).join(" + "); }
-  readonly property var shellApps: ShellAppsService.entries.filter(e => e.id !== "launcher")
+  readonly property var shellApps: ShellAppsService.entries
     .map(e => ({ icon: e.icon, title: e.label, hint: e.about, keys: keysOf(e.bind), run: () => ShellAppsService.run(e) }))
 
   // ---- the shell's own actions ----
@@ -103,7 +103,6 @@ Singleton {
     { icon: "app-window", title: "Windows", hint: "Window mode, gaps, taskbar", run: () => exec(ipc("shell", "open", "windows")) },
     { icon: "keyboard", title: "Keybinds", hint: "Every keybind, by tab", run: () => exec(ipc("keybinds", "open")) }
   ])
-
 
   readonly property var modeItems: WindowsService.modes.map(m => ({ icon: m.icon, title: m.label, hint: "Window mode",
                                                                    run: () => WindowsService.setMode(m.value) }))

@@ -6,12 +6,11 @@ import Quickshell.Io
 import qs.config
 import qs.modules.sysmon
 
-// The task manager's state (scripts/tasks.py): processes polled while the
-// window is open, the machine's CPU and memory, the view — filtered,
-// grouped by program or one row per process, sorted — and ending what is
-// selected or any row (TERM, or KILL); polled while the window or the bar's
-// popup is open. Options: Shell Manager › Modules › Task manager
-// (ModuleSettings "taskmanager").
+// The task manager's state (scripts/tasks.py), polled while its window or
+// its bar popup is open: the processes, the machine's CPU and memory, the
+// view — filtered, grouped by program or one row per process, sorted — and
+// ending what is selected or any row (TERM, or KILL). Options: Shell
+// Manager › Shell apps › Task manager (ModuleSettings "taskmanager").
 Singleton {
   id: root
 

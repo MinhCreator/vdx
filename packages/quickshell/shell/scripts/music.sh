@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# music.sh — MPD backend for modules/music: Yandex Music likes (yandex-music-cli)
-# and internet radio (radio-cli stations) in one player.
+# music.sh — MPD backend for modules/mpd (music and radio): Yandex Music likes
+# (yandex-music-cli) and internet radio (radio-cli stations) in one player.
 #
 #   --status            {service, state, pos, length, elapsed, duration, random, repeat,
 #                        file, title, artist, album, year, source, station}
@@ -25,13 +25,13 @@ STATIONS="$HOME/.config/scripts/radio/stations.json"
 COVERS="${XDG_CACHE_HOME:-$HOME/.cache}/quickshell/music"
 
 ok()    { echo '{"ok":true}'; }
+error() { jq -cn --arg e "$1" '{ok:false, error:$e}'; }
 
 mpd_up() {
     mpc status >/dev/null 2>&1 && return
     systemctl --user start mpd
     for _ in 1 2 3 4 5 6 7 8 9 10; do mpc status >/dev/null 2>&1 && return; sleep 0.2; done
 }
-error() { jq -cn --arg e "$1" '{ok:false, error:$e}'; }
 
 cmd_status() {
     local status current

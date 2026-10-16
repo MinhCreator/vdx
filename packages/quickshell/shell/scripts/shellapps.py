@@ -142,4 +142,4 @@ if __name__ == "__main__":
         out({"ok": True})
     elif len(args) == 3 and args[0] == "set":
         cmd_set(args[1], args[2])
-    out({"ok": False, "error": "usage: shellapps.py list | set <id> <json>"})
+    out({"ok": False, "error": "usage: shellapps.py list | ensure | set <id> <json>"})

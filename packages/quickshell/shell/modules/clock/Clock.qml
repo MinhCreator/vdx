@@ -1,6 +1,6 @@
 import QtQuick
-import qs.components
 import qs.config
+import qs.kit
 
 // HH:mm; click switches to the full date.
 Item {
@@ -18,7 +18,7 @@ Item {
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
 
-  ThemeText {
+  KitText {
     id: label
     text: Qt.formatDateTime(root.now, root.full ? "dddd, dd MMMM yyyy HH:mm:ss" : root.format)
     color: Theme.gray

@@ -18,7 +18,7 @@ Rectangle {
   function shown(ids) { return ids.length <= perSide ? ids : ids.slice(0, perSide - 1); }
   function extra(ids) { return ids.length <= perSide ? 0 : ids.length - perSide + 1; }
 
-  // filled; the drop columns below are the outlined ones
+  // filled, unlike the bands of chips under it
   height: 30
   color: Theme.background1
 

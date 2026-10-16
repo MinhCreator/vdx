@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# claude.sh — Claude Code backend for modules/claude.
+# claude.sh — Claude Code backend for modules/ai (the AI module).
 #
 #   --usage      {ok, plan, limits: [{kind, percent, resets_at}] | error}
 #                plan limits as in `/usage` (api.anthropic.com, OAuth token of

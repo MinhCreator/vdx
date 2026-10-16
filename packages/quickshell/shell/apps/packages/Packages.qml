@@ -67,7 +67,7 @@ Rectangle {
 
   function subtitle() {
     if (tab === "installed")
-      return shown.length + " OF " + ps.installed.length + " SHOWN · " + ps.size(ps.installed.reduce((s, p) => s + p.size, 0)) + " INSTALLED";
+      return shown.length + " OF " + ps.installed.length + " SHOWN · " + Theme.shortSize(ps.installed.reduce((s, p) => s + p.size, 0)) + " INSTALLED";
     if (tab === "cache") return ps.cache.length + " PACKAGES CACHED";
     if (ps.checking) return "CHECKING…";
     return ps.count > 0 ? ps.count + " UPDATES · " + ps.pickedUpdates.length + " PICKED" : "UP TO DATE";
@@ -75,7 +75,7 @@ Rectangle {
 
   // ---- header ----
   Column {
-    id: top
+    id: head
     anchors { left: parent.left; right: parent.right; top: parent.top; margins: 24; topMargin: 20 }
     spacing: 14
 
@@ -107,7 +107,7 @@ Rectangle {
   // ---- list ----
   Flickable {
     id: list
-    anchors { left: parent.left; right: parent.right; top: top.bottom; bottom: foot.top; leftMargin: 24; rightMargin: 24; topMargin: 14; bottomMargin: 14 }
+    anchors { left: parent.left; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: 24; rightMargin: 24; topMargin: 14; bottomMargin: 14 }
     contentHeight: (root.tab === "updates" ? updates : root.tab === "installed" ? installed : cacheList).implicitHeight
     clip: true
     boundsBehavior: Flickable.StopAtBounds
@@ -137,7 +137,7 @@ Rectangle {
         KitLabel {
           text: root.ps.stage === "downloading" ? "DOWNLOADING" : "INSTALLING"
           value: root.ps.stage === "downloading"
-              ? Math.round(root.ps.stagePercent * 100) + "% · " + root.ps.size(root.ps.stageDone) + " OF " + root.ps.size(root.ps.stageBytes)
+              ? Math.round(root.ps.stagePercent * 100) + "% · " + Theme.shortSize(root.ps.stageDone) + " OF " + Theme.shortSize(root.ps.stageBytes)
               : ""
         }
 
@@ -163,7 +163,7 @@ Rectangle {
         KitLabel {
           width: parent.width - 28
           text: "SELECT ALL"
-          value: root.ps.pickedUpdates.length + " OF " + root.ps.count + " · " + root.ps.size(root.ps.repoPickedSize)
+          value: root.ps.pickedUpdates.length + " OF " + root.ps.count + " · " + Theme.shortSize(root.ps.repoPickedSize)
         }
       }
 
@@ -192,7 +192,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             width: 70
             horizontalAlignment: Text.AlignRight
-            text: modelData.aur ? "—" : root.ps.size(modelData.size)
+            text: modelData.aur ? "—" : Theme.shortSize(modelData.size)
             color: Theme.muted
           }
         }
@@ -279,7 +279,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             width: 90
             horizontalAlignment: Text.AlignRight
-            text: root.sortBy === "date" ? root.day(modelData.date) : root.ps.size(modelData.size)
+            text: root.sortBy === "date" ? root.day(modelData.date) : Theme.shortSize(modelData.size)
             color: Theme.foreground2
           }
         }
@@ -355,7 +355,7 @@ Rectangle {
 
       KitLabel {
         text: "CACHED VERSIONS"
-        value: root.cacheRows.length + " · " + root.ps.size(root.cacheSize)
+        value: root.cacheRows.length + " · " + Theme.shortSize(root.cacheSize)
       }
 
       KitSelect {
@@ -384,7 +384,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             width: 80
             horizontalAlignment: Text.AlignRight
-            text: root.ps.size(modelData.size)
+            text: Theme.shortSize(modelData.size)
             color: Theme.muted
           }
 
@@ -430,11 +430,11 @@ Rectangle {
           elide: Text.ElideRight
           font.weight: Font.ExtraBold
           text: root.tab === "installed"
-              ? (root.ps.pickedNames.length > 0 ? root.ps.pickedNames.length + " picked · " + root.ps.size(root.ps.pickedSize) : "Nothing picked")
+              ? (root.ps.pickedNames.length > 0 ? root.ps.pickedNames.length + " picked · " + Theme.shortSize(root.ps.pickedSize) : "Nothing picked")
               : root.tab === "cache"
               ? (root.ps.rollbackCount > 0 ? root.ps.rollbackCount + " to roll back" : "Nothing to roll back")
               : (root.ps.pickedUpdates.length > 0
-                  ? root.ps.pickedUpdates.length + " picked" + (root.ps.repoPickedSize > 0 ? " · " + root.ps.size(root.ps.repoPickedSize) : "")
+                  ? root.ps.pickedUpdates.length + " picked" + (root.ps.repoPickedSize > 0 ? " · " + Theme.shortSize(root.ps.repoPickedSize) : "")
                   : "Nothing picked")
         }
 

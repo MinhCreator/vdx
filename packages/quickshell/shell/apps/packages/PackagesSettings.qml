@@ -47,5 +47,4 @@ Column {
   KitLabel { text: "REMOVING" }
 
   KitToggleRow { module: "packages"; key: "confirm"; label: "Ask before uninstalling"; hint: "Uninstall asks “Sure?” once" }
-
 }

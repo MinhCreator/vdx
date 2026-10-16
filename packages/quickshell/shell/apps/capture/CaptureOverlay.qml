@@ -6,8 +6,8 @@ import qs.config
 import qs.kit
 
 // The capture overlay, one per screen: a still copy of the screen (open bar
-// popups included; with or without the pointer), dimmed except for the target — a dragged region, the
-// window or the screen under the pointer. The toolbar sits on the focused
+// popups included; with or without the pointer), dimmed except for the
+// target — a dragged region, the window or the screen under the pointer. The toolbar sits on the focused
 // monitor. A shot is cropped from the still at full resolution; a recording
 // starts on the target. Esc or a right click cancels.
 Variants {

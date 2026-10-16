@@ -144,7 +144,6 @@ Column {
 
     KitChoices {
       stretch: true
-      id: cursorColours
       model: [
         { label: "Original", value: "original" },
         { label: "Theme",    value: "theme" },

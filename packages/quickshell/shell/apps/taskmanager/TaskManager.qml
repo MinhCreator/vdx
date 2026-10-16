@@ -15,18 +15,10 @@ Rectangle {
   // a click on End / Kill asks once more (option `confirm`) — "" | end | kill
   property string armed: ""
 
-  function size(bytes) {
-    if (bytes < 1048576) return Math.round(bytes / 1024) + " KB";
-    if (bytes < 1073741824) return Math.round(bytes / 1048576) + " MB";
-    return (bytes / 1073741824).toFixed(1) + " GB";
-  }
-
   // bytes per second, short: 167B, 12K, 1.4M
   function rate(b) {
     return b < 1024 ? Math.round(b) + "B" : b < 1048576 ? Math.round(b / 1024) + "K" : (b / 1048576).toFixed(1) + "M";
   }
-
-  function load(v) { return v >= 90 ? Theme.red : v >= 70 ? Theme.yellow : Theme.foreground0; }
 
   function act(kind) {
     if (!tm.selectedRow) return;
@@ -75,7 +67,7 @@ Rectangle {
 
   // ---- top: header, meters, column titles ----
   Column {
-    id: top
+    id: head
     anchors { left: parent.left; right: parent.right; top: parent.top; margins: 24; topMargin: 20 }
     spacing: 14
 
@@ -106,7 +98,7 @@ Rectangle {
         model: [
           { label: "CPU", values: root.tm.cpuHistory, ceiling: 100, fmt: v => Math.round(v) + "%", load: true },
           { label: "MEMORY", values: root.tm.memHistory, ceiling: 100, load: true,
-            fmt: v => root.size(v / 100 * root.tm.memTotal) },
+            fmt: v => Theme.shortSize(v / 100 * root.tm.memTotal) },
           { label: "GPU · " + root.tm.gpuName, values: root.tm.gpuHistory, ceiling: 100, fmt: v => Math.round(v) + "%", load: true },
           { label: "NET /S", values: root.tm.rxHistory, values2: root.tm.txHistory, ceiling: 0, floor: 65536,
             fmt: (v, u) => "↓ " + root.rate(v) + "  ↑ " + root.rate(u ?? 0) }
@@ -129,7 +121,7 @@ Rectangle {
                  : tile.modelData.fmt(tile.now, (tile.modelData.values2 ?? [])[tile.at])
                    + (graph.hoverIndex >= 0 ? " · " + Math.round((tile.modelData.values.length - 1 - graph.hoverIndex)
                                                                * root.tm.refreshMs / 1000) + "s ago" : "")
-            valueColor: tile.modelData.load ? root.load(tile.now) : Theme.foreground2
+            valueColor: tile.modelData.load ? Theme.loadColor(tile.now) : Theme.foreground2
           }
 
           LoadGraph {
@@ -141,7 +133,7 @@ Rectangle {
             ceiling: tile.modelData.ceiling
             floor: tile.modelData.floor ?? 1
             slots: root.tm.historyLength
-            tint: tile.modelData.load ? root.load(tile.now) : Theme.foreground0
+            tint: tile.modelData.load ? Theme.loadColor(tile.now) : Theme.foreground0
           }
         }
       }
@@ -170,7 +162,7 @@ Rectangle {
   // ---- table ----
   ListView {
     id: list
-    anchors { left: parent.left; right: parent.right; top: top.bottom; bottom: foot.top
+    anchors { left: parent.left; right: parent.right; top: head.bottom; bottom: foot.top
               leftMargin: 24; rightMargin: 24; topMargin: 6; bottomMargin: 6 }
     clip: true
     boundsBehavior: Flickable.StopAtBounds
@@ -221,7 +213,7 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         horizontalAlignment: Text.AlignRight
         text: row.modelData.cpu.toFixed(1) + "%"
-        color: row.modelData.cpu >= 1 ? root.load(row.modelData.cpu) : Theme.foreground2
+        color: row.modelData.cpu >= 1 ? Theme.loadColor(row.modelData.cpu) : Theme.foreground2
       }
 
       KitText {
@@ -229,7 +221,7 @@ Rectangle {
         width: root.colMem - 10
         anchors.verticalCenter: parent.verticalCenter
         horizontalAlignment: Text.AlignRight
-        text: root.size(row.modelData.mem)
+        text: Theme.shortSize(row.modelData.mem)
         color: Theme.foreground2
       }
 

@@ -3,10 +3,10 @@ import Quickshell
 import Quickshell.Io
 import qs.config
 
-// The Shell Manager as a window of its own (Hyprland floats and centres it by
-// its title, see hypr/components/rules.lua). Opened from the bar's shell
-// button, Super+S, `qs -c shell ipc call shell toggle` or `… shell open <tab>`
-// (themes | wallpaper | bar | modules); Escape closes it.
+// The Shell Manager as a window of its own (its window rule comes from scripts/shellapps.py (Shell Manager › Shell apps)). Opened
+// from the bar's Shell button, Super+S, `qs -c shell ipc call shell toggle` or
+// `… shell open <page>[:<group or app>]` (appearance, bar, windows, modules,
+// apps, launcher, keybinds, about); Escape closes it.
 FloatingWindow {
   id: root
 
@@ -35,11 +35,12 @@ FloatingWindow {
   IpcHandler {
     target: "shell"
     function toggle(): void { ShellSettings.managerOpen = !ShellSettings.managerOpen; }
-    // `open <tab>`, or `open <tab>:<group or app>` (apps:taskmanager, bar:layout)
-    function open(tab: string): void {
-      const [t, target] = tab.split(":");
+    // `open <page>`, or `open <page>:<group or app>` (apps:taskmanager,
+    // bar:layout); the old page names still work
+    function open(page: string): void {
+      const [p, target] = page.split(":");
       ShellSettings.managerOpen = true;
-      manager.navigate(({ appearance: "themes", layout: "bar" })[t] ?? t, target ?? "");
+      manager.navigate(({ themes: "appearance", wallpaper: "appearance", layout: "bar" })[p] ?? p, target ?? "");
     }
   }
 }

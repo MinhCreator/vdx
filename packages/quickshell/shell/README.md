@@ -15,6 +15,11 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | Cleaner | Super+X | `cleaner toggle` |
 | Capture | Super+Shift+S | `capture open\|stop\|close` |
 | System menu | Super+R | `launcher toggle` |
+| Packages | — | `packages toggle` |
+| VirusTotal | — | `virustotal toggle` |
+| Clipboard | — | `clipboard toggle` |
+| Keybinds | Super+B | `keybinds toggle\|open\|close` |
+| Window switcher | Super+Tab | `switcher toggle\|open\|close` |
 | Overview | — | `overview toggle` |
 | Lock screen | Super+Z | `lock lock` |
 | Taskbar | — | floating mode only |
@@ -26,12 +31,13 @@ IPC: `qs -c shell ipc call <target> <function>`. Window mode:
 ## Modules
 
 Bar modules live in `modules/<id>/`; each popup opens with
-`qs -c shell ipc call <id> toggle`. Order, zones and visibility: Shell Manager
+`qs -c shell ipc call <id> toggle` (except clipboard `clip`, taskmanager
+`tasks`, cleaner `clean`, virustotal `scan`, packages `updates`). Order, zones and visibility: Shell Manager
 › Bar. Options: Shell Manager › Modules (an app's module: › Shell apps).
 
 Workspaces, Music, Radio, Clock, Display, Audio, Wi-Fi, Mihomo, Battery,
 Language, AI, Shell, Notifications, Capture, Clipboard, System, Task manager,
-Cleaner, Windows, Chat, Folder.
+Cleaner, VirusTotal, Packages, Windows, Chat, Folder.
 
 ## Requirements
 
@@ -42,6 +48,7 @@ Cleaner, Windows, Chat, Folder.
 | Root actions without a password for 5 min | `system/etc/polkit-1/rules.d/50-pkexec-keep.rules` |
 | Ollama service switch | `system/etc/polkit-1/rules.d/50-ollama.rules` |
 | AI limits | Claude Code login (`~/.claude/.credentials.json`) |
+| File scans | `VIRUSTOTAL_API_KEY` (env or `~/.config/secrets/env`) |
 | Music likes | Yandex Music token (`~/.config/scripts/yandex-music/token`) |
 
 System files: `./install.py system install`.

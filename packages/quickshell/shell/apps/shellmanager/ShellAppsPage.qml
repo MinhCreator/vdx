@@ -9,8 +9,8 @@ import qs.kit
 // the left, the chosen one on the right: its name, what it is and the key
 // that opens it; then its own options page (values in ModuleSettings, Reset
 // brings the defaults back), how its window opens (one line; the options in
-// WindowDialog, for the apps with a window of their own) and its module in the bar (shown, where,
-// its own options). Each pane scrolls on its own.
+// WindowDialog, for the apps with a window of their own) and its module in
+// the bar (shown, where, its own options). Each pane scrolls on its own.
 Column {
   id: root
 
@@ -166,7 +166,6 @@ Column {
           onPicked: value => root.scope = value
         }
 
-        // hidden when off: a zero-height item still takes a Column gap
         // ---- the app: how its window opens first, then its own options ----
         Column {
           width: parent.width

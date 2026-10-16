@@ -1,6 +1,5 @@
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import Quickshell.Services.Polkit
 import Quickshell.Wayland
 import qs.components

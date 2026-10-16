@@ -18,13 +18,6 @@ KitFrame {
 
   signal openWindow()
 
-  function size(bytes) {
-    if (bytes < 1073741824) return Math.round(bytes / 1048576) + " MB";
-    return (bytes / 1073741824).toFixed(1) + " GB";
-  }
-
-  function load(v) { return v >= 90 ? Theme.red : v >= 70 ? Theme.yellow : Theme.foreground0; }
-
   function end(row) {
     if (tm.confirm && armed !== row.key) { armed = row.key; disarm.restart(); return; }
     armed = "";
@@ -55,18 +48,18 @@ KitFrame {
     width: parent.width
     spacing: 8
 
-    KitLabel { text: "CPU"; value: Math.round(root.tm.cpu) + "%"; valueColor: root.load(root.tm.cpu) }
-    KitBar { value: root.tm.cpu / 100; tint: root.load(root.tm.cpu) }
+    KitLabel { text: "CPU"; value: Math.round(root.tm.cpu) + "%"; valueColor: Theme.loadColor(root.tm.cpu) }
+    KitBar { value: root.tm.cpu / 100; tint: Theme.loadColor(root.tm.cpu) }
 
     KitLabel {
       text: "MEMORY"
-      value: root.size(root.tm.memUsed) + " / " + root.size(root.tm.memTotal)
-      valueColor: root.load(100 * root.tm.memUsed / root.tm.memTotal)
+      value: Theme.shortSize(root.tm.memUsed) + " / " + Theme.shortSize(root.tm.memTotal)
+      valueColor: Theme.loadColor(100 * root.tm.memUsed / root.tm.memTotal)
     }
-    KitBar { value: root.tm.memUsed / root.tm.memTotal; tint: root.load(100 * root.tm.memUsed / root.tm.memTotal) }
+    KitBar { value: root.tm.memUsed / root.tm.memTotal; tint: Theme.loadColor(100 * root.tm.memUsed / root.tm.memTotal) }
 
-    KitLabel { text: "GPU · " + root.tm.gpuName; value: Math.round(root.tm.gpu) + "%"; valueColor: root.load(root.tm.gpu) }
-    KitBar { value: root.tm.gpu / 100; tint: root.load(root.tm.gpu) }
+    KitLabel { text: "GPU · " + root.tm.gpuName; value: Math.round(root.tm.gpu) + "%"; valueColor: Theme.loadColor(root.tm.gpu) }
+    KitBar { value: root.tm.gpu / 100; tint: Theme.loadColor(root.tm.gpu) }
 
     KitLabel { text: "NETWORK"; value: "↓ " + Theme.humanRate(root.tm.rx) + "  ↑ " + Theme.humanRate(root.tm.tx); valueColor: Theme.foreground2 }
   }
@@ -106,7 +99,7 @@ KitFrame {
           width: 52
           horizontalAlignment: Text.AlignRight
           text: row.modelData.cpu.toFixed(1) + "%"
-          color: row.modelData.cpu >= 1 ? root.load(row.modelData.cpu) : Theme.foreground2
+          color: row.modelData.cpu >= 1 ? Theme.loadColor(row.modelData.cpu) : Theme.foreground2
         }
 
         KitText {
@@ -114,7 +107,7 @@ KitFrame {
           anchors { right: endButton.left; rightMargin: 10; verticalCenter: parent.verticalCenter }
           width: 64
           horizontalAlignment: Text.AlignRight
-          text: root.size(row.modelData.mem)
+          text: Theme.shortSize(row.modelData.mem)
           color: Theme.foreground2
         }
 

@@ -4,9 +4,8 @@ import Quickshell.Io
 import qs.config
 
 // The package manager as a window of its own (how it opens: Shell Manager ›
-// Shell apps). `qs -c shell ipc call packages <toggle|open|close>`; Escape
-// closes. Opening refreshes the lists. Hyprland floats it by its title
-// (hypr/components/rules.lua).
+// Shell apps, scripts/shellapps.py writes the rule). `qs -c shell ipc call
+// packages <toggle|open|close>`; Escape closes. Opening refreshes the lists.
 FloatingWindow {
   id: root
 

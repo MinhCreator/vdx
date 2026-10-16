@@ -3,8 +3,9 @@ import qs.config
 import qs.kit
 
 // Keybinds in the Shell Manager (ModuleSettings "keybinds"; the panel itself
-// is apps/keybinds/Keybinds.qml, Super+B): the panel as the launcher's — rows before the list scrolls, its width and
-// where it sits — then the tab it opens on and the search's clearing.
+// is apps/keybinds/Keybinds.qml, Super+B): the panel as the launcher's — rows
+// before the list scrolls, its width and where it sits — then the tab it
+// opens on and the search's clearing.
 Column {
   id: root
 

@@ -3,8 +3,8 @@ import qs.config
 import qs.kit
 
 // The window mode — tiling, floating (like Windows) or scrolling (like Niri).
-// Its options live in the Shell Manager › Windows; floating windows are
-// placed with Super+arrows.
+// Its options live in the Shell Manager › Windows; in the floating mode
+// Super + H / J / K / L place the active window.
 KitFrame {
   id: root
 

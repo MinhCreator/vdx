@@ -15,10 +15,9 @@ object per command.
     packages.py plan-rollback <file>… the steps to install those cached files (pacman -U) and one script
                                     both: {"ok", "steps": [{label, what, command}], "script"}
 
-Updating itself is not here: the shell opens a terminal and runs
-`yay -Syu --sudo pkexec`, so the password comes from the auth panel (apps/auth).
-Removing and rolling back run through RootService from the plans, after the
-panel shows the steps. Errors: {"ok": false, "error": "..."}."""
+The repo updates, removing and rolling back run through RootService from the
+plans, after the auth panel (apps/auth) shows the steps. The AUR updates are
+not here: the shell opens a terminal running `yay -S --needed --sudo pkexec`. Errors: {"ok": false, "error": "..."}."""
 import json, os, re, shlex, subprocess, sys
 from pathlib import Path
 
@@ -44,9 +43,7 @@ def fail(msg):
 def run(args, timeout=120):
     try:
         return subprocess.run(args, capture_output=True, text=True, timeout=timeout)
-    except FileNotFoundError:
-        return None
-    except subprocess.TimeoutExpired:
+    except (FileNotFoundError, subprocess.TimeoutExpired):
         return None
 
 
@@ -286,16 +283,8 @@ def plan_install(names):
 
 
 def plan_remove(names):
-    if not names:
-        fail("nothing picked")
-    for n in names:
-        if not NAME.fullmatch(n):
-            fail(f"bad package name: {n}")
-    quoted = " ".join(shlex.quote(n) for n in names)
-    steps = [{"label": "Remove " + ", ".join(names),
-              "what": "pacman -Rns: with what only they need",
-              "command": f"pacman -Rns --noconfirm -- {quoted}"}]
-    return {"ok": True, "steps": steps, "script": steps[0]["command"]}
+    return plan_names(names, "Remove {n} packages", "pacman -Rns: with what only they need",
+                      "pacman -Rns --noconfirm -- {names}")
 
 
 def plan_rollback(files):
@@ -316,7 +305,7 @@ def plan_rollback(files):
 
 def main():
     if len(sys.argv) < 2:
-        fail("usage: packages.py updates|installed|cache|last-update|plan-remove|plan-rollback …")
+        fail("usage: packages.py updates|progress|installed|cache|last-update|plan-download|plan-install|plan-remove|plan-rollback …")
     cmd, args = sys.argv[1], sys.argv[2:]
     if cmd == "updates":
         out(updates())

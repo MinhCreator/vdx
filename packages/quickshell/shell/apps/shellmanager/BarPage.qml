@@ -5,10 +5,10 @@ import qs.config
 import qs.kit
 
 // Bar: MONITOR (which bar, one bar everywhere, show it), LAYOUT and STYLE.
-// LAYOUT: a small preview of the bar, then four rows — LEFT, CENTER, RIGHT
-// and HIDDEN — the zone's name on the left, its icon + name chips in bar
-// order on the right, wrapping (Material chips); thin lines, no boxes. Drag a chip along a band, to another band or into
-// HIDDEN; a thin line marks where it lands.
+// LAYOUT: a small preview of the bar, then a row per band — LEFT, CENTER,
+// RIGHT, FOLDER and HIDDEN — its name on the left, its icon + name chips in
+// bar order on the right, wrapping; thin lines, no boxes. Drag a chip along a
+// band or to another one; a thin line marks where it lands.
 Column {
   id: root
 
@@ -181,7 +181,7 @@ Column {
     screenName: root.screenName
   }
 
-  // four bands, one per zone and HIDDEN: chips of icon + name in bar order
+  // a band per zone, the folder and HIDDEN: chips of icon + name in bar order
   // that wrap across the width, so even a full zone takes a line or two
   Column {
     id: zonesArea
@@ -321,7 +321,6 @@ Column {
       font.weight: Font.ExtraBold
     }
   }
-
 
   KitLine {}
 

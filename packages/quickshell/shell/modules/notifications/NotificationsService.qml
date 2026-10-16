@@ -30,14 +30,13 @@ Singleton {
 
   // Adds mako's notifications newer than the last one taken (mako ids grow;
   // a lower top id means mako restarted and numbering began again), so a
-  // cleared history stays clear. The first run after a fresh state only
-  // records what is there, without counting it as unseen.
+  // cleared history stays clear. The first run on a fresh state only notes
+  // where the ids are: what mako already holds is not news.
   function ingest(list) {
     const top = list.reduce((m, n) => Math.max(m, n.id), 0);
-    if (!state.tracked) {                      // state from before id tracking
+    if (!state.tracked) {
       state.lastId = top;
       state.tracked = true;
-      state.initialized = true;
       return;
     }
     if (top < state.lastId) state.lastId = 0;
@@ -51,10 +50,6 @@ Singleton {
     state.lastId = Math.max(state.lastId, top);
     if (fresh.length > 0)
       state.items = fresh.concat(state.items).slice(0, Theme.notificationsMax);
-    if (!state.initialized) {
-      state.seenAt = now;
-      state.initialized = true;
-    }
   }
 
   function refresh() {
@@ -116,9 +111,8 @@ Singleton {
       id: state
       property var items: []
       property real seenAt: 0
-      property bool initialized: false
       property int lastId: 0
-      property bool tracked: false
+      property bool tracked: false            // lastId is known
     }
   }
 }

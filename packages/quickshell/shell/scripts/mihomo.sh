@@ -13,7 +13,7 @@
 #   --path P          path of P's provider file (config.yaml if unknown)
 #   --toggle          start / stop mihomo.service
 #
-# Thin layer between the widget and the two things it needs to talk to:
+# Thin layer between the bar module and the two things it talks to:
 #   * the subscription manager (manager.py under packages/scripts/vpn/),
 #     which owns subscriptions.json, downloads every subscription and renders
 #     config.yaml from config.template.yaml. It is the ONLY writer of
@@ -35,10 +35,9 @@ MIHOMO_DIR="${MIHOMO_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/mihomo}"
 error()      { jq -cn --arg e "$1" '{ok:false, error:$e}'; }
 service_on() { systemctl --user is-active --quiet "$SERVICE"; }
 
-# The subscription manager. A Python script under the dotfiles; run with `uv`
-# so it resolves its inline `requests` dependency on the fly. Not a shell
-# script, not a symlink, not an alias — just a file path.
-VPN_MANAGER="${VPN_MANAGER:-$HOME/.dotfiles/packages/scripts/vpn/manager.py}"
+# The subscription manager (packages/scripts/vpn), run with `uv` so its
+# inline `requests` dependency resolves on the fly.
+VPN_MANAGER="${VPN_MANAGER:-$HOME/.config/scripts/vpn/manager.py}"
 
 # Single entry point. Everything that needs the manager goes through here.
 vpn() {

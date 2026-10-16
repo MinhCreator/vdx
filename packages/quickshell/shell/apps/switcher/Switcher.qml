@@ -23,7 +23,7 @@ ScrimWindow {
 
   readonly property int wsId: Hyprland.focusedMonitor?.activeWorkspace?.id ?? 1
   readonly property var windows: Hyprland.toplevels.values
-    .filter(t => t.workspace?.id === wsId || (minimized(t) && tagsOf(t).includes("min" + wsId)))
+    .filter(t => t.workspace?.id === wsId || (Hypr.minimized(t) && Hypr.tagsOf(t).includes("min" + wsId)))
     .sort((a, b) => order(a) - order(b))
   property int index: 0
 
@@ -33,14 +33,7 @@ ScrimWindow {
   readonly property int spacing: 12
   readonly property int columns: Math.max(1, Math.min(5, windows.length))
 
-  function classOf(t) { return t.lastIpcObject?.class ?? ""; }
-  function tagsOf(t) { return (t.lastIpcObject?.tags ?? []).map(s => s.replace(/\*$/, "")); }
-  function minimized(t) { return t.workspace?.name === "special:minimized"; }
   function order(t) { return t.lastIpcObject?.focusHistoryID ?? 1000; }
-  function iconOf(t) {
-    const e = DesktopEntries.heuristicLookup(classOf(t));
-    return Quickshell.iconPath(e?.icon ?? classOf(t).toLowerCase(), true);
-  }
 
   // Super+Tab: open on the window before the current one, or the next one
   function step(d) {
@@ -62,7 +55,7 @@ ScrimWindow {
   // the picked window comes to the top of the others, as the selection moves
   function raise() {
     const t = windows[index];
-    if (t && !minimized(t)) Hypr.call("RaiseWindow(\"" + Hypr.addr(t) + "\")");
+    if (t && !Hypr.minimized(t)) Hypr.call("RaiseWindow(\"" + Hypr.addr(t) + "\")");
   }
   onIndexChanged: raise()
 
@@ -70,7 +63,7 @@ ScrimWindow {
     const t = windows[index];
     open = false;
     if (!t) return;
-    if (minimized(t)) ws.restore(Hypr.addr(t));
+    if (Hypr.minimized(t)) ws.restore(Hypr.addr(t));
     else Hypr.call("FocusWindow(\"" + Hypr.addr(t) + "\")");
   }
 
@@ -140,7 +133,7 @@ ScrimWindow {
           required property var modelData
           required property int index
           readonly property bool current: index === root.index
-          readonly property bool down: root.minimized(modelData)
+          readonly property bool down: Hypr.minimized(modelData)
           readonly property var size: modelData.lastIpcObject?.size ?? [16, 9]
           readonly property real fit: Math.min((root.cellWidth - 16) / Math.max(1, size[0]), (root.thumbHeight - 16) / Math.max(1, size[1]))
 
@@ -169,7 +162,7 @@ ScrimWindow {
               visible: cell.down && source != ""
               implicitSize: 48
               opacity: 0.5
-              source: cell.down ? root.iconOf(cell.modelData) : ""
+              source: cell.down ? Hypr.iconOf(cell.modelData) : ""
             }
           }
 
@@ -178,7 +171,7 @@ ScrimWindow {
             x: 8
             y: root.thumbHeight + 8
             implicitSize: 16
-            source: root.iconOf(cell.modelData)
+            source: Hypr.iconOf(cell.modelData)
             visible: source != ""
             opacity: cell.down ? 0.5 : 1
           }
@@ -197,7 +190,7 @@ ScrimWindow {
             y: root.thumbHeight + 8
             width: parent.width - 40
             elide: Text.ElideRight
-            text: cell.modelData.title || root.classOf(cell.modelData)
+            text: cell.modelData.title || Hypr.classOf(cell.modelData)
             color: cell.down ? Theme.muted : Theme.foreground0
             font.weight: cell.current ? Font.ExtraBold : Theme.fontWeight
           }

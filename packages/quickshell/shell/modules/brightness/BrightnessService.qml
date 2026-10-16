@@ -21,7 +21,6 @@ Singleton {
   readonly property int gamma: state.gamma     // %, below 100 dims past the backlight minimum
   readonly property var presets: config.presets
   readonly property var schedule: config.schedule
-  readonly property var preset: presets.find(p => p.temperature === temperature) ?? null
 
   property var inSchedule: null                // null until the first check
 

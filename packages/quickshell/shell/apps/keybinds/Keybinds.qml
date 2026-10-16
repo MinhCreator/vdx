@@ -189,7 +189,7 @@ ScrimWindow {
         horizontalAlignment: Text.AlignRight
         color: Theme.muted
         font.pixelSize: Theme.fontSize - 2
-        text: "tab tab · esc close"
+        text: "tab next tab · esc close"
       }
     }
   }

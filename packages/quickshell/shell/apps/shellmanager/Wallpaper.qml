@@ -20,7 +20,7 @@ Scope {
   function apply() {
     // a picture that is gone falls back to the colour
     const set = image === "" ? "awww clear " + hex
-      : "awww img --transition-type fade --transition-duration 0.6 \"$HOME/.dotfiles/wallpapers/"
+      : "awww img --transition-type fade --transition-duration 0.6 \"" + WallpaperService.dir + "/"
         + image.replace(/"/g, "") + "\" 2>/dev/null || awww clear " + hex;
     proc.running = false;
     proc.command = ["bash", "-c",

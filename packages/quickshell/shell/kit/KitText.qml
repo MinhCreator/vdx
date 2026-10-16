@@ -8,5 +8,5 @@ Text {
   verticalAlignment: Text.AlignVCenter
   font.family: Theme.fontFamily
   font.pixelSize: Theme.fontSize
-  font.weight: Font.DemiBold
+  font.weight: Theme.fontWeight
 }

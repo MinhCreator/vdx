@@ -18,7 +18,8 @@ PopupWindow {
   required property PanelWindow bar
 
   // `qs -c shell ipc call <ipcTarget> toggle` opens / closes the popup
-  // (Hyprland binds, checks). Empty disables it.
+  // (Hyprland binds, checks); with a bar per monitor, the focused one's
+  // answers (PopupManager.ipcOwner). Empty disables it.
   property string ipcTarget: ""
 
   // Escape closes the popup. A popup with its own Escape handling (nested
@@ -93,9 +94,11 @@ PopupWindow {
 
   IpcHandler {
     target: root.ipcTarget
-    enabled: root.ipcTarget !== ""
+    enabled: root.ipcTarget !== "" && PopupManager.ipcOwner(root.ipcTarget) === root
     function toggle(): void { root.toggle(); }
   }
+  Component.onCompleted: if (ipcTarget !== "") PopupManager.addIpc(ipcTarget, root)
+  Component.onDestruction: if (ipcTarget !== "") PopupManager.removeIpc(ipcTarget, root)
 
   // hidden, not closed, while the capture overlay's still copy stands in for it
   Binding {

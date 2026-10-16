@@ -9,9 +9,9 @@ shell.qml      bars per monitor and every app
 apps/          the shell's apps; apps.json is their registry
 bar/           Bar (zones), BarLayout (module registry, layout), BarPopup
 modules/<id>/  bar modules: <Name>.qml, <Name>Popup.qml, <Name>Service.qml
-kit/           UI components, icons/ (outline, solid/, round/)
-components/    Hypr (helpers), ScrimWindow, PopupManager, PopupCatcher, ThemeText, Separator
-config/        Theme, Colors (theme overlay), ShellSettings, ModuleSettings
+kit/           UI components, icons/ (outline, solid/)
+components/    Hypr (helpers), ScrimWindow, PopupManager, PopupCatcher, Separator
+config/        Theme, Colors (from the active theme), ShellSettings, ModuleSettings
 scripts/       backends: one JSON object per command, commands in the header
 ```
 
@@ -56,8 +56,8 @@ Minimal, monospace, sharp corners, near-monochrome. Reference: the Wi-Fi popup.
   No hex in QML — `Theme.*` only. Dimmed screens use `Theme.scrim`.
 - Bar: one colour per item; a missing value shows `--`.
 - Key hints: `Super + D`; footers `key action · key action`, lowercase.
-- Icons: SVG in `kit/icons`, Lucide-like, square caps; filled variants in
-  `solid/` (listed in `KitIcon.solidNames`), `round/` from `mkround.py`.
+- Icons: Material Symbols SVG in `kit/icons`, `fill="#ffffff"`; every icon
+  has a filled twin of the same name in `solid/`.
 - Refactors keep the look; a new look is prototyped on one popup first.
 
 ## Settings
@@ -74,7 +74,7 @@ Minimal, monospace, sharp corners, near-monochrome. Reference: the Wi-Fi popup.
   `IpcHandler` functions.
 - Restart: `kill <pid>` (`qs list --all`), then
   `hyprctl eval 'hl.exec_cmd("qs -c shell")'`; exactly one instance.
-- Check: `qs log -c shell | grep -E 'ERROR|WARN'`; popups
+- Check: `~/.dotfiles/install.py check shell syntax`; `qs log -c shell | grep -E 'ERROR|WARN'`; popups
   `qs -c shell ipc call <id> toggle`; screenshots `grim -g "X,Y WxH"`.
 - Don't test overlays that grab the keyboard while the user is typing.
 

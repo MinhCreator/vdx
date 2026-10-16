@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# ollama.sh — local Ollama backend for modules/claude (the AI module).
+# ollama.sh — local Ollama backend for modules/ai (the AI module).
 #
 #   --status        {installed, running, version, models: [{name, size}],
 #                    loaded: [{name, vram}]}       bytes

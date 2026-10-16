@@ -17,9 +17,10 @@ import qs.modules.battery
 // so the pointer is hidden and every overlay redraws itself each frame, so
 // Hyprland keeps recomposing. Hyprland applies the hiding late (next key
 // event or a 500 ms tick), so each overlay checks its plain still where the
-// pointer is and retakes it until the pointer is gone. When all are in, the pointer is back, `shown`
-// makes the overlays opaque and, a frame later, open bar popups hide behind
-// their own picture (PopupManager.frozen). Closing runs the other way round.
+// pointer is and retakes it until the pointer is gone. When all are in, the
+// pointer is back, `shown` makes the overlays opaque and, a frame later, open
+// bar popups hide behind their own picture (PopupManager.frozen). Closing runs
+// the other way round.
 Singleton {
   id: root
 
@@ -109,8 +110,6 @@ Singleton {
     if (cursorStills < Quickshell.screens.length || !armed) return;
     setPointerHidden(true);
   }
-
-
 
   // Every screen has its plain still: the pointer is back, show the overlays.
   function plainStillReady() {

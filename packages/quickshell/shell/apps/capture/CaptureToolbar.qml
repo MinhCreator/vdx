@@ -164,7 +164,6 @@ Rectangle {
           }
         }
       }
-
     }
 
     KitLine {}

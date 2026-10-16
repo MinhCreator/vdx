@@ -5,8 +5,8 @@ import qs.kit
 
 // Shell Manager: settings laid out like a system settings window — sections
 // on the left, the chosen page on the right under its fixed header, scrolling
-// on its own. Under the
-// open section its groups (`jumps` of the page) jump there on a click.
+// on its own. Under the open section its groups (`jumps` of the page) jump
+// there on a click.
 //   APPEARANCE — theme, icon style, wallpaper, font and cursor;
 //   BAR        — the layout of the bar's zones, modules on / off, underline.
 //   WINDOWS    — the window mode, each mode's options, gaps, the taskbar.
@@ -14,6 +14,7 @@ import qs.kit
 //   SHELL APPS — how the shell's own windows open: floating or tiled, size, spot.
 //   LAUNCHER   — the launcher's (Super+R) rows, width, position and what it opens on.
 //   KEYBINDS   — the keybinds panel's rows, width, position and what it opens on.
+//   ABOUT      — how the Shell Manager opens, the ideas behind it, versions.
 Rectangle {
   id: root
 
@@ -28,7 +29,6 @@ Rectangle {
         root.tab = ShellSettings.managerStart === "last" ? ShellSettings.managerTab : "appearance";
     }
   }
-
 
   readonly property var sections: [
     { value: "appearance", label: "Appearance", icon: "sun" },
@@ -56,13 +56,15 @@ Rectangle {
   }
 
   function pageFor(value) {
-    return value === "bar" ? bar : value === "modules" ? modules :value === "apps" ? apps : value === "windows" ? windows : value === "about" ? about : value === "launcher" ? launcher :value === "keybinds" ? keybinds : appearance;
+    return ({ bar: bar, windows: windows, modules: modules, apps: apps, launcher: launcher,
+              keybinds: keybinds, about: about })[value] ?? appearance;
   }
   readonly property Item currentPage: pageFor(tab)
 
   // the group being read: the last one whose title is within 40px of the
-  // view's top (under the fixed header), the last group once the page is scrolled to the end. A
-  // clicked one stays marked until the next scroll by hand.
+  // view's top (under the fixed header), the last group once the page is
+  // scrolled to the end. A clicked one stays marked until the next scroll by
+  // hand.
   property string pinnedJump: ""
   readonly property string currentJump: {
     if (pinnedJump !== "") return pinnedJump;
@@ -327,7 +329,6 @@ Rectangle {
   }
 
   onTabChanged: {
-    if (tab === "themes" || tab === "wallpaper") tab = "appearance";
     ShellSettings.set("managerTab", tab);   // kept for About › Shell manager › Last page
     page.contentY = 0;
     pinnedJump = "";

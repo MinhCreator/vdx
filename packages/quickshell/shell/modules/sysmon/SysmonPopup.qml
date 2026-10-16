@@ -7,7 +7,6 @@ import qs.kit
 KitFrame {
   id: root
 
-  function level(p) { return p >= 90 ? Theme.red : p >= 70 ? Theme.yellow : Theme.foreground0; }
   function heat(t) { return t === null || t === undefined ? Theme.muted : t >= 85 ? Theme.red : t >= 70 ? Theme.yellow : Theme.foreground2; }
   function gb(bytes) { return (bytes / 1073741824).toFixed(1); }
   function duration(s) {
@@ -39,10 +38,10 @@ KitFrame {
       text: "CPU"
       value: SysmonService.cpu + "% · " + (SysmonService.freq / 1000).toFixed(1) + " GHz"
         + (SysmonService.temps.cpu !== null ? " · " + SysmonService.temps.cpu + "°" : "")
-      valueColor: root.level(SysmonService.cpu)
+      valueColor: Theme.loadColor(SysmonService.cpu)
     }
 
-    KitBar { value: SysmonService.cpu / 100; tint: root.level(SysmonService.cpu) }
+    KitBar { value: SysmonService.cpu / 100; tint: Theme.loadColor(SysmonService.cpu) }
 
     // each core: a thin bar, side by side
     Row {
@@ -57,7 +56,7 @@ KitFrame {
           required property int modelData
           width: (parent.width - 4 * (SysmonService.cores.length - 1)) / Math.max(1, SysmonService.cores.length)
           value: modelData / 100
-          tint: root.level(modelData)
+          tint: Theme.loadColor(modelData)
         }
       }
     }
@@ -74,10 +73,10 @@ KitFrame {
     KitLabel {
       text: "MEMORY"
       value: root.gb(SysmonService.memUsed) + " / " + root.gb(SysmonService.mem.total) + " GB"
-      valueColor: root.level(root.memPercent)
+      valueColor: Theme.loadColor(root.memPercent)
     }
 
-    KitBar { value: root.memPercent / 100; tint: root.level(root.memPercent) }
+    KitBar { value: root.memPercent / 100; tint: Theme.loadColor(root.memPercent) }
 
     KitInfo {
       visible: SysmonService.mem.swapTotal > 0
@@ -106,13 +105,13 @@ KitFrame {
       visible: root.dgpu.state !== "none"
       label: root.dgpu.state === "active" ? root.dgpu.name.replace(/^NVIDIA (GeForce )?/, "").replace(/ Laptop GPU$/, "") : "NVIDIA"
       value: root.dgpu.state === "active" ? root.dgpu.util + "%" : "asleep"
-      valueColor: root.dgpu.state === "active" ? root.level(root.dgpu.util) : Theme.muted
+      valueColor: root.dgpu.state === "active" ? Theme.loadColor(root.dgpu.util) : Theme.muted
     }
 
     KitBar {
       visible: root.dgpu.state === "active"
       value: (root.dgpu.util ?? 0) / 100
-      tint: root.level(root.dgpu.util ?? 0)
+      tint: Theme.loadColor(root.dgpu.util ?? 0)
     }
 
     KitInfo {
@@ -158,10 +157,10 @@ KitFrame {
         KitInfo {
           label: disk.modelData.mount
           value: Theme.humanSize(disk.modelData.used) + " / " + Theme.humanSize(disk.modelData.size)
-          valueColor: root.level(disk.percent)
+          valueColor: Theme.loadColor(disk.percent)
         }
 
-        KitBar { value: disk.percent / 100; tint: root.level(disk.percent) }
+        KitBar { value: disk.percent / 100; tint: Theme.loadColor(disk.percent) }
       }
     }
   }

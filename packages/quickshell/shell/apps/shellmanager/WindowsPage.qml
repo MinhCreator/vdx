@@ -5,8 +5,8 @@ import qs.modules.windows
 
 // Windows: how windows behave (hypr/components/windowmode.lua) — the mode
 // (tiling, floating, scrolling), the options of the current one, the gaps,
-// frames and shadows and the
-// floating mode's taskbar. Applied at once: Hyprland reloads.
+// frames and shadows and the floating mode's taskbar. Applied at once:
+// Hyprland reloads.
 Column {
   id: root
 
@@ -132,7 +132,6 @@ Column {
       onToggled: root.o.switcher = !root.o.switcher
     }
   }
-
 
   KitLine {}
 

@@ -1,5 +1,4 @@
 import QtQuick
-import Quickshell
 import Quickshell.Widgets
 import qs.components
 import qs.config

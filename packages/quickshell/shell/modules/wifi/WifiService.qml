@@ -35,7 +35,6 @@ Singleton {
   property bool dnsAuto: true
   property string dnsServers: ""
   property bool dnsBusy: false
-  property string dnsStatus: ""                // "" | ok | error
   property string dnsError: ""
   readonly property var dnsProvider: dnsProviders.find(p => dnsAuto ? p.servers === "" : p.servers === dnsServers) ?? null
   readonly property string dnsLabel: dnsProvider ? dnsProvider.label : "CUSTOM"
@@ -43,10 +42,8 @@ Singleton {
   // ---- link quality (measured only while the popup is open) ----
   property real pingMs: 0
   property real packetLoss: 0
-  property real up: 0
+  property real up: 0                          // B/s
   property real down: 0
-  property real upTotal: 0
-  property real downTotal: 0
 
   // ---- speedtest ----
   property bool speedtestBusy: false
@@ -121,7 +118,6 @@ Singleton {
   function setDns(servers) {
     if (!connected || dnsBusy) return;
     dnsBusy = true;
-    dnsStatus = "";
     dnsError = "";
     run(dnsSetProc, ["--dns", "set", servers]);
   }
@@ -218,12 +214,6 @@ Singleton {
   }
 
   Timer {
-    id: dnsClear
-    interval: Theme.popupStatusMs
-    onTriggered: root.dnsStatus = ""
-  }
-
-  Timer {
     id: speedtestTimeout
     interval: Theme.wifiSpeedtestTimeoutMs
     onTriggered: {
@@ -308,9 +298,7 @@ Singleton {
       onStreamFinished: {
         const o = root.parse(text);
         root.dnsBusy = false;
-        root.dnsStatus = o?.ok ? "ok" : "error";
         root.dnsError = o?.ok ? "" : (o?.error ?? "could not set DNS");
-        dnsClear.restart();
         root.refreshDns();
       }
     }
@@ -350,8 +338,6 @@ Singleton {
         if (!o) return;
         root.up = o.up;
         root.down = o.down;
-        root.upTotal = o.upTotal;
-        root.downTotal = o.downTotal;
       }
     }
     onExited: if (root.popupOpen) trafficRestart.restart()

@@ -32,8 +32,8 @@ PanelWindow {
     const out = [];
     for (const t of Hyprland.toplevels.values) {
       const a = Hypr.addr(t);
-      const tag = root.tagsOf(t).find(s => /^min\d+$/.test(s));
-      const from = root.minimized(t) ? (root.cache.origin[a] ?? (tag ? +tag.slice(3) : undefined)) : t.workspace?.id;
+      const tag = Hypr.tagsOf(t).find(s => /^min\d+$/.test(s));
+      const from = Hypr.minimized(t) ? (root.cache.origin[a] ?? (tag ? +tag.slice(3) : undefined)) : t.workspace?.id;
       origin[a] = from;
       seq[a] = root.cache.seq[a] ?? ++root.cache.count;
       if (from === root.wsId) out.push(t);
@@ -43,15 +43,8 @@ PanelWindow {
     return out.sort((x, y) => seq[Hypr.addr(x)] - seq[Hypr.addr(y)]);
   }
 
-  function classOf(t) { return t.lastIpcObject?.class ?? ""; }
-  function tagsOf(t) { return (t.lastIpcObject?.tags ?? []).map(s => s.replace(/\*$/, "")); }
-  function minimized(t) { return t.workspace?.name === "special:minimized"; }
-  function iconOf(t) {
-    const e = DesktopEntries.heuristicLookup(classOf(t));
-    return Quickshell.iconPath(e?.icon ?? classOf(t).toLowerCase(), true);   // "" when the theme has none
-  }
   function clicked(t) {
-    if (minimized(t)) ws.restore(Hypr.addr(t));
+    if (Hypr.minimized(t)) ws.restore(Hypr.addr(t));
     else ws.minimize(Hypr.addr(t));
   }
 
@@ -93,8 +86,8 @@ PanelWindow {
       Rectangle {
         id: item
         required property var modelData
-        readonly property bool current: modelData === root.active && !root.minimized(modelData)
-        readonly property bool down: root.minimized(modelData)
+        readonly property bool current: modelData === root.active && !Hypr.minimized(modelData)
+        readonly property bool down: Hypr.minimized(modelData)
 
         width: Math.min(220, 40 + label.implicitWidth)
         height: parent.height
@@ -114,7 +107,7 @@ PanelWindow {
           x: 8
           anchors.verticalCenter: parent.verticalCenter
           implicitSize: 18
-          source: root.iconOf(item.modelData)
+          source: Hypr.iconOf(item.modelData)
           visible: source != ""
           opacity: item.down ? 0.5 : 1
         }
@@ -134,7 +127,7 @@ PanelWindow {
           anchors.verticalCenter: parent.verticalCenter
           width: Math.min(implicitWidth, 220 - 40)
           elide: Text.ElideRight
-          text: item.modelData.title || root.classOf(item.modelData)
+          text: item.modelData.title || Hypr.classOf(item.modelData)
           color: item.down ? Theme.muted : Theme.foreground0
           font.weight: item.current ? Font.ExtraBold : Theme.fontWeight
         }

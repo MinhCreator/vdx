@@ -6,7 +6,8 @@ object per command.
     cleaner.py clean <id>…          empties those user categories          {"ok", "freed"}
     cleaner.py plan <id>…           the root ones' steps and one script for pkexec
                                     {"ok", "steps": [{label, what, command}], "script", "size"}
-    cleaner.py ai [model]           Claude suggests what in ~ could go     {"ok", "suggestions": [{path, size, why, risk}]}
+    cleaner.py ai [model]           Claude suggests what in ~ could go
+                                    {"ok", "suggestions": [{path, size, days, kind, why, risk}]}
     cleaner.py trash <path>…        moves suggested paths to the Trash     {"ok", "freed"}
 
 User categories are caches that rebuild themselves, the thumbnails and the

@@ -5,8 +5,8 @@ import Quickshell.Services.Pam
 import Quickshell.Wayland
 
 // The lock screen (Super+Z, `ipc call lock lock`): a Wayland session lock
-// with LockScreen on every monitor; the password goes through PAM (the
-// `login` service, as swaylock's). If the shell dies while locked, Hyprland
+// with LockScreen on every monitor; the password goes through PAM (its
+// `login` service). If the shell dies while locked, Hyprland
 // keeps the screen locked; `qs -c shell` started again locks it anew
 // (misc.allow_session_lock_restore).
 Scope {

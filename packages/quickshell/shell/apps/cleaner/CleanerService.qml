@@ -10,9 +10,10 @@ import qs.config
 // module. Basic: categories with their size, a pick per category (the safe
 // ones picked at first); cleaning empties the picked user ones at once and
 // hands the system ones, with their steps in words, to RootService: the
-// shell's panel shows them, asks to confirm (and the password the first time). AI: Claude's
-// suggestions from a summary of ~, picked ones go to the Trash. Options:
-// Shell Manager › Modules › Cleaner (ModuleSettings "cleaner").
+// shell's panel shows them, asks to confirm (and the password the first
+// time). AI: Claude's suggestions from a summary of ~, picked ones go to the
+// Trash. Options: Shell Manager › Shell apps › Cleaner (ModuleSettings
+// "cleaner").
 Singleton {
   id: root
 
@@ -59,13 +60,6 @@ Singleton {
   property bool busy: false
   property string status: ""                // "" | ok | error
   property string message: ""               // what the last action did, or its error
-  property bool cleaning: false             // the terminal half of a clean still to open
-
-  function size(bytes) {
-    if (bytes < 1048576) return Math.round(bytes / 1024) + " KB";
-    if (bytes < 1073741824) return Math.round(bytes / 1048576) + " MB";
-    return (bytes / 1073741824).toFixed(1) + " GB";
-  }
 
   function scan() {
     if (scanProc.running) return;
@@ -179,7 +173,7 @@ Singleton {
         if (root.afterSystem) {
           root.afterSystem = false;
           const left = r.categories.filter(c => root.planIds.includes(c.id)).reduce((s, c) => s + c.size, 0);
-          root.done(true, "Freed " + root.size(Math.max(0, root.planSize - left)) + " from the system");
+          root.done(true, "Freed " + Theme.shortSize(Math.max(0, root.planSize - left)) + " from the system");
         }
         if (first) {
           const p = {};
@@ -198,15 +192,15 @@ Singleton {
         const what = actProc.command[2];
         root.busy = false;
         if (what === "clean" && r.ok && root.pendingRoot.length > 0) {
-          root.done(true, "Freed " + root.size(r.freed) + " · now the system part");
+          root.done(true, "Freed " + Theme.shortSize(r.freed) + " · now the system part");
           root.plan(root.pendingRoot);
           root.pendingRoot = [];
           return;
         }
         if (!r.ok) root.done(false, r.error);
-        else if (what === "clean") root.done(true, "Freed " + root.size(r.freed));
+        else if (what === "clean") root.done(true, "Freed " + Theme.shortSize(r.freed));
         else if (what === "trash") {
-          root.done(true, "Moved " + root.size(r.freed) + " to the Trash");
+          root.done(true, "Moved " + Theme.shortSize(r.freed) + " to the Trash");
           root.suggestions = root.suggestions.filter(s => !root.aiPicked[s.path]);
           root.aiPicked = ({});
         }

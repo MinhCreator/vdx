@@ -32,14 +32,14 @@ Rectangle {
 
   // ---- header ----
   Column {
-    id: top
+    id: head
     anchors { left: parent.left; right: parent.right; top: parent.top; margins: 24; topMargin: 20 }
     spacing: 14
 
     KitHeader {
       icon: "brush"
       title: "Cleaner"
-      subtitle: (root.cs.categories.length === 0 ? "SCANNING…" : root.cs.size(root.cs.total).toUpperCase() + " CAN GO")
+      subtitle: (root.cs.categories.length === 0 ? "SCANNING…" : Theme.shortSize(root.cs.total).toUpperCase() + " CAN GO")
         + (root.tab === "ai" && root.cs.suggestions.length > 0 ? " · " + root.cs.suggestions.length + " SUGGESTIONS" : "")
 
       KitChoices {
@@ -62,7 +62,7 @@ Rectangle {
   // ---- list ----
   Flickable {
     id: list
-    anchors { left: parent.left; right: parent.right; top: top.bottom; bottom: foot.top; leftMargin: 24; rightMargin: 24; topMargin: 14 }
+    anchors { left: parent.left; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: 24; rightMargin: 24; topMargin: 14 }
     contentHeight: (root.tab === "ai" ? ai.implicitHeight : basic.implicitHeight) + 14
     clip: true
     boundsBehavior: Flickable.StopAtBounds
@@ -94,7 +94,7 @@ Rectangle {
 
           KitLabel {
             text: group.modelData.title
-            value: root.cs.size(group.items.reduce((s, c) => s + c.size, 0)).toUpperCase()
+            value: Theme.shortSize(group.items.reduce((s, c) => s + c.size, 0)).toUpperCase()
           }
 
           Repeater {
@@ -111,7 +111,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 width: 80
                 horizontalAlignment: Text.AlignRight
-                text: modelData.size > 0 ? root.cs.size(modelData.size) : "empty"
+                text: modelData.size > 0 ? Theme.shortSize(modelData.size) : "empty"
                 color: modelData.size > 0 ? Theme.foreground2 : Theme.muted
               }
 
@@ -160,7 +160,7 @@ Rectangle {
       KitLabel {
         visible: root.cs.suggestions.length > 0
         text: "SUGGESTIONS"
-        value: root.cs.size(root.cs.suggestions.reduce((s, x) => s + x.size, 0)).toUpperCase()
+        value: Theme.shortSize(root.cs.suggestions.reduce((s, x) => s + x.size, 0)).toUpperCase()
       }
 
       Repeater {
@@ -177,7 +177,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             width: 80
             horizontalAlignment: Text.AlignRight
-            text: root.cs.size(modelData.size)
+            text: Theme.shortSize(modelData.size)
             color: Theme.foreground2
           }
 
@@ -221,8 +221,8 @@ Rectangle {
           elide: Text.ElideRight
           font.weight: Font.ExtraBold
           text: root.tab === "ai"
-            ? (root.cs.aiChosen.length > 0 ? root.cs.size(root.cs.aiSize) + " picked" : "Nothing picked")
-            : (root.cs.pickedSize > 0 ? root.cs.size(root.cs.pickedSize) + " picked" : "Nothing picked")
+            ? (root.cs.aiChosen.length > 0 ? Theme.shortSize(root.cs.aiSize) + " picked" : "Nothing picked")
+            : (root.cs.pickedSize > 0 ? Theme.shortSize(root.cs.pickedSize) + " picked" : "Nothing picked")
         }
 
         KitText {

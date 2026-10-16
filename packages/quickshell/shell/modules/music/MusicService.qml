@@ -23,7 +23,6 @@ Singleton {
 
   property bool popupOpen: false
   property bool updating: false
-  property string updateStatus: ""             // "" | ok | error
 
   function popupShown() {
     popupOpen = true;
@@ -44,7 +43,6 @@ Singleton {
   function runUpdate() {
     if (updating) return;
     updating = true;
-    updateStatus = "";
     MpdService.error = "";
     MpdService.run(updateProc, ["--update"]);
   }
@@ -71,12 +69,6 @@ Singleton {
     }
   }
 
-  Timer {
-    id: updateClear
-    interval: Theme.popupStatusMs
-    onTriggered: root.updateStatus = ""
-  }
-
   Process {
     id: queueProc
     stdout: StdioCollector {
@@ -100,9 +92,7 @@ Singleton {
       onStreamFinished: {
         const o = MpdService.parse(text);
         root.updating = false;
-        root.updateStatus = o?.ok ? "ok" : "error";
         if (!o?.ok) MpdService.error = o?.error || "update failed";
-        updateClear.restart();
         root.refreshQueue();
         likesProc.running = true;
       }

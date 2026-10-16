@@ -11,7 +11,7 @@
 #   --dns set [SERVERS]  {ok, error}         comma-separated; empty means DHCP
 #   --ping               {ok, ping, loss}    gateway RTT (ms), packet loss (%)
 #   --speedtest          {ok, down, up, ping, jitter, duration, ip, server}  Mbps / ms / s
-#   --traffic            {up, down, upTotal, downTotal}  bytes
+#   --traffic            {up, down}  bytes in the last second, one line a second
 
 set -u
 export LC_ALL=C
@@ -190,7 +190,7 @@ cmd_traffic() {
   while :; do
     read -r rx tx < <(sample)
     rx=${rx:-$prx} tx=${tx:-$ptx}
-    echo "{\"up\":$((tx - ptx)),\"down\":$((rx - prx)),\"upTotal\":$tx,\"downTotal\":$rx}"
+    echo "{\"up\":$((tx - ptx)),\"down\":$((rx - prx))}"
     prx=$rx ptx=$tx
     sleep 1
   done

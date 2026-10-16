@@ -255,7 +255,7 @@ Column {
           }
         }
       }
-    
+
       // Apply / Cancel always under the list; live only while previewing
       Row {
         id: themeButtons

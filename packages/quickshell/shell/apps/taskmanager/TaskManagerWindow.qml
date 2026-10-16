@@ -3,8 +3,7 @@ import Quickshell
 import Quickshell.Io
 import qs.config
 
-// The task manager as a window of its own (Hyprland floats and centres it by
-// its title, see hypr/components/rules.lua). Super+D or
+// The task manager as a window of its own (its window rule comes from scripts/shellapps.py (Shell Manager › Shell apps)). Super+D or
 // `qs -c shell ipc call taskmanager toggle`; Escape clears the search,
 // then closes. Processes are polled only while it is open.
 FloatingWindow {

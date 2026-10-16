@@ -17,7 +17,6 @@ Singleton {
 
   // ---- state ----
   property var binds: []                    // [{tab, section, what, keys: [string]}]
-  property int count: 0                     // hyprctl's binds, before folding
   property string error: ""
   property bool open: false                 // the keybinds (Keybinds.qml): Super+B
 
@@ -181,9 +180,7 @@ Singleton {
     stdout: StdioCollector {
       onStreamFinished: {
         try {
-          const list = JSON.parse(text);
-          root.count = list.length;
-          root.binds = root.build(list);
+          root.binds = root.build(JSON.parse(text));
           root.error = "";
         } catch (e) {
           root.error = "hyprctl binds: " + e;

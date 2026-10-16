@@ -57,7 +57,7 @@ Scope {
   // `install.py theme set` (here or from a terminal) writes .theme; reread the
   // theme colours and the shell recolours live — Colors.qml only seeds the start.
   FileView {
-    path: Quickshell.env("HOME") + "/.dotfiles/.theme"
+    path: ThemeService.dotfiles + "/.theme"
     watchChanges: true
     printErrors: false
     onFileChanged: refreshTimer.restart()

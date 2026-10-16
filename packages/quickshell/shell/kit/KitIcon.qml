@@ -14,8 +14,6 @@ Item {
   property int size: Theme.fontSize + 3
   property bool solid: ShellSettings.solidIcons
 
-  readonly property bool useSolid: solid
-
   implicitWidth: size
   implicitHeight: size
 
@@ -23,7 +21,7 @@ Item {
     id: image
     anchors.fill: parent
     source: root.name === "" ? ""
-      : Qt.resolvedUrl("icons/" + (root.useSolid ? "solid/" : "") + root.name + ".svg")
+      : Qt.resolvedUrl("icons/" + (root.solid ? "solid/" : "") + root.name + ".svg")
     sourceSize { width: root.size * 2; height: root.size * 2 }
     smooth: true
     visible: false

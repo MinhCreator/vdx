@@ -26,7 +26,7 @@ KitFrame {
   KitHeader {
     icon: "brush"
     title: "Cleaner"
-    subtitle: root.cs.categories.length === 0 ? "SCANNING…" : root.cs.size(root.cs.total).toUpperCase() + " CAN GO"
+    subtitle: root.cs.categories.length === 0 ? "SCANNING…" : Theme.shortSize(root.cs.total).toUpperCase() + " CAN GO"
 
     KitButton {
       icon: "external"
@@ -64,7 +64,7 @@ KitFrame {
         KitText {
           id: sizeText
           anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-          text: (modelData.root ? "root · " : "") + root.cs.size(modelData.size)
+          text: (modelData.root ? "root · " : "") + Theme.shortSize(modelData.size)
           color: modelData.root ? Theme.muted : Theme.foreground2
         }
       }
@@ -85,7 +85,7 @@ KitFrame {
         width: parent.width
         elide: Text.ElideRight
         font.weight: Font.ExtraBold
-        text: root.cs.size(root.cs.safeSize) + " safe to clean"
+        text: Theme.shortSize(root.cs.safeSize) + " safe to clean"
       }
 
       KitText {

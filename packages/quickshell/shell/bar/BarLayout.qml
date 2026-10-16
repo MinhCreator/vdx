@@ -4,9 +4,9 @@ import Quickshell
 import Quickshell.Io
 
 // Which modules the bar shows and where, per monitor: three zones, each in
-// order, plus the switched-off ones. Persists in the state dir. Ids that `modules` no longer
-// knows are dropped; a new module joins its default zone on the Main bar and
-// sits on the shelf of the Extra one.
+// order, the folder and the switched-off ones. Persists in the state dir. Ids
+// that `modules` no longer knows are dropped; a new module joins its default
+// zone on the Main bar and stays hidden on the Extra one.
 Singleton {
   id: root
 
@@ -39,7 +39,6 @@ Singleton {
     { id: "folder",        label: "Folder",        zone: "right",  icon: "folder", about: "Modules tucked away, one click from the bar" }
   ]
   readonly property var zones: ["left", "center", "right"]
-
 
   // Old ids still found in saved layouts: old -> new.
   readonly property var renamed: ({ claude: "ai", plugins: "shell" })
@@ -86,7 +85,6 @@ Singleton {
   }
 
   function icon(id) { return modules.find(p => p.id === id)?.icon ?? ""; }
-  // A module not placed on a monitor's bar is HIDDEN there (`hidden`).
 
   function visibleIn(zone, screen) {
     const off = hidden(screen).concat(inFolder(screen));
@@ -154,7 +152,6 @@ Singleton {
       if (!seen.has(p.id)) z[p.zone].push(p.id);
     return z;
   }
-
 
   FileView {
     path: Quickshell.statePath("layout.json")

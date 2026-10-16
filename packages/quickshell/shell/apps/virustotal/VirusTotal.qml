@@ -30,7 +30,7 @@ Rectangle {
 
   // ---- header ----
   Column {
-    id: top
+    id: head
     anchors { left: parent.left; right: parent.right; top: parent.top; margins: 24; topMargin: 20 }
     spacing: 14
 
@@ -75,7 +75,7 @@ Rectangle {
   // ---- body ----
   Flickable {
     id: list
-    anchors { left: parent.left; right: parent.right; top: top.bottom; bottom: foot.top; leftMargin: 24; rightMargin: 24; topMargin: 14; bottomMargin: 14 }
+    anchors { left: parent.left; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: 24; rightMargin: 24; topMargin: 14; bottomMargin: 14 }
     contentHeight: body.implicitHeight
     clip: true
     boundsBehavior: Flickable.StopAtBounds

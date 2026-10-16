@@ -6,8 +6,8 @@ import qs.kit
 
 // Modules: the list on the left, the chosen one's options on the right —
 // its own <Name>Settings.qml (the registry's `settings`), values kept in
-// ModuleSettings, Reset to the defaults. Each pane scrolls on its own. Where a module
-// sits is set on the Bar page.
+// ModuleSettings, Reset to the defaults. Each pane scrolls on its own. Where a
+// module sits is set on the Bar page.
 Column {
   id: root
 
@@ -21,9 +21,8 @@ Column {
 
   signal navigate(string tab, string target)
 
-  // a module that is an app's face in the bar (`app`) is set with its app, in
-  // Shell apps: listed as a link there
-  // the app a module belongs to (apps/apps.json), if any
+  // the app a module belongs to (apps/apps.json), if any: such a module is set
+  // with its app, in Shell apps, and listed here as a link there
   function appOf(id) { return ShellAppsService.entries.find(a => a.module === id) ?? null; }
 
   readonly property var own: BarLayout.modules.filter(p => !root.appOf(p.id))

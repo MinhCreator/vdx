@@ -82,11 +82,12 @@ Column {
           visible: root.busy
         }
 
-        KitText {
+        KitIcon {
           anchors.centerIn: parent
           visible: !root.busy
-          text: "󰅀"          // nf-md-chevron_down
-          color: Theme.foreground2
+          name: "chevron-down"
+          tint: Theme.foreground2
+          size: 14
           rotation: root.expanded ? 180 : 0
 
           Behavior on rotation { NumberAnimation { duration: 150 } }
@@ -111,65 +112,65 @@ Column {
     height: list.height
     visible: root.expanded && !root.overlay
 
-  Rectangle {
-    id: list
-    parent: root.overlay ? row : slot
-    y: root.overlay ? row.height + root.spacing : 0
-    visible: root.expanded
-    width: parent.width
-    height: options.implicitHeight + 2 * Theme.frameWidth
-    color: root.overlay ? Theme.background0 : "transparent"
-    border.width: Theme.frameWidth
-    border.color: Theme.gray
+    Rectangle {
+      id: list
+      parent: root.overlay ? row : slot
+      y: root.overlay ? row.height + root.spacing : 0
+      visible: root.expanded
+      width: parent.width
+      height: options.implicitHeight + 2 * Theme.frameWidth
+      color: root.overlay ? Theme.background0 : "transparent"
+      border.width: Theme.frameWidth
+      border.color: Theme.gray
 
-    Column {
-      id: options
-      x: Theme.frameWidth
-      y: Theme.frameWidth
-      width: parent.width - 2 * Theme.frameWidth
+      Column {
+        id: options
+        x: Theme.frameWidth
+        y: Theme.frameWidth
+        width: parent.width - 2 * Theme.frameWidth
 
-      Repeater {
-        model: root.model
+        Repeater {
+          model: root.model
 
-        Rectangle {
-          id: option
+          Rectangle {
+            id: option
 
-          required property var modelData
+            required property var modelData
 
-          readonly property bool active: modelData.value === root.current
+            readonly property bool active: modelData.value === root.current
 
-          width: options.width
-          height: 28
-          color: active ? Theme.background3 : optionArea.containsMouse ? Theme.background1 : "transparent"
+            width: options.width
+            height: 28
+            color: active ? Theme.background3 : optionArea.containsMouse ? Theme.background1 : "transparent"
 
-          KitText {
-            anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
-            text: option.modelData.label
-            color: option.active || optionArea.containsMouse ? Theme.foreground0 : Theme.foreground2
-            font.weight: option.active ? Font.ExtraBold : Font.DemiBold
-          }
+            KitText {
+              anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
+              text: option.modelData.label
+              color: option.active || optionArea.containsMouse ? Theme.foreground0 : Theme.foreground2
+              font.weight: option.active ? Font.ExtraBold : Font.DemiBold
+            }
 
-          KitIcon {
-            anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
-            visible: option.active
-            name: "check"
-            tint: Theme.green
-            size: 14
-          }
+            KitIcon {
+              anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
+              visible: option.active
+              name: "check"
+              tint: Theme.green
+              size: 14
+            }
 
-          MouseArea {
-            id: optionArea
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: {
-              if (!option.active) root.picked(option.modelData.value);
-              root.expanded = false;
+            MouseArea {
+              id: optionArea
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              onClicked: {
+                if (!option.active) root.picked(option.modelData.value);
+                root.expanded = false;
+              }
             }
           }
         }
       }
     }
-  }
   }
 }

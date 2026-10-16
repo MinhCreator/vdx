@@ -12,7 +12,7 @@ import qs.config
 Singleton {
   id: root
 
-  readonly property string dir: Quickshell.env("HOME") + "/.dotfiles/wallpapers"
+  readonly property string dir: ThemeService.dotfiles + "/wallpapers"
   readonly property var extensions: ["*.jpg", "*.jpeg", "*.png", "*.webp", "*.gif"]
 
   // ---- state ----

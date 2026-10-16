@@ -46,7 +46,6 @@ Item {
     }
   }
 
-
   BarPopup {
     id: popup
     anchorItem: root

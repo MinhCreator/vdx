@@ -1,5 +1,6 @@
 pragma Singleton
 import QtQuick
+import Quickshell.Hyprland
 
 // Keeps at most one popup open across the bar: opening one hides the previous.
 // `holding` keeps an open popup while the capture overlay takes the focus;
@@ -11,6 +12,28 @@ QtObject {
   // where the last open popup's bar underline stood: { bar, x, width, at }
   property var lastLine: null
   onHoldingChanged: if (!holding) frozen = false
+
+  // ---- ipc ----
+  // Every bar has its own popup per module, but an IPC target answers once:
+  // the popup on the focused monitor's bar, else the first one there is.
+  property var ipcPopups: ({})               // target -> [BarPopup]
+  property int ipcRevision: 0                // bumped on every change: owner() bindings follow
+
+  function addIpc(target, popup) {
+    ipcPopups[target] = (ipcPopups[target] ?? []).concat([popup]);
+    ipcRevision++;
+  }
+
+  function removeIpc(target, popup) {
+    ipcPopups[target] = (ipcPopups[target] ?? []).filter(p => p !== popup);
+    ipcRevision++;
+  }
+
+  function ipcOwner(target) {
+    if (ipcRevision < 0) return null;        // read: a dependency of the caller's binding
+    const list = ipcPopups[target] ?? [];
+    return list.find(p => p.bar.screen?.name === Hyprland.focusedMonitor?.name) ?? list[0] ?? null;
+  }
 
   function open(win) {
     if (current === win) return;

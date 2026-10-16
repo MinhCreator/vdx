@@ -5,7 +5,7 @@
     fonts.py install <id>    Nerd Font <id> into ~/.local/share/fonts/<id>  {"ok", "family"}
     fonts.py set <family>    makes <family> the `monospace` font             {"ok"}
 
-`monospace` is what rofi, mako and swaylock ask for (kitty also gets the
+`monospace` is what mako and other programs ask for (kitty also gets the
 name itself in ~/.config/kitty/font.conf, it reloads that live):
 ~/.config/fontconfig/fonts.conf (packages/fontconfig) includes the choice,
 ~/.local/state/dotfiles/font.conf, ahead of its own default. Errors:
