@@ -4,6 +4,11 @@ Arch Linux + Hyprland, one theme across the desktop, deployed by `install.py`
 (Python stdlib, per-file symlinks): a wizard picks what goes on the machine,
 the hardware is detected, nothing personal is installed unless asked for.
 
+![The Quickshell shell](docs/shell/shell-demo.webp)
+
+The shell up close: [packages/quickshell/shell](packages/quickshell/shell/README.md#overview)
+· [video](docs/shell/shell-demo.mp4).
+
 | | |
 |---|---|
 | Desktop | Hyprland (Lua config), Quickshell shell, mako |

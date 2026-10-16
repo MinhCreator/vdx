@@ -3,6 +3,49 @@
 Quickshell config (`qs -c shell`): the bar, the shell's apps and the Shell
 Manager. Code rules: [CLAUDE.md](CLAUDE.md).
 
+## Overview
+
+![The shell in 55 seconds](../../../docs/shell/shell-demo.webp)
+
+Full quality: [shell-demo.mp4](../../../docs/shell/shell-demo.mp4).
+
+![The bar](../../../docs/shell/bar.png)
+
+<table>
+  <tr>
+    <td colspan="2"><img src="../../../docs/shell/sm-appearance.png" alt="Shell Manager, Appearance"><br><sub>Shell Manager › Appearance: theme, icons, wallpaper, font</sub></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="../../../docs/shell/sm-bar.png" alt="Shell Manager, Bar"><br><sub>Shell Manager › Bar: modules dragged between zones and the Folder</sub></td>
+  </tr>
+  <tr>
+    <td><img src="../../../docs/shell/launcher.png" alt="Launcher"><br><sub>System menu (Super+R)</sub></td>
+    <td><img src="../../../docs/shell/keybinds.png" alt="Keybinds"><br><sub>Keybinds (Super+B)</sub></td>
+  </tr>
+  <tr>
+    <td><img src="../../../docs/shell/taskmanager.png" alt="Task manager"><br><sub>Task manager (Super+D)</sub></td>
+    <td><img src="../../../docs/shell/cleaner.png" alt="Cleaner"><br><sub>Cleaner (Super+X)</sub></td>
+  </tr>
+  <tr>
+    <td><img src="../../../docs/shell/packages.png" alt="Packages"><br><sub>Packages</sub></td>
+    <td><img src="../../../docs/shell/ai.png" alt="AI"><br><sub>AI: Claude Code limits, Ollama</sub></td>
+  </tr>
+  <tr>
+    <td><img src="../../../docs/shell/audio.png" alt="Audio"><br><sub>Audio</sub></td>
+    <td><img src="../../../docs/shell/battery.png" alt="Battery"><br><sub>Battery</sub></td>
+  </tr>
+  <tr>
+    <td><img src="../../../docs/shell/brightness.png" alt="Display"><br><sub>Display</sub></td>
+    <td><img src="../../../docs/shell/windows.png" alt="Windows"><br><sub>Window mode</sub></td>
+  </tr>
+  <tr>
+    <td><img src="../../../docs/shell/music.png" alt="Music"><br><sub>Music</sub></td>
+    <td><img src="../../../docs/shell/radio.png" alt="Radio"><br><sub>Radio</sub></td>
+  </tr>
+</table>
+
+Media: `docs/shell/` in the repo root.
+
 ## Apps
 
 Registry: `apps/apps.json` (the Shell Manager, the system menu,
