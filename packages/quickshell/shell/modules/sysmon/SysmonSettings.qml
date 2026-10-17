@@ -2,8 +2,8 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// Sysmon options in the Shell Manager: the bar's text and which popup
-// sections show.
+// Sysmon options in the Shell Manager: which metrics the bar shows (in this
+// order) and which popup sections show.
 Column {
   spacing: Theme.gapGroup
 
@@ -14,6 +14,11 @@ Column {
     label: "Show CPU load"
     hint: "Off: icon only"
   }
+
+  KitToggleRow { module: "sysmon"; key: "barMemory";  fallback: false; label: "Show memory";        hint: "Used, in percent" }
+  KitToggleRow { module: "sysmon"; key: "barTemp";    fallback: false; label: "Show temperature";   hint: "CPU sensor" }
+  KitToggleRow { module: "sysmon"; key: "barGpu";     fallback: false; label: "Show GPU load";      hint: "NVIDIA, while awake" }
+  KitToggleRow { module: "sysmon"; key: "barNetwork"; fallback: false; label: "Show network speed"; hint: "Down and up" }
 
   KitLine {}
 
