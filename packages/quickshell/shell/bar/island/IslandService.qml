@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Services.Mpris
+import qs.components
 import qs.config
 import qs.modules.audio
 import qs.modules.brightness
@@ -81,6 +82,8 @@ Singleton {
 
   function osd(kind) {
     if (!ready) return;
+    // a volume change made in the open volume popup shows in the popup, not as a flash
+    if (kind === "volume" && PopupManager.current?.ipcTarget === "audio") return;
     osdKind = kind;
     flashed("osd", osdMs);
   }

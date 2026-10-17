@@ -15,7 +15,8 @@ import qs.modules.audio
 // content moves in from the BarPopup and back once the island has folded.
 // A clicked view stays until a click outside, Escape or a second click.
 //
-// Compact: click — the hub, middle — play / pause, wheel — volume, right — power.
+// Compact: click — the hub, middle — play / pause, right — power. The wheel is
+// a module's own (the volume module's, a chip's), never the island's.
 Item {
   id: root
 
@@ -27,7 +28,10 @@ Item {
   property string view: "compact"              // compact | hub | media | power | module: what was asked for
   property bool pinned: false                  // opened by a click or IPC, not a hover
   property string flash: ""                    // osd | notice: passes over compact and media
-  readonly property string shown: flash !== "" && view !== "power" && view !== "module" ? flash : view
+  // an osd under the pointer would take the view away from it (and the wheel
+  // with it): the module under the pointer already shows the new level
+  readonly property string shown: flash !== "" && view !== "power" && view !== "module"
+    && !(flash === "osd" && hover.hovered) ? flash : view
   readonly property bool open: shown !== "compact"
   // resting with nothing to show (no clock, no modules): gone until it has
   readonly property bool hidden: shown === "compact" && compact.empty
@@ -165,10 +169,6 @@ Item {
         else if (mouse.button === Qt.MiddleButton) IslandService.togglePlay();
         else root.toggleView("hub");
       }
-      onWheel: wheel => {
-        if (wheel.angleDelta.y !== 0)
-          AudioService.stepVolume(wheel.angleDelta.y > 0 ? AudioService.scrollStep : -AudioService.scrollStep);
-      }
     }
 
     // the face of each view: fades in once the shape is on its way
@@ -192,7 +192,10 @@ Item {
       opacity: root.shown === "hub" ? 1 : 0
       Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
       onPower: root.openView("power")
-      onSettings: id => root.settings(id)
+      onSettings: id => {
+        root.collapse();
+        root.settings(id);
+      }
     }
 
     IslandMedia {
@@ -359,6 +362,8 @@ Item {
       if (IslandService.notices.length === 0 && root.flash === "notice") root.flash = "";
     }
     function onFlashed(kind, ms) {
+      // a change made from the island (its wheel, its chips) is shown there: no flash
+      if (kind === "osd" && hover.hovered) return;
       root.flash = kind;
       flashTimer.interval = ms;
       flashTimer.restart();
