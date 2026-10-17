@@ -25,6 +25,7 @@ import qs.modules.sysmon
 import qs.modules.taskmanager
 import qs.modules.themes
 import qs.modules.virustotal
+import qs.modules.wallpapers
 import qs.modules.wifi
 import qs.modules.windows
 import qs.modules.workspaces
@@ -40,7 +41,7 @@ Item {
   visible: false
 
   readonly property var map: ({
-    workspaces: workspaces, music: music, equalizer: equalizer, themes: themes, radio: radio, clock: clock,
+    workspaces: workspaces, music: music, equalizer: equalizer, themes: themes, wallpapers: wallpapers, radio: radio, clock: clock,
     brightness: brightness, audio: audio, wifi: wifi, mihomo: mihomo,
     battery: battery, language: language, ai: ai, notifications: notifications,
     shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, virustotal: virustotal, packages: packages, display: display, windows: windows, chat: chat, folder: folder
@@ -52,6 +53,7 @@ Item {
   Component { id: clock; Clock {} }
   Component { id: equalizer; Equalizer { bar: root.bar } }
   Component { id: themes; Themes { bar: root.bar } }
+  Component { id: wallpapers; Wallpapers { bar: root.bar } }
   Component { id: brightness; Brightness { bar: root.bar } }
   Component { id: audio; Audio { bar: root.bar } }
   Component { id: wifi; Wifi { bar: root.bar } }

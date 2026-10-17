@@ -1,0 +1,32 @@
+import QtQuick
+import qs.config
+import qs.kit
+
+// Wallpapers options in the Shell Manager: what the bar shows, how the popup
+// looks and how it is driven.
+Column {
+  spacing: Theme.gapGroup
+
+  KitLabel { text: "BAR" }
+
+  KitToggleRow { module: "wallpapers"; key: "name"; fallback: false; label: "Show picture name"; hint: "Next to the image icon" }
+  KitToggleRow { module: "wallpapers"; key: "barWheel"; fallback: true; label: "Wheel on the bar"; hint: "Switches to the next picture" }
+
+  KitLine {}
+
+  KitLabel { text: "POPUP" }
+
+  KitOptionRow {
+    module: "wallpapers"; key: "view"; fallback: "auto"
+    label: "View"
+    hint: "Auto: cards in the island"
+    model: [
+      { label: "Auto",  value: "auto" },
+      { label: "Cards", value: "cards" },
+      { label: "List",  value: "list" }
+    ]
+  }
+
+  KitToggleRow { module: "wallpapers"; key: "english"; fallback: true; label: "English layout on open"; hint: "Switches the keyboard" }
+  KitToggleRow { module: "wallpapers"; key: "wheel"; fallback: true; label: "Wheel picks"; hint: "Over the cards or the list" }
+}
