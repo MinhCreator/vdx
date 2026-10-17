@@ -13,8 +13,8 @@ Column {
   KitOptionRow {
     module: "capture"; key: "shortcut"; fallback: "popup"
     label: "Shortcut opens"
-    hint: "Without the module: the bar's centre"
-    model: [{ label: "Popup", value: "popup" }, { label: "Popup or last", value: "else-last" }, { label: "Last mode", value: "last" }]
+    hint: "No module: the bar's centre"
+    model: [{ label: "Popup", value: "popup" }, { label: "Else last", value: "else-last" }, { label: "Last mode", value: "last" }]
   }
 
   KitLine {}
@@ -24,14 +24,13 @@ Column {
   KitOptionRow {
     module: "capture"; key: "shotTarget"; fallback: "folder"
     label: "After a screenshot"; hint: "Also copied to the clipboard"
-    model: [{ label: "Save", value: "folder", icon: "folder" }, { label: "Ask", value: "ask", icon: "list" },
-            { label: "Clipboard", value: "clipboard", icon: "clipboard" }]
+    model: [{ label: "Save", value: "folder" }, { label: "Ask", value: "ask" }, { label: "Clipboard", value: "clipboard" }]
   }
 
   KitOptionRow {
     module: "capture"; key: "videoTarget"; fallback: "folder"
     label: "After a recording"; hint: "Ask: Esc saves to folder"
-    model: [{ label: "Save", value: "folder", icon: "folder" }, { label: "Ask", value: "ask", icon: "list" }]
+    model: [{ label: "Save", value: "folder" }, { label: "Ask", value: "ask" }]
   }
 
   KitLine {}
