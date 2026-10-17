@@ -110,6 +110,14 @@ Right click: power. Middle click: play / pause; wheel: volume.
 
 IPC: `qs -c shell ipc call island hub|media|power|collapse`.
 
+## Extra bars
+
+Shell Manager › Bar › BARS › Add bar: more bars beside the main one (solid
+or island). Each sits on the top or bottom edge, as a strip or a floating
+pill (start, centre or end), on one monitor or all, with its own modules:
+a module dragged into THIS BAR leaves the main bar and the island. A bottom
+bar's popups open upwards.
+
 ## Requirements
 
 | What | Needs |

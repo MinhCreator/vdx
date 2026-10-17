@@ -52,9 +52,14 @@ PopupWindow {
     anchor.updateAnchor();
   }
 
+  // the island style's main bar takes the content into the island; an extra
+  // bar at the bottom opens its popups upwards
+  readonly property bool inIsland: Theme.island && !!root.bar.islandItem
+  readonly property bool up: root.bar.atBottom === true
+
   anchor.window: root.bar
-  anchor.edges: Edges.Bottom | (alignLeft ? Edges.Left : Edges.Right)
-  anchor.gravity: Edges.Bottom | (alignLeft ? Edges.Right : Edges.Left)
+  anchor.edges: (up ? Edges.Top : Edges.Bottom) | (alignLeft ? Edges.Left : Edges.Right)
+  anchor.gravity: (up ? Edges.Top : Edges.Bottom) | (alignLeft ? Edges.Right : Edges.Left)
 
   // Bar x of the popup's corner, fixed while it is open (-1: closed).
   property real anchorX: -1
@@ -69,7 +74,8 @@ PopupWindow {
       root.anchorX = Math.round(p.x) - 1;
     }
     anchor.rect.x = root.anchorX;
-    anchor.rect.y = Theme.barEdge - 1;
+    const edge = root.bar.popupEdge ?? Theme.barEdge;
+    anchor.rect.y = root.up ? edge - Theme.popupGap : edge - 1;
     anchor.rect.width = 1;
     anchor.rect.height = 1 + Theme.popupGap;
   }
@@ -78,7 +84,7 @@ PopupWindow {
   visible: false
   // Bar › Style island: the content opens inside the island (Island.showPopup);
   // this window stays up for the module's sake but shows and takes nothing
-  mask: Theme.island ? noInput : null
+  mask: root.inIsland ? noInput : null
   Region { id: noInput }
   // No xdg popup grab: the compositor would dismiss the popup whenever another
   // surface takes focus (slurp) and swallow the click on another module.
@@ -89,7 +95,7 @@ PopupWindow {
   onVisibleChanged: {
     if (visible) {
       PopupManager.open(root);       // closes the previous popup: its line is the slide's start
-      if (Theme.island) root.bar.islandItem?.showPopup(root);
+      if (root.inIsland) root.bar.islandItem.showPopup(root);
       underline.start();
       root.comeIn();
       root.shown();
@@ -98,7 +104,7 @@ PopupWindow {
       root.anchorX = -1;
       underline.stop();
       PopupManager.close(root);
-      if (Theme.island) root.bar.islandItem?.hidePopup(root);
+      if (root.inIsland) root.bar.islandItem.hidePopup(root);
       root.hidden();
     }
   }
@@ -121,7 +127,7 @@ PopupWindow {
   Binding {
     target: root.contentItem
     property: "opacity"
-    value: PopupManager.frozen || Theme.island ? 0 : root.reveal
+    value: PopupManager.frozen || root.inIsland ? 0 : root.reveal
   }
 
   // ---- coming in ----
@@ -132,10 +138,10 @@ PopupWindow {
   property int revealWait: 0
 
   property Translate slideIn: Translate {
-    y: Motion.popupStyle === "slide" ? -14 * (1 - root.reveal) : 0
+    y: Motion.popupStyle === "slide" ? (root.up ? 14 : -14) * (1 - root.reveal) : 0
   }
   property Scale growIn: Scale {
-    origin.y: 0
+    origin.y: root.up ? root.height : 0
     origin.x: root.alignLeft ? 0 : root.width
     yScale: Motion.popupStyle === "grow" ? 0.9 + 0.1 * root.reveal : 1
     xScale: Motion.popupStyle === "grow" ? 0.97 + 0.03 * root.reveal : 1
@@ -192,8 +198,8 @@ PopupWindow {
   Rectangle {
     id: underline
     parent: root.bar.contentItem
-    visible: active && !PopupManager.frozen && !Theme.island
-    y: Theme.barEdge - height
+    visible: active && !PopupManager.frozen && !root.inIsland
+    y: root.bar.underlineY ?? Theme.barEdge - height
     height: 2
     color: root.tintOf(root.anchorItem) ?? Theme.foreground0
 
@@ -275,7 +281,7 @@ PopupWindow {
   }
 
   HyprlandFocusGrab {
-    windows: [Theme.island ? root.bar : root]
+    windows: [root.inIsland ? root.bar : root]
     active: root.visible && !PopupManager.holding
     onCleared: if (!PopupManager.holding) root.visible = false
   }

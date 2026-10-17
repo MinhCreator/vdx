@@ -299,6 +299,10 @@ def shell_problems() -> list[str]:
     solid = {p.stem for p in (icons / "solid").glob("*.svg")}
     out += [f"kit/icons/{n}.svg: no solid/ twin" for n in sorted(outline - solid)]
     out += [f"kit/icons/solid/{n}.svg: no outline twin" for n in sorted(solid - outline)]
+    # ...and both their Rounded twins (Appearance › Corners round)
+    for sub in ("round", "round/solid"):
+        have = {p.stem for p in (icons / sub).glob("*.svg")}
+        out += [f"kit/icons/{n}.svg: no {sub}/ twin" for n in sorted(outline - have)]
     registry = SHELL / "apps" / "apps.json"
     apps = json.loads(registry.read_text()) if registry.is_file() else []
     uses = [(srel(p), n, no) for p, text in qml.items() for n, no in icon_uses(p, text)]
@@ -315,7 +319,7 @@ def shell_problems() -> list[str]:
             if not (SHELL / "scripts" / m.group(1)).is_file():
                 out.append(f"{srel(p)}: scripts/{m.group(1)}: no such script")
     # the bar's registry: a folder, a settings page and a Component per module
-    layout, bar = SHELL / "bar" / "BarLayout.qml", SHELL / "bar" / "Bar.qml"
+    layout, bar = SHELL / "bar" / "BarLayout.qml", SHELL / "bar" / "ModuleFaces.qml"
     modules = re.findall(r'\{ id: "(\w+)",[^}]*\}', qml.get(layout, ""))
     components = set(re.findall(r"Component\s*\{\s*id:\s*(\w+)", qml.get(bar, "")))
     for entry in re.findall(r'\{ id: "\w+",[^}]*\}', qml.get(layout, "")):
@@ -324,7 +328,7 @@ def shell_problems() -> list[str]:
         if settings and not (SHELL / "modules" / mid / settings.group(1)).is_file():
             out.append(f"bar/BarLayout.qml: {mid}: no modules/{mid}/{settings.group(1)}")
         if mid not in components:
-            out.append(f"bar/Bar.qml: no Component for module {mid}")
+            out.append(f"bar/ModuleFaces.qml: no Component for module {mid}")
     # the apps' registry: files, modules, IPC targets and binds it names
     targets = set(re.findall(r'(?:target|ipcTarget):\s*"([\w-]+)"', "\n".join(qml.values())))
     keybinds = PKG / "hypr" / "components" / "keybinds.lua"

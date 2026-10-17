@@ -12,6 +12,14 @@ QtObject {
   property bool frozen: false
   // where the last open popup's bar underline stood: { bar, x, width, at }
   property var lastLine: null
+  // screen -> the height of the extra bars at its bottom (they set it): the
+  // catcher leaves them uncovered
+  property var bottomBars: ({})
+  function setBottomBar(screen, height) {
+    const m = Object.assign({}, bottomBars);
+    if (height > 0) m[screen] = Math.max(m[screen] ?? 0, height); else delete m[screen];
+    bottomBars = m;
+  }
   onHoldingChanged: if (!holding) frozen = false
 
   // ---- ipc ----

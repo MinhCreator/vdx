@@ -1,0 +1,90 @@
+import QtQuick
+import Quickshell
+import qs.config
+import qs.kit
+import qs.apps.shellmanager
+import qs.modules.ai
+import qs.modules.audio
+import qs.modules.battery
+import qs.modules.brightness
+import qs.modules.capture
+import qs.modules.chat
+import qs.modules.cleaner
+import qs.modules.clipboard
+import qs.modules.clock
+import qs.modules.display
+import qs.modules.equalizer
+import qs.modules.folder
+import qs.modules.language
+import qs.modules.mihomo
+import qs.modules.music
+import qs.modules.notifications
+import qs.modules.packages
+import qs.modules.radio
+import qs.modules.sysmon
+import qs.modules.taskmanager
+import qs.modules.themes
+import qs.modules.virustotal
+import qs.modules.wifi
+import qs.modules.windows
+import qs.modules.workspaces
+
+// Every bar module as a Component, made for one bar window (`bar`): the main
+// bar and each extra bar have their own set. A new module: its Component here
+// and an entry in BarLayout.modules.
+Item {
+  id: root
+
+  required property PanelWindow bar
+
+  visible: false
+
+  readonly property var map: ({
+    workspaces: workspaces, music: music, equalizer: equalizer, themes: themes, radio: radio, clock: clock,
+    brightness: brightness, audio: audio, wifi: wifi, mihomo: mihomo,
+    battery: battery, language: language, ai: ai, notifications: notifications,
+    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, virustotal: virustotal, packages: packages, display: display, windows: windows, chat: chat, folder: folder
+  })
+
+  Component { id: workspaces; Workspaces {} }
+  Component { id: music; Music { bar: root.bar } }
+  Component { id: radio; Radio { bar: root.bar } }
+  Component { id: clock; Clock {} }
+  Component { id: equalizer; Equalizer { bar: root.bar } }
+  Component { id: themes; Themes { bar: root.bar } }
+  Component { id: brightness; Brightness { bar: root.bar } }
+  Component { id: audio; Audio { bar: root.bar } }
+  Component { id: wifi; Wifi { bar: root.bar } }
+  Component { id: mihomo; Mihomo { bar: root.bar } }
+  Component { id: battery; Battery { bar: root.bar } }
+  Component { id: language; Language {} }
+  Component { id: ai; Ai { bar: root.bar } }
+  Component { id: notifications; Notifications { bar: root.bar } }
+  Component { id: capture; Capture { bar: root.bar } }
+  Component { id: clipboard; ClipboardBar { bar: root.bar } }
+  Component { id: sysmon; Sysmon { bar: root.bar } }
+  Component { id: taskmanager; TaskManagerBar { bar: root.bar } }
+  Component { id: cleaner; CleanerBar { bar: root.bar } }
+  Component { id: virustotal; VirusTotalBar { bar: root.bar } }
+  Component { id: packages; PackagesBar { bar: root.bar } }
+  Component { id: display; DisplayBar { bar: root.bar } }
+  Component { id: windows; Windows { bar: root.bar } }
+  Component { id: chat; Chat { bar: root.bar } }
+  Component { id: folder; Folder { bar: root.bar; modules: root.map } }
+
+  // The Shell Manager's button; a module of its own so it can move between zones.
+  Component {
+    id: shell
+
+    KitBarItem {
+      id: shellButton
+      icon: "sliders"
+
+      MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        onClicked: ShellSettings.managerOpen = !ShellSettings.managerOpen
+      }
+    }
+  }
+}

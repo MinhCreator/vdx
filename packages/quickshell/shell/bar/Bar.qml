@@ -6,31 +6,6 @@ import qs.bar.island
 import qs.components
 import qs.config
 import qs.kit
-import qs.modules.ai
-import qs.modules.audio
-import qs.modules.battery
-import qs.modules.brightness
-import qs.modules.capture
-import qs.modules.chat
-import qs.modules.cleaner
-import qs.modules.clipboard
-import qs.modules.packages
-import qs.modules.display
-import qs.modules.equalizer
-import qs.modules.virustotal
-import qs.modules.clock
-import qs.modules.folder
-import qs.modules.language
-import qs.modules.mihomo
-import qs.modules.music
-import qs.modules.notifications
-import qs.modules.sysmon
-import qs.modules.taskmanager
-import qs.modules.themes
-import qs.modules.radio
-import qs.modules.wifi
-import qs.modules.windows
-import qs.modules.workspaces
 
 // Top bar for one screen. Modules come from BarLayout (three zones, order,
 // switched-off ones); separators sit between neighbours of a zone only. The
@@ -44,12 +19,10 @@ PanelWindow {
 
   required property var modelData   // the screen, injected by Variants
 
-  readonly property var modules: ({
-    workspaces: workspaces, music: music, equalizer: equalizer, themes: themes, radio: radio, clock: clock,
-    brightness: brightness, audio: audio, wifi: wifi, mihomo: mihomo,
-    battery: battery, language: language, ai: ai, notifications: notifications,
-    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, virustotal: virustotal, packages: packages, display: display, windows: windows, chat: chat, folder: folder
-  })
+  // id -> the module's Component, made for this bar
+  readonly property var modules: faces.map
+
+  ModuleFaces { id: faces; bar: root }
 
   // a module's options in the Shell Manager (a right click on it): an app's
   // bar module on the app's tab, the others on their page under Modules
@@ -147,6 +120,10 @@ PanelWindow {
     anchors { right: parent.right; rightMargin: Theme.edgeMargin; verticalCenter: parent.verticalCenter }
   }
 
+  // for BarPopup: popups open under the bar's edge
+  readonly property int popupEdge: Theme.barEdge
+  readonly property bool atBottom: false
+
   // island style: the Island; BarPopup opens a module's popup in it
   readonly property Item islandItem: islandLoader.item
 
@@ -160,48 +137,6 @@ PanelWindow {
       bar: root
       modules: root.modules
       onSettings: id => root.openSettings(id)
-    }
-  }
-
-  Component { id: workspaces; Workspaces {} }
-  Component { id: music; Music { bar: root } }
-  Component { id: radio; Radio { bar: root } }
-  Component { id: clock; Clock {} }
-  Component { id: equalizer; Equalizer { bar: root } }
-  Component { id: themes; Themes { bar: root } }
-  Component { id: brightness; Brightness { bar: root } }
-  Component { id: audio; Audio { bar: root } }
-  Component { id: wifi; Wifi { bar: root } }
-  Component { id: mihomo; Mihomo { bar: root } }
-  Component { id: battery; Battery { bar: root } }
-  Component { id: language; Language {} }
-  Component { id: ai; Ai { bar: root } }
-  Component { id: notifications; Notifications { bar: root } }
-  Component { id: capture; Capture { bar: root } }
-  Component { id: clipboard; ClipboardBar { bar: root } }
-  Component { id: sysmon; Sysmon { bar: root } }
-  Component { id: taskmanager; TaskManagerBar { bar: root } }
-  Component { id: cleaner; CleanerBar { bar: root } }
-  Component { id: virustotal; VirusTotalBar { bar: root } }
-  Component { id: packages; PackagesBar { bar: root } }
-  Component { id: display; DisplayBar { bar: root } }
-  Component { id: windows; Windows { bar: root } }
-  Component { id: chat; Chat { bar: root } }
-  Component { id: folder; Folder { bar: root; modules: root.modules } }
-
-  // The Shell Manager's button; a module of its own so it can move between zones.
-  Component {
-    id: shell
-
-    KitBarItem {
-      id: shellButton
-      icon: "sliders"
-
-      MouseArea {
-        anchors.fill: parent
-        cursorShape: Qt.PointingHandCursor
-        onClicked: ShellSettings.managerOpen = !ShellSettings.managerOpen
-      }
     }
   }
 }

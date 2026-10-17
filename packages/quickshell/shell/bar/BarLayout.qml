@@ -11,7 +11,7 @@ Singleton {
   id: root
 
   // Registry, in default order. A new module: an entry here + its Component in
-  // Bar.qml. `icon` names a kit/icons SVG, `about` is the manager's one-liner,
+  // ModuleFaces.qml. `icon` names a kit/icons SVG, `about` is the manager's one-liner,
   // `settings` its options page in the module's folder (Shell Manager › Modules),
   // `island` its place in the island while that is not arranged (else the hub).
   readonly property var modules: [
@@ -87,7 +87,7 @@ Singleton {
     const known = modules.map(p => p.id);
     const off = hidden(screen);
     return (entry(screen)?.folder ?? []).map(id => renamed[id] ?? id)
-      .filter(id => known.includes(id) && id !== "folder" && !off.includes(id) && installed(id));
+      .filter(id => known.includes(id) && id !== "folder" && !off.includes(id) && installed(id) && !taken(id));
   }
   function customized(screen) {
     const e = entry(screen);
@@ -99,13 +99,13 @@ Singleton {
 
   function visibleIn(zone, screen) {
     const off = hidden(screen).concat(inFolder(screen));
-    return layout(screen)[zone].filter(id => !off.includes(id) && installed(id));
+    return layout(screen)[zone].filter(id => !off.includes(id) && installed(id) && !taken(id));
   }
 
   // on, but not placed on this monitor's bar
   function unplaced(screen) {
     const off = hidden(screen);
-    return modules.map(p => p.id).filter(id => off.includes(id) && installed(id));
+    return modules.map(p => p.id).filter(id => off.includes(id) && installed(id) && !taken(id));
   }
 
   // Writes the monitor's entry, starting from what it shows now. Only the
@@ -162,7 +162,7 @@ Singleton {
 
   function islandLayout(screen) {
     const known = modules.map(p => p.id);
-    const usable = id => known.includes(id) && installed(id) && !islandOwn.includes(id);
+    const usable = id => known.includes(id) && installed(id) && !islandOwn.includes(id) && !taken(id);
     const saved = entry(screen)?.island ?? null;
     if (!saved) {
       const placed = zones.reduce((all, z) => all.concat(visibleIn(z, screen)), []).concat(inFolder(screen)).filter(usable);
@@ -187,7 +187,7 @@ Singleton {
   function islandHidden(screen) {
     const l = islandLayout(screen);
     const placed = l.start.concat(l.end, l.hub);
-    return modules.map(p => p.id).filter(id => !placed.includes(id) && installed(id) && !islandOwn.includes(id));
+    return modules.map(p => p.id).filter(id => !placed.includes(id) && installed(id) && !islandOwn.includes(id) && !taken(id));
   }
   // zone: start | end | hub | hidden
   function islandMove(id, zone, index, screen) {
@@ -207,6 +207,41 @@ Singleton {
   function islandCustomized(screen) { return !!entry(screen)?.island; }
   function islandReset(screen) { update(screen, { island: null }); }
   function islandCopy(from, to) { update(to, { island: islandLayout(from) }); }
+
+  // ---- extra bars ----
+  // Bars besides the main one (Shell Manager › Bar › BARS): each on an edge
+  // (top | bottom), a strip or a pill (aligned start | center | end), on one
+  // monitor or all ("" ), with its own modules in order. A module given to an
+  // extra bar leaves the main bar and the island on every monitor.
+  readonly property var bars: (state.bars ?? []).map(b => Object.assign({ edge: "bottom", shape: "pill", align: "center",
+                                                                          screen: "", modules: [] }, b))
+  readonly property var takenIds: bars.reduce((all, b) => all.concat(b.modules), [])
+  function taken(id) { return takenIds.includes(id); }
+  function bar(id) { return bars.find(b => b.id === id) ?? null; }
+  function barsOn(screen) { return bars.filter(b => b.screen === "" || b.screen === screen); }
+  function barModules(id) {
+    return (bar(id)?.modules ?? []).filter(m => installed(m) && modules.some(p => p.id === m));
+  }
+
+  function addBar() {
+    const id = "bar" + Date.now().toString(36);
+    state.bars = (state.bars ?? []).concat([{ id: id, edge: "bottom", shape: "pill", align: "center", screen: "", modules: [] }]);
+    return id;
+  }
+  function updateBar(id, change) {
+    state.bars = bars.map(b => b.id === id ? Object.assign({}, b, change) : b);
+  }
+  function removeBar(id) { state.bars = bars.filter(b => b.id !== id); }
+
+  // a module into an extra bar at `index` (out of any other), or back to the
+  // main bar (barId "")
+  function moveToBar(moduleId, barId, index) {
+    state.bars = bars.map(b => {
+      const list = b.modules.filter(m => m !== moduleId);
+      if (b.id === barId) list.splice(Math.max(0, Math.min(index, list.length)), 0, moduleId);
+      return Object.assign({}, b, { modules: list });
+    });
+  }
 
   function normalize(saved) {
     const known = new Set(modules.map(p => p.id));
@@ -255,6 +290,7 @@ Singleton {
       property var hidden: []
       property var screens: ({})      // role (main | extra) -> {zones, hidden, folder, off, island}
       property bool shared: false
+      property var bars: []           // extra bars: [{id, edge, shape, align, screen, modules}]
     }
   }
 }

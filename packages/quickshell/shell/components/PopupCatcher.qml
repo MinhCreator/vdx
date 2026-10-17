@@ -16,6 +16,8 @@ Variants {
     screen: modelData
     anchors { left: true; right: true; top: true; bottom: true }
     margins.top: Theme.barEdge
+    // a bottom extra bar stays clickable too
+    margins.bottom: PopupManager.bottomBars[modelData.name] ?? 0
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "quickshell-popup-catcher"
