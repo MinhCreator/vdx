@@ -144,6 +144,17 @@ Column {
     }
   }
 
+  KitRow {
+    visible: root.island
+    label: "Clock"
+    hint: "Off and nothing beside it: hidden"
+
+    KitSwitch {
+      checked: BarLayout.islandClock(root.screenName)
+      onToggled: BarLayout.setIslandClock(root.screenName, !checked)
+    }
+  }
+
   KitLine { visible: root.barOn }
 
   // ---- layout ----

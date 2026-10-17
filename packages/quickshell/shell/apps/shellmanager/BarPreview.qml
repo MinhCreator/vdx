@@ -25,7 +25,7 @@ Rectangle {
   color: Theme.island ? "transparent" : Theme.background1
 
   Rectangle {
-    visible: Theme.island
+    visible: Theme.island && pill.width > 0
     anchors.centerIn: parent
     width: pill.width + 2 * Theme.gapWide
     height: parent.height - 4
@@ -38,7 +38,8 @@ Rectangle {
       spacing: Theme.gapLoose
 
       Repeater {
-        model: Theme.island ? BarLayout.islandIn("start", root.screenName).concat(["clock"], BarLayout.islandIn("end", root.screenName)) : []
+        model: Theme.island ? BarLayout.islandIn("start", root.screenName)
+          .concat(BarLayout.islandClock(root.screenName) ? ["clock"] : [], BarLayout.islandIn("end", root.screenName)) : []
 
         KitIcon {
           required property string modelData

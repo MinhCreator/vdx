@@ -22,6 +22,10 @@ Item {
     + (ModuleSettings.get("clock", "twelveHour", false) ? " AP" : "")
 
   readonly property bool unseen: NotificationsService.unseen > 0
+  readonly property bool clockOn: BarLayout.islandClock(screen)
+  // nothing to show at rest: the island hides (Shell Manager › Bar › Clock)
+  readonly property bool empty: !clockOn && !unseen && BarLayout.islandIn("start", screen).length === 0
+                                && BarLayout.islandIn("end", screen).length === 0
   // the pointer resting on the clock (not on a module) opens the hub
   readonly property bool clockHovered: clockHover.hovered
   implicitWidth: Math.max(110, line.implicitWidth + 2 * Theme.gapGroup)
@@ -50,6 +54,7 @@ Item {
 
   Item {
     anchors.verticalCenter: parent.verticalCenter
+    visible: root.clockOn
     width: clock.implicitWidth
     height: Theme.islandHeight
 

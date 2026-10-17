@@ -112,7 +112,8 @@ PanelWindow {
   }
   // island style: tall enough for a module's popup opened in the island
   implicitHeight: Theme.island ? Math.round(modelData.height * 0.92) : Theme.barHeight
-  exclusiveZone: Theme.barEdge
+  // a hidden island (no clock, nothing beside it) leaves the edge to windows
+  exclusiveZone: islandItem?.hidden ? 0 : Theme.barEdge
   // while a popup is open, a click into it (a text field) takes the keyboard;
   // otherwise the bar never does
   WlrLayershell.keyboardFocus: PopupManager.current || (islandItem?.grabbing ?? false)
@@ -123,7 +124,7 @@ PanelWindow {
 
   Region {
     id: islandMask
-    item: root.islandItem?.shape ?? null
+    item: root.islandItem && !root.islandItem.hidden ? root.islandItem.shape : null
 
     Region { item: root.islandItem?.bubble ?? null }
   }

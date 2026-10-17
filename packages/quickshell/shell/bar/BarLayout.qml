@@ -113,7 +113,8 @@ Singleton {
   function update(screen, change) {
     const e = Object.assign({ zones: entry(screen)?.zones ?? state.zones, hidden: hidden(screen),
                               folder: inFolder(screen), off: !barOn(screen),
-                              island: entry(screen)?.island ?? null }, change);
+                              island: entry(screen)?.island ?? null,
+                              islandClock: islandClock(screen) }, change);
     const all = {};
     for (const role of ["main", "extra"])
       if (state.screens?.[role]) all[role] = state.screens[role];
@@ -198,6 +199,11 @@ Singleton {
     z.hidden = modules.map(p => p.id).filter(x => !placed.includes(x) && !islandOwn.includes(x));
     update(screen, { island: z });
   }
+  // the clock in the resting island; off with nothing beside it, the island
+  // hides on that monitor until it has something to show
+  function islandClock(screen) { return entry(screen)?.islandClock ?? true; }
+  function setIslandClock(screen, on) { update(screen, { islandClock: on }); }
+
   function islandCustomized(screen) { return !!entry(screen)?.island; }
   function islandReset(screen) { update(screen, { island: null }); }
   function islandCopy(from, to) { update(to, { island: islandLayout(from) }); }

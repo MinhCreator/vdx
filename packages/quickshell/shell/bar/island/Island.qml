@@ -29,6 +29,8 @@ Item {
   property string flash: ""                    // osd | notice: passes over compact and media
   readonly property string shown: flash !== "" && view !== "power" && view !== "module" ? flash : view
   readonly property bool open: shown !== "compact"
+  // resting with nothing to show (no clock, no modules): gone until it has
+  readonly property bool hidden: shown === "compact" && compact.empty
   // the shape, for the bar's input mask
   readonly property Item shape: shape
   // a pinned view takes the keyboard (Escape, the power menu's arrows)
@@ -135,6 +137,9 @@ Item {
     border.width: Theme.islandFrameWidth
     border.color: Theme.background2
     clip: true
+    opacity: root.hidden ? 0 : 1
+    visible: opacity > 0
+    Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
 
     Behavior on width { enabled: Motion.island; NumberAnimation { duration: Motion.slow; easing.type: Easing.OutQuint } }
     Behavior on height { enabled: Motion.island; NumberAnimation { duration: Motion.slow; easing.type: Easing.OutQuint } }
