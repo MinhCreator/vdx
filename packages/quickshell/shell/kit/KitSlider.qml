@@ -14,8 +14,12 @@ Item {
   property bool dimmed: false
   property color tint: Theme.foreground0
   property var snaps: []
+  property var spectrum: []              // colours laid along the track, instead of the fill
 
-  readonly property color fill: dimmed ? Theme.gray : tint
+  // the default tint takes the accent (Appearance › Accent › Sliders); a
+  // state colour passed in (a load, a battery) keeps its own
+  readonly property bool accented: !dimmed && tint === Theme.foreground0 && Theme.accentOn("sliders")
+  readonly property color fill: dimmed ? Theme.gray : accented ? Theme.accent : tint
   readonly property bool pressed: area.pressed
   property real dragValue: 0
   readonly property real shown: Math.max(0, Math.min(1, pressed ? dragValue : value))
@@ -43,12 +47,35 @@ Item {
     height: 3
     radius: Theme.pill(height)
     color: Theme.background3
+    clip: true
+
+    // a spectrum (a colour picker's ramp): the track is its colours, no fill
+    Row {
+      visible: root.spectrum.length > 0
+      width: parent.width
+      height: parent.height
+      Repeater {
+        model: root.spectrum
+
+        Rectangle {
+          required property color modelData
+          width: parent.width / root.spectrum.length
+          height: parent.height
+          color: modelData
+        }
+      }
+    }
 
     Rectangle {
+      visible: root.spectrum.length === 0
       width: root.shown * parent.width
       height: parent.height
       radius: parent.radius
-      color: root.fill
+      gradient: Gradient {
+        orientation: Gradient.Horizontal
+        GradientStop { position: 0; color: root.fill }
+        GradientStop { position: 1; color: root.accented ? Theme.accentEnd : root.fill }
+      }
     }
   }
 

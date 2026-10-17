@@ -55,7 +55,7 @@ Rectangle {
     font.family: Theme.fontFamily
     font.pixelSize: Theme.fontSize
     font.weight: Font.DemiBold
-    // a password: squares (or dots, Appearance › Style) with air between them (lock screen, root prompt)
+    // a password: squares (or dots, Appearance) with air between them (lock screen, root prompt)
     passwordCharacter: ShellSettings.passwordDots ? "•" : "■"
     font.letterSpacing: masked ? 4 : 0
     onTextEdited: root.textEdited()

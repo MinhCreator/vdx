@@ -15,7 +15,7 @@ Column {
   property bool busy: false
   property bool disabled: false
   property bool expanded: false
-  property real boxWidth: width * 0.48
+  property real boxWidth: Theme.controlWidth     // the standard width of a wide control (KitRow)
   // The open list floats over what follows instead of pushing it down.
   property bool overlay: false
 
@@ -63,7 +63,8 @@ Column {
       radius: Theme.radiusControl
       color: boxArea.containsMouse && !root.disabled ? Theme.controlHover : Theme.controlFill
       border.width: Theme.frameWidth
-      border.color: root.expanded || boxArea.containsMouse ? Theme.foreground2 : Theme.gray
+      border.color: root.expanded ? Theme.accentFor("selects", Theme.foreground2)
+        : boxArea.containsMouse ? Theme.foreground2 : Theme.gray
       opacity: root.disabled ? 0.4 : 1
 
       Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
@@ -110,6 +111,7 @@ Column {
 
   // Column lays out no zero-height child, so in overlay mode the list hangs
   // off the row (below it, over the following content) instead of the slot.
+  // The list is as wide as the box and sits under it, on the same right edge.
   Item {
     id: slot
     width: parent.width
@@ -121,7 +123,8 @@ Column {
       parent: root.overlay ? row : slot
       y: root.overlay ? row.height + root.spacing : 0
       visible: root.expanded
-      width: parent.width
+      width: Math.min(root.boxWidth, parent.width)
+      x: parent.width - width
       height: options.implicitHeight + 2 * inset
       radius: Theme.radiusControl
       // round corners keep the rows off the frame's curve
@@ -133,7 +136,7 @@ Column {
       opacity: shown
       onVisibleChanged: if (visible && Motion.controls) dropIn.restart()
       NumberAnimation { id: dropIn; target: list; property: "shown"; from: 0; to: 1; duration: Motion.normal; easing.type: Motion.easing }
-      color: Theme.material ? Theme.background1 : root.overlay ? Theme.background0 : "transparent"
+      color: Theme.material ? Theme.background1 : root.overlay ? Theme.background0 : Theme.clear
       border.width: Theme.frameWidth
       border.color: Theme.gray
 

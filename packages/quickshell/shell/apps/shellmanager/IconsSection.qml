@@ -2,8 +2,8 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// Appearance › STYLE (with CornersSection and ControlsSection): outline or solid
-// icons, for the whole shell. The group's label lives in AppearancePage.
+// Appearance › SHAPE, under the corners: outline or solid icons, for the whole
+// shell. The group's label lives in AppearancePage.
 Column {
   spacing: Theme.gapGroup
 

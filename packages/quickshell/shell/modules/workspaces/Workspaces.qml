@@ -48,8 +48,8 @@ Row {
 
       visible: !modelData.name.startsWith("special")
       readonly property color tone: area.containsMouse
-        ? (highlighted ? Theme.yellow : Theme.foreground0)
-        : (highlighted ? Theme.foreground1 : Theme.gray)
+        ? (highlighted ? Theme.accentFor("workspaces", Theme.yellow) : Theme.foreground0)
+        : (highlighted ? Theme.accentFor("workspaces", Theme.foreground1) : Theme.gray)
 
       implicitWidth: (root.shape ? (root.style === "dashes" ? 14 : 10) : Math.max(label.implicitWidth, Theme.workspaceMinWidth) + 4) * grow
       implicitHeight: label.implicitHeight

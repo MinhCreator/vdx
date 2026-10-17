@@ -1,0 +1,35 @@
+pragma Singleton
+import QtQuick
+import Quickshell
+import qs.config
+
+// Accent outside the shell: the focused window's border in Hyprland (Appearance
+// › Accent › Window border), now, and ~/.local/state/dotfiles/accent.lua
+// for its next start, read by hypr/components/appearance.lua. Off: the frame
+// colour again.
+Singleton {
+  id: root
+
+  // ---- tuning ----
+  readonly property string stateFile: Quickshell.env("HOME") + "/.local/state/dotfiles/accent.lua"
+
+  readonly property bool border: Theme.accentOn("window")
+  // Hyprland's config: 0xAARRGGBB, or a gradient table {colors, angle} for two stops
+  readonly property bool gradient: border && Theme.accentGradient
+  readonly property string colour: !border ? argb(Theme.frame)
+    : gradient ? "{ colors = { " + argb(Theme.accent) + ", " + argb(Theme.accentEnd) + " }, angle = 45 }"
+    : argb(Theme.accent)
+  onColourChanged: apply()
+
+  function argb(c) {
+    const part = v => Math.round(v * 255).toString(16).padStart(2, "0");
+    return "0xff" + part(c.r) + part(c.g) + part(c.b);
+  }
+
+  function apply() {
+    const lua = border ? "return { border = " + colour + " }" : "return {}";
+    Quickshell.execDetached(["bash", "-c", 'mkdir -p "$(dirname "$1")" && printf "%s\\n" "$2" > "$1"',
+                             "_", stateFile, lua]);
+    Quickshell.execDetached(["hyprctl", "eval", "hl.config({general = {col = {active_border = " + colour + "}}})"]);
+  }
+}

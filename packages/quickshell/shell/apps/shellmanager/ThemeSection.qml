@@ -2,6 +2,7 @@ import QtQuick
 import qs.bar
 import qs.config
 import qs.kit
+import Quickshell
 import Quickshell.Widgets
 
 // Appearance › THEME: a live preview (the bar and a popup over the wallpaper,
@@ -30,55 +31,6 @@ Column {
     value: (ThemeService.current || "—").toUpperCase() + " · " + ThemeService.themes.length + " IN ALL"
   }
 
-  // the bar's modules as the shell draws them (size, rules), in the previewed colours
-  component BarIcons: Row {
-    id: icons
-    property var ids: []
-    // a rule (custom or automatic) between two modules when the bar draws them
-    readonly property var shown: {
-      if (!ShellSettings.barSeparators) return ids;
-      const out = [];
-      ids.forEach((id, i) => {
-        if (i > 0 && !BarLayout.isSeparator(id) && !BarLayout.isSeparator(ids[i - 1])) out.push("sep-");
-        out.push(id);
-      });
-      return out;
-    }
-
-    spacing: Theme.gapLoose
-
-    Repeater {
-      model: icons.shown
-
-      Item {
-        id: slot
-        required property string modelData
-        readonly property bool rule: BarLayout.isSeparator(modelData)
-
-        anchors.verticalCenter: parent.verticalCenter
-        width: rule ? 2 + 2 * Theme.separatorMargin : Theme.iconSmall + ShellSettings.barIconGrow
-        height: Theme.iconSmall + ShellSettings.barIconGrow
-
-        Rectangle {
-          visible: slot.rule
-          anchors.centerIn: parent
-          width: 2
-          height: parent.height
-          radius: Theme.pill(width)
-          color: page.p("foreground2")
-        }
-
-        KitIcon {
-          visible: !slot.rule
-          anchors.centerIn: parent
-          name: BarLayout.icon(slot.modelData)
-          tint: page.p("foreground2")
-          size: Theme.iconSmall + ShellSettings.barIconGrow
-        }
-      }
-    }
-  }
-
   // preview on the left, the theme list on the right
   Row {
     width: parent.width
@@ -86,87 +38,10 @@ Column {
 
     // ---- preview ----
 
-    // the bar and a popup over the wallpaper, in the selected theme's colours
-    ClippingRectangle {
-      radius: Theme.radiusCard
+    ThemePreview {
       width: parent.width - themeList.width - 14
       height: themeList.height
-      color: page.wallpaper
-      // a screen in a frame either way: its bar shares the page's colour
-      border.width: Theme.windowFrameWidth
-      border.color: page.p(Theme.material ? "background2" : "gray")
-
-      Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.normal } }
-
-      // the previewed theme's picture, when it has one
-      Image {
-        anchors { fill: parent; margins: Theme.frameWidth }
-        visible: page.previewImage !== ""
-        source: visible ? "file://" + WallpaperService.dir + "/" + page.previewImage : ""
-        sourceSize: Qt.size(width * 2, height * 2)
-        fillMode: Image.PreserveAspectCrop
-        asynchronous: true
-      }
-
-      // the bar as the shell draws it (BarPreview): a strip on the top edge, or in
-      // island style a pill floating over the wallpaper; its surface follows the design
-      Rectangle {
-        id: previewBar
-        readonly property bool island: Theme.island
-        x: island ? 10 : Theme.frameWidth
-        y: island ? 8 : Theme.frameWidth
-        width: parent.width - (island ? 20 : 2 * Theme.frameWidth)
-        height: 26
-        radius: island ? Math.min(height / 2, Theme.islandRadius) : 0
-        color: page.p(Theme.material ? "background0" : "background1")
-
-        BarIcons {
-          anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
-          ids: Theme.island ? BarLayout.islandIn("start", BarLayout.mainScreen()) : BarLayout.visibleIn("left", BarLayout.mainScreen())
-        }
-
-        KitText {
-          anchors.centerIn: parent
-          text: "14:32"
-          color: page.p("foreground0")
-          font.pixelSize: Theme.fontSize - 2
-          font.weight: Font.ExtraBold
-        }
-
-        BarIcons {
-          anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
-          ids: Theme.island ? BarLayout.islandIn("end", BarLayout.mainScreen()) : BarLayout.visibleIn("right", BarLayout.mainScreen())
-        }
-      }
-
-      // a popup hanging under the bar, in the kit style
-      Rectangle {
-        radius: Theme.radiusSurface
-        anchors { right: parent.right; rightMargin: 40 }
-        y: previewBar.y + previewBar.height + 6
-        width: 150
-        height: 62
-        color: page.p("background0")
-        border.width: Theme.windowFrameWidth      // a popup's frame, as the shell draws it
-        border.color: page.p(Theme.material ? "background2" : "frame")
-
-        Column {
-          x: 10
-          y: 10
-          width: parent.width - 20
-          spacing: 7
-
-          Rectangle { width: parent.width * 0.5; height: 4; color: page.p("foreground0") }
-          Rectangle { width: parent.width * 0.7; height: 3; color: page.p("muted") }
-          Rectangle { width: parent.width; height: 1; color: page.p("background3") }
-          Rectangle {
-            width: parent.width
-            height: 3
-            color: page.p("background3")
-            Rectangle { width: parent.width * 0.65; height: parent.height; color: page.p("green") }
-          }
-        }
-      }
+      page: root.page
     }
 
     // ---- theme ----

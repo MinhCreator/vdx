@@ -43,11 +43,34 @@ QtObject {
 
   // the equalizer's colours (Modules › Equalizer): one colour, or a [from, to] gradient across its bars
   function equalizerColours(name) {
+    if (ShellSettings.accent && ModuleSettings.get("equalizer", "accent", false)) return [accent, accentEnd];
     const pair = { sea: ["blue", "green"], sunset: ["yellow", "red"] }[name];
     if (pair) return [notifyDot(pair[0]), notifyDot(pair[1])];
     const one = name === "theme" ? frame : notifyDot(name);
     return [one, one];
   }
+
+  // ---- accent (Appearance › Accent) ----
+  // A stop by name: "theme" is the theme's frame colour (the accent that follows
+  // the theme), "custom" the typed one. slot: the stop it is for (0 the colour,
+  // 1 the gradient's end): a custom colour has one per stop
+  function accentColour(name, slot) {
+    if (name === "custom") {
+      const hex = ShellSettings.accentCustom[slot ?? 0];
+      return hex ? Qt.color(hex) : frame;
+    }
+    if (name === "theme") return frame;
+    return { red: red, orange: orange, yellow: yellow, green: green, aqua: aqua, blue: blue, purple: purple }[name] ?? foreground0;
+  }
+  readonly property bool accentGradient: ShellSettings.accentGradient
+  // the gradient's two ends; with one, both are the same colour, so a fill can
+  // always be a Gradient from `accent` to `accentEnd`
+  readonly property color accent: accentColour(ShellSettings.accentStops[0] ?? "theme", 0)
+  readonly property color accentEnd: accentGradient ? accentColour(ShellSettings.accentStops[1] ?? "theme", 1) : accent
+  // what takes the accent: a target key of Appearance › Accent (off by default)
+  function accentOn(key) { return ShellSettings.accent && ShellSettings.accentWhere[key] === true; }
+  function accentFor(key, fallback) { return accentOn(key) ? accent : fallback; }
+  function accentEndFor(key, fallback) { return accentOn(key) ? accentEnd : fallback; }
 
   // ---- type and bar metrics ----
   readonly property string fontFamily: ShellSettings.font     // the system monospace, Shell Manager › Appearance

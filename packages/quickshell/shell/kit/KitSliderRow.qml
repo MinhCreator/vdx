@@ -17,6 +17,7 @@ Item {
   property bool dimmed: false
   property color tint: Theme.foreground0
   property var snaps: []
+  property var spectrum: []
 
   readonly property bool captioned: label !== ""
   readonly property bool pressed: slider.pressed
@@ -96,6 +97,7 @@ Item {
     dimmed: root.dimmed
     tint: root.tint
     snaps: root.snaps
+    spectrum: root.spectrum
     onMoved: value => root.moved(value)
     onReleased: value => root.released(value)
   }

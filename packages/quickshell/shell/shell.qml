@@ -60,6 +60,7 @@ Scope {
   Component.onCompleted: {
     IslandService.makoMode();
     CornersService.apply();
+    AccentService.apply();
   }
 
   // Super+Shift+S: screenshot or recording of a region, window or screen

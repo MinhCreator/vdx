@@ -9,44 +9,27 @@ KitColumn {
 
   KitLabel { text: "BAR" }
 
+  KitToggleRow {
+    module: "equalizer"; key: "accent"; fallback: false
+    label: "Follow accent"
+    hint: ShellSettings.accent ? "Off: its own colour" : "The accent is off"
+  }
+
   KitRow {
+    visible: !(ModuleSettings.get("equalizer", "accent", false) && ShellSettings.accent)
     label: "Colour"
     hint: "Sea and sunset: gradients"
 
-    // a dot per choice, pushed to the right edge (laid out right to left,
-    // so the model runs backwards); the picked one carries a ring
-    Row {
-      spacing: Theme.gapMedium
-      layoutDirection: Qt.RightToLeft
-
-      Repeater {
-        model: ["sunset", "sea", "blue", "green", "yellow", "red", "theme"]
-
-        Rectangle {
-          id: swatch
-          required property string modelData
-          readonly property var colours: Theme.equalizerColours(modelData)
-          readonly property bool picked: ModuleSettings.get("equalizer", "colour", "theme") === modelData
-
-          anchors.verticalCenter: parent.verticalCenter
-          width: 18
-          height: 18
-          radius: Theme.pill(height)
-          border.width: picked ? 2 : 0
-          border.color: Theme.foreground0
-          gradient: Gradient {
-            orientation: Gradient.Horizontal
-            GradientStop { position: 0; color: swatch.colours[0] }
-            GradientStop { position: 1; color: swatch.colours[1] }
-          }
-
-          MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: ModuleSettings.set("equalizer", "colour", swatch.modelData)
-          }
-        }
-      }
+    KitSwatches {
+      model: ["sunset", "sea", "blue", "green", "yellow", "red", "theme"]
+      picked: ModuleSettings.get("equalizer", "colour", "theme")
+      colours: name => Theme.equalizerColours(name)
+      onChosen: name => ModuleSettings.set("equalizer", "colour", name)
     }
+  }
+
+  KitToggleRow {
+    module: "equalizer"; key: "showPaused"; fallback: true
+    label: "Show when paused"; hint: "Off: shown only while it plays"
   }
 }

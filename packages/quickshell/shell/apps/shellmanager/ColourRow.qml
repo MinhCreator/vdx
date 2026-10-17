@@ -2,44 +2,59 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// "Custom colour" row, one look wherever a colour is typed in (wallpaper,
-// cursor): a swatch of what is typed and a field taking #rrggbb (the # may be
-// left out). Enter hands the colour over as "#rrggbb" when it is valid.
+// A colour setting, one control wherever a colour is typed or picked (wallpaper,
+// cursor, accent): a colour field (chip, hex, chevron), and under it, when open,
+// the picker (palette dots, saturation and brightness, hue). `open` is toggled
+// by the chip or the chevron; `chipClicked` lets the owner close the others.
+// `live`: every valid typed or dragged colour is handed over at once.
 KitRow {
   id: root
 
-  property string value: ""                 // what the field shows
-  readonly property bool valid: /^#?[0-9a-fA-F]{6}$/.test(value.trim())
-  readonly property string colour: valid ? "#" + value.trim().replace(/^#/, "").toLowerCase() : ""
+  property string value: ""                 // the colour the field shows
+  property string example: "#32302f"       // the placeholder
+  property bool live: false
+  property bool open: false
+  property var palette: []                  // palette names for the dots (none: no dots)
+  property string picked: ""                // the palette name in use
+  property var colours: name => [Theme.frame, Theme.frame]
+  property string note: ""                  // the hint (a stop's name, say)
 
   signal edited(string text)
   signal accepted(string colour)
+  signal chosen(string name)
+  signal chipClicked()
 
   label: "Custom colour"
-  hint: valid ? "Press Enter to apply" : "Six hex digits, like #32302f"
+  hint: note
   wide: true
 
-  Row {
-    spacing: Theme.gapMedium
+  Column {
+    spacing: 0
 
-    Rectangle {
-      radius: Theme.radiusControl
-      id: swatch
-      anchors.verticalCenter: parent.verticalCenter
-      width: field.height
-      height: field.height
-      color: root.valid ? root.colour : "transparent"
-      border.width: Theme.frameWidth
-      border.color: Theme.gray
+    KitColourField {
+      width: parent.width
+      value: root.value
+      placeholder: root.example
+      live: root.live
+      open: root.open
+      onEdited: text => root.edited(text)
+      onAccepted: colour => root.accepted(colour)
+      onChipClicked: {
+        root.open = !root.open;
+        root.chipClicked();
+      }
     }
 
-    KitInput {
-      id: field
-      width: parent.width - swatch.width - parent.spacing
-      placeholder: "#32302f"
-      text: root.value
-      onTextEdited: root.edited(text)
-      onAccepted: if (root.valid) root.accepted(root.colour)
+    KitColourPicker {
+      visible: root.open
+      width: parent.width
+      colour: root.value
+      palette: root.palette
+      picked: root.picked
+      colours: root.colours
+      onMoved: hex => { root.edited(hex); if (root.live) root.accepted(hex) }
+      onReleased: hex => { root.edited(hex); root.accepted(hex) }
+      onChosen: name => root.chosen(name)
     }
   }
 }

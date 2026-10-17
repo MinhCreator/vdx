@@ -50,6 +50,7 @@ Rectangle {
     KitText {
       visible: root.text !== ""
       text: root.text
+      color: root.selected ? Theme.accentFor("choices", Theme.foreground0) : Theme.foreground0
       font.weight: root.selected ? Font.ExtraBold : Font.DemiBold
     }
   }

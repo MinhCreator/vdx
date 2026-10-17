@@ -90,7 +90,7 @@ Singleton {
   // ---- the shell's own actions ----
   // the window modes come from WindowsService, as in its popup and page
   readonly property var shellItems: modeItems.concat([
-    { icon: "sun", title: "Appearance", hint: "Theme, wallpaper, font, cursor", run: () => exec(ipc("shell", "open", "appearance")) },
+    { icon: "sun", title: "Appearance", hint: "Theme, accent, wallpaper, font, cursor", run: () => exec(ipc("shell", "open", "appearance")) },
     { icon: "layout", title: "Bar", hint: "Monitors, layout, modules", run: () => exec(ipc("shell", "open", "bar")) },
     { icon: "app-window", title: "Windows", hint: "Window mode, gaps, taskbar", run: () => exec(ipc("shell", "open", "windows")) },
     { icon: "keyboard", title: "Keybinds", hint: "Every keybind, by tab", run: () => exec(ipc("keybinds", "open")) },

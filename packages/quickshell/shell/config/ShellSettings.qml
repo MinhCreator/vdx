@@ -24,7 +24,16 @@ Singleton {
   readonly property bool barFolderDot: state.barFolderDot         // a dot on the Folder for unseen notices
   readonly property string barDotColor: state.barDotColor         // theme | red | yellow | green | blue: that dot's colour
   readonly property bool material: state.material                 // controls filled, no frames (Appearance › Controls)
-  readonly property bool passwordDots: state.passwordDots         // password fields show dots, not squares (Appearance › Style)
+  // the accent (Appearance › Accent): two stops, the first the colour, the second
+  // the gradient's end when accentGradient is on. A stop is a colour name (theme =
+  // the theme's frame colour | red | … | purple) or "custom", its colour in
+  // accentCustom (one #rrggbb per stop, "" until one is typed)
+  readonly property bool accent: state.accent                     // the accent on at all (off: monochrome)
+  readonly property bool accentGradient: state.accentGradient
+  readonly property var accentStops: state.accentStops
+  readonly property var accentCustom: Array.isArray(state.accentCustom) ? state.accentCustom : ["", ""]
+  readonly property var accentWhere: state.accentWhere            // target key -> true: what takes the accent
+  readonly property bool passwordDots: state.passwordDots         // password fields show dots, not squares (Appearance › Controls)
   readonly property string corners: state.corners                 // sharp | round: the whole shell's corners
   readonly property int cornerRadius: state.cornerRadius          // px, a popup's corner while round (Theme scales the rest)
   readonly property string barStyle: state.barStyle               // solid | island: one strip, or one live island
@@ -98,6 +107,11 @@ Singleton {
       property var looks: ({})
       property string corners: "sharp"
       property bool material: false
+      property bool accent: false
+      property var accentStops: ["blue", "purple"]
+      property bool accentGradient: false
+      property var accentCustom: ["", ""]
+      property var accentWhere: ({})
       property bool passwordDots: false
       property int cornerRadius: 12
       property bool motion: true

@@ -85,13 +85,26 @@ Cleaner, VirusTotal, Packages, Display, Windows, Chat, Folder.
 
 ## Controls
 
-Shell Manager › Appearance › Style › Controls: Outlined (framed controls, the
+Shell Manager › Appearance › Controls: Outlined (framed controls, the
 terminal look) or Material (filled controls, no frames or prompt arrows,
 a quiet hairline round popups). The island keeps its frame either way.
+## Accent
+
+Shell Manager › Appearance › Accent: a switch (Off: monochrome). On: Fill (Solid or Gradient),
+then the colours in one row: a colour field per stop (Gradient: From and To, with a swap between
+them). A field takes a hex typed in (applied as you go; left invalid, it goes back to the last
+valid colour), and its chip or chevron opens the picker under the row (palette dots, then Hue,
+Saturation and Brightness sliders), for that stop only. Applies to: Switches, Sliders, Choices,
+Workspaces, Dropdowns, Window border, all off until switched on. A gradient runs across fills
+(switch, slider, window border); text and outlines take the first colour. Window border is
+Hyprland's focused frame: `hypr/components/appearance.lua` reads
+`~/.local/state/dotfiles/accent.lua`, written by `AccentService.qml`. The equalizer follows the
+accent with its own switch (Modules › Equalizer › Follow accent). Wallpaper and cursor colours use
+the same field and picker.
 
 ## Corners
 
-Shell Manager › Appearance › Style › Corners: Sharp, or Round with one radius on a
+Shell Manager › Appearance › Shape › Corners: Sharp, or Round with one radius on a
 ticked slider. Everything follows — popups, controls, rows, the island,
 Hyprland's windows, mako — and the icons switch to Material Symbols Rounded.
 
@@ -108,7 +121,7 @@ and HIDDEN; Bar › Monitor › Island clock, per monitor: off with nothing besi
 island hides there until it has something to show. Volume / brightness changes pass over it as a flash, but not
 when made from the island itself (its chips, the open volume popup) or while the pointer rests on it; new
 notifications pass over it too (mako only keeps them: its `island` mode). The track in the hub is the player;
-the equalizer has no clicks (its colour: Modules › Equalizer; a gradient runs left to right).
+the equalizer has no clicks (its colour, Follow accent and Show when paused: Modules › Equalizer; a gradient runs left to right).
 Right click on a chip: its options (the hub closes). Middle click: play / pause. The wheel belongs to the modules.
 
 IPC: `qs -c shell ipc call island hub|media|power|collapse`.

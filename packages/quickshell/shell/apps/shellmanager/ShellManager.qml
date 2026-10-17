@@ -9,7 +9,7 @@ import qs.kit
 // there on a click.
 // The sections come in three groups, by what the user is after:
 //   LOOK     — how it looks and moves
-//     APPEARANCE — theme, icon style, wallpaper, font and cursor;
+//     APPEARANCE — theme, accent, wallpaper, font, cursor, shape and controls;
 //     ANIMATIONS — how the shell moves: all on / off, speed, each part on its own.
 //   DESKTOP  — the desktop itself
 //     BAR        — the layout of the bar's zones, modules on / off.

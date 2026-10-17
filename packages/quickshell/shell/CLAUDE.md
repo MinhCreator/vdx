@@ -53,12 +53,12 @@ in Modules.
 
 Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 
-- Corners: Appearance › Style › Corners (sharp | round + one radius). A radius is
+- Corners: Appearance › Shape › Corners (sharp | round + one radius). A radius is
   always a token: `Theme.radiusSurface` (popups, windows, panels),
   `radiusCard` (tiles, previews, cards), `radiusControl` (buttons, fields,
   rows, checkboxes), `Theme.pill(h)` (tracks, knobs, dots); all 0 when sharp.
   An image in a rounded tile sits in a `ClippingRectangle`.
-- Controls: Appearance › Style › Controls (outlined | material). A control's frame is
+- Controls: Appearance › Controls (outlined | material). A control's frame is
   `Theme.frameWidth` (0 in material), its fill `Theme.controlFill` /
   `controlHover`, a popup's frame `Theme.popupFrame`; never a literal 1.
 
@@ -77,7 +77,8 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   left, control right. A hint in a wide row ≤ 29 chars (the Modules page
   leaves ~32); elsewhere ≤ ~40. A hint adds something (effect, caveat,
   off-state) or is left out; it never repeats the label.
-- Control by the job: a feature on/off → `KitSwitch`; 2–5 named equal
+- Control by the job: a feature on/off → `KitSwitch` (one row per item of a
+  set, under a caps label with the count: `APPLIES TO` `3 OF 7`); 2–5 named equal
   alternatives (24h | 12h too) → `KitChoices { stretch: true }` in `KitRow
   { wide: true }`; a size judged by eye with a live result (gaps, radius,
   shares, blur) → `KitSliderRow`, value on the right, snapped to its step; a
@@ -90,10 +91,21 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 - Group names: `BAR` (the module's face), `POPUP`, `WINDOW` / `LIST`,
   `OPENING`, `SAFETY` (the "Ask before …" toggles); a row shown only with
   another option sits under it and hides with it.
-- Selected = `background3` fill + ExtraBold, never a colour. Hover =
+- Selected = `background3` fill + ExtraBold; its text takes the accent only when
+  Choices is on (rule 2). Hover =
   `background1` (one step up from the surface).
-- Colour means state only: green ok, yellow / orange attention, red error.
-  No hex in QML — `Theme.*` only. Dimmed screens use `Theme.scrim`.
+- Colour rules (the look has one exception, the accent):
+  1. Default: colour is state only. Green ok, yellow / orange attention, red error.
+     Everything else is shades of the theme (`Theme.foreground*`, `background*`, `gray`).
+  2. Accent: the user's own colour (Appearance › Accent: one colour or a
+     gradient, `Theme.accent` / `Theme.accentEnd`). Off by default. It takes only the
+     places of APPLIES TO (`Theme.accentOn(key)` / `accentFor(key, fallback)` /
+     `accentEndFor`); a new place gets a key there, never a literal colour.
+  3. A state colour is never replaced by the accent: a load, a battery, an error keep theirs.
+  4. A gradient is a `Gradient` from `accent` to `accentEnd`; a text, a dot or an outline
+     takes `accent` alone.
+  No hex in QML — `Theme.*` only (a custom colour is picked on the spectrum or typed in Shell Manager and
+  kept in settings). Dimmed screens use `Theme.scrim`.
 - Bar: one colour per item; a missing value shows `--`.
 - Key hints: `Super + D`; footers `key action · key action`, lowercase.
 - Icons: Material Symbols SVG in `kit/icons`, `fill="#ffffff"`; every icon

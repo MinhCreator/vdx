@@ -55,8 +55,8 @@ Column {
         + "and say exactly what it is doing — nothing blinks, nothing guesses."
   }
   Paragraph {
-    text: "Terminal-minded: one monospace font, sharp corners, nearly monochrome. Colour is never decoration — "
-        + "green means fine, yellow wants attention, red is wrong. Everything else is shades of one theme."
+    text: "Terminal-minded: one monospace font, sharp corners, nearly monochrome. Colour is state — "
+        + "green means fine, yellow wants attention, red is wrong. Your accent, if you set one, marks only what you choose."
   }
   Paragraph {
     text: "Yours to change, never to fight: every option lives in one place, every change shows at once, "
