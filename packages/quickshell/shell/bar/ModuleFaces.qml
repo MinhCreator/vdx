@@ -10,6 +10,7 @@ import qs.modules.brightness
 import qs.modules.capture
 import qs.modules.chat
 import qs.modules.cleaner
+import qs.modules.backup
 import qs.modules.clipboard
 import qs.modules.clock
 import qs.modules.display
@@ -44,7 +45,7 @@ Item {
     workspaces: workspaces, music: music, equalizer: equalizer, themes: themes, wallpapers: wallpapers, radio: radio, clock: clock,
     brightness: brightness, audio: audio, wifi: wifi, mihomo: mihomo,
     battery: battery, language: language, ai: ai, notifications: notifications,
-    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, virustotal: virustotal, packages: packages, display: display, windows: windows, chat: chat, folder: folder
+    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, backup: backup, virustotal: virustotal, packages: packages, display: display, windows: windows, chat: chat, folder: folder
   })
 
   Component { id: workspaces; Workspaces {} }
@@ -67,6 +68,7 @@ Item {
   Component { id: sysmon; Sysmon { bar: root.bar } }
   Component { id: taskmanager; TaskManagerBar { bar: root.bar } }
   Component { id: cleaner; CleanerBar { bar: root.bar } }
+  Component { id: backup; BackupBar { bar: root.bar } }
   Component { id: virustotal; VirusTotalBar { bar: root.bar } }
   Component { id: packages; PackagesBar { bar: root.bar } }
   Component { id: display; DisplayBar { bar: root.bar } }

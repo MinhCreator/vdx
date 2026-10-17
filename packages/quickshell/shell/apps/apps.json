@@ -46,5 +46,8 @@
   { "id": "files", "label": "Files", "icon": "folder", "about": "Browse, copy, move, search and the trash",
     "bind": "Files", "ipc": "files", "open": "toggle", "desktop": "shellfiles",
     "window": { "id": "files", "title": "Files", "width": 1040, "height": 640 },
-    "settings": "apps/files/FilesSettings.qml" }
+    "settings": "apps/files/FilesSettings.qml" },
+  { "id": "backup", "label": "Backups", "icon": "shield", "about": "Encrypted snapshots of home, /etc and the package list; restore",
+    "ipc": "backup", "open": "toggle",
+    "window": { "id": "backup", "title": "Backups", "width": 900, "height": 640 }, "module": "backup" }
 ]

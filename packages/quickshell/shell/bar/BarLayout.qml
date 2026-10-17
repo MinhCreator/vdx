@@ -37,6 +37,7 @@ Singleton {
     { id: "sysmon",        label: "System",        zone: "right",  icon: "cpu", settings: "SysmonSettings.qml", about: "CPU, memory, GPU, disks, network, sensors" },
     { id: "taskmanager",   label: "Task Manager",  zone: "right",  icon: "activity", about: "Load and the busiest programs · Super + D: the full window" },
     { id: "cleaner",       label: "Cleaner",       zone: "right",  icon: "brush", about: "What can go, the safe part in one click · Super + X: the full window" },
+    { id: "backup",        label: "Backups",       zone: "right",  icon: "shield", about: "Last backup, back up now, the restore guide · the full window" },
     { id: "virustotal",    label: "VirusTotal",    zone: "right",  icon: "scan", about: "A hash, URL or file checked against VirusTotal" },
     { id: "packages",      label: "Packages",      zone: "right",  icon: "package", about: "Pending updates, one click to update · the full window" },
     { id: "display",       label: "Display",       zone: "right",  icon: "monitor", about: "Monitor scale, position and text size · the full window" },

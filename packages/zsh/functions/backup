@@ -1,0 +1,4 @@
+# zsh — `backup` runs the shell's backups from a terminal (scripts/backup.py): `backup status`, `backup run`, `backup snapshots`…
+backup() {
+    python3 ~/.config/quickshell/shell/scripts/backup.py "$@"
+}
