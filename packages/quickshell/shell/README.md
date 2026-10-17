@@ -79,7 +79,7 @@ Bar modules live in `modules/<id>/`; each popup opens with
 `tasks`, cleaner `clean`, virustotal `scan`, packages `updates`). Order, zones and visibility: Shell Manager
 › Bar. Options: Shell Manager › Modules (an app's module: › Shell apps).
 
-Workspaces, Music, Radio, Equalizer, Clock, Brightness, Audio, Wi-Fi, Mihomo, Battery,
+Workspaces, Music, Radio, Equalizer, Clock, Themes, Brightness, Audio, Wi-Fi, Mihomo, Battery,
 Language, AI, Shell, Notifications, Capture, Clipboard, System, Task manager,
 Cleaner, VirusTotal, Packages, Display, Windows, Chat, Folder.
 

@@ -26,6 +26,7 @@ import qs.modules.music
 import qs.modules.notifications
 import qs.modules.sysmon
 import qs.modules.taskmanager
+import qs.modules.themes
 import qs.modules.radio
 import qs.modules.wifi
 import qs.modules.windows
@@ -44,7 +45,7 @@ PanelWindow {
   required property var modelData   // the screen, injected by Variants
 
   readonly property var modules: ({
-    workspaces: workspaces, music: music, equalizer: equalizer, radio: radio, clock: clock,
+    workspaces: workspaces, music: music, equalizer: equalizer, themes: themes, radio: radio, clock: clock,
     brightness: brightness, audio: audio, wifi: wifi, mihomo: mihomo,
     battery: battery, language: language, ai: ai, notifications: notifications,
     shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, virustotal: virustotal, packages: packages, display: display, windows: windows, chat: chat, folder: folder
@@ -166,6 +167,7 @@ PanelWindow {
   Component { id: radio; Radio { bar: root } }
   Component { id: clock; Clock {} }
   Component { id: equalizer; Equalizer { bar: root } }
+  Component { id: themes; Themes { bar: root } }
   Component { id: brightness; Brightness { bar: root } }
   Component { id: audio; Audio { bar: root } }
   Component { id: wifi; Wifi { bar: root } }

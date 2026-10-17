@@ -3,7 +3,7 @@ import qs.config
 
 // Outlined text field as a prompt: "❯", the text, a blinking block cursor. The
 // frame brightens on hover and while focused. The inner TextInput is exposed
-// as `input` for focus handling.
+// as `input` for focus handling; `passKeys` go to keyPassed (list arrows).
 Rectangle {
   id: root
 
@@ -12,8 +12,12 @@ Rectangle {
   property alias input: textInput
   property alias echoMode: textInput.echoMode
 
+  // keys the field hands on instead of using (a list's arrows): keyPassed(key)
+  property var passKeys: []
+
   signal textEdited()
   signal accepted()
+  signal keyPassed(int key)
 
   width: parent ? parent.width : 0
   implicitHeight: 32
@@ -54,6 +58,11 @@ Rectangle {
     font.letterSpacing: masked ? 4 : 0
     onTextEdited: root.textEdited()
     onAccepted: root.accepted()
+    Keys.onPressed: event => {
+      if (!root.passKeys.includes(event.key)) return;
+      event.accepted = true;
+      root.keyPassed(event.key);
+    }
 
     cursorDelegate: Rectangle {
       width: Math.round(Theme.fontSize * 0.6)
