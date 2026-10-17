@@ -57,15 +57,22 @@ Singleton {
   // H.264 on the GPU tints the faint greys of a flat wallpaper; HEVC keeps them.
   readonly property string codec: settings.codec
   readonly property string codecInUse: encoderInUse === "cpu" ? "h264" : codec !== "auto" ? codec : "hevc"
-  // what the codec means for this recording, under the popup's choices
-  readonly property var codecNote: {
-    if (codec === "hevc" && encoderInUse === "cpu") return { text: "The CPU encoder only makes H.264", warn: false };
-    if (codecInUse === "h264" && encoderInUse !== "cpu") return { text: "H.264 tints flat greys like the wallpaper: pick HEVC", warn: true };
-    if (codecInUse === "h264" && quality !== "high") return { text: "CPU H.264 tints flat greys below High", warn: true };
-    if (codecInUse === "hevc" && quality === "low") return { text: "Low tints flat greys even in HEVC: pick Medium or High", warn: true };
-    if (codecInUse === "hevc") return { text: "HEVC plays in mpv, Chrome and Telegram, not Firefox", warn: false };
-    return { text: "", warn: false };
+  // the problems the codec and quality can cause here, most important first:
+  // {title, text, warn}; Shell Manager lists them all, the panel shows codecNote
+  readonly property var codecIssues: {
+    const issues = [];
+    if (codec === "hevc" && encoderInUse === "cpu")
+      issues.push({ title: "CPU has no HEVC", text: "The CPU encoder writes H.264, so the choice does not apply.", warn: false });
+    if (codecInUse === "h264" && (encoderInUse !== "cpu" || quality !== "high"))
+      issues.push({ title: "Flat greys can tint", text: "Plain backgrounds may show coloured blocks. HEVC avoids it.", warn: true });
+    if (codecInUse === "hevc" && quality === "low")
+      issues.push({ title: "Low quality tints", text: "Even HEVC shows coloured blocks at Low. Use Medium or High.", warn: true });
+    if (codecInUse === "hevc")
+      issues.push({ title: "Not every player plays HEVC", text: "Firefox and some older players refuse it. H.264 plays anywhere.", warn: false });
+    return issues;
   }
+  // the first warning, else the first note; null when there is nothing to say
+  readonly property var codecNote: codecIssues.find(i => i.warn) ?? codecIssues[0] ?? null
 
   // ---- recording ----
   readonly property bool recording: recorder.running

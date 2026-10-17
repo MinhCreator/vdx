@@ -43,6 +43,58 @@ Column {
 
   KitLine {}
 
+  KitLabel { text: "RECORDING" }
+
+  KitRow {
+    label: "Codec"
+    hint: "Auto: HEVC on the GPU"
+    wide: true
+
+    KitChoices {
+      stretch: true
+      model: [{ label: "Auto", value: "auto" }, { label: "H.264", value: "h264" }, { label: "HEVC", value: "hevc" }]
+      current: CaptureService.codec
+      onPicked: value => CaptureService.setCodec(value)
+    }
+  }
+
+  // every problem the current codec, encoder and quality can cause
+  KitLabel { text: "PROBLEMS" }
+
+  Repeater {
+    model: CaptureService.codecIssues
+
+    Column {
+      required property var modelData
+
+      width: parent.width
+      spacing: Theme.gapHair
+
+      KitText {
+        width: parent.width
+        wrapMode: Text.WordWrap
+        font.weight: Font.ExtraBold
+        color: modelData.warn ? Theme.yellow : Theme.foreground0
+        text: modelData.title
+      }
+
+      KitText {
+        width: parent.width
+        wrapMode: Text.WordWrap
+        color: Theme.muted
+        text: modelData.text
+      }
+    }
+  }
+
+  KitText {
+    visible: CaptureService.codecIssues.length === 0
+    color: Theme.muted
+    text: "None with these settings"
+  }
+
+  KitLine {}
+
   KitLabel { text: "FOLDERS" }
 
   Repeater {

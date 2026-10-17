@@ -120,23 +120,15 @@ KitFrame {
 
     // ---- a recording: its settings ----
     Column {
+      id: recording
+
       visible: CaptureService.kind === "record"
       width: parent.width
       spacing: Theme.gapWide
 
-      Repeater {
-        model: [
-          { title: "SOUND", key: "audio", items: [{ label: "Off", value: "off", icon: "volume-x" },
-                                                  { label: "System", value: "system", icon: "volume" },
-                                                  { label: "Mic", value: "mic", icon: "mic" }] },
-          { title: "FRAME RATE", key: "fps", items: [{ label: "30 fps", value: 30 }, { label: "60 fps", value: 60 }] },
-          { title: "QUALITY", key: "quality", items: [{ label: "Low", value: "low" }, { label: "Medium", value: "medium" },
-                                                      { label: "High", value: "high" }] },
-          { title: "CODEC", key: "codec", items: [{ label: "Auto", value: "auto" }, { label: "H.264", value: "h264" },
-                                                  { label: "HEVC", value: "hevc" }] },
-          { title: "ENCODER", key: "encoder", items: [{ label: "Auto", value: "auto" }, { label: "iGPU", value: "igpu" },
-                                                      { label: "GPU", value: "gpu" }, { label: "CPU", value: "cpu" }] }
-        ]
+      // one setting: a caps label (with its value) and the choices
+      Component {
+        id: settingRow
 
         Column {
           id: setting
@@ -172,14 +164,78 @@ KitFrame {
         }
       }
 
-      // what the codec does to this recording: a warning in yellow, a note in grey
-      KitText {
-        visible: CaptureService.codecNote.text !== ""
+      Repeater {
+        model: [
+          { title: "SOUND", key: "audio", items: [{ label: "Off", value: "off", icon: "volume-x" },
+                                                  { label: "System", value: "system", icon: "volume" },
+                                                  { label: "Mic", value: "mic", icon: "mic" }] },
+          { title: "FRAME RATE", key: "fps", items: [{ label: "30 fps", value: 30 }, { label: "60 fps", value: 60 }] },
+          { title: "QUALITY", key: "quality", items: [{ label: "Low", value: "low" }, { label: "Medium", value: "medium" },
+                                                      { label: "High", value: "high" }] }
+        ]
+        delegate: settingRow
+      }
+
+      // the codec and the encoder: rarely changed, so folded away
+      Item {
+        id: advancedRow
+
+        property bool open: false
+
         width: parent.width
-        wrapMode: Text.WordWrap
-        font.pixelSize: Theme.fontSize - 2
-        color: CaptureService.codecNote.warn ? Theme.yellow : Theme.muted
-        text: CaptureService.codecNote.text
+        implicitHeight: advancedLabel.implicitHeight
+
+        KitLabel {
+          id: advancedLabel
+          text: "ADVANCED"
+          value: advancedRow.open ? "HIDE" : "SHOW"
+        }
+
+        MouseArea {
+          anchors.fill: parent
+          cursorShape: Qt.PointingHandCursor
+          onClicked: advancedRow.open = !advancedRow.open
+        }
+      }
+
+      Column {
+        visible: advancedRow.open
+        width: parent.width
+        spacing: Theme.gapWide
+
+        Repeater {
+          model: [
+            { title: "CODEC", key: "codec", items: [{ label: "Auto", value: "auto" }, { label: "H.264", value: "h264" },
+                                                    { label: "HEVC", value: "hevc" }] },
+            { title: "ENCODER", key: "encoder", items: [{ label: "Auto", value: "auto" }, { label: "iGPU", value: "igpu" },
+                                                        { label: "GPU", value: "gpu" }, { label: "CPU", value: "cpu" }] }
+          ]
+          delegate: settingRow
+        }
+      }
+
+      // the codec's most important problem: a warning in yellow, a note in grey
+      Column {
+        visible: CaptureService.codecNote !== null
+        width: parent.width
+        spacing: Theme.gapHair
+
+        KitText {
+          width: parent.width
+          wrapMode: Text.WordWrap
+          font.pixelSize: Theme.fontSize - 2
+          font.weight: Font.ExtraBold
+          color: CaptureService.codecNote?.warn ? Theme.yellow : Theme.muted
+          text: CaptureService.codecNote?.title ?? ""
+        }
+
+        KitText {
+          width: parent.width
+          wrapMode: Text.WordWrap
+          font.pixelSize: Theme.fontSize - 2
+          color: Theme.muted
+          text: CaptureService.codecNote?.text ?? ""
+        }
       }
     }
 
