@@ -22,3 +22,11 @@ border-color=#88c0d0
 [urgency=high]
 border-color=#bf616a
 text-color=#bf616a
+
+# Bar › Style island: the island shows new notifications, mako only keeps them
+[mode=island]
+invisible=1
+
+# Appearance › Corners round: the shell turns this mode on
+[mode=round]
+border-radius=10
