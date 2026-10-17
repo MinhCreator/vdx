@@ -19,7 +19,7 @@ Column {
 
   KitOptionRow {
     module: "cleaner"; key: "model"; fallback: "haiku"
-    label: "Model"; hint: "Haiku is quick, sonnet looks closer"
+    label: "Model"; hint: "Haiku: quick. Sonnet: careful"
     model: [{ label: "Haiku", value: "haiku" }, { label: "Sonnet", value: "sonnet" }]
   }
 }

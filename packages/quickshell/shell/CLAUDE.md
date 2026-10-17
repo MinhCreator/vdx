@@ -60,8 +60,9 @@ Minimal, monospace, sharp corners, near-monochrome. Reference: the Wi-Fi popup.
   and `bottomInset` (`Theme.textDescent`) instead of offsets. Popups keep 16.
 - Header: icon, title in normal case, subtitle in caps joined by ` · `.
 - Group: `KitLabel` in caps (a noun, current value on the right), then rows.
-- Row: `KitRow` — label (capitalised) and hint (sentence case, no full stop,
-  ≤ ~36 chars) left, control right. On/off `KitSwitch`; choices `KitChoices
+- Row: `KitRow` — label (capitalised) and hint (sentence case, no full stop)
+  left, control right. A hint in a wide row ≤ 29 chars (the Modules page
+  leaves ~32); elsewhere ≤ ~40. On/off `KitSwitch`; choices `KitChoices
   { stretch: true }` in `KitRow { wide: true }`; fields `KitInput`.
 - Selected = `background3` fill + ExtraBold, never a colour. Hover =
   `background1` (one step up from the surface).

@@ -15,7 +15,7 @@ Column {
 
   KitOptionRow {
     module: "keybinds"; key: "rows"; fallback: 8
-    label: "Rows"; hint: "Items shown before the list scrolls"
+    label: "Rows"; hint: "Items before the list scrolls"
     model: [6, 8, 10, 12].map(v => ({ label: String(v), value: v }))
   }
 
@@ -27,7 +27,7 @@ Column {
 
   KitOptionRow {
     module: "keybinds"; key: "position"; fallback: "top"
-    label: "Position"; hint: "Where the panel sits on the screen"
+    label: "Position"; hint: "Where the panel sits"
     model: [{ label: "Top", value: "top" }, { label: "Center", value: "center" }, { label: "Bottom", value: "bottom" }]
   }
 

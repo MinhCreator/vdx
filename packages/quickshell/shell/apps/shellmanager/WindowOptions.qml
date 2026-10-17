@@ -71,7 +71,7 @@ Column {
   KitRow {
     wide: true
     label: "Window"
-    hint: root.floating ? "Over the others, where you put it" : "Takes its place in the layout"
+    hint: root.floating ? "Over others, where you put it" : "Takes its place in the layout"
 
     KitChoices {
       stretch: true
@@ -127,7 +127,7 @@ Column {
     visible: root.floating
     wide: true
     label: "Position"
-    hint: root.s.position === "cursor" ? "Centred on the pointer, on screen"
+    hint: root.s.position === "cursor" ? "Centred on the pointer"
         : root.s.position === "custom" ? "From the screen's top-left" : root.s.position.charAt(0).toUpperCase() + root.s.position.slice(1).replace("-", " ") + " of the screen"
 
     // a spot of the screen, or the pointer, or your own
@@ -154,7 +154,7 @@ Column {
   PairRow {
     visible: root.floating && root.s.position === "custom"
     label: "X, Y"
-    hint: valid ? "Press Enter to apply; kept on screen" : "Whole pixels"
+    hint: valid ? "Enter applies; kept on screen" : "Whole pixels"
     separator: ","
     first: root.xDraft
     second: root.yDraft

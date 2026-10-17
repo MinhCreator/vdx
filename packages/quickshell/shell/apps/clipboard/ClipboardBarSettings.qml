@@ -11,7 +11,7 @@ Column {
 
   KitOptionRow {
     module: "clipboard"; key: "rows"; fallback: 0
-    label: "Entries listed"; hint: "Newest first, the rest scrolls"
+    label: "Entries listed"; hint: "Newest first, rest scrolls"
     model: [{ label: "5", value: 5 }, { label: "10", value: 10 }, { label: "All", value: 0 }]
   }
 

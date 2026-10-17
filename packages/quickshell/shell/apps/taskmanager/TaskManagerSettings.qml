@@ -22,7 +22,7 @@ Column {
 
   KitOptionRow {
     module: "taskmanager"; key: "refresh"; fallback: 2
-    label: "Refresh"; hint: "Seconds, while the window is open"
+    label: "Refresh"; hint: "Seconds, while it is open"
     model: [{ label: "1", value: 1 }, { label: "2", value: 2 }, { label: "5", value: 5 }]
   }
 

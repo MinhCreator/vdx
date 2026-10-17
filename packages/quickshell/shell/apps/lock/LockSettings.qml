@@ -20,7 +20,7 @@ Column {
 
   KitOptionRow {
     module: "lock"; key: "background"; fallback: "solid"
-    label: "Background"; hint: "Blurred: the desktop as it was"
+    label: "Background"; hint: "Blurred: desktop as it was"
     model: [{ label: "Solid", value: "solid" }, { label: "Wallpaper", value: "wallpaper" }, { label: "Blurred", value: "blur" }]
   }
 
@@ -67,7 +67,7 @@ Column {
   // other monitors stay dark; typing there still goes into the password
   KitOptionRow {
     module: "lock"; key: "screen"; fallback: "all"
-    label: "Monitors"; hint: "Focused: the one in use when it locks"
+    label: "Monitors"; hint: "Focused: the one in use"
     model: [{ label: "All", value: "all" }, { label: "Focused", value: "focused" }]
            .concat(Quickshell.screens.map(s => ({ label: s.name, value: s.name })))
   }

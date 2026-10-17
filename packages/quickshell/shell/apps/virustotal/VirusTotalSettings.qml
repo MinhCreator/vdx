@@ -12,7 +12,7 @@ Column {
 
   KitOptionRow {
     module: "virustotal"; key: "historyKeep"; fallback: 20
-    label: "Lookups remembered"; hint: "Listed under the field, newest first"
+    label: "Lookups remembered"; hint: "Under the field, newest first"
     model: [{ label: "None", value: 0 }, { label: "20", value: 20 }, { label: "50", value: 50 }]
   }
 
@@ -24,13 +24,13 @@ Column {
 
   KitOptionRow {
     module: "virustotal"; key: "waitSeconds"; fallback: 90
-    label: "Wait for analysis"; hint: "For a new file or URL, at most"
+    label: "Wait for analysis"; hint: "New file or URL, at most"
     model: [{ label: "30 s", value: 30 }, { label: "90 s", value: 90 }, { label: "3 min", value: 180 }]
   }
 
   KitOptionRow {
     module: "virustotal"; key: "reportAction"; fallback: "browser"
-    label: "Report button"; hint: "Opens the page, or copies its link"
+    label: "Report button"; hint: "Opens the page or copies link"
     model: [{ label: "Browser", value: "browser" }, { label: "Copy link", value: "copy" }]
   }
 }

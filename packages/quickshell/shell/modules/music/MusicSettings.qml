@@ -10,7 +10,7 @@ Column {
 
   KitOptionRow {
     module: "music"; key: "show"; fallback: "both"
-    label: "In the bar"; hint: "The track's artist, title or both"
+    label: "In the bar"; hint: "Artist, title or both"
     model: [{ label: "Both", value: "both" }, { label: "Title", value: "title" }, { label: "Artist", value: "artist" }]
   }
 

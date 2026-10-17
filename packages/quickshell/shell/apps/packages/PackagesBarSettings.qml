@@ -19,7 +19,7 @@ Column {
 
   KitOptionRow {
     module: "packages"; key: "popupRows"; fallback: 6
-    label: "Updates listed"; hint: "The first ones, the rest in the window"
+    label: "Updates listed"; hint: "Some here, the rest in window"
     model: [{ label: "3", value: 3 }, { label: "6", value: 6 }, { label: "10", value: 10 }]
   }
 

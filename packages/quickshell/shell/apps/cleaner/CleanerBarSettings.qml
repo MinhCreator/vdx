@@ -11,7 +11,7 @@ Column {
 
   KitOptionRow {
     module: "cleaner"; key: "biggest"; fallback: 6
-    label: "Categories listed"; hint: "The biggest, in the bar's popup"
+    label: "Categories listed"; hint: "The biggest, in its popup"
     model: [{ label: "3", value: 3 }, { label: "6", value: 6 }, { label: "10", value: 10 }]
   }
 

@@ -20,7 +20,7 @@ Column {
 
   KitOptionRow {
     module: "packages"; key: "interval"; fallback: 30
-    label: "Background check"; hint: "How often the updates are looked up"
+    label: "Background check"; hint: "How often updates are checked"
     model: [{ label: "30 min", value: 30 }, { label: "1 h", value: 60 }, { label: "Off", value: 0 }]
   }
 
@@ -38,7 +38,7 @@ Column {
 
   KitOptionRow {
     module: "packages"; key: "cacheView"; fallback: "old"
-    label: "Cache shows"; hint: "Old versions, or every cached one"
+    label: "Cache shows"; hint: "Old versions, or all cached"
     model: [{ label: "Old", value: "old" }, { label: "All", value: "all" }]
   }
 

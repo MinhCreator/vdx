@@ -14,14 +14,14 @@ Column {
 
   KitOptionRow {
     module: "capture"; key: "shotTarget"; fallback: "folder"
-    label: "After a screenshot"; hint: "Always copied to the clipboard as well"
+    label: "After a screenshot"; hint: "Also copied to the clipboard"
     model: [{ label: "Save", value: "folder", icon: "folder" }, { label: "Ask", value: "ask", icon: "list" },
             { label: "Clipboard", value: "clipboard", icon: "clipboard" }]
   }
 
   KitOptionRow {
     module: "capture"; key: "videoTarget"; fallback: "folder"
-    label: "After a recording"; hint: "Ask opens on stop; Esc saves to the folder"
+    label: "After a recording"; hint: "Ask on stop; Esc to folder"
     model: [{ label: "Save", value: "folder", icon: "folder" }, { label: "Ask", value: "ask", icon: "list" }]
   }
 
@@ -39,7 +39,7 @@ Column {
       required property var modelData
 
       label: modelData.label
-      hint: "Press Enter to apply; empty: the default"
+      hint: "Enter applies; empty: default"
       wide: true
 
       KitInput {
