@@ -18,14 +18,17 @@ Column {
 
   Timer { id: settle; interval: Motion.normal + 50; onTriggered: root.settled = true }
 
+  // never disabled, only instant: a fade cut short (the column hidden or
+  // moved mid-fade, as into the island) still ends opaque
+  readonly property bool animate: Motion.controls && settled
+  readonly property int duration: animate ? Motion.normal : 0
+
   add: Transition {
-    enabled: Motion.controls && root.settled
-    NumberAnimation { property: "opacity"; from: 0; to: 1; duration: Motion.normal; easing.type: Motion.easing }
+    NumberAnimation { property: "opacity"; from: root.animate ? 0 : 1; to: 1; duration: root.duration; easing.type: Motion.easing }
   }
   move: Transition {
-    enabled: Motion.controls && root.settled
-    NumberAnimation { property: "y"; duration: Motion.normal; easing.type: Motion.easing }
+    NumberAnimation { property: "y"; duration: root.duration; easing.type: Motion.easing }
     // a row brought in mid-fade by a second change still ends opaque
-    NumberAnimation { property: "opacity"; to: 1; duration: Motion.normal; easing.type: Motion.easing }
+    NumberAnimation { property: "opacity"; to: 1; duration: root.duration; easing.type: Motion.easing }
   }
 }
