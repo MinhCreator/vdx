@@ -49,3 +49,10 @@ local okc, corners = pcall(dofile, os.getenv("HOME") .. "/.local/state/dotfiles/
 if okc and type(corners) == "table" and corners.rounding then
 	hl.config({ decoration = { rounding = corners.rounding } })
 end
+
+-- Shell Manager › Appearance › Style › Accent › Window border: the focused
+-- frame's colour (AccentService.qml writes it and applies it live)
+local oka, accent = pcall(dofile, os.getenv("HOME") .. "/.local/state/dotfiles/accent.lua")
+if oka and type(accent) == "table" and accent.border then
+	hl.config({ general = { col = { active_border = accent.border } } })
+end
