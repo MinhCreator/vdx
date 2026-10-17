@@ -97,9 +97,10 @@ Hyprland's windows, mako — and the icons switch to Material Symbols Rounded.
 
 ## Island
 
+Solid and island keep their own icon size, gap, separators and hub opening (`ShellSettings.looks`).
 Shell Manager › Bar › Look › Shape › Island: no strip — one pill at the top centre is
 the whole bar (`bar/island/`). At rest: LEFT · clock · RIGHT (by default the
-workspaces and the equalizer). Resting on the clock (Open on hover) opens the hub:
+workspaces and the equalizer). The clock opens the hub on a hover or a click (Bar › Behaviour › Open the hub):
 the date, the track and the HUB modules as chips; a chip opens its module's
 popup inside the island, with a bubble beside it to the hub (the mouse's
 back button too; Escape when it came from the hub). Shell Manager › Bar › Layout arranges LEFT, RIGHT, HUB
@@ -107,7 +108,7 @@ and HIDDEN; Bar › Monitor › Island clock, per monitor: off with nothing besi
 island hides there until it has something to show. Volume / brightness changes pass over it as a flash, but not
 when made from the island itself (its chips, the open volume popup) or while the pointer rests on it; new
 notifications pass over it too (mako only keeps them: its `island` mode). The track in the hub is the player;
-the equalizer has no clicks.
+the equalizer has no clicks (its colour: Modules › Equalizer; a gradient runs left to right).
 Right click on a chip: its options (the hub closes). Middle click: play / pause. The wheel belongs to the modules.
 
 IPC: `qs -c shell ipc call island hub|media|power|collapse`.

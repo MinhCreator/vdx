@@ -182,6 +182,7 @@ Item {
       opacity: root.shown === "compact" ? 1 : 0
       Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick } }
       onSettings: id => root.settings(id)
+      onClockClicked: root.openView("hub")
     }
 
     IslandHub {
@@ -338,7 +339,7 @@ Item {
   // own hover and clicks); leaving the island closes it unless clicked
   Timer {
     interval: 350
-    running: ShellSettings.islandHover && compact.clockHovered && root.view === "compact" && root.flash === ""
+    running: ShellSettings.clockOpens === "hover" && compact.clockHovered && root.view === "compact" && root.flash === ""
              && !PopupManager.current
     onTriggered: { root.view = "hub"; root.pinned = false; }
   }

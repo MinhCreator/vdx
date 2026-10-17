@@ -41,6 +41,14 @@ QtObject {
          : name === "blue" ? blue : foreground0;
   }
 
+  // the equalizer's colours (Modules › Equalizer): one colour, or a [from, to] gradient across its bars
+  function equalizerColours(name) {
+    const pair = { sea: ["blue", "green"], sunset: ["yellow", "red"] }[name];
+    if (pair) return [notifyDot(pair[0]), notifyDot(pair[1])];
+    const one = name === "theme" ? frame : notifyDot(name);
+    return [one, one];
+  }
+
   // ---- type and bar metrics ----
   readonly property string fontFamily: ShellSettings.font     // the system monospace, Shell Manager › Appearance
   readonly property int fontSize: 13

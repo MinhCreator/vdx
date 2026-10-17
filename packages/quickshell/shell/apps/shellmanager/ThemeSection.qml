@@ -1,4 +1,5 @@
 import QtQuick
+import qs.bar
 import qs.config
 import qs.kit
 import Quickshell.Widgets
@@ -29,12 +30,62 @@ Column {
     value: (ThemeService.current || "—").toUpperCase() + " · " + ThemeService.themes.length + " IN ALL"
   }
 
+  // the bar's modules as the shell draws them (size, rules), in the previewed colours
+  component BarIcons: Row {
+    id: icons
+    property var ids: []
+    // a rule (custom or automatic) between two modules when the bar draws them
+    readonly property var shown: {
+      if (!ShellSettings.barSeparators) return ids;
+      const out = [];
+      ids.forEach((id, i) => {
+        if (i > 0 && !BarLayout.isSeparator(id) && !BarLayout.isSeparator(ids[i - 1])) out.push("sep-");
+        out.push(id);
+      });
+      return out;
+    }
+
+    spacing: Theme.gapLoose
+
+    Repeater {
+      model: icons.shown
+
+      Item {
+        id: slot
+        required property string modelData
+        readonly property bool rule: BarLayout.isSeparator(modelData)
+
+        anchors.verticalCenter: parent.verticalCenter
+        width: rule ? 2 + 2 * Theme.separatorMargin : Theme.iconSmall + ShellSettings.barIconGrow
+        height: Theme.iconSmall + ShellSettings.barIconGrow
+
+        Rectangle {
+          visible: slot.rule
+          anchors.centerIn: parent
+          width: 2
+          height: parent.height
+          radius: Theme.pill(width)
+          color: page.p("foreground2")
+        }
+
+        KitIcon {
+          visible: !slot.rule
+          anchors.centerIn: parent
+          name: BarLayout.icon(slot.modelData)
+          tint: page.p("foreground2")
+          size: Theme.iconSmall + ShellSettings.barIconGrow
+        }
+      }
+    }
+  }
+
   // preview on the left, the theme list on the right
   Row {
     width: parent.width
     spacing: Theme.gapGroup
 
     // ---- preview ----
+
     // the bar and a popup over the wallpaper, in the selected theme's colours
     ClippingRectangle {
       radius: Theme.radiusCard
@@ -69,20 +120,9 @@ Column {
         radius: island ? Math.min(height / 2, Theme.islandRadius) : 0
         color: page.p(Theme.material ? "background0" : "background1")
 
-        Row {
+        BarIcons {
           anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
-          spacing: Theme.gapSmall
-
-          Repeater {
-            model: 4
-            Rectangle {
-              radius: Theme.pill(height)
-              required property int index
-              width: 8
-              height: 8
-              color: index === 0 ? page.p("foreground0") : page.p("muted")
-            }
-          }
+          ids: Theme.island ? BarLayout.islandIn("start", BarLayout.mainScreen()) : BarLayout.visibleIn("left", BarLayout.mainScreen())
         }
 
         KitText {
@@ -93,22 +133,9 @@ Column {
           font.weight: Font.ExtraBold
         }
 
-        Row {
+        BarIcons {
           anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
-          spacing: Theme.gapMedium
-
-          // each module in an active state, tinted the way the bar tints it
-          Repeater {
-            model: [["sun", "orange"], ["volume-x", "red"], ["wifi", "green"], ["shield", "green"],
-                    ["battery-full", "green"], ["bell", "gray"]]
-
-            KitIcon {
-              required property var modelData
-              name: modelData[0]
-              tint: page.p(modelData[1])
-              size: Theme.iconSmall
-            }
-          }
+          ids: Theme.island ? BarLayout.islandIn("end", BarLayout.mainScreen()) : BarLayout.visibleIn("right", BarLayout.mainScreen())
         }
       }
 

@@ -141,7 +141,7 @@ KitColumn {
         { label: "Large",  value: 4 }
       ]
       current: ShellSettings.barIconGrow
-      onPicked: value => ShellSettings.set("barIconGrow", value)
+      onPicked: value => ShellSettings.setLook("barIconGrow", value)
     }
   }
 
@@ -158,7 +158,7 @@ KitColumn {
         { label: "Wide",   value: 8 }
       ]
       current: ShellSettings.barGap
-      onPicked: value => ShellSettings.set("barGap", value)
+      onPicked: value => ShellSettings.setLook("barGap", value)
     }
   }
 
@@ -168,24 +168,30 @@ KitColumn {
 
     KitSwitch {
       checked: ShellSettings.barSeparators
-      onToggled: ShellSettings.set("barSeparators", !checked)
+      onToggled: ShellSettings.setLook("barSeparators", !checked)
     }
   }
 
   KitLine {}
 
   // ---- behaviour ----
-  // the hover opens the hub; a right click on a module opens its options (its own page)
+  // the clock opens the hub on a hover or a click; a right click on a module opens its options (its own page)
   KitLabel { id: behaviourGroup; text: "BEHAVIOUR" }
 
   KitRow {
     visible: root.island
-    label: "Open on hover"
-    hint: "Resting on the clock opens the hub"
+    wide: true
+    label: "Open the hub"
+    hint: "Hover or click the clock"
 
-    KitSwitch {
-      checked: ShellSettings.islandHover
-      onToggled: ShellSettings.set("islandHover", !checked)
+    KitChoices {
+      stretch: true
+      model: [
+        { label: "Hover", value: "hover" },
+        { label: "Click", value: "click" }
+      ]
+      current: ShellSettings.clockOpens
+      onPicked: value => ShellSettings.setLook("clockOpens", value)
     }
   }
 

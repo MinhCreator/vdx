@@ -11,7 +11,6 @@ Singleton {
   id: root
 
   readonly property bool solidIcons: state.solidIcons
-  readonly property int barIconGrow: state.barIconGrow            // px added to the bar's icons: 0 | 2 | 4
   readonly property string managerStart: state.managerStart        // main | last: the page the Shell Manager opens on
   readonly property string managerTab: state.managerTab            // the page it was left on
   readonly property string font: state.font                       // family, kept in step with fontconfig
@@ -22,16 +21,20 @@ Singleton {
   readonly property bool pauseMusic: state.pauseMusic             // MPD pauses while another app plays sound
   readonly property bool resumeMusic: state.resumeMusic           // ...and resumes once that sound stops
   readonly property bool barRightSettings: state.barRightSettings // a right click on a bar module opens its options
-  readonly property bool barSeparators: state.barSeparators       // "|" between the bar's modules
   readonly property bool barFolderDot: state.barFolderDot         // a dot on the Folder for unseen notices
   readonly property string barDotColor: state.barDotColor         // theme | red | yellow | green | blue: that dot's colour
-  readonly property int barGap: state.barGap                     // px each side of a separator (Theme.separatorMargin)
   readonly property bool material: state.material                 // controls filled, no frames (Appearance › Controls)
   readonly property bool passwordDots: state.passwordDots         // password fields show dots, not squares (Appearance › Style)
   readonly property string corners: state.corners                 // sharp | round: the whole shell's corners
   readonly property int cornerRadius: state.cornerRadius          // px, a popup's corner while round (Theme scales the rest)
   readonly property string barStyle: state.barStyle               // solid | island: one strip, or one live island
-  readonly property bool islandHover: state.islandHover           // resting on the island opens it
+  // the look of the bar, kept apart for each shape: switching solid <-> island brings its own back
+  readonly property var looks: state.looks                        // shape -> { key: value }
+  readonly property int barIconGrow: look("barIconGrow")          // px added to the bar's icons: 0 | 2 | 4
+  readonly property bool barSeparators: look("barSeparators")     // "|" between the bar's modules
+  readonly property int barGap: look("barGap")                    // px each side of a separator (Theme.separatorMargin)
+  readonly property string clockOpens: look("clockOpens")         // hover | click: how the island's hub opens from the clock
+  readonly property var lookDefaults: ({ barIconGrow: 0, barSeparators: true, barGap: 5, clockOpens: "hover" })
   // animations (Shell Manager › Animations; Motion reads them)
   readonly property bool motion: state.motion                     // all of them on / off
   readonly property string motionSpeed: state.motionSpeed         // slow | normal | fast
@@ -47,6 +50,18 @@ Singleton {
   property bool managerOpen: false
 
   function set(key, value) { state[key] = value; }
+
+  // the current shape's value of a look option, else its default
+  function look(key) {
+    const v = (looks[barStyle] ?? {})[key];
+    return v === undefined ? lookDefaults[key] : v;
+  }
+
+  function setLook(key, value) {
+    const all = Object.assign({}, looks);
+    all[barStyle] = Object.assign({}, all[barStyle] ?? {}, { [key]: value });
+    state.looks = all;
+  }
 
   // until the file is read the options are their defaults (barStyle solid):
   // the bars wait for it (shell.qml), or the island window starts as a strip
@@ -67,7 +82,6 @@ Singleton {
     JsonAdapter {
       id: state
       property bool solidIcons: false
-      property int barIconGrow: 0
       property string managerStart: "main"
       property string managerTab: "appearance"
       property string font: "JetBrainsMono Nerd Font"
@@ -78,12 +92,10 @@ Singleton {
       property bool pauseMusic: false
       property bool resumeMusic: true
       property bool barRightSettings: true
-      property bool barSeparators: true
       property bool barFolderDot: true
       property string barDotColor: "red"
-      property int barGap: 5
       property string barStyle: "solid"
-      property bool islandHover: true
+      property var looks: ({})
       property string corners: "sharp"
       property bool material: false
       property bool passwordDots: false

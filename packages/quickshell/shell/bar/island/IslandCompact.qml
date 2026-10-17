@@ -15,6 +15,7 @@ Item {
   property var modules: ({})                   // Bar's module id -> Component
   property string screen: ""
   signal settings(string id)                   // a module's right click: its options
+  signal clockClicked()                        // the clock's click, when the hub opens on a click
   property date now: new Date()
 
   // Modules › Clock's format
@@ -80,6 +81,14 @@ Item {
     }
 
     HoverHandler { id: clockHover }
+
+    // the hub opens on a click here instead of a hover (Bar › Behaviour › Open the hub)
+    MouseArea {
+      anchors.fill: parent
+      enabled: ShellSettings.clockOpens === "click"
+      cursorShape: Qt.PointingHandCursor
+      onClicked: root.clockClicked()
+    }
   }
 
   Row {
