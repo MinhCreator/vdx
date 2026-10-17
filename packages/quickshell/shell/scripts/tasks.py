@@ -7,7 +7,7 @@
 
 `cpu` (machine and per process) is the share of all cores since the previous
 `list` (0–100), from a snapshot in ~/.cache/dotfiles/tasks.json — the first
-call reads 0. `mem` is the resident size in bytes. Errors: {"ok": false, "error": "..."}."""
+call reads 0, and so does the first call after a reboot. `mem` is the resident size in bytes. Errors: {"ok": false, "error": "..."}."""
 import json, os, pwd, signal, sys
 from pathlib import Path
 from backend import out
@@ -21,6 +21,15 @@ def cpu_times():
     with open("/proc/stat") as f:
         parts = [int(x) for x in f.readline().split()[1:]]
     return sum(parts), parts[3] + parts[4]          # total, idle + iowait
+
+
+def boot_time():
+    # the counters in /proc/stat restart at every boot
+    with open("/proc/stat") as f:
+        for line in f:
+            if line.startswith("btime "):
+                return int(line.split()[1])
+    return 0
 
 
 def meminfo():
@@ -72,12 +81,17 @@ def read_proc(pid):
 
 def cmd_list():
     total, idle = cpu_times()
+    boot = boot_time()
     try:
         prev = json.loads(SNAPSHOT.read_text())
     except (OSError, ValueError):
         prev = {}
-    d_total = max(1, total - prev.get("total", total))
-    d_idle = idle - prev.get("idle", idle)
+    # no baseline after a reboot or when the counters did not move forward
+    # (CPU hotplug): a stale snapshot would divide by a 1-jiffy window
+    if prev.get("boot") != boot or not 0 < prev.get("total", 0) < total:
+        prev = {}
+    d_total = total - prev["total"] if prev else 1
+    d_idle = idle - prev["idle"] if prev else 0
     old = prev.get("procs", {})
 
     procs, now = [], {}
@@ -90,12 +104,14 @@ def cmd_list():
             continue                                      # gone meanwhile
         now[entry.name] = p["jiffies"]
         before = old.get(entry.name)
-        p["cpu"] = round(100 * (p["jiffies"] - before) / d_total, 1) if before is not None and prev else 0.0
+        # a pid that went backwards is a new process under a reused pid
+        fresh = before is not None and p["jiffies"] >= before
+        p["cpu"] = round(100 * (p["jiffies"] - before) / d_total, 1) if fresh and prev else 0.0
         del p["jiffies"]
         procs.append(p)
 
     SNAPSHOT.parent.mkdir(parents=True, exist_ok=True)
-    SNAPSHOT.write_text(json.dumps({"total": total, "idle": idle, "procs": now}))
+    SNAPSHOT.write_text(json.dumps({"boot": boot, "total": total, "idle": idle, "procs": now}))
     used, mem_total = meminfo()
     machine = round(100 * (1 - d_idle / d_total), 1) if prev else 0.0
     out({"ok": True, "cpu": max(0.0, machine), "memUsed": used, "memTotal": mem_total,
