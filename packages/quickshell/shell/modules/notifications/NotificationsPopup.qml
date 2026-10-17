@@ -106,6 +106,7 @@ KitFrame {
               width: visible ? 6 : 0
               height: 6
               color: Theme.red
+              radius: Theme.pill(height)
             }
 
             KitText {
