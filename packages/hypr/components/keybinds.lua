@@ -64,6 +64,10 @@ bind("Media", mainMod .. " + ALT + left", hl.dsp.exec_cmd("mpc prev"), "Previous
 bind("Media", mainMod .. " + ALT + right", hl.dsp.exec_cmd("mpc next"), "Next track")
 bind("Media", mainMod .. " + ALT + up", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"), "Volume up")
 bind("Media", mainMod .. " + ALT + down", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"), "Volume down")
+-- the keyboard's own volume keys (XF86Audio*): work on the lock screen too
+bind("Media", "XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"), "Volume up", { repeating = true, locked = true })
+bind("Media", "XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"), "Volume down", { repeating = true, locked = true })
+bind("Media", "XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), "Mute", { locked = true })
 
 -- workspaces 1-10 (SUPER+0 = workspace 10)
 for i = 1, 10 do
