@@ -18,7 +18,8 @@ KitColumn {
     { value: "choices",    label: "Choices",       hint: "The picked one" },
     { value: "workspaces", label: "Workspaces",    hint: "The focused one" },
     { value: "selects",    label: "Dropdowns",     hint: "The open one's frame" },
-    { value: "window",     label: "Window border", hint: "The focused window" }
+    { value: "window",     label: "Window border", hint: "The focused window" },
+    { value: "modules",    label: "Bar modules",   hint: "Active states, not warnings" }
   ]
   readonly property var onKeys: targets.map(t => t.value).filter(k => ShellSettings.accentWhere[k] === true)
   readonly property var stops: ShellSettings.accentStops

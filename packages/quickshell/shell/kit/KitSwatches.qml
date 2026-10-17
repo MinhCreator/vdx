@@ -16,11 +16,13 @@ Row {
   property string add: ""
   property bool addEmpty: false
   property bool alignLeft: false
+  property bool disabled: false               // dimmed, and no click (a choice made elsewhere)
 
   signal chosen(string name)
 
   spacing: Theme.gapMedium
   layoutDirection: alignLeft ? Qt.LeftToRight : Qt.RightToLeft
+  opacity: disabled ? 0.4 : 1
 
   Repeater {
     model: root.model.filter(name => root.exclude.indexOf(name) < 0)
@@ -54,6 +56,7 @@ Row {
 
       MouseArea {
         anchors.fill: parent
+        enabled: !root.disabled
         cursorShape: Qt.PointingHandCursor
         onClicked: root.chosen(swatch.modelData)
       }

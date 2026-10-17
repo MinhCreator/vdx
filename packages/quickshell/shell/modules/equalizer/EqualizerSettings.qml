@@ -9,18 +9,13 @@ KitColumn {
 
   KitLabel { text: "BAR" }
 
-  KitToggleRow {
-    module: "equalizer"; key: "accent"; fallback: false
-    label: "Follow accent"
-    hint: ShellSettings.accent ? "Off: its own colour" : "The accent is off"
-  }
-
+  // Appearance › Accent (APPLIES TO Bar modules) takes the bars: the dots stay, dimmed
   KitRow {
-    visible: !ModuleSettings.get("equalizer", "accent", false)
     label: "Colour"
-    hint: "Sea and sunset: gradients"
+    hint: Theme.accentOn("modules") ? "Follows the accent colour" : "Sea and sunset: gradients"
 
     KitSwatches {
+      disabled: Theme.accentOn("modules")
       model: ["sunset", "sea", "blue", "green", "yellow", "red", "theme"]
       picked: ModuleSettings.get("equalizer", "colour", "theme")
       colours: name => Theme.equalizerColours(name)

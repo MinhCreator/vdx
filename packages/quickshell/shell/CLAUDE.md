@@ -108,7 +108,10 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
      gradient, `Theme.accent` / `Theme.accentEnd`). Off by default. It takes only the
      places of APPLIES TO (`Theme.accentOn(key)` / `accentFor(key, fallback)` /
      `accentEndFor`); a new place gets a key there, never a literal colour.
-  3. A state colour is never replaced by the accent: a load, a battery, an error keep theirs.
+  3. A warning colour is never replaced by the accent: a load, a low battery, an error, a mute keep theirs.
+     The active state of a module (on, playing, charging, connected) is the accent's place
+     `modules` (APPLIES TO › Bar modules): `Theme.accentFor("modules", <its colour>)`. Its colour
+     options then show a note and are disabled (`KitSwatches { disabled }`).
   4. A gradient is a `Gradient` from `accent` to `accentEnd`; a text, a dot or an outline
      takes `accent` alone.
   No hex in QML — `Theme.*` only (a custom colour is picked on the spectrum or typed in Shell Manager and

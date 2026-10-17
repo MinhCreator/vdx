@@ -100,9 +100,9 @@ Saturation and Brightness sliders), for that stop only. Applies to: Switches, Sl
 Workspaces, Dropdowns, Window border, all off until switched on. A gradient runs across fills
 (switch, slider, window border); text and outlines take the first colour. Window border is
 Hyprland's focused frame: `hypr/components/appearance.lua` reads
-`~/.local/state/dotfiles/accent.lua`, written by `AccentService.qml`. The equalizer follows the
-accent with its own switch (Modules › Equalizer › Follow accent). Wallpaper and cursor colours use
-the same field and picker.
+`~/.local/state/dotfiles/accent.lua`, written by `AccentService.qml`. APPLIES TO › Bar modules
+paints the active state of every bar module with the accent (off: each module's own colour, and
+its colour options show a note instead). Wallpaper and cursor colours use the same field and picker.
 
 ## Corners
 
@@ -123,7 +123,8 @@ and HIDDEN; Bar › Monitor › Island clock, per monitor: off with nothing besi
 island hides there until it has something to show. Volume / brightness changes pass over it as a flash, but not
 when made from the island itself (its chips, the open volume popup) or while the pointer rests on it; new
 notifications pass over it too (mako only keeps them: its `island` mode). The track in the hub is the player (Bar › Behaviour › Show the player: off leaves the chips);
-the equalizer has no clicks (its colour, Follow accent and Show when paused: Modules › Equalizer; a gradient runs left to right).
+the equalizer has no clicks (its colour and Show when paused: Modules › Equalizer;
+a gradient runs left to right).
 Right click on a chip: its options (the hub closes). Middle click: play / pause. The wheel belongs to the modules.
 
 IPC: `qs -c shell ipc call island hub|media|power|collapse`.

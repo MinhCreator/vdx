@@ -27,8 +27,8 @@ Item {
     icon: !root.showIcon ? "" : BatteryService.saver ? "battery-saver" : BatteryService.charging ? "battery-bolt"
         : BatteryService.plugged ? "battery-plugged" : BatteryService.levelIcon
     text: BarLayout.faceText("battery", String(BatteryService.capacity))
-    tint: BatteryService.saver ? Theme.green
-         : BatteryService.charging ? Theme.green
+    tint: BatteryService.saver ? Theme.accentFor("modules", Theme.green)
+         : BatteryService.charging ? Theme.accentFor("modules", Theme.green)
          : BatteryService.capacity <= BatteryService.critical ? Theme.red
          : BatteryService.capacity <= BatteryService.warning ? Theme.yellow
          : Theme.foreground0

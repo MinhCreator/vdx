@@ -37,7 +37,7 @@ Item {
     icon: MusicService.active && !root.iconOnly ? "" : "music"
     text: root.iconOnly ? "" : root.maxLength > 0 && root.text.length > root.maxLength
       ? root.text.slice(0, root.maxLength - 1) + Theme.ellipsis : root.text
-    tint: MusicService.active ? Theme.foreground0 : Theme.gray
+    tint: MusicService.active ? Theme.accentFor("modules", Theme.foreground0) : Theme.gray
   }
 
   MouseArea {
