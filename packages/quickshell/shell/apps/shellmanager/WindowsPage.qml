@@ -148,6 +148,20 @@ KitColumn {
     }
   }
 
+  KitRow {
+    visible: root.floating && root.o.taskbar
+    wide: true
+    label: "Shape"
+    hint: root.o.taskbarShape === "island" ? "A pill over the windows" : "A strip along the bottom"
+
+    KitChoices {
+      stretch: true
+      model: [{ label: "Strip", value: "strip" }, { label: "Island", value: "island" }]
+      current: root.o.taskbarShape
+      onPicked: value => root.o.taskbarShape = value
+    }
+  }
+
   KitLine { visible: root.floating }
 
   // ---- gaps ----

@@ -13,13 +13,24 @@ import qs.modules.windows
 // minimized from it (Super+J, or a click here; they wait on special:minimized,
 // tagged min<workspace> by windowmode.lua). A click minimizes an open window
 // and brings a minimized one back; the pointer stays where it is. Shell
-// Manager › Windows › Floating › Taskbar turns it off.
+// Manager › Windows › Floating › Taskbar turns it off. Shape: a strip, or (Island)
+// a pill centred above the screen's bottom edge, framed and rounded like the
+// island. The pill reserves the island's space (the windows stay clear of it, as
+// they do of the top island), and only the pill takes the pointer.
 PanelWindow {
   id: root
 
   readonly property var ws: WindowsService
   readonly property int wsId: Hyprland.focusedMonitor?.activeWorkspace?.id ?? 1
   readonly property var active: Hyprland.activeToplevel
+  readonly property bool pill: ws.opts.taskbarShape === "island"
+  // the pill's windows row: set in from the rounded ends and from the top and
+  // bottom, so an active window's fill stays inside the curve
+  readonly property int pillEnd: Math.round(Theme.islandHeight / 2)
+  readonly property int pillInset: Theme.gapSmall
+  // the strip always shows, the pill only with windows (counted on the array:
+  // a ScriptModel has no count)
+  readonly property bool shapeShown: !pill || windows.length > 0
 
   // what each window's workspace was, kept by address: a minimized window's
   // tag comes with the IPC refresh, a moment late, and while it lacks the tag
@@ -51,11 +62,31 @@ PanelWindow {
   screen: Hypr.focusedScreen
   visible: ws.opts.taskbar && ws.mode === "floating"
   anchors { bottom: true; left: true; right: true }
-  implicitHeight: Theme.barHeight
+  // the island's offset from the edge is inside the window, as the top island's is
+  implicitHeight: pill ? Theme.islandTop + Theme.islandHeight : Theme.barHeight
   exclusiveZone: implicitHeight
-  color: Theme.background0
+  color: pill ? Theme.clear : Theme.background0
   WlrLayershell.namespace: "taskbar"
   WlrLayershell.layer: WlrLayer.Top
+
+  // the pill (or the strip) takes the pointer; the rest of the window lets clicks through
+  mask: Region { item: root.shapeShown ? shape : null }
+
+  // the strip is the whole window; the pill is as wide as its windows, sits in the
+  // middle and clears the screen's edge by islandTop
+  Rectangle {
+    id: shape
+    x: root.pill ? (root.width - width) / 2 : 0
+    y: root.pill ? root.height - height - Theme.islandTop : 0
+    width: root.pill ? row.width + 2 * root.pillEnd : root.width
+    height: root.pill ? Theme.islandHeight : root.height
+    visible: root.shapeShown
+    // the bar's own look: its fill, and its frame only in the island style
+    radius: root.pill ? Math.min(height / 2, Theme.islandRadius) : 0
+    color: Theme.background0
+    border.width: root.pill && Theme.island ? Theme.islandFrameWidth : 0
+    border.color: Theme.background2
+  }
 
   // the class and the tags come with the toplevels' IPC objects: refreshed
   // after Hyprland's events, at most every 150 ms
@@ -74,8 +105,10 @@ PanelWindow {
   }
 
   Row {
-    x: 8
-    height: parent.height
+    id: row
+    x: root.pill ? shape.x + root.pillEnd : 8
+    y: root.pill ? shape.y + root.pillInset : 0
+    height: root.pill ? shape.height - 2 * root.pillInset : root.height
     spacing: Theme.gapHair
 
     Repeater {
