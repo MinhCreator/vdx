@@ -16,6 +16,8 @@ Column {
   property string query: ""
   property string sortKey: "date"
   property bool sortDesc: true
+  // the first press asks again; a second press within a few seconds moves them all
+  property bool confirming: false
 
   // the columns after the name: the heads and the rows share them
   readonly property var colWidths: ({ type: 96, date: 150, size: 72 })
@@ -54,6 +56,17 @@ Column {
     return sortDesc ? rows.reverse() : rows;
   }
 
+  // every file in the library goes to the trash (gio trash keeps it recoverable),
+  // not only the rows the search shows
+  function clearAll() {
+    if (!confirming) { confirming = true; confirmTimer.restart(); return; }
+    confirming = false;
+    const paths = items.map(i => i.path);
+    if (paths.length === 0) return;
+    Quickshell.execDetached(["sh", "-c", 'for f in "$@"; do gio trash -- "$f"; done; notify-send -a Capture "Library cleared" "$# files moved to the trash"', "sh"].concat(paths));
+    reloadTimer.restart();
+  }
+
   function refresh() {
     loading = true;
     list.running = true;
@@ -81,6 +94,15 @@ Column {
   KitInput {
     placeholder: "Search by name"
     onTextEdited: root.query = text
+  }
+
+  KitButton {
+    visible: root.items.length > 0
+    anchors.right: parent.right
+    icon: "trash"
+    iconTint: root.confirming ? Theme.red : Theme.foreground0
+    text: root.confirming ? "Move all " + root.items.length + " to trash?" : "Clear library"
+    onClicked: root.clearAll()
   }
 
   // the column heads: the active one carries its direction
@@ -194,6 +216,21 @@ Column {
         }
       }
     }
+  }
+
+  Timer {
+    id: confirmTimer
+
+    interval: 4000
+    onTriggered: root.confirming = false
+  }
+
+  // gio trash runs outside this process, so the list is read again once it is done
+  Timer {
+    id: reloadTimer
+
+    interval: 800
+    onTriggered: root.refresh()
   }
 
   KitText {
