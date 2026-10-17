@@ -88,12 +88,27 @@ KitFrame {
 
   KitLine { visible: !root.bare }
 
-  KitInput {
-    id: search
-    placeholder: "Search pictures" + Theme.ellipsis
-    passKeys: root.cards ? [Qt.Key_Left, Qt.Key_Right] : [Qt.Key_Up, Qt.Key_Down]
-    onKeyPassed: key => root.move(key === Qt.Key_Left || key === Qt.Key_Up ? -1 : 1)
-    onAccepted: root.take(root.picked)
+  // the search and, in the island's bare cards (no header), the view switch: one row
+  Row {
+    width: parent.width
+    spacing: Theme.gapSmall
+
+    KitInput {
+      id: search
+      width: parent.width - (switchBare.visible ? switchBare.width + Theme.gapSmall : 0)
+      placeholder: "Search pictures" + Theme.ellipsis
+      passKeys: root.cards ? [Qt.Key_Left, Qt.Key_Right] : [Qt.Key_Up, Qt.Key_Down]
+      onKeyPassed: key => root.move(key === Qt.Key_Left || key === Qt.Key_Up ? -1 : 1)
+      onAccepted: root.take(root.picked)
+    }
+
+    KitChoices {
+      id: switchBare
+      visible: root.bare
+      model: [{ label: "", value: "cards", icon: "grid" }, { label: "", value: "list", icon: "list" }]
+      current: root.cards ? "cards" : "list"
+      onPicked: value => ModuleSettings.set("wallpapers", "view", value)
+    }
   }
 
   // ---- cards ----
