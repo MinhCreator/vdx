@@ -23,7 +23,7 @@ Full quality: [shell-demo.mp4](../../../docs/shell/shell-demo.mp4).
     <td><img src="../../../docs/shell/keybinds.png" alt="Keybinds"><br><sub>Keybinds (Super+B)</sub></td>
   </tr>
   <tr>
-    <td><img src="../../../docs/shell/taskmanager.png" alt="Task manager"><br><sub>Task manager (Super+D)</sub></td>
+    <td><img src="../../../docs/shell/taskmanager.png" alt="Task manager"><br><sub>Task Manager (Super+D)</sub></td>
     <td><img src="../../../docs/shell/cleaner.png" alt="Cleaner"><br><sub>Cleaner (Super+X)</sub></td>
   </tr>
   <tr>
@@ -54,7 +54,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | App | Key | IPC |
 |---|---|---|
 | Shell Manager | Super+S | `shell toggle`, `shell open <page>[:<group or app>]` |
-| Task manager | Super+D | `taskmanager toggle` |
+| Task Manager | Super+D | `taskmanager toggle` |
 | Cleaner | Super+X | `cleaner toggle` |
 | Capture | Super+Shift+S | `capture open\|stop\|close` |
 | System menu | Super+R | `launcher toggle` |
@@ -65,7 +65,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | Keybinds | Super+B | `keybinds toggle\|open\|close` |
 | Window switcher | Super+Tab (floating mode) | `switcher toggle\|open\|close` |
 | Overview | — | `overview toggle` |
-| Lock screen | Super+Z | `lock lock` (options: Shell Manager › Shell apps › Lock screen) |
+| Lock screen | Super+Z | `lock lock` (options: Shell Manager › Apps › Lock screen) |
 | Taskbar | — | floating mode only |
 | Root prompt | — | polkit agent; asks before every root action |
 
@@ -77,33 +77,33 @@ IPC: `qs -c shell ipc call <target> <function>`. Window mode:
 Bar modules live in `modules/<id>/`; each popup opens with
 `qs -c shell ipc call <id> toggle` (except clipboard `clip`, taskmanager
 `tasks`, cleaner `clean`, virustotal `scan`, packages `updates`). Order, zones and visibility: Shell Manager
-› Bar. Options: Shell Manager › Modules (an app's module: › Shell apps).
+› Bar. Options: Shell Manager › Modules (an app's module: a link to › Apps).
 
 Workspaces, Music, Radio, Equalizer, Clock, Themes, Brightness, Audio, Wi-Fi, Mihomo, Battery,
-Language, AI, Shell, Notifications, Capture, Clipboard, System, Task manager,
+Language, AI, Shell, Notifications, Capture, Clipboard, System, Task Manager,
 Cleaner, VirusTotal, Packages, Display, Windows, Chat, Folder.
 
 ## Controls
 
-Shell Manager › Appearance › Controls: Outlined (framed controls, the
+Shell Manager › Appearance › Style › Controls: Outlined (framed controls, the
 terminal look) or Material (filled controls, no frames or prompt arrows,
 a quiet hairline round popups). The island keeps its frame either way.
 
 ## Corners
 
-Shell Manager › Appearance › Corners: Sharp, or Round with one radius on a
+Shell Manager › Appearance › Style › Corners: Sharp, or Round with one radius on a
 ticked slider. Everything follows — popups, controls, rows, the island,
 Hyprland's windows, mako — and the icons switch to Material Symbols Rounded.
 
 ## Island
 
-Shell Manager › Bar › Style › Island: no strip — one pill at the top centre is
+Shell Manager › Bar › Look › Shape › Island: no strip — one pill at the top centre is
 the whole bar (`bar/island/`). At rest: LEFT · clock · RIGHT (by default the
 workspaces and the equalizer). Resting on the clock or a click opens the hub:
 the date, the track and the HUB modules as chips; a chip opens its module's
 popup inside the island, with a bubble beside it to the hub (the mouse's
 back button too; Escape when it came from the hub). Shell Manager › Bar › Layout arranges LEFT, RIGHT, HUB
-and HIDDEN; Bar › Monitor › Clock, per monitor: off with nothing beside it, the
+and HIDDEN; Bar › Monitor › Island clock, per monitor: off with nothing beside it, the
 island hides there until it has something to show. Volume / brightness changes pass over it as a flash, but not
 when made from the island itself (its chips, the open volume popup) or while the pointer rests on it; new
 notifications pass over it too (mako only keeps them: its `island` mode). The track in the hub is the player;
@@ -122,8 +122,8 @@ off the preview) removes it. Its band under the preview takes modules like
 the others. A module is in one bar only. In the island style each is
 an island of its own: its modules' popups open inside it as in the island
 (`bar/island/IslandChild.qml`); with no centre showing they meet in the
-middle. Bar › Style › Spacing and Separators: the room between modules and
-the "|" in it, in every bar. Bar › Style › Notifications dot: the unseen dot shows
+middle. Bar › Look › Module gap and Separators: the room between modules and
+the "|" in it, in every bar. Modules › Notifications › Unseen dot: the dot shows
 while the notifications centre is tucked away — on the Folder in the strip, on
 the island's resting pill when the centre is in the hub, never beside the bell
 in the bar. Moving the centre sets the switch; the switch overrides until the next move.

@@ -2,19 +2,15 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// Appearance › ICONS: outline or solid, for the whole shell.
+// Appearance › STYLE (with CornersSection and ControlsSection): outline or solid
+// icons, for the whole shell. The group's label lives in AppearancePage.
 Column {
   spacing: Theme.gapGroup
 
-  KitLabel {
-    text: "ICONS"
-    value: ShellSettings.solidIcons ? "SOLID" : "OUTLINE"
-  }
-
   KitRow {
     wide: true
-    label: "Style"
-    hint: "Everywhere: the bar, popups and windows"
+    label: "Icons"
+    hint: "Bar, popups and windows"
 
     KitChoices {
       stretch: true

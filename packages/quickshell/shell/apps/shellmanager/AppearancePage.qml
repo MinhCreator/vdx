@@ -3,8 +3,9 @@ import qs.config
 import qs.kit
 
 // Appearance: everything that changes how the desktop looks — the theme with a
-// live preview, the icon style, the controls, the corners, the wallpaper, the system font
-// and the cursor, one section each (ThemeSection … CursorSection).
+// live preview, the wallpaper, the system font and the cursor, one section each
+// (ThemeSection … CursorSection), then the STYLE group: icons, corners and
+// controls (IconsSection, CornersSection, ControlsSection) under one label.
 Column {
   id: root
 
@@ -30,27 +31,36 @@ Column {
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [
     { key: "themes",    label: "Themes",    y: themeSection.y },
-    { key: "icons",     label: "Icons",     y: iconsSection.y },
-    { key: "controls",  label: "Controls",  y: controlsSection.y },
-    { key: "corners",   label: "Corners",   y: cornersSection.y },
     { key: "wallpaper", label: "Wallpaper", y: wallpaperSection.y },
     { key: "font",      label: "Font",      y: fontSection.y },
-    { key: "cursor",    label: "Cursor",    y: cursorSection.y }
+    { key: "cursor",    label: "Cursor",    y: cursorSection.y },
+    { key: "style",     label: "Style",     y: styleLabel.y }
   ]
 
   spacing: Theme.gapGroup
 
   ThemeSection { id: themeSection; width: parent.width; page: root }
   KitLine {}
-  IconsSection { id: iconsSection; width: parent.width }
-  KitLine {}
-  ControlsSection { id: controlsSection; width: parent.width }
-  KitLine {}
-  CornersSection { id: cornersSection; width: parent.width }
-  KitLine {}
   WallpaperSection { id: wallpaperSection; width: parent.width; page: root }
   KitLine {}
   FontSection { id: fontSection; width: parent.width }
   KitLine {}
   CursorSection { id: cursorSection; width: parent.width }
+  KitLine {}
+
+  // the STYLE group: one label, then the three sections' rows, spaced like one group
+  KitLabel {
+    id: styleLabel
+    width: parent.width
+    text: "STYLE"
+    value: [
+      ShellSettings.solidIcons ? "SOLID" : "OUTLINE",
+      ShellSettings.corners === "round" ? "ROUND " + ShellSettings.cornerRadius + " PX" : "SHARP",
+      ShellSettings.material ? "MATERIAL" : "OUTLINED"
+    ].join(" · ")
+  }
+
+  IconsSection { id: iconsSection; width: parent.width }
+  CornersSection { id: cornersSection; width: parent.width }
+  ControlsSection { id: controlsSection; width: parent.width }
 }

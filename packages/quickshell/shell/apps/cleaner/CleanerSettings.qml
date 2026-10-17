@@ -7,7 +7,7 @@ import qs.kit
 Column {
   spacing: Theme.gapGroup
 
-  KitLabel { text: "CLEANING" }
+  KitLabel { text: "SAFETY" }
 
   KitToggleRow { module: "cleaner"; key: "confirm"; label: "Ask before cleaning"; hint: "The button asks “Sure?” once" }
 
@@ -19,7 +19,8 @@ Column {
 
   KitOptionRow {
     module: "cleaner"; key: "model"; fallback: "haiku"
-    label: "Model"; hint: "Haiku: quick. Sonnet: careful"
+    visible: ModuleSettings.get("cleaner", "ai", true)
+    label: "Model"; hint: "Haiku quick · Sonnet careful"
     model: [{ label: "Haiku", value: "haiku" }, { label: "Sonnet", value: "sonnet" }]
   }
 }

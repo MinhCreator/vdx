@@ -14,7 +14,7 @@ Column {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "puzzle"
   readonly property string title: "Modules"
-  readonly property string subtitle: own.length + " MODULES · " + own.filter(p => p.settings).length + " WITH OPTIONS · " + (BarLayout.modules.length - own.length) + " OF APPS"
+  readonly property string subtitle: BarLayout.modules.length + " MODULES · " + own.filter(p => p.settings).length + " WITH OPTIONS · " + (BarLayout.modules.length - own.length) + " SET WITH APPS"
 
   // its own list does the job of the sidebar's group links
   readonly property var jumps: []
@@ -25,7 +25,7 @@ Column {
   function jump(id) { if (own.some(p => p.id === id)) selected = id; }
 
   // the app a module belongs to (apps/apps.json), if any: such a module is set
-  // with its app, in Shell apps, and listed here as a link there
+  // with its app, in Apps, and listed here as a link to its Bar module tab
   function appOf(id) { return ShellAppsService.entries.find(a => a.module === id) ?? null; }
 
   readonly property var own: BarLayout.modules.filter(p => !root.appOf(p.id))
@@ -48,7 +48,7 @@ Column {
       model: BarLayout.modules.map(p => Object.assign({ link: !!root.appOf(p.id), off: !BarLayout.installed(p.id) }, p))
       selected: root.selected
       onPicked: id => {
-        if (root.appOf(id)) root.navigate("apps", id);
+        if (root.appOf(id)) root.navigate("apps", id + ":bar");
         else root.selected = id;
       }
     }
@@ -139,7 +139,7 @@ Column {
         KitRow {
           visible: !root.module?.settings && BarLayout.installed(root.selected)
           label: "No options"
-          hint: "Nothing to set for this module"
+          hint: "Nothing to set here"
           labelColor: Theme.foreground2
         }
       }

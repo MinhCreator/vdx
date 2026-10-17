@@ -24,58 +24,40 @@ Column {
     model: [{ label: "Solid", value: "solid" }, { label: "Wallpaper", value: "wallpaper" }, { label: "Blurred", value: "blur" }]
   }
 
-  KitRow {
+  KitSliderRow {
+    id: blur
     visible: root.opt("background", "solid") === "blur"
-    wide: true
-    label: "Blur"; hint: "How soft the desktop gets"
-
-    Item {
-      id: blurBox
-      // the reading follows the knob while it is dragged; saved on release
-      readonly property int percent: Math.round((blurSlider.pressed ? blurSlider.shown : root.opt("blur", 60) / 100) * 100)
-      height: 20
-
-      KitSlider {
-        id: blurSlider
-        anchors { left: parent.left; right: blurValue.left; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
-        value: root.opt("blur", 60) / 100
-        onMoved: v => { if (!pressed) ModuleSettings.set("lock", "blur", Math.round(v * 100)); }
-        onReleased: v => ModuleSettings.set("lock", "blur", Math.round(v * 100))
-      }
-
-      KitText {
-        id: blurValue
-        anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-        width: 40
-        horizontalAlignment: Text.AlignRight
-        text: blurBox.percent + "%"
-        color: Theme.foreground2
-      }
-    }
+    label: "Blur"
+    // the reading follows the knob while it is dragged; saved on release
+    value: root.opt("blur", 60) / 100
+    text: Math.round((blur.pressed ? blur.dragValue : value) * 100) + "%"
+    onReleased: v => ModuleSettings.set("lock", "blur", Math.round(v * 100))
   }
 
   KitOptionRow {
     module: "lock"; key: "clock"; fallback: "24h"
-    label: "Clock"; hint: "The time's format"
+    label: "Clock"; hint: ""
     model: [{ label: "24h", value: "24h" }, { label: "12h", value: "12h" }]
   }
 
-  KitToggleRow { module: "lock"; key: "date"; fallback: true; label: "Date"; hint: "The day under the time" }
+  KitToggleRow { module: "lock"; key: "date"; fallback: true; label: "Date"; hint: "" }
 
-  KitToggleRow { module: "lock"; key: "user"; fallback: true; label: "User"; hint: "Who is signed in" }
+  KitToggleRow { module: "lock"; key: "user"; fallback: true; label: "User"; hint: "" }
 
   // other monitors stay dark; typing there still goes into the password
-  KitOptionRow {
-    module: "lock"; key: "screen"; fallback: "all"
+  KitSelect {
+    width: parent.width
     label: "Monitors"; hint: "Focused: the one in use"
     model: [{ label: "All", value: "all" }, { label: "Focused", value: "focused" }]
            .concat(Quickshell.screens.map(s => ({ label: s.name, value: s.name })))
+    current: root.opt("screen", "all")
+    onPicked: value => ModuleSettings.set("lock", "screen", value)
   }
 
   KitLine {}
 
-  // ---- controls ----
-  KitLabel { text: "CONTROLS" }
+  // ---- on screen ----
+  KitLabel { text: "ON SCREEN" }
 
   KitToggleRow { module: "lock"; key: "layout"; fallback: true; label: "Keyboard layout"; hint: "Beside the field, a click switches it" }
 

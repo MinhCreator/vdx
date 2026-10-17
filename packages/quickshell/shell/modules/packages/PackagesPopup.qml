@@ -46,7 +46,7 @@ KitFrame {
     KitLabel { text: "PENDING"; value: root.ps.aurError !== "" ? "AUR UNAVAILABLE" : "" }
 
     Repeater {
-      model: root.pending.slice(0, root.ps.opt("popupRows", 6))
+      model: root.pending.slice(0, root.ps.opt("popupRows", 5))
 
       Item {
         required property var modelData
@@ -70,9 +70,9 @@ KitFrame {
     }
 
     KitText {
-      visible: root.ps.count > root.ps.opt("popupRows", 6)
+      visible: root.ps.count > root.ps.opt("popupRows", 5)
       color: Theme.muted
-      text: "+ " + (root.ps.count - root.ps.opt("popupRows", 6)) + " more in the window"
+      text: "+ " + (root.ps.count - root.ps.opt("popupRows", 5)) + " more in the window"
     }
 
     KitText {

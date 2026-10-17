@@ -21,7 +21,7 @@ Column {
 
   KitOptionRow {
     module: "capture"; key: "videoTarget"; fallback: "folder"
-    label: "After a recording"; hint: "Ask on stop; Esc to folder"
+    label: "After a recording"; hint: "Ask: Esc saves to folder"
     model: [{ label: "Save", value: "folder", icon: "folder" }, { label: "Ask", value: "ask", icon: "list" }]
   }
 

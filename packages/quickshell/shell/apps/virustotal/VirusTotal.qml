@@ -113,7 +113,7 @@ Rectangle {
       KitRow {
         visible: root.vs.canUpload
         label: "Upload"
-        hint: "Sends the file to VirusTotal, up to 32 MB"
+        hint: "Uploads the file, up to 32 MB"
 
         KitButton {
           anchors.verticalCenter: parent.verticalCenter

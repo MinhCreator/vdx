@@ -54,20 +54,20 @@ Column {
 
   KitOptionRow {
     module: "launcher"; key: "rows"; fallback: 8
-    label: "Rows"; hint: "Items before the list scrolls"
+    label: "Visible rows"; hint: "The rest scrolls"
     model: [6, 8, 10, 12].map(v => ({ label: String(v), value: v }))
   }
 
   KitOptionRow {
     module: "launcher"; key: "size"; fallback: "medium"
-    label: "Size"; hint: "The panel's width"
+    label: "Width"; hint: ""
     model: [{ label: "Small", value: "small" }, { label: "Medium", value: "medium" }, { label: "Large", value: "large" }]
   }
 
   KitOptionRow {
     module: "launcher"; key: "position"; fallback: "top"
-    label: "Position"; hint: "Where the panel sits"
-    model: [{ label: "Top", value: "top" }, { label: "Center", value: "center" }, { label: "Bottom", value: "bottom" }]
+    label: "Position"; hint: ""
+    model: [{ label: "Top", value: "top" }, { label: "Centre", value: "center" }, { label: "Bottom", value: "bottom" }]
   }
 
   KitLine {}
@@ -112,10 +112,12 @@ Column {
   // ---- opening ----
   KitLabel { text: "OPENING" }
 
-  KitOptionRow {
-    module: "launcher"; key: "opens"; fallback: "apps"
+  KitSelect {
+    width: parent.width
     label: "Opens on"; hint: "The tab shown first"
     model: LauncherService.allTabs.map(t => ({ label: t.label, value: t.value }))
+    current: root.opt("opens", "apps")
+    onPicked: value => ModuleSettings.set("launcher", "opens", value)
   }
 
   KitToggleRow { module: "launcher"; key: "clear"; fallback: true; label: "Clear search on close"; hint: "Off: the search stays as it was" }

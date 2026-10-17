@@ -4,8 +4,9 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Bar: STYLE first (solid or island, icon size: every bar), then what is set
-// per monitor — MONITOR (which one, one bar everywhere, show it) and LAYOUT: a
+// Bar: LOOK first (solid or island, icon size, gap: every bar), then BEHAVIOUR
+// (hover, right click), then what is set per monitor — MONITOR (which one, one
+// bar everywhere, show it) and LAYOUT: a
 // small preview of the bar with its child bars, then a row per band in groups —
 // the main bar's (LEFT, CENTER, RIGHT, FOLDER), its child bars', HIDDEN — chips
 // in bar order (KitChipBands). Drag a chip along a band or to another one; this
@@ -23,8 +24,9 @@ Column {
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [
-    { key: "style",   label: "Style",   y: styleGroup.y },
-    { key: "monitor", label: "Monitor", y: monitorGroup.y },
+    { key: "look",      label: "Look",      y: lookGroup.y },
+    { key: "behaviour", label: "Behaviour", y: behaviourGroup.y },
+    { key: "monitor",   label: "Monitor",   y: monitorGroup.y },
     { key: "layout",  label: "Layout",  y: root.barOn ? layoutGroup.y : -2 }
   ].filter(j => j.y > -2)
 
@@ -89,14 +91,14 @@ Column {
 
   spacing: Theme.gapGroup
 
-  // ---- style ----
+  // ---- look ----
   // the look of every bar: one strip, or the island alone with every module in it
-  KitLabel { id: styleGroup; text: "STYLE"; value: (root.island ? "ISLAND" : "SOLID") + " · EVERY MONITOR" }
+  KitLabel { id: lookGroup; text: "LOOK"; value: (root.island ? "ISLAND" : "SOLID") + " · EVERY MONITOR" }
 
   KitRow {
     wide: true
     label: "Shape"
-    hint: "Strip, or one live island"
+    hint: "Strip, or a morphing pill"
 
     KitChoices {
       stretch: true
@@ -112,7 +114,7 @@ Column {
   KitRow {
     wide: true
     label: "Icon size"
-    hint: "Pixels added to the icons"
+    hint: "Bar icons only"
 
     KitChoices {
       stretch: true
@@ -127,20 +129,9 @@ Column {
   }
 
   KitRow {
-    visible: root.island
-    label: "Open on hover"
-    hint: "Resting on the clock opens the hub"
-
-    KitSwitch {
-      checked: ShellSettings.islandHover
-      onToggled: ShellSettings.set("islandHover", !checked)
-    }
-  }
-
-  KitRow {
     wide: true
-    label: "Spacing"
-    hint: "Between the modules"
+    label: "Module gap"
+    hint: ""
 
     KitChoices {
       stretch: true
@@ -164,58 +155,26 @@ Column {
     }
   }
 
+  KitLine {}
+
+  // ---- behaviour ----
+  // the hover opens the hub; a right click on a module opens its options (its own page)
+  KitLabel { id: behaviourGroup; text: "BEHAVIOUR" }
+
   KitRow {
-    label: "Notifications dot"
-    hint: "Unseen, when tucked away"
+    visible: root.island
+    label: "Open on hover"
+    hint: "Resting on the clock opens the hub"
 
     KitSwitch {
-      checked: ShellSettings.barFolderDot
-      onToggled: ShellSettings.set("barFolderDot", !checked)
+      checked: ShellSettings.islandHover
+      onToggled: ShellSettings.set("islandHover", !checked)
     }
   }
 
   KitRow {
-    wide: true
-    label: "Dot colour"
-    hint: "Of the unseen dot"
-
-    // a colour dot per choice, pushed to the right edge (laid out right to left,
-    // so the model runs backwards); the picked one carries a ring
-    Row {
-      spacing: Theme.gapMedium
-      layoutDirection: Qt.RightToLeft
-
-      Repeater {
-        model: ["blue", "green", "yellow", "red", "theme"]
-
-        Rectangle {
-          id: swatch
-          required property string modelData
-          readonly property bool picked: ShellSettings.barDotColor === modelData
-            || (modelData === "theme" && ShellSettings.barDotColor === "light")
-
-          anchors.verticalCenter: parent.verticalCenter
-          width: 18
-          height: 18
-          radius: Theme.pill(height)
-          color: Theme.notifyDot(modelData)
-          border.width: picked ? 2 : 0
-          border.color: Theme.foreground0
-
-          MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: ShellSettings.set("barDotColor", swatch.modelData)
-          }
-        }
-      }
-    }
-  }
-
-  // a right click on a module opens its options (the module's own page)
-  KitRow {
-    label: "Settings on right click"
-    hint: "Opens a module's options"
+    label: "Right click opens options"
+    hint: "On any bar module"
 
     KitSwitch {
       checked: ShellSettings.barRightSettings
@@ -241,7 +200,7 @@ Column {
   KitRow {
     visible: Quickshell.screens.length > 1
     label: "Same bar everywhere"
-    hint: BarLayout.shared ? "Every monitor shows one bar" : "Main: external monitor, or the laptop alone · Extra: laptop while docked"
+    hint: BarLayout.shared ? "Every monitor shows one bar" : "Main and extra differ"
 
     KitSwitch {
       checked: BarLayout.shared
@@ -265,8 +224,8 @@ Column {
   // the island on this monitor: off with nothing beside it, no island at all
   KitRow {
     visible: root.island && root.barOn
-    label: "Clock"
-    hint: "Off and nothing beside it: hidden"
+    label: "Island clock"
+    hint: "Off: island hides when empty"
 
     KitSwitch {
       checked: BarLayout.islandClock(root.screenName)

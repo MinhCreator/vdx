@@ -8,5 +8,5 @@ Column {
 
   KitLabel { text: "BAR" }
 
-  KitToggleRow { module: "battery"; key: "percent"; label: "Charge in the bar"; hint: "Off: the icon alone" }
+  KitToggleRow { module: "battery"; key: "percent"; label: "Show charge"; hint: "Off: icon only" }
 }

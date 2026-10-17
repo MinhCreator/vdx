@@ -8,5 +8,5 @@ Column {
 
   KitLabel { text: "BAR" }
 
-  KitToggleRow { module: "brightness"; key: "percent"; label: "Brightness in the bar"; hint: "Off: the icon alone" }
+  KitToggleRow { module: "brightness"; key: "percent"; label: "Show brightness"; hint: "Off: icon only" }
 }

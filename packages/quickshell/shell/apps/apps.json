@@ -14,7 +14,7 @@
     "settings": "apps/lock/LockSettings.qml" },
   { "id": "overview", "label": "Overview", "icon": "columns", "about": "Workspaces as one scrolling strip",
     "ipc": "overview", "open": "toggle" },
-  { "id": "taskmanager", "label": "Task manager", "icon": "activity", "about": "Processes, CPU and memory, End / Kill",
+  { "id": "taskmanager", "label": "Task Manager", "icon": "activity", "about": "Processes, CPU and memory, End / Kill",
     "bind": "Task manager", "ipc": "taskmanager", "open": "toggle",
     "window": { "id": "task-manager", "title": "Task Manager", "width": 780, "height": 600 },
     "settings": "apps/taskmanager/TaskManagerSettings.qml",

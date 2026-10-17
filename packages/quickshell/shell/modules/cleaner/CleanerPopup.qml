@@ -46,7 +46,7 @@ KitFrame {
     KitLabel { text: "BIGGEST"; value: root.cs.scanning ? "SCANNING" : "" }
 
     Repeater {
-      model: root.cs.categories.filter(c => c.size > 0).sort((a, b) => b.size - a.size).slice(0, ModuleSettings.get("cleaner", "biggest", 6))
+      model: root.cs.categories.filter(c => c.size > 0).sort((a, b) => b.size - a.size).slice(0, ModuleSettings.get("cleaner", "biggest", 5))
 
       Item {
         required property var modelData

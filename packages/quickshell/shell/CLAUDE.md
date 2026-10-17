@@ -9,7 +9,7 @@ shell.qml      bars per monitor and every app
 apps/          the shell's apps; apps.json is their registry
 bar/           Bar (zones, child bars), ModuleFaces (the modules' Components), BarLayout
                (module registry, layouts, child bars), BarPopup;
-               island/ — Bar › Style island: the bar as one morphing pill, popups inside;
+               island/ — Bar › Look › Shape island: the bar as one morphing pill, popups inside;
                IslandChild — a child bar's own island (Bar.popupHost picks one)
 modules/<id>/  bar modules: <Name>.qml, <Name>Popup.qml, <Name>Service.qml
 kit/           UI components, icons/ (outline, solid/), reply.js (a backend's JSON reply)
@@ -46,19 +46,19 @@ Imports: `import qs.<dir>` from the config root. Singletons: `pragma Singleton`
 Entry in `apps/apps.json`: id, label, icon, about, bind (Hyprland bind
 description), ipc + open, `window` {id, title, width, height} for a window of
 its own, `settings`, `module` + `moduleSettings` when it has a bar module.
-A bar module of an app is set with the app (Shell apps › Bar module tab), not
+A bar module of an app is set with the app (Apps › Bar module tab; Modules lists it with a link), not
 in Modules.
 
 ## UI
 
 Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 
-- Corners: Appearance › Corners (sharp | round + one radius). A radius is
+- Corners: Appearance › Style › Corners (sharp | round + one radius). A radius is
   always a token: `Theme.radiusSurface` (popups, windows, panels),
   `radiusCard` (tiles, previews, cards), `radiusControl` (buttons, fields,
   rows, checkboxes), `Theme.pill(h)` (tracks, knobs, dots); all 0 when sharp.
   An image in a rounded tile sits in a `ClippingRectangle`.
-- Controls: Appearance › Controls (outlined | material). A control's frame is
+- Controls: Appearance › Style › Controls (outlined | material). A control's frame is
   `Theme.frameWidth` (0 in material), its fill `Theme.controlFill` /
   `controlHover`, a popup's frame `Theme.popupFrame`; never a literal 1.
 
@@ -75,8 +75,21 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 - Group: `KitLabel` in caps (a noun, current value on the right), then rows.
 - Row: `KitRow` — label (capitalised) and hint (sentence case, no full stop)
   left, control right. A hint in a wide row ≤ 29 chars (the Modules page
-  leaves ~32); elsewhere ≤ ~40. On/off `KitSwitch`; choices `KitChoices
-  { stretch: true }` in `KitRow { wide: true }`; fields `KitInput`.
+  leaves ~32); elsewhere ≤ ~40. A hint adds something (effect, caveat,
+  off-state) or is left out; it never repeats the label.
+- Control by the job: a feature on/off → `KitSwitch`; 2–5 named equal
+  alternatives (24h | 12h too) → `KitChoices { stretch: true }` in `KitRow
+  { wide: true }`; a size judged by eye with a live result (gaps, radius,
+  shares, blur) → `KitSliderRow`, value on the right, snapped to its step; a
+  list over 5 or one that changes (monitors, models, tabs) → `KitSelect`; an
+  exact number, text or path → `KitInput` (Enter); a long list to preview →
+  `PickList` + Apply. A slider of 3–4 stops is chips.
+- Wording: visibility toggles `Show …` (hint `Off: icon only`); `Close after …`
+  / `Close when its window opens`; `Opens on`; `<Things> shown`. Off / None is
+  the first chip; time units in each chip (`5 s`, `30 min`). British spelling.
+- Group names: `BAR` (the module's face), `POPUP`, `WINDOW` / `LIST`,
+  `OPENING`, `SAFETY` (the "Ask before …" toggles); a row shown only with
+  another option sits under it and hides with it.
 - Selected = `background3` fill + ExtraBold, never a colour. Hover =
   `background1` (one step up from the surface).
 - Colour means state only: green ok, yellow / orange attention, red error.
@@ -99,8 +112,8 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   values `ModuleSettings.get("<id>", "<key>", default)` (`modules.json`). The
   default lives in the module.
 - Applied at once, except pickers with a preview (Apply) and fields (Enter).
-- A right click on a bar module opens its options page (Bar › Settings on right
-  click, `bar/Bar.qml` `openSettings`): a module needs no code for it.
+- A right click on a bar module opens its options page (Bar › Behaviour › Right
+  click opens options, `bar/Bar.qml` `openSettings`): a module needs no code for it.
 
 ## Work
 

@@ -11,8 +11,8 @@ Column {
 
   KitToggleRow {
     module: "sysmon"; key: "barPercent"
-    label: "CPU load in the bar"
-    hint: "Off: the icon alone"
+    label: "Show CPU load"
+    hint: "Off: icon only"
   }
 
   KitLine {}

@@ -8,7 +8,7 @@ import qs.config
 Column {
   spacing: Theme.gapGroup
 
-  KitLabel { text: "ICON" }
+  KitLabel { text: "BAR" }
 
   KitToggleRow { module: "virustotal"; key: "tint"; fallback: true; label: "Colour by verdict"; hint: "Red malicious, yellow suspicious" }
 
@@ -18,5 +18,5 @@ Column {
 
   KitToggleRow { module: "virustotal"; key: "clipboard"; fallback: false; label: "Read the clipboard"; hint: "Fills the field with a hash or URL" }
 
-  KitToggleRow { module: "virustotal"; key: "closeOnOpen"; label: "Close popup on open"; hint: "When its window opens" }
+  KitToggleRow { module: "virustotal"; key: "closeOnOpen"; label: "Close when its window opens"; hint: "" }
 }

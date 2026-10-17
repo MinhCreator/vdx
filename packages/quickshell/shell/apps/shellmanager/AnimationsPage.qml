@@ -55,7 +55,7 @@ Column {
   KitRow {
     wide: true
     label: "Sample"
-    hint: "A click plays it at this speed"
+    hint: "Click to preview"
 
     Item {
       id: sample
@@ -130,7 +130,7 @@ Column {
     model: [
       { key: "motionPanels",   label: "Panels",      hint: "Launcher, keybinds, overview zoom in" },
       { key: "motionControls", label: "Controls",    hint: "Hovers, switches, lists, level bars" },
-      { key: "motionBar",      label: "Bar",         hint: "Workspaces, colours, the underline" },
+      { key: "motionBar",      label: "Bar",         hint: "Workspaces and colours" },
       { key: "motionPages",    label: "Pages",       hint: "This window's pages and sidebar" },
       { key: "motionIsland",   label: "Island",      hint: "Morphs between its views" },
       { key: "motionLock",     label: "Lock screen", hint: "Comes in, shakes on a wrong password" }

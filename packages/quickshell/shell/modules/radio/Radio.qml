@@ -11,8 +11,12 @@ import qs.modules.mpd
 Item {
   id: root
 
-  // title length in the bar, from Modules › Radio (0: the icon alone)
+  // title length in the bar, from Modules › Radio (-1: full, 0 legacy: the icon alone)
   readonly property int maxLength: ModuleSettings.get("radio", "titleLength", 60)
+
+  // what the bar names: the icon alone or the station and track (Modules › Radio)
+  readonly property string show: ModuleSettings.get("radio", "show", "title")
+  readonly property bool iconOnly: show === "icon" || maxLength === 0
 
   required property PanelWindow bar
 
@@ -36,9 +40,9 @@ Item {
   KitBarItem {
     id: label
     // The icon marks the idle label only; while playing the station speaks for itself.
-    icon: RadioService.active && root.maxLength > 0 ? "" : "radio"
-    text: (root.maxLength === 0 ? "" : root.text.length > root.maxLength
-      ? root.text.slice(0, root.maxLength - 1) + Theme.ellipsis : root.text)
+    icon: RadioService.active && !root.iconOnly ? "" : "radio"
+    text: root.iconOnly ? "" : root.maxLength > 0 && root.text.length > root.maxLength
+      ? root.text.slice(0, root.maxLength - 1) + Theme.ellipsis : root.text
     tint: RadioService.active ? Theme.foreground0 : Theme.gray
   }
 

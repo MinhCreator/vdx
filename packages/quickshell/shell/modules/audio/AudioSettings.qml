@@ -10,11 +10,11 @@ Column {
 
   KitLabel { text: "BAR" }
 
-  KitToggleRow { module: "audio"; key: "percent"; label: "Volume in the bar"; hint: "Off: the icon alone" }
+  KitToggleRow { module: "audio"; key: "percent"; label: "Show volume"; hint: "Off: icon only" }
 
   KitLine {}
 
-  KitLabel { text: "MUSIC" }
+  KitLabel { text: "AUTO-PAUSE" }
 
   KitText {
     width: parent.width

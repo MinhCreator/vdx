@@ -16,7 +16,7 @@ Column {
 
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "grid"
-  readonly property string title: "Shell apps"
+  readonly property string title: "Apps"
   readonly property string subtitle: ShellAppsService.entries.length + " APPS · "
                                      + ShellAppsService.windows.length + " WITH A WINDOW"
 
@@ -48,10 +48,14 @@ Column {
   signal windowSetup(string id)
 
   // another page (or `ipc call shell open apps`) may name an app, or its
-  // bar module's id; a module's id opens the app on its bar-module tab
-  function jump(id) {
+  // bar module's id; a module's id opens the app on its bar-module tab.
+  // "<id>:bar" (Modules' Open) names the bar-module tab even when the module
+  // has the app's id
+  function jump(key) {
+    const bar = key.endsWith(":bar");
+    const id = bar ? key.slice(0, -4) : key;
     const e = ShellAppsService.entries.find(e => e.id === id || e.module === id);
-    if (e) { selected = e.id; scope = e.id === id ? "app" : "bar"; }
+    if (e) { selected = e.id; scope = (!bar && e.id === id) || !e.module ? "app" : "bar"; }
   }
 
   spacing: Theme.gapGroup

@@ -29,6 +29,6 @@ Column {
   KitToggleRow {
     module: "chat"; key: "server"
     label: "Background server"
-    hint: "Quicker answers; off: one per message"
+    hint: "Off: starts per message"
   }
 }

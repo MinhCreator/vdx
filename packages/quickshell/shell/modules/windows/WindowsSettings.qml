@@ -6,6 +6,8 @@ import qs.config
 Column {
   spacing: Theme.gapGroup
 
-  KitToggleRow { module: "windows"; key: "closeOnMode"; fallback: false; label: "Close after mode"; hint: "Off: the popup stays open" }
-  KitToggleRow { module: "windows"; key: "closeOnGrid"; fallback: false; label: "Close after grid"; hint: "Off: the popup stays open" }
+  KitLabel { text: "POPUP" }
+
+  KitToggleRow { module: "windows"; key: "closeOnMode"; fallback: false; label: "Close after picking a mode"; hint: "Off: popup stays open" }
+  KitToggleRow { module: "windows"; key: "closeOnGrid"; fallback: false; label: "Close after the grid"; hint: "Off: popup stays open" }
 }

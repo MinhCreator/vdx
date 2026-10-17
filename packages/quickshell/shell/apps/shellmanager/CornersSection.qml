@@ -2,9 +2,10 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// Appearance › CORNERS: sharp or round, for the whole shell — popups, windows,
-// controls, rows, the island, the icons (the Rounded set). Round sets one
-// radius on a ticked slider; smaller things take a share of it (Theme).
+// Appearance › STYLE (with IconsSection and ControlsSection): sharp or round, for
+// the whole shell — popups, windows, controls, rows, the island, the icons (the
+// Rounded set). Round sets one radius on a ticked slider; smaller things take a
+// share of it (Theme). The group's label lives in AppearancePage.
 Column {
   id: root
 
@@ -13,15 +14,10 @@ Column {
 
   spacing: Theme.gapGroup
 
-  KitLabel {
-    text: "CORNERS"
-    value: root.round ? "ROUND · " + ShellSettings.cornerRadius + " PX" : "SHARP"
-  }
-
   KitRow {
     wide: true
-    label: "Style"
-    hint: "Everything, icons included"
+    label: "Corners"
+    hint: "Icons included"
 
     KitChoices {
       stretch: true

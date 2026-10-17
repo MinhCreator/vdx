@@ -9,7 +9,7 @@ Column {
 
   KitLabel { text: "BAR" }
 
-  KitToggleRow { module: "themes"; key: "name"; fallback: true; label: "Theme name"; hint: "Next to the brush icon" }
+  KitToggleRow { module: "themes"; key: "name"; fallback: true; label: "Show theme name"; hint: "Next to the brush icon" }
 
   KitLine {}
 
@@ -26,7 +26,7 @@ Column {
     ]
   }
 
-  KitToggleRow { module: "themes"; key: "english"; fallback: true; label: "English layout"; hint: "Switched to when it opens" }
+  KitToggleRow { module: "themes"; key: "english"; fallback: true; label: "English layout on open"; hint: "Switches the keyboard" }
   KitToggleRow { module: "themes"; key: "wheel"; fallback: true; label: "Wheel picks"; hint: "Over the cards or the list" }
   KitToggleRow { module: "themes"; key: "barWheel"; fallback: true; label: "Wheel on the bar"; hint: "Switches to the next theme" }
 }

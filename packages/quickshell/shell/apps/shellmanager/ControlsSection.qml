@@ -2,19 +2,15 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// Appearance › CONTROLS: outlined (framed controls, the terminal look) or
-// material (filled controls, no frames, a quiet hairline round popups).
+// Appearance › STYLE (with IconsSection and CornersSection): outlined (framed
+// controls, the terminal look) or material (filled controls, no frames, a quiet
+// hairline round popups). The group's label lives in AppearancePage.
 Column {
   spacing: Theme.gapGroup
 
-  KitLabel {
-    text: "CONTROLS"
-    value: ShellSettings.material ? "MATERIAL" : "OUTLINED"
-  }
-
   KitRow {
     wide: true
-    label: "Style"
+    label: "Controls"
     hint: "Material: filled, no frames"
 
     KitChoices {

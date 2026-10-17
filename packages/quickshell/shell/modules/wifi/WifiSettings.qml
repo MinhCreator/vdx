@@ -8,5 +8,5 @@ Column {
 
   KitLabel { text: "BAR" }
 
-  KitToggleRow { module: "wifi"; key: "name"; label: "Network name in the bar"; hint: "Off: the icon alone" }
+  KitToggleRow { module: "wifi"; key: "name"; label: "Show network name"; hint: "Off: icon only" }
 }

@@ -9,12 +9,10 @@ Column {
 
   KitLabel { text: "HISTORY" }
 
-  KitToggleRow { module: "clipboard"; key: "confirm"; label: "Ask before clearing"; hint: "Clear asks “Sure?” once" }
-
   KitRow {
     wide: true
-    label: "Keep last"
-    hint: "Older entries drop off"
+    label: "Entries kept"
+    hint: "Older ones drop off"
 
     KitChoices {
       stretch: true
@@ -23,4 +21,10 @@ Column {
       onPicked: value => ClipboardService.setLimit(value)
     }
   }
+
+  KitLine {}
+
+  KitLabel { text: "SAFETY" }
+
+  KitToggleRow { module: "clipboard"; key: "confirm"; label: "Ask before clearing"; hint: "Clear asks “Sure?” once" }
 }

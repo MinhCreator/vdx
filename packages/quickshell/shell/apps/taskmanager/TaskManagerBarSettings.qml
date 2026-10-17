@@ -11,9 +11,9 @@ Column {
 
   KitOptionRow {
     module: "taskmanager"; key: "popupRows"; fallback: 5
-    label: "Programs listed"; hint: "The busiest, in its popup"
-    model: [{ label: "3", value: 3 }, { label: "5", value: 5 }, { label: "8", value: 8 }]
+    label: "Programs shown"; hint: "The rest in the window"
+    model: [{ label: "3", value: 3 }, { label: "5", value: 5 }, { label: "10", value: 10 }]
   }
 
-  KitToggleRow { module: "taskmanager"; key: "closeOnOpen"; label: "Close popup on open"; hint: "When its window opens" }
+  KitToggleRow { module: "taskmanager"; key: "closeOnOpen"; label: "Close when its window opens"; hint: "" }
 }

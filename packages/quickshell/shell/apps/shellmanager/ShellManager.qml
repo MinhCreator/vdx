@@ -40,7 +40,7 @@ Rectangle {
     { value: "animations", label: "Animations", icon: "zap" },
     { value: "bar",        label: "Bar",        icon: "layout",     caption: "DESKTOP" },
     { value: "windows",    label: "Windows",    icon: "app-window" },
-    { value: "apps",       label: "Shell apps", icon: "grid",       caption: "SHELL" },
+    { value: "apps",       label: "Apps",       icon: "grid",       caption: "SHELL" },
     { value: "modules",    label: "Modules",    icon: "puzzle" },
     { value: "about",      label: "About",      icon: "info" }
   ]

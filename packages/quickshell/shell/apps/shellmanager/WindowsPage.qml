@@ -27,7 +27,7 @@ Column {
     { key: "mode",   label: "Mode",   y: modeGroup.y },
     { key: "layout", label: root.mode.label, y: layoutGroup.y },
     { key: "floating", label: "Floating", y: floating ? floatingGroup.y : -2 },
-    { key: "gaps",   label: "Look",   y: gapsGroup.y }
+    { key: "gaps",   label: "Decoration", y: gapsGroup.y }
   ].filter(j => j.y > -2)
 
   function pct(v) { return Math.round(v * 100) + "%"; }
@@ -52,8 +52,8 @@ Column {
 
   KitRow {
     wide: true
-    label: "Scroll binds"
-    hint: "Arrows stand in without a mouse"
+    label: "Scroll with"
+    hint: "Arrows: no mouse needed"
 
     KitChoices {
       stretch: true
@@ -68,18 +68,15 @@ Column {
   // ---- the current mode's own options ----
   KitLabel { id: layoutGroup; text: root.mode.label.toUpperCase() }
 
-  KitRow {
+  // 0.30–0.80 in steps of 0.05; setOption reloads Hyprland, so it runs on release
+  KitSliderRow {
+    id: master
     visible: root.ws.mode === "tiling"
-    wide: true
     label: "Master size"
-    hint: "The main window's share"
-
-    KitChoices {
-      stretch: true
-      model: [0.4, 0.5, 0.6, 0.7].map(v => ({ label: root.pct(v), value: v }))
-      current: root.o.mfact
-      onPicked: value => root.ws.setOption("mfact", value)
-    }
+    snaps: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => i / 10)
+    value: (root.o.mfact - 0.3) / 0.5
+    text: root.pct(0.3 + (master.pressed ? master.dragValue : master.value) * 0.5)
+    onReleased: value => root.ws.setOption("mfact", Math.round((0.3 + value * 0.5) * 20) / 20)
   }
 
   KitRow {
@@ -114,11 +111,11 @@ Column {
     wide: true
     visible: root.ws.mode === "floating"
     label: "Arrange"
-    hint: "Windows as the mode starts"
+    hint: "On switching to floating"
 
     KitChoices {
       stretch: true
-      model: [{ label: "Cascade", value: "cascade" }, { label: "Grid", value: "grid" }, { label: "Center", value: "center" }]
+      model: [{ label: "Cascade", value: "cascade" }, { label: "Grid", value: "grid" }, { label: "Centre", value: "center" }]
       current: root.o.arrange
       onPicked: value => root.ws.setOption("arrange", value)
     }
@@ -154,32 +151,25 @@ Column {
   KitLine { visible: root.floating }
 
   // ---- gaps ----
-  KitLabel { id: gapsGroup; text: "LOOK"; value: root.o.gapsIn + " / " + root.o.gapsOut + " PX" }
+  KitLabel { id: gapsGroup; text: "DECORATION"; value: root.o.gapsIn + " / " + root.o.gapsOut + " PX" }
 
-  KitRow {
-    wide: true
-    label: "Between windows"
-    hint: "Pixels"
-
-    KitChoices {
-      stretch: true
-      model: [0, 5, 10, 15].map(v => ({ label: String(v), value: v }))
-      current: root.o.gapsIn
-      onPicked: value => root.ws.setOption("gapsIn", value)
-    }
+  // inner 0–20 px in steps of 1, outer 0–40 px in steps of 2; released, as above
+  KitSliderRow {
+    id: innerGap
+    label: "Inner gap"
+    snaps: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(i => i / 20)
+    value: root.o.gapsIn / 20
+    text: Math.round((innerGap.pressed ? innerGap.dragValue : innerGap.value) * 20) + " px"
+    onReleased: value => root.ws.setOption("gapsIn", Math.round(value * 20))
   }
 
-  KitRow {
-    wide: true
-    label: "Screen edges"
-    hint: "Pixels"
-
-    KitChoices {
-      stretch: true
-      model: [0, 10, 20, 30].map(v => ({ label: String(v), value: v }))
-      current: root.o.gapsOut
-      onPicked: value => root.ws.setOption("gapsOut", value)
-    }
+  KitSliderRow {
+    id: outerGap
+    label: "Outer gap"
+    snaps: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(i => i / 20)
+    value: root.o.gapsOut / 40
+    text: Math.round((outerGap.pressed ? outerGap.dragValue : outerGap.value) * 20) * 2 + " px"
+    onReleased: value => root.ws.setOption("gapsOut", Math.round(value * 20) * 2)
   }
 
   KitRow {
@@ -194,7 +184,7 @@ Column {
 
   KitRow {
     label: "Shadows"
-    hint: "Under every window"
+    hint: ""
 
     KitSwitch {
       checked: root.o.shadows

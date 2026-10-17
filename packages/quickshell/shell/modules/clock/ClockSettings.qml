@@ -8,7 +8,11 @@ Column {
 
   KitLabel { text: "BAR" }
 
-  KitToggleRow { module: "clock"; key: "twelveHour"; fallback: false; label: "12-hour clock"; hint: "2:05 PM instead of 14:05" }
-  KitToggleRow { module: "clock"; key: "seconds";    fallback: false; label: "Seconds";       hint: "14:05:32" }
-  KitToggleRow { module: "clock"; key: "date";       fallback: false; label: "Date";          hint: "Wed 15 · 14:05" }
+  KitOptionRow {
+    module: "clock"; key: "twelveHour"; fallback: false
+    label: "Format"; hint: ""
+    model: [{ label: "24h", value: false }, { label: "12h", value: true }]
+  }
+  KitToggleRow { module: "clock"; key: "seconds";    fallback: false; label: "Show seconds"; hint: "14:05:32" }
+  KitToggleRow { module: "clock"; key: "date";       fallback: false; label: "Show date";    hint: "Wed 15 · 14:05" }
 }

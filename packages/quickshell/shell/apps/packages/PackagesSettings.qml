@@ -12,7 +12,7 @@ Column {
 
   KitOptionRow {
     module: "packages"; key: "startTab"; fallback: "updates"
-    label: "Start on"; hint: "The tab the window opens on"
+    label: "Opens on"; hint: "The tab shown first"
     model: [{ label: "Updates", value: "updates" }, { label: "Installed", value: "installed" }, { label: "Cache", value: "cache" }]
   }
 
@@ -21,14 +21,14 @@ Column {
   KitOptionRow {
     module: "packages"; key: "interval"; fallback: 30
     label: "Background check"; hint: "How often updates are checked"
-    model: [{ label: "30 min", value: 30 }, { label: "1 h", value: 60 }, { label: "Off", value: 0 }]
+    model: [{ label: "Off", value: 0 }, { label: "30 min", value: 30 }, { label: "1 h", value: 60 }]
   }
 
   KitToggleRow { module: "packages"; key: "aur"; label: "Include the AUR"; hint: "Counted and listed with the repos" }
 
   KitLine {}
 
-  KitLabel { text: "LISTS" }
+  KitLabel { text: "LIST" }
 
   KitOptionRow {
     module: "packages"; key: "sortBy"; fallback: "name"
@@ -44,7 +44,7 @@ Column {
 
   KitLine {}
 
-  KitLabel { text: "REMOVING" }
+  KitLabel { text: "SAFETY" }
 
   KitToggleRow { module: "packages"; key: "confirm"; label: "Ask before uninstalling"; hint: "Uninstall asks “Sure?” once" }
 }
