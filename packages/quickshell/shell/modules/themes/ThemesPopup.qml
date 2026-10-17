@@ -45,14 +45,23 @@ KitFrame {
     search.input.forceActiveFocus();
     ThemeService.refresh();
     current = Math.max(0, matches.indexOf(ThemeService.current));
+    center();
     reveal.restart();
+  }
+
+  // the pick in the middle of its view, before the view is seen: a move after
+  // it shows reads as the strip jumping
+  function center() {
+    const view = root.cards ? strip : rows;
+    view.forceLayout();
+    view.positionViewAtIndex(root.current, ListView.Center);
   }
 
   // the content settles (moved into the island, sized) a moment after it shows
   Timer {
     id: reveal
     interval: 60
-    onTriggered: (root.cards ? strip : rows).positionViewAtIndex(root.current, ListView.Center)
+    onTriggered: root.center()
   }
 
   onQueryChanged: current = Math.max(0, matches.indexOf(ThemeService.current))
@@ -62,7 +71,7 @@ KitFrame {
   // ---- header (the strip's popup) ----
   KitHeader {
     visible: !root.inIsland
-    icon: "brush"
+    icon: "palette"
     title: "Themes"
     subtitle: (ThemeService.current || "—").toUpperCase() + " · " + ThemeService.themes.length + " THEMES"
 
