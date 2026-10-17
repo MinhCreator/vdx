@@ -30,7 +30,7 @@ Column {
       radius: Theme.radiusControl
       width: parent.width - fontList.width - 14
       height: fontList.height
-      color: "transparent"
+      color: Theme.controlFill
       border.width: Theme.frameWidth
       border.color: Theme.gray
 

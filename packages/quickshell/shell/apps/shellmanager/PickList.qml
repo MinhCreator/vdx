@@ -18,7 +18,7 @@ Rectangle {
 
   signal picked(var row)
 
-  color: "transparent"
+  color: Theme.controlFill
   border.width: Theme.frameWidth
   border.color: Theme.gray
 

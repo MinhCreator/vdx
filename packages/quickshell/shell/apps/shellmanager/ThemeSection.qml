@@ -115,8 +115,8 @@ Column {
         width: 150
         height: 62
         color: page.p("background0")
-        border.width: Theme.frameWidth
-        border.color: page.p("frame")
+        border.width: Theme.windowFrameWidth      // a popup's frame, as the shell draws it
+        border.color: page.p(Theme.material ? "background2" : "frame")
 
         Column {
           x: 10
@@ -164,7 +164,7 @@ Column {
         radius: Theme.radiusControl
         width: parent.width
         height: themeList.height - y - themeButtons.height - themeList.spacing
-        color: "transparent"
+        color: Theme.controlFill
         border.width: Theme.frameWidth
         border.color: Theme.gray
 
