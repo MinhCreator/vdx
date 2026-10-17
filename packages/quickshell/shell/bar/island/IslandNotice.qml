@@ -1,6 +1,7 @@
 import QtQuick
 import qs.config
 import qs.kit
+import "../../kit/markup.js" as Markup
 
 // A new notification: app badge, app name with "now", summary and body.
 // Click opens the notifications popup; the cross dismisses. The island stacks
@@ -41,7 +42,7 @@ Item {
       KitText {
         id: app
         anchors { left: parent.left; right: when.left; rightMargin: Theme.gapMedium }
-        text: root.n?.summary || root.n?.app || ""
+        text: Markup.plain(root.n?.summary || root.n?.app || "")
         textFormat: Text.PlainText
         font.weight: Font.Bold
         elide: Text.ElideRight
@@ -58,7 +59,7 @@ Item {
     KitText {
       width: parent.width
       visible: text !== ""
-      text: (root.n?.body ?? "").replace(/\s+/g, " ")
+      text: Markup.plain(root.n?.body).replace(/\s+/g, " ")
       textFormat: Text.PlainText
       color: Theme.gray
       font.pixelSize: Theme.fontSize - 1

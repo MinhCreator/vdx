@@ -1,6 +1,7 @@
 import QtQuick
 import qs.config
 import qs.kit
+import "../../kit/markup.js" as Markup
 
 // Notification history, newest first: app and time, summary, body. Unread
 // ones carry a red square; critical summaries are red.
@@ -18,17 +19,6 @@ KitFrame {
     const d = new Date(time);
     const today = d.toDateString() === new Date().toDateString();
     return Qt.formatDateTime(d, today ? "HH:mm" : "dd.MM HH:mm");
-  }
-
-  // Apps send markup: tags (<b>…</b>) and escaped characters (&#39;, &amp;).
-  // Strip the tags, then decode the characters, so the text reads as typed.
-  readonly property var entities: ({ "amp": "&", "lt": "<", "gt": ">", "quot": "\"", "apos": "'" })
-
-  function plain(text) {
-    return text.replace(/<[^>]*>/g, "").replace(/&(#x[\da-f]+|#\d+|\w+);/gi, (m, e) => {
-      if (e[0] === "#") return String.fromCodePoint(e[1].toLowerCase() === "x" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10));
-      return entities[e.toLowerCase()] || m;
-    });
   }
 
   // ---- header ----
@@ -157,7 +147,7 @@ KitFrame {
 
             KitText {
               width: parent.width
-              text: root.plain(item.modelData.summary)
+              text: Markup.plain(item.modelData.summary)
               textFormat: Text.PlainText
               elide: Text.ElideRight
               color: item.modelData.urgency === "critical" ? Theme.red : Theme.foreground0
@@ -167,7 +157,7 @@ KitFrame {
             KitText {
               width: parent.width
               visible: item.modelData.body !== ""
-              text: root.plain(item.modelData.body)
+              text: Markup.plain(item.modelData.body)
               textFormat: Text.PlainText
               wrapMode: Text.Wrap
               maximumLineCount: 2
