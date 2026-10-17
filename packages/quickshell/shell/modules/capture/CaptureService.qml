@@ -2,6 +2,7 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Io
 import qs.components
 import qs.config
@@ -87,6 +88,9 @@ Singleton {
     if (armed) return;
     const how = ModuleSettings.get("capture", "shortcut", "popup");
     if (how === "last") { startSelection(); return; }
+    // the hub is open on the focused screen: the panel would replace it, so the
+    // selection starts at once with the last mode and the hub stays in the still
+    if (PopupManager.hubScreen !== "" && PopupManager.hubScreen === Hyprland.focusedMonitor?.name) { startSelection(); return; }
     panelHandled = false;
     panelRequested();
     if (panelHandled) return;

@@ -346,7 +346,7 @@ Item {
   }
   Timer {
     interval: 450
-    running: !hover.hovered && !root.pinned && root.view !== "compact"
+    running: !hover.hovered && !root.pinned && root.view !== "compact" && !PopupManager.holding
     onTriggered: root.collapse()
   }
 
@@ -381,7 +381,13 @@ Item {
   }
 
   // ---- keys ----
-  onViewChanged: if (view === "power") power.reset()
+  onViewChanged: {
+    if (view === "power") power.reset();
+    // the screen whose hub is open: a capture starts at once, the hub stays in the still
+    const mine = bar.screen?.name ?? "";
+    if (view === "hub") PopupManager.hubScreen = mine;
+    else if (PopupManager.hubScreen === mine) PopupManager.hubScreen = "";
+  }
   onGrabbingChanged: if (grabbing) keys.forceActiveFocus()
 
   Item {
@@ -401,7 +407,7 @@ Item {
 
   HyprlandFocusGrab {
     windows: [root.bar]
-    active: root.grabbing
+    active: root.grabbing && !PopupManager.holding
     onCleared: root.collapse()
   }
 }

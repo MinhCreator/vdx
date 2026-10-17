@@ -10,6 +10,9 @@ QtObject {
   property var current: null
   property bool holding: false
   property bool frozen: false
+  // the screen whose island shows its hub (set by the island): a capture starts
+  // at once there, since the panel would take the hub's place
+  property string hubScreen: ""
   // where the last open popup's bar underline stood: { bar, x, width, at }
   property var lastLine: null
   onHoldingChanged: if (!holding) frozen = false
