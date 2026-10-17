@@ -35,7 +35,7 @@
     "moduleSettings": "modules/capture/CaptureSettings.qml" },
   { "id": "display", "label": "Display", "icon": "monitor", "about": "Monitor scale, position and the text size",
     "ipc": "display", "open": "toggle",
-    "window": { "id": "display", "title": "Display", "width": 528, "height": 547 },
+    "window": { "id": "display", "title": "Display", "width": 528, "height": 616 },
     "module": "display" },
   { "id": "packages", "label": "Packages", "icon": "package", "about": "Updates, installed packages, cache and rollback",
     "ipc": "packages", "open": "toggle",
