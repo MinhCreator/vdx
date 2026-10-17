@@ -182,7 +182,7 @@ Column {
       text: "LAYOUT"
       // what the pointer is on, or how this works
       value: root.focusId !== "" ? (root.module(root.focusId)?.label ?? "").toUpperCase() + " — " + (root.module(root.focusId)?.about ?? "").toUpperCase()
-                                 : root.children.length > 0 ? "DRAG A CHILD BAR ON THE PREVIEW · OFF IT TO REMOVE"
+                                 : root.children.length > 0 ? "DRAG A CHILD BAR TO PLACE IT · ITS CROSS REMOVES IT"
                                  : root.island ? "LEFT AND RIGHT SIT BESIDE THE CLOCK" : "DRAG CHIPS TO ARRANGE"
       valueColor: root.focusId !== "" ? Theme.foreground2 : Theme.muted
     }
@@ -210,24 +210,11 @@ Column {
   }
 
   // a glance at the bar (what does not fit a side shows as +N) with its child
-  // bars, dragged there to place them; + adds one
-  Item {
+  // bars, dragged there to place them; the empty framed bar adds one
+  BarPreview {
     visible: root.barOn
     width: parent.width
-    height: preview.height
-
-    BarPreview {
-      id: preview
-      anchors { left: parent.left; right: addChild.left; rightMargin: Theme.gapSmall }
-      screenName: root.screenName
-    }
-
-    KitButton {
-      id: addChild
-      anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-      icon: "plus"
-      onClicked: BarLayout.addBar(root.screenName)
-    }
+    screenName: root.screenName
   }
 
   // a band per zone, the folder and HIDDEN: chips in bar order, dragged between bands

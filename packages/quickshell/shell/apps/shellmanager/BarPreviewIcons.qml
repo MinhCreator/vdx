@@ -17,7 +17,7 @@ Row {
     KitIcon {
       required property string modelData
       anchors.verticalCenter: parent.verticalCenter
-      name: modelData === "plus" ? "plus" : BarLayout.icon(modelData)
+      name: BarLayout.icon(modelData)
       tint: modelData === "clock" && Theme.island ? Theme.foreground0 : Theme.foreground2
       size: Theme.iconSmall
     }

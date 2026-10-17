@@ -9,7 +9,8 @@ import qs.kit
 //
 // Its child bars show where they sit; one is placed by dragging it to one of
 // four spots (at either edge, on either side of the centre) and removed by
-// dropping it off the preview.
+// its corner cross or by dropping it off the preview. An empty framed bar right of the centre adds
+// one there (while none is still empty).
 Rectangle {
   id: root
 
@@ -86,22 +87,24 @@ Rectangle {
   ]
 
   component Group: Row {
+    id: group
     property string side
     property string place
+    property bool adds: false                  // ends in the empty bar that adds one
     spacing: 4
     anchors.verticalCenter: parent.verticalCenter
 
     Repeater {
       id: minis
       model: root.children.filter(b => b.side === minis.parent.side && b.place === minis.parent.place)
-      // a child bar in small: its first icons, or a + while it is empty
+      // a child bar in small: its first icons, or "empty"
       Rectangle {
         id: mini
         required property var modelData
         readonly property var bar: modelData
         readonly property var ids: BarLayout.barModules(root.screenName, bar.id)
 
-        width: miniIcons.width + 2 * Theme.gapMedium
+        width: (mini.ids.length > 0 ? miniIcons.width : emptyText.implicitWidth) + 2 * Theme.gapMedium
         height: root.height - 8
         radius: Theme.island ? Math.min(height / 2, Theme.islandRadius) : Theme.radiusControl
         color: area.containsMouse || root.dragId === bar.id ? Theme.background3 : Theme.background2
@@ -111,8 +114,18 @@ Rectangle {
           id: miniIcons
           anchors.centerIn: parent
           spacing: Theme.gapSmall
-          ids: mini.ids.length > 0 ? mini.ids.slice(0, 3) : ["plus"]
+          visible: mini.ids.length > 0
+          ids: mini.ids.slice(0, 3)
           more: Math.max(0, mini.ids.length - 3)
+        }
+
+        KitText {
+          id: emptyText
+          anchors.centerIn: parent
+          visible: mini.ids.length === 0
+          text: "empty"
+          color: Theme.muted
+          font.pixelSize: Theme.fontSize - 3
         }
 
         MouseArea {
@@ -132,6 +145,63 @@ Rectangle {
           onPositionChanged: mouse => { if (pressed) root.follow(mapToItem(root, mouse.x, mouse.y), grab); }
           onReleased: root.land()
         }
+
+        // a cross in the corner while the pointer is on it: removes the bar
+        Rectangle {
+          visible: (area.containsMouse || closeArea.containsMouse) && root.dragId === ""
+          anchors { right: parent.right; top: parent.top; rightMargin: -5; topMargin: -5 }
+          width: 14
+          height: 14
+          radius: Theme.pill(height)
+          color: closeArea.containsMouse ? Theme.red : Theme.background3
+          border.width: Theme.islandFrameWidth
+          border.color: Theme.background0
+
+          KitIcon {
+            anchors.centerIn: parent
+            name: "x"
+            size: 9
+            tint: closeArea.containsMouse ? Theme.background0 : Theme.foreground0
+          }
+
+          MouseArea {
+            id: closeArea
+            anchors { fill: parent; margins: -3 }
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: BarLayout.removeBar(root.screenName, mini.bar.id)
+          }
+        }
+      }
+    }
+
+    // a bar still to come, where a new one lands: a click adds it
+    Rectangle {
+      // one empty child bar at a time: fill it first
+      visible: group.adds && root.dragId === "" && !root.children.some(b => BarLayout.barModules(root.screenName, b.id).length === 0)
+      anchors.verticalCenter: parent.verticalCenter
+      width: addIcon.width + 2 * Theme.gapMedium + 8
+      height: root.height - 8
+      radius: Theme.island ? Math.min(height / 2, Theme.islandRadius) : Theme.radiusControl
+      color: addArea.containsMouse ? Theme.background2 : "transparent"
+      border.width: Theme.islandFrameWidth
+      border.color: addArea.containsMouse ? Theme.foreground2 : Theme.background3
+      Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+
+      KitIcon {
+        id: addIcon
+        anchors.centerIn: parent
+        name: "plus"
+        size: Theme.iconSmall
+        tint: addArea.containsMouse ? Theme.foreground0 : Theme.muted
+      }
+
+      MouseArea {
+        id: addArea
+        anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+        onClicked: BarLayout.addBar(root.screenName)
       }
     }
   }
@@ -141,7 +211,7 @@ Rectangle {
   readonly property real join: besideLeft.width > 0 && besideRight.width > 0 ? gap : 0
   readonly property real meet: cx - (besideLeft.width + besideRight.width + join) / 2
   Group { id: besideLeft; side: "left"; place: "island"; x: root.centreGone ? root.meet : root.spots[1].x - width }
-  Group { id: besideRight; side: "right"; place: "island"; x: root.centreGone ? root.meet + besideLeft.width + root.join : root.spots[2].x }
+  Group { id: besideRight; side: "right"; place: "island"; adds: true; x: root.centreGone ? root.meet + besideLeft.width + root.join : root.spots[2].x }
   Group { id: edgeRight; side: "right"; place: "edge"; x: root.spots[3].x - width }
 
   // ---- dragging one ----
