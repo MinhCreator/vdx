@@ -18,7 +18,7 @@ import "../../kit/reply.js" as Reply
 Singleton {
   id: root
 
-  readonly property string script: Theme.scriptsDir + "/cleaner.py"
+  readonly property string script: Paths.scriptsDir + "/cleaner.py"
 
   // ---- options ----
   function opt(key, fallback) { return ModuleSettings.get("cleaner", key, fallback); }
@@ -174,7 +174,7 @@ Singleton {
         if (root.afterSystem) {
           root.afterSystem = false;
           const left = r.categories.filter(c => root.planIds.includes(c.id)).reduce((s, c) => s + c.size, 0);
-          root.done(true, "Freed " + Theme.shortSize(Math.max(0, root.planSize - left)) + " from the system");
+          root.done(true, "Freed " + Format.shortSize(Math.max(0, root.planSize - left)) + " from the system");
         }
         if (first) {
           const p = {};
@@ -193,15 +193,15 @@ Singleton {
         const what = actProc.command[2];
         root.busy = false;
         if (what === "clean" && r.ok && root.pendingRoot.length > 0) {
-          root.done(true, "Freed " + Theme.shortSize(r.freed) + " · now the system part");
+          root.done(true, "Freed " + Format.shortSize(r.freed) + " · now the system part");
           root.plan(root.pendingRoot);
           root.pendingRoot = [];
           return;
         }
         if (!r.ok) root.done(false, r.error);
-        else if (what === "clean") root.done(true, "Freed " + Theme.shortSize(r.freed));
+        else if (what === "clean") root.done(true, "Freed " + Format.shortSize(r.freed));
         else if (what === "trash") {
-          root.done(true, "Moved " + Theme.shortSize(r.freed) + " to the Trash");
+          root.done(true, "Moved " + Format.shortSize(r.freed) + " to the Trash");
           root.suggestions = root.suggestions.filter(s => !root.aiPicked[s.path]);
           root.aiPicked = ({});
         }

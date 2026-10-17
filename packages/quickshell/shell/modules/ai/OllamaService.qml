@@ -10,6 +10,11 @@ import qs.config
 Singleton {
   id: root
 
+  // ---- tuning ----
+  readonly property int pollMs: 5000                   // status poll while the tab is open
+  readonly property string coachModel: "qwen2.5:1.5b"  // the nvim habit coach's model
+  readonly property string script: Paths.scriptsDir + "/ollama.sh"
+
   property var status: ({})                    // see `ollama.sh --status`
   property bool watching: false                // the Ollama tab is visible
   property var busy: null                      // "server" or a model name being worked on
@@ -38,14 +43,14 @@ Singleton {
 
   function run(proc, args) {
     if (proc.running) return;
-    proc.command = ["bash", Theme.ollamaScript].concat(args);
+    proc.command = ["bash", root.script].concat(args);
     proc.running = true;
   }
 
   onWatchingChanged: if (watching) refresh()
 
   Timer {
-    interval: Theme.ollamaIntervalMs
+    interval: root.pollMs
     running: root.watching
     repeat: true
     onTriggered: root.refresh()

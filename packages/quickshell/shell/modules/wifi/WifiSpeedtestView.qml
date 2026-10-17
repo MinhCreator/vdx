@@ -151,7 +151,7 @@ Column {
       KitLabel { width: 140; text: "THROUGHPUT NOW" }
 
       KitText {
-        text: "↓ " + Theme.humanRate(WifiService.down) + "   ↑ " + Theme.humanRate(WifiService.up)
+        text: "↓ " + Format.humanRate(WifiService.down) + "   ↑ " + Format.humanRate(WifiService.up)
         font.pixelSize: Theme.fontSize - 1
       }
     }

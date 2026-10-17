@@ -80,7 +80,7 @@ Rectangle {
 
   function subtitle() {
     if (tab === "installed")
-      return shown.length + " OF " + ps.installed.length + " SHOWN · " + Theme.shortSize(ps.installed.reduce((s, p) => s + p.size, 0)) + " INSTALLED";
+      return shown.length + " OF " + ps.installed.length + " SHOWN · " + Format.shortSize(ps.installed.reduce((s, p) => s + p.size, 0)) + " INSTALLED";
     if (tab === "cache") return ps.cache.length + " PACKAGES CACHED";
     if (ps.checking) return "CHECKING…";
     return ps.count > 0 ? ps.count + " UPDATES · " + ps.pickedUpdates.length + " PICKED" : "UP TO DATE";
@@ -150,7 +150,7 @@ Rectangle {
         KitLabel {
           text: root.ps.stage === "downloading" ? "DOWNLOADING" : "INSTALLING"
           value: root.ps.stage === "downloading"
-              ? Math.round(root.ps.stagePercent * 100) + "% · " + Theme.shortSize(root.ps.stageDone) + " OF " + Theme.shortSize(root.ps.stageBytes)
+              ? Math.round(root.ps.stagePercent * 100) + "% · " + Format.shortSize(root.ps.stageDone) + " OF " + Format.shortSize(root.ps.stageBytes)
               : ""
         }
 
@@ -176,7 +176,7 @@ Rectangle {
         KitLabel {
           width: parent.width - 28
           text: "SELECT ALL"
-          value: root.ps.pickedUpdates.length + " OF " + root.ps.count + " · " + Theme.shortSize(root.ps.repoPickedSize)
+          value: root.ps.pickedUpdates.length + " OF " + root.ps.count + " · " + Format.shortSize(root.ps.repoPickedSize)
         }
       }
 
@@ -211,7 +211,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             width: root.sizeWidth
             horizontalAlignment: Text.AlignRight
-            text: modelData.aur ? "—" : Theme.shortSize(modelData.size)
+            text: modelData.aur ? "—" : Format.shortSize(modelData.size)
             color: Theme.muted
           }
         }
@@ -314,7 +314,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             width: root.sizeWidth
             horizontalAlignment: Text.AlignRight
-            text: root.sortBy === "date" ? root.day(modelData.date) : Theme.shortSize(modelData.size)
+            text: root.sortBy === "date" ? root.day(modelData.date) : Format.shortSize(modelData.size)
             color: Theme.foreground2
           }
         }
@@ -390,7 +390,7 @@ Rectangle {
 
       KitLabel {
         text: "CACHED VERSIONS"
-        value: root.cacheRows.length + " · " + Theme.shortSize(root.cacheSize)
+        value: root.cacheRows.length + " · " + Format.shortSize(root.cacheSize)
       }
 
       KitSelect {
@@ -419,7 +419,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             width: 80
             horizontalAlignment: Text.AlignRight
-            text: Theme.shortSize(modelData.size)
+            text: Format.shortSize(modelData.size)
             color: Theme.muted
           }
 
@@ -465,11 +465,11 @@ Rectangle {
           elide: Text.ElideRight
           font.weight: Font.ExtraBold
           text: root.tab === "installed"
-              ? (root.ps.pickedNames.length > 0 ? root.ps.pickedNames.length + " picked · " + Theme.shortSize(root.ps.pickedSize) : "Nothing picked")
+              ? (root.ps.pickedNames.length > 0 ? root.ps.pickedNames.length + " picked · " + Format.shortSize(root.ps.pickedSize) : "Nothing picked")
               : root.tab === "cache"
               ? (root.ps.rollbackCount > 0 ? root.ps.rollbackCount + " to roll back" : "Nothing to roll back")
               : (root.ps.pickedUpdates.length > 0
-                  ? root.ps.pickedUpdates.length + " picked" + (root.ps.repoPickedSize > 0 ? " · " + Theme.shortSize(root.ps.repoPickedSize) : "")
+                  ? root.ps.pickedUpdates.length + " picked" + (root.ps.repoPickedSize > 0 ? " · " + Format.shortSize(root.ps.repoPickedSize) : "")
                   : "Nothing picked")
         }
 

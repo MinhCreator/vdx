@@ -15,7 +15,7 @@ import "../../kit/reply.js" as Reply
 Singleton {
   id: root
 
-  readonly property string script: Theme.scriptsDir + "/cursors.py"
+  readonly property string script: Paths.scriptsDir + "/cursors.py"
 
   // ---- state ----
   property var cursors: []                  // [{id, name, installed}]

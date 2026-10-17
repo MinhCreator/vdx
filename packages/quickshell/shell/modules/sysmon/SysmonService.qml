@@ -51,7 +51,7 @@ Singleton {
 
   function sample() {
     if (proc.running) return;
-    proc.command = ["bash", Theme.scriptsDir + "/sysmon.sh"].concat(full ? [] : ["cpu"]);
+    proc.command = ["bash", Paths.scriptsDir + "/sysmon.sh"].concat(full ? [] : ["cpu"]);
     proc.running = true;
   }
 

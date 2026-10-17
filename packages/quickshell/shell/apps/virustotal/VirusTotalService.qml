@@ -14,7 +14,7 @@ import "../../kit/reply.js" as Reply
 Singleton {
   id: root
 
-  readonly property string script: Theme.scriptsDir + "/virustotal.py"
+  readonly property string script: Paths.scriptsDir + "/virustotal.py"
 
   // ---- options ----
   function opt(key, fallback) { return ModuleSettings.get("virustotal", key, fallback); }

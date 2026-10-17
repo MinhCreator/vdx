@@ -95,7 +95,7 @@ KitFrame {
         Column {
           required property var modelData
 
-          readonly property color tint: Theme.qualityColor(modelData.percent, Theme.claudeWarning - 25, Theme.claudeWarning)
+          readonly property color tint: Theme.qualityColor(modelData.percent, ClaudeService.warning - 25, ClaudeService.warning)
 
           width: parent.width
           spacing: 5
@@ -149,10 +149,10 @@ KitFrame {
 
       KitLabel { text: "TODAY"; value: (ClaudeService.today.messages ?? 0) + " MESSAGES" }
 
-      KitInfo { label: "Output";      value: Theme.humanCount(ClaudeService.today.output ?? 0) }
-      KitInfo { label: "Input";       value: Theme.humanCount(ClaudeService.today.input ?? 0) }
-      KitInfo { label: "Cache read";  value: Theme.humanCount(ClaudeService.today.cache_read ?? 0) }
-      KitInfo { label: "Cache write"; value: Theme.humanCount(ClaudeService.today.cache_write ?? 0) }
+      KitInfo { label: "Output";      value: Format.humanCount(ClaudeService.today.output ?? 0) }
+      KitInfo { label: "Input";       value: Format.humanCount(ClaudeService.today.input ?? 0) }
+      KitInfo { label: "Cache read";  value: Format.humanCount(ClaudeService.today.cache_read ?? 0) }
+      KitInfo { label: "Cache write"; value: Format.humanCount(ClaudeService.today.cache_write ?? 0) }
     }
 
     KitLine {}

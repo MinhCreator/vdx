@@ -15,7 +15,7 @@ import "../../kit/reply.js" as Reply
 Singleton {
   id: root
 
-  readonly property string script: Theme.scriptsDir + "/tasks.py"
+  readonly property string script: Paths.scriptsDir + "/tasks.py"
 
   // ---- options ----
   function opt(key, fallback) { return ModuleSettings.get("taskmanager", key, fallback); }

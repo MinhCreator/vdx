@@ -11,6 +11,13 @@ import qs.config
 Singleton {
   id: root
 
+  // ---- tuning ----
+  readonly property int usagePollMs: 300000  // plan limits poll (API)
+  readonly property int localPollMs: 30000   // today's tokens + sessions, popup open
+  readonly property int warning: 75          // %, bar icon yellow
+  readonly property int critical: 90         // %, bar icon red
+  readonly property string script: Paths.scriptsDir + "/claude.sh"
+
   property var usage: ({})                     // last good `claude.sh --usage`
   property string error: ""                    // last failure; `usage` keeps older data
   property real fetchedAt: 0                   // when `usage` was fetched
@@ -44,7 +51,7 @@ Singleton {
 
   function run(proc, args) {
     if (proc.running) return;
-    proc.command = ["bash", Theme.claudeScript].concat(args);
+    proc.command = ["bash", root.script].concat(args);
     proc.running = true;
   }
 
@@ -73,7 +80,7 @@ Singleton {
   }
 
   Timer {
-    interval: Theme.claudeUsageIntervalMs
+    interval: root.usagePollMs
     running: true
     repeat: true
     triggeredOnStart: true
@@ -81,7 +88,7 @@ Singleton {
   }
 
   Timer {
-    interval: Theme.claudeLocalIntervalMs
+    interval: root.localPollMs
     running: root.popupOpen
     repeat: true
     onTriggered: root.refreshLocal()

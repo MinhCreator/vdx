@@ -18,7 +18,7 @@ import "../../kit/reply.js" as Reply
 Singleton {
   id: root
 
-  readonly property string script: Theme.scriptsDir + "/packages.py"
+  readonly property string script: Paths.scriptsDir + "/packages.py"
 
   // ---- updates ----
   property var pacman: []                   // [{name, from, to}]

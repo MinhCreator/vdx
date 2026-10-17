@@ -13,7 +13,7 @@ import "../../kit/reply.js" as Reply
 Singleton {
   id: root
 
-  readonly property string script: Theme.scriptsDir + "/shellapps.py"
+  readonly property string script: Paths.scriptsDir + "/shellapps.py"
 
   // ---- the shell's apps: apps/apps.json, the one registry (the Shell ----
   // Manager, the launcher, scripts/shellapps.py) ----

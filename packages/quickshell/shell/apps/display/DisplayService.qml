@@ -11,7 +11,7 @@ import "../../kit/reply.js" as Reply
 Singleton {
   id: root
 
-  readonly property string script: Theme.scriptsDir + "/display.py"
+  readonly property string script: Paths.scriptsDir + "/display.py"
 
   // ---- state ----
   property var monitors: []                 // [{name, model, width, height, refresh, x, y, scale, scales}]

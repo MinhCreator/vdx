@@ -10,6 +10,12 @@ import qs.config
 Singleton {
   id: root
 
+  // ---- tuning ----
+  readonly property int portPollMs: 2000
+  readonly property int maxPercent: 150  // the bar wheel may push the sink this far
+  readonly property int scrollStep: 5    // %, a wheel step on the bar
+  readonly property string script: Paths.scriptsDir + "/audio.sh"
+
   readonly property var sink: Pipewire.defaultAudioSink
   readonly property var source: Pipewire.defaultAudioSource
   readonly property var sinks: nodesOf(PwNodeType.AudioSink)
@@ -93,9 +99,9 @@ Singleton {
       if (node?.audio) node.audio.muted = muted;
   }
 
-  // value: 0..1 of 100 %; the bar wheel may push the sink up to Theme.audioMaxPercent.
+  // value: 0..1 of 100 %; the bar wheel may push the sink up to root.maxPercent.
   function setVolume(node, value) {
-    if (node?.audio) node.audio.volume = Math.max(0, Math.min(Theme.audioMaxPercent / 100, value));
+    if (node?.audio) node.audio.volume = Math.max(0, Math.min(root.maxPercent / 100, value));
   }
 
   function stepVolume(percent) {
@@ -108,7 +114,7 @@ Singleton {
 
   Process {
     id: portProc
-    command: ["bash", Theme.audioScript]
+    command: ["bash", root.script]
     running: true
     stdout: StdioCollector {
       onStreamFinished: {
@@ -124,7 +130,7 @@ Singleton {
   }
 
   Timer {
-    interval: Theme.audioPortIntervalMs
+    interval: root.portPollMs
     running: true
     repeat: true
     onTriggered: portProc.running = true

@@ -39,7 +39,7 @@ Rectangle {
     KitHeader {
       icon: "brush"
       title: "Cleaner"
-      subtitle: (root.cs.categories.length === 0 ? "SCANNING…" : Theme.shortSize(root.cs.total).toUpperCase() + " CAN GO")
+      subtitle: (root.cs.categories.length === 0 ? "SCANNING…" : Format.shortSize(root.cs.total).toUpperCase() + " CAN GO")
         + (root.tab === "ai" && root.cs.suggestions.length > 0 ? " · " + root.cs.suggestions.length + " SUGGESTIONS" : "")
 
       KitChoices {
@@ -94,7 +94,7 @@ Rectangle {
 
           KitLabel {
             text: group.modelData.title
-            value: Theme.shortSize(group.items.reduce((s, c) => s + c.size, 0)).toUpperCase()
+            value: Format.shortSize(group.items.reduce((s, c) => s + c.size, 0)).toUpperCase()
           }
 
           Repeater {
@@ -111,7 +111,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 width: 80
                 horizontalAlignment: Text.AlignRight
-                text: modelData.size > 0 ? Theme.shortSize(modelData.size) : "empty"
+                text: modelData.size > 0 ? Format.shortSize(modelData.size) : "empty"
                 color: modelData.size > 0 ? Theme.foreground2 : Theme.muted
               }
 
@@ -160,7 +160,7 @@ Rectangle {
       KitLabel {
         visible: root.cs.suggestions.length > 0
         text: "SUGGESTIONS"
-        value: Theme.shortSize(root.cs.suggestions.reduce((s, x) => s + x.size, 0)).toUpperCase()
+        value: Format.shortSize(root.cs.suggestions.reduce((s, x) => s + x.size, 0)).toUpperCase()
       }
 
       Repeater {
@@ -177,7 +177,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             width: 80
             horizontalAlignment: Text.AlignRight
-            text: Theme.shortSize(modelData.size)
+            text: Format.shortSize(modelData.size)
             color: Theme.foreground2
           }
 
@@ -221,8 +221,8 @@ Rectangle {
           elide: Text.ElideRight
           font.weight: Font.ExtraBold
           text: root.tab === "ai"
-            ? (root.cs.aiChosen.length > 0 ? Theme.shortSize(root.cs.aiSize) + " picked" : "Nothing picked")
-            : (root.cs.pickedSize > 0 ? Theme.shortSize(root.cs.pickedSize) + " picked" : "Nothing picked")
+            ? (root.cs.aiChosen.length > 0 ? Format.shortSize(root.cs.aiSize) + " picked" : "Nothing picked")
+            : (root.cs.pickedSize > 0 ? Format.shortSize(root.cs.pickedSize) + " picked" : "Nothing picked")
         }
 
         KitText {

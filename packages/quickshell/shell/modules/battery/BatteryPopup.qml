@@ -13,8 +13,8 @@ KitFrame {
     : BatteryService.discharging ? "DISCHARGING · " + timeLeft + " LEFT"
     : BatteryService.plugged ? "PLUGGED IN · LIMIT " + BatteryService.threshold + "%"
     : "IDLE"
-  readonly property color levelColor: BatteryService.capacity <= Theme.batteryCritical ? Theme.red
-    : BatteryService.capacity <= Theme.batteryWarning ? Theme.yellow : Theme.green
+  readonly property color levelColor: BatteryService.capacity <= BatteryService.critical ? Theme.red
+    : BatteryService.capacity <= BatteryService.warning ? Theme.yellow : Theme.green
   // supergfxctl reports "Unknown" when nothing is pending
   readonly property string gpuNext: BatteryService.gpuPending === "Unknown" ? "" : BatteryService.gpuPending
   readonly property bool gpuPending: gpuNext !== "" && gpuNext !== BatteryService.gpuMode
@@ -30,7 +30,7 @@ KitFrame {
   KitHeader {
     icon: BatteryService.saver ? "battery-saver" : BatteryService.charging ? "battery-bolt"
       : BatteryService.plugged ? "battery-plugged" : BatteryService.levelIcon
-    iconColor: BatteryService.capacity <= Theme.batteryCritical && !BatteryService.plugged ? Theme.red : Theme.foreground0
+    iconColor: BatteryService.capacity <= BatteryService.critical && !BatteryService.plugged ? Theme.red : Theme.foreground0
     title: "Battery"
     subtitle: root.summary
 
@@ -84,7 +84,7 @@ KitFrame {
     KitLabel { text: "POWER" }
 
     KitRow {
-      visible: BatteryService.profiles.includes(Theme.powerSaverProfile)
+      visible: BatteryService.profiles.includes(BatteryService.saverProfile)
       label: "Power saver"
       hint: "Quiet profile, longer battery"
 
@@ -98,7 +98,7 @@ KitFrame {
       id: limit
       label: "Charge limit"
       hint: "Stop charging at"
-      model: Theme.batteryLimits.map(v => ({ label: v + "%", value: v }))
+      model: BatteryService.limits.map(v => ({ label: v + "%", value: v }))
       current: BatteryService.threshold
       busy: model.some(c => c.value === BatteryService.busy)
       onPicked: value => BatteryService.setThreshold(value)

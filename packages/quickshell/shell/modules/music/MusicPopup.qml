@@ -60,11 +60,11 @@ KitFrame {
 
     Item {
       width: parent.width
-      height: Theme.musicCoverSize
+      height: MusicService.coverSize
 
       Rectangle {
         id: cover
-        width: Theme.musicCoverSize
+        width: MusicService.coverSize
         height: width
         color: Theme.background1
         border.width: Theme.frameWidth
@@ -75,7 +75,7 @@ KitFrame {
           source: MusicService.cover
           fillMode: Image.PreserveAspectCrop
           asynchronous: true
-          sourceSize { width: Theme.musicCoverSize * 2; height: Theme.musicCoverSize * 2 }
+          sourceSize { width: MusicService.coverSize * 2; height: MusicService.coverSize * 2 }
         }
 
         KitIcon {

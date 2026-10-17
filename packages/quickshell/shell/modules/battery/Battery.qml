@@ -25,8 +25,8 @@ Item {
     text: ModuleSettings.get("battery", "percent", true) ? String(BatteryService.capacity) : ""
     tint: BatteryService.saver ? Theme.green
          : BatteryService.charging ? Theme.green
-         : BatteryService.capacity <= Theme.batteryCritical ? Theme.red
-         : BatteryService.capacity <= Theme.batteryWarning ? Theme.yellow
+         : BatteryService.capacity <= BatteryService.critical ? Theme.red
+         : BatteryService.capacity <= BatteryService.warning ? Theme.yellow
          : Theme.foreground0
   }
 

@@ -40,7 +40,7 @@ Singleton {
 
   Process {
     id: listProc
-    command: ["bash", Theme.scriptsDir + "/themes.sh"]
+    command: ["bash", Paths.scriptsDir + "/themes.sh"]
     stdout: StdioCollector {
       onStreamFinished: {
         const [list, active] = text.split("---\n");

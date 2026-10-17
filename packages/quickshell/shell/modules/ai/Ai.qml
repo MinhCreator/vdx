@@ -20,8 +20,8 @@ Item {
   KitBarItem {
     id: label
     icon: "bot"
-    tint: ClaudeService.peak >= Theme.claudeCritical ? Theme.red
-         : ClaudeService.peak >= Theme.claudeWarning ? Theme.yellow
+    tint: ClaudeService.peak >= ClaudeService.critical ? Theme.red
+         : ClaudeService.peak >= ClaudeService.warning ? Theme.yellow
          : Theme.foreground0
   }
 

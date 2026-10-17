@@ -11,6 +11,11 @@ import qs.modules.mpd
 Singleton {
   id: root
 
+  // ---- tuning ----
+  readonly property int coverSize: 64
+  readonly property int upNext: 9  // queue rows visible before scrolling
+  readonly property string likesScript: Paths.scriptsDir + "/yandex_likes.py"
+
   readonly property bool active: MpdService.source === "likes" && !MpdService.stopped
 
   property var queue: []                       // [{pos, artist, title}]
@@ -52,7 +57,7 @@ Singleton {
     const id = trackId;
     const like = !isLiked;
     liked = like ? liked.concat(id) : liked.filter(i => i !== id);   // optimistic
-    likeProc.command = ["uv", "run", "--script", Theme.likesScript, like ? "--like" : "--unlike", id];
+    likeProc.command = ["uv", "run", "--script", root.likesScript, like ? "--like" : "--unlike", id];
     likeProc.running = true;
   }
 
@@ -131,7 +136,7 @@ Singleton {
 
   Process {
     id: likesProc
-    command: ["uv", "run", "--script", Theme.likesScript, "--likes"]
+    command: ["uv", "run", "--script", root.likesScript, "--likes"]
     stdout: StdioCollector {
       onStreamFinished: {
         const o = MpdService.parse(text);

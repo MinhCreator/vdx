@@ -138,7 +138,7 @@ KitFrame {
 
     KitLabel {
       text: "DISKS"
-      value: "R " + Theme.humanRate(SysmonService.readRate) + " · W " + Theme.humanRate(SysmonService.writeRate)
+      value: "R " + Format.humanRate(SysmonService.readRate) + " · W " + Format.humanRate(SysmonService.writeRate)
     }
 
     Repeater {
@@ -156,7 +156,7 @@ KitFrame {
 
         KitInfo {
           label: disk.modelData.mount
-          value: Theme.humanSize(disk.modelData.used) + " / " + Theme.humanSize(disk.modelData.size)
+          value: Format.humanSize(disk.modelData.used) + " / " + Format.humanSize(disk.modelData.size)
           valueColor: Theme.loadColor(disk.percent)
         }
 
@@ -177,7 +177,7 @@ KitFrame {
 
     KitInfo {
       label: "Down · up"
-      value: Theme.humanRate(SysmonService.rxRate) + " · " + Theme.humanRate(SysmonService.txRate)
+      value: Format.humanRate(SysmonService.rxRate) + " · " + Format.humanRate(SysmonService.txRate)
     }
   }
 

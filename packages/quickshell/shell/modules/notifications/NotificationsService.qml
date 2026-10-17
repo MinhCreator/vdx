@@ -11,6 +11,10 @@ import qs.config
 Singleton {
   id: root
 
+  // ---- tuning ----
+  readonly property int historyMax: 100  // kept in history
+  readonly property string script: Paths.scriptsDir + "/notifications.sh"
+
   readonly property var items: state.items     // newest first: [{key, app, summary, body, urgency, time}]
   readonly property int unseen: items.filter(n => n.time > state.seenAt).length
 
@@ -49,7 +53,7 @@ Singleton {
       .filter(n => !known.has(n.key));
     state.lastId = Math.max(state.lastId, top);
     if (fresh.length > 0)
-      state.items = fresh.concat(state.items).slice(0, Theme.notificationsMax);
+      state.items = fresh.concat(state.items).slice(0, root.historyMax);
   }
 
   function refresh() {
@@ -71,7 +75,7 @@ Singleton {
 
   Process {
     id: listProc
-    command: ["bash", Theme.notificationsScript, "--list"]
+    command: ["bash", root.script, "--list"]
     stdout: StdioCollector {
       onStreamFinished: {
         try { root.ingest(JSON.parse(text)); } catch (e) {}

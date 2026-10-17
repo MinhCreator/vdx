@@ -10,11 +10,17 @@ import "../../kit/reply.js" as Reply
 Singleton {
   id: root
 
+  // ---- tuning ----
+  readonly property string defaultGroup: "Proxies"
+  readonly property int statusPollMs: 2000
+  readonly property int trafficRestartMs: 2000
+  readonly property string script: Paths.scriptsDir + "/mihomo.sh"
+
   // ---- service ----
   property bool serviceOn: false
   property bool toggling: false                // start / stop in flight
   property string mode: "rule"
-  property string group: Theme.mihomoGroup
+  property string group: root.defaultGroup
   property string current: ""                  // node the policy group points at
   property string currentProvider: ""          // provider of that node
   property int currentDelay: 0                 // last measured ping of `current`, ms
@@ -84,7 +90,7 @@ Singleton {
 
   // ---- internals ----
   function run(proc, args) {
-    proc.command = ["bash", Theme.mihomoScript].concat(args);
+    proc.command = ["bash", root.script].concat(args);
     proc.running = true;
   }
 
@@ -107,7 +113,7 @@ Singleton {
 
   // ---- polling ----
   Timer {
-    interval: Theme.mihomoStatusIntervalMs
+    interval: root.statusPollMs
     running: true
     repeat: true
     onTriggered: root.refreshStatus()
@@ -115,7 +121,7 @@ Singleton {
 
   Timer {
     id: trafficRestart
-    interval: Theme.mihomoTrafficRestartMs
+    interval: root.trafficRestartMs
     onTriggered: if (root.popupOpen) trafficProc.running = true
   }
 
@@ -132,7 +138,7 @@ Singleton {
   // ---- processes ----
   Process {
     id: statusProc
-    command: ["bash", Theme.mihomoScript, "--status"]
+    command: ["bash", root.script, "--status"]
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
@@ -140,7 +146,7 @@ Singleton {
         const wasOn = root.serviceOn;
         if (!root.toggling) root.serviceOn = o.service === "on";
         root.mode = o.mode || "rule";
-        root.group = o.group || Theme.mihomoGroup;
+        root.group = o.group || root.defaultGroup;
         root.current = o.node || "";
         root.currentProvider = o.provider || "";
         root.currentDelay = o.delay || 0;
@@ -151,7 +157,7 @@ Singleton {
 
   Process {
     id: providersProc
-    command: ["bash", Theme.mihomoScript, "--providers"]
+    command: ["bash", root.script, "--providers"]
     stdout: StdioCollector {
       onStreamFinished: {
         const list = root.parse(text);
@@ -226,7 +232,7 @@ Singleton {
 
   Process {
     id: trafficProc
-    command: ["bash", Theme.mihomoScript, "--traffic"]
+    command: ["bash", root.script, "--traffic"]
     stdout: SplitParser {
       onRead: line => {
         const o = root.parse(line);

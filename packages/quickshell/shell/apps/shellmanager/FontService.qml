@@ -14,7 +14,7 @@ import "../../kit/reply.js" as Reply
 Singleton {
   id: root
 
-  readonly property string script: Theme.scriptsDir + "/fonts.py"
+  readonly property string script: Paths.scriptsDir + "/fonts.py"
 
   // ---- state ----
   property var fonts: []                    // [{id, family, installed}]

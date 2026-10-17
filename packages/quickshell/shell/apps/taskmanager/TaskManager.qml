@@ -98,7 +98,7 @@ Rectangle {
         model: [
           { label: "CPU", values: root.tm.cpuHistory, ceiling: 100, fmt: v => Math.round(v) + "%", load: true },
           { label: "MEMORY", values: root.tm.memHistory, ceiling: 100, load: true,
-            fmt: v => Theme.shortSize(v / 100 * root.tm.memTotal) },
+            fmt: v => Format.shortSize(v / 100 * root.tm.memTotal) },
           { label: "GPU · " + root.tm.gpuName, values: root.tm.gpuHistory, ceiling: 100, fmt: v => Math.round(v) + "%", load: true },
           { label: "NET /S", values: root.tm.rxHistory, values2: root.tm.txHistory, ceiling: 0, floor: 65536,
             fmt: (v, u) => "↓ " + root.rate(v) + "  ↑ " + root.rate(u ?? 0) }
@@ -221,7 +221,7 @@ Rectangle {
         width: root.colMem - 10
         anchors.verticalCenter: parent.verticalCenter
         horizontalAlignment: Text.AlignRight
-        text: Theme.shortSize(row.modelData.mem)
+        text: Format.shortSize(row.modelData.mem)
         color: Theme.foreground2
       }
 

@@ -26,7 +26,7 @@ Singleton {
 
   function run(proc, args) {
     if (proc.running) return;
-    proc.command = ["bash", Theme.scriptsDir + "/clipboard.sh"].concat(args);
+    proc.command = ["bash", Paths.scriptsDir + "/clipboard.sh"].concat(args);
     proc.running = true;
   }
 
@@ -39,7 +39,7 @@ Singleton {
   // restart never leaves an old one storing everything twice.
   Process {
     id: watcher
-    command: ["setpriv", "--pdeathsig", "TERM", "bash", Theme.scriptsDir + "/clipboard.sh", "watch"]
+    command: ["setpriv", "--pdeathsig", "TERM", "bash", Paths.scriptsDir + "/clipboard.sh", "watch"]
     running: true
     stdout: SplitParser { onRead: root.refresh() }
     onExited: restartTimer.start()

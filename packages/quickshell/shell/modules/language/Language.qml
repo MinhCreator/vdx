@@ -18,12 +18,7 @@ Item {
   KitText {
     id: label
     anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-    text: {
-      const name = root.layout.toLowerCase();
-      if (name.includes("english")) return Theme.languageFormatEn;
-      if (name.includes("russian")) return Theme.languageFormatRu;
-      return root.layout;
-    }
+    text: Format.layout(root.layout) || root.layout
     color: Theme.foreground1
   }
 

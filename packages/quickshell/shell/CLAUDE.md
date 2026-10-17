@@ -11,7 +11,8 @@ bar/           Bar (zones), BarLayout (module registry, layout), BarPopup
 modules/<id>/  bar modules: <Name>.qml, <Name>Popup.qml, <Name>Service.qml
 kit/           UI components, icons/ (outline, solid/), reply.js (a backend's JSON reply)
 components/    Hypr (helpers), ScrimWindow, PopupManager, PopupCatcher, Separator
-config/        Theme, Colors (from the active theme), ShellSettings, ModuleSettings, Motion
+config/        Theme (the look only), Colors (from the active theme), Format (text of
+               numbers), Paths, ShellSettings, ModuleSettings, Motion
 scripts/       backends: one JSON object per command, commands in the header;
                out / fail / run come from backend.py (the folder is on sys.path)
 ```
@@ -26,6 +27,8 @@ Imports: `import qs.<dir>` from the config root. Singletons: `pragma Singleton`
 2. Service (singleton) — state and actions, owns every `Process` / `Timer`;
    sections `// ---- name ----`; one `run()`, `parse()` through kit/reply.js; `popupShown()` /
    `popupHidden()` for work done only while open; `busy`, `status`, `error`.
+   Its numbers (polls, limits, thresholds) and `script: Paths.scriptsDir + "/<id>.sh"`
+   are readonly properties under `// ---- tuning ----`, not in Theme.
 3. Bar face — `KitBarItem`, a `MouseArea` (click toggles, wheel = quick action),
    `BarPopup` with `ipcTarget`, `function openPopup()` (for the Folder).
 4. Popup — root `KitFrame`; reads the service, calls its functions.

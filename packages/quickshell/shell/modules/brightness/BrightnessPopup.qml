@@ -7,7 +7,7 @@ import qs.kit
 KitFrame {
   id: root
 
-  readonly property real temperatureSpan: Theme.nightTemperatureMax - Theme.nightTemperatureMin
+  readonly property real temperatureSpan: BrightnessService.temperatureMax - BrightnessService.temperatureMin
 
   // three rows: narrower than the other popups
   implicitWidth: 300
@@ -37,9 +37,9 @@ KitFrame {
 
     KitSliderRow {
       label: "DIMMING"
-      value: (BrightnessService.gamma - Theme.dimGammaMin) / (100 - Theme.dimGammaMin)
+      value: (BrightnessService.gamma - BrightnessService.gammaMin) / (100 - BrightnessService.gammaMin)
       text: BrightnessService.gamma + "%"
-      onMoved: value => BrightnessService.setGamma(Theme.dimGammaMin + value * (100 - Theme.dimGammaMin))
+      onMoved: value => BrightnessService.setGamma(BrightnessService.gammaMin + value * (100 - BrightnessService.gammaMin))
     }
   }
 
@@ -63,10 +63,10 @@ KitFrame {
     KitSliderRow {
       visible: BrightnessService.nightActive
       label: "TEMPERATURE"
-      value: (BrightnessService.temperature - Theme.nightTemperatureMin) / root.temperatureSpan
+      value: (BrightnessService.temperature - BrightnessService.temperatureMin) / root.temperatureSpan
       text: BrightnessService.temperature + "K"
       tint: Theme.orange
-      onMoved: value => BrightnessService.setTemperature(Theme.nightTemperatureMin + value * root.temperatureSpan)
+      onMoved: value => BrightnessService.setTemperature(BrightnessService.temperatureMin + value * root.temperatureSpan)
     }
 
     KitChoices {

@@ -54,7 +54,7 @@ Column {
         KitText {
           id: info
           anchors { right: unload.left; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
-          text: Theme.humanSize(model.modelData.size) + (model.vram > 0 ? " · " + Theme.humanSize(model.vram) + " loaded" : "")
+          text: Format.humanSize(model.modelData.size) + (model.vram > 0 ? " · " + Format.humanSize(model.vram) + " loaded" : "")
           color: model.vram > 0 ? Theme.green : Theme.muted
           font.pixelSize: Theme.fontSize - 2
         }
@@ -79,19 +79,19 @@ Column {
     }
   }
 
-  KitLine { visible: OllamaService.running && !OllamaService.hasModel(Theme.ollamaCoachModel) }
+  KitLine { visible: OllamaService.running && !OllamaService.hasModel(OllamaService.coachModel) }
 
   // The nvim habit coach needs this one.
   KitRow {
-    visible: OllamaService.running && !OllamaService.hasModel(Theme.ollamaCoachModel)
-    label: Theme.ollamaCoachModel
+    visible: OllamaService.running && !OllamaService.hasModel(OllamaService.coachModel)
+    label: OllamaService.coachModel
     hint: "Model for the nvim coach"
 
     KitButton {
       icon: "download"
       text: "Pull"
-      busy: OllamaService.busy === Theme.ollamaCoachModel
-      onClicked: OllamaService.pull(Theme.ollamaCoachModel)
+      busy: OllamaService.busy === OllamaService.coachModel
+      onClicked: OllamaService.pull(OllamaService.coachModel)
     }
   }
 

@@ -141,12 +141,7 @@ Rectangle {
         visible: root.main && root.opt("layout", true) && root.lock.layout !== ""
         implicitHeight: field.height
         implicitWidth: 48
-        text: {
-          const name = root.lock.layout.toLowerCase();
-          if (name.includes("english")) return Theme.languageFormatEn;
-          if (name.includes("russian")) return Theme.languageFormatRu;
-          return root.lock.layout.slice(0, 2).toUpperCase();
-        }
+        text: Format.layout(root.lock.layout) || root.lock.layout.slice(0, 2).toUpperCase()
         onClicked: { root.lock.nextLayout(); field.input.forceActiveFocus(); }
       }
     }

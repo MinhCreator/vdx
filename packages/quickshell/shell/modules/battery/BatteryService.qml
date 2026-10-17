@@ -11,6 +11,15 @@ import qs.config
 Singleton {
   id: root
 
+  // ---- tuning ----
+  readonly property int pollMs: 3000
+  readonly property int warning: 30               // %, yellow
+  readonly property int critical: 15              // %, red
+  readonly property var notifyLevels: [15, 5]     // %, low-battery notifications
+  readonly property var limits: [60, 80, 100]     // %, charge limit choices
+  readonly property string saverProfile: "quiet"  // platform profile of the power saver
+  readonly property string script: Paths.scriptsDir + "/battery.sh"
+
   // ---- battery ----
   property var info: ({})                      // see `battery.sh --status`
 
@@ -38,7 +47,7 @@ Singleton {
   // ---- power profile / GPU ----
   readonly property string profile: info.profile ?? ""
   readonly property var profiles: info.profiles ?? []
-  readonly property bool saver: profile === Theme.powerSaverProfile
+  readonly property bool saver: profile === root.saverProfile
   // Material battery_android by charge: empty under 10, then 2, 4, 5 and 6 bars, full at 100
   readonly property string levelIcon: capacity >= 100 ? "battery-full"
     : capacity >= 70 ? "battery-6" : capacity >= 50 ? "battery-5"
@@ -69,9 +78,9 @@ Singleton {
   function setSaver(on) {
     if (on) {
       state.lastProfile = profile;
-      setProfile(Theme.powerSaverProfile);
+      setProfile(root.saverProfile);
     } else {
-      setProfile(state.lastProfile !== Theme.powerSaverProfile ? state.lastProfile : "balanced");
+      setProfile(state.lastProfile !== root.saverProfile ? state.lastProfile : "balanced");
     }
   }
   function setGpuMode(mode) { apply(["--gpu-mode", mode], mode); }
@@ -80,7 +89,7 @@ Singleton {
   property var notified: []                    // notify levels already shown this discharge
 
   function run(proc, args) {
-    proc.command = ["bash", Theme.batteryScript].concat(args);
+    proc.command = ["bash", root.script].concat(args);
     proc.running = true;
   }
 
@@ -100,7 +109,7 @@ Singleton {
       notified = [];
       return;
     }
-    for (const level of Theme.batteryNotifyLevels) {
+    for (const level of root.notifyLevels) {
       if (capacity > level || notified.includes(level)) continue;
       notified = notified.concat(level);
       Quickshell.execDetached(["notify-send", "-u", level <= 5 ? "critical" : "normal",
@@ -114,7 +123,7 @@ Singleton {
 
   // ---- polling ----
   Timer {
-    interval: Theme.batteryIntervalMs
+    interval: root.pollMs
     running: true
     repeat: true
     triggeredOnStart: true

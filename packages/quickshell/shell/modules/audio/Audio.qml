@@ -20,7 +20,7 @@ Item {
   KitBarItem {
     id: label
     icon: AudioService.muted ? "volume-x" : AudioService.headphones ? "headphones" : "volume"
-    text: !ModuleSettings.get("audio", "percent", true) ? "" : AudioService.muted ? "--" : String(Math.min(Theme.audioMaxPercent, AudioService.volume))
+    text: !ModuleSettings.get("audio", "percent", true) ? "" : AudioService.muted ? "--" : String(Math.min(AudioService.maxPercent, AudioService.volume))
     tint: AudioService.muted ? Theme.red : Theme.foreground0
   }
 
@@ -31,7 +31,7 @@ Item {
     onClicked: popup.toggle()
     onWheel: wheel => {
       if (wheel.angleDelta.y !== 0)
-        AudioService.stepVolume(wheel.angleDelta.y > 0 ? Theme.audioScrollStep : -Theme.audioScrollStep);
+        AudioService.stepVolume(wheel.angleDelta.y > 0 ? AudioService.scrollStep : -AudioService.scrollStep);
     }
   }
 

@@ -31,7 +31,7 @@ Item {
     onClicked: popup.toggle()
     onWheel: wheel => {
       if (wheel.angleDelta.y !== 0)
-        BrightnessService.stepBrightness(wheel.angleDelta.y > 0 ? Theme.brightnessScrollStep : -Theme.brightnessScrollStep);
+        BrightnessService.stepBrightness(wheel.angleDelta.y > 0 ? BrightnessService.scrollStep : -BrightnessService.scrollStep);
     }
   }
 

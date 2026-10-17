@@ -111,7 +111,7 @@ Column {
 
       KitText {
         anchors.right: parent.right
-        text: "↓ " + Theme.humanRate(WifiService.down) + "   ↑ " + Theme.humanRate(WifiService.up)
+        text: "↓ " + Format.humanRate(WifiService.down) + "   ↑ " + Format.humanRate(WifiService.up)
         font.pixelSize: Theme.fontSize - 1
       }
     }

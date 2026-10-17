@@ -25,7 +25,7 @@ Item {
   }
 
   Timer {
-    interval: Theme.clockIntervalMs
+    interval: 1000
     running: true
     repeat: true
     triggeredOnStart: true

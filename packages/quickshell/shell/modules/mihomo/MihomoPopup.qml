@@ -69,12 +69,12 @@ KitFrame {
 
     KitInfo {
       label: "Traffic now"
-      value: "↓ " + Theme.humanRate(MihomoService.down) + "   ↑ " + Theme.humanRate(MihomoService.up)
+      value: "↓ " + Format.humanRate(MihomoService.down) + "   ↑ " + Format.humanRate(MihomoService.up)
     }
 
     KitInfo {
       label: "Session total"
-      value: "↓ " + Theme.humanSize(MihomoService.downTotal) + "   ↑ " + Theme.humanSize(MihomoService.upTotal)
+      value: "↓ " + Format.humanSize(MihomoService.downTotal) + "   ↑ " + Format.humanSize(MihomoService.upTotal)
       valueColor: Theme.foreground2
     }
   }

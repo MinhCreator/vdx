@@ -12,6 +12,14 @@ import qs.config
 Singleton {
   id: root
 
+  // ---- tuning ----
+  readonly property int pollMs: 2000
+  readonly property int scrollStep: 5         // %, a wheel step on the bar
+  readonly property int temperatureMin: 2000  // K
+  readonly property int temperatureMax: 6500  // K
+  readonly property int gammaMin: 30          // %, lowest gamma of the dim slider
+  readonly property string script: Paths.scriptsDir + "/brightness.sh"
+
   // ---- backlight ----
   property int brightness: 0                   // %
 
@@ -28,11 +36,11 @@ Singleton {
   function setNight(on) { state.night = on; }
 
   function setTemperature(kelvin) {
-    state.temperature = Math.round(Math.max(Theme.nightTemperatureMin, Math.min(Theme.nightTemperatureMax, kelvin)));
+    state.temperature = Math.round(Math.max(root.temperatureMin, Math.min(root.temperatureMax, kelvin)));
   }
 
   function setGamma(percent) {
-    state.gamma = Math.round(Math.max(Theme.dimGammaMin, Math.min(100, percent)));
+    state.gamma = Math.round(Math.max(root.gammaMin, Math.min(100, percent)));
   }
 
   function setBrightness(percent) {
@@ -53,7 +61,7 @@ Singleton {
   property bool pendingApply: false
 
   function run(proc, args) {
-    proc.command = ["bash", Theme.brightnessScript].concat(args);
+    proc.command = ["bash", root.script].concat(args);
     proc.running = true;
   }
 
@@ -104,7 +112,7 @@ Singleton {
 
   // ---- timers ----
   Timer {
-    interval: Theme.brightnessIntervalMs
+    interval: root.pollMs
     running: true
     repeat: true
     triggeredOnStart: true

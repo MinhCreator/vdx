@@ -53,7 +53,7 @@ KitFrame {
 
     KitLabel {
       text: "MEMORY"
-      value: Theme.shortSize(root.tm.memUsed) + " / " + Theme.shortSize(root.tm.memTotal)
+      value: Format.shortSize(root.tm.memUsed) + " / " + Format.shortSize(root.tm.memTotal)
       valueColor: Theme.loadColor(100 * root.tm.memUsed / root.tm.memTotal)
     }
     KitBar { value: root.tm.memUsed / root.tm.memTotal; tint: Theme.loadColor(100 * root.tm.memUsed / root.tm.memTotal) }
@@ -61,7 +61,7 @@ KitFrame {
     KitLabel { text: "GPU · " + root.tm.gpuName; value: Math.round(root.tm.gpu) + "%"; valueColor: Theme.loadColor(root.tm.gpu) }
     KitBar { value: root.tm.gpu / 100; tint: Theme.loadColor(root.tm.gpu) }
 
-    KitLabel { text: "NETWORK"; value: "↓ " + Theme.humanRate(root.tm.rx) + "  ↑ " + Theme.humanRate(root.tm.tx); valueColor: Theme.foreground2 }
+    KitLabel { text: "NETWORK"; value: "↓ " + Format.humanRate(root.tm.rx) + "  ↑ " + Format.humanRate(root.tm.tx); valueColor: Theme.foreground2 }
   }
 
   KitLine {}
@@ -107,7 +107,7 @@ KitFrame {
           anchors { right: endButton.left; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
           width: 64
           horizontalAlignment: Text.AlignRight
-          text: Theme.shortSize(row.modelData.mem)
+          text: Format.shortSize(row.modelData.mem)
           color: Theme.foreground2
         }
 

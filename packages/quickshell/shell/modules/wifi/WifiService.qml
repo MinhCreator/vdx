@@ -10,6 +10,14 @@ import "../../kit/reply.js" as Reply
 Singleton {
   id: root
 
+  // ---- tuning ----
+  readonly property int statusPollMs: 5000
+  readonly property int pingPollMs: 3000
+  readonly property int trafficRestartMs: 2000
+  readonly property int speedtestTimeoutMs: 60000
+  readonly property int barMaxLength: 14  // the SSID on the bar, in characters
+  readonly property string script: Paths.scriptsDir + "/wifi.sh"
+
   // ---- link ----
   property bool radioOn: false
   property bool toggling: false                // radio switch in flight
@@ -129,7 +137,7 @@ Singleton {
 
   // ---- internals ----
   function run(proc, args) {
-    proc.command = ["bash", Theme.wifiScript].concat(args);
+    proc.command = ["bash", root.script].concat(args);
     proc.running = true;
   }
 
@@ -163,7 +171,7 @@ Singleton {
 
   // ---- polling ----
   Timer {
-    interval: Theme.wifiStatusIntervalMs
+    interval: root.statusPollMs
     running: true
     repeat: true
     onTriggered: root.refreshStatus()
@@ -174,14 +182,14 @@ Singleton {
   Timer {
     property int tick: 0
 
-    interval: Theme.wifiStatusIntervalMs
+    interval: root.statusPollMs
     running: root.popupOpen && root.radioOn
     repeat: true
     onTriggered: ++tick % 4 === 0 ? root.scan() : root.refreshNetworks()
   }
 
   Timer {
-    interval: Theme.wifiPingIntervalMs
+    interval: root.pingPollMs
     running: root.popupOpen && root.connected
     repeat: true
     triggeredOnStart: true
@@ -190,7 +198,7 @@ Singleton {
 
   Timer {
     id: trafficRestart
-    interval: Theme.wifiTrafficRestartMs
+    interval: root.trafficRestartMs
     onTriggered: if (root.popupOpen) trafficProc.running = true
   }
 
@@ -216,7 +224,7 @@ Singleton {
 
   Timer {
     id: speedtestTimeout
-    interval: Theme.wifiSpeedtestTimeoutMs
+    interval: root.speedtestTimeoutMs
     onTriggered: {
       root.stopSpeedtest();
       root.speedtestError = "timeout";
@@ -226,7 +234,7 @@ Singleton {
   // ---- processes ----
   Process {
     id: statusProc
-    command: ["bash", Theme.wifiScript, "--status"]
+    command: ["bash", root.script, "--status"]
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
@@ -242,7 +250,7 @@ Singleton {
 
   Process {
     id: networksProc
-    command: ["bash", Theme.wifiScript, "--list"]
+    command: ["bash", root.script, "--list"]
     stdout: StdioCollector {
       onStreamFinished: root.networks = root.parse(text) ?? []
     }
@@ -250,7 +258,7 @@ Singleton {
 
   Process {
     id: scanProc
-    command: ["bash", Theme.wifiScript, "--scan"]
+    command: ["bash", root.script, "--scan"]
     stdout: StdioCollector {
       onStreamFinished: root.refreshNetworks()
     }
@@ -282,7 +290,7 @@ Singleton {
 
   Process {
     id: dnsGetProc
-    command: ["bash", Theme.wifiScript, "--dns", "get"]
+    command: ["bash", root.script, "--dns", "get"]
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
@@ -307,7 +315,7 @@ Singleton {
 
   Process {
     id: pingProc
-    command: ["bash", Theme.wifiScript, "--ping"]
+    command: ["bash", root.script, "--ping"]
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
@@ -332,7 +340,7 @@ Singleton {
 
   Process {
     id: trafficProc
-    command: ["bash", Theme.wifiScript, "--traffic"]
+    command: ["bash", root.script, "--traffic"]
     stdout: SplitParser {
       onRead: line => {
         const o = root.parse(line);

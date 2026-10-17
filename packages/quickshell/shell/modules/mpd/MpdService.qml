@@ -11,6 +11,10 @@ import "../../kit/reply.js" as Reply
 Singleton {
   id: root
 
+  // ---- tuning ----
+  readonly property int restartMs: 5000
+  readonly property string script: Paths.scriptsDir + "/music.sh"
+
   property var player: ({})                    // see `music.sh --status`
 
   readonly property bool service: player.service ?? false
@@ -29,7 +33,7 @@ Singleton {
 
   // ---- playback ----
   function control(args) {
-    Quickshell.execDetached(["bash", Theme.musicScript].concat(args));
+    Quickshell.execDetached(["bash", root.script].concat(args));
   }
 
   function toggle() { control(["--toggle"]); }
@@ -55,7 +59,7 @@ Singleton {
 
   // ---- internals ----
   function run(proc, args) {
-    proc.command = ["bash", Theme.musicScript].concat(args);
+    proc.command = ["bash", root.script].concat(args);
     proc.running = true;
   }
 
@@ -72,13 +76,13 @@ Singleton {
 
   Timer {
     id: listenRestart
-    interval: Theme.musicRestartMs
+    interval: root.restartMs
     onTriggered: listenProc.running = true
   }
 
   Process {
     id: listenProc
-    command: ["bash", Theme.musicScript, "--listen"]
+    command: ["bash", root.script, "--listen"]
     running: true
     stdout: SplitParser {
       onRead: line => {

@@ -4,7 +4,7 @@ import qs.config
 import qs.modules.mpd
 import qs.kit
 
-// The whole queue, two lines per track, Theme.musicUpNext rows visible. It
+// The whole queue, two lines per track, MusicService.upNext rows visible. It
 // scrolls itself so the current track sits on top (earlier tracks above,
 // upcoming below). The search button swaps it for matches across the queue.
 Column {
@@ -74,7 +74,7 @@ Column {
   Flickable {
     id: list
     width: parent.width
-    height: Math.min(contentHeight, Theme.musicUpNext * root.rowHeight)
+    height: Math.min(contentHeight, MusicService.upNext * root.rowHeight)
     contentHeight: rows.implicitHeight
     clip: true
     boundsBehavior: Flickable.StopAtBounds
