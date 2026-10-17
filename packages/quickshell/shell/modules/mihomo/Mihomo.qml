@@ -19,7 +19,7 @@ Item {
 
   KitBarItem {
     id: label
-    icon: "shield"
+    icon: "vpn-key"
     text: "VPN"
     tint: MihomoService.serviceOn ? Theme.green : Theme.gray
   }
