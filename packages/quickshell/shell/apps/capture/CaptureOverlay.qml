@@ -7,9 +7,10 @@ import qs.kit
 
 // The capture overlay, one per screen: a still copy of the screen (open bar
 // popups included; with or without the pointer), dimmed except for the
-// target — a dragged region, the window or the screen under the pointer. The toolbar sits on the focused
-// monitor. A shot is cropped from the still at full resolution; a recording
-// starts on the target. Esc or a right click cancels.
+// target — a dragged region, the window or the screen under the pointer. A hint
+// sits on the focused monitor; the choices are in the bar's capture panel. A
+// shot is cropped from the still at full resolution; a recording starts on the
+// target. Esc or a right click cancels.
 Variants {
   model: CaptureService.armed ? Quickshell.screens : []
 
@@ -18,7 +19,7 @@ Variants {
 
     required property var modelData
 
-    readonly property bool toolbarHere: (Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name) === modelData.name
+    readonly property bool focusedHere: (Hyprland.focusedMonitor?.name ?? Quickshell.screens[0]?.name) === modelData.name
     readonly property Item still: CaptureService.cursor ? stillCursor : stillPlain
 
     // the plain still: taken once the pointer is hidden, checked, retaken
@@ -105,7 +106,7 @@ Variants {
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "quickshell-capture"
-    WlrLayershell.keyboardFocus: toolbarHere ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: focusedHere ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     color: "transparent"
 
     Connections {
@@ -333,16 +334,29 @@ Variants {
         }
       }
 
-      // ---- toolbar ----
-      CaptureToolbar {
-        id: toolbar
-        visible: root.toolbarHere && !root.dragging && !root.finishing
-        anchors.horizontalCenter: parent.horizontalCenter
-        y: Theme.barEdge + (root.live ? Theme.popupGap : 0)      // where the bar's popups open
+      // ---- hint: the choices are in the panel ----
+      Rectangle {
+        id: hint
+        visible: root.focusedHere && !root.dragging && !root.finishing
+        anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; topMargin: Theme.barEdge + (root.live ? Theme.popupGap : 0) }
+        width: hintText.implicitWidth + 2 * Theme.gapWide
+        height: hintText.implicitHeight + 2 * Theme.gapMedium
+        radius: Theme.radiusSurface
+        color: Theme.background0
+        border.width: Theme.windowFrameWidth
+        border.color: Theme.frame
         opacity: root.live ? 1 : 0
 
-        Behavior on y { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
         Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+
+        KitText {
+          id: hintText
+          anchors.centerIn: parent
+          text: (CaptureService.mode === "region" ? "Drag to select" : CaptureService.mode === "window" ? "Click a window" : "Click a screen")
+            + (CaptureService.kind === "record" ? " to record" : " to capture") + " · Esc to cancel"
+          color: Theme.muted
+          font.pixelSize: Theme.fontSize - 2
+        }
       }
     }
   }

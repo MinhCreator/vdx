@@ -1,14 +1,19 @@
 import QtQuick
+import qs.apps.capture
 import qs.config
 import qs.kit
 
-// The capture panel, in the popups' style: a header with the current choice,
-// WHAT (region / window / screen) and AS (shot / recording) as full-width
-// choice rows; for a shot where it goes, for a recording its sound, frame
-// rate, quality and encoder (auto: integrated GPU on battery); the pointer.
-Rectangle {
-  radius: Theme.radiusSurface
+// The capture panel, in the popups' style: what (region / window / screen) and
+// as (shot / recording) as full-width choice rows; where it goes; a recording's
+// sound, frame rate, quality and encoder (auto: integrated GPU on battery); the
+// pointer. Start closes the panel and, once the bar is back, hands over to the
+// selection on screen; a recording shows its time and stops here.
+KitFrame {
   id: root
+
+  property int elapsed: 0
+
+  signal started()
 
   readonly property var labels: ({
     region: "REGION", window: "WINDOW", screen: "SCREEN", shot: "SHOT", record: "RECORDING"
@@ -19,40 +24,37 @@ Rectangle {
     return path.startsWith(h) ? "~" + path.slice(h.length) : path;
   }
 
-  implicitWidth: 400
-  implicitHeight: content.implicitHeight + 32
-  color: Theme.background0
-  border.width: Theme.windowFrameWidth      // the popups' frame
-  border.color: Theme.frame
-
-  // keeps clicks on the panel from reaching the selection below
-  MouseArea {
-    anchors.fill: parent
-    acceptedButtons: Qt.AllButtons
+  KitHeader {
+    icon: CaptureService.kind === "record" ? "video" : "camera"
+    title: "Capture"
+    subtitle: CaptureService.recording
+      ? "RECORDING · " + String(Math.floor(root.elapsed / 60)).padStart(2, "0") + ":" + String(root.elapsed % 60).padStart(2, "0")
+      : root.labels[CaptureService.mode] + " · " + root.labels[CaptureService.kind]
+        + (CaptureService.cursor ? " · CURSOR" : "")
   }
 
+  KitLine {}
+
+  // ---- a recording running: stop it here ----
+  KitRow {
+    visible: CaptureService.recording
+    label: "Recording"
+    hint: "Stop to save it"
+
+    KitButton {
+      icon: "square"
+      text: "Stop"
+      iconTint: Theme.red
+      onClicked: CaptureService.stopRecording()
+    }
+  }
+
+  // ---- what and how ----
   Column {
-    id: content
-    x: 16
-    y: 16
-    width: parent.width - 32
+    visible: !CaptureService.recording
+    width: parent.width
     spacing: Theme.gapGroup
 
-    KitHeader {
-      icon: CaptureService.kind === "record" ? "video" : "camera"
-      title: "Capture"
-      subtitle: root.labels[CaptureService.mode] + " · " + root.labels[CaptureService.kind]
-        + (CaptureService.cursor ? " · CURSOR" : "")
-
-      KitButton {
-        icon: "x"
-        onClicked: CaptureService.close()
-      }
-    }
-
-    KitLine {}
-
-    // ---- what and how ----
     Column {
       width: parent.width
       spacing: Theme.gapMedium
@@ -179,12 +181,11 @@ Rectangle {
       }
     }
 
-    KitText {
+    KitButton {
       width: parent.width
-      text: (CaptureService.mode === "region" ? "Drag to select" : CaptureService.mode === "window" ? "Click a window" : "Click a screen")
-        + (CaptureService.kind === "record" ? " to record" : " to capture") + " · Esc to cancel"
-      color: Theme.muted
-      font.pixelSize: Theme.fontSize - 2
+      icon: CaptureService.kind === "record" ? "video" : "camera"
+      text: "Start"
+      onClicked: root.started()
     }
   }
 }

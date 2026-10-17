@@ -1,18 +1,31 @@
 import QtQuick
 import Quickshell
+import Quickshell.Hyprland
 import qs.apps.capture
+import qs.bar
 import qs.config
 import qs.kit
 
-// Screen capture in the bar: a camera that opens the capture overlay; while
-// recording, a red dot with the elapsed time — click to stop.
+// Screen capture in the bar: a camera; while recording, a red dot with the
+// elapsed time. A click or Super+Shift+S opens its panel, which comes out of
+// the island like the other modules' popups; the selection starts from there.
 Item {
   id: root
 
   required property PanelWindow bar
 
-  // the Folder opens capture when its tile is clicked
-  function openPopup() { CaptureService.open(); }
+  // the Folder opens capture's popup when its tile is clicked
+  function openPopup() { popup.toggle(); }
+
+  // the focused monitor's bar shows the panel
+  Connections {
+    target: CaptureService
+    function onPanelRequested() {
+      if ((Hyprland.focusedMonitor?.name ?? "") !== (root.bar.screen?.name ?? "")) return;
+      CaptureService.panelHandled = true;
+      popup.toggle();
+    }
+  }
 
   property int elapsed: 0
 
@@ -39,6 +52,39 @@ Item {
   MouseArea {
     anchors.fill: parent
     cursorShape: Qt.PointingHandCursor
-    onClicked: CaptureService.open()
+    onClicked: popup.toggle()
+  }
+
+  // Start closes the panel; the selection waits until the island has folded
+  // back to the bar, so the still shows the bar and not the panel
+  property bool startPending: false
+
+  Timer {
+    id: settle
+    interval: Motion.slow + 60
+    onTriggered: {
+      root.startPending = false;
+      CaptureService.startSelection();
+    }
+  }
+
+  BarPopup {
+    id: popup
+    anchorItem: root
+    moduleId: "capture"
+    bar: root.bar
+    implicitWidth: content.implicitWidth
+    implicitHeight: content.implicitHeight
+    onHidden: if (root.startPending) settle.restart()
+
+    CapturePopup {
+      id: content
+      anchors.fill: parent
+      elapsed: root.elapsed
+      onStarted: {
+        root.startPending = true;
+        popup.visible = false;
+      }
+    }
   }
 }

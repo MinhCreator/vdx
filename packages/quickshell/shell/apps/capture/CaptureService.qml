@@ -27,7 +27,7 @@ Singleton {
   // ---- overlay ----
   property bool armed: false
   property bool shown: false
-  property bool closing: false        // the dim and toolbar fade out, then the overlay goes
+  property bool closing: false        // the dim fades out, then the overlay goes
   property int cursorStills: 0
   property int plainStills: 0
   property bool pointerHidden: false
@@ -56,7 +56,7 @@ Singleton {
   readonly property bool recording: recorder.running
   property string recordFile: ""
   property real recordStarted: 0
-  // gpu-screen-recorder presets behind the toolbar's Low / Medium / High
+  // gpu-screen-recorder presets behind the panel's Low / Medium / High
   readonly property var presets: ({ low: "medium", medium: "high", high: "very_high" })
   readonly property string mesaOnly: "/usr/share/glvnd/egl_vendor.d/50_mesa.json"
 
@@ -75,13 +75,20 @@ Singleton {
 
   function stamp() { return Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss"); }
 
+  // Super+Shift+S: the panel comes out of the focused bar's island; with no
+  // bar showing the module, the selection starts straight away
   function open() {
     if (recording) { stopRecording(); return; }
     if (armed) return;
+    panelHandled = false;
+    panelRequested();
+    if (!panelHandled) startSelection();
+  }
+
+  // the selection on screen, with the choices the panel holds
+  function startSelection() {
+    if (recording || armed) return;
     closing = false;
-    cursor = false;
-    mode = "region";
-    kind = "shot";
     cursorStills = 0;
     plainStills = 0;
     redraw = false;
@@ -92,6 +99,10 @@ Singleton {
     PopupManager.holding = true;
     armed = true;
   }
+
+  // the focused bar's capture module answers by showing its panel
+  property bool panelHandled: false
+  signal panelRequested()
 
   function setPointerHidden(hidden) {
     pointerHidden = hidden;
