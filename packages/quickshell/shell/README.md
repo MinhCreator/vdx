@@ -99,7 +99,7 @@ Hyprland's windows, mako — and the icons switch to Material Symbols Rounded.
 
 Shell Manager › Bar › Look › Shape › Island: no strip — one pill at the top centre is
 the whole bar (`bar/island/`). At rest: LEFT · clock · RIGHT (by default the
-workspaces and the equalizer). Resting on the clock or a click opens the hub:
+workspaces and the equalizer). Resting on the clock (Open on hover) opens the hub:
 the date, the track and the HUB modules as chips; a chip opens its module's
 popup inside the island, with a bubble beside it to the hub (the mouse's
 back button too; Escape when it came from the hub). Shell Manager › Bar › Layout arranges LEFT, RIGHT, HUB
