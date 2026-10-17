@@ -217,7 +217,11 @@ Singleton {
                   "-ac", "aac", "-fallback-cpu-encoding", "yes", "-o", file];
     if (audio === "system") args.push("-a", "default_output");
     else if (audio === "mic") args.push("-a", "default_input");
+    // HEVC on the GPU: H.264 there rounds the faint chroma of a flat near-grey
+    // (the wallpaper) to grey in some blocks and not in others, a tinted
+    // rectangle in the video. The CPU encoder only does H.264.
     if (encoderInUse === "cpu") args.push("-encoder", "cpu");
+    else args.push("-k", "hevc");
     if (encoderInUse === "igpu") args.unshift("env", "__EGL_VENDOR_LIBRARY_FILENAMES=" + mesaOnly);
     recordFile = file;
     // start after the overlay is gone, so it is not in the first frames
