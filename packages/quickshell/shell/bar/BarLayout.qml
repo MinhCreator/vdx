@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.config
 
 // Which modules the bar shows and where, per monitor: three zones, each in
 // order, the folder and the switched-off ones. Persists in the state dir. Ids
@@ -128,6 +129,7 @@ Singleton {
     for (const name of zones) z[name] = current[name].filter(x => x !== id);
     z[zone].splice(Math.max(0, Math.min(index, z[zone].length)), 0, id);
     update(screen, { zones: z, folder: inFolder(screen).filter(x => x !== id) });
+    syncFolderDot(id, false);
   }
 
   // place on / take off one monitor's bar
@@ -135,6 +137,7 @@ Singleton {
     const off = hidden(screen);
     update(screen, { hidden: on ? off.filter(x => x !== id) : off.concat(id),
                      folder: inFolder(screen).filter(x => x !== id) });
+    syncFolderDot(id, false);
   }
 
   // into the folder at `index` (off the strip, out of HIDDEN)
@@ -143,6 +146,14 @@ Singleton {
     const f = inFolder(screen).filter(x => x !== id);
     f.splice(Math.max(0, Math.min(index, f.length)), 0, id);
     update(screen, { folder: f, hidden: hidden(screen).filter(x => x !== id) });
+    syncFolderDot(id, true);
+  }
+
+  // the notifications dot follows the notifications module's place: in the folder
+  // (or the island's hub) it shows, on the bar it doesn't. A manual switch (Bar ›
+  // Notifications dot) holds until the module moves again.
+  function syncFolderDot(id, inTheFolder) {
+    if (id === "notifications") ShellSettings.set("barFolderDot", inTheFolder);
   }
 
   function setBarOn(screen, on) { update(screen, { off: !on }); }
@@ -198,6 +209,7 @@ Singleton {
     const placed = z.start.concat(z.end, z.hub);
     z.hidden = modules.map(p => p.id).filter(x => !placed.includes(x) && !islandOwn.includes(x));
     update(screen, { island: z });
+    syncFolderDot(id, zone === "hub");
   }
   // the clock in the resting island; off with nothing beside it, the island
   // hides on that monitor until it has something to show

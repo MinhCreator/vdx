@@ -34,6 +34,13 @@ QtObject {
   readonly property color frame:  live.frame ?? Colors.frame
   readonly property color dim:    live.dim ?? Colors.dim
 
+  // the unseen dot (Bar › Notifications dot colour): a name of the choices;
+  // "theme" (and anything else) is the theme's own text colour
+  function notifyDot(name) {
+    return name === "red" ? red : name === "yellow" ? yellow : name === "green" ? green
+         : name === "blue" ? blue : foreground0;
+  }
+
   // ---- type and bar metrics ----
   readonly property string fontFamily: ShellSettings.font     // the system monospace, Shell Manager › Appearance
   readonly property int fontSize: 13

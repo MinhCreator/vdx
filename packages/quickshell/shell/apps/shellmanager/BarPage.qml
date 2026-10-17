@@ -165,12 +165,50 @@ Column {
   }
 
   KitRow {
-    label: "Folder dot"
-    hint: "A dot for unseen notices"
+    label: "Notifications dot"
+    hint: "Unseen, when tucked away"
 
     KitSwitch {
       checked: ShellSettings.barFolderDot
       onToggled: ShellSettings.set("barFolderDot", !checked)
+    }
+  }
+
+  KitRow {
+    wide: true
+    label: "Dot colour"
+    hint: "Of the unseen dot"
+
+    // a colour dot per choice, pushed to the right edge (laid out right to left,
+    // so the model runs backwards); the picked one carries a ring
+    Row {
+      spacing: Theme.gapMedium
+      layoutDirection: Qt.RightToLeft
+
+      Repeater {
+        model: ["blue", "green", "yellow", "red", "theme"]
+
+        Rectangle {
+          id: swatch
+          required property string modelData
+          readonly property bool picked: ShellSettings.barDotColor === modelData
+            || (modelData === "theme" && ShellSettings.barDotColor === "light")
+
+          anchors.verticalCenter: parent.verticalCenter
+          width: 18
+          height: 18
+          radius: Theme.pill(height)
+          color: Theme.notifyDot(modelData)
+          border.width: picked ? 2 : 0
+          border.color: Theme.foreground0
+
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: ShellSettings.set("barDotColor", swatch.modelData)
+          }
+        }
+      }
     }
   }
 

@@ -3,7 +3,7 @@ import qs.config
 import qs.kit
 
 // Notifications options in the Shell Manager: the popup. The unseen dot is a
-// Bar option (Bar › Style › Folder dot), it shows on the Folder.
+// Bar option (Bar › Style › Notifications dot): on the Folder, or the island's pill.
 Column {
   spacing: Theme.gapGroup
 

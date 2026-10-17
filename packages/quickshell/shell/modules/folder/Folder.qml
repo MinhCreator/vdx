@@ -47,7 +47,7 @@ Item {
       y: 0
       width: 6
       height: 6
-      color: Theme.red
+      color: Theme.notifyDot(ShellSettings.barDotColor)
       border.width: Theme.frameWidth
       border.color: Theme.background0
     }

@@ -21,7 +21,8 @@ Item {
     + (ModuleSettings.get("clock", "seconds", false) ? ":ss" : "")
     + (ModuleSettings.get("clock", "twelveHour", false) ? " AP" : "")
 
-  readonly property bool unseen: NotificationsService.unseen > 0
+  // the dot: unseen notices while the centre sits in the hub (Bar › Style › Notifications dot)
+  readonly property bool unseen: NotificationsService.unseen > 0 && ShellSettings.barFolderDot
   readonly property bool clockOn: BarLayout.islandClock(screen)
   // nothing to show at rest: the island hides (Shell Manager › Bar › Clock)
   readonly property bool empty: !clockOn && !unseen && BarLayout.islandIn("start", screen).length === 0
@@ -88,7 +89,7 @@ Item {
       width: 6
       height: 6
       radius: Theme.pill(height)
-      color: Theme.foreground0
+      color: Theme.notifyDot(ShellSettings.barDotColor)
     }
   }
   }
