@@ -45,6 +45,9 @@ end
 
 function WindowMode(mode)
 	hl.config({ general = { layout = mode == "scrolling" and "scrolling" or "master" } })
+	-- floating focuses by click: the pointer passing over windows neither moves the
+	-- focus (the taskbar's highlight) nor takes back a window the switcher picked
+	hl.config({ input = { follow_mouse = mode == "floating" and 2 or 1 } })
 	floatAll:set_enabled(mode == "floating")
 	local floated = {}
 	for _, w in ipairs(hl.get_windows()) do
@@ -192,13 +195,15 @@ function RestoreWindow(address)
 	end
 	hl.config({ cursor = { no_warps = true } })
 	hl.dispatch(hl.dsp.window.move({ workspace = hl.get_active_workspace().id, window = target }))
+	RaiseWindow(address)
 	FocusWindow(address)
 end
 
 -- the window on top of the others, without taking the focus (the switcher's
--- picked window, as the selection moves)
+-- picked window, as the selection moves). bring_to_top leaves it under the
+-- other windows here (Hyprland 0.56); alter_zorder to the top does lift it.
 function RaiseWindow(address)
-	hl.dispatch(hl.dsp.window.bring_to_top({ window = "address:" .. address }))
+	hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top", window = "address:" .. address }))
 end
 
 -- focus without the pointer jumping to the window (the taskbar's clicks):
@@ -207,6 +212,12 @@ function FocusWindow(address)
 	hl.config({ cursor = { no_warps = true } })
 	hl.dispatch(hl.dsp.focus({ window = "address:" .. address }))
 	hl.timer(function() hl.config({ cursor = { no_warps = false } }) end, { timeout = 300, type = "oneshot" })
+end
+
+-- the switcher's pick: the window comes out on top of every window, then focused
+function PickWindow(address)
+	RaiseWindow(address)
+	FocusWindow(address)
 end
 
 -- floating: the whole work area and back to the middle; otherwise fullscreen
