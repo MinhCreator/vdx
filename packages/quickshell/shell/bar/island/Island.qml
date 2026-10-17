@@ -260,8 +260,8 @@ Item {
       }
     }
 
-    // a module's popup content (showPopup); the bubble beside it and the
-    // mouse's back button go to the hub, Escape too when it came from there
+    // a module's popup content (showPopup); when it came from the hub, the bubble
+    // beside it and the mouse's back button go back there, Escape too
     Item {
       id: moduleSlot
       anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
@@ -281,6 +281,7 @@ Item {
 
       TapHandler {
         acceptedButtons: Qt.BackButton
+        enabled: root.fromHub
         onTapped: root.backToHub()
       }
     }
@@ -298,12 +299,12 @@ Item {
   }
 
   // ---- back bubble ----
-  // a module open in the island: a small round island splits off on the
-  // left, an arrow to the hub
+  // a module opened from the hub: a small round island splits off on the
+  // left, an arrow back to it (a module opened from the bar has no hub)
   readonly property Item bubble: bubble
   Rectangle {
     id: bubble
-    readonly property bool on: root.shown === "module"
+    readonly property bool on: root.shown === "module" && root.fromHub
     anchors { right: shape.left; rightMargin: Theme.gapMedium * bubble.reveal - Theme.islandHeight * (1 - bubble.reveal) }
     y: 0
     width: Theme.islandHeight
