@@ -57,13 +57,17 @@ Column {
         asynchronous: true
       }
 
+      // the bar as the shell draws it (BarPreview): a strip on the top edge, or in
+      // island style a pill floating over the wallpaper; its surface follows the design
       Rectangle {
         id: previewBar
-        x: Theme.frameWidth
-        y: Theme.frameWidth
-        width: parent.width - 2 * Theme.frameWidth
+        readonly property bool island: Theme.island
+        x: island ? 10 : Theme.frameWidth
+        y: island ? 8 : Theme.frameWidth
+        width: parent.width - (island ? 20 : 2 * Theme.frameWidth)
         height: 26
-        color: page.p("background0")
+        radius: island ? Math.min(height / 2, Theme.islandRadius) : 0
+        color: page.p(Theme.material ? "background0" : "background1")
 
         Row {
           anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
@@ -110,7 +114,7 @@ Column {
 
       // a popup hanging under the bar, in the kit style
       Rectangle {
-        radius: Theme.radiusControl
+        radius: Theme.radiusSurface
         anchors { right: parent.right; rightMargin: 40 }
         y: previewBar.y + previewBar.height + 6
         width: 150
