@@ -180,6 +180,7 @@ Item {
       visible: opacity > 0
       opacity: root.shown === "compact" ? 1 : 0
       Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick } }
+      onSettings: id => root.settings(id)
     }
 
     IslandHub {

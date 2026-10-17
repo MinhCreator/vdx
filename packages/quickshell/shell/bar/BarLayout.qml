@@ -98,6 +98,31 @@ Singleton {
 
   function icon(id) { return modules.find(p => p.id === id)?.icon ?? ""; }
 
+  // ---- separators ----
+  // Custom "|" lines: they sit in a zone like a module and move the same way
+  // (the island's in its LEFT / RIGHT sides). Shell Manager › Bar › Layout: the
+  // ADD tray's chip, dragged into place or clicked (end of RIGHT); a chip's
+  // cross or a drop on HIDDEN removes one.
+  function isSeparator(id) { return String(id).startsWith("sep-"); }
+  function newSeparator() { return "sep-" + Date.now().toString(36); }
+
+  function addSeparator(screen) {
+    const id = newSeparator();
+    if (Theme.island) { islandMove(id, "end", islandIn("end", screen).length, screen); return id; }
+    const z = {};
+    for (const name of zones) z[name] = layout(screen)[name].slice();
+    z.right.push(id);
+    update(screen, { zones: z });
+    return id;
+  }
+
+  function removeSeparator(id, screen) {
+    if (Theme.island) { islandMove(id, "hidden", 0, screen); return; }
+    const z = {};
+    for (const name of zones) z[name] = layout(screen)[name].filter(x => x !== id);
+    update(screen, { zones: z });
+  }
+
   function visibleIn(zone, screen) {
     const off = hidden(screen).concat(inFolder(screen));
     return layout(screen)[zone].filter(id => !off.includes(id) && installed(id) && !taken(id, screen));
@@ -173,10 +198,10 @@ Singleton {
 
   function islandLayout(screen) {
     const known = modules.map(p => p.id);
-    const usable = id => known.includes(id) && installed(id) && !islandOwn.includes(id) && !taken(id, screen);
+    const usable = id => (known.includes(id) || isSeparator(id)) && installed(id) && !islandOwn.includes(id) && !taken(id, screen);
     const saved = entry(screen)?.island ?? null;
     if (!saved) {
-      const placed = zones.reduce((all, z) => all.concat(visibleIn(z, screen)), []).concat(inFolder(screen)).filter(usable);
+      const placed = zones.reduce((all, z) => all.concat(visibleIn(z, screen)), []).concat(inFolder(screen)).filter(id => !isSeparator(id) && usable(id));
       const at = id => id === "workspaces" ? "start" : modules.find(p => p.id === id)?.island ?? "hub";
       return { start: placed.filter(id => at(id) === "start"), end: placed.filter(id => at(id) === "end"),
                hub: placed.filter(id => at(id) === "hub") };
@@ -261,7 +286,7 @@ Singleton {
     for (const name of zones)
       for (const old of saved?.[name] ?? []) {
         const id = renamed[old] ?? old;
-        if (known.has(id) && !seen.has(id)) { z[name].push(id); seen.add(id); }
+        if ((known.has(id) || isSeparator(id)) && !seen.has(id)) { z[name].push(id); seen.add(id); }
       }
     for (const p of modules)
       if (!seen.has(p.id)) z[p.zone].push(p.id);

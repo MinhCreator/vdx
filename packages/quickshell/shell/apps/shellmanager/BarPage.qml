@@ -12,7 +12,8 @@ import qs.kit
 // in bar order (KitChipBands). Drag a chip along a band or to another one; this
 // page decides what each drop means. Island style: the main bar's bands are the
 // island's — LEFT and RIGHT beside the clock in the resting pill, HUB for the
-// chips when it opens.
+// chips when it opens. A separator (a custom "|") comes from the ADD tray under
+// the bands; its chip's cross removes it.
 KitColumn {
   id: root
 
@@ -56,9 +57,25 @@ KitColumn {
          : BarLayout.visibleIn(zone, screenName);
   }
 
+  // the ADD tray's chip: a separator still to make
+  readonly property string newSeparator: "sep-new"
+  // what the header says of a chip under the pointer
+  function focusText(id) {
+    if (id === newSeparator) return "SEPARATOR — DRAG IT BETWEEN MODULES";
+    if (BarLayout.isSeparator(id)) return "SEPARATOR — A \"|\" OF ITS OWN · ITS CROSS REMOVES IT";
+    return (module(id)?.label ?? "").toUpperCase() + " — " + (module(id)?.about ?? "").toUpperCase();
+  }
+
   // the bands show placed modules only; the stored order holds the rest too,
   // so the slot is translated through its visible neighbours
   function drop(id, zone, index) {
+    // a separator sits in the main bar's sides only: HIDDEN removes it, the rest
+    // refuse it; the tray's chip becomes a new one where it lands
+    if (BarLayout.isSeparator(id)) {
+      if (zone === "folder" || childOf(zone) !== "" || zone === "hub") return;
+      if (zone === "hidden") { if (id !== newSeparator) BarLayout.removeSeparator(id, screenName); return; }
+      if (id === newSeparator) id = BarLayout.newSeparator();
+    }
     const child = childOf(zone);
     if (child !== "") {
       const current = BarLayout.barModules(screenName, child).indexOf(id);
@@ -147,7 +164,7 @@ KitColumn {
 
   KitRow {
     label: "Separators"
-    hint: "A line between modules"
+    hint: "Automatic line between modules"
 
     KitSwitch {
       checked: ShellSettings.barSeparators
@@ -246,7 +263,7 @@ KitColumn {
       anchors { left: parent.left; right: layoutActions.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
       text: "LAYOUT"
       // what the pointer is on, or how this works
-      value: root.focusId !== "" ? (root.module(root.focusId)?.label ?? "").toUpperCase() + " — " + (root.module(root.focusId)?.about ?? "").toUpperCase()
+      value: root.focusId !== "" ? root.focusText(root.focusId)
                                  : root.children.length > 0 ? "DRAG A CHILD BAR TO PLACE IT · ITS CROSS REMOVES IT"
                                  : root.island ? "LEFT AND RIGHT SIT BESIDE THE CLOCK" : "DRAG CHIPS TO ARRANGE"
       valueColor: root.focusId !== "" ? Theme.foreground2 : Theme.muted
@@ -301,8 +318,12 @@ KitColumn {
     width: parent.width
     zones: root.columnZones
     idsOf: zone => root.ids(zone)
-    labelOf: id => root.module(id)?.label ?? id
+    labelOf: id => BarLayout.isSeparator(id) ? "Separator" : root.module(id)?.label ?? id
     iconOf: id => BarLayout.icon(id)
+    lineOf: id => BarLayout.isSeparator(id)
+    removable: id => BarLayout.isSeparator(id)
+    sources: [{ id: root.newSeparator, label: "Separator", icon: "plus" }]
+    sourceHint: "drag into a band · a click adds it on the right"
     groupOf: zone => zone === "hidden" ? "hidden" : root.childOf(zone) !== "" ? "children" : "main"
     zoneLabel: zone => root.childOf(zone) !== ""
       ? "BAR " + (root.children.findIndex(b => b.id === root.childOf(zone)) + 2)
@@ -313,5 +334,7 @@ KitColumn {
                      : zone === "hub" ? "empty — chips when the island opens"
                      : zone === "folder" ? "empty — modules here open from the Folder icon" : "empty"
     onDropped: (id, zone, index) => root.drop(id, zone, index)
+    onRemoved: id => BarLayout.removeSeparator(id, root.screenName)
+    onPicked: id => BarLayout.addSeparator(root.screenName)
   }
 }

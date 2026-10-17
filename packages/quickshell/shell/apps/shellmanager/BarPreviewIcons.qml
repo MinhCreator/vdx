@@ -14,12 +14,30 @@ Row {
 
   Repeater {
     model: root.ids
-    KitIcon {
+    Item {
+      id: slot
       required property string modelData
       anchors.verticalCenter: parent.verticalCenter
-      name: BarLayout.icon(modelData)
-      tint: modelData === "clock" && Theme.island ? Theme.foreground0 : Theme.foreground2
-      size: Theme.iconSmall
+      width: Theme.iconSmall
+      height: Theme.iconSmall
+
+      // a custom separator: the same line as the Shell Manager's chip
+      Rectangle {
+        visible: BarLayout.isSeparator(slot.modelData)
+        anchors.centerIn: parent
+        width: 2
+        height: parent.height
+        radius: Theme.pill(width)
+        color: Theme.foreground2
+      }
+
+      KitIcon {
+        visible: !BarLayout.isSeparator(slot.modelData)
+        anchors.centerIn: parent
+        name: BarLayout.icon(slot.modelData)
+        tint: slot.modelData === "clock" && Theme.island ? Theme.foreground0 : Theme.foreground2
+        size: Theme.iconSmall
+      }
     }
   }
 

@@ -39,26 +39,32 @@ PanelWindow {
     property string name
     property var modules: ({})
 
+    readonly property var ids: Theme.island ? [] : BarLayout.visibleIn(zone.name, root.modelData.name)
+
     spacing: Theme.moduleSpacing
 
     Repeater {
-      model: Theme.island ? [] : BarLayout.visibleIn(zone.name, root.modelData.name)
+      model: zone.ids
 
       Row {
         required property string modelData
         required property int index
+        readonly property bool custom: BarLayout.isSeparator(modelData)
 
         spacing: Theme.moduleSpacing
 
+        // a custom separator is its own line, always drawn; the automatic one sits
+        // between two modules (none next to a custom one)
         Separator {
           anchors.verticalCenter: parent.verticalCenter
-          visible: index > 0
-          ruled: ShellSettings.barSeparators
+          visible: parent.custom || (index > 0 && !BarLayout.isSeparator(zone.ids[index - 1]))
+          ruled: parent.custom || ShellSettings.barSeparators
         }
 
         // the module; a right click on it opens its options. A pointer handler,
         // not an overlay: hover, the cursor and the wheel stay with the module
         Item {
+          visible: !parent.custom
           anchors.verticalCenter: parent.verticalCenter
           width: slot.width
           height: slot.height

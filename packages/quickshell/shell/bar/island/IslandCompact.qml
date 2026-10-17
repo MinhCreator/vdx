@@ -1,5 +1,6 @@
 import QtQuick
 import qs.bar
+import qs.components
 import qs.config
 import qs.kit
 import qs.modules.notifications
@@ -13,6 +14,7 @@ Item {
 
   property var modules: ({})                   // Bar's module id -> Component
   property string screen: ""
+  signal settings(string id)                   // a module's right click: its options
   property date now: new Date()
 
   // Modules › Clock's format
@@ -32,6 +34,9 @@ Item {
   implicitWidth: Math.max(110, line.implicitWidth + 2 * Theme.gapGroup)
   implicitHeight: Theme.islandHeight
 
+  // a custom separator on the island's side: its line, no module behind it
+  Component { id: separatorFace; Separator {} }
+
   // a side with nothing in it is zero wide: the Row skips it and its gap
   Row {
     id: line
@@ -48,7 +53,15 @@ Item {
       Loader {
         required property string modelData
         anchors.verticalCenter: parent.verticalCenter
-        sourceComponent: root.modules[modelData] ?? null
+        sourceComponent: BarLayout.isSeparator(modelData) ? separatorFace : (root.modules[modelData] ?? null)
+
+        // a right click takes its options; without this it falls through to the island (its power menu)
+        MouseArea {
+          anchors.fill: parent
+          acceptedButtons: Qt.RightButton
+          enabled: !BarLayout.isSeparator(modelData)
+          onClicked: if (ShellSettings.barRightSettings) root.settings(modelData)
+        }
       }
     }
   }
@@ -79,7 +92,14 @@ Item {
       Loader {
         required property string modelData
         anchors.verticalCenter: parent.verticalCenter
-        sourceComponent: root.modules[modelData] ?? null
+        sourceComponent: BarLayout.isSeparator(modelData) ? separatorFace : (root.modules[modelData] ?? null)
+
+        MouseArea {
+          anchors.fill: parent
+          acceptedButtons: Qt.RightButton
+          enabled: !BarLayout.isSeparator(modelData)
+          onClicked: if (ShellSettings.barRightSettings) root.settings(modelData)
+        }
       }
     }
 
