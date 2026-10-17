@@ -1,7 +1,9 @@
 pragma Singleton
 import QtQuick
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Io
+import qs.components
 import qs.config
 
 // Notification history on top of mako (scripts/notifications.sh). mako keeps
@@ -15,7 +17,7 @@ Singleton {
   readonly property int historyMax: 100  // kept in history
   readonly property string script: Paths.scriptsDir + "/notifications.sh"
 
-  readonly property var items: state.items     // newest first: [{key, app, summary, body, urgency, time}]
+  readonly property var items: state.items     // newest first: [{key, app, desktop, summary, body, urgency, time}]
   readonly property int unseen: items.filter(n => n.time > state.seenAt).length
 
   property real openedSeenAt: 0                // seenAt before the popup opened: marks fresh rows
@@ -37,6 +39,25 @@ Singleton {
 
   function isFresh(item) { return item.time > openedSeenAt; }
 
+  // The app's window, focused (restored first when minimized). Its class is the
+  // desktop entry or the app's name, as the app's own windows name themselves:
+  // "org.telegram.desktop" and "Telegram Desktop" both reduce to a letters-and-
+  // digits key that matches the class. Older history rows have no desktop entry.
+  // False when the app has no window open.
+  function focusApp(item) {
+    Hyprland.refreshToplevels();
+    const key = s => (s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const names = [item.desktop, item.app].map(key).filter(s => s !== "");
+    const win = Hyprland.toplevels.values.find(t => {
+      const cls = key(Hypr.classOf(t));
+      return cls !== "" && names.some(n => n === cls || cls.endsWith(n) || n.endsWith(cls));
+    });
+    if (!win) return false;
+    if (Hypr.minimized(win)) Hypr.call("RestoreWindow(\"" + Hypr.addr(win) + "\")");
+    Hypr.call("hl.dispatch(hl.dsp.focus({ window = \"" + Hypr.target(win) + "\" }))");
+    return true;
+  }
+
   // Adds mako's notifications newer than the last one taken (mako ids grow;
   // a lower top id means mako restarted and numbering began again), so a
   // cleared history stays clear. The first run on a fresh state only notes
@@ -53,8 +74,8 @@ Singleton {
     const now = Date.now();
     const fresh = list
       .filter(n => n.id > state.lastId)
-      .map(n => ({ key: n.id + "|" + n.summary + "|" + n.body, app: n.app, summary: n.summary,
-                   body: n.body, urgency: n.urgency, time: now }))
+      .map(n => ({ key: n.id + "|" + n.summary + "|" + n.body, app: n.app, desktop: n.desktop,
+                   summary: n.summary, body: n.body, urgency: n.urgency, time: now }))
       .filter(n => !known.has(n.key));
     state.lastId = Math.max(state.lastId, top);
     if (fresh.length > 0)

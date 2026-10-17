@@ -82,7 +82,8 @@ KitFrame {
       Repeater {
         model: root.items
 
-        Column {
+        // a row: a click brings up the app's window, a hover lights it up
+        Item {
           id: item
 
           required property var modelData
@@ -92,65 +93,88 @@ KitFrame {
 
           KitAppear { target: item; seen: root.seen; key: item.modelData.key }
 
+          HoverHandler { id: hover; cursorShape: Qt.PointingHandCursor }
+          // none open: nothing
+          TapHandler {
+            onTapped: if (NotificationsService.focusApp(item.modelData)) root.closeRequested()
+          }
+
           width: rows.width
-          spacing: 3
+          height: content.height + 2 * Theme.gapTight
 
-          KitLine { visible: item.index > 0 }
+          Rectangle {
+            anchors.fill: parent
+            radius: Theme.radiusControl
+            color: hover.hovered ? Theme.controlHover : Theme.clear
+            Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+          }
 
-          Item { width: 1; height: item.index > 0 ? 6 : 0 }
+          // the row's content: a column, the gaps inside the lit box
+          Column {
+            id: content
+            anchors {
+              left: parent.left; right: parent.right; top: parent.top
+              leftMargin: Theme.gapMedium; rightMargin: Theme.gapMedium; topMargin: Theme.gapTight
+            }
+            spacing: 3
 
-          Item {
-            width: parent.width
-            height: app.implicitHeight
+            KitLine { visible: item.index > 0 }
 
-            Rectangle {
-              id: dot
-              visible: item.fresh
-              anchors.verticalCenter: parent.verticalCenter
-              width: visible ? 6 : 0
-              height: 6
-              color: Theme.red
-              radius: Theme.pill(height)
+            Item { width: 1; height: item.index > 0 ? 6 : 0 }
+
+            Item {
+              width: parent.width
+              height: app.implicitHeight
+
+              Rectangle {
+                id: dot
+                visible: item.fresh
+                anchors.verticalCenter: parent.verticalCenter
+                width: visible ? 6 : 0
+                height: 6
+                color: Theme.red
+                radius: Theme.pill(height)
+              }
+
+              KitText {
+                id: app
+                anchors { left: dot.right; leftMargin: dot.visible ? 8 : 0; right: time.left; rightMargin: Theme.gapMedium }
+                text: (item.modelData.app || "—").toUpperCase()
+                elide: Text.ElideRight
+                color: Theme.muted
+                font.pixelSize: Theme.fontSize - 2
+                font.letterSpacing: 1
+              }
+
+              KitText {
+                id: time
+                anchors.right: parent.right
+                text: root.when(item.modelData.time)
+                color: Theme.muted
+                font.pixelSize: Theme.fontSize - 2
+              }
             }
 
             KitText {
-              id: app
-              anchors { left: dot.right; leftMargin: dot.visible ? 8 : 0; right: time.left; rightMargin: Theme.gapMedium }
-              text: (item.modelData.app || "—").toUpperCase()
+              width: parent.width
+              text: root.plain(item.modelData.summary)
+              textFormat: Text.PlainText
               elide: Text.ElideRight
-              color: Theme.muted
-              font.pixelSize: Theme.fontSize - 2
-              font.letterSpacing: 1
+              color: item.modelData.urgency === "critical" ? Theme.red : Theme.foreground0
+              font.weight: Font.ExtraBold
             }
 
             KitText {
-              id: time
-              anchors.right: parent.right
-              text: root.when(item.modelData.time)
-              color: Theme.muted
-              font.pixelSize: Theme.fontSize - 2
+              width: parent.width
+              visible: item.modelData.body !== ""
+              text: root.plain(item.modelData.body)
+              textFormat: Text.PlainText
+              wrapMode: Text.Wrap
+              maximumLineCount: 2
+              elide: Text.ElideRight
+              color: Theme.foreground2
+              font.pixelSize: Theme.fontSize - 1
             }
-          }
-
-          KitText {
-            width: parent.width
-            text: root.plain(item.modelData.summary)
-            textFormat: Text.PlainText
-            elide: Text.ElideRight
-            color: item.modelData.urgency === "critical" ? Theme.red : Theme.foreground0
-            font.weight: Font.ExtraBold
-          }
-
-          KitText {
-            width: parent.width
-            visible: item.modelData.body !== ""
-            text: root.plain(item.modelData.body)
-            textFormat: Text.PlainText
-            wrapMode: Text.Wrap
-            maximumLineCount: 2
-            elide: Text.ElideRight
-            color: Theme.foreground2
-            font.pixelSize: Theme.fontSize - 1
           }
         }
       }
