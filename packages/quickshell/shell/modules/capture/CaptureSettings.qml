@@ -1,5 +1,4 @@
 import QtQuick
-import qs.apps.capture
 import qs.config
 import qs.kit
 
@@ -9,6 +8,17 @@ import qs.kit
 Column {
   id: root
   spacing: Theme.gapGroup
+
+  KitLabel { text: "SHORTCUT" }
+
+  KitOptionRow {
+    module: "capture"; key: "shortcut"; fallback: "popup"
+    label: "Shortcut opens"
+    hint: "Without the module: the bar's centre"
+    model: [{ label: "Popup", value: "popup" }, { label: "Else last", value: "else-last" }, { label: "Last mode", value: "last" }]
+  }
+
+  KitLine {}
 
   KitLabel { text: "SAVING" }
 

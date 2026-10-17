@@ -38,12 +38,13 @@ Singleton {
   property var windows: []
   property point pointerAt: Qt.point(-1, -1)   // layout coordinates at open
 
-  // ---- this capture (reset at every open) ----
-  property string mode: "region"      // region | window | screen
-  property string kind: "shot"        // shot | record
+  // ---- this capture ----
   property bool cursor: false         // the pointer in the shot / recording
 
   // ---- saved choices ----
+  // the last picked, kept across restarts: a bar click can start it at once
+  readonly property string mode: settings.mode          // region | window | screen
+  readonly property string kind: settings.kind          // shot | record
   readonly property string audio: settings.audio        // off | system | mic
   readonly property int fps: settings.fps
   readonly property string quality: settings.quality    // low | medium | high
@@ -75,15 +76,26 @@ Singleton {
 
   function stamp() { return Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss"); }
 
-  // Super+Shift+S: the panel comes out of the focused bar's island; with no
-  // bar showing the module, the selection starts straight away
+  // Super+Shift+S, as Modules › Capture › Shortcut opens says:
+  //   popup     — the panel from the focused bar's Capture module; with no module
+  //               there, from the centre of that bar (CaptureFallback);
+  //   else-last — the panel from the module; with no module there, the selection
+  //               at once with the last picked mode;
+  //   last      — the selection at once with the last picked mode, no panel.
   function open() {
     if (recording) { stopRecording(); return; }
     if (armed) return;
+    const how = ModuleSettings.get("capture", "shortcut", "popup");
+    if (how === "last") { startSelection(); return; }
     panelHandled = false;
     panelRequested();
-    if (!panelHandled) startSelection();
+    if (panelHandled) return;
+    if (how === "else-last") startSelection();
+    else panelFallbackRequested();
   }
+
+  // no bar's module answered: the focused bar's CaptureFallback shows the panel
+  signal panelFallbackRequested();
 
   // the selection on screen, with the choices the panel holds
   function startSelection() {
@@ -140,8 +152,8 @@ Singleton {
     closeTimer.restart();
   }
 
-  function setMode(value) { mode = value; }
-  function setKind(value) { kind = value; }
+  function setMode(value) { settings.mode = value; }
+  function setKind(value) { settings.kind = value; }
   function setAudio(value) { settings.audio = value; }
   function setFps(value) { settings.fps = value; }
   function setQuality(value) { settings.quality = value; }
@@ -305,6 +317,8 @@ Singleton {
 
     JsonAdapter {
       id: settings
+      property string mode: "region"
+      property string kind: "shot"
       property string audio: "off"
       property int fps: 60
       property string quality: "medium"

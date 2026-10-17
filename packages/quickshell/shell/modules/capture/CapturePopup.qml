@@ -1,5 +1,4 @@
 import QtQuick
-import qs.apps.capture
 import qs.config
 import qs.kit
 
@@ -183,7 +182,6 @@ KitFrame {
 
     KitButton {
       width: parent.width
-      icon: CaptureService.kind === "record" ? "video" : "camera"
       text: "Start"
       onClicked: root.started()
     }

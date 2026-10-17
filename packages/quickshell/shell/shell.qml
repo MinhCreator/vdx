@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.apps.auth
-import qs.apps.capture
+import qs.modules.capture
 import qs.apps.clipboard
 import qs.apps.display
 import qs.apps.cleaner

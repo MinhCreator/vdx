@@ -6,6 +6,7 @@ import qs.bar.island
 import qs.components
 import qs.config
 import qs.kit
+import qs.modules.capture
 
 // Top bar for one screen. Modules come from BarLayout (three zones, order,
 // switched-off ones); separators sit between neighbours of a zone only. The
@@ -215,6 +216,9 @@ PanelWindow {
     modules: root.modules
     anchors { right: parent.right; rightMargin: Theme.edgeMargin; verticalCenter: parent.verticalCenter }
   }
+
+  // Super+Shift+S with no Capture module on this bar: the panel from the centre
+  CaptureFallback { bar: root; anchorItem: centerZone }
 
   // island style: the Island; BarPopup opens a module's popup in it
   readonly property Item islandItem: islandLoader.item
