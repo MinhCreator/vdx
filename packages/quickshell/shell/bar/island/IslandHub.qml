@@ -5,8 +5,8 @@ import qs.config
 import qs.kit
 import qs.modules.equalizer
 
-// The island opened up: the date and the power button, the track (a click
-// opens the player), then the hub's modules (Shell Manager › Bar) as chips.
+// The island opened up: the date and the power button, the track (prev, play,
+// next), then the hub's modules (Shell Manager › Bar) as chips.
 // A chip is the module's own face: its click opens the module's popup in the
 // island, a right click its options.
 Item {
@@ -15,7 +15,6 @@ Item {
   required property PanelWindow bar
   property var modules: ({})
 
-  signal media()
   signal power()
   signal settings(string id)
 
@@ -65,16 +64,7 @@ Item {
       height: 52
       visible: IslandService.hasMedia
       radius: Theme.radiusCard
-      color: trackArea.containsMouse ? Theme.background2 : Theme.background1
-      Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
-
-      MouseArea {
-        id: trackArea
-        anchors.fill: parent
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
-        onClicked: root.media()
-      }
+      color: Theme.background1
 
       IslandCover {
         id: cover
@@ -104,18 +94,39 @@ Item {
         }
       }
 
+      // one hover disc for the group: it slides to the button under the
+      // pointer, so two discs never show at once
+      // it jumps to the button it moves to and fades in or out on the group
+      // leaving: the last button stays put while it fades
+      Rectangle {
+        id: disc
+        readonly property Item target: controls.hoverTarget
+        property Item last: null
+        onTargetChanged: if (target) last = target
+        x: last ? controls.x + last.x : 0
+        y: last ? controls.y + last.y : 0
+        width: last ? last.width : 0
+        height: last ? last.height : 0
+        radius: Theme.round ? height / 2 : 0
+        color: Theme.background2
+        opacity: target ? 1 : 0
+
+        Behavior on opacity { enabled: Motion.controls; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
+      }
+
       Row {
         id: controls
         anchors { right: parent.right; rightMargin: Theme.gapHair; verticalCenter: parent.verticalCenter }
+        property Item hoverTarget: null
 
         EqualizerBars {
           anchors.verticalCenter: parent.verticalCenter
           height: 14
           rightPadding: Theme.gapMedium
         }
-        IslandButton { icon: "skip-back"; iconSize: 16; onClicked: IslandService.prev() }
-        IslandButton { icon: IslandService.playing ? "pause" : "play"; iconSize: 18; onClicked: IslandService.togglePlay() }
-        IslandButton { icon: "skip-forward"; iconSize: 16; onClicked: IslandService.next() }
+        IslandButton { group: controls; icon: "skip-back"; iconSize: 16; onClicked: IslandService.prev() }
+        IslandButton { group: controls; icon: IslandService.playing ? "pause" : "play"; iconSize: 18; onClicked: IslandService.togglePlay() }
+        IslandButton { group: controls; icon: "skip-forward"; iconSize: 16; onClicked: IslandService.next() }
       }
     }
 

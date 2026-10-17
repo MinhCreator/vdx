@@ -9,7 +9,7 @@ import qs.modules.audio
 // The whole bar in the island style: one dark pill that morphs between
 // views. compact (LEFT · clock · RIGHT) is the resting face; hub (the
 // date, the track and every module as a chip) opens on a hover or a click;
-// media (the player) from the equalizer or the hub's track; power on a right
+// media (the player) from the equalizer; power on a right
 // click; osd (volume, brightness) and notice (a new notification) pass over
 // it for a moment. A module's popup opens inside the island (module): its
 // content moves in from the BarPopup and back once the island has folded.
@@ -191,7 +191,6 @@ Item {
       visible: opacity > 0
       opacity: root.shown === "hub" ? 1 : 0
       Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
-      onMedia: root.openView("media")
       onPower: root.openView("power")
       onSettings: id => root.settings(id)
     }
