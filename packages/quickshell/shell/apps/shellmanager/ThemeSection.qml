@@ -41,8 +41,9 @@ Column {
       width: parent.width - themeList.width - 14
       height: themeList.height
       color: page.wallpaper
-      border.width: Theme.frameWidth
-      border.color: page.p("gray")
+      // a screen in a frame either way: its bar shares the page's colour
+      border.width: Theme.windowFrameWidth
+      border.color: page.p(Theme.material ? "background2" : "gray")
 
       Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.normal } }
 
