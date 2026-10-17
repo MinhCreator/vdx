@@ -191,7 +191,8 @@ Item {
       width: root.sizes.hub[0]
       bar: root.bar
       modules: root.modules
-      visible: opacity > 0
+      // a module's popup takes its place at once: the hub does not fade under it
+      visible: opacity > 0 && root.shown !== "module"
       opacity: root.shown === "hub" ? 1 : 0
       Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
       onPower: root.openView("power")
