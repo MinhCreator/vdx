@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.config
 import qs.kit
 
@@ -25,8 +26,8 @@ Column {
   })
 
   function home(path) {
-    const h = CaptureService.shotDir.split("/").slice(0, 3).join("/");
-    return path.startsWith(h) ? "~" + path.slice(h.length) : path;
+    const h = Quickshell.env("HOME");
+    return h !== "" && path.startsWith(h) ? "~" + path.slice(h.length) : path;
   }
 
   spacing: Theme.gapGroup
@@ -210,7 +211,9 @@ Column {
       Item {
         id: advancedRow
 
-        property bool open: root.advancedOpen
+        property bool open: false
+
+        Component.onCompleted: open = root.advancedOpen
 
         visible: root.showAdvanced
         width: parent.width

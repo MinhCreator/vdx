@@ -6,7 +6,7 @@ import qs.config
 import qs.kit
 
 // Capture as a window of its own (how it opens: Shell apps).
-// `qs -c shell ipc call captures <toggle|open|close>`; Escape closes.
+// `qs -c shell ipc call captures <toggle|open|library|close>`; Escape closes.
 // The Capture tab is the bar popup's choices with all of them shown; the
 // Library tab lists the saved screenshots and recordings.
 FloatingWindow {
@@ -23,6 +23,7 @@ FloatingWindow {
   // Hyprland closing the window hides it but leaves FloatingWindow's own
   // visible set, so the next `visible = true` would do nothing: reset it.
   onVisibleChanged: if (visible) library.refresh(); else visible = false;
+  onTabChanged: if (tab === "library") library.refresh();
 
   KitHeader {
     id: header
@@ -91,6 +92,7 @@ FloatingWindow {
     target: "captures"
     function toggle(): void { Hypr.toggleWindow(root); }
     function open(): void { root.visible = true; }
+    function library(): void { root.tab = "library"; root.visible = true; }
     function close(): void { root.visible = false; }
   }
 }
