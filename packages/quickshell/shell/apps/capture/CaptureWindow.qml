@@ -5,10 +5,9 @@ import qs.components
 import qs.config
 import qs.kit
 
-// Capture as a window of its own (how it opens: Shell apps).
+// Capture as a window of its own (how it opens: Shell apps): the library of the
+// saved screenshots and recordings. Taking one is the bar popup's job.
 // `qs -c shell ipc call captures <toggle|open|library|close>`; Escape closes.
-// The Capture tab is the bar popup's choices with all of them shown; the
-// Library tab lists the saved screenshots and recordings.
 FloatingWindow {
   id: root
 
@@ -18,12 +17,9 @@ FloatingWindow {
   implicitHeight: 600
   color: Theme.background0
 
-  property string tab: "capture"
-
   // Hyprland closing the window hides it but leaves FloatingWindow's own
   // visible set, so the next `visible = true` would do nothing: reset it.
   onVisibleChanged: if (visible) library.refresh(); else visible = false;
-  onTabChanged: if (tab === "library") library.refresh();
 
   KitHeader {
     id: header
@@ -31,12 +27,25 @@ FloatingWindow {
     anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.windowPadding; topMargin: Theme.windowPadding - Theme.headerInset }
     icon: "camera"
     title: "Capture"
-    subtitle: CaptureService.recording ? "RECORDING" : "SCREENSHOTS AND RECORDINGS"
+    subtitle: CaptureService.recording ? "RECORDING · LIBRARY" : "LIBRARY"
+  }
 
-    KitChoices {
-      model: [{ label: "Capture", value: "capture" }, { label: "Library", value: "library" }]
-      current: root.tab
-      onPicked: value => root.tab = value
+  // the foot: the library's clear, pinned under a separator like the other apps' feet
+  Column {
+    id: foot
+
+    anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
+    spacing: Theme.gapWide
+    visible: library.items.length > 0
+
+    KitLine {}
+
+    KitButton {
+      width: parent.width
+      icon: "trash"
+      iconTint: library.confirming ? Theme.red : Theme.foreground0
+      text: library.confirming ? "Move all " + library.items.length + " to trash?" : "Clear library"
+      onClicked: library.clearAll()
     }
   }
 
@@ -44,43 +53,20 @@ FloatingWindow {
     id: page
 
     anchors {
-      left: parent.left; right: parent.right; bottom: parent.bottom
+      left: parent.left; right: parent.right
       top: header.bottom; topMargin: Theme.gapGroup
-      leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; bottomMargin: Theme.windowPadding
+      bottom: foot.visible ? foot.top : parent.bottom
+      leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding
+      bottomMargin: foot.visible ? Theme.gapGroup : Theme.windowPadding
     }
-    contentHeight: pageColumn.implicitHeight
+    contentHeight: library.implicitHeight
     clip: true
 
-    Column {
-      id: pageColumn
+    CaptureLibrary {
+      id: library
 
       width: page.width
-      spacing: Theme.gapGroup
-
-      CaptureControls {
-        visible: root.tab === "capture"
-        width: parent.width
-        onStarted: {
-          root.visible = false;
-          selectionDelay.restart();
-        }
-      }
-
-      CaptureLibrary {
-        id: library
-
-        visible: root.tab === "library"
-        width: parent.width
-      }
     }
-  }
-
-  // the window hides first, so the selection starts on the screen it left
-  Timer {
-    id: selectionDelay
-
-    interval: 150
-    onTriggered: CaptureService.startSelection()
   }
 
   Shortcut {
@@ -92,7 +78,7 @@ FloatingWindow {
     target: "captures"
     function toggle(): void { Hypr.toggleWindow(root); }
     function open(): void { root.visible = true; }
-    function library(): void { root.tab = "library"; root.visible = true; }
+    function library(): void { root.visible = true; }
     function close(): void { root.visible = false; }
   }
 }

@@ -20,6 +20,11 @@ KitFrame {
       ? "RECORDING · " + String(Math.floor(root.elapsed / 60)).padStart(2, "0") + ":" + String(root.elapsed % 60).padStart(2, "0")
       : controls.labels[CaptureService.mode] + " · " + controls.labels[CaptureService.kind]
         + (CaptureService.cursor ? " · CURSOR" : "")
+
+    KitButton {
+      icon: "external"
+      onClicked: root.libraryRequested()
+    }
   }
 
   KitLine {}
@@ -29,14 +34,5 @@ KitFrame {
 
     width: parent.width
     onStarted: root.started()
-  }
-
-  KitLine {}
-
-  KitButton {
-    width: parent.width
-    icon: "external"
-    text: "Open the library"
-    onClicked: root.libraryRequested()
   }
 }
