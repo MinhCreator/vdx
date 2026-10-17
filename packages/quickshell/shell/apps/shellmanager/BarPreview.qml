@@ -9,7 +9,8 @@ import qs.kit
 //
 // Its child bars show where they sit; one is placed by dragging it to one of
 // four spots (at either edge, on either side of the centre) and removed by
-// its corner cross or by dropping it off the preview. An empty framed bar right of the centre adds
+// its corner cross or by dropping it off the preview; a thin line marks the
+// spot it lands on. An empty framed bar right of the centre adds
 // one there (while none is still empty).
 Rectangle {
   id: root
@@ -99,7 +100,7 @@ Rectangle {
     Repeater {
       id: minis
       model: root.children.filter(b => b.side === minis.parent.side && b.place === minis.parent.place)
-      // a child bar in small: its first icons, or "Empty"
+      // a child bar in small: its first icons, or its name while it has none
       Rectangle {
         id: mini
         required property var modelData
@@ -125,7 +126,8 @@ Rectangle {
           id: emptyText
           anchors.centerIn: parent
           visible: mini.ids.length === 0
-          text: "Empty"
+          // as its band below is called
+          text: "Bar " + (root.children.findIndex(b => b.id === mini.bar.id) + 2)
           color: Theme.muted
           font.pixelSize: Theme.fontSize - 2
         }
@@ -241,20 +243,14 @@ Rectangle {
     target = -1;
   }
 
-  // the spots, while a child bar is in the air: the one it would take lit
-  Repeater {
-    model: root.dragId !== "" ? root.spots : []
-
-    Rectangle {
-      required property var modelData
-      required property int index
-      x: modelData.x - width / 2
-      anchors.verticalCenter: parent.verticalCenter
-      width: 4
-      height: root.height - 6
-      radius: Theme.pill(width)
-      color: root.target === index ? Theme.foreground0 : Theme.background3
-    }
+  // where a child bar in the air lands: a thin line, as between chips below
+  Rectangle {
+    visible: root.dragId !== "" && root.target >= 0
+    x: root.target >= 0 ? root.spots[root.target].x - width / 2 : 0
+    anchors.verticalCenter: parent.verticalCenter
+    width: 2
+    height: root.pillHeight
+    color: Theme.foreground0
   }
 
   Rectangle {

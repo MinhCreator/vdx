@@ -6,7 +6,8 @@ import qs.kit
 // chips (icon + label) on the right, wrapping; thin lines, no boxes. Drag a chip
 // along a band or to another one; a thin line marks where it lands. On release
 // `dropped(id, zone, index)` says where it went — what that means is the page's.
-// The band "hidden" is shown muted.
+// The band "hidden" is shown muted. Bands of another `groupOf` than the one
+// above start after a hairline.
 Column {
   id: board
 
@@ -18,6 +19,7 @@ Column {
   property var iconOf: id => ""
   property var emptyText: zone => "empty"
   property var zoneLabel: zone => zone.toUpperCase()
+  property var groupOf: zone => ""
 
   // the drag, and the chip under the pointer (the page can show it)
   property string dragId: ""
@@ -73,12 +75,22 @@ Column {
       readonly property var ids: board.idsOf(modelData)
       readonly property bool target: board.dragId !== "" && board.dropZone === modelData
       readonly property alias chips: chipRepeater
+      // the first band of a group: a hairline over it
+      readonly property int lead: index > 0 && board.groupOf(zone) !== board.groupOf(board.zones[index - 1]) ? 16 : 0
 
       width: board.width
-      height: area.height + 12
+      height: area.height + 12 + lead
+
+      Rectangle {
+        visible: band.lead > 0
+        y: band.lead / 2
+        width: parent.width
+        height: 1
+        color: Theme.background2
+      }
 
       KitText {
-        y: 8 + (board.chipHeight - height) / 2
+        y: band.lead + 8 + (board.chipHeight - height) / 2
         text: board.zoneLabel(band.zone) + " · " + band.ids.length
         color: band.target ? Theme.foreground0 : Theme.muted
         font.pixelSize: Theme.fontSize - 2
@@ -89,7 +101,7 @@ Column {
       Rectangle {
         id: area
         x: 110
-        y: 8
+        y: band.lead + 8
         width: parent.width - x
         height: Math.max(board.chipHeight, flow.implicitHeight)
         radius: Theme.radiusCard

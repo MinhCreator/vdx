@@ -4,12 +4,14 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Bar: MONITOR (which bar, one bar everywhere, show it) and LAYOUT: a small
-// preview of the bar, then a row per band — LEFT, CENTER, RIGHT, FOLDER and
-// HIDDEN — its chips in bar order (KitChipBands). Drag a chip along a band or
-// to another one; this page decides what each drop means. Under it the icon size.
-// Island style (STYLE): the bands are the island's — LEFT and RIGHT beside the
-// clock in the resting pill, HUB for the chips when it opens, HIDDEN.
+// Bar: STYLE first (solid or island, icon size: every bar), then what is set
+// per monitor — MONITOR (which one, one bar everywhere, show it) and LAYOUT: a
+// small preview of the bar with its child bars, then a row per band in groups —
+// the main bar's (LEFT, CENTER, RIGHT, FOLDER), its child bars', HIDDEN — chips
+// in bar order (KitChipBands). Drag a chip along a band or to another one; this
+// page decides what each drop means. Island style: the main bar's bands are the
+// island's — LEFT and RIGHT beside the clock in the resting pill, HUB for the
+// chips when it opens.
 Column {
   id: root
 
@@ -21,8 +23,8 @@ Column {
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [
-    { key: "monitor", label: "Monitor", y: monitorGroup.y },
     { key: "style",   label: "Style",   y: styleGroup.y },
+    { key: "monitor", label: "Monitor", y: monitorGroup.y },
     { key: "layout",  label: "Layout",  y: root.barOn ? layoutGroup.y : -2 }
   ].filter(j => j.y > -2)
 
@@ -87,6 +89,67 @@ Column {
 
   spacing: Theme.gapGroup
 
+  // ---- style ----
+  // the look of every bar: one strip, or the island alone with every module in it
+  KitLabel { id: styleGroup; text: "STYLE"; value: (root.island ? "ISLAND" : "SOLID") + " · EVERY MONITOR" }
+
+  KitRow {
+    wide: true
+    label: "Shape"
+    hint: "Strip, or one live island"
+
+    KitChoices {
+      stretch: true
+      model: [
+        { label: "Solid",  value: "solid" },
+        { label: "Island", value: "island" }
+      ]
+      current: ShellSettings.barStyle
+      onPicked: value => ShellSettings.set("barStyle", value)
+    }
+  }
+
+  KitRow {
+    wide: true
+    label: "Icon size"
+    hint: "Pixels added to the icons"
+
+    KitChoices {
+      stretch: true
+      model: [
+        { label: "Small",  value: 0 },
+        { label: "Normal", value: 2 },
+        { label: "Large",  value: 4 }
+      ]
+      current: ShellSettings.barIconGrow
+      onPicked: value => ShellSettings.set("barIconGrow", value)
+    }
+  }
+
+  KitRow {
+    visible: root.island
+    label: "Open on hover"
+    hint: "Resting on the clock opens the hub"
+
+    KitSwitch {
+      checked: ShellSettings.islandHover
+      onToggled: ShellSettings.set("islandHover", !checked)
+    }
+  }
+
+  // a right click on a module opens its options (the module's own page)
+  KitRow {
+    label: "Settings on right click"
+    hint: "Opens a module's options"
+
+    KitSwitch {
+      checked: ShellSettings.barRightSettings
+      onToggled: ShellSettings.set("barRightSettings", !checked)
+    }
+  }
+
+  KitLine {}
+
   // ---- monitor ----
   KitLabel { id: monitorGroup; text: "MONITOR" }
 
@@ -124,41 +187,9 @@ Column {
     }
   }
 
-  KitLine {}
-
-  // ---- style ----
-  // the bar's shape: one strip, or the island alone with every module in it
-  KitLabel { id: styleGroup; text: "STYLE"; value: root.island ? "ISLAND" : "SOLID" }
-
+  // the island on this monitor: off with nothing beside it, no island at all
   KitRow {
-    wide: true
-    label: "Shape"
-    hint: "Strip, or one live island"
-
-    KitChoices {
-      stretch: true
-      model: [
-        { label: "Solid",  value: "solid" },
-        { label: "Island", value: "island" }
-      ]
-      current: ShellSettings.barStyle
-      onPicked: value => ShellSettings.set("barStyle", value)
-    }
-  }
-
-  KitRow {
-    visible: root.island
-    label: "Open on hover"
-    hint: "Resting on the clock opens the hub"
-
-    KitSwitch {
-      checked: ShellSettings.islandHover
-      onToggled: ShellSettings.set("islandHover", !checked)
-    }
-  }
-
-  KitRow {
-    visible: root.island
+    visible: root.island && root.barOn
     label: "Clock"
     hint: "Off and nothing beside it: hidden"
 
@@ -226,6 +257,7 @@ Column {
     idsOf: zone => root.ids(zone)
     labelOf: id => root.module(id)?.label ?? id
     iconOf: id => BarLayout.icon(id)
+    groupOf: zone => zone === "hidden" ? "hidden" : root.childOf(zone) !== "" ? "children" : "main"
     zoneLabel: zone => root.childOf(zone) !== ""
       ? "BAR " + (root.children.findIndex(b => b.id === root.childOf(zone)) + 2)
       : ({ start: "LEFT", end: "RIGHT" })[zone] ?? zone.toUpperCase()
@@ -235,36 +267,5 @@ Column {
                      : zone === "hub" ? "empty — chips when the island opens"
                      : zone === "folder" ? "empty — modules here open from the Folder icon" : "empty"
     onDropped: (id, zone, index) => root.drop(id, zone, index)
-  }
-
-  KitLine {}
-
-  // the icons' size: for every bar
-  KitRow {
-    wide: true
-    label: "Icon size"
-    hint: "Pixels added to the bar's icons"
-
-    KitChoices {
-      stretch: true
-      model: [
-        { label: "Small",  value: 0 },
-        { label: "Normal", value: 2 },
-        { label: "Large",  value: 4 }
-      ]
-      current: ShellSettings.barIconGrow
-      onPicked: value => ShellSettings.set("barIconGrow", value)
-    }
-  }
-
-  // a right click on a module opens its options (the module's own page)
-  KitRow {
-    label: "Settings on right click"
-    hint: "Opens a module's options"
-
-    KitSwitch {
-      checked: ShellSettings.barRightSettings
-      onToggled: ShellSettings.set("barRightSettings", !checked)
-    }
   }
 }

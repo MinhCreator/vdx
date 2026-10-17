@@ -102,9 +102,9 @@ the whole bar (`bar/island/`). At rest: LEFT · clock · RIGHT (by default the
 workspaces and the equalizer). Resting on the clock or a click opens the hub:
 the date, the track and the HUB modules as chips; a chip opens its module's
 popup inside the island, with a bubble beside it to the hub (the mouse's
-back button too; Escape when it came from the hub). Shell Manager › Bar arranges LEFT, RIGHT, HUB
-and HIDDEN, and per monitor its Clock: off with nothing beside it, the island
-hides there until it has something to show. Volume / brightness changes and new notifications pass over it
+back button too; Escape when it came from the hub). Shell Manager › Bar › Layout arranges LEFT, RIGHT, HUB
+and HIDDEN; Bar › Monitor › Clock, per monitor: off with nothing beside it, the
+island hides there until it has something to show. Volume / brightness changes and new notifications pass over it
 (mako only keeps them: its `island` mode). Equalizer or track: the player.
 Right click: power. Middle click: play / pause; wheel: volume.
 
