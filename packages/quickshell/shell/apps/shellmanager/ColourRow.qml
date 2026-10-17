@@ -23,6 +23,7 @@ KitRow {
     spacing: Theme.gapMedium
 
     Rectangle {
+      radius: Theme.radiusControl
       id: swatch
       anchors.verticalCenter: parent.verticalCenter
       width: field.height

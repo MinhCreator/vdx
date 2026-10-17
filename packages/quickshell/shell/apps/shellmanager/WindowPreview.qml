@@ -6,6 +6,7 @@ import qs.kit
 // scale, the bar along the top; at the cursor — a pointer the window is
 // centred on; tiled — the window takes its half of the screen.
 Rectangle {
+  radius: Theme.radiusCard
   id: root
 
   property var app: null
@@ -37,6 +38,7 @@ Rectangle {
 
   // the window
   Rectangle {
+    radius: Theme.radiusControl
     id: win
 
     readonly property real barBottom: Theme.barHeight * root.k
@@ -78,6 +80,7 @@ Rectangle {
 
   // the other tiled window
   Rectangle {
+    radius: Theme.radiusControl
     visible: root.tiled
     x: 3
     y: win.y

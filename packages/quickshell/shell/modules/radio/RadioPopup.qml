@@ -72,6 +72,7 @@ KitFrame {
           model: RadioService.stations
 
           Rectangle {
+            radius: Theme.radiusControl
             id: station
 
             required property var modelData

@@ -5,6 +5,7 @@ import qs.kit
 // A checkbox for the package lists: a square outline; a check when picked, a
 // bar when only some of a group are (`partial`). Sharp corners.
 Rectangle {
+  radius: Math.min(Theme.radiusControl, 4)
   id: root
 
   property bool checked: false

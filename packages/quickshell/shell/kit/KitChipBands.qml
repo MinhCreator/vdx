@@ -91,6 +91,7 @@ Column {
         y: 8
         width: parent.width - x
         height: Math.max(board.chipHeight, flow.implicitHeight)
+        radius: Theme.radiusCard
         color: band.target ? Theme.background1 : "transparent"
 
         Flow {
@@ -110,6 +111,7 @@ Column {
 
               width: chipRow.implicitWidth + 20
               height: board.chipHeight
+              radius: Theme.radiusControl
               color: chipArea.containsMouse && board.dragId === "" ? Theme.background3 : Theme.background1
               opacity: board.dragId === modelData ? 0.25 : 1
 

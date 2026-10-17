@@ -22,6 +22,8 @@ Singleton {
   readonly property bool pauseMusic: state.pauseMusic             // MPD pauses while another app plays sound
   readonly property bool resumeMusic: state.resumeMusic           // ...and resumes once that sound stops
   readonly property bool barRightSettings: state.barRightSettings // a right click on a bar module opens its options
+  readonly property string corners: state.corners                 // sharp | round: the whole shell's corners
+  readonly property int cornerRadius: state.cornerRadius          // px, a popup's corner while round (Theme scales the rest)
   // animations (Shell Manager › Animations; Motion reads them)
   readonly property bool motion: state.motion                     // all of them on / off
   readonly property string motionSpeed: state.motionSpeed         // slow | normal | fast
@@ -59,6 +61,8 @@ Singleton {
       property bool pauseMusic: false
       property bool resumeMusic: true
       property bool barRightSettings: true
+      property string corners: "sharp"
+      property int cornerRadius: 12
       property bool motion: true
       property string motionSpeed: "normal"
       property string motionPopups: "slide"

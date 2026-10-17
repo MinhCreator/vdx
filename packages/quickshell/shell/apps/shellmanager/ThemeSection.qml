@@ -1,6 +1,7 @@
 import QtQuick
 import qs.config
 import qs.kit
+import Quickshell.Widgets
 
 // Appearance › THEME: a live preview (the bar and a popup over the wallpaper,
 // in the previewed theme's colours) beside the theme list; Apply switches.
@@ -35,7 +36,8 @@ Column {
 
     // ---- preview ----
     // the bar and a popup over the wallpaper, in the selected theme's colours
-    Rectangle {
+    ClippingRectangle {
+      radius: Theme.radiusCard
       width: parent.width - themeList.width - 14
       height: themeList.height
       color: page.wallpaper
@@ -69,6 +71,7 @@ Column {
           Repeater {
             model: 4
             Rectangle {
+              radius: Theme.pill(height)
               required property int index
               width: 8
               height: 8
@@ -106,6 +109,7 @@ Column {
 
       // a popup hanging under the bar, in the kit style
       Rectangle {
+        radius: Theme.radiusControl
         anchors { right: parent.right; rightMargin: 40 }
         y: previewBar.y + previewBar.height + 6
         width: 150
@@ -157,6 +161,7 @@ Column {
 
       // the theme list, framed like an open select
       Rectangle {
+        radius: Theme.radiusControl
         width: parent.width
         height: themeList.height - y - themeButtons.height - themeList.spacing
         color: "transparent"
@@ -182,6 +187,7 @@ Column {
               model: root.themeMatches
 
               Rectangle {
+                radius: Theme.radiusControl
                 id: item
 
                 required property string modelData
@@ -203,6 +209,7 @@ Column {
                     model: ["background0", "foreground0", "frame", "green", "blue"]
 
                     Rectangle {
+                      radius: Theme.pill(width)
                       required property string modelData
                       width: 7
                       height: 14

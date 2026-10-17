@@ -84,6 +84,7 @@ PanelWindow {
       // a window: its app's icon and title; the active one filled and bold,
       // a minimized one dim
       Rectangle {
+        radius: Theme.radiusControl
         id: item
         required property var modelData
         readonly property bool current: modelData === root.active && !Hypr.minimized(modelData)

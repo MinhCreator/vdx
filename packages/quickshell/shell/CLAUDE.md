@@ -47,7 +47,13 @@ in Modules.
 
 ## UI
 
-Minimal, monospace, sharp corners, near-monochrome. Reference: the Wi-Fi popup.
+Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
+
+- Corners: Appearance › Corners (sharp | round + one radius). A radius is
+  always a token: `Theme.radiusSurface` (popups, windows, panels),
+  `radiusCard` (tiles, previews, cards), `radiusControl` (buttons, fields,
+  rows, checkboxes), `Theme.pill(h)` (tracks, knobs, dots); all 0 when sharp.
+  An image in a rounded tile sits in a `ClippingRectangle`.
 
 - Spacing: the gaps and edge insets are `Theme.gapHair` (4), `gapTight` (2),
   `gapSmall` (6), `gapMedium` (8), `gapLoose` (10), `gapWide` (12) and `gapGroup`
@@ -71,7 +77,8 @@ Minimal, monospace, sharp corners, near-monochrome. Reference: the Wi-Fi popup.
 - Bar: one colour per item; a missing value shows `--`.
 - Key hints: `Super + D`; footers `key action · key action`, lowercase.
 - Icons: Material Symbols SVG in `kit/icons`, `fill="#ffffff"`; every icon
-  has a filled twin of the same name in `solid/`.
+  has a filled twin of the same name in `solid/` and Rounded twins in
+  `round/` and `round/solid/` (Material names: `icons/material.txt`).
 - Refactors keep the look; a new look is prototyped on one popup first.
 - Motion: every animation goes through `config/Motion.qml` — a Behavior takes
   `enabled: Motion.<part>` (popups, panels, controls, bar, pages, lock) and a

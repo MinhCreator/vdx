@@ -60,6 +60,7 @@ Column {
       anchors.right: parent.right
       width: root.boxWidth
       height: 30
+      radius: Theme.radiusControl
       color: boxArea.containsMouse && !root.disabled ? Theme.background1 : "transparent"
       border.width: Theme.frameWidth
       border.color: root.expanded || boxArea.containsMouse ? Theme.foreground2 : Theme.gray
@@ -121,7 +122,10 @@ Column {
       y: root.overlay ? row.height + root.spacing : 0
       visible: root.expanded
       width: parent.width
-      height: options.implicitHeight + 2 * Theme.frameWidth
+      height: options.implicitHeight + 2 * inset
+      radius: Theme.radiusControl
+      // round corners keep the rows off the frame's curve
+      readonly property int inset: Theme.frameWidth + (Theme.round ? 3 : 0)
 
       // the choices drop in: a fade and a few pixels down
       property real shown: 1
@@ -135,9 +139,9 @@ Column {
 
       Column {
         id: options
-        x: Theme.frameWidth
-        y: Theme.frameWidth
-        width: parent.width - 2 * Theme.frameWidth
+        x: list.inset
+        y: list.inset
+        width: parent.width - 2 * list.inset
 
         Repeater {
           model: root.model
@@ -151,6 +155,7 @@ Column {
 
             width: options.width
             height: 28
+            radius: Math.max(0, Theme.radiusControl - 2)
             color: active ? Theme.background3 : optionArea.containsMouse ? Theme.background1 : "transparent"
 
             KitText {

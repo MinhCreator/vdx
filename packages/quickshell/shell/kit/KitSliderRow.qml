@@ -48,6 +48,7 @@ Item {
     Rectangle {
       anchors.fill: parent
       visible: root.clickable && iconArea.containsMouse
+      radius: Theme.radiusControl
       color: Theme.background1
     }
 

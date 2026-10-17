@@ -47,6 +47,7 @@ Column {
     spacing: Theme.gapGroup
 
     Rectangle {
+      radius: Theme.radiusCard
       width: parent.width - cursorList.width - 14
       height: cursorList.height
       color: Theme.background1

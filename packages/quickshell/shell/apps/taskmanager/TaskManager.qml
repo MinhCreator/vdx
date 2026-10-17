@@ -169,6 +169,7 @@ Rectangle {
     model: root.tm.rows
 
     delegate: Rectangle {
+      radius: Theme.radiusControl
       id: row
 
       required property var modelData

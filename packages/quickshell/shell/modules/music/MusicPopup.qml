@@ -2,6 +2,7 @@ import QtQuick
 import qs.config
 import qs.kit
 import qs.modules.mpd
+import Quickshell.Widgets
 
 // Music (Yandex likes over MPD): the track with cover, timeline and controls,
 // then the queue.
@@ -62,7 +63,8 @@ KitFrame {
       width: parent.width
       height: MusicService.coverSize
 
-      Rectangle {
+      ClippingRectangle {
+        radius: Theme.radiusCard
         id: cover
         width: MusicService.coverSize
         height: width

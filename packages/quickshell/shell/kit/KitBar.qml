@@ -10,11 +10,13 @@ Rectangle {
 
   width: parent ? parent.width : 0
   implicitHeight: 3
+  radius: Theme.pill(height)
   color: Theme.background3
 
   Rectangle {
     width: Math.max(0, Math.min(1, root.value)) * parent.width
     height: parent.height
+    radius: parent.radius
     color: root.tint
 
     Behavior on width { enabled: Motion.controls; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }

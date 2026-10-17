@@ -53,6 +53,9 @@ Scope {
 
   PopupCatcher {}
 
+  // Hyprland's and mako's corners follow Appearance › Corners from the start
+  Component.onCompleted: CornersService.apply()
+
   // Super+Shift+S: screenshot or recording of a region, window or screen
   CaptureOverlay {}
 

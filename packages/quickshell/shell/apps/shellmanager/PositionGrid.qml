@@ -19,6 +19,7 @@ Grid {
     model: root.spots
 
     Rectangle {
+      radius: Theme.radiusControl
       id: cell
 
       required property string modelData

@@ -2,18 +2,17 @@ import QtQuick
 import qs.config
 
 // Thin slider: a 3px track, the filled part in `tint`, a square knob. It never
-// writes `value` itself: drag, click and wheel emit moved(value) for live
+// writes `value` itself: drag and click emit moved(value) for live
 // changes (volume), and released(value) fires once when a drag ends (seeking).
 // While pressed it shows the pointer position (`shown`).
 // `snaps` (0..1 each, ascending): the stops the knob locks to, drawn as ticks;
-// the wheel moves stop by stop. Empty: continuous.
+// Empty: continuous. The wheel is left to the page: it scrolls, never slides.
 Item {
   id: root
 
   property real value: 0                 // 0..1
   property bool dimmed: false
   property color tint: Theme.foreground0
-  property real wheelStep: 0.05
   property var snaps: []
 
   readonly property color fill: dimmed ? Theme.gray : tint
@@ -29,13 +28,6 @@ Item {
     return snaps.length === 0 ? v : snaps.reduce((best, s) => Math.abs(s - v) < Math.abs(best - v) ? s : best, snaps[0]);
   }
 
-  // the value one step away from `value` (dir: 1 or -1)
-  function step(dir) {
-    if (snaps.length === 0) return value + dir * wheelStep;
-    const i = snaps.indexOf(nearest(value));
-    return snaps[Math.max(0, Math.min(snaps.length - 1, i + dir))];
-  }
-
   function send(v) {
     dragValue = nearest(Math.max(0, Math.min(1, v)));
     moved(dragValue);
@@ -49,11 +41,13 @@ Item {
     anchors.verticalCenter: parent.verticalCenter
     width: parent.width
     height: 3
+    radius: Theme.pill(height)
     color: Theme.background3
 
     Rectangle {
       width: root.shown * parent.width
       height: parent.height
+      radius: parent.radius
       color: root.fill
     }
   }
@@ -68,6 +62,7 @@ Item {
       anchors.verticalCenter: parent.verticalCenter
       width: 2
       height: 10
+      radius: Theme.pill(width)
       color: Theme.gray
     }
   }
@@ -76,6 +71,7 @@ Item {
     readonly property int size: area.containsMouse || root.pressed ? 14 : 12
     width: size
     height: size
+    radius: Theme.pill(size)
     Behavior on width { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
     Behavior on height { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
     anchors.verticalCenter: parent.verticalCenter
@@ -94,6 +90,5 @@ Item {
     onPressed: mouse => root.send(mouse.x / width)
     onPositionChanged: mouse => { if (pressed) root.send(mouse.x / width); }
     onReleased: root.released(root.dragValue)
-    onWheel: wheel => root.send(root.step(wheel.angleDelta.y > 0 ? 1 : -1))
   }
 }

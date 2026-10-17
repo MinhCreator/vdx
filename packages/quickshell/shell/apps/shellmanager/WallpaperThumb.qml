@@ -1,10 +1,12 @@
 import QtQuick
 import qs.config
 import qs.kit
+import Quickshell.Widgets
 
 // One wallpaper picture in the Shell Manager: a 16:9 crop, framed like the
 // colour swatches (thicker frame and a check when it is the one in use).
-Rectangle {
+ClippingRectangle {
+  radius: Theme.radiusCard
   id: root
 
   property string source: ""       // file path
@@ -29,6 +31,7 @@ Rectangle {
 
   // the check sits on a background square so it reads on any picture
   Rectangle {
+    radius: Theme.pill(height)
     visible: root.active
     anchors { right: parent.right; bottom: parent.bottom; margins: 4 }
     width: 18

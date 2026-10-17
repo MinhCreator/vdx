@@ -25,6 +25,7 @@ Item {
 
     // unseen mark: a small red square on the bell's corner
     Rectangle {
+      radius: Theme.pill(height)
       visible: NotificationsService.unseen > 0 && ModuleSettings.get("notifications", "dot", true)
       x: Theme.fontSize - 3
       y: 0

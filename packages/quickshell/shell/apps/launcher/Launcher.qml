@@ -128,6 +128,7 @@ ScrimWindow {
           boundsBehavior: Flickable.StopAtBounds
 
           delegate: Rectangle {
+            radius: Theme.radiusControl
             id: row
             required property var modelData
             required property int index

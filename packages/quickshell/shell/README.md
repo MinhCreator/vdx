@@ -83,6 +83,12 @@ Workspaces, Music, Radio, Clock, Brightness, Audio, Wi-Fi, Mihomo, Battery,
 Language, AI, Shell, Notifications, Capture, Clipboard, System, Task manager,
 Cleaner, VirusTotal, Packages, Display, Windows, Chat, Folder.
 
+## Corners
+
+Shell Manager › Appearance › Corners: Sharp, or Round with one radius on a
+ticked slider. Everything follows — popups, controls, rows, the island,
+Hyprland's windows, mako — and the icons switch to Material Symbols Rounded.
+
 ## Requirements
 
 | What | Needs |

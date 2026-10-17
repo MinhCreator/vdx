@@ -6,6 +6,7 @@ import qs.kit
 // A glance at one monitor's bar on the Bar page: icons left, centre and right
 // as on screen. Not for dragging — a side that runs out of room ends in +N.
 Rectangle {
+  radius: Theme.radiusCard
   id: root
 
   property string screenName

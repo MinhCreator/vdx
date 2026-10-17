@@ -66,6 +66,7 @@ Column {
       function play() { if (Motion.on) atEnd = !atEnd; }
 
       Rectangle {
+        radius: Theme.pill(height)
         anchors.verticalCenter: parent.verticalCenter
         width: parent.width
         height: 3
@@ -76,6 +77,7 @@ Column {
         anchors.verticalCenter: parent.verticalCenter
         width: 14
         height: 14
+        radius: Theme.pill(height)
         x: sample.atEnd ? sample.width - width : 0
         color: Theme.foreground0
 

@@ -102,6 +102,7 @@ KitFrame {
       }
 
       Rectangle {
+        radius: Theme.pill(height)
         width: parent.width
         height: 4
         color: Theme.background3

@@ -27,6 +27,7 @@ Column {
     spacing: Theme.gapGroup
 
     Rectangle {
+      radius: Theme.radiusControl
       width: parent.width - fontList.width - 14
       height: fontList.height
       color: "transparent"

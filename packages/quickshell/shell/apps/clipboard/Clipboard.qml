@@ -115,6 +115,7 @@ KitFrame {
 
             // hover: the entry is clickable
             Rectangle {
+              radius: Theme.radiusControl
               anchors { fill: parent; margins: -4 }
               color: item.hot ? Theme.background1 : "transparent"
             }
@@ -180,6 +181,7 @@ KitFrame {
                 cache: false
 
                 Rectangle {
+                  radius: Theme.radiusControl
                   anchors.fill: parent
                   color: "transparent"
                   border.width: Theme.frameWidth

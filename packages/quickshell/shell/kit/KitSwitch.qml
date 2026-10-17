@@ -1,8 +1,8 @@
 import QtQuick
 import qs.config
 
-// Rectangular switch with a square knob: dim on the left when off, bright on
-// the right when on.
+// Rectangular switch with a square knob (round corners: a pill and a disc):
+// dim on the left when off, bright on the right when on.
 Rectangle {
   id: root
 
@@ -14,6 +14,7 @@ Rectangle {
 
   implicitWidth: 36
   implicitHeight: 20
+  radius: Theme.pill(height)
   color: root.trackColor
   border.width: area.containsMouse && !disabled ? Theme.frameWidth : 0
   border.color: Theme.foreground2
@@ -22,6 +23,7 @@ Rectangle {
   Rectangle {
     width: 14
     height: 14
+    radius: Theme.pill(height)
     anchors.verticalCenter: parent.verticalCenter
     x: root.checked ? root.width - width - 3 : 3
     color: root.checked ? Theme.foreground0 : Theme.gray

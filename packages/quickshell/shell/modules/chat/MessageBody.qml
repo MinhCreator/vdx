@@ -60,6 +60,7 @@ Column {
         id: codeBlock
 
         Rectangle {
+          radius: Theme.radiusCard
           implicitHeight: codeColumn.implicitHeight + 16
           color: Theme.background1
           border.width: Theme.frameWidth

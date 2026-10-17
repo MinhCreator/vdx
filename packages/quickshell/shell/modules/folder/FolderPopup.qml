@@ -40,6 +40,7 @@ KitFrame {
       model: root.ids
 
       Rectangle {
+        radius: Theme.radiusCard
         id: tile
 
         required property string modelData

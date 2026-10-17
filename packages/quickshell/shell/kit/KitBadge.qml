@@ -15,6 +15,7 @@ Row {
     anchors.verticalCenter: parent.verticalCenter
     width: 6
     height: 6
+    radius: Theme.pill(height)
     color: root.tint
   }
 

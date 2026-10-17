@@ -129,6 +129,7 @@ ScrimWindow {
         // a window: its picture, then its app's icon and title; the picked
         // one filled and bold with a light frame
         Rectangle {
+          radius: Theme.radiusCard
           id: cell
           required property var modelData
           required property int index

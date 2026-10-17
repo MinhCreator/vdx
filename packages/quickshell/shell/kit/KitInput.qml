@@ -17,6 +17,7 @@ Rectangle {
 
   width: parent ? parent.width : 0
   implicitHeight: 32
+  radius: Theme.radiusControl
   color: "transparent"
   border.width: Theme.frameWidth
   border.color: textInput.activeFocus || hover.hovered ? Theme.foreground2 : Theme.gray

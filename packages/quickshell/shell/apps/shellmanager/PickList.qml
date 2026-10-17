@@ -8,6 +8,7 @@ import qs.kit
 // Rows: [{ key, label, installed, family? }] — `family` draws the label in
 // that font.
 Rectangle {
+  radius: Theme.radiusControl
   id: root
 
   property var model: []
@@ -39,6 +40,7 @@ Rectangle {
         model: root.model
 
         Rectangle {
+          radius: Theme.radiusControl
           id: row
 
           required property var modelData

@@ -43,6 +43,16 @@ QtObject {
   readonly property int edgeMargin: 20
   readonly property int separatorMargin: 8
   readonly property int workspaceMinWidth: 16
+  // ---- corners (Appearance › Corners) ----
+  // sharp: all 0. round: a surface takes the chosen radius, smaller things a
+  // share of it, so one slider moves the whole shell in proportion
+  readonly property bool round: ShellSettings.corners === "round"
+  readonly property var cornerStops: [4, 8, 12, 16, 20, 24]    // the slider's ticks, px
+  readonly property int radiusSurface: round ? ShellSettings.cornerRadius : 0   // popups, windows, the open island
+  readonly property int radiusCard: Math.round(radiusSurface * 0.6)              // tiles, chips, picked rows
+  readonly property int radiusControl: Math.round(radiusSurface * 0.4)           // buttons, fields, selects
+  // a pill of height h (tracks, knobs, the resting island): fully round or square
+  function pill(h) { return round ? h / 2 : 0; }
 
   // ---- popups (kit) ----
   // the dimmed screen under the launcher, the keybinds and the overview

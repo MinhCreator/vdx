@@ -5,6 +5,7 @@ import Quickshell.Wayland
 import qs.components
 import qs.config
 import qs.kit
+import Quickshell.Widgets
 
 // Niri's overview as one canvas: every workspace of the focused
 // monitor is a row, and each window sits where it really is, so a scrolling
@@ -130,6 +131,7 @@ ScrimWindow {
 
           // the workspace's own area: a click goes there, a drop moves a window
           Rectangle {
+            radius: Theme.radiusCard / root.zoom
             anchors.fill: parent
             color: drop.containsDrag ? Theme.background2 : Theme.background1
             border.width: Theme.windowFrameWidth / root.zoom
@@ -161,7 +163,8 @@ ScrimWindow {
           Repeater {
             model: Hyprland.toplevels.values.filter(t => t.workspace?.id === space.wsId)
 
-            Rectangle {
+            ClippingRectangle {
+              radius: Theme.radiusControl
               id: win
               required property var modelData
               readonly property var toplevel: modelData

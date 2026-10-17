@@ -124,6 +124,7 @@ KitFrame {
           model: MihomoService.nodes
 
           Rectangle {
+            radius: Theme.radiusControl
             id: server
 
             required property var modelData

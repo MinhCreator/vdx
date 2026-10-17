@@ -177,6 +177,7 @@ Rectangle {
           }
 
           Rectangle {
+            radius: Theme.radiusControl
             id: item
             width: parent.width
             height: 34
@@ -241,6 +242,7 @@ Rectangle {
                 model: root.pageFor(section.modelData.value).jumps
 
                 Rectangle {
+                  radius: Theme.radiusControl
                   id: sub
 
                   required property var modelData
@@ -253,6 +255,7 @@ Rectangle {
 
                   // where the page is, as a thin line beside the name
                   Rectangle {
+                    radius: Theme.pill(width)
                     anchors { left: parent.left; leftMargin: 17; top: parent.top; bottom: parent.bottom; margins: 5 }
                     width: 2
                     color: sub.here ? Theme.foreground2 : Theme.background3

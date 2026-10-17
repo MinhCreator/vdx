@@ -7,6 +7,7 @@ import qs.kit
 // choice rows; for a shot where it goes, for a recording its sound, frame
 // rate, quality and encoder (auto: integrated GPU on battery); the pointer.
 Rectangle {
+  radius: Theme.radiusSurface
   id: root
 
   readonly property var labels: ({

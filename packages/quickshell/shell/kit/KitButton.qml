@@ -20,6 +20,7 @@ Rectangle {
 
   implicitWidth: content.implicitWidth + (text !== "" ? 24 : 14)
   implicitHeight: 30
+  radius: Theme.radiusControl
   color: selected ? Theme.background3 : hovered ? Theme.background1 : "transparent"
   border.width: Theme.frameWidth
   border.color: selected || hovered ? Theme.foreground2 : Theme.gray

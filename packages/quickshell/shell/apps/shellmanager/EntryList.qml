@@ -47,6 +47,7 @@ Column {
   }
 
   Rectangle {
+    radius: Theme.radiusControl
     width: parent.width
     height: Math.min(root.height - y, rows.implicitHeight + 2 * Theme.frameWidth)
     color: "transparent"
@@ -68,6 +69,7 @@ Column {
           model: root.matches
 
           Rectangle {
+            radius: Theme.radiusControl
             id: row
 
             required property var modelData

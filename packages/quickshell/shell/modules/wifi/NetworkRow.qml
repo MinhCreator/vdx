@@ -6,6 +6,7 @@ import qs.kit
 // One nearby network: name, lock for secured ones, check on the current one,
 // signal bars. The current row sits in the raised tone; click connects.
 Rectangle {
+  radius: Theme.radiusControl
   id: root
 
   required property var modelData

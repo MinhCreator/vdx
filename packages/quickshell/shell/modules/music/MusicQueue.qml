@@ -87,6 +87,7 @@ Column {
         model: root.tracks
 
         Rectangle {
+          radius: Theme.radiusControl
           id: row
 
           required property var modelData

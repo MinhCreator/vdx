@@ -86,6 +86,7 @@ Item {
     model: root.ds.monitors
 
     Rectangle {
+      radius: Theme.radiusControl
       id: box
       required property var modelData
       readonly property var p: root.at(modelData)
