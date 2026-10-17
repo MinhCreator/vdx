@@ -1,5 +1,5 @@
 # The shell's file manager as a portal backend (scripts/files_portal.py).
 [portal]
 DBusName=org.freedesktop.impl.portal.desktop.shellfiles
-Interfaces=org.freedesktop.impl.portal.FileChooser;org.freedesktop.impl.portal.OpenURI;
+Interfaces=org.freedesktop.impl.portal.FileChooser;
 UseIn=Hyprland

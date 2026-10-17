@@ -20,9 +20,9 @@ class Portal(unittest.TestCase):
         name = re.search(r'^BUS = "([^"]+)"', code, re.M).group(1)
         portal = (PKG / "shellfiles.portal").read_text()
         self.assertIn(f"DBusName={name}", portal)
-        for iface in ("FileChooser", "OpenURI"):
-            self.assertIn(f"org.freedesktop.impl.portal.{iface}", portal)
-            self.assertIn("Interfaces=", portal)
+        self.assertIn("Interfaces=org.freedesktop.impl.portal.FileChooser;", portal)
+        # there is no impl OpenURI in xdg-desktop-portal: claiming one would route nothing
+        self.assertNotIn("OpenURI", portal)
 
     def test_the_routing_file_is_lowercase_as_xdg_desktop_portal_reads_it(self):
         names = {p.name for p in PKG.iterdir()}

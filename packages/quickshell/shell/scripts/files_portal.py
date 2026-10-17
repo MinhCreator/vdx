@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """files_portal — the file manager's XDG desktop portal backend. It owns
 org.freedesktop.impl.portal.desktop.shellfiles and serves FileChooser (open
-and save files or folders) and OpenURI. xdg-desktop-portal routes to it by
-xdg-portal/shellfiles.portal and xdg-portal/Hyprland-portals.conf.
+and save files or folders). xdg-desktop-portal routes to it by
+xdg-portal/shellfiles.portal and xdg-portal/hyprland-portals.conf. The URI
+opener is xdg-desktop-portal's own (it asks an AppChooser only when no default
+program is set): there is no org.freedesktop.impl.portal.OpenURI to serve.
 It also serves org.freedesktop.FileManager1 (ShowFolders, ShowItems,
 ShowItemProperties): browsers' "show in folder" opens the Files window with the
 item selected (`files reveal`), "properties" its panel (`files inspect`).
@@ -51,17 +53,6 @@ XML = """
       <arg type="a{sv}" name="results" direction="out"/>
     </method>
   </interface>
-  <interface name="org.freedesktop.impl.portal.OpenURI">
-    <method name="OpenURI">
-      <arg type="o" name="handle" direction="in"/>
-      <arg type="s" name="app_id" direction="in"/>
-      <arg type="s" name="parent_window" direction="in"/>
-      <arg type="s" name="uri" direction="in"/>
-      <arg type="a{sv}" name="options" direction="in"/>
-      <arg type="u" name="response" direction="out"/>
-      <arg type="a{sv}" name="results" direction="out"/>
-    </method>
-  </interface>
 </node>
 """
 
@@ -86,14 +77,6 @@ def filters_of(raw):
 def answer(invocation, response, paths):
     uris = {"uris": GLib.Variant("as", ["file://" + quote(p) for p in paths])} if paths else {}
     invocation.return_value(GLib.Variant("(ua{sv})", (response, uris)))
-
-
-def open_uri(invocation, uri):
-    try:
-        subprocess.Popen(["xdg-open", uri], start_new_session=True)
-        answer(invocation, DONE, [])
-    except OSError:
-        invocation.return_value(GLib.Variant("(ua{sv})", (FAILED, {})))
 
 
 def choose(invocation, method, title, options):
@@ -181,11 +164,7 @@ def on_file_manager_acquired(connection, name, user_data=None):
 
 
 def handle_call(connection, sender, object_path, interface, method, parameters, invocation, user_data=None):
-    args = parameters.unpack()
-    if interface == "org.freedesktop.impl.portal.OpenURI":
-        open_uri(invocation, args[3])
-        return
-    _handle, _app, _parent, title, options = args
+    _handle, _app, _parent, title, options = parameters.unpack()
     choose(invocation, method, title, options)
 
 
