@@ -64,7 +64,7 @@ ScrimWindow {
     open = false;
     if (!t) return;
     if (Hypr.minimized(t)) ws.restore(Hypr.addr(t));
-    else Hypr.call("FocusWindow(\"" + Hypr.addr(t) + "\")");
+    else Hypr.call("PickWindow(\"" + Hypr.addr(t) + "\")");
   }
 
   onOpenChanged: if (open) keys.forceActiveFocus()
