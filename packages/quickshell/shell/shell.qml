@@ -54,6 +54,13 @@ Scope {
 
   Wallpaper {}
 
+  // the theme switch's curtain, on every screen (ThemeService.covering)
+  Variants {
+    model: Quickshell.screens
+
+    ThemeCurtain {}
+  }
+
   // Modules › Audio: the music pauses while another app plays sound
   AudioPause {}
 

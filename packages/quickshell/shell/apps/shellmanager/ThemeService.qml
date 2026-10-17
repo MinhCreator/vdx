@@ -24,6 +24,10 @@ Singleton {
   property bool busy: false
   property string applying: ""              // the theme being switched to
   property string error: ""
+  // the curtain (components/ThemeCurtain) hides the switch: up while applying and
+  // until the new colours are read, in the new theme's background
+  property bool covering: false
+  property color coverColor: Theme.background0
 
   function refresh() { if (!listProc.running) listProc.running = true; }
 
@@ -32,11 +36,28 @@ Singleton {
     busy = true;
     applying = name;
     error = "";
+    coverColor = colors[name]?.background0 ?? Theme.background0;
+    covering = true;
+    coverSafety.restart();
     setProc.command = ["python3", dotfiles + "/install.py", "theme", "set", name];
     setProc.running = true;
   }
 
   Component.onCompleted: refresh()
+
+  // the screen is repainted a moment after the colours are read
+  Timer {
+    id: uncover
+    interval: 150
+    onTriggered: root.covering = false
+  }
+
+  // never stuck: a switch that hangs lifts the curtain anyway
+  Timer {
+    id: coverSafety
+    interval: 15000
+    onTriggered: root.covering = false
+  }
 
   Process {
     id: listProc
@@ -57,6 +78,7 @@ Singleton {
         root.themes = names;
         root.current = (active ?? "").trim();
         Theme.live = colors[root.current] ?? ({});
+        if (!root.busy) uncover.restart();
       }
     }
   }
