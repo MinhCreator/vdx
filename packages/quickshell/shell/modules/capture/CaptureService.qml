@@ -264,7 +264,7 @@ Singleton {
   Timer {
     id: recordStart
     property var args: []
-    interval: 150
+    interval: closeTimer.interval + 60   // after the overlay is gone, not while it fades
     onTriggered: {
       recorder.command = args;
       recorder.running = true;

@@ -273,12 +273,12 @@ Variants {
       // the target's frame and size
       Rectangle {
         visible: root.hasTarget && root.live
-        x: root.fx - 1
-        y: root.fy - 1
-        width: root.fw + 2
-        height: root.fh + 2
+        x: root.fx - Theme.windowFrameWidth
+        y: root.fy - Theme.windowFrameWidth
+        width: root.fw + 2 * Theme.windowFrameWidth
+        height: root.fh + 2 * Theme.windowFrameWidth
         color: "transparent"
-        border.width: Theme.frameWidth
+        border.width: Theme.windowFrameWidth
         border.color: CaptureService.kind === "record" ? Theme.red : Theme.foreground0
       }
 
