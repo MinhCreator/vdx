@@ -85,6 +85,10 @@ Item {
         root.startPending = true;
         popup.visible = false;
       }
+      onLibraryRequested: {
+        popup.visible = false;
+        CaptureService.openLibrary();
+      }
     }
   }
 }

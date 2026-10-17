@@ -11,6 +11,7 @@ KitFrame {
   property int elapsed: 0
 
   signal started()
+  signal libraryRequested()
 
   KitHeader {
     icon: CaptureService.kind === "record" ? "video" : "camera"
@@ -28,5 +29,14 @@ KitFrame {
 
     width: parent.width
     onStarted: root.started()
+  }
+
+  KitLine {}
+
+  KitButton {
+    width: parent.width
+    icon: "external"
+    text: "Open the library"
+    onClicked: root.libraryRequested()
   }
 }
