@@ -1,0 +1,7 @@
+# xdg-desktop-portal routes to the shell's file manager (scripts/files_portal.py);
+# the launcher entry opens it.
+dir = "~/.config/xdg-desktop-portal"
+
+[files]
+"shellfiles.portal" = "~/.local/share/xdg-desktop-portal/portals/shellfiles.portal"
+"shellfiles.desktop" = "~/.local/share/applications/shellfiles.desktop"

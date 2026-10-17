@@ -35,7 +35,10 @@ class Links(unittest.TestCase):
         on = components.closure({"quickshell"}, self.cat)
         left = targets(on)
         self.assertTrue(left)
-        self.assertTrue(all(str(t).startswith((str(TGT / "quickshell"), str(TGT / "hypr"))) for t in left), left)
+        # the portal's routing (xdg-portal) is the shell's too
+        own = (str(TGT / "quickshell"), str(TGT / "hypr"), str(TGT / "xdg-desktop-portal"),
+               str(HOME / ".local/share/xdg-desktop-portal"), str(HOME / ".local/share/applications/shellfiles.desktop"))
+        self.assertTrue(all(str(t).startswith(own) for t in left), left)
         self.assertNotIn(HOME / ".zshenv", left)
 
 

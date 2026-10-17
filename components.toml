@@ -49,10 +49,10 @@ group = "desktop"
 about = "The shell: bar, popups, launcher, Shell Manager and its apps"
 requires = ["hypr"]
 suggests = ["mako", "gtk"]
-pacman = ["quickshell", "awww", "hyprsunset", "brightnessctl", "gpu-screen-recorder", "wiremix",
+pacman = ["quickshell", "python-gobject", "xdg-desktop-portal", "udisks2", "ffmpegthumbnailer", "poppler", "awww", "hyprsunset", "brightnessctl", "gpu-screen-recorder", "wiremix",
           "libpulse", "bluez", "bluez-utils", "networkmanager", "libnotify", "upower",
           "pacman-contrib", "glib2", "fd", "xdg-utils", "ttf-jetbrains-mono-nerd", "cava"]
-links = ["quickshell"]
+links = ["quickshell", "xdg-portal"]
 modules = ["workspaces", "clock", "equalizer", "themes", "wallpapers", "brightness", "audio", "wifi", "battery", "language", "shell",
            "notifications", "capture", "clipboard", "sysmon", "taskmanager", "cleaner", "packages",
            "display", "windows", "folder"]
@@ -136,7 +136,7 @@ links = ["nvim"]
 
 [elio]
 group = "apps"
-about = "elio, the terminal file manager (Super + E)"
+about = "elio, the terminal file manager"
 default = false
 aur = ["elio"]
 links = ["elio"]

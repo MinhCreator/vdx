@@ -1,0 +1,11 @@
+# The shell's file manager in launchers and as the folder handler
+# (xdg-mime default shellfiles.desktop inode/directory).
+[Desktop Entry]
+Type=Application
+Name=Files
+Comment=Browse, copy, move, search and the trash
+Exec=qs -c shell ipc call files open
+Icon=folder
+Categories=System;FileTools;FileManager;
+MimeType=inode/directory;
+NoDisplay=false
