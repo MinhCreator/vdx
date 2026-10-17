@@ -121,7 +121,8 @@ the others. A module is in one bar only. In the island style each is
 an island of its own: its modules' popups open inside it as in the island
 (`bar/island/IslandChild.qml`); with no centre showing they meet in the
 middle. Bar › Style › Spacing and Separators: the room between modules and
-the "|" in it, in every bar.
+the "|" in it, in every bar. The notifications bell's unseen dot shows
+on the Folder while the bell is tucked in it, never beside the bell in the bar.
 
 ## Requirements
 

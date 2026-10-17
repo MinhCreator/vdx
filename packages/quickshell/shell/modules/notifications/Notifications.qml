@@ -5,7 +5,8 @@ import qs.components
 import qs.config
 import qs.kit
 
-// Bell at the right edge; a red dot while there are unseen notifications.
+// Bell at the right edge. Unseen notifications light it (tint); a tucked-away
+// bell tells the Folder (its `attention`), which draws the dot.
 Item {
   id: root
 
@@ -14,6 +15,8 @@ Item {
   // the Folder opens this module's popup when its tile is clicked
   function openPopup() { popup.toggle(); }
 
+  readonly property bool attention: NotificationsService.unseen > 0
+
   implicitWidth: bell.implicitWidth
   implicitHeight: bell.implicitHeight
 
@@ -21,20 +24,7 @@ Item {
     id: bell
     anchors { left: parent.left; verticalCenter: parent.verticalCenter }
     icon: "bell"
-    tint: NotificationsService.unseen > 0 ? Theme.foreground0 : Theme.gray
-
-    // unseen mark: a small red square on the bell's corner
-    Rectangle {
-      radius: Theme.pill(height)
-      visible: NotificationsService.unseen > 0 && ModuleSettings.get("notifications", "dot", true)
-      x: Theme.fontSize - 3
-      y: 0
-      width: 6
-      height: 6
-      color: Theme.red
-      border.width: Theme.frameWidth
-      border.color: Theme.background0
-    }
+    tint: root.attention ? Theme.foreground0 : Theme.gray
   }
 
   MouseArea {

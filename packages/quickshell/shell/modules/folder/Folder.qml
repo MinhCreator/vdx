@@ -22,6 +22,14 @@ Item {
     return null;
   }
 
+  // a tucked module with news (its `attention`) puts a dot on the folder
+  function anyAttention() {
+    for (let i = 0; i < tucked.count; i++)
+      if (tucked.itemAt(i)?.attention) return true;
+    return false;
+  }
+  readonly property bool attention: anyAttention()
+
   implicitWidth: face.implicitWidth
   implicitHeight: face.implicitHeight
 
@@ -30,6 +38,19 @@ Item {
     icon: "folder"
     text: root.ids.length > 0 ? String(root.ids.length) : ""
     tint: root.ids.length > 0 ? Theme.foreground0 : Theme.gray
+
+    // unseen mark: a small red square on the folder's corner
+    Rectangle {
+      radius: Theme.pill(height)
+      visible: root.attention && ShellSettings.barFolderDot
+      x: Theme.fontSize - 3
+      y: 0
+      width: 6
+      height: 6
+      color: Theme.red
+      border.width: Theme.frameWidth
+      border.color: Theme.background0
+    }
   }
 
   Repeater {
@@ -40,6 +61,7 @@ Item {
     // shows, and their popups (own windows) line up exactly with the folder's
     Loader {
       required property string modelData
+      readonly property bool attention: item?.attention ?? false
       opacity: 0
       width: root.width
       height: root.height

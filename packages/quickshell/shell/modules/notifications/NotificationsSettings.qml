@@ -2,15 +2,10 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// Notifications options in the Shell Manager: the bell, then the popup.
+// Notifications options in the Shell Manager: the popup. The unseen dot is a
+// Bar option (Bar › Style › Folder dot), it shows on the Folder.
 Column {
   spacing: Theme.gapGroup
-
-  KitLabel { text: "BAR" }
-
-  KitToggleRow { module: "notifications"; key: "dot"; label: "Unread dot"; hint: "A red square on the bell for unseen ones" }
-
-  KitLine {}
 
   KitLabel { text: "POPUP" }
 

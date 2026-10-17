@@ -164,6 +164,16 @@ Column {
     }
   }
 
+  KitRow {
+    label: "Folder dot"
+    hint: "A dot for unseen notices"
+
+    KitSwitch {
+      checked: ShellSettings.barFolderDot
+      onToggled: ShellSettings.set("barFolderDot", !checked)
+    }
+  }
+
   // a right click on a module opens its options (the module's own page)
   KitRow {
     label: "Settings on right click"
