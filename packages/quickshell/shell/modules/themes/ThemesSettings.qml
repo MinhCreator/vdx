@@ -26,6 +26,7 @@ Column {
     ]
   }
 
+  KitToggleRow { module: "themes"; key: "english"; fallback: true; label: "English layout"; hint: "Switched to when it opens" }
   KitToggleRow { module: "themes"; key: "wheel"; fallback: true; label: "Wheel picks"; hint: "Over the cards or the list" }
   KitToggleRow { module: "themes"; key: "barWheel"; fallback: true; label: "Wheel on the bar"; hint: "Switches to the next theme" }
 }

@@ -1,5 +1,6 @@
 import QtQuick
 import qs.apps.shellmanager
+import qs.components
 import qs.config
 import qs.kit
 
@@ -8,7 +9,7 @@ import qs.kit
 //   cards — a strip of cards, one per theme: its background, its palette as
 //           dots, its name in its own text colour; the ends fade out;
 //   list  — the classic popup: header, search, rows with a small palette.
-// Both: a search field on top; arrows (and the wheel, an option) move the
+// Both: a search field on top (English layout on open, an option); arrows (and the wheel, an option) move the
 // pick, Enter or a click switches to it. The active theme has a check. In the
 // island the cards go bare (no header, no footer), as the island frames them.
 KitFrame {
@@ -39,6 +40,7 @@ KitFrame {
 
   // the popup came up: a fresh search, the active theme picked and in view
   function shown() {
+    if (ModuleSettings.get("themes", "english", true)) Hypr.englishLayout();
     search.text = "";
     search.input.forceActiveFocus();
     ThemeService.refresh();
@@ -177,20 +179,32 @@ KitFrame {
       radius: Theme.radiusControl
       color: picked ? Theme.background3 : area.containsMouse ? Theme.background1 : "transparent"
 
-      Row {
+      // the palette on the theme's own background
+      Rectangle {
         id: palette
-        anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
-        spacing: 3
+        anchors { left: parent.left; leftMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
+        width: dotsRow.implicitWidth + 2 * Theme.gapSmall
+        height: 18
+        radius: Theme.radiusControl
+        color: root.colorOf(row.modelData, "background0")
+        border.width: Theme.frameWidth
+        border.color: Theme.background2
 
-        Repeater {
-          model: root.dots
-          Rectangle {
-            required property string modelData
-            anchors.verticalCenter: parent.verticalCenter
-            width: 7
-            height: 7
-            radius: Theme.pill(height)
-            color: root.colorOf(row.modelData, modelData)
+        Row {
+          id: dotsRow
+          anchors.centerIn: parent
+          spacing: 3
+
+          Repeater {
+            model: root.dots
+            Rectangle {
+              required property string modelData
+              anchors.verticalCenter: parent.verticalCenter
+              width: 7
+              height: 7
+              radius: Theme.pill(height)
+              color: root.colorOf(row.modelData, modelData)
+            }
           }
         }
       }
