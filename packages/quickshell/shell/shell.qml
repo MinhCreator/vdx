@@ -19,12 +19,13 @@ import qs.apps.taskmanager
 import qs.bar
 import qs.bar.island
 import qs.components
+import qs.config
 import qs.modules.audio
 
 // Entry point: a bar on every screen that has one on (BarLayout), recoloured when the dotfiles theme changes.
 Scope {
   Variants {
-    model: Quickshell.screens.filter(s => BarLayout.barOn(s.name))
+    model: ShellSettings.loaded ? Quickshell.screens.filter(s => BarLayout.barOn(s.name)) : []
 
     Bar {}
   }

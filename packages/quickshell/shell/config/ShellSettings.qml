@@ -45,13 +45,21 @@ Singleton {
 
   function set(key, value) { state[key] = value; }
 
+  // until the file is read the options are their defaults (barStyle solid):
+  // the bars wait for it (shell.qml), or the island window starts as a strip
+  property bool loaded: false
+
   FileView {
     path: Quickshell.statePath("settings.json")
     printErrors: false
     watchChanges: true
     onFileChanged: reload()
     onAdapterUpdated: writeAdapter()
-    onLoadFailed: writeAdapter()
+    onLoaded: root.loaded = true
+    onLoadFailed: {
+      writeAdapter();
+      root.loaded = true;
+    }
 
     JsonAdapter {
       id: state
