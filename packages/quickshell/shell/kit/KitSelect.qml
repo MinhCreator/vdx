@@ -37,7 +37,7 @@ Column {
   // a hidden measure of every choice's text, in the box's font
   Item {
     visible: false
-    Repeater {
+    Instantiator {
       id: choiceSizes
       model: root.model
 
