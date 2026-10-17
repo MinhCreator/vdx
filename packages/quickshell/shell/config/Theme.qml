@@ -142,7 +142,6 @@ QtObject {
   readonly property int headerInset: 3
   readonly property int textDescent: 2          // the line box under a text's baseline, past its ink
   readonly property int controlWidth: 300        // a setting's choices / field (KitRow wide)
-  readonly property int controlMinWidth: 120     // the least a choice box shrinks to (KitSelect), a value still reads
   readonly property int rowStackBelow: 480       // a wide KitRow narrower than this puts its control under the label
   readonly property int popupGap: 6
   readonly property int frameWidth: material ? 0 : 1          // controls: buttons, selects, fields

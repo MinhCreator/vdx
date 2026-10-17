@@ -17,13 +17,39 @@ Column {
   property bool expanded: false
   // The box takes the standard width (KitRow's, so the right edges line up) when
   // the row has room for it; a narrower row gives the label half of it (less the
-  // gap), down to the least a value reads at. Never wider than the row itself.
-  property real boxWidth: Math.min(width, Math.max(Theme.controlMinWidth,
+  // gap). A box never gets narrower than its widest choice needs, and never
+  // wider than the row.
+  property real boxWidth: Math.min(width, Math.max(choiceWidth,
     Math.min(Theme.controlWidth, (width - Theme.gapWide) / 2)))
   // The open list floats over what follows instead of pushing it down.
   property bool overlay: false
 
   readonly property var selected: model.find(c => c.value === current) ?? null
+
+  // the width the widest choice needs: its text in the font, plus the box's
+  // and the list's own padding (text margin, chevron or check, gaps)
+  readonly property real choiceWidth: {
+    let widest = 0;
+    for (let i = 0; i < choiceSizes.count; i++) widest = Math.max(widest, choiceSizes.objectAt(i).advanceWidth);
+    return Math.ceil(widest) + 2 * Theme.gapLoose + Theme.iconSmall + Theme.gapSmall;
+  }
+
+  // a hidden measure of every choice's text, in the box's font
+  Item {
+    visible: false
+    Repeater {
+      id: choiceSizes
+      model: root.model
+
+      TextMetrics {
+        required property var modelData
+        font.family: Theme.fontFamily
+        font.pixelSize: Theme.fontSize
+        font.weight: Theme.fontWeight
+        text: modelData.label
+      }
+    }
+  }
 
   signal picked(var value)
 
@@ -115,8 +141,8 @@ Column {
 
   // Column lays out no zero-height child, so in overlay mode the list hangs
   // off the row (below it, over the following content) instead of the slot.
-  // The list is the standard width (or the row's, when narrower) and sits under
-  // the box on the same right edge, so its choices are not cut.
+  // The list is the standard width, or what its widest choice needs, and never
+  // more than the row. It sits under the box on the same right edge.
   Item {
     id: slot
     width: parent.width
@@ -128,7 +154,7 @@ Column {
       parent: root.overlay ? row : slot
       y: root.overlay ? row.height + root.spacing : 0
       visible: root.expanded
-      width: Math.min(Theme.controlWidth, parent.width)
+      width: Math.min(parent.width, Math.max(Theme.controlWidth, root.choiceWidth))
       x: parent.width - width
       height: options.implicitHeight + 2 * inset
       radius: Theme.radiusControl
