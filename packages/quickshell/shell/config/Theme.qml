@@ -48,10 +48,19 @@ QtObject {
   readonly property bool island: ShellSettings.barStyle === "island"
   readonly property int islandTop: 6
   readonly property int islandHeight: 32
+  readonly property int islandFrameWidth: 1      // either control style: it floats over windows
   // the island's corners: half again a popup's, so it follows the slider; the
   // resting pill no rounder than a half circle (sharp: 0)
   readonly property int islandRadius: Math.round(radiusSurface * 1.5)
   readonly property int barEdge: island ? islandTop + islandHeight : barHeight
+
+  // ---- controls (Appearance › Controls) ----
+  // outlined: framed controls on the surface (the terminal look). material:
+  // no frames — controls are filled one step up, a popup has a quiet hairline
+  readonly property bool material: ShellSettings.material
+  readonly property color controlFill: material ? background1 : "transparent"
+  readonly property color controlHover: material ? background2 : background1
+  readonly property color popupFrame: material ? background2 : frame
 
   // ---- corners (Appearance › Corners) ----
   // sharp: all 0. round: a surface takes the chosen radius, smaller things a
@@ -90,8 +99,8 @@ QtObject {
   readonly property int controlWidth: 300        // a setting's choices / field (KitRow wide)
   readonly property int rowStackBelow: 480       // a wide KitRow narrower than this puts its control under the label
   readonly property int popupGap: 6
-  readonly property int frameWidth: 1          // controls: buttons, selects, fields
-  readonly property int windowFrameWidth: 2    // popup frames, like hypr windows, mako
+  readonly property int frameWidth: material ? 0 : 1          // controls: buttons, selects, fields
+  readonly property int windowFrameWidth: material ? 1 : 2    // popup frames, like hypr windows, mako
   readonly property int visibleRows: 8
   readonly property int popupStatusMs: 2500       // how long ok / error marks stay
   readonly property string ellipsis: "\u2026"

@@ -3,7 +3,7 @@ import qs.config
 import qs.kit
 
 // Appearance: everything that changes how the desktop looks — the theme with a
-// live preview, the icon style, the corners, the wallpaper, the system font
+// live preview, the icon style, the controls, the corners, the wallpaper, the system font
 // and the cursor, one section each (ThemeSection … CursorSection).
 Column {
   id: root
@@ -31,6 +31,7 @@ Column {
   readonly property var jumps: [
     { key: "themes",    label: "Themes",    y: themeSection.y },
     { key: "icons",     label: "Icons",     y: iconsSection.y },
+    { key: "controls",  label: "Controls",  y: controlsSection.y },
     { key: "corners",   label: "Corners",   y: cornersSection.y },
     { key: "wallpaper", label: "Wallpaper", y: wallpaperSection.y },
     { key: "font",      label: "Font",      y: fontSection.y },
@@ -42,6 +43,8 @@ Column {
   ThemeSection { id: themeSection; width: parent.width; page: root }
   KitLine {}
   IconsSection { id: iconsSection; width: parent.width }
+  KitLine {}
+  ControlsSection { id: controlsSection; width: parent.width }
   KitLine {}
   CornersSection { id: cornersSection; width: parent.width }
   KitLine {}

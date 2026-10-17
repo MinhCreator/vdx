@@ -43,6 +43,14 @@ KitFrame {
     search.input.forceActiveFocus();
     ThemeService.refresh();
     current = Math.max(0, matches.indexOf(ThemeService.current));
+    reveal.restart();
+  }
+
+  // the content settles (moved into the island, sized) a moment after it shows
+  Timer {
+    id: reveal
+    interval: 60
+    onTriggered: (root.cards ? strip : rows).positionViewAtIndex(root.current, ListView.Center)
   }
 
   onQueryChanged: current = Math.max(0, matches.indexOf(ThemeService.current))
@@ -85,7 +93,7 @@ KitFrame {
 
   // ---- cards ----
   Item {
-    visible: root.cards
+    visible: root.cards && root.matches.length > 0
     width: parent.width
     height: 84
 

@@ -22,7 +22,7 @@ Rectangle {
   width: parent ? parent.width : 0
   implicitHeight: 32
   radius: Theme.radiusControl
-  color: "transparent"
+  color: Theme.material ? (textInput.activeFocus || hover.hovered ? Theme.controlHover : Theme.controlFill) : "transparent"
   border.width: Theme.frameWidth
   border.color: textInput.activeFocus || hover.hovered ? Theme.foreground2 : Theme.gray
   Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
@@ -32,6 +32,7 @@ Rectangle {
   KitText {
     id: prompt
     anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+    visible: !Theme.material
     text: "❯"
     color: textInput.activeFocus ? Theme.yellow : Theme.gray
   }
@@ -40,7 +41,7 @@ Rectangle {
     id: textInput
     // a password stands in the middle of the field: the right margin matches the prompt's side
     readonly property bool masked: echoMode === TextInput.Password
-    anchors { left: prompt.right; leftMargin: Theme.gapMedium; right: parent.right; rightMargin: masked ? prompt.width + 18 : 10; top: parent.top; bottom: parent.bottom }
+    anchors { left: Theme.material ? parent.left : prompt.right; leftMargin: Theme.material ? Theme.gapWide : Theme.gapMedium; right: parent.right; rightMargin: masked ? prompt.width + 18 : 10; top: parent.top; bottom: parent.bottom }
     verticalAlignment: TextInput.AlignVCenter
     horizontalAlignment: masked ? TextInput.AlignHCenter : TextInput.AlignLeft
     leftPadding: masked ? font.letterSpacing : 0   // the spacing trails every square, the last one too
@@ -65,7 +66,8 @@ Rectangle {
     }
 
     cursorDelegate: Rectangle {
-      width: Math.round(Theme.fontSize * 0.6)
+      // the terminal's block, or a thin bar in front of the placeholder (material)
+      width: Theme.material ? 2 : Math.round(Theme.fontSize * 0.6)
       color: Theme.foreground0
       visible: textInput.activeFocus
 
@@ -81,7 +83,7 @@ Rectangle {
 
     KitText {
       anchors.fill: parent
-      visible: textInput.text === "" && !textInput.activeFocus
+      visible: textInput.text === "" && (Theme.material || !textInput.activeFocus)
       text: root.placeholder
       elide: Text.ElideRight
       color: Theme.gray

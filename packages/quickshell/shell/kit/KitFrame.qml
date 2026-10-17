@@ -24,7 +24,7 @@ Rectangle {
   radius: framed ? Theme.radiusSurface : 0
   color: inIsland ? "transparent" : Theme.background0
   border.width: framed && !inIsland ? Theme.windowFrameWidth : 0
-  border.color: Theme.frame
+  border.color: Theme.popupFrame
 
   Column {
     id: column

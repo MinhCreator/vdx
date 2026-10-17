@@ -61,7 +61,7 @@ Column {
       width: root.boxWidth
       height: 30
       radius: Theme.radiusControl
-      color: boxArea.containsMouse && !root.disabled ? Theme.background1 : "transparent"
+      color: boxArea.containsMouse && !root.disabled ? Theme.controlHover : Theme.controlFill
       border.width: Theme.frameWidth
       border.color: root.expanded || boxArea.containsMouse ? Theme.foreground2 : Theme.gray
       opacity: root.disabled ? 0.4 : 1
@@ -133,7 +133,7 @@ Column {
       opacity: shown
       onVisibleChanged: if (visible && Motion.controls) dropIn.restart()
       NumberAnimation { id: dropIn; target: list; property: "shown"; from: 0; to: 1; duration: Motion.normal; easing.type: Motion.easing }
-      color: root.overlay ? Theme.background0 : "transparent"
+      color: Theme.material ? Theme.background1 : root.overlay ? Theme.background0 : "transparent"
       border.width: Theme.frameWidth
       border.color: Theme.gray
 
@@ -156,7 +156,7 @@ Column {
             width: options.width
             height: 28
             radius: Math.max(0, Theme.radiusControl - 2)
-            color: active ? Theme.background3 : optionArea.containsMouse ? Theme.background1 : "transparent"
+            color: active ? Theme.background3 : optionArea.containsMouse ? Theme.controlHover : "transparent"
 
             KitText {
               anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }

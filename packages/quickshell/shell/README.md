@@ -83,6 +83,12 @@ Workspaces, Music, Radio, Equalizer, Clock, Themes, Brightness, Audio, Wi-Fi, Mi
 Language, AI, Shell, Notifications, Capture, Clipboard, System, Task manager,
 Cleaner, VirusTotal, Packages, Display, Windows, Chat, Folder.
 
+## Controls
+
+Shell Manager › Appearance › Controls: Outlined (framed controls, the
+terminal look) or Material (filled controls, no frames or prompt arrows,
+a quiet hairline round popups). The island keeps its frame either way.
+
 ## Corners
 
 Shell Manager › Appearance › Corners: Sharp, or Round with one radius on a

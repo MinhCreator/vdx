@@ -55,6 +55,9 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   `radiusCard` (tiles, previews, cards), `radiusControl` (buttons, fields,
   rows, checkboxes), `Theme.pill(h)` (tracks, knobs, dots); all 0 when sharp.
   An image in a rounded tile sits in a `ClippingRectangle`.
+- Controls: Appearance › Controls (outlined | material). A control's frame is
+  `Theme.frameWidth` (0 in material), its fill `Theme.controlFill` /
+  `controlHover`, a popup's frame `Theme.popupFrame`; never a literal 1.
 
 - Spacing: the gaps and edge insets are `Theme.gapHair` (4), `gapTight` (2),
   `gapSmall` (6), `gapMedium` (8), `gapLoose` (10), `gapWide` (12) and `gapGroup`

@@ -132,7 +132,7 @@ Item {
     height: root.size[1]
     radius: Math.min(height / 2, Theme.islandRadius)
     color: Theme.background0
-    border.width: Theme.frameWidth
+    border.width: Theme.islandFrameWidth
     border.color: Theme.background2
     clip: true
 
@@ -263,7 +263,7 @@ Item {
     height: Theme.islandHeight
     radius: Math.min(height / 2, Theme.islandRadius)
     color: backArea.containsMouse ? Theme.background1 : Theme.background0
-    border.width: Theme.frameWidth
+    border.width: Theme.islandFrameWidth
     border.color: Theme.background2
     visible: reveal > 0
     opacity: reveal
