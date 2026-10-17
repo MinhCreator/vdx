@@ -20,9 +20,8 @@ KitColumn {
   }
 
   KitRow {
-    wide: true
     label: "Dot colour"
-    hint: ""
+    hint: "Theme: the text colour"
     visible: ShellSettings.barFolderDot
 
     // a colour dot per choice, pushed to the right edge (laid out right to left,
