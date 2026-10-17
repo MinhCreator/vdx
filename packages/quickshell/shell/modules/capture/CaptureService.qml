@@ -53,6 +53,19 @@ Singleton {
   // the recorder then sees only Mesa (the integrated GPU) and never loads NVIDIA.
   readonly property string encoder: settings.encoder
   readonly property string encoderInUse: encoder !== "auto" ? encoder : BatteryService.plugged ? "gpu" : "igpu"
+  // auto | h264 | hevc. Auto is HEVC on the GPU and H.264 on the CPU (x264 has no HEVC here).
+  // H.264 on the GPU tints the faint greys of a flat wallpaper; HEVC keeps them.
+  readonly property string codec: settings.codec
+  readonly property string codecInUse: encoderInUse === "cpu" ? "h264" : codec !== "auto" ? codec : "hevc"
+  // what the codec means for this recording, under the popup's choices
+  readonly property var codecNote: {
+    if (codec === "hevc" && encoderInUse === "cpu") return { text: "The CPU encoder only makes H.264", warn: false };
+    if (codecInUse === "h264" && encoderInUse !== "cpu") return { text: "H.264 tints flat greys like the wallpaper: pick HEVC", warn: true };
+    if (codecInUse === "h264" && quality !== "high") return { text: "CPU H.264 tints flat greys below High", warn: true };
+    if (codecInUse === "hevc" && quality === "low") return { text: "Low tints flat greys even in HEVC: pick Medium or High", warn: true };
+    if (codecInUse === "hevc") return { text: "HEVC plays in mpv, Chrome and Telegram, not Firefox", warn: false };
+    return { text: "", warn: false };
+  }
 
   // ---- recording ----
   readonly property bool recording: recorder.running
@@ -163,6 +176,7 @@ Singleton {
   function setQuality(value) { settings.quality = value; }
   function setCursor(value) { cursor = value; }
   function setEncoder(value) { settings.encoder = value; }
+  function setCodec(value) { settings.codec = value; }
 
   // where a new shot is written first: its folder, or the cache until Save as / never
   function shotPath() {
@@ -217,11 +231,8 @@ Singleton {
                   "-ac", "aac", "-fallback-cpu-encoding", "yes", "-o", file];
     if (audio === "system") args.push("-a", "default_output");
     else if (audio === "mic") args.push("-a", "default_input");
-    // HEVC on the GPU: H.264 there rounds the faint chroma of a flat near-grey
-    // (the wallpaper) to grey in some blocks and not in others, a tinted
-    // rectangle in the video. The CPU encoder only does H.264.
+    if (codecInUse === "hevc") args.push("-k", "hevc");
     if (encoderInUse === "cpu") args.push("-encoder", "cpu");
-    else args.push("-k", "hevc");
     if (encoderInUse === "igpu") args.unshift("env", "__EGL_VENDOR_LIBRARY_FILENAMES=" + mesaOnly);
     recordFile = file;
     // start after the overlay is gone, so it is not in the first frames
@@ -331,6 +342,7 @@ Singleton {
       property int fps: 60
       property string quality: "medium"
       property string encoder: "auto"
+      property string codec: "auto"
     }
   }
 

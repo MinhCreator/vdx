@@ -4,7 +4,7 @@ import qs.kit
 
 // The capture panel, in the popups' style: what (region / window / screen) and
 // as (shot / recording) as full-width choice rows; where it goes; a recording's
-// sound, frame rate, quality and encoder (auto: integrated GPU on battery); the
+// sound, frame rate, quality, codec and encoder (auto: integrated GPU on battery); the
 // pointer. Start closes the panel and, once the bar is back, hands over to the
 // selection on screen; a recording shows its time and stops here.
 KitFrame {
@@ -132,6 +132,8 @@ KitFrame {
           { title: "FRAME RATE", key: "fps", items: [{ label: "30 fps", value: 30 }, { label: "60 fps", value: 60 }] },
           { title: "QUALITY", key: "quality", items: [{ label: "Low", value: "low" }, { label: "Medium", value: "medium" },
                                                       { label: "High", value: "high" }] },
+          { title: "CODEC", key: "codec", items: [{ label: "Auto", value: "auto" }, { label: "H.264", value: "h264" },
+                                                  { label: "HEVC", value: "hevc" }] },
           { title: "ENCODER", key: "encoder", items: [{ label: "Auto", value: "auto" }, { label: "iGPU", value: "igpu" },
                                                       { label: "GPU", value: "gpu" }, { label: "CPU", value: "cpu" }] }
         ]
@@ -147,24 +149,37 @@ KitFrame {
           KitLabel {
             text: setting.modelData.title
             value: setting.modelData.key === "encoder" && CaptureService.encoder === "auto"
-              ? (CaptureService.encoderInUse === "igpu" ? "IGPU NOW · ON BATTERY" : "GPU NOW · ON POWER") : ""
+              ? (CaptureService.encoderInUse === "igpu" ? "IGPU NOW · ON BATTERY" : "GPU NOW · ON POWER")
+              : setting.modelData.key === "codec" && CaptureService.codec === "auto"
+              ? (CaptureService.codecInUse === "hevc" ? "HEVC NOW" : "H.264 NOW") : ""
           }
 
           KitChoices {
             width: parent.width
             stretch: true
             model: setting.modelData.items
-            current: ({ audio: CaptureService.audio, fps: CaptureService.fps,
-                        quality: CaptureService.quality, encoder: CaptureService.encoder })[setting.modelData.key]
+            current: ({ audio: CaptureService.audio, fps: CaptureService.fps, quality: CaptureService.quality,
+                        codec: CaptureService.codec, encoder: CaptureService.encoder })[setting.modelData.key]
             onPicked: value => {
               const key = setting.modelData.key;
               if (key === "audio") CaptureService.setAudio(value);
               else if (key === "fps") CaptureService.setFps(value);
               else if (key === "quality") CaptureService.setQuality(value);
+              else if (key === "codec") CaptureService.setCodec(value);
               else CaptureService.setEncoder(value);
             }
           }
         }
+      }
+
+      // what the codec does to this recording: a warning in yellow, a note in grey
+      KitText {
+        visible: CaptureService.codecNote.text !== ""
+        width: parent.width
+        wrapMode: Text.WordWrap
+        font.pixelSize: Theme.fontSize - 2
+        color: CaptureService.codecNote.warn ? Theme.yellow : Theme.muted
+        text: CaptureService.codecNote.text
       }
     }
 
