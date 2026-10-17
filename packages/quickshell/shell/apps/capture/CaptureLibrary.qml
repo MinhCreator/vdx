@@ -96,9 +96,28 @@ Column {
     onTextEdited: root.query = text
   }
 
-  KitButton {
+  Timer {
+    id: confirmTimer
+
+    interval: 4000
+    onTriggered: root.confirming = false
+  }
+
+  // gio trash runs outside this process, so the list is read again once it is done
+  Timer {
+    id: reloadTimer
+
+    interval: 800
+    onTriggered: root.refresh()
+  }
+
+  KitLine {
     visible: root.items.length > 0
-    anchors.right: parent.right
+  }
+
+  KitButton {
+    width: parent.width
+    visible: root.items.length > 0
     icon: "trash"
     iconTint: root.confirming ? Theme.red : Theme.foreground0
     text: root.confirming ? "Move all " + root.items.length + " to trash?" : "Clear library"
@@ -216,21 +235,6 @@ Column {
         }
       }
     }
-  }
-
-  Timer {
-    id: confirmTimer
-
-    interval: 4000
-    onTriggered: root.confirming = false
-  }
-
-  // gio trash runs outside this process, so the list is read again once it is done
-  Timer {
-    id: reloadTimer
-
-    interval: 800
-    onTriggered: root.refresh()
   }
 
   KitText {

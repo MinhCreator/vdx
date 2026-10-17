@@ -40,22 +40,24 @@ Singleton {
   property point pointerAt: Qt.point(-1, -1)   // layout coordinates at open
 
   // ---- this capture ----
-  property bool cursor: false         // the pointer in the shot / recording
+  readonly property bool cursor: settings.cursor      // the pointer in the shot / recording
 
   // ---- saved choices ----
   // the last picked, kept across restarts: a bar click can start it at once
   readonly property string mode: settings.mode          // region | window | screen
   readonly property string kind: settings.kind          // shot | record
   readonly property string audio: settings.audio        // off | system | mic
-  readonly property int fps: settings.fps
-  readonly property string quality: settings.quality    // low | medium | high
+  // the one-time options live in modules.json (Shell Manager › Apps › Capture); capture.json
+  // only keeps the last pick. An option never set there falls back to its old capture.json value.
+  readonly property int fps: ModuleSettings.get("capture", "fps", settings.fps)
+  readonly property string quality: ModuleSettings.get("capture", "quality", settings.quality)    // low | medium | high
   // auto | igpu | gpu | cpu. Auto keeps the discrete GPU asleep on battery:
   // the recorder then sees only Mesa (the integrated GPU) and never loads NVIDIA.
-  readonly property string encoder: settings.encoder
+  readonly property string encoder: ModuleSettings.get("capture", "encoder", settings.encoder)
   readonly property string encoderInUse: encoder !== "auto" ? encoder : BatteryService.plugged ? "gpu" : "igpu"
   // auto | h264 | hevc. Auto is HEVC on the GPU and H.264 on the CPU (x264 has no HEVC here).
   // H.264 on the GPU tints the faint greys of a flat wallpaper; HEVC keeps them.
-  readonly property string codec: settings.codec
+  readonly property string codec: ModuleSettings.get("capture", "codec", settings.codec)
   readonly property string codecInUse: encoderInUse === "cpu" ? "h264" : codec !== "auto" ? codec : "hevc"
   // the problems the codec and quality can cause here, most important first:
   // {title, text, warn}; Shell Manager lists them all, the panel shows codecNote
@@ -179,11 +181,11 @@ Singleton {
   function setMode(value) { settings.mode = value; }
   function setKind(value) { settings.kind = value; }
   function setAudio(value) { settings.audio = value; }
-  function setFps(value) { settings.fps = value; }
-  function setQuality(value) { settings.quality = value; }
-  function setCursor(value) { cursor = value; }
-  function setEncoder(value) { settings.encoder = value; }
-  function setCodec(value) { settings.codec = value; }
+  function setFps(value) { ModuleSettings.set("capture", "fps", value); }
+  function setQuality(value) { ModuleSettings.set("capture", "quality", value); }
+  function setCursor(value) { settings.cursor = value; }
+  function setEncoder(value) { ModuleSettings.set("capture", "encoder", value); }
+  function setCodec(value) { ModuleSettings.set("capture", "codec", value); }
 
   // where a new shot is written first: its folder, or the cache until Save as / never
   function shotPath() {
@@ -350,6 +352,7 @@ Singleton {
       property string quality: "medium"
       property string encoder: "auto"
       property string codec: "auto"
+      property bool cursor: false
     }
   }
 

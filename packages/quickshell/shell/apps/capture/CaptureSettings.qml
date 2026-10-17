@@ -14,7 +14,7 @@ Column {
     module: "capture"; key: "shortcut"; fallback: "popup"
     label: "Shortcut opens"
     hint: "Without the module: the bar's centre"
-    model: [{ label: "Popup", value: "popup" }, { label: "Else last", value: "else-last" }, { label: "Last mode", value: "last" }]
+    model: [{ label: "Popup", value: "popup" }, { label: "Popup or last", value: "else-last" }, { label: "Last mode", value: "last" }]
   }
 
   KitLine {}
@@ -38,17 +38,31 @@ Column {
 
   KitLabel { text: "RECORDING" }
 
-  KitRow {
+  KitOptionRow {
+    module: "capture"; key: "quality"; fallback: "medium"
+    label: "Quality"
+    hint: "Low tints flat greys"
+    model: [{ label: "Low", value: "low" }, { label: "Medium", value: "medium" }, { label: "High", value: "high" }]
+  }
+
+  KitOptionRow {
+    module: "capture"; key: "fps"; fallback: 60
+    label: "Frame rate"
+    model: [{ label: "30 fps", value: 30 }, { label: "60 fps", value: 60 }]
+  }
+
+  KitOptionRow {
+    module: "capture"; key: "codec"; fallback: "auto"
     label: "Codec"
     hint: "Auto: HEVC on the GPU"
-    wide: true
+    model: [{ label: "Auto", value: "auto" }, { label: "H.264", value: "h264" }, { label: "HEVC", value: "hevc" }]
+  }
 
-    KitChoices {
-      stretch: true
-      model: [{ label: "Auto", value: "auto" }, { label: "H.264", value: "h264" }, { label: "HEVC", value: "hevc" }]
-      current: CaptureService.codec
-      onPicked: value => CaptureService.setCodec(value)
-    }
+  KitOptionRow {
+    module: "capture"; key: "encoder"; fallback: "auto"
+    label: "Encoder"
+    hint: "Auto: iGPU on battery"
+    model: [{ label: "Auto", value: "auto" }, { label: "iGPU", value: "igpu" }, { label: "GPU", value: "gpu" }, { label: "CPU", value: "cpu" }]
   }
 
   // every problem the current codec, encoder and quality can cause
