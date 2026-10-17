@@ -16,7 +16,7 @@ KitColumn {
   }
 
   KitRow {
-    visible: !(ModuleSettings.get("equalizer", "accent", false) && ShellSettings.accent)
+    visible: !ModuleSettings.get("equalizer", "accent", false)
     label: "Colour"
     hint: "Sea and sunset: gradients"
 

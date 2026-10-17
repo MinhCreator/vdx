@@ -43,7 +43,11 @@ QtObject {
 
   // the equalizer's colours (Modules › Equalizer): one colour, or a [from, to] gradient across its bars
   function equalizerColours(name) {
-    if (ShellSettings.accent && ModuleSettings.get("equalizer", "accent", false)) return [accent, accentEnd];
+    // Follow accent hides the choice: the accent's colours, or the theme's while the accent is off
+    if (ModuleSettings.get("equalizer", "accent", false)) {
+      if (ShellSettings.accent) return [accent, accentEnd];
+      name = "theme";
+    }
     const pair = { sea: ["blue", "green"], sunset: ["yellow", "red"] }[name];
     if (pair) return [notifyDot(pair[0]), notifyDot(pair[1])];
     const one = name === "theme" ? frame : notifyDot(name);
