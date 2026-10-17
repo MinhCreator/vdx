@@ -1,4 +1,5 @@
 import QtQuick
+import qs.bar
 import qs.config
 import qs.kit
 
@@ -8,8 +9,9 @@ Column {
   spacing: Theme.gapGroup
 
   KitLabel { text: "BAR" }
+  BarTextRow { module: "themes" }
 
-  KitToggleRow { module: "themes"; key: "name"; fallback: true; label: "Show theme name"; hint: "Next to the brush icon" }
+  KitToggleRow { visible: ModuleSettings.get("themes", "text", "content") !== "name"; module: "themes"; key: "name"; fallback: true; label: "Show theme name"; hint: "Next to the brush icon" }
 
   KitLine {}
 

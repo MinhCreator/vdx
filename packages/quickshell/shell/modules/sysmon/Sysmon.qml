@@ -51,35 +51,35 @@ Item {
 
     KitBarItem {
       icon: "cpu"
-      text: ModuleSettings.get("sysmon", "barPercent", true) ? root.percent(SysmonService.cpu) : ""
+      text: ModuleSettings.get("sysmon", "barPercent", true) ? BarLayout.faceText("sysmon", root.percent(SysmonService.cpu), "CPU") : ""
       tint: Theme.loadColor(SysmonService.cpu)
     }
 
     KitBarItem {
       visible: root.showMemory
       icon: "grid"
-      text: root.percent(root.memPercent)
+      text: BarLayout.faceText("sysmon", root.percent(root.memPercent), "RAM")
       tint: root.memPercent < 0 ? Theme.muted : Theme.loadColor(root.memPercent)
     }
 
     KitBarItem {
       visible: root.showTemp
       icon: "gauge"
-      text: SysmonService.temps.cpu === null ? "--" : SysmonService.temps.cpu + "°"
+      text: BarLayout.faceText("sysmon", SysmonService.temps.cpu === null ? "--" : SysmonService.temps.cpu + "°", "TEMP")
       tint: SysmonService.temps.cpu === null ? Theme.muted : root.heat(SysmonService.temps.cpu)
     }
 
     KitBarItem {
       visible: root.showGpu && SysmonService.dgpu.state !== "none"
       icon: "monitor"
-      text: SysmonService.dgpu.state === "active" ? root.percent(SysmonService.dgpu.util ?? -1) : "--"
+      text: BarLayout.faceText("sysmon", SysmonService.dgpu.state === "active" ? root.percent(SysmonService.dgpu.util ?? -1) : "--", "GPU")
       tint: SysmonService.dgpu.state === "active" ? Theme.loadColor(SysmonService.dgpu.util ?? 0) : Theme.muted
     }
 
     KitBarItem {
       visible: root.showNetwork
       icon: "download"
-      text: "↓" + root.compact(SysmonService.rxRate) + " ↑" + root.compact(SysmonService.txRate)
+      text: BarLayout.faceText("sysmon", "↓" + root.compact(SysmonService.rxRate) + " ↑" + root.compact(SysmonService.txRate), "NET")
     }
   }
 

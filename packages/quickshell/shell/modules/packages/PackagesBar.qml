@@ -22,8 +22,8 @@ Item {
   KitBarItem {
     id: face
     icon: "package"
-    text: !PackagesService.opt("showCount", true) ? ""
-        : PackagesService.checkedAt === 0 ? "--" : String(PackagesService.count)
+    text: BarLayout.faceText("packages", !PackagesService.opt("showCount", true) ? ""
+        : PackagesService.checkedAt === 0 ? "--" : String(PackagesService.count))
     tint: PackagesService.count > 0 && PackagesService.opt("tint", true) ? Theme.yellow : Theme.foreground0
   }
 

@@ -1,4 +1,5 @@
 import QtQuick
+import qs.bar
 import qs.config
 import qs.kit
 
@@ -9,8 +10,9 @@ KitColumn {
   spacing: Theme.gapGroup
 
   KitLabel { text: "BAR" }
+  BarTextRow { module: "audio" }
 
-  KitToggleRow { module: "audio"; key: "percent"; label: "Show volume"; hint: "Off: icon only" }
+  KitToggleRow { visible: ModuleSettings.get("audio", "text", "content") !== "name"; module: "audio"; key: "percent"; label: "Show volume"; hint: "Off: icon only" }
 
   KitLine {}
 

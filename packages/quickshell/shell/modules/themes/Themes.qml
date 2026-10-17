@@ -22,7 +22,7 @@ Item {
   KitBarItem {
     id: face
     icon: "brush"
-    text: ModuleSettings.get("themes", "name", true) ? ThemeService.current : ""
+    text: BarLayout.faceText("themes", ModuleSettings.get("themes", "name", true) ? ThemeService.current : "")
   }
 
   MouseArea {

@@ -25,7 +25,7 @@ Item {
   KitBarItem {
     id: label
     icon: "bot"
-    text: root.percent >= 0 ? root.percent + "%" : "--"
+    text: BarLayout.faceText("ai", root.percent >= 0 ? root.percent + "%" : "--")
     tint: root.percent >= ClaudeService.critical ? Theme.red
          : root.percent >= ClaudeService.warning ? Theme.yellow
          : Theme.foreground0

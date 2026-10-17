@@ -21,6 +21,7 @@ Item {
   KitBarItem {
     id: face
     icon: "activity"
+    text: BarLayout.label("taskmanager")
     tint: TaskManagerService.popupOpen && TaskManagerService.cpu >= 90 ? Theme.red : Theme.foreground0
   }
 

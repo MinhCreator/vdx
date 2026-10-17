@@ -1,4 +1,5 @@
 import QtQuick
+import qs.bar
 import qs.config
 import qs.kit
 
@@ -7,6 +8,7 @@ Column {
   spacing: Theme.gapGroup
 
   KitLabel { text: "BAR" }
+  BarTextRow { module: "battery" }
 
-  KitToggleRow { module: "battery"; key: "percent"; label: "Show charge"; hint: "Off: icon only" }
+  KitToggleRow { visible: ModuleSettings.get("battery", "text", "content") !== "name"; module: "battery"; key: "percent"; label: "Show charge"; hint: "Off: icon only" }
 }

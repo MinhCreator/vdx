@@ -21,6 +21,7 @@ Item {
   KitBarItem {
     id: face
     icon: "scan"
+    text: BarLayout.label("virustotal")
     tint: !VirusTotalService.opt("tint", true) ? Theme.foreground0
         : VirusTotalService.verdict === "malicious" ? Theme.red
         : VirusTotalService.verdict === "suspicious" ? Theme.yellow : Theme.foreground0

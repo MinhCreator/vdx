@@ -26,9 +26,9 @@ Singleton {
     { id: "brightness",    label: "Brightness",    zone: "right",  icon: "sun", settings: "BrightnessSettings.qml", about: "Backlight, dimming, night light" },
     { id: "audio",         label: "Audio",         zone: "right",  icon: "volume", settings: "AudioSettings.qml", about: "Devices, volumes, app streams" },
     { id: "wifi",          label: "Wi-Fi",         zone: "right",  icon: "wifi", settings: "WifiSettings.qml", about: "Networks, DNS, speed test" },
-    { id: "mihomo",        label: "Mihomo",        zone: "right",  icon: "vpn-key", about: "Proxy service and servers" },
+    { id: "mihomo",        label: "Mihomo",        zone: "right",  icon: "vpn-key", settings: "MihomoSettings.qml", about: "Proxy service and servers" },
     { id: "battery",       label: "Battery",       zone: "right",  icon: "battery-full", settings: "BatterySettings.qml", about: "Charge, limit, power profile, GPU" },
-    { id: "language",      label: "Language",      zone: "right",  icon: "keyboard", about: "Keyboard layout" },
+    { id: "language",      label: "Language",      zone: "right",  icon: "keyboard", settings: "LanguageSettings.qml", about: "Keyboard layout" },
     { id: "ai",            label: "AI",            zone: "right",  icon: "bot", settings: "AiSettings.qml", about: "Claude Code limits, local Ollama models" },
     { id: "shell",         label: "Shell",         zone: "right",  icon: "sliders", about: "Shell Manager: options, modules, layout" },
     { id: "notifications", label: "Notifications", zone: "right",  icon: "bell", settings: "NotificationsSettings.qml", about: "History of notifications" },
@@ -43,7 +43,7 @@ Singleton {
     { id: "display",       label: "Display",       zone: "right",  icon: "monitor", about: "Monitor scale, position and text size · the full window" },
     { id: "windows",       label: "Windows",       zone: "right",  icon: "app-window", settings: "WindowsSettings.qml", about: "Window mode: tiling, floating, scrolling" },
     { id: "chat",          label: "Chat",          zone: "right",  icon: "message", settings: "ChatSettings.qml", about: "A chat with a free opencode model" },
-    { id: "folder",        label: "Folder",        zone: "right",  icon: "folder", about: "Modules tucked away, one click from the bar" }
+    { id: "folder",        label: "Folder",        zone: "right",  icon: "folder", settings: "FolderSettings.qml", about: "Modules tucked away, one click from the bar" }
   ]
   readonly property var zones: ["left", "center", "right"]
 
@@ -99,6 +99,14 @@ Singleton {
   }
 
   function icon(id) { return modules.find(p => p.id === id)?.icon ?? ""; }
+  function label(id) { return modules.find(p => p.id === id)?.label ?? ""; }
+
+  // A bar face's text: its content, or the module's name (`name`, else its label)
+  // when its "Bar text" option says Name (BarTextRow). A face with no content
+  // to show is always named.
+  function faceText(id, content, name) {
+    return ModuleSettings.get(id, "text", "content") === "name" ? (name ?? label(id)) : content;
+  }
 
   // ---- separators ----
   // Custom "|" lines: they sit in a zone like a module and move the same way

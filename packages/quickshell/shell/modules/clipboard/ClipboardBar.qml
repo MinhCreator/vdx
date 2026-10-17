@@ -21,6 +21,7 @@ Item {
   KitBarItem {
     id: face
     icon: "clipboard"
+    text: BarLayout.label("clipboard")
   }
 
   MouseArea {

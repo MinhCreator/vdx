@@ -83,6 +83,7 @@ Item {
     KitBarItem {
       id: shellButton
       icon: "sliders"
+      text: BarLayout.label("shell")
 
       MouseArea {
         anchors.fill: parent

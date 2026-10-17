@@ -16,7 +16,8 @@ Item {
 
   // what the bar names: the icon alone or the station and track (Modules › Radio)
   readonly property string show: ModuleSettings.get("radio", "show", "title")
-  readonly property bool iconOnly: show === "icon" || maxLength === 0
+  readonly property bool named: ModuleSettings.get("radio", "text", "content") === "name"
+  readonly property bool iconOnly: !named && (show === "icon" || maxLength === 0)
 
   required property PanelWindow bar
 
@@ -30,9 +31,9 @@ Item {
   }
 
   // "Station - track on air" while playing, cut like the music label.
-  readonly property string text: RadioService.active
+  readonly property string text: BarLayout.faceText("radio", RadioService.active
     ? [MpdService.player.station, MpdService.player.title].filter(s => s).join(" - ")
-    : "Radio"
+    : "Radio")
 
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight

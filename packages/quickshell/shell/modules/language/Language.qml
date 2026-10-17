@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell.Hyprland
 import Quickshell.Io
+import qs.bar
 import qs.config
 import qs.kit
 
@@ -18,7 +19,7 @@ Item {
   KitText {
     id: label
     anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-    text: Format.layout(root.layout) || root.layout
+    text: BarLayout.faceText("language", Format.layout(root.layout) || root.layout)
     color: Theme.foreground1
   }
 

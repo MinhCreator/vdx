@@ -14,13 +14,20 @@ Item {
   // the Folder opens this module's popup when its tile is clicked
   function openPopup() { popup.toggle(); }
 
+  // the server the policy group points at, cut to fit the bar
+  readonly property int maxName: 16
+  function shortCurrent() {
+    const c = MihomoService.current;
+    return c.length > maxName ? c.slice(0, maxName - 1) + Theme.ellipsis : c;
+  }
+
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
 
   KitBarItem {
     id: label
     icon: "vpn-key"
-    text: "VPN"
+    text: BarLayout.faceText("mihomo", MihomoService.serviceOn && MihomoService.current !== "" ? root.shortCurrent() : "--")
     tint: MihomoService.serviceOn ? Theme.green : Theme.gray
   }
 

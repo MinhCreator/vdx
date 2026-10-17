@@ -36,7 +36,7 @@ Item {
   KitBarItem {
     id: face
     icon: "folder"
-    text: root.ids.length > 0 ? String(root.ids.length) : ""
+    text: BarLayout.faceText("folder", root.ids.length > 0 ? String(root.ids.length) : "")
     tint: root.ids.length > 0 ? Theme.foreground0 : Theme.gray
 
     // unseen mark: a small red square on the folder's corner

@@ -28,7 +28,7 @@ Item {
   KitBarItem {
     id: face
     icon: "monitor"
-    text: root.scaleText()
+    text: BarLayout.faceText("display", root.scaleText())
   }
 
   MouseArea {

@@ -22,6 +22,7 @@ Item {
   KitBarItem {
     id: face
     icon: "shield"
+    text: BarLayout.label("backup")
   }
 
   MouseArea {

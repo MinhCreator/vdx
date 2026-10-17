@@ -26,8 +26,8 @@ Item {
     id: bell
     anchors { left: parent.left; verticalCenter: parent.verticalCenter }
     icon: "bell"
-    text: root.badge === "count" && root.attention
-      ? (NotificationsService.unseen > 99 ? "99+" : String(NotificationsService.unseen)) : ""
+    text: BarLayout.faceText("notifications", root.badge === "count" && root.attention
+      ? (NotificationsService.unseen > 99 ? "99+" : String(NotificationsService.unseen)) : "")
     tint: root.attention ? Theme.foreground0 : Theme.gray
 
     // the dot: the same mark as the Folder's, on the bell's corner

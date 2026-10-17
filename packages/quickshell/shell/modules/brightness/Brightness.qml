@@ -20,7 +20,7 @@ Item {
   KitBarItem {
     id: label
     icon: BrightnessService.nightActive ? "moon" : "sun"
-    text: ModuleSettings.get("brightness", "percent", true) ? String(BrightnessService.brightness) : ""
+    text: BarLayout.faceText("brightness", ModuleSettings.get("brightness", "percent", true) ? String(BrightnessService.brightness) : "")
     tint: BrightnessService.nightActive ? Theme.orange : Theme.foreground0
   }
 

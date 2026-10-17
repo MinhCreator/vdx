@@ -19,6 +19,7 @@ Item {
   KitBarItem {
     id: face
     icon: "app-window"
+    text: BarLayout.faceText("windows", WindowsService.current.label)
   }
 
   MouseArea {

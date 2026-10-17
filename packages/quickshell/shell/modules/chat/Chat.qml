@@ -19,6 +19,7 @@ Item {
   KitBarItem {
     id: face
     icon: "message"
+    text: BarLayout.label("chat")
     tint: ChatService.busy ? Theme.yellow : Theme.foreground0
   }
 

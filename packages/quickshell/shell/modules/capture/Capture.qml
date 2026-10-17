@@ -34,9 +34,9 @@ Item {
   KitBarItem {
     id: face
     icon: CaptureService.recording ? "circle" : "camera"
-    text: CaptureService.recording
+    text: BarLayout.faceText("capture", CaptureService.recording
       ? String(Math.floor(root.elapsed / 60)).padStart(2, "0") + ":" + String(root.elapsed % 60).padStart(2, "0")
-      : ""
+      : "")
     tint: CaptureService.recording ? Theme.red : Theme.foreground0
   }
 

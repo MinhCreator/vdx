@@ -1,10 +1,16 @@
 import QtQuick
+import qs.bar
 import qs.kit
 import qs.config
 
 // Windows options in the bar's module settings: when the popup closes by itself.
 Column {
   spacing: Theme.gapGroup
+
+  KitLabel { text: "BAR" }
+  BarTextRow { module: "windows" }
+
+  KitLine {}
 
   KitLabel { text: "POPUP" }
 

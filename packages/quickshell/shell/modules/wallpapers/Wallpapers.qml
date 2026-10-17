@@ -24,7 +24,7 @@ Item {
   KitBarItem {
     id: face
     icon: "image"
-    text: ModuleSettings.get("wallpapers", "name", false) ? (root.current || "--") : ""
+    text: BarLayout.faceText("wallpapers", ModuleSettings.get("wallpapers", "name", false) ? (root.current || "--") : "")
   }
 
   MouseArea {

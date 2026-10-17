@@ -1,4 +1,5 @@
 import QtQuick
+import qs.bar
 import qs.config
 import qs.kit
 
@@ -8,6 +9,11 @@ import qs.kit
 Column {
   id: root
   spacing: Theme.gapGroup
+
+  KitLabel { text: "BAR" }
+  BarTextRow { module: "capture" }
+
+  KitLine {}
 
   KitLabel { text: "SHORTCUT" }
 

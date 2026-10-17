@@ -1,4 +1,5 @@
 import QtQuick
+import qs.bar
 import qs.config
 import qs.kit
 
@@ -8,6 +9,7 @@ KitColumn {
   spacing: Theme.gapGroup
 
   KitLabel { text: "BAR" }
+  BarTextRow { module: "notifications" }
 
   KitRow {
     label: "Unseen dot"
