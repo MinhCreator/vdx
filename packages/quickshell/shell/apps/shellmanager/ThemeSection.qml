@@ -5,8 +5,8 @@ import qs.kit
 import Quickshell
 import Quickshell.Widgets
 
-// Appearance › THEME: a live preview (the bar and a popup over the wallpaper,
-// in the previewed theme's colours) beside the theme list; Apply switches.
+// Appearance › THEME: a live preview (the bar and a specimen window over the
+// wallpaper, in the previewed theme's colours) beside the theme list; Apply switches.
 Column {
   id: root
 
@@ -39,7 +39,7 @@ Column {
     // ---- preview ----
 
     ThemePreview {
-      width: parent.width - themeList.width - 14
+      width: parent.width - themeList.width - Theme.gapGroup
       height: themeList.height
       page: root.page
     }
@@ -48,7 +48,7 @@ Column {
     Column {
       id: themeList
       width: Theme.sideWidth
-      height: 240                 // the preview matches it; buttons meet its bottom
+      height: 268                // the preview matches it; buttons meet its bottom
       spacing: Theme.gapMedium
 
       KitInput {
@@ -107,28 +107,49 @@ Column {
                 color: active ? Theme.background3 : itemArea.containsMouse ? Theme.controlHover : Theme.clear
                 Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
-                // the theme's own surface, text and accents
-                Row {
+                // the theme in its own colours: its surface and frame, "Aa" in its
+                // text, its hues as dots (light or dark, contrast, palette at a glance)
+                Rectangle {
                   id: swatches
                   anchors { left: parent.left; leftMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
-                  spacing: 0
+                  width: sample.implicitWidth + dots.implicitWidth + 3 * Theme.gapHair + 2
+                  height: 20
+                  radius: Theme.radiusControl
+                  color: item.colors.background0 ?? Theme.clear
+                  border.width: 1                     // the theme's own frame: a dark surface shows on the list
+                  border.color: item.colors.background3 ?? Theme.clear
 
-                  Repeater {
-                    model: ["background0", "foreground0", "frame", "green", "blue"]
+                  KitText {
+                    id: sample
+                    anchors { left: parent.left; leftMargin: Theme.gapHair + 1; verticalCenter: parent.verticalCenter }
+                    text: "Aa"
+                    color: item.colors.foreground0 ?? Theme.foreground0
+                    font.pixelSize: Theme.fontSize - 2
+                    font.weight: Font.ExtraBold
+                  }
 
-                    Rectangle {
-                      radius: Theme.pill(width)
-                      required property string modelData
-                      width: 7
-                      height: 14
-                      color: item.colors[modelData] ?? "transparent"
+                  Row {
+                    id: dots
+                    anchors { right: parent.right; rightMargin: Theme.gapHair + 1; verticalCenter: parent.verticalCenter }
+                    spacing: 2
+
+                    Repeater {
+                      model: ["red", "green", "blue", "purple"]
+
+                      Rectangle {
+                        required property string modelData
+                        width: 5
+                        height: 5
+                        radius: Theme.pill(height)
+                        color: item.colors[modelData] ?? Theme.clear
+                      }
                     }
                   }
                 }
 
                 KitText {
                   anchors {
-                    left: swatches.right; leftMargin: Theme.gapLoose
+                    left: swatches.right; leftMargin: Theme.gapMedium
                     right: mark.left; rightMargin: Theme.gapSmall
                     verticalCenter: parent.verticalCenter
                   }
