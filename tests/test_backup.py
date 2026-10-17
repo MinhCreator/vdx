@@ -170,10 +170,16 @@ class Backup(unittest.TestCase):
         self.assertIn("restore latest --target /mnt/restore", text)
         self.assertIn("--tag root", text)
 
-    def test_schedule_refuses_without_a_repository(self):
-        reply, _ = self.cli("schedule", "daily")
-        self.assertFalse(reply["ok"])
-        self.assertIn("repository", reply["error"])
+    def test_schedule_is_kept_without_a_repository_and_starts_with_one(self):
+        reply, _ = self.cli("schedule", "daily", "--time", "05:00")
+        self.assertTrue(reply["ok"])
+        self.assertFalse(reply["running"])
+        self.assertIn("once a repository is set", reply["message"])
+        timer = self.home / ".config/systemd/user/dotfiles-backup.timer"
+        self.assertFalse(timer.exists())
+        self.setup_repo()
+        self.assertTrue(timer.exists())
+        self.assertIn("OnCalendar=*-*-* 05:00:00", timer.read_text())
 
     def test_text_mode_prints_a_sentence(self):
         self.setup_repo()

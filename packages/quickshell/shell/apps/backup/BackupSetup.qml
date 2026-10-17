@@ -12,6 +12,18 @@ Item {
   readonly property var keep: bs.config.keep ?? ({})
   readonly property var extra: bs.config.extra ?? []
   readonly property var excludes: bs.config.excludes ?? []
+  readonly property string mode: bs.config.schedule ? bs.config.schedule.mode : "off"
+  readonly property string time: bs.config.schedule ? bs.config.schedule.time : "03:00"
+  readonly property bool timerOn: mode !== "off"
+  readonly property string scheduleText: !timerOn ? "Off" : (mode === "weekly" ? "every Monday" : "every day") + " at " + time
+
+  // whole hours, as the timer takes them: "03:00" steps by one hour, wrapping at midnight
+  function hourStep(t, by) {
+    const h = (parseInt(t.split(":")[0], 10) + by + 24) % 24;
+    return (h < 10 ? "0" : "") + h + ":00";
+  }
+  function hourBefore(t) { return hourStep(t, -1); }
+  function hourAfter(t) { return hourStep(t, 1); }
   // the repository's drive: the mounted disk its folder is on, else custom
   readonly property int aiCount: bs.aiSuggestions.filter(sug => bs.aiPicked[sug.path]).length
 
@@ -32,6 +44,15 @@ Item {
       KitLabel {
         text: "REPOSITORY"
         value: bs.configured ? "SET" : "NOT SET"
+      }
+
+      KitText {
+        visible: !bs.configured
+        width: parent.width
+        wrapMode: Text.WordWrap
+        color: Theme.yellow
+        font.pixelSize: Theme.fontSize - 2
+        text: "No repository yet: nothing can be backed up until you set one here."
       }
 
       BackupNote {
@@ -102,6 +123,82 @@ Item {
         text: bs.revealed
         input.readOnly: true
         input.font.pixelSize: Theme.fontSize - 1
+      }
+
+      KitLine {}
+
+      // ---- automatic backups: set here, run by a systemd timer ----
+      KitLabel {
+        text: "AUTOMATIC BACKUPS"
+        value: root.scheduleText.toUpperCase()
+      }
+
+      BackupNote {
+        text: "Runs a backup by itself while the computer is on. A run that was missed while it was off happens at the next start."
+      }
+
+      KitText {
+        visible: root.timerOn && !bs.configured
+        width: parent.width
+        wrapMode: Text.WordWrap
+        color: Theme.yellow
+        font.pixelSize: Theme.fontSize - 2
+        text: "No repository yet: the time is saved, and the timer starts once a repository is set above."
+      }
+
+      KitRow {
+        label: "Run by itself"
+        hint: "Off: only when you press Back up"
+        wide: true
+
+        KitChoices {
+          stretch: true
+          disabled: bs.busy
+          model: [{ label: "Off", value: "off" }, { label: "Every day", value: "daily" }, { label: "Every week", value: "weekly" }]
+          current: root.mode
+          onPicked: value => bs.setSchedule(value, root.time)
+        }
+      }
+
+      KitRow {
+        visible: root.timerOn
+        label: "Start time"
+        hint: root.mode === "weekly" ? "Mondays at this time" : "Every day at this time"
+
+        KitButton {
+          anchors.verticalCenter: parent.verticalCenter
+          icon: "arrow-left"
+          disabled: bs.busy
+          onClicked: bs.setSchedule(root.mode, root.hourBefore(root.time))
+        }
+
+        KitText {
+          anchors.verticalCenter: parent.verticalCenter
+          width: 56
+          horizontalAlignment: Text.AlignHCenter
+          font.weight: Font.ExtraBold
+          text: root.time
+        }
+
+        KitButton {
+          anchors.verticalCenter: parent.verticalCenter
+          icon: "arrow-right"
+          disabled: bs.busy
+          onClicked: bs.setSchedule(root.mode, root.hourAfter(root.time))
+        }
+      }
+
+      KitRow {
+        visible: root.timerOn
+        label: "Notify when it ends"
+        hint: "Only for the automatic runs"
+
+        KitSwitch {
+          anchors.verticalCenter: parent.verticalCenter
+          checked: bs.config.notify === true
+          disabled: bs.busy
+          onToggled: bs.setConfig({ "notify": !checked })
+        }
       }
 
       KitLine {}

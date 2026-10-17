@@ -38,6 +38,18 @@ Item {
       width: parent.width
       spacing: Theme.gapGroup
 
+      BackupNote {
+        visible: !bs.configured
+        text: "No repository yet, so there are no snapshots. Set one up in Setup; the backups show here after the first run."
+      }
+
+      KitButton {
+        visible: !bs.configured
+        icon: "settings"
+        text: "Open Setup"
+        onClicked: bs.showTab("setup")
+      }
+
       KitRow {
         label: "Snapshots"
         hint: bs.snapshots.length > 0 ? "Newest first · pick one to browse it" : "Each backup adds one"

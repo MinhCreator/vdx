@@ -347,6 +347,12 @@ Singleton {
     onTriggered: root.copied = false
   }
 
+  // asks the window for a tab (the bar's Guide button, a page's link)
+  function showTab(tab) {
+    tabRequest = "";
+    tabRequest = tab;
+  }
+
   function openFolder(path) { Quickshell.execDetached(["xdg-open", path]); }
 
   // the time since a timestamp, in words

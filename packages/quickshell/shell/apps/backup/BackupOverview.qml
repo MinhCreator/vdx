@@ -13,8 +13,8 @@ Item {
   readonly property var bs: BackupService
   readonly property bool running: bs.busy && bs.jobKind === "run"
   readonly property bool timerOn: bs.config.schedule ? bs.config.schedule.mode !== "off" : false
-  readonly property string scheduleSummary: !root.timerOn ? "OFF"
-    : (bs.config.schedule.mode === "weekly" ? "EVERY MONDAY" : "EVERY DAY") + " AT " + bs.config.schedule.time
+  readonly property string scheduleText: !root.timerOn ? "Off, only when you press Back up"
+    : (bs.config.schedule.mode === "weekly" ? "Every Monday" : "Every day") + " at " + bs.config.schedule.time
 
   function bytes(n) { return Format.humanSize(n); }
 
@@ -177,74 +177,10 @@ Item {
 
       KitLine { visible: bs.configured }
 
-      // ---- automatic backups ----
-      KitLabel {
+      KitInfo {
         visible: bs.configured
-        text: "AUTOMATIC BACKUPS"
-        value: root.scheduleSummary
-      }
-
-      KitRow {
-        visible: bs.configured
-        label: "Run by itself"
-        hint: "Off: only when you press Back up"
-        wide: true
-
-        KitChoices {
-          stretch: true
-          disabled: bs.busy
-          model: [{ label: "Off", value: "off" }, { label: "Every day", value: "daily" }, { label: "Every week", value: "weekly" }]
-          current: bs.config.schedule ? bs.config.schedule.mode : "off"
-          onPicked: value => bs.setSchedule(value, bs.config.schedule.time)
-        }
-      }
-
-      KitRow {
-        visible: bs.configured && root.timerOn
-        label: "Start time"
-        hint: bs.config.schedule && bs.config.schedule.mode === "weekly" ? "Mondays at this time" : "Every day at this time"
-
-        KitButton {
-          anchors.verticalCenter: parent.verticalCenter
-          icon: "arrow-left"
-          disabled: bs.busy
-          onClicked: bs.setSchedule(bs.config.schedule.mode, root.hourBefore(bs.config.schedule.time))
-        }
-
-        KitText {
-          anchors.verticalCenter: parent.verticalCenter
-          width: 56
-          horizontalAlignment: Text.AlignHCenter
-          font.weight: Font.ExtraBold
-          text: bs.config.schedule ? bs.config.schedule.time : ""
-        }
-
-        KitButton {
-          anchors.verticalCenter: parent.verticalCenter
-          icon: "arrow-right"
-          disabled: bs.busy
-          onClicked: bs.setSchedule(bs.config.schedule.mode, root.hourAfter(bs.config.schedule.time))
-        }
-      }
-
-      BackupNote {
-        visible: bs.configured && root.timerOn
-        text: "A run that the computer missed, because it was off, happens at the next start."
-      }
-
-      KitLine { visible: bs.configured }
-
-      KitRow {
-        visible: bs.configured && root.timerOn
-        label: "Notify when it ends"
-        hint: "Only for the automatic runs"
-
-        KitSwitch {
-          anchors.verticalCenter: parent.verticalCenter
-          checked: bs.config.notify === true
-          disabled: bs.busy
-          onToggled: bs.setConfig({ "notify": !checked })
-        }
+        label: "Automatic"
+        value: root.scheduleText
       }
     }
   }

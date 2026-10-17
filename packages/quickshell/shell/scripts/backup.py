@@ -358,9 +358,11 @@ def cmd_init(a):
             raise Failure("the password in the file does not open the repository at " + repo)
         cfg["repo"] = repo
         save_config(cfg)
+        apply_schedule(cfg)
         return {"ok": True, "repo": repo, "generated": False, "message": f"Using the repository at {repo}"}
     cfg["repo"] = repo
     save_config(cfg)
+    apply_schedule(cfg)                    # a schedule saved before the repository starts now
     message = f"Repository ready at {repo}"
     if created:
         message += ". The password is in " + str(PASSWORD) + ": keep a copy somewhere safe"
@@ -807,30 +809,43 @@ def systemctl(*args, check=True):
         raise Failure((proc.stderr.strip() or "systemctl failed")[:200])
 
 
-def cmd_schedule(a):
-    # a timed run without a repository (or its password) would fail every night: refuse it here
-    if a.mode != "off" and not configured():
-        raise Failure("set a repository in Setup first: a timed run needs it")
-    cfg = load_config()
-    cfg["schedule"] = {"mode": a.mode, "time": a.time or cfg["schedule"]["time"]}
+def has_repo(cfg):
+    return bool(cfg["repo"]) and PASSWORD.exists()
+
+
+def apply_schedule(cfg):
+    """Writes the timer for the config's schedule, or removes it. A timer needs a repository and its
+    password: until both exist the schedule is only kept, and init writes the timer when they do."""
     timer = UNIT_DIR / f"{UNIT}.timer"
     service = UNIT_DIR / f"{UNIT}.service"
-    # the config is saved once systemd took the change: a failed one leaves the old schedule
-    if a.mode == "off":
+    mode = cfg["schedule"]["mode"]
+    if mode == "off" or not has_repo(cfg):
         systemctl("disable", "--now", f"{UNIT}.timer", check=False)
         for f in (timer, service):
             f.unlink(missing_ok=True)
         systemctl("daemon-reload", check=False)
-        save_config(cfg)
-        return {"ok": True, "config": cfg, "message": "Scheduled backups are off"}
-    unit_service, unit_timer = units(a.mode, cfg["schedule"]["time"])
+        return False
+    unit_service, unit_timer = units(mode, cfg["schedule"]["time"])
     UNIT_DIR.mkdir(parents=True, exist_ok=True)
     service.write_text(unit_service)
     timer.write_text(unit_timer)
     systemctl("daemon-reload")
     systemctl("enable", "--now", f"{UNIT}.timer")
+    return True
+
+
+def cmd_schedule(a):
+    cfg = load_config()
+    cfg["schedule"] = {"mode": a.mode, "time": a.time or cfg["schedule"]["time"]}
     save_config(cfg)
-    return {"ok": True, "config": cfg, "message": f"Backups {a.mode} at {cfg['schedule']['time']}"}
+    running = apply_schedule(cfg)
+    if a.mode == "off":
+        message = "Automatic backups are off"
+    elif running:
+        message = f"Automatic backups {a.mode} at {cfg['schedule']['time']}"
+    else:
+        message = f"Saved: {a.mode} at {cfg['schedule']['time']}. It starts once a repository is set in Setup"
+    return {"ok": True, "config": cfg, "running": running, "message": message}
 
 
 # ---- command line ----
