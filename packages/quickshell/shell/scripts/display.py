@@ -3,18 +3,22 @@
 text size. One JSON object per command.
 
     display.py list                       {"ok", "monitors": [{name, model, width, height, refresh,
-                                           x, y, scale, scales}], "text": factor, "textScales": [...]}
-    display.py scale <output> <scale>     applies now (Hyprland; mode and position kept)   {"ok"}
+                                           refreshes, x, y, scale, scales}], "text": factor,
+                                           "textScales": [...]}
+    display.py scale <output> <scale>     applies now (Hyprland; mode kept); when the monitor would
+                                           overlap a neighbour it moves beside it         {"ok"}
+    display.py rate <output> <hz>         applies now, the resolution and scale kept; only a
+                                           rate the monitor offers at its resolution        {"ok"}
     display.py position <output> <x> <y>  moves a monitor in logical pixels; refused when it
                                            would overlap another one                        {"ok"}
     display.py text <factor>              GTK's text-scaling-factor (gsettings), kept by dconf {"ok"}
-    display.py restore                    re-applies the saved scales and positions (Hyprland start)
+    display.py restore                    re-applies the saved scales, rates and positions (Hyprland start)
 
-Scales and positions are kept in ~/.local/state/dotfiles/display.json. The boot
+Scales, rates and positions are kept in ~/.local/state/dotfiles/display.json. The boot
 values of a monitor stay the ones in .machine.toml [hypr]; this overrides them.
 Text size reaches GTK apps only (Qt and the shell keep theirs).
 Errors: {"ok": false, "error": "..."}."""
-import json, sys
+import json, re, sys
 from pathlib import Path
 from backend import out, fail, run
 
@@ -23,6 +27,7 @@ SCALES = [1.0, 1.25, 1.5, 1.75, 2.0]        # the choices offered; the current o
 TEXT = [0.9, 1.0, 1.15, 1.3, 1.5]           # text-scaling-factor choices
 SCHEMA = "org.gnome.desktop.interface"
 KEY = "text-scaling-factor"
+MODE = re.compile(r"(\d+)x(\d+)@([\d.]+)Hz")   # a Hyprland mode: "1920x1080@143.86Hz"
 
 
 def run_or_fail(cmd):
@@ -55,7 +60,7 @@ def saved():
         s = json.loads(STATE.read_text())
     except (OSError, json.JSONDecodeError):
         s = {}
-    return {"scales": s.get("scales", {}), "positions": s.get("positions", {})}
+    return {"scales": s.get("scales", {}), "rates": s.get("rates", {}), "positions": s.get("positions", {})}
 
 
 def save(state):
@@ -67,23 +72,66 @@ def lua_num(x):
     return f"{x:g}" if float(x) != int(x) else f"{int(x)}.0"
 
 
-def logical(m, x=None, y=None):
+def logical(m, x=None, y=None, scale=None):
     """The rectangle a monitor takes in the layout: (x, y, w, h) in logical pixels."""
-    w = round(m["width"] / m["scale"])
-    h = round(m["height"] / m["scale"])
+    s = m["scale"] if scale is None else scale
+    w = round(m["width"] / s)
+    h = round(m["height"] / s)
     return (m["x"] if x is None else x, m["y"] if y is None else y, w, h)
 
 
-def apply(m, scale=None, pos=None):
+def nearest_free_x(m, scale):
+    """The x nearest to m's own, touching a neighbour's left or right edge, where m at
+    `scale` overlaps nothing; None when there is none."""
+    width = logical(m, scale=scale)[2]
+    edges = []
+    for o in monitors():
+        if o["name"] == m["name"]:
+            continue
+        bx, _, bw, _ = logical(o)
+        edges += [bx - width, bx + bw]
+    free = [x for x in edges if clash(m, x, m["y"], scale) is None]
+    return min(free, key=lambda x: abs(x - m["x"]), default=None)
+
+
+def clash(m, x, y, scale):
+    """The name of a monitor that m's rectangle at (x, y, scale) overlaps, else None.
+    Touching edges are no overlap."""
+    ax, ay, aw, ah = logical(m, x, y, scale)
+    for o in monitors():
+        if o["name"] == m["name"]:
+            continue
+        bx, by, bw, bh = logical(o)
+        if ax < bx + bw and bx < ax + aw and ay < by + bh and by < ay + ah:
+            return o["name"]
+    return None
+
+
+def refresh_choices(m):
+    """The rates the monitor offers at its current resolution, highest first; its own is one of them."""
+    rates = {round(m["refreshRate"], 2)}
+    for mode in m.get("availableModes", []):
+        g = MODE.fullmatch(mode)
+        if g and (int(g[1]), int(g[2])) == (m["width"], m["height"]):
+            rates.add(round(float(g[3]), 2))
+    return sorted(rates, reverse=True)
+
+
+def apply(m, scale=None, pos=None, rate=None):
     # hl.monitor takes the same keys as monitors.lua; the unchanged ones stay as they are
     scale = m["scale"] if scale is None else scale
     x, y = (m["x"], m["y"]) if pos is None else pos
-    mode = f"{m['width']}x{m['height']}@{m['refreshRate']:.2f}"
+    hz = m["refreshRate"] if rate is None else rate
+    # the rate as Hyprland reports it, not rounded: a rounded one is another mode, and
+    # Hyprland modesets the output for it (page-flip errors, a doubled cursor on NVIDIA)
+    mode = f"{m['width']}x{m['height']}@{hz}"
     lua = (f'hl.monitor({{ output = "{m["name"]}", mode = "{mode}", '
            f'position = "{x}x{y}", scale = {lua_num(scale)} }})')
     r = run_or_fail(["hyprctl", "eval", lua])
     if r.returncode != 0 or "error" in (r.stdout + r.stderr).lower():
         fail(f"hyprctl eval: {(r.stdout + r.stderr).strip() or 'failed'}")
+    # awww draws the picture at the scale it saw when it was set: restore it at the new one
+    run(["awww", "restore"])
 
 
 def scale_choices(current):
@@ -92,7 +140,8 @@ def scale_choices(current):
 
 def cmd_list():
     rows = [{"name": m["name"], "model": m.get("description", m["name"]), "width": m["width"],
-             "height": m["height"], "refresh": round(m["refreshRate"], 2), "x": m["x"], "y": m["y"],
+             "height": m["height"], "refresh": round(m["refreshRate"], 2),
+             "refreshes": refresh_choices(m), "x": m["x"], "y": m["y"],
              "scale": m["scale"], "scales": scale_choices(m["scale"])} for m in monitors()]
     out({"ok": True, "monitors": rows, "text": text_factor(), "textScales": TEXT})
 
@@ -112,9 +161,34 @@ def cmd_scale(name, value):
     if not 0.5 <= scale <= 3:
         fail(f"scale out of range: {scale:g}")
     m = find(name)
-    apply(m, scale=scale)
+    # the rectangle changes size with the scale: when it would overlap a neighbour, it moves
+    # along x to the nearest place beside one, and the new place is kept
+    x, y = m["x"], m["y"]
+    moved = clash(m, x, y, scale) is not None
+    if moved:
+        x = nearest_free_x(m, scale)
+        if x is None:
+            fail(f"no room for {name} at {scale:g}")
+    apply(m, scale=scale, pos=(x, y) if moved else None)
     state = saved()
     state["scales"][name] = scale
+    if moved:
+        state["positions"][name] = [x, y]
+    save(state)
+    out({"ok": True})
+
+
+def cmd_rate(name, value):
+    try:
+        hz = round(float(value), 2)
+    except ValueError:
+        fail(f"refresh rate is a number: {value!r}")
+    m = find(name)
+    if hz not in refresh_choices(m):
+        fail(f"{name} has no {hz:g} Hz mode at {m['width']}x{m['height']}")
+    apply(m, rate=hz)
+    state = saved()
+    state["rates"][name] = hz
     save(state)
     out({"ok": True})
 
@@ -125,13 +199,9 @@ def cmd_position(name, sx, sy):
     except ValueError:
         fail(f"position is whole pixels: {sx!r} {sy!r}")
     m = find(name)
-    ax, ay, aw, ah = logical(m, x, y)
-    for o in monitors():
-        if o["name"] == name:
-            continue
-        bx, by, bw, bh = logical(o)
-        if ax < bx + bw and bx < ax + aw and ay < by + bh and by < ay + ah:
-            fail(f"overlaps {o['name']}")
+    hit = clash(m, x, y, m["scale"])
+    if hit:
+        fail(f"overlaps {hit}")
     apply(m, pos=(x, y))
     state = saved()
     state["positions"][name] = [x, y]
@@ -155,13 +225,16 @@ def cmd_text(value):
 def cmd_restore():
     state = saved()
     current = {m["name"]: m for m in monitors()}
-    for name in set(state["scales"]) | set(state["positions"]):
+    for name in set(state["scales"]) | set(state["rates"]) | set(state["positions"]):
         if name not in current:
             continue
         m = current[name]
         scale = float(state["scales"][name]) if name in state["scales"] else None
+        # a saved rate the monitor no longer offers (another resolution, another screen) is skipped
+        rate = state["rates"].get(name)
+        rate = rate if rate in refresh_choices(m) else None
         pos = tuple(state["positions"][name]) if name in state["positions"] else None
-        apply(m, scale=scale, pos=pos)
+        apply(m, scale=scale, pos=pos, rate=rate)
     out({"ok": True})
 
 
@@ -171,6 +244,8 @@ if __name__ == "__main__":
         cmd_list()
     elif len(args) == 3 and args[0] == "scale":
         cmd_scale(args[1], args[2])
+    elif len(args) == 3 and args[0] == "rate":
+        cmd_rate(args[1], args[2])
     elif len(args) == 4 and args[0] == "position":
         cmd_position(args[1], args[2], args[3])
     elif len(args) == 2 and args[0] == "text":
@@ -178,4 +253,4 @@ if __name__ == "__main__":
     elif args == ["restore"]:
         cmd_restore()
     else:
-        fail("usage: display.py list | scale <output> <scale> | position <output> <x> <y> | text <factor> | restore")
+        fail("usage: display.py list | scale <output> <scale> | rate <output> <hz> | position <output> <x> <y> | text <factor> | restore")

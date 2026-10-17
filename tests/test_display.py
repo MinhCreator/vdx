@@ -21,9 +21,9 @@ display = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(display)
 
 
-def mon(name, x, y, width=1920, height=1080, scale=1.0):
+def mon(name, x, y, width=1920, height=1080, scale=1.0, modes=("1920x1080@60.00Hz", "1920x1080@144.00Hz", "1280x720@120.00Hz")):
     return {"name": name, "x": x, "y": y, "width": width, "height": height,
-            "scale": scale, "refreshRate": 60.0, "disabled": False}
+            "scale": scale, "refreshRate": 60.0, "disabled": False, "availableModes": list(modes)}
 
 
 def run(fn, *args):
@@ -67,12 +67,81 @@ class Position(unittest.TestCase):
         self.assertEqual(self.applied, [("HDMI-A-2", (1600, 0))])
         self.assertEqual(json.loads(self.state.read_text())["positions"], {"HDMI-A-2": [1600, 0]})
 
+    def test_scale_that_overlaps_moves_the_monitor_beside_its_neighbour(self):
+        # eDP-1 at 0x0 is 1600 logical px wide at 1.2; at 1.0 it would reach 1920, over HDMI-A-2 at 1600,
+        # so it moves left to end at HDMI-A-2's left edge (x = 1600 - 1920)
+        out, code = run(display.cmd_scale, "eDP-1", "1.0")
+        self.assertEqual((out["ok"], code), (True, 0))
+        self.assertEqual(self.applied, [("eDP-1", (-320, 0))])
+        self.assertEqual(json.loads(self.state.read_text())["positions"], {"eDP-1": [-320, 0]})
+
+    def test_scale_that_fits_is_applied(self):
+        out, code = run(display.cmd_scale, "eDP-1", "1.25")   # 1536 px wide, touching HDMI-A-2's edge at 1600
+        self.assertEqual((out["ok"], code), (True, 0))
+        self.assertEqual(self.applied, [("eDP-1", None)])
+
     def test_logical_size_follows_scale(self):
         self.assertEqual(display.logical(self.monitors[0]), (0, 0, 1600, 900))
 
     def test_old_state_without_positions_loads(self):
         self.state.write_text(json.dumps({"scales": {"eDP-1": 1.25}}))
-        self.assertEqual(display.saved(), {"scales": {"eDP-1": 1.25}, "positions": {}})
+        self.assertEqual(display.saved(), {"scales": {"eDP-1": 1.25}, "rates": {}, "positions": {}})
+
+
+class Rate(unittest.TestCase):
+    def setUp(self):
+        self.monitors = [mon("HDMI-A-2", 0, 0)]
+        self.applied = []
+        self.tmp = tempfile.TemporaryDirectory()
+        self.state = Path(self.tmp.name) / "display.json"
+        patches = [
+            mock.patch.object(display, "monitors", side_effect=lambda: self.monitors),
+            mock.patch.object(display, "apply", side_effect=lambda m, scale=None, pos=None, rate=None: self.applied.append((m["name"], rate))),
+            mock.patch.object(display, "STATE", self.state),
+        ]
+        for p in patches:
+            p.start()
+            self.addCleanup(p.stop)
+        self.addCleanup(self.tmp.cleanup)
+
+    def test_choices_are_the_rates_at_the_current_resolution(self):
+        self.assertEqual(display.refresh_choices(self.monitors[0]), [144.0, 60.0])
+
+    def test_own_rate_is_always_a_choice(self):
+        m = mon("X", 0, 0, modes=())
+        self.assertEqual(display.refresh_choices(m), [60.0])
+
+    def test_offered_rate_is_applied_and_saved(self):
+        out, code = run(display.cmd_rate, "HDMI-A-2", "144")
+        self.assertEqual((out["ok"], code), (True, 0))
+        self.assertEqual(self.applied, [("HDMI-A-2", 144.0)])
+        self.assertEqual(json.loads(self.state.read_text())["rates"], {"HDMI-A-2": 144.0})
+
+    def test_rate_not_offered_is_refused(self):
+        out, code = run(display.cmd_rate, "HDMI-A-2", "120")
+        self.assertEqual((out["ok"], code), (False, 1))
+        self.assertEqual(self.applied, [])
+
+    def test_restore_applies_saved_rate_only_when_offered(self):
+        self.state.write_text(json.dumps({"rates": {"HDMI-A-2": 144.0}}))
+        run(display.cmd_restore)
+        self.assertEqual(self.applied, [("HDMI-A-2", 144.0)])
+        self.applied.clear()
+        self.state.write_text(json.dumps({"rates": {"HDMI-A-2": 120.0}}))
+        run(display.cmd_restore)
+        self.assertEqual(self.applied, [("HDMI-A-2", None)])
+
+
+class Mode(unittest.TestCase):
+    def test_scale_keeps_the_exact_rate_so_nothing_is_modeset(self):
+        m = mon("eDP-1", 0, 0)
+        m["refreshRate"] = 144.00301          # what Hyprland reports for this panel
+        ok = mock.Mock(returncode=0, stdout="", stderr="")
+        with mock.patch.object(display, "run_or_fail", return_value=ok) as eval_, \
+             mock.patch.object(display, "run", return_value=None):
+            display.apply(m, scale=1.25)
+        lua = eval_.call_args[0][0][-1]
+        self.assertIn('mode = "1920x1080@144.00301"', lua)
 
 
 if __name__ == "__main__":

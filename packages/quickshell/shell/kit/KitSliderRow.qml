@@ -16,9 +16,11 @@ Item {
   property string text: ""
   property bool dimmed: false
   property color tint: Theme.foreground0
+  property var snaps: []
 
   readonly property bool captioned: label !== ""
   readonly property bool pressed: slider.pressed
+  readonly property real dragValue: slider.dragValue
 
   signal moved(real value)
   signal released(real value)
@@ -92,6 +94,7 @@ Item {
     value: root.value
     dimmed: root.dimmed
     tint: root.tint
+    snaps: root.snaps
     onMoved: value => root.moved(value)
     onReleased: value => root.released(value)
   }

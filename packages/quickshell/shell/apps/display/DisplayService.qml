@@ -14,11 +14,11 @@ Singleton {
   readonly property string script: Paths.scriptsDir + "/display.py"
 
   // ---- state ----
-  property var monitors: []                 // [{name, model, width, height, refresh, x, y, scale, scales}]
+  property var monitors: []                 // [{name, model, width, height, refresh, refreshes, x, y, scale, scales}]
   property real textFactor: 1.0
   property var textScales: []
   property bool busy: false
-  property string working: ""               // "scale:<output>", "pos:<output>" or "text", while applied
+  property string working: ""               // "scale:<output>", "rate:<output>", "pos:<output>" or "text", while applied
   property var pending: null                // the value being applied
   property string error: ""
 
@@ -26,6 +26,25 @@ Singleton {
 
   function setScale(name, scale) {
     run(["scale", name, String(scale)], "scale:" + name, scale);
+  }
+
+  function setRate(name, hz) {
+    run(["rate", name, String(hz)], "rate:" + name, hz);
+  }
+
+  // ---- scale slider (the bar popup and the window) ----
+  // The stops are the scales a monitor offers, evenly spaced along the slider (0..1).
+  function stops(m) { return m.scales.map((s, i) => i / Math.max(1, m.scales.length - 1)); }
+
+  // the scale at a slider position
+  function stopAt(m, p) { return m.scales[Math.round(p * (m.scales.length - 1))]; }
+
+  // the position of the monitor's scale, or of the one being applied
+  function scalePos(m) {
+    const v = working === "scale:" + m.name ? pending : m.scale;
+    let best = 0;
+    m.scales.forEach((s, i) => { if (Math.abs(s - v) < Math.abs(m.scales[best] - v)) best = i; });
+    return best / Math.max(1, m.scales.length - 1);
   }
 
   // x, y in logical pixels; the layout shows the new place while it applies

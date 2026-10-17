@@ -3,8 +3,9 @@ import qs.config
 import qs.kit
 
 // The display settings: the arrangement of the monitors (drag or arrow keys),
-// the selected monitor's scale and position, and the GTK text size. Choices
-// apply at once; a failure shows under the groups.
+// the selected monitor's scale (a slider whose stops are the scales it offers),
+// refresh rate and position, and the GTK text size. Choices apply at once; a
+// failure shows under the groups.
 KitFrame {
   id: root
 
@@ -44,20 +45,27 @@ KitFrame {
 
   KitLabel { text: "MONITOR"; value: root.current ? root.current.name : "" }
 
-  KitRow {
+  KitSliderRow {
+    id: scaleSlider
     visible: root.current !== null
-    wide: true
+    enabled: !ds.busy
     label: "Scale"
-    hint: root.current ? root.current.width + "x" + root.current.height + " · " + root.current.refresh + " Hz" : ""
+    snaps: root.current ? ds.stops(root.current) : []
+    value: root.current ? ds.scalePos(root.current) : 0
+    text: root.current ? root.pct(ds.stopAt(root.current, scaleSlider.pressed ? scaleSlider.dragValue : scaleSlider.value)) : ""
+    onReleased: value => ds.setScale(root.current.name, ds.stopAt(root.current, value))
+  }
 
-    KitChoices {
-      stretch: true
-      disabled: ds.busy
-      model: root.current ? root.current.scales.map(s => ({ label: root.pct(s), value: s })) : []
-      current: root.current ? root.current.scale : null
-      busyValue: root.current && ds.working === "scale:" + root.current.name ? ds.pending : null
-      onPicked: value => ds.setScale(root.current.name, value)
-    }
+  KitSelect {
+    visible: root.current !== null
+    overlay: true
+    disabled: ds.busy
+    label: "Refresh rate"
+    hint: root.current ? root.current.width + "x" + root.current.height : ""
+    model: root.current ? root.current.refreshes.map(r => ({ label: r + " Hz", value: r })) : []
+    current: root.current ? root.current.refresh : null
+    busy: root.current !== null && ds.working === "rate:" + root.current.name
+    onPicked: value => ds.setRate(root.current.name, value)
   }
 
   KitRow {

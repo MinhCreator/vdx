@@ -45,16 +45,18 @@ KitFrame {
         width: parent.width
         spacing: Theme.gapSmall
 
-        KitLabel { text: modelData.name; value: root.pct(modelData.scale) }
+        KitLabel {
+          text: modelData.name
+          value: root.pct(root.ds.stopAt(modelData, scaleSlider.pressed ? scaleSlider.dragValue : scaleSlider.value))
+        }
 
-        KitChoices {
+        KitSlider {
+          id: scaleSlider
           width: parent.width
-          stretch: true
-          disabled: root.ds.busy
-          model: modelData.scales.map(s => ({ label: root.pct(s), value: s }))
-          current: modelData.scale
-          busyValue: root.ds.working === "scale:" + modelData.name ? root.ds.pending : null
-          onPicked: value => root.ds.setScale(modelData.name, value)
+          enabled: !root.ds.busy
+          snaps: root.ds.stops(modelData)
+          value: root.ds.scalePos(modelData)
+          onReleased: value => root.ds.setScale(modelData.name, root.ds.stopAt(modelData, value))
         }
       }
     }
