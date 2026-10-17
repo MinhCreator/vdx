@@ -27,7 +27,6 @@ Singleton {
 
   readonly property string plan: usage.plan ?? ""
   readonly property var limits: usage.limits ?? []
-  readonly property int peak: Math.max(0, ...limits.map(l => l.percent))
   readonly property int busy: sessions.filter(s => s.status === "busy").length
   readonly property bool refreshing: usageProc.running || todayProc.running
 

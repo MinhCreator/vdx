@@ -28,7 +28,7 @@ Singleton {
     { id: "mihomo",        label: "Mihomo",        zone: "right",  icon: "shield", about: "Proxy service and servers" },
     { id: "battery",       label: "Battery",       zone: "right",  icon: "battery-full", settings: "BatterySettings.qml", about: "Charge, limit, power profile, GPU" },
     { id: "language",      label: "Language",      zone: "right",  icon: "keyboard", about: "Keyboard layout" },
-    { id: "ai",            label: "AI",            zone: "right",  icon: "bot", about: "Claude Code limits, local Ollama models" },
+    { id: "ai",            label: "AI",            zone: "right",  icon: "bot", settings: "AiSettings.qml", about: "Claude Code limits, local Ollama models" },
     { id: "shell",         label: "Shell",         zone: "right",  icon: "sliders", about: "Shell Manager: options, modules, layout" },
     { id: "notifications", label: "Notifications", zone: "right",  icon: "bell", settings: "NotificationsSettings.qml", about: "History of notifications" },
     { id: "capture",       label: "Capture",       zone: "right",  icon: "camera", about: "Screenshots and screen recording" },

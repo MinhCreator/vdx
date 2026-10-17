@@ -5,7 +5,8 @@ import qs.components
 import qs.config
 import qs.kit
 
-// Robot icon; yellow / red when a plan limit is running out.
+// Robot icon and the percent of the chosen plan limit (Modules › AI › Limit);
+// yellow / red when that limit is running out.
 Item {
   id: root
 
@@ -14,14 +15,19 @@ Item {
   // the Folder opens this module's popup when its tile is clicked
   function openPopup() { popup.toggle(); }
 
+  readonly property string kind: ModuleSettings.get("ai", "limit", "session")
+  readonly property var shown: ClaudeService.limits.find(l => l.kind === kind) ?? null
+  readonly property int percent: shown ? shown.percent : -1
+
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
 
   KitBarItem {
     id: label
     icon: "bot"
-    tint: ClaudeService.peak >= ClaudeService.critical ? Theme.red
-         : ClaudeService.peak >= ClaudeService.warning ? Theme.yellow
+    text: root.percent >= 0 ? root.percent + "%" : "--"
+    tint: root.percent >= ClaudeService.critical ? Theme.red
+         : root.percent >= ClaudeService.warning ? Theme.yellow
          : Theme.foreground0
   }
 
