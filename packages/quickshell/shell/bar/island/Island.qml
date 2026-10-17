@@ -232,10 +232,7 @@ Item {
           n: modelData
           width: parent.width
           height: root.noticeRow
-          onDismissed: {
-            IslandService.dismissNotice(modelData.key);
-            if (IslandService.notices.length === 0) root.flash = "";
-          }
+          onDismissed: IslandService.dismissNotice(modelData.key)
         }
       }
 
@@ -357,6 +354,11 @@ Item {
 
   Connections {
     target: IslandService
+    // the last notice gone: the flash ends here, not in the delegate (its
+    // root is gone once the Repeater rebuilds, so a write there is lost)
+    function onNoticesChanged() {
+      if (IslandService.notices.length === 0 && root.flash === "notice") root.flash = "";
+    }
     function onFlashed(kind, ms) {
       root.flash = kind;
       flashTimer.interval = ms;

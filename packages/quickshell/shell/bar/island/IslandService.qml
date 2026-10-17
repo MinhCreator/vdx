@@ -118,7 +118,11 @@ Singleton {
 
   function dismissNotice(key) {
     root.notices = root.notices.filter(n => n.key !== key);
-    if (root.notices.length === 0) root.noticeMore = 0;
+    if (root.notices.length === 0) {
+      root.noticeMore = 0;
+      // closed on the island: no unseen dot left behind on the compact island
+      NotificationsService.markSeen();
+    }
   }
 
   // mako's `island` mode (themes/*/mako/config) keeps notifications off screen

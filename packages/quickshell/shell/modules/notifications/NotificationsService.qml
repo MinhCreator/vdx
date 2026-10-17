@@ -25,6 +25,11 @@ Singleton {
     state.seenAt = Date.now();
   }
 
+  // the island's last notice went away: the batch counts as seen (the rows stay)
+  function markSeen() {
+    state.seenAt = Date.now();
+  }
+
   function clear() {
     state.items = [];
     state.seenAt = Date.now();
