@@ -56,9 +56,13 @@ Singleton {
     exec(["kitty", "-e"].concat(e.command.filter(a => !/^%[fFuUdDnNickvm]$/.test(a))));
   }
 
+  // desktop files the shell already lists as its own apps (apps.json `desktop`): shown once
+  readonly property var ownDesktopIds: ShellAppsService.entries.map(e => e.desktop).filter(d => d)
+
   function apps(q) {
     return filter(shellApps, q).concat(DesktopEntries.applications.values
-      .filter(e => !e.noDisplay && (q === "" || (e.name + " " + e.genericName + " " + (e.keywords ?? []).join(" ")).toLowerCase().includes(q)))
+      .filter(e => !e.noDisplay && !ownDesktopIds.includes(e.id)
+                   && (q === "" || (e.name + " " + e.genericName + " " + (e.keywords ?? []).join(" ")).toLowerCase().includes(q)))
       .map(e => ({ image: Quickshell.iconPath(e.icon, true), icon: "app-window", title: e.name,
                    hint: e.comment || e.genericName, run: () => root.runApp(e) })))
       .sort((a, b) => a.title.localeCompare(b.title));

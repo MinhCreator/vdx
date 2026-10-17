@@ -21,7 +21,8 @@ Singleton {
   // open — `qs ipc call <ipc> <open>`; window — {id, title, width, height}
   // when it is a window of its own; settings — its options page (values in
   // ModuleSettings under `id`); module — its bar module (BarLayout id),
-  // moduleSettings — that module's options page
+  // moduleSettings — that module's options page; desktop — the id of its
+  // .desktop file when one is installed (the launcher then lists it once)
   readonly property var entries: {
     try { return JSON.parse(registry.text()); } catch (e) { return []; }
   }

@@ -45,7 +45,9 @@ Imports: `import qs.<dir>` from the config root. Singletons: `pragma Singleton`
 
 Entry in `apps/apps.json`: id, label, icon, about, bind (Hyprland bind
 description), ipc + open, `window` {id, title, width, height} for a window of
-its own, `settings`, `module` + `moduleSettings` when it has a bar module.
+its own, `settings`, `module` + `moduleSettings` when it has a bar module,
+`desktop` (the id of its `.desktop` file, when it ships one: the launcher lists the
+app once, not twice).
 A bar module of an app is set with the app (Apps › Bar module tab; Modules lists it with a link), not
 in Modules.
 

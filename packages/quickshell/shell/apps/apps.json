@@ -44,7 +44,7 @@
     "settings": "apps/virustotal/VirusTotalSettings.qml",
     "module": "virustotal", "moduleSettings": "apps/virustotal/VirusTotalBarSettings.qml" },
   { "id": "files", "label": "Files", "icon": "folder", "about": "Browse, copy, move, search and the trash",
-    "bind": "Files", "ipc": "files", "open": "toggle",
+    "bind": "Files", "ipc": "files", "open": "toggle", "desktop": "shellfiles",
     "window": { "id": "files", "title": "Files", "width": 1040, "height": 640 },
     "settings": "apps/files/FilesSettings.qml" }
 ]
