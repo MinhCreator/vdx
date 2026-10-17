@@ -112,12 +112,13 @@ IPC: `qs -c shell ipc call island hub|media|power|collapse`.
 
 ## Child bars
 
-Shell Manager › Bar › BARS › Add bar: small bars that belong to the main one
-and sit in its row — on the left or right, at the screen's edge or stuck to
-the centre (the island, or the strip's centre zone), on one monitor or all.
-A module is in one bar only: dragged into THIS BAR it leaves the main bar
-and the island. In the island style each is a pill and its popups open in
-the island.
+Shell Manager › Bar › Layout: the + beside the bar's preview adds a child
+bar — a small bar of the monitor's main bar, in its row. Drag it on the
+preview to one of four spots (either edge, either side of the centre),
+off the preview to remove it; its band under the preview takes modules
+like the others. A module is in one bar only. In the island style each is
+a pill and its popups open in the island; with no centre showing they meet
+in the middle.
 
 ## Requirements
 

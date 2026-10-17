@@ -85,8 +85,10 @@ PanelWindow {
   }
   // island style: tall enough for a module's popup opened in the island
   implicitHeight: Theme.island ? Math.round(modelData.height * 0.92) : Theme.barHeight
-  // a hidden island (no clock, nothing beside it) leaves the edge to windows
-  exclusiveZone: islandItem?.hidden ? 0 : Theme.barEdge
+  // a hidden island (no clock, nothing beside it) with no child bar showing
+  // leaves the edge to windows
+  readonly property bool childrenShown: edgeLeft.width + edgeRight.width + besideLeft.width + besideRight.width > 0
+  exclusiveZone: islandItem?.hidden && !childrenShown ? 0 : Theme.barEdge
   // while a popup is open, a click into it (a text field) takes the keyboard;
   // otherwise the bar never does
   WlrLayershell.keyboardFocus: PopupManager.current || (islandItem?.grabbing ?? false)
@@ -107,7 +109,7 @@ PanelWindow {
   }
 
   // ---- child bars ----
-  // BarLayout.bars in this bar's row: a side (left | right) at the screen's
+  // BarLayout.barsOn this screen, in this bar's row: a side (left | right) at the screen's
   // edge or beside the centre (the island, the centre zone). Island style: a
   // pill each, framed like the island; solid: a raised group in the strip.
   component ChildGroup: Row {
@@ -123,7 +125,7 @@ PanelWindow {
 
     Repeater {
       model: BarLayout.barsOn(root.modelData.name).filter(b => b.side === group.side && b.place === group.place
-                                                                && BarLayout.barModules(b.id).length > 0)
+                                                                && BarLayout.barModules(root.modelData.name, b.id).length > 0)
 
       Rectangle {
         id: pill
@@ -142,7 +144,7 @@ PanelWindow {
           spacing: Theme.moduleSpacing
 
           Repeater {
-            model: BarLayout.barModules(pill.modelData.id)
+            model: BarLayout.barModules(root.modelData.name, pill.modelData.id)
 
             Row {
               required property string modelData
@@ -196,15 +198,22 @@ PanelWindow {
     x: Theme.island ? root.width - width - Theme.islandTop * 2
                     : rightZone.x - width - (rightZone.width > 0 ? root.childGap : 0)
   }
+  // no centre to hold on to (a hidden island, an empty centre zone): the
+  // groups meant for it meet in the middle of the screen instead
+  readonly property bool centreGone: Theme.island ? (root.islandItem?.hidden ?? false) : centerZone.width === 0
+  readonly property real besideJoin: besideLeft.width > 0 && besideRight.width > 0 ? root.childGap : 0
+  readonly property real besideStart: (root.width - besideLeft.width - besideRight.width - besideJoin) / 2
+
   ChildGroup {
     id: besideLeft
     side: "left"; place: "island"
-    x: root.centreX - width - root.childGap - root.bubbleRoom
+    x: root.centreGone ? root.besideStart : root.centreX - width - root.childGap - root.bubbleRoom
   }
   ChildGroup {
     id: besideRight
     side: "right"; place: "island"
-    x: root.centreX + root.centreWidth + root.childGap
+    x: root.centreGone ? root.besideStart + besideLeft.width + root.besideJoin
+                       : root.centreX + root.centreWidth + root.childGap
   }
 
   Zone {
