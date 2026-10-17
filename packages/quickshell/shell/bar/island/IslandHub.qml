@@ -62,7 +62,7 @@ Item {
     Rectangle {
       width: parent.width
       height: 52
-      visible: IslandService.hasMedia
+      visible: IslandService.hasMedia && ShellSettings.hubPlayer
       radius: Theme.radiusCard
       color: Theme.background1
 

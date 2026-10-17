@@ -43,7 +43,8 @@ Singleton {
   readonly property bool barSeparators: look("barSeparators")     // "|" between the bar's modules
   readonly property int barGap: look("barGap")                    // px each side of a separator (Theme.separatorMargin)
   readonly property string clockOpens: look("clockOpens")         // hover | click: how the island's hub opens from the clock
-  readonly property var lookDefaults: ({ barIconGrow: 0, barSeparators: true, barGap: 5, clockOpens: "hover" })
+  readonly property bool hubPlayer: look("hubPlayer")             // the track (the player) shows in the island's hub
+  readonly property var lookDefaults: ({ barIconGrow: 0, barSeparators: true, barGap: 5, clockOpens: "hover", hubPlayer: true })
   // animations (Shell Manager › Animations; Motion reads them)
   readonly property bool motion: state.motion                     // all of them on / off
   readonly property string motionSpeed: state.motionSpeed         // slow | normal | fast

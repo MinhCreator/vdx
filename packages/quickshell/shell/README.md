@@ -120,7 +120,7 @@ back button too; Escape when it came from the hub). Shell Manager › Bar › La
 and HIDDEN; Bar › Monitor › Island clock, per monitor: off with nothing beside it, the
 island hides there until it has something to show. Volume / brightness changes pass over it as a flash, but not
 when made from the island itself (its chips, the open volume popup) or while the pointer rests on it; new
-notifications pass over it too (mako only keeps them: its `island` mode). The track in the hub is the player;
+notifications pass over it too (mako only keeps them: its `island` mode). The track in the hub is the player (Bar › Behaviour › Show the player: off leaves the chips);
 the equalizer has no clicks (its colour, Follow accent and Show when paused: Modules › Equalizer; a gradient runs left to right).
 Right click on a chip: its options (the hub closes). Middle click: play / pause. The wheel belongs to the modules.
 

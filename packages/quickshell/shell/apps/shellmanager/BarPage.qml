@@ -196,6 +196,17 @@ KitColumn {
   }
 
   KitRow {
+    visible: root.island
+    label: "Show the player"
+    hint: "Off: chips only"
+
+    KitSwitch {
+      checked: ShellSettings.hubPlayer
+      onToggled: ShellSettings.setLook("hubPlayer", !checked)
+    }
+  }
+
+  KitRow {
     label: "Right click opens options"
     hint: "On any bar module"
 
