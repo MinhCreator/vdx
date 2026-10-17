@@ -22,7 +22,7 @@ Item {
   KitBarItem {
     id: face
     icon: "shield"
-    text: BarLayout.label("backup")
+    text: BarLayout.faceText("backup", BarLayout.label("backup"))
   }
 
   MouseArea {

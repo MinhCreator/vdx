@@ -1,4 +1,5 @@
 import QtQuick
+import qs.bar
 import qs.kit
 import qs.config
 
@@ -6,6 +7,11 @@ import qs.config
 // the history it lists and what it keeps on screen. The window is not affected.
 Column {
   spacing: Theme.gapGroup
+
+  KitLabel { text: "BAR" }
+  BarTextRow { module: "clipboard"; hasContent: false }
+
+  KitLine {}
 
   KitLabel { text: "POPUP" }
 

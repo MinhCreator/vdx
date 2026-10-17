@@ -1,4 +1,5 @@
 import QtQuick
+import qs.bar
 import qs.config
 import qs.kit
 
@@ -9,6 +10,11 @@ Column {
   spacing: Theme.gapGroup
 
   Component.onCompleted: ChatService.loadModels()
+
+  KitLabel { text: "BAR" }
+  BarTextRow { module: "chat"; hasContent: false }
+
+  KitLine {}
 
   KitLabel { text: "MODEL"; value: ChatService.models.length > 0 ? ChatService.models.length + " FREE" : "" }
 

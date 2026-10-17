@@ -21,8 +21,8 @@ Item {
 
   // what the bar names: icon, both, the title or the artist (Modules › Music)
   readonly property string show: ModuleSettings.get("music", "show", "both")
-  readonly property bool named: ModuleSettings.get("music", "text", "content") === "name"
-  readonly property bool iconOnly: !named && (show === "icon" || maxLength === 0)
+  readonly property string textMode: ModuleSettings.get("music", "text", "content")
+  readonly property bool iconOnly: textMode === "icon" || (textMode === "content" && (show === "icon" || maxLength === 0))
   readonly property string title: (show === "title" ? [MpdService.player.title]
                                  : show === "artist" ? [MpdService.player.artist]
                                  : [MpdService.player.artist, MpdService.player.title]).filter(s => s).join(" - ")

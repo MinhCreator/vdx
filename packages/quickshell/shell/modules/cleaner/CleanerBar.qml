@@ -21,7 +21,7 @@ Item {
   KitBarItem {
     id: face
     icon: "brush"
-    text: BarLayout.label("cleaner")
+    text: BarLayout.faceText("cleaner", BarLayout.label("cleaner"))
   }
 
   MouseArea {

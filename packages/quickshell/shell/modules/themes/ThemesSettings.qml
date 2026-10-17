@@ -11,7 +11,7 @@ Column {
   KitLabel { text: "BAR" }
   BarTextRow { module: "themes" }
 
-  KitToggleRow { visible: ModuleSettings.get("themes", "text", "content") !== "name"; module: "themes"; key: "name"; fallback: true; label: "Show theme name"; hint: "Next to the brush icon" }
+  KitToggleRow { visible: ModuleSettings.get("themes", "text", "content") === "content"; module: "themes"; key: "name"; fallback: true; label: "Show theme name"; hint: "Next to the brush icon" }
 
   KitLine {}
 

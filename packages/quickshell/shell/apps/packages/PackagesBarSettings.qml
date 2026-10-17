@@ -11,7 +11,7 @@ Column {
   KitLabel { text: "BAR" }
   BarTextRow { module: "packages" }
 
-  KitToggleRow { visible: ModuleSettings.get("packages", "text", "content") !== "name"; module: "packages"; key: "showCount"; label: "Count on the icon"; hint: "The number of pending updates" }
+  KitToggleRow { visible: ModuleSettings.get("packages", "text", "content") === "content"; module: "packages"; key: "showCount"; label: "Count on the icon"; hint: "The number of pending updates" }
 
   KitToggleRow { module: "packages"; key: "tint"; label: "Yellow when pending"; hint: "The number turns yellow" }
 

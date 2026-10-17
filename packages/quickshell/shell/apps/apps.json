@@ -49,5 +49,5 @@
     "settings": "apps/files/FilesSettings.qml" },
   { "id": "backup", "label": "Backups", "icon": "shield", "about": "Encrypted snapshots of home, /etc and the package list; restore",
     "ipc": "backup", "open": "toggle",
-    "window": { "id": "backup", "title": "Backups", "width": 900, "height": 640 }, "module": "backup" }
+    "window": { "id": "backup", "title": "Backups", "width": 900, "height": 640 }, "module": "backup", "moduleSettings": "apps/backup/BackupBarSettings.qml" }
 ]

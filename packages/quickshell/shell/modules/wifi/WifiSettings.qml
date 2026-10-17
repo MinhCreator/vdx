@@ -10,5 +10,5 @@ Column {
   KitLabel { text: "BAR" }
   BarTextRow { module: "wifi" }
 
-  KitToggleRow { visible: ModuleSettings.get("wifi", "text", "content") !== "name"; module: "wifi"; key: "name"; label: "Show network name"; hint: "Off: icon only" }
+  KitToggleRow { visible: ModuleSettings.get("wifi", "text", "content") === "content"; module: "wifi"; key: "name"; label: "Show network name"; hint: "Off: icon only" }
 }

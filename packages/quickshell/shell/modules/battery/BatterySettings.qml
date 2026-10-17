@@ -10,5 +10,5 @@ Column {
   KitLabel { text: "BAR" }
   BarTextRow { module: "battery" }
 
-  KitToggleRow { visible: ModuleSettings.get("battery", "text", "content") !== "name"; module: "battery"; key: "percent"; label: "Show charge"; hint: "Off: icon only" }
+  KitToggleRow { visible: ModuleSettings.get("battery", "text", "content") === "content"; module: "battery"; key: "percent"; label: "Show charge"; hint: "Off: icon only" }
 }

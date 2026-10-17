@@ -11,7 +11,7 @@ Column {
   KitLabel { text: "BAR" }
   BarTextRow { module: "wallpapers" }
 
-  KitToggleRow { visible: ModuleSettings.get("wallpapers", "text", "content") !== "name"; module: "wallpapers"; key: "name"; fallback: false; label: "Show picture name"; hint: "Next to the image icon" }
+  KitToggleRow { visible: ModuleSettings.get("wallpapers", "text", "content") === "content"; module: "wallpapers"; key: "name"; fallback: false; label: "Show picture name"; hint: "Next to the image icon" }
   KitToggleRow { module: "wallpapers"; key: "barWheel"; fallback: true; label: "Wheel on the bar"; hint: "Switches to the next picture" }
 
   KitLine {}

@@ -9,6 +9,7 @@ Column {
   spacing: Theme.gapGroup
 
   KitLabel { text: "BAR" }
+  BarTextRow { module: "virustotal"; hasContent: false }
 
   KitToggleRow { module: "virustotal"; key: "tint"; fallback: true; label: "Colour by verdict"; hint: "Red malicious, yellow suspicious" }
 

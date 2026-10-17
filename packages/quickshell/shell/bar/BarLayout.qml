@@ -101,11 +101,11 @@ Singleton {
   function icon(id) { return modules.find(p => p.id === id)?.icon ?? ""; }
   function label(id) { return modules.find(p => p.id === id)?.label ?? ""; }
 
-  // A bar face's text: its content, or the module's name (`name`, else its label)
-  // when its "Bar text" option says Name (BarTextRow). A face with no content
-  // to show is always named.
+  // A bar face's text, by its "Bar text" option (BarTextRow): Content (`content`),
+  // Name (`name`, else the label) or Icon (nothing, the icon alone).
   function faceText(id, content, name) {
-    return ModuleSettings.get(id, "text", "content") === "name" ? (name ?? label(id)) : content;
+    const mode = ModuleSettings.get(id, "text", "content");
+    return mode === "name" ? (name ?? label(id)) : mode === "icon" ? "" : content;
   }
 
   // ---- separators ----

@@ -1,12 +1,17 @@
 import QtQuick
 import qs.kit
 
-// The first row of a module's BAR group, in every module that has a text on its
-// face: Content (its own text, the options under it) or Name (the module's name,
-// BarLayout.faceText). Set `module`; its content options hide under Name.
+// The first row of a module's BAR group: Content (its own text, the options under
+// it), Name (the module's name) or Icon (no text). Set `module`; the content
+// options show only under Content. A module without content (`hasContent: false`)
+// has Name and Icon only.
 KitOptionRow {
+  property bool hasContent: true
+
   key: "text"
-  fallback: "content"
+  fallback: hasContent ? "content" : "name"
   label: "Bar text"
-  model: [{ label: "Content", value: "content" }, { label: "Name", value: "name" }]
+  model: hasContent
+    ? [{ label: "Content", value: "content" }, { label: "Name", value: "name" }, { label: "Icon", value: "icon" }]
+    : [{ label: "Name", value: "name" }, { label: "Icon", value: "icon" }]
 }

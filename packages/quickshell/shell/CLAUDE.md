@@ -36,8 +36,9 @@ Imports: `import qs.<dir>` from the config root. Singletons: `pragma Singleton`
 3. Bar face — `KitBarItem`, a `MouseArea` (click toggles, wheel = quick action),
    `BarPopup` with `ipcTarget`, `function openPopup()` (for the Folder).
    Its text is `BarLayout.faceText(id, content, name?)` (the module's name under
-   `Bar text › Name`, from `BarTextRow` at the top of its BAR settings); a module with
-   no text to show takes `BarLayout.label(id)`. Options that only shape the content hide under Name.
+   `Bar text › Name` or `Icon`, from `BarTextRow` at the top of its BAR settings); a module
+   with no content takes `BarLayout.faceText(id, BarLayout.label(id))` and `hasContent: false`.
+   Options that only shape the content show under Content.
 4. Popup — root `KitFrame`; reads the service, calls its functions.
 5. Register: `BarLayout.modules` (id, label, zone, icon, about, settings) and a
    `Component` in `bar/ModuleFaces.qml` (every screen's bar makes its own set). A

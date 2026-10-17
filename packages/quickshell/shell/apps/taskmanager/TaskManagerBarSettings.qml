@@ -1,4 +1,5 @@
 import QtQuick
+import qs.bar
 import qs.kit
 import qs.config
 
@@ -6,6 +7,11 @@ import qs.config
 // module's place): how much its popup lists.
 Column {
   spacing: Theme.gapGroup
+
+  KitLabel { text: "BAR" }
+  BarTextRow { module: "taskmanager"; hasContent: false }
+
+  KitLine {}
 
   KitLabel { text: "POPUP" }
 

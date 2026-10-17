@@ -11,7 +11,7 @@ KitColumn {
   BarTextRow { module: "ai" }
 
   KitOptionRow {
-    visible: ModuleSettings.get("ai", "text", "content") !== "name"
+    visible: ModuleSettings.get("ai", "text", "content") === "content"
     module: "ai"; key: "limit"; fallback: "session"
     label: "Limit"; hint: "Its percent is shown in the bar"
     model: [{ label: "5 h", value: "session" }, { label: "Week", value: "weekly_all" }]

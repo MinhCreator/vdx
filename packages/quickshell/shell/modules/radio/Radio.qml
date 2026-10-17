@@ -16,8 +16,8 @@ Item {
 
   // what the bar names: the icon alone or the station and track (Modules › Radio)
   readonly property string show: ModuleSettings.get("radio", "show", "title")
-  readonly property bool named: ModuleSettings.get("radio", "text", "content") === "name"
-  readonly property bool iconOnly: !named && (show === "icon" || maxLength === 0)
+  readonly property string textMode: ModuleSettings.get("radio", "text", "content")
+  readonly property bool iconOnly: textMode === "icon" || (textMode === "content" && (show === "icon" || maxLength === 0))
 
   required property PanelWindow bar
 
