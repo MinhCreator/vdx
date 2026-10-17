@@ -13,7 +13,7 @@ FloatingWindow {
   title: "Task Manager"
   visible: false
   implicitWidth: 780
-  implicitHeight: 600
+  implicitHeight: 640
   color: Theme.background0
 
   // Hyprland closing the window (Super+C) hides it but leaves FloatingWindow's

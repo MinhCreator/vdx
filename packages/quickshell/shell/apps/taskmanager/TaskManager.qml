@@ -20,11 +20,18 @@ Rectangle {
     return b < 1024 ? Math.round(b) + "B" : b < 1048576 ? Math.round(b / 1024) + "K" : (b / 1048576).toFixed(1) + "M";
   }
 
+  // the foot's line about the selected row
+  function detail(r) {
+    const head = r.count > 1 ? r.count + " processes" : "pid " + r.pids[0] + (r.ppid > 0 ? " · parent " + r.ppid : "");
+    return head + " · " + r.threads + " threads · " + (r.cmd || "kernel thread");
+  }
+
   function act(kind) {
     if (!tm.selectedRow) return;
     if (tm.confirm && armed !== kind) { armed = kind; disarm.restart(); return; }
     armed = "";
-    tm.end(kind === "kill");
+    if (kind === "tree") tm.endTree();
+    else tm.end(kind === "kill");
   }
 
   function step(delta) {
@@ -74,16 +81,22 @@ Rectangle {
     KitHeader {
       icon: "activity"
       title: "Task Manager"
-      subtitle: root.tm.rows.length + (root.tm.group ? " PROGRAMS · " : " SHOWN · ") + root.tm.procs.length
+      subtitle: root.tm.rows.length + (root.tm.grouped ? " PROGRAMS · " : " SHOWN · ") + root.tm.procs.length
         + " PROCESSES · EVERY " + root.tm.refreshMs / 1000 + "S"
 
       KitInput {
         id: search
         width: 240
-        placeholder: "search"
+        placeholder: root.tm.tab === "programs" ? "search" : "search name, pid or command"
         text: root.tm.query
         onTextEdited: root.tm.query = text
       }
+    }
+
+    KitChoices {
+      model: [{ label: "Programs", value: "programs" }, { label: "Processes", value: "processes" }]
+      current: root.tm.tab
+      onPicked: value => { root.tm.tab = value; root.tm.selected = ""; root.armed = ""; }
     }
 
     KitLine {}
@@ -146,13 +159,14 @@ Rectangle {
       width: parent.width
       height: 18
 
-      Title { x: 10; key: "name"; label: root.tm.group ? "PROGRAM" : "PROCESS" }
+      Title { x: 10; key: "name"; label: root.tm.grouped ? "PROGRAM" : "PROCESS" }
       Title { x: parent.width - root.colMem - root.colCpu - root.colCount - root.colUser; label: "USER" }
       Title {
         x: parent.width - root.colMem - root.colCpu - root.colCount
         width: root.colCount - 10
         horizontalAlignment: Text.AlignRight
-        label: root.tm.group ? "PROCS" : "PID"
+        key: root.tm.grouped ? "" : "pid"
+        label: root.tm.grouped ? "PROCS" : "PID"
       }
       Title { x: parent.width - root.colMem - root.colCpu; width: root.colCpu - 10; horizontalAlignment: Text.AlignRight; key: "cpu"; label: "CPU" }
       Title { x: parent.width - root.colMem; width: root.colMem - 10; horizontalAlignment: Text.AlignRight; key: "mem"; label: "MEMORY" }
@@ -204,7 +218,7 @@ Rectangle {
         width: root.colCount - 10
         anchors.verticalCenter: parent.verticalCenter
         horizontalAlignment: Text.AlignRight
-        text: root.tm.group ? String(row.modelData.count) : String(row.modelData.pids[0])
+        text: root.tm.grouped ? String(row.modelData.count) : String(row.modelData.pids[0])
         color: Theme.muted
         font.pixelSize: Theme.fontSize - 1
       }
@@ -272,8 +286,8 @@ Rectangle {
           elide: Text.ElideRight
           visible: text !== ""
           text: root.tm.error !== "" && root.tm.status === "error" ? root.tm.error
-              : root.tm.selectedRow ? (root.tm.selectedRow.count > 1 ? root.tm.selectedRow.count + " processes · " : "pid " + root.tm.selectedRow.pids[0] + " · ")
-                                     + root.tm.selectedRow.threads + " threads · " + (root.tm.selectedRow.cmd || "kernel thread")
+              : root.tm.notice !== "" ? root.tm.notice
+              : root.tm.selectedRow ? root.detail(root.tm.selectedRow)
               : "↑ ↓ to select · Delete ends · Shift+Delete kills"
           color: root.tm.status === "error" ? Theme.red : Theme.muted
           font.pixelSize: Theme.fontSize - 2
@@ -284,6 +298,29 @@ Rectangle {
         id: buttons
         anchors { right: parent.right; verticalCenter: parent.verticalCenter }
         spacing: Theme.gapSmall
+
+        // a process's own actions: its parent, its pid, the process with its children
+        KitButton {
+          visible: !root.tm.grouped
+          text: "Parent"
+          disabled: !root.tm.selectedRow || root.tm.selectedRow.ppid <= 0
+          onClicked: root.tm.goParent()
+        }
+
+        KitButton {
+          visible: !root.tm.grouped
+          text: "Copy PID"
+          disabled: !root.tm.selectedRow
+          onClicked: root.tm.copyPid()
+        }
+
+        KitButton {
+          visible: !root.tm.grouped
+          text: root.armed === "tree" ? "Sure?" : "Tree"
+          selected: root.armed === "tree"
+          disabled: !root.tm.selectedRow || root.tm.busy
+          onClicked: root.act("tree")
+        }
 
         KitButton {
           id: endButton

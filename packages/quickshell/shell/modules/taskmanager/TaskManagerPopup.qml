@@ -77,7 +77,7 @@ KitFrame {
     }
 
     Repeater {
-      model: root.tm.rows.slice(0, root.count)
+      model: root.tm.popupRows.slice(0, root.count)
 
       Item {
         id: row
@@ -123,7 +123,7 @@ KitFrame {
     }
 
     KitText {
-      visible: root.tm.rows.length === 0
+      visible: root.tm.popupRows.length === 0
       text: "Reading processes…"
       color: Theme.muted
     }

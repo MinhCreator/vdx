@@ -68,20 +68,25 @@ Singleton {
   property string query: ""
 
   // ---- view ----
-  // a row: {key, name, user, pids, count, cpu, mem, threads, cmd}
-  readonly property var rows: {
+  // the window's tab: programs (one row each, when `group`) or processes (one
+  // row per pid); the bar popup always lists programs (`popupRows`)
+  property string tab: "programs"
+  readonly property bool grouped: group && tab === "programs"
+
+  // a row: {key, name, user, pids, ppid, count, cpu, mem, threads, cmd}; ppid and pid are 0 for a program
+  function build(byProgram) {
     const q = query.trim().toLowerCase();
     let list = procs.filter(p => (kernel || !p.kernel) && (!onlyMine || p.mine)
                               && (q === "" || p.name.toLowerCase().includes(q) || String(p.pid) === q
                                   || p.cmd.toLowerCase().includes(q)));
     let out;
-    if (group) {
+    if (byProgram) {
       const by = {};
       out = [];
       for (const p of list) {
         let r = by[p.name];
         if (!r) {
-          r = by[p.name] = { key: p.name, name: p.name, user: p.user, pids: [], count: 0, cpu: 0, mem: 0, threads: 0, cmd: p.cmd };
+          r = by[p.name] = { key: p.name, name: p.name, user: p.user, pids: [], ppid: 0, pid: 0, count: 0, cpu: 0, mem: 0, threads: 0, cmd: p.cmd };
           out.push(r);
         }
         if (r.user !== p.user) r.user = "—";
@@ -92,25 +97,67 @@ Singleton {
         r.threads += p.threads;
       }
     } else {
-      out = list.map(p => ({ key: String(p.pid), name: p.name, user: p.user, pids: [p.pid], count: 1,
+      out = list.map(p => ({ key: String(p.pid), name: p.name, user: p.user, pids: [p.pid], ppid: p.ppid, pid: p.pid, count: 1,
                              cpu: p.cpu, mem: p.mem, threads: p.threads, cmd: p.cmd }));
     }
     const by = sortBy;
     out.sort((a, b) => by === "name" ? a.name.localeCompare(b.name)
                      : by === "mem" ? b.mem - a.mem || a.name.localeCompare(b.name)
+                     : by === "pid" ? a.pid - b.pid
                      : b.cpu - a.cpu || b.mem - a.mem);
     return out;
   }
 
+  readonly property var rows: build(grouped)
+  readonly property var popupRows: build(group)
+
   property string selected: ""              // a row's key
   readonly property var selectedRow: rows.find(r => r.key === selected) ?? null
+
+  // the pid of a process and of all its descendants (children, their children …)
+  function treePids(pid) {
+    const kids = {};
+    for (const p of procs) (kids[p.ppid] = kids[p.ppid] ?? []).push(p.pid);
+    const out = [], todo = [pid];
+    while (todo.length > 0) {
+      const next = todo.pop();
+      if (out.includes(next)) continue;
+      out.push(next);
+      todo.push(...(kids[next] ?? []));
+    }
+    return out;
+  }
+
+  // the search shows just the selected process's parent, which becomes the selection
+  function goParent() {
+    const row = selectedRow;
+    if (!row || grouped || row.ppid <= 0) return;
+    query = String(row.ppid);
+    selected = String(row.ppid);
+  }
 
   // ---- actions ----
   property bool busy: false
   property string status: ""                // "" | ok | error
   property string error: ""
+  property string notice: ""                // a line in the foot, cleared after a moment
 
   function end(force) { endRow(selectedRow, force); }
+
+  // TERM the selected process and everything under it (processes tab)
+  function endTree() {
+    if (!selectedRow || grouped) return;
+    endRow({ pids: treePids(selectedRow.pids[0]) }, false);
+  }
+
+  function copyPid() {
+    const row = selectedRow;
+    if (!row || grouped) return;
+    copyProc.command = ["wl-copy", String(row.pids[0])];
+    copyProc.running = true;
+    notice = "PID " + row.pids[0] + " copied";
+    statusReset.restart();
+  }
 
   // TERM (or KILL) every process of a row
   function endRow(row, force) {
@@ -138,7 +185,7 @@ Singleton {
   Timer {
     id: statusReset
     interval: Theme.popupStatusMs
-    onTriggered: root.status = ""
+    onTriggered: { root.status = ""; root.notice = ""; }
   }
 
   Process {
@@ -156,6 +203,8 @@ Singleton {
       }
     }
   }
+
+  Process { id: copyProc }
 
   Process {
     id: killProc
