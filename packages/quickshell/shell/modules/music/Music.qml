@@ -7,7 +7,7 @@ import qs.kit
 import qs.modules.mpd
 
 // Liked tracks player. Idle: grey "Music". Click opens the player, middle click
-// toggles playback, the wheel skips tracks.
+// toggles playback.
 Item {
   id: root
 
@@ -38,7 +38,6 @@ Item {
     tint: MusicService.active ? Theme.foreground0 : Theme.gray
   }
 
-  // Wheel events reach a layer-shell surface only through a MouseArea.
   MouseArea {
     anchors.fill: parent
     acceptedButtons: Qt.LeftButton | Qt.MiddleButton
@@ -49,11 +48,6 @@ Item {
         else MusicService.setActive(true);
       }
       else popup.toggle();
-    }
-    onWheel: wheel => {
-      if (!MusicService.active) return;
-      if (wheel.angleDelta.y > 0) MpdService.prev();
-      else if (wheel.angleDelta.y < 0) MpdService.next();
     }
   }
 
