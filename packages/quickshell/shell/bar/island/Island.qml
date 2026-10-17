@@ -9,15 +9,15 @@ import qs.modules.audio
 // The whole bar in the island style: one dark pill that morphs between
 // views. compact (LEFT · clock · RIGHT) is the resting face; hub (the
 // date, the track and every module as a chip) opens on a hover over the clock;
-// media (the player) from the equalizer; power on a right
-// click; osd (volume, brightness) and notice (a new notification) pass over
-// it for a moment. A module's popup opens inside the island (module): its
-// content moves in from the BarPopup and back once the island has folded.
-// A clicked view stays until a click outside, Escape or a second click.
+// media (the player) from the equalizer; osd (volume, brightness) and notice
+// (a new notification) pass over it for a moment. A module's popup opens
+// inside the island (module): its content moves in from the BarPopup and back
+// once the island has folded. A clicked view stays until a click outside,
+// Escape or a second click.
 //
-// Compact: middle — play / pause, right — power; a left click on the bare
-// island does nothing (the hub opens on a hover over the clock). The wheel is
-// a module's own (the volume module's, a chip's), never the island's.
+// Compact: middle — play / pause; a click on the bare island does nothing (the
+// hub opens on a hover over the clock). The wheel is a module's own (the
+// volume module's, a chip's), never the island's.
 Item {
   id: root
 
@@ -159,16 +159,16 @@ Item {
 
     HoverHandler { id: hover }
 
-    // compact's clicks, under its face: its modules take their own. A left
-    // click on the bare island does nothing: a misclick must not open the hub
+    // compact's clicks, under its face: its modules take their own. A click on
+    // the bare island does nothing but middle (play / pause): a misclick must
+    // not open the hub
     MouseArea {
       anchors.fill: parent
       enabled: root.shown === "compact"
       acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
       cursorShape: Qt.PointingHandCursor
       onClicked: mouse => {
-        if (mouse.button === Qt.RightButton) root.openView("power");
-        else if (mouse.button === Qt.MiddleButton) IslandService.togglePlay();
+        if (mouse.button === Qt.MiddleButton) IslandService.togglePlay();
       }
     }
 

@@ -56,7 +56,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         sourceComponent: BarLayout.isSeparator(modelData) ? separatorFace : (root.modules[modelData] ?? null)
 
-        // a right click takes its options; without this it falls through to the island (its power menu)
+        // a right click takes its options; without this it falls through to the island
         MouseArea {
           anchors.fill: parent
           acceptedButtons: Qt.RightButton
