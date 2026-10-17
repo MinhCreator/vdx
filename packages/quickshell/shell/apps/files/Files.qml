@@ -1,0 +1,1283 @@
+import QtQuick
+import Quickshell
+import qs.config
+import qs.kit
+
+// The file manager: places, bookmarks and devices on the left; the folder (or
+// the search result, or the trash) as a list or a grid in the middle; a preview
+// of the selection on the right. A path field and a search field above. While
+// a portal asks for files (FilesService.picker) the same window picks them: a
+// file name field for save, Cancel and the accept button below.
+// Keys: arrows move (grid: all four), shift extends, enter opens (picks), backspace
+// goes up, alt+arrows go back and forward, ctrl+c/x/v copy, cut, paste, ctrl+a all,
+// delete trashes, shift+delete removes for good, F2 renames, ctrl+n a new folder,
+// ctrl+d bookmarks the folder, ctrl+h hidden files, ctrl+g the view, ctrl+l the
+// path, ctrl+f the search. A right click opens FilesMenu; files dropped on the
+// list are copied in.
+Item {
+  id: root
+
+  signal closeRequested()
+
+  readonly property int padding: Theme.windowPadding
+  // the panes and columns: dragged by their strips, kept in the options
+  property int sideW: FilesService.opt("sideWidth", 190)
+  property int previewW: FilesService.opt("previewWidth", 240)
+  property int sizeWidth: FilesService.opt("sizeWidth", 84)
+  property int dateWidth: FilesService.opt("dateWidth", 124)
+  // the columns from the right edge: the date column, then a gap, then the size column. Size and date
+  // are right-aligned in their columns (captions too); a separator sits in the middle of each gap
+  function sepDateX(w) { return w - Theme.gapLoose - dateWidth - Theme.gapMedium / 2; }
+  function sepSizeX(w) { return w - Theme.gapLoose - dateWidth - Theme.gapMedium - sizeWidth - Theme.gapMedium / 2; }
+  readonly property int cellWidth: 112
+  readonly property int cellHeight: 112
+  readonly property bool grid: FilesService.view === "grid"
+  readonly property bool columnsView: FilesService.view === "columns"
+  readonly property bool selectedDir: FilesService.selected.length === 1 && FilesService.selected[0].kind === "dir"
+  readonly property var picker: FilesService.picker
+
+  // what is being typed in the footer or over a row: a folder or a file to
+  // create, a path to rename; a delete or an empty waiting for its second press
+  property string creating: ""           // "" | folder | file
+  property string renaming: ""           // a path
+  property bool sure: false
+  property bool emptySure: false
+  property bool helpOpen: false          // F1: the keys
+  property bool trashSure: false         // a move to the trash waiting for its second press
+  property int parentW: FilesService.parentWidth    // the Columns view's side columns, dragged
+  property int childW: FilesService.childWidth
+  readonly property bool markdown: previewed !== null && previewed.name.toLowerCase().endsWith(".md")
+
+  readonly property var previewed: FilesService.selected.length === 1 ? FilesService.selected[0] : null
+  // folders have no preview: only a file's
+  readonly property bool previewing: FilesService.showPreview && previewed !== null && previewed.kind !== "dir"
+
+  focus: true
+  Keys.onPressed: event => handleKey(event)
+
+  Connections {
+    target: FilesService
+    // a new folder starts at its top, not where the last one was scrolled to
+    function onPathChanged() {
+      pathField.text = FilesService.path; root.sure = false; root.emptySure = false;
+      list.positionViewAtBeginning();
+      grid.positionViewAtBeginning();
+    }
+    function onSelectionChanged() { root.sure = false; root.trashSure = false; }
+    function onPickerChanged() { saveField.text = FilesService.picker ? FilesService.picker.name : ""; }
+    function onQueryChanged() { if (searchField.text !== FilesService.query) searchField.text = FilesService.query; }
+    // the keys move the selection: the view follows it
+    function onAnchorChanged() {
+      const i = FilesService.shown.findIndex(e => e.path === FilesService.anchor);
+      if (i < 0) return;
+      if (root.grid) grid.positionViewAtIndex(i, GridView.Contain);
+      else list.positionViewAtIndex(i, ListView.Contain);
+    }
+  }
+
+  Component.onCompleted: pathField.text = FilesService.path
+
+  function handleKey(event) {
+    const ctrl = (event.modifiers & Qt.ControlModifier) !== 0;
+    const shift = (event.modifiers & Qt.ShiftModifier) !== 0;
+    const alt = (event.modifiers & Qt.AltModifier) !== 0;
+    if (event.key === Qt.Key_Escape) {
+      if (menu.visible) menu.close();
+      else if (helpOpen) helpOpen = false;
+      else if (FilesService.job !== null) FilesService.cancelJob();
+      else if (FilesService.panel !== null) FilesService.closeInfo();
+      else if (picker) FilesService.finishPick([], 1);
+      else if (FilesService.dupes) FilesService.leaveDupes();
+      else if (FilesService.everywhere) FilesService.toggleEverywhere();
+      else if (FilesService.query !== "") FilesService.setQuery("");
+      else if (FilesService.selection.length > 0) FilesService.selection = [];
+      else root.closeRequested();
+      return;
+    }
+    if (ctrl) {
+      switch (event.key) {
+        case Qt.Key_A: FilesService.selectAll(); return;
+        case Qt.Key_C: FilesService.copySelection(); return;
+        case Qt.Key_X: if (!FilesService.inTrash && !picker) FilesService.cutSelection(); return;
+        case Qt.Key_V: if (picker) return; if (FilesService.canPaste) FilesService.paste(); else FilesService.pasteFromSystem(); return;
+        case Qt.Key_T: FilesService.openTerminal(root.folderForTerminal()); return;
+        case Qt.Key_R: if (FilesService.inTrash) FilesService.restoreSelection(); return;
+        case Qt.Key_N: if (!FilesService.inTrash && !picker) startCreate("folder"); return;
+        case Qt.Key_D: if (!FilesService.inTrash) FilesService.bookmark(FilesService.path); return;
+        case Qt.Key_H: FilesService.setOption("hidden", !FilesService.hidden); return;
+        case Qt.Key_G: FilesService.cycleView(); return;
+        case Qt.Key_Z: if (picker) return; if (shift) FilesService.redo(); else FilesService.undo(); return;
+        case Qt.Key_Y: if (!picker) FilesService.redo(); return;
+        case Qt.Key_K: FilesService.toggleEverywhere(); searchField.input.forceActiveFocus(); return;
+        case Qt.Key_L: pathField.input.forceActiveFocus(); return;
+        case Qt.Key_F: searchField.input.forceActiveFocus(); return;
+      }
+      return;
+    }
+    if (alt && event.key === Qt.Key_Left) { FilesService.back(); return; }
+    if (alt && event.key === Qt.Key_Right) { FilesService.forward(); return; }
+    const cols = root.grid ? FilesService.columns : 1;
+    switch (event.key) {
+      case Qt.Key_Up: FilesService.step(-cols, shift); return;
+      case Qt.Key_Down: FilesService.step(cols, shift); return;
+      case Qt.Key_Left: if (root.grid) FilesService.step(-1, shift); return;
+      case Qt.Key_Right: if (root.grid) FilesService.step(1, shift); return;
+      case Qt.Key_Return:
+      case Qt.Key_Enter:
+        if (picker) accept();
+        else if (FilesService.selected.length === 1) open(FilesService.selected[0]);
+        return;
+      case Qt.Key_Backspace: FilesService.up(); return;
+      case Qt.Key_F2:
+        if (FilesService.inTrash || picker) return;
+        if (FilesService.selected.length === 1) renaming = FilesService.selected[0].path;
+        else if (FilesService.selected.length > 1) startCreate("batch");
+        return;
+      case Qt.Key_F5: FilesService.refresh(); return;
+      case Qt.Key_F1: helpOpen = !helpOpen; return;
+      case Qt.Key_Space: FilesService.setOption("preview", !FilesService.showPreview); return;
+      case Qt.Key_Delete: remove(shift); return;
+    }
+  }
+
+  // a folder opens inside the window, a file with its default program; in a picker a file is picked
+  function open(entry) {
+    if (picker && entry.kind !== "dir") {
+      FilesService.select(entry.path, "single");
+      accept();
+    } else if (entry.kind === "dir" && !FilesService.inTrash) {
+      FilesService.go(entry.path);
+    } else {
+      FilesService.openExternal(entry.path);
+    }
+  }
+
+  // a click: ctrl toggles, shift takes the range; in a save picker a file's name goes to the field
+  function click(entry, mouse) {
+    root.forceActiveFocus();
+    // Settings › Behaviour: one click opens, unless a modifier selects
+    if (FilesService.singleClick && !(mouse.modifiers & (Qt.ShiftModifier | Qt.ControlModifier))) {
+      FilesService.select(entry.path, "single");
+      open(entry);
+      return;
+    }
+    if (mouse.modifiers & Qt.ShiftModifier) FilesService.select(entry.path, "range");
+    else if (mouse.modifiers & Qt.ControlModifier) FilesService.select(entry.path, "toggle");
+    else FilesService.select(entry.path, "single");
+    if (picker && picker.mode === "save" && entry.kind !== "dir") saveField.text = entry.name;
+  }
+
+  function contextMenu(entry, at) {
+    if (!FilesService.selection.includes(entry.path)) FilesService.select(entry.path, "single");
+    menu.open(at.x, at.y, menuFor(entry));
+  }
+
+  // to the trash (asked once when Settings › Safety says so); a permanent delete (shift, or anything in the trash) asks once when confirm is on
+  function remove(permanent) {
+    if (FilesService.selection.length === 0 || picker) return;
+    if (FilesService.inTrash || permanent) {
+      if (FilesService.confirmDelete && !sure) { sure = true; return; }
+      sure = false;
+      FilesService.deleteSelection();
+    } else {
+      if (FilesService.confirmTrash && !trashSure) { trashSure = true; return; }
+      trashSure = false;
+      FilesService.trashSelection();
+    }
+  }
+
+  // ctrl + t: the folder selected, or the one shown
+  function folderForTerminal() {
+    const one = FilesService.selected.length === 1 && FilesService.selected[0].kind === "dir";
+    return one ? FilesService.selected[0].path : FilesService.path;
+  }
+
+  function emptyTrash() {
+    if (FilesService.confirmDelete && !emptySure) { emptySure = true; return; }
+    emptySure = false;
+    FilesService.emptyTrash();
+  }
+
+  function startCreate(kind) {
+    creating = kind;
+    creatingField.text = "";
+    creatingField.input.forceActiveFocus();
+  }
+
+  function finishCreate() {
+    const name = creatingField.text.trim();
+    if (name !== "") {
+      if (creating === "folder") FilesService.createFolder(name);
+      else if (creating === "batch") FilesService.batchRename(name);
+      else FilesService.createFile(name);
+    }
+    creating = "";
+    root.forceActiveFocus();
+  }
+
+  function finishRename(entry, name) {
+    renaming = "";
+    if (name.trim() !== "" && name.trim() !== entry.name) FilesService.rename(entry.path, name);
+    root.forceActiveFocus();
+  }
+
+  // the picker's accept: the selected files (or the folder, for a folder picker, or the save name)
+  function accept() {
+    if (!picker) return;
+    if (picker.mode === "save") {
+      const name = saveField.text.trim();
+      if (!FilesService.validName(name)) return;
+      if (FilesService.entries.some(e => e.name === name)) {
+        FilesService.error = "\"" + name + "\" is here already";
+        return;
+      }
+      FilesService.finishPick([FilesService.path + "/" + name], 0);
+      return;
+    }
+    const picked = FilesService.selected
+      .filter(e => picker.directory ? e.kind === "dir" : e.kind !== "dir")
+      .map(e => e.path);
+    if (picked.length === 0) {
+      if (picker.directory) FilesService.finishPick([FilesService.path], 0);
+      return;
+    }
+    FilesService.finishPick(picker.multiple ? picked : picked.slice(0, 1), 0);
+  }
+
+  // a drop from another app: the files are copied into the folder shown (not ones already here)
+  function dropped(urls) {
+    const paths = urls.map(u => FilesService.pathFromUri(u.toString()))
+                      .filter(p => p !== "" && p.replace(/\/[^/]*$/, "") !== FilesService.path);
+    if (paths.length > 0 && !FilesService.inTrash && !picker)
+      FilesService.act({ done: "pasted" }, ["paste", "copy", FilesService.path].concat(paths));
+  }
+
+  function when(time) {
+    const d = new Date(time * 1000);
+    if (FilesService.dateFormat === "iso") return Qt.formatDateTime(d, "yyyy-MM-dd HH:mm");
+    const today = d.toDateString() === new Date().toDateString();
+    return Qt.formatDateTime(d, today ? "HH:mm" : "dd.MM.yy HH:mm");
+  }
+
+  function iconFor(kind) {
+    return { dir: "folder", image: "image", video: "video", audio: "music", text: "file", archive: "package" }[kind] ?? "file";
+  }
+
+  function placeIcon(name) {
+    return { Home: "folder", Desktop: "monitor", Documents: "file", Downloads: "download", Music: "music",
+             Pictures: "image", Videos: "video", Root: "server", Trash: "trash" }[name] ?? "folder";
+  }
+
+  // a path as a URL the image loader reads
+  function fileUrl(p) { return FilesService.fileUri(p); }
+
+  // the menu of a right click: what an entry can do now (a dimmed row can't)
+  function menuFor(entry) {
+    const one = FilesService.selection.length === 1;
+    if (FilesService.inTrash) return [
+      { label: "Open", run: () => root.open(entry) },
+      { label: "Restore", hint: "ctrl + r", run: () => FilesService.restoreSelection() },
+      { label: "Delete for good", hint: "del", run: () => root.remove(true) },
+    ];
+    return [
+      { label: "Open", run: () => root.open(entry) },
+      { label: "Rename", hint: "F2", disabled: !one || picker !== null, run: () => root.renaming = entry.path },
+      { label: "Copy", hint: "ctrl + c", run: () => FilesService.copySelection() },
+      { label: "Cut", hint: "ctrl + x", disabled: picker !== null, run: () => FilesService.cutSelection() },
+      { label: "Paste", hint: "ctrl + v", disabled: !FilesService.canPaste || picker !== null, run: () => FilesService.paste() },
+      { label: "Bookmark", hint: "ctrl + d", disabled: entry.kind !== "dir", run: () => FilesService.bookmark(entry.path) },
+      { label: "Properties", run: () => FilesService.inspect(entry.path) },
+      { label: "Terminal here", disabled: entry.kind !== "dir", run: () => FilesService.openTerminal(entry.path) },
+      { label: "Find duplicates here", disabled: entry.kind !== "dir", run: () => FilesService.findDuplicates(entry.path) },
+      { label: "Copy path", run: () => Quickshell.execDetached(["wl-copy", entry.path]) },
+      { label: "Move to trash", hint: "del", disabled: picker !== null, run: () => root.remove(false) },
+      { label: "Delete for good", hint: "shift + del", disabled: picker !== null, run: () => root.remove(true) },
+    ].concat(picker !== null ? [] : FilesService.actions.map(a => ({
+      label: a.label, run: () => FilesService.runAction(a, FilesService.selection),
+    })));
+  }
+
+  // ---- header ----
+  KitHeader {
+    id: header
+    anchors { top: parent.top; left: parent.left; right: parent.right
+              topMargin: root.padding - Theme.headerInset; leftMargin: root.padding; rightMargin: root.padding }
+    icon: root.picker ? "folder" : FilesService.inTrash ? "trash" : "folder"
+    title: root.picker ? root.picker.title : FilesService.title
+    subtitle: FilesService.dupes ? "DUPLICATES · " + FilesService.rows.length + " FILES IN " + FilesService.dupGroups + " GROUPS"
+            : root.picker ? (root.picker.mode === "save" ? "SAVE" : root.picker.directory ? "CHOOSE A FOLDER" : "CHOOSE")
+                            + (FilesService.selection.length > 0 ? " · " + FilesService.selection.length + " SELECTED" : "")
+            : FilesService.inTrash ? "TRASH · " + FilesService.entries.length + " ITEMS"
+            : FilesService.searching ? "SEARCH · " + FilesService.shown.length + " FOUND"
+            : FilesService.shown.length + " ITEMS" + (FilesService.selection.length > 0 ? " · " + FilesService.selection.length + " SELECTED" : "")
+
+    KitButton {
+      icon: "arrow-left"
+      disabled: !FilesService.canBack
+      onClicked: FilesService.back()
+    }
+    KitButton {
+      icon: "arrow-right"
+      disabled: !FilesService.canForward
+      onClicked: FilesService.forward()
+    }
+    KitButton {
+      icon: "arrow-up"
+      disabled: !FilesService.canUp
+      onClicked: FilesService.up()
+    }
+    KitButton {
+      icon: root.grid ? "grid" : root.columnsView ? "columns" : "list"
+      onClicked: FilesService.cycleView()
+    }
+    KitButton {
+      icon: "sliders"
+      text: ({ name: "Name", size: "Size", mtime: "Modified" })[FilesService.sortBy] + (FilesService.sortDesc ? " ↓" : " ↑")
+      visible: !root.picker
+      onClicked: FilesService.sortNext()
+    }
+    KitButton {
+      icon: "plus"
+      text: "New"
+      visible: !FilesService.inTrash && !root.picker
+      onClicked: root.startCreate("folder")
+    }
+    KitButton {
+      icon: "trash"
+      text: root.emptySure ? "Sure?" : "Empty"
+      visible: FilesService.inTrash
+      disabled: FilesService.entries.length === 0
+      onClicked: root.emptyTrash()
+    }
+  }
+
+  // ---- the path and the search ----
+  Row {
+    id: fields
+    anchors { top: header.bottom; left: parent.left; right: parent.right
+              topMargin: Theme.gapLoose; leftMargin: root.padding; rightMargin: root.padding }
+    spacing: Theme.gapMedium
+
+    KitInput {
+      id: pathField
+      width: parent.width - searchField.width - parent.spacing
+      placeholder: "path"
+      passKeys: [Qt.Key_Escape]
+      onAccepted: {
+        const typed = text.trim().replace(/^~(?=\/|$)/, FilesService.home);
+        if (typed.startsWith("/")) FilesService.go(typed);
+        root.forceActiveFocus();
+      }
+      onKeyPassed: root.forceActiveFocus()
+    }
+
+    KitInput {
+      id: searchField
+      width: 220
+      placeholder: FilesService.everywhere ? "search all of Home" : "search here and below"
+      passKeys: [Qt.Key_Escape]
+      text: FilesService.query
+      onTextEdited: FilesService.setQuery(text)
+      onKeyPassed: { if (FilesService.everywhere) FilesService.toggleEverywhere(); else FilesService.setQuery(""); root.forceActiveFocus(); }
+      onAccepted: root.forceActiveFocus()
+    }
+  }
+
+  // ---- body: the sidebar, the list or grid, the preview: framed panes, dragged apart by the strips between ----
+  Item {
+    id: body
+    anchors { top: fields.bottom; bottom: footer.top; left: parent.left; right: parent.right
+              topMargin: Theme.gapGroup; bottomMargin: Theme.gapGroup; leftMargin: root.padding; rightMargin: root.padding }
+
+    // the sidebar: places, bookmarks, devices; it scrolls when they don't fit
+    Rectangle {
+      id: sideFrame
+      visible: root.picker === null
+      x: 0
+      y: 0
+      width: root.sideW
+      height: body.height
+      radius: Theme.radiusCard
+      color: "transparent"
+      border.width: FilesService.frames ? Theme.windowFrameWidth : 0
+      border.color: Theme.popupFrame
+      clip: true
+
+      Flickable {
+        id: sidebar
+        anchors { fill: parent; margins: Theme.gapSmall }
+        contentHeight: sideColumn.implicitHeight
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
+
+        Column {
+          id: sideColumn
+          width: sidebar.width
+          spacing: Theme.gapTight
+
+          KitLabel { text: "PLACES" }
+
+          Repeater {
+            model: FilesService.places.concat([{ name: "Trash", path: FilesService.trashPath }])
+
+            FilesPlace {
+              required property var modelData
+              icon: root.placeIcon(modelData.name)
+              text: modelData.name
+              current: FilesService.path === modelData.path
+              onClicked: FilesService.go(modelData.path)
+              onRightClicked: at => {
+                if (modelData.path === FilesService.trashPath) return;
+                root.menuAt(at, [
+                  { label: "Open", run: () => FilesService.go(modelData.path) },
+                  { label: "Bookmark", disabled: FilesService.bookmarks.some(b => b.path === modelData.path),
+                    run: () => FilesService.bookmark(modelData.path) },
+                ]);
+              }
+            }
+          }
+
+          Item { width: 1; height: Theme.gapLoose; visible: FilesService.bookmarks.length > 0 }
+          KitLabel { text: "BOOKMARKS"; visible: FilesService.bookmarks.length > 0 }
+
+          Repeater {
+            model: FilesService.bookmarks
+
+            FilesPlace {
+              required property var modelData
+              icon: "folder"
+              text: modelData.name
+              current: FilesService.path === modelData.path
+              onClicked: FilesService.go(modelData.path)
+              onRightClicked: at => root.menuAt(at, [
+                { label: "Open", run: () => FilesService.go(modelData.path) },
+                { label: "Remove bookmark", run: () => FilesService.unbookmark(modelData.path) },
+              ])
+            }
+          }
+
+          Item { width: 1; height: Theme.gapLoose; visible: FilesService.devices.length > 0 }
+          KitLabel { text: "DEVICES"; visible: FilesService.devices.length > 0 }
+
+          Repeater {
+            model: FilesService.devices
+
+            FilesPlace {
+              required property var modelData
+              icon: "package"
+              text: modelData.name
+              hint: modelData.mount !== "" ? "" : modelData.size
+              current: modelData.mount !== "" && FilesService.path.startsWith(modelData.mount)
+              onClicked: modelData.mount !== "" ? FilesService.go(modelData.mount) : FilesService.mountDevice(modelData, true)
+              onRightClicked: at => root.menuAt(at, [
+                { label: "Open", disabled: modelData.mount === "", run: () => FilesService.go(modelData.mount) },
+                { label: "Mount", disabled: modelData.mount !== "", run: () => FilesService.mountDevice(modelData, false) },
+                { label: "Unmount", disabled: modelData.mount === "", run: () => FilesService.unmountDevice(modelData) },
+              { label: "Properties", run: () => FilesService.deviceProperties(modelData) },
+              ])
+            }
+          }
+        }
+      }
+    }
+
+    // the strip between the sidebar and the list: drag it to resize the sidebar
+    FilesSplit {
+      id: sideSplit
+      visible: root.picker === null
+      x: sideFrame.width
+      y: 0
+      height: body.height
+      reference: body
+      onDragged: x => root.sideW = Math.max(140, Math.min(360, x - stripCenter))
+      onFinished: FilesService.setOption("sideWidth", root.sideW)
+      readonly property real stripCenter: width / 2
+    }
+
+    // the list or the grid, framed
+    Rectangle {
+      id: listFrame
+      x: root.picker ? 0 : root.sideW + sideSplit.width
+      y: 0
+      width: body.width - x - (root.previewing ? previewSplit.width + root.previewW : 0)
+      height: body.height
+      radius: Theme.radiusCard
+      color: "transparent"
+      border.width: FilesService.frames ? Theme.windowFrameWidth : 0
+      border.color: Theme.popupFrame
+      clip: true
+
+      // the Columns view: the parent folder on the left, the selected folder on the right
+      FilesColumn {
+        id: parentCol
+        visible: root.columnsView && FilesService.canUp
+        anchors { left: parent.left; top: parent.top; bottom: parent.bottom; margins: Theme.gapSmall }
+        width: root.parentW
+        folder: visible ? FilesService.parentOf(FilesService.path) : ""
+        highlight: FilesService.path
+        title: "PARENT"
+        onOpened: p => FilesService.go(p)
+      }
+
+      FilesColumn {
+        id: childCol
+        visible: root.columnsView && root.selectedDir
+        anchors { right: parent.right; top: parent.top; bottom: parent.bottom; margins: Theme.gapSmall }
+        width: root.childW
+        folder: visible ? FilesService.selected[0].path : ""
+        title: visible ? FilesService.selected[0].name.toUpperCase() : ""
+        onOpened: p => FilesService.go(p)
+      }
+
+      // the strips beside the side columns: drag one to widen its column
+      FilesSplit {
+        id: parentStrip
+        visible: parentCol.visible
+        x: parentCol.x + parentCol.width
+        y: 0
+        height: listFrame.height
+        reference: listFrame
+        onDragged: x => root.parentW = Math.max(120, Math.min(320, x - width / 2 - Theme.gapSmall))
+        onFinished: FilesService.setOption("parentWidth", root.parentW)
+      }
+
+      FilesSplit {
+        id: childStrip
+        visible: childCol.visible
+        x: childCol.x - width
+        y: 0
+        height: listFrame.height
+        reference: listFrame
+        onDragged: x => root.childW = Math.max(140, Math.min(340, listFrame.width - Theme.gapSmall - x - width / 2))
+        onFinished: FilesService.setOption("childWidth", root.childW)
+      }
+
+      Item {
+        id: listBox
+        anchors {
+          top: parent.top; bottom: parent.bottom
+          left: parentCol.visible ? parentCol.right : parent.left
+          right: childCol.visible ? childCol.left : parent.right
+          margins: Theme.gapSmall
+          leftMargin: parentCol.visible ? Theme.gapWide : Theme.gapSmall
+          rightMargin: childCol.visible ? Theme.gapWide : Theme.gapSmall
+        }
+
+        Item {
+          id: captions
+          visible: !root.grid
+          width: parent.width
+          height: nameCap.implicitHeight
+
+          // a caption sorts by its column; the arrow shows the order
+          Rectangle {
+            id: nameHit
+            anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
+            width: root.sepSizeX(captions.width)
+            radius: Theme.radiusControl
+            color: Theme.clear
+            KitText {
+              id: nameCap
+              anchors { left: parent.left; leftMargin: Theme.gapLoose + Theme.iconSmall + Theme.gapMedium; verticalCenter: parent.verticalCenter }
+              text: "NAME" + (FilesService.sortBy === "name" ? (FilesService.sortDesc ? " ↓" : " ↑") : "")
+              color: FilesService.sortBy === "name" || nameArea.containsMouse ? Theme.foreground1 : Theme.muted
+              font.pixelSize: Theme.fontSize - 2
+              font.letterSpacing: 1
+            }
+            MouseArea { id: nameArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: FilesService.sortOn("name") }
+          }
+
+          Rectangle {
+            id: sizeHit
+            x: root.sepSizeX(captions.width)
+            width: root.sepDateX(captions.width) - root.sepSizeX(captions.width)
+            anchors { top: parent.top; bottom: parent.bottom }
+            radius: Theme.radiusControl
+            color: Theme.clear
+            KitText {
+              anchors { right: parent.right; rightMargin: Theme.gapHair; verticalCenter: parent.verticalCenter }
+              text: "SIZE" + (FilesService.sortBy === "size" ? (FilesService.sortDesc ? " ↓" : " ↑") : "")
+              color: FilesService.sortBy === "size" || sizeArea.containsMouse ? Theme.foreground1 : Theme.muted
+              font.pixelSize: Theme.fontSize - 2
+              font.letterSpacing: 1
+            }
+            MouseArea { id: sizeArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: FilesService.sortOn("size") }
+          }
+
+          // the column separators: between name and size, size and date
+          Rectangle {
+            visible: !root.grid
+            x: root.sepSizeX(captions.width)
+            width: Theme.windowFrameWidth
+            height: captions.height
+            color: Theme.popupFrame
+          }
+
+          Rectangle {
+            visible: !root.grid
+            x: root.sepDateX(captions.width)
+            width: Theme.windowFrameWidth
+            height: captions.height
+            color: Theme.popupFrame
+          }
+
+          Rectangle {
+            id: dateHit
+            x: root.sepDateX(captions.width)
+            width: captions.width - root.sepDateX(captions.width)
+            anchors { top: parent.top; bottom: parent.bottom }
+            radius: Theme.radiusControl
+            color: Theme.clear
+            KitText {
+              anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+              text: (FilesService.inTrash ? "DELETED" : "MODIFIED") + (FilesService.sortBy === "mtime" && !FilesService.inTrash ? (FilesService.sortDesc ? " ↓" : " ↑") : "")
+              color: (FilesService.sortBy === "mtime" && !FilesService.inTrash) || dateArea.containsMouse ? Theme.foreground1 : Theme.muted
+              font.pixelSize: Theme.fontSize - 2
+              font.letterSpacing: 1
+            }
+            MouseArea { id: dateArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: FilesService.sortOn("mtime") }
+          }
+        }
+
+        // the column strips: drag one to widen its column (the name takes the rest)
+        FilesSplit {
+          id: sizeStrip
+          visible: !root.grid
+          stripWidth: Theme.gapSmall
+          reference: captions
+          x: root.sepSizeX(captions.width) - width / 2
+          y: 0
+          height: captions.height
+          property real startX: 0
+          property int startSize: 0
+          onDragged: x => {
+            if (startX === 0 && startSize === 0) { startX = x; startSize = root.sizeWidth; }
+            root.sizeWidth = Math.max(48, Math.min(200, startSize - (x - startX)));
+          }
+          onFinished: { startX = 0; startSize = 0; FilesService.setOption("sizeWidth", root.sizeWidth); }
+        }
+
+        FilesSplit {
+          id: dateStrip
+          visible: !root.grid
+          stripWidth: Theme.gapSmall
+          reference: captions
+          x: root.sepDateX(captions.width) - width / 2
+          y: 0
+          height: captions.height
+          property real startX: 0
+          property int startDate: 0
+          onDragged: x => {
+            if (startX === 0 && startDate === 0) { startX = x; startDate = root.dateWidth; }
+            root.dateWidth = Math.max(80, Math.min(220, startDate - (x - startX)));
+          }
+          onFinished: { startX = 0; startDate = 0; FilesService.setOption("dateWidth", root.dateWidth); }
+        }
+
+        KitLine {
+          id: captionLine
+          visible: !root.grid
+          anchors.top: captions.bottom
+          anchors.topMargin: Theme.gapTight
+          width: parent.width
+        }
+
+        // under the column captions (or the grid's top), and under the '..' row where there is one
+        KitText {
+          anchors { top: root.grid ? parent.top : captionLine.bottom; topMargin: Theme.gapLoose + (FilesService.canUp && !FilesService.searching ? 28 : 0); horizontalCenter: parent.horizontalCenter }
+          visible: FilesService.shown.length === 0 && !FilesService.loading
+          text: FilesService.error !== "" ? FilesService.error
+              : FilesService.dupes ? "No file here has a copy."
+              : FilesService.searching ? "Nothing matches \"" + FilesService.query.trim() + "\"."
+              : FilesService.inTrash ? "The trash is empty." : "This folder is empty."
+          color: FilesService.error !== "" ? Theme.red : Theme.muted
+          font.pixelSize: Theme.fontSize - 1
+        }
+
+        ListView {
+          id: list
+          visible: !root.grid
+          anchors { top: captionLine.bottom; topMargin: Theme.gapTight; bottom: parent.bottom; left: parent.left; right: parent.right }
+          clip: true
+          model: FilesService.shown
+          boundsBehavior: Flickable.StopAtBounds
+          // ".." scrolls with the rows, first of them
+          header: FilesUp {}
+
+          delegate: Rectangle {
+            id: row
+
+            required property var modelData
+
+            readonly property bool picked: FilesService.selection.includes(modelData.path)
+            readonly property bool editing: root.renaming === modelData.path
+          readonly property bool header: modelData.kind === "group"
+
+            width: list.width
+            height: 28
+            radius: Theme.radiusControl
+            color: picked ? Theme.background3 : hover.containsMouse ? Theme.controlHover : Theme.clear
+            Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+
+            // a drag takes the selection (or this row) out to another app
+            Item {
+              id: dragProxy
+              Drag.active: hover.drag.active
+              Drag.dragType: Drag.Automatic
+              Drag.supportedActions: Qt.CopyAction
+              Drag.mimeData: { "text/uri-list": (row.picked ? FilesService.selection : [row.modelData.path])
+                                .map(p => FilesService.fileUri(p)).join("\r\n") }
+            }
+
+            MouseArea {
+              id: hover
+              anchors.fill: parent
+              hoverEnabled: true
+              acceptedButtons: Qt.LeftButton | Qt.RightButton
+              cursorShape: Qt.PointingHandCursor
+              drag.target: row.header ? null : dragProxy
+              onClicked: mouse => {
+                if (row.header) {
+                  if (mouse.button === Qt.RightButton) root.menuAt(mapToItem(root, mouse.x, mouse.y), root.groupMenu(row.modelData));
+                  else FilesService.toggleGroup(row.modelData.group);
+                  return;
+                }
+                if (mouse.button === Qt.RightButton) root.contextMenu(row.modelData, mapToItem(root, mouse.x, mouse.y));
+                else root.click(row.modelData, mouse);
+              }
+              onDoubleClicked: mouse => {
+                if (mouse.button === Qt.LeftButton) root.open(row.modelData);
+              }
+            }
+
+            // the same separators as the captions, down every row
+            Rectangle {
+              visible: !row.header
+              x: root.sepSizeX(list.width)
+              width: Theme.windowFrameWidth
+              height: parent.height
+              color: Theme.popupFrame
+            }
+
+            Rectangle {
+              visible: !row.header
+              x: root.sepDateX(list.width)
+              width: Theme.windowFrameWidth
+              height: parent.height
+              color: Theme.popupFrame
+            }
+
+            KitIcon {
+              id: icon
+              x: Theme.gapLoose
+              anchors.verticalCenter: parent.verticalCenter
+              visible: !row.header && !(row.modelData.kind === "image" && FilesService.thumbnails)
+              name: root.iconFor(row.modelData.kind)
+              size: Theme.iconSmall
+              tint: row.modelData.link ? Theme.muted : Theme.foreground0
+            }
+
+            // an image shows as its own small picture
+            Image {
+              id: thumb
+              x: Theme.gapLoose
+              anchors.verticalCenter: parent.verticalCenter
+              visible: row.modelData.kind === "image" && FilesService.thumbnails
+              width: Theme.iconSmall
+              height: Theme.iconSmall
+              source: visible ? root.fileUrl(row.modelData.path) : ""
+              sourceSize: Qt.size(36, 36)
+              fillMode: Image.PreserveAspectCrop
+              asynchronous: true
+            }
+
+            KitText {
+              id: name
+              x: icon.x + icon.width + Theme.gapMedium
+              width: size.x - x - Theme.gapMedium
+              anchors.verticalCenter: parent.verticalCenter
+              visible: !row.editing
+              text: row.header ? (FilesService.isCollapsed(row.modelData.group) ? "▸ " : "▾ ") + row.modelData.name
+                  : row.modelData.name + (row.modelData.link ? " →" : "") + ((FilesService.dupes || FilesService.searching) ? "   " + FilesService.parentOf(row.modelData.path).split("/").pop() : "")
+              elide: Text.ElideRight
+              font.weight: row.header || row.picked ? Font.ExtraBold : Theme.fontWeight
+              color: row.header ? Theme.muted : Theme.foreground0
+            }
+
+            // a rename: the name's place, enter keeps it, escape drops it
+            KitInput {
+              id: renameField
+              x: name.x
+              width: name.width
+              anchors.verticalCenter: parent.verticalCenter
+              visible: row.editing
+              passKeys: [Qt.Key_Escape]
+              onVisibleChanged: if (visible) { text = row.modelData.name; input.selectAll(); input.forceActiveFocus(); }
+              onAccepted: root.finishRename(row.modelData, text)
+              onKeyPassed: { root.renaming = ""; root.forceActiveFocus(); }
+            }
+
+            KitText {
+              id: size
+              anchors { right: date.left; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
+              width: root.sizeWidth
+              horizontalAlignment: Text.AlignRight
+              visible: !row.header
+              text: row.modelData.kind === "dir" ? "--" : Format.humanSize(row.modelData.size)
+              color: Theme.muted
+              font.pixelSize: Theme.fontSize - 1
+            }
+
+            KitText {
+              id: date
+              anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+              width: root.dateWidth
+              horizontalAlignment: Text.AlignRight
+              visible: !row.header
+              // while the trash is entered, the folder's rows are still there for a moment: no deleted date yet
+              text: FilesService.inTrash ? (row.modelData.deleted ?? "").replace("T", " ") : root.when(row.modelData.mtime)
+              color: Theme.muted
+              font.pixelSize: Theme.fontSize - 1
+            }
+          }
+        }
+
+        GridView {
+          id: grid
+          visible: root.grid
+          anchors.fill: parent
+          clip: true
+          model: FilesService.shown
+          cellWidth: root.cellWidth
+          cellHeight: root.cellHeight
+          boundsBehavior: Flickable.StopAtBounds
+          header: FilesUp {}
+          onWidthChanged: FilesService.columns = Math.max(1, Math.floor(width / cellWidth))
+
+          delegate: Rectangle {
+            id: cell
+
+            required property var modelData
+
+            readonly property bool picked: FilesService.selection.includes(modelData.path)
+            readonly property bool image: modelData.kind === "image" && FilesService.thumbnails
+
+            width: grid.cellWidth - Theme.gapTight * 2
+            height: grid.cellHeight - Theme.gapTight * 2
+            radius: Theme.radiusCard
+            color: picked ? Theme.background3 : cellArea.containsMouse ? Theme.controlHover : Theme.clear
+            Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+
+            Item {
+              id: cellDrag
+              Drag.active: cellArea.drag.active
+              Drag.dragType: Drag.Automatic
+              Drag.supportedActions: Qt.CopyAction
+              Drag.mimeData: { "text/uri-list": (cell.picked ? FilesService.selection : [cell.modelData.path])
+                                .map(p => FilesService.fileUri(p)).join("\r\n") }
+            }
+
+            MouseArea {
+              id: cellArea
+              anchors.fill: parent
+              hoverEnabled: true
+              acceptedButtons: Qt.LeftButton | Qt.RightButton
+              cursorShape: Qt.PointingHandCursor
+              drag.target: cellDrag
+              onClicked: mouse => {
+                if (mouse.button === Qt.RightButton) root.contextMenu(cell.modelData, mapToItem(root, mouse.x, mouse.y));
+                else root.click(cell.modelData, mouse);
+              }
+              onDoubleClicked: mouse => {
+                if (mouse.button === Qt.LeftButton) root.open(cell.modelData);
+              }
+            }
+
+            // a picture is its thumbnail; anything else its icon
+            Image {
+              anchors { top: parent.top; topMargin: Theme.gapMedium; horizontalCenter: parent.horizontalCenter }
+              width: 64
+              height: 64
+              visible: cell.image
+              source: visible ? root.fileUrl(cell.modelData.path) : ""
+              sourceSize: Qt.size(128, 128)
+              fillMode: Image.PreserveAspectFit
+              asynchronous: true
+            }
+
+            KitIcon {
+              anchors { top: parent.top; topMargin: Theme.gapMedium + 8; horizontalCenter: parent.horizontalCenter }
+              visible: !cell.image
+              name: root.iconFor(cell.modelData.kind)
+              size: 32
+              tint: cell.modelData.link ? Theme.muted : Theme.foreground0
+            }
+
+            KitText {
+              anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: Theme.gapSmall }
+              text: cell.modelData.name
+              horizontalAlignment: Text.AlignHCenter
+              wrapMode: Text.Wrap
+              maximumLineCount: 2
+              elide: Text.ElideRight
+              font.pixelSize: Theme.fontSize - 1
+              font.weight: cell.picked ? Font.ExtraBold : Theme.fontWeight
+            }
+          }
+        }
+
+        // files dropped from another app land in the folder shown
+        DropArea {
+          anchors.fill: parent
+          keys: ["text/uri-list"]
+          onDropped: drop => root.dropped(drop.urls ?? [])
+        }
+      }
+    }
+
+    // the strip between the list and the preview: drag it to resize the preview
+    FilesSplit {
+      id: previewSplit
+      visible: root.previewing
+      x: listFrame.x + listFrame.width
+      y: 0
+      height: body.height
+      reference: body
+      onDragged: x => root.previewW = Math.max(180, Math.min(480, body.width - x - width / 2))
+      onFinished: FilesService.setOption("previewWidth", root.previewW)
+    }
+
+    // the preview, framed: a picture, the first lines of a text, or the icon; then the facts
+    Rectangle {
+      id: previewFrame
+      visible: root.previewing
+      x: body.width - root.previewW
+      y: 0
+      width: root.previewW
+      height: body.height
+      radius: Theme.radiusCard
+      color: "transparent"
+      border.width: FilesService.frames ? Theme.windowFrameWidth : 0
+      border.color: Theme.popupFrame
+      clip: true
+
+      Item {
+        id: previewBox
+        anchors { fill: parent; margins: Theme.gapSmall }
+
+        Column {
+          id: facts
+          width: parent.width
+          anchors.bottom: parent.bottom
+          spacing: Theme.gapTight
+
+          KitText {
+            width: parent.width
+            text: root.previewed ? root.previewed.name : ""
+            wrapMode: Text.WrapAnywhere
+            maximumLineCount: 2
+            elide: Text.ElideRight
+            font.weight: Font.ExtraBold
+          }
+
+          KitText {
+            width: parent.width
+            text: root.previewed ? root.previewed.kind.toUpperCase() + " · " + Format.humanSize(root.previewed.size) : ""
+            color: Theme.muted
+            font.pixelSize: Theme.fontSize - 2
+            font.letterSpacing: 1
+          }
+
+          KitText {
+            width: parent.width
+            text: root.previewed ? root.when(root.previewed.mtime) : ""
+            color: Theme.muted
+            font.pixelSize: Theme.fontSize - 2
+          }
+        }
+
+        Item {
+          id: shownPreview
+          anchors { top: parent.top; left: parent.left; right: parent.right; bottom: facts.top; bottomMargin: Theme.gapLoose }
+          clip: true
+
+          Image {
+            anchors.fill: parent
+            visible: root.previewed !== null && root.previewed.kind === "image"
+            source: visible ? root.fileUrl(root.previewed.path) : ""
+            sourceSize: Qt.size(480, 480)
+            fillMode: Image.PreserveAspectFit
+            asynchronous: true
+          }
+
+          // a video's frame or a PDF's first page: made by the backend, see Settings
+          Image {
+            anchors.fill: parent
+            visible: FilesService.thumbPath !== "" && root.previewed !== null && (root.previewed.kind === "video" || root.previewed.kind === "pdf")
+            source: FilesService.thumbPath
+            sourceSize: Qt.size(480, 480)
+            fillMode: Image.PreserveAspectFit
+            asynchronous: true
+          }
+
+          KitText {
+            anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter }
+            visible: FilesService.thumbError !== "" && FilesService.thumbPath === ""
+            text: FilesService.thumbError
+            color: Theme.muted
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.Wrap
+            font.pixelSize: Theme.fontSize - 2
+          }
+
+          KitIcon {
+            anchors.centerIn: parent
+            visible: root.previewed !== null && root.previewed.kind !== "image" && root.previewed.kind !== "text"
+                     && FilesService.thumbPath === "" && FilesService.thumbError === ""
+            name: root.previewed ? root.iconFor(root.previewed.kind) : "file"
+            size: 48
+            tint: Theme.muted
+          }
+
+          // a Markdown file is rendered (Qt reads the markup); any other text as it is
+          Text {
+            anchors.fill: parent
+            visible: root.markdown && FilesService.previewText !== ""
+            // no pictures: a Markdown picture would be fetched from wherever it points
+            text: FilesService.previewText.replace(/!\[[^\]]*\]\([^)]*\)/g, "").replace(/<img[^>]*>/gi, "")
+            textFormat: Text.MarkdownText
+            color: Theme.foreground1
+            linkColor: Theme.foreground2
+            font.family: Theme.fontFamily
+            font.pixelSize: Theme.fontSize - 1
+            wrapMode: Text.Wrap
+            clip: true
+            verticalAlignment: Text.AlignTop
+          }
+
+          Text {
+            anchors.fill: parent
+            visible: root.previewed !== null && root.previewed.kind === "text" && !root.markdown
+            text: FilesService.previewText !== "" ? FilesService.previewText : "No preview."
+            textFormat: Text.PlainText
+            color: FilesService.previewText !== "" ? Theme.foreground1 : Theme.muted
+            font.family: Theme.fontFamily
+            font.pixelSize: Theme.fontSize - 3
+            wrapMode: Text.NoWrap
+            clip: true
+            verticalAlignment: Text.AlignTop
+          }
+        }
+      }
+    }
+  }
+
+  // ---- footer: the picker's buttons, a name being typed, the error, or the keys ----
+  Item {
+    id: footer
+    anchors { bottom: parent.bottom; left: parent.left; right: parent.right
+              bottomMargin: root.padding; leftMargin: root.padding; rightMargin: root.padding }
+    height: 32
+
+    Row {
+      visible: root.picker !== null
+      anchors.fill: parent
+      spacing: Theme.gapMedium
+
+      KitInput {
+        id: saveField
+        width: parent.width - cancelButton.width - acceptButton.width - 2 * parent.spacing
+        visible: root.picker !== null && root.picker.mode === "save"
+        placeholder: "file name"
+        text: root.picker ? root.picker.name : ""
+        passKeys: [Qt.Key_Escape]
+        onAccepted: root.accept()
+        onKeyPassed: FilesService.finishPick([], 1)
+      }
+
+      KitText {
+        width: parent.width - cancelButton.width - acceptButton.width - 2 * parent.spacing
+        visible: root.picker !== null && root.picker.mode !== "save"
+        verticalAlignment: Text.AlignVCenter
+        elide: Text.ElideRight
+        text: FilesService.error !== "" ? FilesService.error : "enter " + (root.picker && root.picker.directory ? "selects the folder" : "opens") + " · esc cancels"
+        color: FilesService.error !== "" ? Theme.red : Theme.muted
+        font.pixelSize: Theme.fontSize - 1
+      }
+
+      KitButton {
+        id: cancelButton
+        text: "Cancel"
+        onClicked: FilesService.finishPick([], 1)
+      }
+
+      KitButton {
+        id: acceptButton
+        text: root.picker ? (root.picker.mode === "save" ? "Save" : root.picker.directory ? "Select" : "Open") : ""
+        onClicked: root.accept()
+      }
+    }
+
+    KitInput {
+      id: creatingField
+      width: parent.width
+      visible: root.creating !== "" && root.picker === null
+      placeholder: root.creating === "folder" ? "new folder name" : root.creating === "batch" ? "pattern: photo_{n}{ext}  ({n} number, {name} stem)" : "new file name"
+      passKeys: [Qt.Key_Escape]
+      onAccepted: root.finishCreate()
+      onKeyPassed: { root.creating = ""; root.forceActiveFocus(); }
+    }
+
+    KitText {
+      anchors.fill: parent
+      visible: root.creating === "" && root.picker === null
+      verticalAlignment: Text.AlignVCenter
+      elide: Text.ElideRight
+      text: FilesService.error !== "" ? FilesService.error
+          : FilesService.job !== null ? FilesService.job.label + " " + FilesService.job.name + (FilesService.job.of > 0 ? " · " + FilesService.job.progress + " of " + FilesService.job.of : "") + " · esc cancels"
+          : root.trashSure ? "Move to the trash? Press delete again"
+          : root.sure ? "Delete for good? Press delete again"
+          : root.emptySure ? "Empty the trash? Press Empty again"
+          : FilesService.clip.length > 0 && !FilesService.inTrash
+            ? FilesService.clip.length + (FilesService.clipMode === "move" ? " to move" : " to copy") + " · ctrl + v paste"
+          : !FilesService.hints ? ""
+          : FilesService.dupes ? "click a group folds it · right click trashes its copies · esc leaves"
+          : FilesService.inTrash ? "enter open · ctrl + r restore · del delete for good · f1 keys"
+          : "enter open · ctrl + c copy · ctrl + x cut · del trash · f1 keys"
+      color: FilesService.error !== "" || root.sure || root.emptySure || root.trashSure ? Theme.red : Theme.muted
+      font.pixelSize: Theme.fontSize - 1
+    }
+  }
+
+  // the menus open where they were asked for (scene coordinates = the window's)
+  function menuAt(at, items) { menu.open(at.x, at.y, items); }
+
+  // a group header's menu: fold it, or trash the copies in every group
+  function groupMenu(group) {
+    return [
+      { label: FilesService.isCollapsed(group.group) ? "Unfold" : "Fold", run: () => FilesService.toggleGroup(group.group) },
+      { label: "Trash the copies", hint: "keeps one per group", run: () => FilesService.trashCopies() },
+    ];
+  }
+
+  // ---- properties of a file: the panel (Menu › Properties) ----
+  // the keys, for F1
+  readonly property var keyRows: [
+    { key: "enter", action: "open, or pick in a picker" },
+    { key: "backspace", action: "the folder above" },
+    { key: "alt + ← →", action: "back and forward" },
+    { key: "↑ ↓ (grid: ← →)", action: "move; with shift, extend" },
+    { key: "ctrl + a c x v", action: "select all, copy, cut, paste" },
+    { key: "ctrl + z / shift + z", action: "undo, redo" },
+    { key: "del", action: "move to the trash" },
+    { key: "shift + del", action: "delete for good" },
+    { key: "f2", action: "rename" },
+    { key: "ctrl + n / d", action: "new folder, bookmark this folder" },
+    { key: "ctrl + f", action: "focus the search" },
+    { key: "ctrl + k", action: "search all of Home, or this folder" },
+    { key: "ctrl + h / g", action: "hidden files, grid view" },
+    { key: "ctrl + l", action: "type a path" },
+    { key: "space", action: "show or hide the preview" },
+    { key: "f5", action: "read the folder again" },
+    { key: "esc", action: "clear, close" },
+  ]
+
+  // a click off the panels closes them
+  MouseArea {
+    anchors.fill: parent
+    visible: FilesService.panel !== null || root.helpOpen
+    z: 27
+    acceptedButtons: Qt.AllButtons
+    onPressed: { FilesService.closeInfo(); root.helpOpen = false; }
+  }
+
+  KitFrame {
+    id: infoCard
+    z: 28
+    width: 380
+    anchors.centerIn: parent
+    visible: FilesService.panel !== null
+
+    KitHeader {
+      icon: "info"
+      title: FilesService.panel ? FilesService.panel.title : ""
+      subtitle: FilesService.panel ? FilesService.panel.subtitle : ""
+    }
+
+    KitLine {}
+
+    Repeater {
+      model: FilesService.panel ? FilesService.panel.rows : []
+
+      Row {
+        required property var modelData
+        width: infoCard.width - 2 * infoCard.padding
+        spacing: Theme.gapMedium
+
+        KitText {
+          width: 96
+          text: modelData.label
+          color: Theme.muted
+          font.pixelSize: Theme.fontSize - 1
+        }
+
+        KitText {
+          width: parent.width - 96 - parent.spacing
+          text: modelData.value
+          wrapMode: Text.WrapAnywhere
+          font.pixelSize: Theme.fontSize - 1
+        }
+      }
+    }
+  }
+
+  // ---- the keys (F1) ----
+  KitFrame {
+    id: helpCard
+    z: 28
+    width: 400
+    anchors.centerIn: parent
+    visible: root.helpOpen
+
+    KitHeader { icon: "keyboard"; title: "Keys" }
+
+    KitLine {}
+
+    Repeater {
+      model: root.keyRows
+
+      Row {
+        required property var modelData
+        width: helpCard.width - 2 * helpCard.padding
+        spacing: Theme.gapMedium
+
+        KitText {
+          width: 150
+          text: modelData.key
+          font.pixelSize: Theme.fontSize - 1
+        }
+
+        KitText {
+          width: parent.width - 150 - parent.spacing
+          text: modelData.action
+          color: Theme.muted
+          font.pixelSize: Theme.fontSize - 1
+        }
+      }
+    }
+  }
+
+  // a click off the menu closes it
+  MouseArea {
+    anchors.fill: parent
+    visible: menu.visible
+    z: 19
+    acceptedButtons: Qt.AllButtons
+    onPressed: menu.close()
+  }
+
+  FilesMenu {
+    id: menu
+    z: 20
+  }
+}

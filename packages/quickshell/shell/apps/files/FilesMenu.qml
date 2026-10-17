@@ -1,0 +1,80 @@
+import QtQuick
+import qs.config
+import qs.kit
+
+// The right-click menu of the file list: one row per item, its shortcut as a
+// hint at the right; a row that can't act now is dimmed. A pick, Escape or a
+// click outside (Files) closes it. `open(x, y, items)` with items
+// [{label, hint, disabled, run}].
+Rectangle {
+  id: root
+
+  property var items: []
+
+  visible: false
+  width: 260
+  height: column.implicitHeight + 2 * Theme.gapLoose
+  radius: Theme.radiusSurface
+  color: Theme.background0
+  border.width: Theme.windowFrameWidth
+  border.color: Theme.popupFrame
+
+  function open(x, y, list) {
+    items = list;
+    // kept inside the window
+    this.x = Math.max(0, Math.min(x, parent.width - width));
+    this.y = Math.max(0, Math.min(y, parent.height - height));
+    visible = true;
+  }
+
+  function close() { visible = false; }
+
+  Column {
+    id: column
+    x: Theme.gapLoose
+    y: Theme.gapLoose
+    width: root.width - 2 * Theme.gapLoose
+
+    Repeater {
+      model: root.items
+
+      Rectangle {
+        id: item
+
+        required property var modelData
+
+        width: column.width
+        height: 28
+        radius: Theme.radiusControl
+        color: area.containsMouse && !modelData.disabled ? Theme.controlHover : Theme.clear
+        opacity: modelData.disabled ? 0.4 : 1
+        Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+
+        KitText {
+          anchors { left: parent.left; leftMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
+          text: item.modelData.label
+        }
+
+        KitText {
+          anchors { right: parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
+          visible: !!item.modelData.hint
+          text: item.modelData.hint ?? ""
+          color: Theme.muted
+          font.pixelSize: Theme.fontSize - 2
+        }
+
+        MouseArea {
+          id: area
+          anchors.fill: parent
+          hoverEnabled: true
+          enabled: !item.modelData.disabled
+          cursorShape: Qt.PointingHandCursor
+          onClicked: {
+            root.close();
+            item.modelData.run();
+          }
+        }
+      }
+    }
+  }
+}

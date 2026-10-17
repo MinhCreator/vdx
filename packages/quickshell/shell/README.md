@@ -62,6 +62,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | Display | — | `display toggle` |
 | VirusTotal | — | `virustotal toggle` |
 | Clipboard | — | `clipboard toggle` |
+| Files | Super+E | `files toggle\|open\|close`, `files go\|reveal\|inspect\|select\|duplicates <path>`, `files choose <json>` (the portal's picker); F1 lists the keys; Ctrl+G list, grid, columns; Ctrl+T terminal here; F2 on several files renames them by a pattern |
 | Keybinds | Super+B | `keybinds toggle\|open\|close` |
 | Window switcher | Super+Tab (floating mode) | `switcher toggle\|open\|close` |
 | Overview | — | `overview toggle` |
@@ -156,6 +157,8 @@ in the bar. Moving the centre sets the switch; the switch overrides until the ne
 | File scans | `VIRUSTOTAL_API_KEY` (env or `~/.config/secrets/env`) |
 | Music likes | Yandex Music token (`~/.config/scripts/yandex-music/token`) |
 | Island wave | `cava` (without it the wave is made up) |
+| Files: devices | `udisks2` (`udisksctl`), removable drives show in the sidebar |
+| Files: file chooser and links | `python-gobject`, `xdg-desktop-portal` (portal backend: `scripts/files_portal.py`, config `packages/xdg-portal/`) |
 
 System files: `./install.py system install`.
 

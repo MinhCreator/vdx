@@ -3,6 +3,8 @@
 activity monitor_heart
 app-window web_asset
 arrow-left arrow_back
+arrow-right arrow_forward
+arrow-up arrow_upward
 battery-0 battery_android_0
 battery-2 battery_android_2
 battery-4 battery_android_4

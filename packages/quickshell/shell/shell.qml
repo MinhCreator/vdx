@@ -5,6 +5,7 @@ import qs.apps.auth
 import qs.modules.capture
 import qs.apps.clipboard
 import qs.apps.display
+import qs.apps.files
 import qs.apps.cleaner
 import qs.apps.packages
 import qs.apps.virustotal
@@ -37,6 +38,7 @@ Scope {
   PackagesWindow {}
   DisplayWindow {}
   ClipboardWindow {}
+  FilesWindow {}
   Keybinds {}
   Taskbar {}
   Launcher {}
