@@ -125,17 +125,9 @@ PanelWindow {
 
         width: Math.min(220, 40 + label.implicitWidth)
         height: parent.height
-        color: current ? Theme.background3 : area.containsMouse ? Theme.background1 : Theme.clear
+        // only the active window is lit: the pointer passing over the windows lights nothing
+        color: current ? Theme.background3 : Theme.clear
         Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
-
-        // the active one's mark along the bottom, as under an open bar module
-        Rectangle {
-          visible: item.current
-          anchors.bottom: parent.bottom
-          width: parent.width
-          height: 2
-          color: Theme.foreground0
-        }
 
         IconImage {
           id: appIcon
@@ -170,7 +162,6 @@ PanelWindow {
         MouseArea {
           id: area
           anchors.fill: parent
-          hoverEnabled: true
           cursorShape: Qt.PointingHandCursor
           acceptedButtons: Qt.LeftButton | Qt.MiddleButton
           // middle click closes, as in a browser's tabs
