@@ -2,7 +2,7 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// Display: backlight and software dimming, then the night light with its
+// Brightness: backlight and software dimming, then the night light with its
 // colour temperature and presets.
 KitFrame {
   id: root
@@ -16,7 +16,7 @@ KitFrame {
   KitHeader {
     icon: BrightnessService.nightActive ? "moon" : "sun"
     iconColor: BrightnessService.nightActive ? Theme.orange : Theme.foreground0
-    title: "Display"
+    title: "Brightness"
     subtitle: "BRIGHTNESS " + BrightnessService.brightness + "%"
       + (BrightnessService.nightActive ? " · NIGHT LIGHT" : "")
   }

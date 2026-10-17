@@ -35,7 +35,7 @@ Full quality: [shell-demo.mp4](../../../docs/shell/shell-demo.mp4).
     <td><img src="../../../docs/shell/battery.png" alt="Battery"><br><sub>Battery</sub></td>
   </tr>
   <tr>
-    <td><img src="../../../docs/shell/brightness.png" alt="Display"><br><sub>Display</sub></td>
+    <td><img src="../../../docs/shell/brightness.png" alt="Brightness"><br><sub>Brightness</sub></td>
     <td><img src="../../../docs/shell/windows.png" alt="Windows"><br><sub>Window mode</sub></td>
   </tr>
   <tr>
@@ -79,9 +79,9 @@ Bar modules live in `modules/<id>/`; each popup opens with
 `tasks`, cleaner `clean`, virustotal `scan`, packages `updates`). Order, zones and visibility: Shell Manager
 › Bar. Options: Shell Manager › Modules (an app's module: › Shell apps).
 
-Workspaces, Music, Radio, Clock, Display, Audio, Wi-Fi, Mihomo, Battery,
+Workspaces, Music, Radio, Clock, Brightness, Audio, Wi-Fi, Mihomo, Battery,
 Language, AI, Shell, Notifications, Capture, Clipboard, System, Task manager,
-Cleaner, VirusTotal, Packages, Windows, Chat, Folder.
+Cleaner, VirusTotal, Packages, Display, Windows, Chat, Folder.
 
 ## Requirements
 
