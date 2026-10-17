@@ -15,7 +15,7 @@ end
 
 -- apps
 bind("Apps", mainMod .. " + Q", hl.dsp.exec_cmd("kitty"), "Terminal")
-bind("Apps", mainMod .. " + E", hl.dsp.exec_cmd("kitty -e elio"), "File manager")
+bind("Apps", mainMod .. " + E", hl.dsp.exec_cmd("qs -c shell ipc call files toggle"), "Files")
 bind("Apps", mainMod .. " + R", hl.dsp.exec_cmd("qs -c shell ipc call launcher toggle"), "Launcher")
 bind("Apps", mainMod .. " + Z", hl.dsp.exec_cmd("qs -c shell ipc call lock lock"), "Lock the screen")
 -- the shell's lock screen: if the shell dies while locked, started again it locks anew
