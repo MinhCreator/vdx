@@ -49,5 +49,10 @@
     "settings": "apps/files/FilesSettings.qml" },
   { "id": "backup", "label": "Backups", "icon": "shield", "about": "Encrypted snapshots of home, /etc and the package list; restore",
     "ipc": "backup", "open": "toggle",
-    "window": { "id": "backup", "title": "Backups", "width": 900, "height": 640 }, "module": "backup", "moduleSettings": "apps/backup/BackupBarSettings.qml" }
+    "window": { "id": "backup", "title": "Backups", "width": 900, "height": 640 }, "module": "backup", "moduleSettings": "apps/backup/BackupBarSettings.qml" },
+  { "id": "capture", "label": "Capture", "icon": "camera", "about": "Screenshots and recordings, a library",
+    "ipc": "captures", "open": "toggle",
+    "window": { "id": "capture", "title": "Capture", "width": 760, "height": 600 },
+    "settings": "apps/capture/CaptureSettings.qml",
+    "module": "capture", "moduleSettings": "apps/capture/CaptureBarSettings.qml" }
 ]

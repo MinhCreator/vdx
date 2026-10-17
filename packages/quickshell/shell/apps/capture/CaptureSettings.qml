@@ -1,19 +1,12 @@
 import QtQuick
-import qs.bar
 import qs.config
 import qs.kit
 
-// Capture options in the Shell Manager: what happens after a screenshot and
-// after a recording, then the default folders. A path applies on Enter;
-// empty brings the default back.
+// Capture's app options in the Shell Manager: how the shortcut opens it, where
+// screenshots and recordings go, the codec and what it can cost. The popup and
+// the bar face are the module's (Apps › Bar module).
 Column {
-  id: root
   spacing: Theme.gapGroup
-
-  KitLabel { text: "BAR" }
-  BarTextRow { module: "capture" }
-
-  KitLine {}
 
   KitLabel { text: "SHORTCUT" }
 
@@ -59,7 +52,7 @@ Column {
   }
 
   // every problem the current codec, encoder and quality can cause
-  KitLabel { text: "PROBLEMS" }
+  KitLabel { text: "PROBLEMS"; value: CaptureService.codecIssues.length === 0 ? "NONE" : "" }
 
   Repeater {
     model: CaptureService.codecIssues
@@ -81,16 +74,10 @@ Column {
       KitText {
         width: parent.width
         wrapMode: Text.WordWrap
-        color: Theme.muted
+        color: modelData.warn ? Theme.yellow : Theme.muted
         text: modelData.text
       }
     }
-  }
-
-  KitText {
-    visible: CaptureService.codecIssues.length === 0
-    color: Theme.muted
-    text: "None with these settings"
   }
 
   KitLine {}

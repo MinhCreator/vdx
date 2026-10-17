@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import qs.apps.capture
 import qs.bar
 import qs.config
 

@@ -57,6 +57,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | Task Manager | Super+D | `taskmanager toggle` |
 | Cleaner | Super+X | `cleaner toggle` |
 | Capture | Super+Shift+S | `capture open\|stop\|close` |
+| Capture (window) | — | `captures toggle` |
 | System menu | Super+R | `launcher toggle` |
 | Packages | — | `packages toggle` |
 | Display | — | `display toggle` |

@@ -83,10 +83,10 @@ Singleton {
   readonly property string mesaOnly: "/usr/share/glvnd/egl_vendor.d/50_mesa.json"
 
   // ---- output ----
-  // folders from Shell Manager › Modules › Capture; empty: the defaults
+  // folders from Shell Manager › Apps › Capture; empty: the defaults
   readonly property string shotDir: ModuleSettings.get("capture", "shotDir", "") || Quickshell.env("HOME") + "/Pictures/Screenshots"
   // after a shot: folder | ask (a Save as window) | clipboard (nothing on disk);
-  // after a recording: folder | ask. Shell Manager › Modules › Capture, and the panel.
+  // after a recording: folder | ask. Shell Manager › Apps › Capture, and the panel.
   readonly property string shotTarget: ModuleSettings.get("capture", "shotTarget", "folder")
   readonly property string videoTarget: ModuleSettings.get("capture", "videoTarget", "folder")
   readonly property string cacheDir: Quickshell.env("HOME") + "/.cache/quickshell-capture"
@@ -97,7 +97,7 @@ Singleton {
 
   function stamp() { return Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss"); }
 
-  // Super+Shift+S, as Modules › Capture › Shortcut opens says:
+  // Super+Shift+S, as Apps › Capture › Shortcut opens says:
   //   popup     — the panel from the focused bar's Capture module; with no module
   //               there, from the centre of that bar (CaptureFallback);
   //   else-last — the panel from the module; with no module there, the selection

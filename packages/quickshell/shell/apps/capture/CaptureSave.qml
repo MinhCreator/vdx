@@ -5,7 +5,7 @@ import Quickshell.Wayland
 import qs.config
 import qs.kit
 
-// Save as: when a capture is set to ask (Shell Manager › Modules › Capture, or
+// Save as: when a capture is set to ask (Shell Manager › Apps › Capture, or
 // the panel), a small window on the focused monitor offers the suggested path
 // to edit. Enter saves there; Esc keeps a shot on the clipboard only and puts
 // a recording in its default folder.

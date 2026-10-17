@@ -3,7 +3,7 @@ import Quickshell
 import Quickshell.Io
 import qs.apps.auth
 import qs.apps.backup
-import qs.modules.capture
+import qs.apps.capture
 import qs.apps.clipboard
 import qs.apps.display
 import qs.apps.files
@@ -41,6 +41,7 @@ Scope {
   ClipboardWindow {}
   FilesWindow {}
   BackupWindow {}
+  CaptureWindow {}
   Keybinds {}
   Taskbar {}
   Launcher {}
