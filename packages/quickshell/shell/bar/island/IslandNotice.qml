@@ -3,11 +3,12 @@ import qs.config
 import qs.kit
 
 // A new notification: app badge, app name with "now", summary and body.
-// Click opens the notifications popup; the cross dismisses.
+// Click opens the notifications popup; the cross dismisses. The island stacks
+// one per row (Island › notice).
 Item {
   id: root
 
-  readonly property var n: IslandService.notice
+  required property var n
   readonly property bool critical: n?.urgency === "critical"
 
   signal dismissed()

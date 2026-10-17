@@ -96,16 +96,29 @@ Singleton {
   }
 
   // ---- notice ----
-  property var notice: null                    // {app, summary, body, urgency, time}
+  readonly property int noticeMax: 3         // notices stacked at once, newest on top
+  property var notices: []                     // [{key, app, summary, body, urgency, time}]
+  property int noticeMore: 0                   // fresh ones past the stack: "N more notifications"
+  property real noticeTime: 0                 // the newest one taken: later ones are news
 
   Connections {
     target: NotificationsService
     function onItemsChanged() {
-      const n = NotificationsService.items[0];
-      if (!root.ready || !n || n.key === root.notice?.key || Date.now() - n.time > 10000) return;
-      root.notice = n;
-      root.flashed("notice", n.urgency === "critical" ? root.noticeMs * 2 : root.noticeMs);
+      if (!root.ready) return;
+      const now = Date.now();
+      const fresh = NotificationsService.items.filter(n => n.time > root.noticeTime && now - n.time <= 10000);
+      if (fresh.length === 0) return;
+      root.noticeTime = fresh[0].time;
+      root.notices = fresh.concat(root.notices).slice(0, root.noticeMax);
+      root.noticeMore = Math.max(0, fresh.length - root.noticeMax);
+      const critical = fresh.some(n => n.urgency === "critical");
+      root.flashed("notice", critical ? root.noticeMs * 2 : root.noticeMs);
     }
+  }
+
+  function dismissNotice(key) {
+    root.notices = root.notices.filter(n => n.key !== key);
+    if (root.notices.length === 0) root.noticeMore = 0;
   }
 
   // mako's `island` mode (themes/*/mako/config) keeps notifications off screen

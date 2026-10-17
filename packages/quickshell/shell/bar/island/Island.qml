@@ -113,12 +113,19 @@ Item {
   }
 
   // ---- size ----
+  readonly property int noticeRow: 68          // one notice in the stack
+  readonly property int moreRow: 20            // the "N more" line under it
+  function noticeHeight() {
+    const rows = IslandService.notices.length;
+    const stack = Math.max(1, rows) * noticeRow + Math.max(0, rows - 1) * Theme.gapTight;
+    return stack + (IslandService.noticeMore > 0 ? Theme.gapTight + moreRow : 0);
+  }
   readonly property var sizes: ({
     compact: [compact.implicitWidth, Theme.islandHeight],
     hub:     [520, hub.implicitHeight],
     media:   [420, 148],
     osd:     [290, Theme.islandHeight],
-    notice:  [400, 68],
+    notice:  [400, noticeHeight()],
     power:   [434, 86],
     module:  [Math.max(Theme.popupWidth, popupContent?.implicitWidth ?? 0), popupContent?.implicitHeight ?? Theme.islandHeight]
   })
@@ -207,14 +214,47 @@ Item {
       Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick } }
     }
 
-    IslandNotice {
+    // the notices, a column of rows, newest on top
+    Column {
       anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
       width: root.sizes.notice[0]
-      height: root.sizes.notice[1]
+      spacing: Theme.gapTight
       visible: opacity > 0
       opacity: root.shown === "notice" ? 1 : 0
       Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
-      onDismissed: root.flash = ""
+
+      Repeater {
+        model: IslandService.notices
+
+        IslandNotice {
+          required property var modelData
+
+          n: modelData
+          width: parent.width
+          height: root.noticeRow
+          onDismissed: {
+            IslandService.dismissNotice(modelData.key);
+            if (IslandService.notices.length === 0) root.flash = "";
+          }
+        }
+      }
+
+      // the fresh ones past the stack; a click opens the notifications popup
+      KitText {
+        width: parent.width
+        height: root.moreRow
+        visible: IslandService.noticeMore > 0
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        text: IslandService.noticeMore + " more notifications"
+        color: Theme.muted
+
+        MouseArea {
+          anchors.fill: parent
+          cursorShape: Qt.PointingHandCursor
+          onClicked: { root.flash = ""; IslandService.openNotifications(); }
+        }
+      }
     }
 
     // a module's popup content (showPopup); the bubble beside it and the
