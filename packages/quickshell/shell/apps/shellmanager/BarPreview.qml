@@ -5,6 +5,7 @@ import qs.kit
 
 // A glance at one monitor's bar on the Bar page: icons left, centre and right
 // as on screen. Not for dragging — a side that runs out of room ends in +N.
+// Island style: the resting pill — LEFT, the clock, RIGHT — on an empty strip.
 Rectangle {
   radius: Theme.radiusCard
   id: root
@@ -21,10 +22,37 @@ Rectangle {
 
   // filled, unlike the bands of chips under it
   height: 30
-  color: Theme.background1
+  color: Theme.island ? "transparent" : Theme.background1
+
+  Rectangle {
+    visible: Theme.island
+    anchors.centerIn: parent
+    width: pill.width + 2 * Theme.gapWide
+    height: parent.height - 4
+    radius: Theme.pill(height)
+    color: Theme.background1
+
+    Row {
+      id: pill
+      anchors.centerIn: parent
+      spacing: Theme.gapLoose
+
+      Repeater {
+        model: Theme.island ? BarLayout.islandIn("start", root.screenName).concat(["clock"], BarLayout.islandIn("end", root.screenName)) : []
+
+        KitIcon {
+          required property string modelData
+          anchors.verticalCenter: parent.verticalCenter
+          name: BarLayout.icon(modelData)
+          tint: modelData === "clock" ? Theme.foreground0 : Theme.foreground2
+          size: Theme.iconSmall
+        }
+      }
+    }
+  }
 
   Repeater {
-    model: BarLayout.zones
+    model: Theme.island ? [] : BarLayout.zones
 
     Row {
       id: group

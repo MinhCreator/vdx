@@ -8,6 +8,8 @@ import qs.kit
 // preview of the bar, then a row per band — LEFT, CENTER, RIGHT, FOLDER and
 // HIDDEN — its chips in bar order (KitChipBands). Drag a chip along a band or
 // to another one; this page decides what each drop means. Under it the icon size.
+// Island style (STYLE): the bands are the island's — LEFT and RIGHT beside the
+// clock in the resting pill, HUB for the chips when it opens, HIDDEN.
 Column {
   id: root
 
@@ -20,6 +22,7 @@ Column {
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [
     { key: "monitor", label: "Monitor", y: monitorGroup.y },
+    { key: "style",   label: "Style",   y: styleGroup.y },
     { key: "layout",  label: "Layout",  y: root.barOn ? layoutGroup.y : -2 }
   ].filter(j => j.y > -2)
 
@@ -33,10 +36,12 @@ Column {
   readonly property string other: roles.find(n => n !== screenName) ?? ""
   readonly property var layout: BarLayout.layout(screenName)
   readonly property bool barOn: BarLayout.barOn(screenName)
-  readonly property var columnZones: ["left", "center", "right", "folder", "hidden"]
+  readonly property bool island: Theme.island
+  readonly property var columnZones: island ? ["start", "end", "hub", "hidden"] : ["left", "center", "right", "folder", "hidden"]
 
   function module(id) { return BarLayout.modules.find(p => p.id === id) ?? null; }
   function ids(zone) {
+    if (island) return zone === "hidden" ? BarLayout.islandHidden(screenName) : BarLayout.islandIn(zone, screenName);
     return zone === "hidden" ? BarLayout.unplaced(screenName)
          : zone === "folder" ? BarLayout.inFolder(screenName)
          : BarLayout.visibleIn(zone, screenName);
@@ -45,7 +50,11 @@ Column {
   // the bands show placed modules only; the stored order holds the rest too,
   // so the slot is translated through its visible neighbours
   function drop(id, zone, index) {
-    if (zone === "hidden") {
+    if (island) {
+      // a slot among the band's chips is a slot in its list: no hidden ones in between
+      const current = BarLayout.islandIn(zone, screenName).indexOf(id);
+      BarLayout.islandMove(id, zone, current >= 0 && index > current ? index - 1 : index, screenName);
+    } else if (zone === "hidden") {
       BarLayout.setEnabled(id, false, screenName);
     } else if (zone === "folder") {
       BarLayout.setFolder(id, index, screenName);
@@ -102,6 +111,39 @@ Column {
     }
   }
 
+  KitLine {}
+
+  // ---- style ----
+  // the bar's shape: one strip, or the island alone with every module in it
+  KitLabel { id: styleGroup; text: "STYLE"; value: root.island ? "ISLAND" : "SOLID" }
+
+  KitRow {
+    wide: true
+    label: "Shape"
+    hint: "Strip, or one live island"
+
+    KitChoices {
+      stretch: true
+      model: [
+        { label: "Solid",  value: "solid" },
+        { label: "Island", value: "island" }
+      ]
+      current: ShellSettings.barStyle
+      onPicked: value => ShellSettings.set("barStyle", value)
+    }
+  }
+
+  KitRow {
+    visible: root.island
+    label: "Open on hover"
+    hint: "Resting on the clock opens the hub"
+
+    KitSwitch {
+      checked: ShellSettings.islandHover
+      onToggled: ShellSettings.set("islandHover", !checked)
+    }
+  }
+
   KitLine { visible: root.barOn }
 
   // ---- layout ----
@@ -116,7 +158,7 @@ Column {
       text: "LAYOUT"
       // what the pointer is on, or how this works
       value: root.focusId !== "" ? (root.module(root.focusId)?.label ?? "").toUpperCase() + " — " + (root.module(root.focusId)?.about ?? "").toUpperCase()
-                                 : "DRAG CHIPS TO ARRANGE"
+                                 : root.island ? "LEFT AND RIGHT SIT BESIDE THE CLOCK" : "DRAG CHIPS TO ARRANGE"
       valueColor: root.focusId !== "" ? Theme.foreground2 : Theme.muted
     }
 
@@ -129,14 +171,15 @@ Column {
         visible: root.other !== "" && !BarLayout.shared
         icon: BarLayout.isInternal(root.other) ? "laptop" : "monitor"
         text: "Same as " + root.other
-        onClicked: BarLayout.copyLayout(root.other, root.screenName)
+        onClicked: root.island ? BarLayout.islandCopy(root.other, root.screenName)
+                               : BarLayout.copyLayout(root.other, root.screenName)
       }
 
       KitButton {
         icon: "rotate-ccw"
         text: "Reset"
-        disabled: !BarLayout.customized(root.screenName)
-        onClicked: BarLayout.reset(root.screenName)
+        disabled: root.island ? !BarLayout.islandCustomized(root.screenName) : !BarLayout.customized(root.screenName)
+        onClicked: root.island ? BarLayout.islandReset(root.screenName) : BarLayout.reset(root.screenName)
       }
     }
   }
@@ -157,7 +200,10 @@ Column {
     idsOf: zone => root.ids(zone)
     labelOf: id => root.module(id)?.label ?? id
     iconOf: id => BarLayout.icon(id)
+    zoneLabel: zone => ({ start: "LEFT", end: "RIGHT" })[zone] ?? zone.toUpperCase()
     emptyText: zone => zone === "hidden" ? "nothing hidden"
+                     : zone === "start" || zone === "end" ? "empty — beside the clock while it rests"
+                     : zone === "hub" ? "empty — chips when the island opens"
                      : zone === "folder" ? "empty — modules here open from the Folder icon" : "empty"
     onDropped: (id, zone, index) => root.drop(id, zone, index)
   }

@@ -69,13 +69,17 @@ PopupWindow {
       root.anchorX = Math.round(p.x) - 1;
     }
     anchor.rect.x = root.anchorX;
-    anchor.rect.y = Theme.barHeight - 1;
+    anchor.rect.y = Theme.barEdge - 1;
     anchor.rect.width = 1;
     anchor.rect.height = 1 + Theme.popupGap;
   }
 
   color: "transparent"
   visible: false
+  // Bar › Style island: the content opens inside the island (Island.showPopup);
+  // this window stays up for the module's sake but shows and takes nothing
+  mask: Theme.island ? noInput : null
+  Region { id: noInput }
   // No xdg popup grab: the compositor would dismiss the popup whenever another
   // surface takes focus (slurp) and swallow the click on another module.
   // Keyboard focus comes from HyprlandFocusGrab, outside clicks from
@@ -85,6 +89,7 @@ PopupWindow {
   onVisibleChanged: {
     if (visible) {
       PopupManager.open(root);       // closes the previous popup: its line is the slide's start
+      if (Theme.island) root.bar.islandItem?.showPopup(root);
       underline.start();
       root.comeIn();
       root.shown();
@@ -93,6 +98,7 @@ PopupWindow {
       root.anchorX = -1;
       underline.stop();
       PopupManager.close(root);
+      if (Theme.island) root.bar.islandItem?.hidePopup(root);
       root.hidden();
     }
   }
@@ -115,7 +121,7 @@ PopupWindow {
   Binding {
     target: root.contentItem
     property: "opacity"
-    value: PopupManager.frozen ? 0 : root.reveal
+    value: PopupManager.frozen || Theme.island ? 0 : root.reveal
   }
 
   // ---- coming in ----
@@ -186,8 +192,8 @@ PopupWindow {
   Rectangle {
     id: underline
     parent: root.bar.contentItem
-    visible: active && !PopupManager.frozen
-    y: Theme.barHeight - height
+    visible: active && !PopupManager.frozen && !Theme.island
+    y: Theme.barEdge - height
     height: 2
     color: root.tintOf(root.anchorItem) ?? Theme.foreground0
 
@@ -269,7 +275,7 @@ PopupWindow {
   }
 
   HyprlandFocusGrab {
-    windows: [root]
+    windows: [Theme.island ? root.bar : root]
     active: root.visible && !PopupManager.holding
     onCleared: if (!PopupManager.holding) root.visible = false
   }

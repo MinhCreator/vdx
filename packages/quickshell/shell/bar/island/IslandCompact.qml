@@ -1,0 +1,98 @@
+import QtQuick
+import qs.bar
+import qs.config
+import qs.kit
+import qs.modules.notifications
+
+// The island at rest: the modules of LEFT, the clock, the modules of RIGHT
+// (Shell Manager › Bar, island style) and a dot for unseen notifications.
+// Each side takes the room its modules need — an empty one none — so the
+// clock is centred only when both sides match.
+Item {
+  id: root
+
+  property var modules: ({})                   // Bar's module id -> Component
+  property string screen: ""
+  property date now: new Date()
+
+  // Modules › Clock's format
+  readonly property string format: (ModuleSettings.get("clock", "date", false) ? "ddd dd · " : "")
+    + (ModuleSettings.get("clock", "twelveHour", false) ? "h:mm" : "HH:mm")
+    + (ModuleSettings.get("clock", "seconds", false) ? ":ss" : "")
+    + (ModuleSettings.get("clock", "twelveHour", false) ? " AP" : "")
+
+  readonly property bool unseen: NotificationsService.unseen > 0
+  // the pointer resting on the clock (not on a module) opens the hub
+  readonly property bool clockHovered: clockHover.hovered
+  implicitWidth: Math.max(110, line.implicitWidth + 2 * Theme.gapGroup)
+  implicitHeight: Theme.islandHeight
+
+  // a side with nothing in it is zero wide: the Row skips it and its gap
+  Row {
+    id: line
+    anchors.centerIn: parent
+    spacing: Theme.gapGroup
+
+  Row {
+    id: left
+    anchors.verticalCenter: parent.verticalCenter
+    spacing: Theme.gapWide
+
+    Repeater {
+      model: BarLayout.islandIn("start", root.screen)
+      Loader {
+        required property string modelData
+        anchors.verticalCenter: parent.verticalCenter
+        sourceComponent: root.modules[modelData] ?? null
+      }
+    }
+  }
+
+  Item {
+    anchors.verticalCenter: parent.verticalCenter
+    width: clock.implicitWidth
+    height: Theme.islandHeight
+
+    KitText {
+      id: clock
+      anchors.centerIn: parent
+      text: Qt.formatDateTime(root.now, root.format)
+      font.weight: Font.Bold
+    }
+
+    HoverHandler { id: clockHover }
+  }
+
+  Row {
+    id: right
+    anchors.verticalCenter: parent.verticalCenter
+    spacing: Theme.gapWide
+
+    Repeater {
+      model: BarLayout.islandIn("end", root.screen)
+      Loader {
+        required property string modelData
+        anchors.verticalCenter: parent.verticalCenter
+        sourceComponent: root.modules[modelData] ?? null
+      }
+    }
+
+    Rectangle {
+      anchors.verticalCenter: parent.verticalCenter
+      visible: root.unseen
+      width: 6
+      height: 6
+      radius: Theme.pill(height)
+      color: Theme.foreground0
+    }
+  }
+  }
+
+  Timer {
+    interval: 1000
+    running: true
+    repeat: true
+    triggeredOnStart: true
+    onTriggered: root.now = new Date()
+  }
+}

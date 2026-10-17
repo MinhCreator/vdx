@@ -7,14 +7,15 @@ import qs.config
 // covers every screen below the bar and closes it on a click. The bar stays
 // uncovered, so a click on another module opens that module's popup at once.
 Variants {
-  model: PopupManager.current && !PopupManager.holding ? Quickshell.screens : []
+  // island style: the popup lives in the bar window, its focus grab dismisses
+  model: PopupManager.current && !PopupManager.holding && !Theme.island ? Quickshell.screens : []
 
   PanelWindow {
     required property var modelData
 
     screen: modelData
     anchors { left: true; right: true; top: true; bottom: true }
-    margins.top: Theme.barHeight
+    margins.top: Theme.barEdge
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "quickshell-popup-catcher"

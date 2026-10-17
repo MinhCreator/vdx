@@ -12,11 +12,13 @@ Singleton {
 
   // Registry, in default order. A new module: an entry here + its Component in
   // Bar.qml. `icon` names a kit/icons SVG, `about` is the manager's one-liner,
-  // `settings` its options page in the module's folder (Shell Manager › Modules).
+  // `settings` its options page in the module's folder (Shell Manager › Modules),
+  // `island` its place in the island while that is not arranged (else the hub).
   readonly property var modules: [
     { id: "workspaces",    label: "Workspaces",    zone: "left",   icon: "layout", settings: "WorkspacesSettings.qml", about: "Hyprland workspaces" },
     { id: "music",         label: "Music",         zone: "left",   icon: "music", settings: "MusicSettings.qml", about: "Liked tracks from Yandex Music" },
     { id: "radio",         label: "Radio",         zone: "left",   icon: "radio", settings: "RadioSettings.qml", about: "Internet radio stations" },
+    { id: "equalizer",     label: "Equalizer",     zone: "center", island: "end", icon: "activity", about: "The sound as bars while a track plays" },
     { id: "clock",         label: "Clock",         zone: "center", icon: "clock", settings: "ClockSettings.qml", about: "Time, click for the date" },
     { id: "brightness",    label: "Brightness",    zone: "right",  icon: "sun", settings: "BrightnessSettings.qml", about: "Backlight, dimming, night light" },
     { id: "audio",         label: "Audio",         zone: "right",  icon: "volume", settings: "AudioSettings.qml", about: "Devices, volumes, app streams" },
@@ -109,7 +111,8 @@ Singleton {
   // two roles are kept.
   function update(screen, change) {
     const e = Object.assign({ zones: entry(screen)?.zones ?? state.zones, hidden: hidden(screen),
-                              folder: inFolder(screen), off: !barOn(screen) }, change);
+                              folder: inFolder(screen), off: !barOn(screen),
+                              island: entry(screen)?.island ?? null }, change);
     const all = {};
     for (const role of ["main", "extra"])
       if (state.screens?.[role]) all[role] = state.screens[role];
@@ -146,6 +149,57 @@ Singleton {
   function copyLayout(from, to) { update(to, { zones: layout(from), hidden: hidden(from), folder: inFolder(from) }); }
 
   function reset(screen) { update(screen, { zones: null, hidden: [], folder: [] }); }
+
+  // ---- island (Bar › Style island) ----
+  // Its own layout per role, apart from the strip's: start / end — beside the
+  // clock in the resting pill; hub — the chips when it opens; the rest hidden.
+  // Never arranged, it follows the strip: workspaces at the start, every other
+  // placed module (the folder's too) in the hub.
+  readonly property var islandZones: ["start", "end", "hub"]
+  readonly property var islandOwn: ["clock", "folder"]   // the island shows the time; it needs no folder
+
+  function islandLayout(screen) {
+    const known = modules.map(p => p.id);
+    const usable = id => known.includes(id) && installed(id) && !islandOwn.includes(id);
+    const saved = entry(screen)?.island ?? null;
+    if (!saved) {
+      const placed = zones.reduce((all, z) => all.concat(visibleIn(z, screen)), []).concat(inFolder(screen)).filter(usable);
+      const at = id => id === "workspaces" ? "start" : modules.find(p => p.id === id)?.island ?? "hub";
+      return { start: placed.filter(id => at(id) === "start"), end: placed.filter(id => at(id) === "end"),
+               hub: placed.filter(id => at(id) === "hub") };
+    }
+    const z = { start: [], end: [], hub: [] };
+    const seen = new Set();
+    for (const name of islandZones)
+      for (const old of saved[name] ?? []) {
+        const id = renamed[old] ?? old;
+        if (!seen.has(id)) { z[name].push(id); seen.add(id); }
+      }
+    // a module new since it was arranged takes its place (`island`), else the hub
+    const off = (saved.hidden ?? []).map(id => renamed[id] ?? id);
+    for (const p of modules) if (!seen.has(p.id) && !off.includes(p.id)) z[p.island ?? "hub"].push(p.id);
+    for (const name of islandZones) z[name] = z[name].filter(usable);
+    return z;
+  }
+  function islandIn(zone, screen) { return islandLayout(screen)[zone] ?? []; }
+  function islandHidden(screen) {
+    const l = islandLayout(screen);
+    const placed = l.start.concat(l.end, l.hub);
+    return modules.map(p => p.id).filter(id => !placed.includes(id) && installed(id) && !islandOwn.includes(id));
+  }
+  // zone: start | end | hub | hidden
+  function islandMove(id, zone, index, screen) {
+    const l = islandLayout(screen);
+    const z = {};
+    for (const name of islandZones) z[name] = l[name].filter(x => x !== id);
+    if (zone !== "hidden") z[zone].splice(Math.max(0, Math.min(index, z[zone].length)), 0, id);
+    const placed = z.start.concat(z.end, z.hub);
+    z.hidden = modules.map(p => p.id).filter(x => !placed.includes(x) && !islandOwn.includes(x));
+    update(screen, { island: z });
+  }
+  function islandCustomized(screen) { return !!entry(screen)?.island; }
+  function islandReset(screen) { update(screen, { island: null }); }
+  function islandCopy(from, to) { update(to, { island: islandLayout(from) }); }
 
   function normalize(saved) {
     const known = new Set(modules.map(p => p.id));
@@ -192,7 +246,7 @@ Singleton {
       id: state
       property var zones: null
       property var hidden: []
-      property var screens: ({})      // role (main | extra) -> {zones, hidden, off}
+      property var screens: ({})      // role (main | extra) -> {zones, hidden, folder, off, island}
       property bool shared: false
     }
   }

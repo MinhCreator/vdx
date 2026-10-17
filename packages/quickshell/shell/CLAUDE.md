@@ -7,7 +7,8 @@ Quickshell config, `qs -c shell`. What exists: [README.md](README.md).
 ```
 shell.qml      bars per monitor and every app
 apps/          the shell's apps; apps.json is their registry
-bar/           Bar (zones), BarLayout (module registry, layout), BarPopup
+bar/           Bar (zones), BarLayout (module registry, layout), BarPopup;
+               island/ — Bar › Style island: the bar as one morphing pill, popups inside
 modules/<id>/  bar modules: <Name>.qml, <Name>Popup.qml, <Name>Service.qml
 kit/           UI components, icons/ (outline, solid/), reply.js (a backend's JSON reply)
 components/    Hypr (helpers), ScrimWindow, PopupManager, PopupCatcher, Separator
@@ -81,7 +82,7 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   `round/` and `round/solid/` (Material names: `icons/material.txt`).
 - Refactors keep the look; a new look is prototyped on one popup first.
 - Motion: every animation goes through `config/Motion.qml` — a Behavior takes
-  `enabled: Motion.<part>` (popups, panels, controls, bar, pages, lock) and a
+  `enabled: Motion.<part>` (popups, panels, controls, bar, pages, lock, island) and a
   duration from it (`quick`, `normal`, `slow`, `ms()`), easing `Motion.easing`;
   set in Shell Manager › Animations.
 

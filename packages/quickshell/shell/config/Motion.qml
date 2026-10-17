@@ -13,6 +13,7 @@ import Quickshell
 //   bar      — workspaces changing, the popup underline
 //   pages    — the Shell Manager's pages and sidebar
 //   lock     — the lock screen coming in, a shake on a wrong password
+//   island   — the island (Bar › Style island) morphing between its views
 Singleton {
   readonly property bool on: ShellSettings.motion
   // slow stretches every duration, fast shortens it
@@ -25,6 +26,7 @@ Singleton {
   readonly property bool bar: on && ShellSettings.motionBar
   readonly property bool pages: on && ShellSettings.motionPages
   readonly property bool lock: on && ShellSettings.motionLock
+  readonly property bool island: on && ShellSettings.motionIsland
 
   function ms(base) { return Math.round(base * factor); }
 

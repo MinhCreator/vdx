@@ -43,6 +43,16 @@ QtObject {
   readonly property int edgeMargin: 20
   readonly property int separatorMargin: 8
   readonly property int workspaceMinWidth: 16
+  // Bar › Style island: the island floats this far from the screen's top.
+  // barEdge: where the bar ends for windows and popups, either style.
+  readonly property bool island: ShellSettings.barStyle === "island"
+  readonly property int islandTop: 6
+  readonly property int islandHeight: 32
+  // the island's corners: half again a popup's, so it follows the slider; the
+  // resting pill no rounder than a half circle (sharp: 0)
+  readonly property int islandRadius: Math.round(radiusSurface * 1.5)
+  readonly property int barEdge: island ? islandTop + islandHeight : barHeight
+
   // ---- corners (Appearance › Corners) ----
   // sharp: all 0. round: a surface takes the chosen radius, smaller things a
   // share of it, so one slider moves the whole shell in proportion

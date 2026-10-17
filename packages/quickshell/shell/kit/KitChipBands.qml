@@ -17,6 +17,7 @@ Column {
   property var labelOf: id => id
   property var iconOf: id => ""
   property var emptyText: zone => "empty"
+  property var zoneLabel: zone => zone.toUpperCase()
 
   // the drag, and the chip under the pointer (the page can show it)
   property string dragId: ""
@@ -78,7 +79,7 @@ Column {
 
       KitText {
         y: 8 + (board.chipHeight - height) / 2
-        text: band.zone.toUpperCase() + " · " + band.ids.length
+        text: board.zoneLabel(band.zone) + " · " + band.ids.length
         color: band.target ? Theme.foreground0 : Theme.muted
         font.pixelSize: Theme.fontSize - 2
         font.letterSpacing: 1

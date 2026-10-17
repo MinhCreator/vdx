@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Wayland
 import qs.apps.shellmanager
+import qs.bar.island
 import qs.components
 import qs.config
 import qs.kit
@@ -15,6 +16,7 @@ import qs.modules.cleaner
 import qs.modules.clipboard
 import qs.modules.packages
 import qs.modules.display
+import qs.modules.equalizer
 import qs.modules.virustotal
 import qs.modules.clock
 import qs.modules.folder
@@ -32,13 +34,17 @@ import qs.modules.workspaces
 // Top bar for one screen. Modules come from BarLayout (three zones, order,
 // switched-off ones); separators sit between neighbours of a zone only. The
 // Shell button opens the Shell Manager.
+//
+// Bar › Style island: no strip and no zones — the Island (bar/island) is the
+// whole bar and every module opens out of it. The window is clear and as tall
+// as the open island; its input mask is the island alone.
 PanelWindow {
   id: root
 
   required property var modelData   // the screen, injected by Variants
 
   readonly property var modules: ({
-    workspaces: workspaces, music: music, radio: radio, clock: clock,
+    workspaces: workspaces, music: music, equalizer: equalizer, radio: radio, clock: clock,
     brightness: brightness, audio: audio, wifi: wifi, mihomo: mihomo,
     battery: battery, language: language, ai: ai, notifications: notifications,
     shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, virustotal: virustotal, packages: packages, display: display, windows: windows, chat: chat, folder: folder
@@ -62,7 +68,7 @@ PanelWindow {
     spacing: Theme.moduleSpacing
 
     Repeater {
-      model: BarLayout.visibleIn(zone.name, root.modelData.name)
+      model: Theme.island ? [] : BarLayout.visibleIn(zone.name, root.modelData.name)
 
       Row {
         required property string modelData
@@ -103,12 +109,23 @@ PanelWindow {
     left: true
     right: true
   }
-  implicitHeight: Theme.barHeight
-  exclusiveZone: Theme.barHeight
+  // island style: tall enough for a module's popup opened in the island
+  implicitHeight: Theme.island ? Math.round(modelData.height * 0.92) : Theme.barHeight
+  exclusiveZone: Theme.barEdge
   // while a popup is open, a click into it (a text field) takes the keyboard;
   // otherwise the bar never does
-  WlrLayershell.keyboardFocus: PopupManager.current ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
-  color: Theme.background0
+  WlrLayershell.keyboardFocus: PopupManager.current || (islandItem?.grabbing ?? false)
+    ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+  color: Theme.island ? "transparent" : Theme.background0
+
+  mask: Theme.island ? islandMask : null
+
+  Region {
+    id: islandMask
+    item: root.islandItem?.shape ?? null
+
+    Region { item: root.islandItem?.bubble ?? null }
+  }
 
   Zone {
     name: "left"
@@ -123,16 +140,32 @@ PanelWindow {
   }
 
   Zone {
-    id: rightZone
     name: "right"
     modules: root.modules
     anchors { right: parent.right; rightMargin: Theme.edgeMargin; verticalCenter: parent.verticalCenter }
+  }
+
+  // island style: the Island; BarPopup opens a module's popup in it
+  readonly property Item islandItem: islandLoader.item
+
+  Loader {
+    id: islandLoader
+    active: Theme.island
+    anchors.horizontalCenter: parent.horizontalCenter
+    y: Theme.islandTop
+
+    sourceComponent: Island {
+      bar: root
+      modules: root.modules
+      onSettings: id => root.openSettings(id)
+    }
   }
 
   Component { id: workspaces; Workspaces {} }
   Component { id: music; Music { bar: root } }
   Component { id: radio; Radio { bar: root } }
   Component { id: clock; Clock {} }
+  Component { id: equalizer; Equalizer { bar: root } }
   Component { id: brightness; Brightness { bar: root } }
   Component { id: audio; Audio { bar: root } }
   Component { id: wifi; Wifi { bar: root } }

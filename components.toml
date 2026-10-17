@@ -51,9 +51,9 @@ requires = ["hypr"]
 suggests = ["mako", "gtk"]
 pacman = ["quickshell", "awww", "hyprsunset", "brightnessctl", "gpu-screen-recorder", "wiremix",
           "libpulse", "bluez", "bluez-utils", "networkmanager", "libnotify", "upower",
-          "pacman-contrib", "glib2", "fd", "xdg-utils", "ttf-jetbrains-mono-nerd"]
+          "pacman-contrib", "glib2", "fd", "xdg-utils", "ttf-jetbrains-mono-nerd", "cava"]
 links = ["quickshell"]
-modules = ["workspaces", "clock", "brightness", "audio", "wifi", "battery", "language", "shell",
+modules = ["workspaces", "clock", "equalizer", "brightness", "audio", "wifi", "battery", "language", "shell",
            "notifications", "capture", "clipboard", "sysmon", "taskmanager", "cleaner", "packages",
            "display", "windows", "folder"]
 system = ["etc/polkit-1/rules.d/50-pkexec-keep.rules"]

@@ -17,6 +17,7 @@ import qs.apps.shellmanager
 import qs.apps.switcher
 import qs.apps.taskmanager
 import qs.bar
+import qs.bar.island
 import qs.components
 import qs.modules.audio
 
@@ -53,8 +54,12 @@ Scope {
 
   PopupCatcher {}
 
-  // Hyprland's and mako's corners follow Appearance › Corners from the start
-  Component.onCompleted: CornersService.apply()
+  // mako's island mode follows Bar › Style, Hyprland's and mako's corners
+  // Appearance › Corners, from the start
+  Component.onCompleted: {
+    IslandService.makoMode();
+    CornersService.apply();
+  }
 
   // Super+Shift+S: screenshot or recording of a region, window or screen
   CaptureOverlay {}

@@ -1,0 +1,352 @@
+import QtQuick
+import Quickshell
+import Quickshell.Hyprland
+import qs.components
+import qs.config
+import qs.kit
+import qs.modules.audio
+
+// The whole bar in the island style: one dark pill that morphs between
+// views. compact (LEFT · clock · RIGHT) is the resting face; hub (the
+// date, the track and every module as a chip) opens on a hover or a click;
+// media (the player) from the equalizer or the hub's track; power on a right
+// click; osd (volume, brightness) and notice (a new notification) pass over
+// it for a moment. A module's popup opens inside the island (module): its
+// content moves in from the BarPopup and back once the island has folded.
+// A clicked view stays until a click outside, Escape or a second click.
+//
+// Compact: click — the hub, middle — play / pause, wheel — volume, right — power.
+Item {
+  id: root
+
+  required property PanelWindow bar
+  property var modules: ({})                   // Bar's module id -> Component
+
+  signal settings(string id)                   // a chip's right click: the module's options
+
+  property string view: "compact"              // compact | hub | media | power | module: what was asked for
+  property bool pinned: false                  // opened by a click or IPC, not a hover
+  property string flash: ""                    // osd | notice: passes over compact and media
+  readonly property string shown: flash !== "" && view !== "power" && view !== "module" ? flash : view
+  readonly property bool open: shown !== "compact"
+  // the shape, for the bar's input mask
+  readonly property Item shape: shape
+  // a pinned view takes the keyboard (Escape, the power menu's arrows)
+  // (a module's popup has its own grab)
+  readonly property bool grabbing: pinned && view !== "compact" && view !== "module"
+
+  function openView(v) {
+    if (PopupManager.current) PopupManager.current.visible = false;
+    view = v;
+    pinned = true;
+  }
+
+  function collapse() {
+    view = "compact";
+    pinned = false;
+    if (popup?.visible) popup.visible = false;
+  }
+
+  // ---- module popups ----
+  property var popup: null                     // the BarPopup whose content is in the island
+  property Item popupContent: null             // its root item (a KitFrame)
+
+  // opened from the hub: Escape goes back there instead of closing
+  property bool fromHub: false
+
+  function showPopup(p) {
+    restoreTimer.stop();
+    fromHub = view === "hub";
+    if (popup !== p) {
+      restore();
+      const from = p.contentItem.children;
+      const kids = [];
+      for (let i = 0; i < from.length; i++) kids.push(from[i]);
+      kids.forEach(k => k.parent = moduleHost);
+      popup = p;
+      popupContent = kids[0] ?? null;
+      if (popupContent && popupContent.inIsland !== undefined) popupContent.inIsland = true;
+    }
+    flash = "";
+    view = "module";
+    pinned = true;
+    moduleSlot.forceActiveFocus();
+  }
+
+  // the module's popup closes and the hub opens in its place
+  function backToHub() {
+    const p = popup;
+    view = "hub";
+    pinned = true;
+    if (p?.visible) p.visible = false;
+  }
+
+  function hidePopup(p) {
+    if (popup !== p) return;
+    if (view === "module") collapse();
+    restoreTimer.restart();
+  }
+
+  // the content goes home once it has faded out
+  function restore() {
+    if (!popup) return;
+    const from = moduleHost.children;
+    const kids = [];
+    for (let i = 0; i < from.length; i++) kids.push(from[i]);
+    kids.forEach(k => k.parent = popup.contentItem);
+    if (popupContent && popupContent.inIsland !== undefined) popupContent.inIsland = false;
+    popup = null;
+    popupContent = null;
+  }
+
+  Timer {
+    id: restoreTimer
+    interval: Motion.slow + 60
+    onTriggered: if (root.view !== "module") root.restore()
+  }
+
+  function toggleView(v) {
+    if (view === v && pinned) collapse();
+    else openView(v);
+  }
+
+  // ---- size ----
+  readonly property var sizes: ({
+    compact: [compact.implicitWidth, Theme.islandHeight],
+    hub:     [520, hub.implicitHeight],
+    media:   [420, 148],
+    osd:     [290, Theme.islandHeight],
+    notice:  [400, 68],
+    power:   [434, 86],
+    module:  [Math.max(Theme.popupWidth, popupContent?.implicitWidth ?? 0), popupContent?.implicitHeight ?? Theme.islandHeight]
+  })
+  readonly property var size: sizes[shown]
+
+  implicitWidth: shape.width
+  implicitHeight: shape.height
+
+  Rectangle {
+    id: shape
+    anchors.horizontalCenter: parent.horizontalCenter
+    width: root.size[0]
+    height: root.size[1]
+    radius: Math.min(height / 2, Theme.islandRadius)
+    color: Theme.background0
+    border.width: Theme.frameWidth
+    border.color: Theme.background2
+    clip: true
+
+    Behavior on width { enabled: Motion.island; NumberAnimation { duration: Motion.slow; easing.type: Easing.OutQuint } }
+    Behavior on height { enabled: Motion.island; NumberAnimation { duration: Motion.slow; easing.type: Easing.OutQuint } }
+    Behavior on radius { enabled: Motion.island; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
+
+    HoverHandler { id: hover }
+
+    // compact's clicks, under its face: its modules take their own
+    MouseArea {
+      anchors.fill: parent
+      enabled: root.shown === "compact"
+      acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
+      cursorShape: Qt.PointingHandCursor
+      onClicked: mouse => {
+        if (mouse.button === Qt.RightButton) root.openView("power");
+        else if (mouse.button === Qt.MiddleButton) IslandService.togglePlay();
+        else root.toggleView("hub");
+      }
+      onWheel: wheel => {
+        if (wheel.angleDelta.y !== 0)
+          AudioService.stepVolume(wheel.angleDelta.y > 0 ? AudioService.scrollStep : -AudioService.scrollStep);
+      }
+    }
+
+    // the face of each view: fades in once the shape is on its way
+    IslandCompact {
+      id: compact
+      anchors.centerIn: parent
+      modules: root.modules
+      screen: root.bar.screen?.name ?? ""
+      visible: opacity > 0
+      opacity: root.shown === "compact" ? 1 : 0
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick } }
+    }
+
+    IslandHub {
+      id: hub
+      anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+      width: root.sizes.hub[0]
+      bar: root.bar
+      modules: root.modules
+      visible: opacity > 0
+      opacity: root.shown === "hub" ? 1 : 0
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
+      onMedia: root.openView("media")
+      onPower: root.openView("power")
+      onSettings: id => root.settings(id)
+    }
+
+    IslandMedia {
+      anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+      width: root.sizes.media[0]
+      height: root.sizes.media[1]
+      visible: opacity > 0
+      opacity: root.shown === "media" ? 1 : 0
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
+    }
+
+    IslandOsd {
+      anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+      width: root.sizes.osd[0]
+      height: root.sizes.osd[1]
+      visible: opacity > 0
+      opacity: root.shown === "osd" ? 1 : 0
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick } }
+    }
+
+    IslandNotice {
+      anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+      width: root.sizes.notice[0]
+      height: root.sizes.notice[1]
+      visible: opacity > 0
+      opacity: root.shown === "notice" ? 1 : 0
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
+      onDismissed: root.flash = ""
+    }
+
+    // a module's popup content (showPopup); opened from the hub, Escape and
+    // the mouse's back button go back there (so does the bubble beside it)
+    Item {
+      id: moduleSlot
+      anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+      width: root.sizes.module[0]
+      height: root.sizes.module[1]
+      visible: opacity > 0
+      opacity: root.shown === "module" ? 1 : 0
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
+      Keys.onEscapePressed: root.fromHub ? root.backToHub() : root.collapse()
+      // the content's children land here (showPopup)
+
+      Item {
+        id: moduleHost
+        width: parent.width
+        height: root.popupContent?.implicitHeight ?? 0
+      }
+
+      TapHandler {
+        acceptedButtons: Qt.BackButton
+        enabled: root.fromHub
+        onTapped: root.backToHub()
+      }
+    }
+
+    IslandPower {
+      id: power
+      anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+      width: root.sizes.power[0]
+      height: root.sizes.power[1]
+      visible: opacity > 0
+      opacity: root.shown === "power" ? 1 : 0
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
+      onDone: root.collapse()
+    }
+  }
+
+  // ---- back bubble ----
+  // a module opened from the hub: a small round island splits off on the
+  // left, an arrow back to the hub
+  readonly property Item bubble: bubble
+  Rectangle {
+    id: bubble
+    readonly property bool on: root.shown === "module" && root.fromHub
+    anchors { right: shape.left; rightMargin: Theme.gapMedium * bubble.reveal - Theme.islandHeight * (1 - bubble.reveal) }
+    y: 0
+    width: Theme.islandHeight
+    height: Theme.islandHeight
+    radius: Math.min(height / 2, Theme.islandRadius)
+    color: backArea.containsMouse ? Theme.background1 : Theme.background0
+    border.width: Theme.frameWidth
+    border.color: Theme.background2
+    visible: reveal > 0
+    opacity: reveal
+    scale: 0.6 + 0.4 * reveal
+
+    property real reveal: on ? 1 : 0
+    Behavior on reveal { enabled: Motion.island; NumberAnimation { duration: Motion.slow; easing.type: Easing.OutQuint } }
+
+    KitIcon {
+      anchors.centerIn: parent
+      name: "arrow-left"
+      size: Theme.iconSmall + 2
+    }
+
+    MouseArea {
+      id: backArea
+      anchors.fill: parent
+      hoverEnabled: true
+      cursorShape: Qt.PointingHandCursor
+      onClicked: root.backToHub()
+    }
+  }
+
+  // ---- hover ----
+  // resting on the clock opens the hub (the modules beside it keep their
+  // own hover and clicks); leaving the island closes it unless clicked
+  Timer {
+    interval: 350
+    running: ShellSettings.islandHover && compact.clockHovered && root.view === "compact" && root.flash === ""
+             && !PopupManager.current
+    onTriggered: { root.view = "hub"; root.pinned = false; }
+  }
+  Timer {
+    interval: 450
+    running: !hover.hovered && !root.pinned && root.view !== "compact"
+    onTriggered: root.collapse()
+  }
+
+  // ---- flashes ----
+  Timer {
+    id: flashTimer
+    onTriggered: {
+      if (root.flash === "notice" && hover.hovered) restart();
+      else root.flash = "";
+    }
+  }
+
+  Connections {
+    target: IslandService
+    function onFlashed(kind, ms) {
+      root.flash = kind;
+      flashTimer.interval = ms;
+      flashTimer.restart();
+    }
+    function onRequested(v, screen) {
+      if (screen !== "" && screen !== root.bar.screen?.name) return;
+      if (v === "compact") root.collapse();
+      else root.toggleView(v);
+    }
+  }
+
+  // ---- keys ----
+  onViewChanged: if (view === "power") power.reset()
+  onGrabbingChanged: if (grabbing) keys.forceActiveFocus()
+
+  Item {
+    id: keys
+    focus: root.grabbing
+    Keys.onPressed: event => {
+      if (event.key === Qt.Key_Escape) root.collapse();
+      else if (root.view === "power") power.key(event.key);
+      else if (root.view !== "media") return;
+      else if (event.key === Qt.Key_Space) IslandService.togglePlay();
+      else if (event.key === Qt.Key_Left) IslandService.prev();
+      else if (event.key === Qt.Key_Right) IslandService.next();
+      else return;
+      event.accepted = true;
+    }
+  }
+
+  HyprlandFocusGrab {
+    windows: [root.bar]
+    active: root.grabbing
+    onCleared: root.collapse()
+  }
+}

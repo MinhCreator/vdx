@@ -79,7 +79,7 @@ Bar modules live in `modules/<id>/`; each popup opens with
 `tasks`, cleaner `clean`, virustotal `scan`, packages `updates`). Order, zones and visibility: Shell Manager
 › Bar. Options: Shell Manager › Modules (an app's module: › Shell apps).
 
-Workspaces, Music, Radio, Clock, Brightness, Audio, Wi-Fi, Mihomo, Battery,
+Workspaces, Music, Radio, Equalizer, Clock, Brightness, Audio, Wi-Fi, Mihomo, Battery,
 Language, AI, Shell, Notifications, Capture, Clipboard, System, Task manager,
 Cleaner, VirusTotal, Packages, Display, Windows, Chat, Folder.
 
@@ -88,6 +88,20 @@ Cleaner, VirusTotal, Packages, Display, Windows, Chat, Folder.
 Shell Manager › Appearance › Corners: Sharp, or Round with one radius on a
 ticked slider. Everything follows — popups, controls, rows, the island,
 Hyprland's windows, mako — and the icons switch to Material Symbols Rounded.
+
+## Island
+
+Shell Manager › Bar › Style › Island: no strip — one pill at the top centre is
+the whole bar (`bar/island/`). At rest: LEFT · clock · RIGHT (by default the
+workspaces and the equalizer). Resting on the clock or a click opens the hub:
+the date, the track and the HUB modules as chips; a chip opens its module's
+popup inside the island, with a bubble beside it back to the hub (Escape and
+the mouse's back button too). Shell Manager › Bar arranges LEFT, RIGHT, HUB
+and HIDDEN. Volume / brightness changes and new notifications pass over it
+(mako only keeps them: its `island` mode). Equalizer or track: the player.
+Right click: power. Middle click: play / pause; wheel: volume.
+
+IPC: `qs -c shell ipc call island hub|media|power|collapse`.
 
 ## Requirements
 
@@ -101,6 +115,7 @@ Hyprland's windows, mako — and the icons switch to Material Symbols Rounded.
 | AI limits | Claude Code login (`~/.claude/.credentials.json`) |
 | File scans | `VIRUSTOTAL_API_KEY` (env or `~/.config/secrets/env`) |
 | Music likes | Yandex Music token (`~/.config/scripts/yandex-music/token`) |
+| Island wave | `cava` (without it the wave is made up) |
 
 System files: `./install.py system install`.
 

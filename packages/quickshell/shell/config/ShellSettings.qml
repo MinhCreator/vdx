@@ -24,6 +24,8 @@ Singleton {
   readonly property bool barRightSettings: state.barRightSettings // a right click on a bar module opens its options
   readonly property string corners: state.corners                 // sharp | round: the whole shell's corners
   readonly property int cornerRadius: state.cornerRadius          // px, a popup's corner while round (Theme scales the rest)
+  readonly property string barStyle: state.barStyle               // solid | island: one strip, or one live island
+  readonly property bool islandHover: state.islandHover           // resting on the island opens it
   // animations (Shell Manager › Animations; Motion reads them)
   readonly property bool motion: state.motion                     // all of them on / off
   readonly property string motionSpeed: state.motionSpeed         // slow | normal | fast
@@ -32,6 +34,7 @@ Singleton {
   readonly property bool motionControls: state.motionControls     // buttons, switches, selects, level bars
   readonly property bool motionBar: state.motionBar               // workspaces, bar values
   readonly property bool motionPages: state.motionPages           // Shell Manager pages and sidebar
+  readonly property bool motionIsland: state.motionIsland         // the island morphing between its views
   readonly property bool motionLock: state.motionLock             // the lock screen coming in, a wrong password
 
   // Whether the Shell Manager window is open (not saved).
@@ -61,6 +64,8 @@ Singleton {
       property bool pauseMusic: false
       property bool resumeMusic: true
       property bool barRightSettings: true
+      property string barStyle: "solid"
+      property bool islandHover: true
       property string corners: "sharp"
       property int cornerRadius: 12
       property bool motion: true
@@ -71,6 +76,7 @@ Singleton {
       property bool motionBar: true
       property bool motionPages: true
       property bool motionLock: true
+      property bool motionIsland: true
     }
   }
 }

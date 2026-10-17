@@ -338,7 +338,7 @@ Variants {
         id: toolbar
         visible: root.toolbarHere && !root.dragging && !root.finishing
         anchors.horizontalCenter: parent.horizontalCenter
-        y: Theme.barHeight + (root.live ? Theme.popupGap : 0)      // where the bar's popups open
+        y: Theme.barEdge + (root.live ? Theme.popupGap : 0)      // where the bar's popups open
         opacity: root.live ? 1 : 0
 
         Behavior on y { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
