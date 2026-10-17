@@ -57,6 +57,12 @@ KitColumn {
     }
   }
 
+  KitOptionRow {
+    module: "notifications"; key: "badge"; fallback: "off"
+    label: "Bell badge"; hint: "Off: the tint only"
+    model: [{ label: "Off", value: "off" }, { label: "Dot", value: "dot" }, { label: "Count", value: "count" }]
+  }
+
   KitLine {}
 
   KitLabel { text: "POPUP" }

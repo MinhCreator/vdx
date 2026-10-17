@@ -6,7 +6,8 @@ import qs.config
 import qs.kit
 
 // Bell at the right edge. Unseen notifications light it (tint); a tucked-away
-// bell tells the Folder (its `attention`), which draws the dot.
+// bell tells the Folder (its `attention`), which draws the dot. The bell's own
+// badge (Modules › Notifications › Bell badge): off, a dot or the count.
 Item {
   id: root
 
@@ -16,6 +17,7 @@ Item {
   function openPopup() { popup.toggle(); }
 
   readonly property bool attention: NotificationsService.unseen > 0
+  readonly property string badge: ModuleSettings.get("notifications", "badge", "off")
 
   implicitWidth: bell.implicitWidth
   implicitHeight: bell.implicitHeight
@@ -24,7 +26,22 @@ Item {
     id: bell
     anchors { left: parent.left; verticalCenter: parent.verticalCenter }
     icon: "bell"
+    text: root.badge === "count" && root.attention
+      ? (NotificationsService.unseen > 99 ? "99+" : String(NotificationsService.unseen)) : ""
     tint: root.attention ? Theme.foreground0 : Theme.gray
+
+    // the dot: the same mark as the Folder's, on the bell's corner
+    Rectangle {
+      radius: Theme.pill(height)
+      visible: root.badge === "dot" && root.attention
+      x: Theme.fontSize - 3
+      y: 0
+      width: 6
+      height: 6
+      color: Theme.notifyDot(ShellSettings.barDotColor)
+      border.width: Theme.frameWidth
+      border.color: Theme.background0
+    }
   }
 
   MouseArea {

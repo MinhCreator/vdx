@@ -127,7 +127,7 @@ the "|" in it, in every bar. Bar › Layout › ADD › Separator: a custom "|",
 dragged into a band (a click puts it at the end of RIGHT); its chip's cross removes it. Modules › Notifications › Unseen dot: the dot shows
 while the notifications centre is tucked away — on the Folder in the strip, on
 the island's resting pill when the centre is in the hub, never beside the bell
-in the bar. Moving the centre sets the switch; the switch overrides until the next move.
+in the bar. Moving the centre sets the switch; the switch overrides until the next move. Modules › Notifications › Bell badge: the bell's own dot or count, off by default.
 
 ## Requirements
 
