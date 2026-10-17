@@ -28,6 +28,8 @@ Rectangle {
   // filled, unlike the bands of chips under it
   height: 30
   radius: Theme.radiusCard
+  // the island's pill and every bar beside it: one height
+  readonly property int pillHeight: Theme.island ? height - 4 : height - 8
   color: Theme.island ? "transparent" : Theme.background1
 
   // ---- the main bar ----
@@ -61,7 +63,7 @@ Rectangle {
     visible: Theme.island && pillIcons.width > 0
     anchors.centerIn: parent
     width: pillIcons.width + 2 * Theme.gapWide
-    height: parent.height - 4
+    height: root.pillHeight
     radius: Math.min(height / 2, Theme.islandRadius)
     color: Theme.background1
 
@@ -97,7 +99,7 @@ Rectangle {
     Repeater {
       id: minis
       model: root.children.filter(b => b.side === minis.parent.side && b.place === minis.parent.place)
-      // a child bar in small: its first icons, or "empty"
+      // a child bar in small: its first icons, or "Empty"
       Rectangle {
         id: mini
         required property var modelData
@@ -105,7 +107,7 @@ Rectangle {
         readonly property var ids: BarLayout.barModules(root.screenName, bar.id)
 
         width: (mini.ids.length > 0 ? miniIcons.width : emptyText.implicitWidth) + 2 * Theme.gapMedium
-        height: root.height - 8
+        height: root.pillHeight
         radius: Theme.island ? Math.min(height / 2, Theme.islandRadius) : Theme.radiusControl
         color: area.containsMouse || root.dragId === bar.id ? Theme.background3 : Theme.background2
         opacity: root.dragId === bar.id ? 0.35 : 1
@@ -123,9 +125,9 @@ Rectangle {
           id: emptyText
           anchors.centerIn: parent
           visible: mini.ids.length === 0
-          text: "empty"
+          text: "Empty"
           color: Theme.muted
-          font.pixelSize: Theme.fontSize - 3
+          font.pixelSize: Theme.fontSize - 2
         }
 
         MouseArea {
@@ -149,9 +151,9 @@ Rectangle {
         // a cross in the corner while the pointer is on it: removes the bar
         Rectangle {
           visible: (area.containsMouse || closeArea.containsMouse) && root.dragId === ""
-          anchors { right: parent.right; top: parent.top; rightMargin: -5; topMargin: -5 }
-          width: 14
-          height: 14
+          anchors { right: parent.right; top: parent.top; rightMargin: -6; topMargin: -6 }
+          width: 18
+          height: 18
           radius: Theme.pill(height)
           color: closeArea.containsMouse ? Theme.red : Theme.background3
           border.width: Theme.islandFrameWidth
@@ -160,7 +162,7 @@ Rectangle {
           KitIcon {
             anchors.centerIn: parent
             name: "x"
-            size: 9
+            size: 12
             tint: closeArea.containsMouse ? Theme.background0 : Theme.foreground0
           }
 
@@ -181,7 +183,7 @@ Rectangle {
       visible: group.adds && root.dragId === "" && !root.children.some(b => BarLayout.barModules(root.screenName, b.id).length === 0)
       anchors.verticalCenter: parent.verticalCenter
       width: addIcon.width + 2 * Theme.gapMedium + 8
-      height: root.height - 8
+      height: root.pillHeight
       radius: Theme.island ? Math.min(height / 2, Theme.islandRadius) : Theme.radiusControl
       color: addArea.containsMouse ? Theme.background2 : "transparent"
       border.width: Theme.islandFrameWidth
@@ -259,7 +261,7 @@ Rectangle {
     id: ghost
     property var ids: []
     visible: root.dragId !== ""
-    height: root.height - 8
+    height: root.pillHeight
     radius: Theme.island ? Math.min(height / 2, Theme.islandRadius) : Theme.radiusControl
     color: Theme.background3
     border.width: root.target < 0 ? Theme.islandFrameWidth : 0
