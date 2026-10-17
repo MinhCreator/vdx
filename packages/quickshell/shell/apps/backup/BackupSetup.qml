@@ -46,8 +46,12 @@ Item {
         value: bs.configured ? "SET" : "NOT SET"
       }
 
-      BackupNote {
+      KitText {
         visible: !bs.configured
+        width: parent.width
+        wrapMode: Text.WordWrap
+        color: Theme.yellow
+        font.pixelSize: Theme.fontSize - 2
         text: "No repository yet: nothing can be backed up until you set one here."
       }
 
@@ -133,8 +137,12 @@ Item {
         text: "Runs a backup by itself while the computer is on. A run that was missed while it was off happens at the next start."
       }
 
-      BackupNote {
+      KitText {
         visible: root.timerOn && !bs.configured
+        width: parent.width
+        wrapMode: Text.WordWrap
+        color: Theme.yellow
+        font.pixelSize: Theme.fontSize - 2
         text: "No repository yet: the time is saved, and the timer starts once a repository is set above."
       }
 
