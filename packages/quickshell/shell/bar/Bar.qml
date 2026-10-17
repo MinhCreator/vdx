@@ -53,6 +53,7 @@ PanelWindow {
         Separator {
           anchors.verticalCenter: parent.verticalCenter
           visible: index > 0
+          ruled: ShellSettings.barSeparators
         }
 
         // the module; a right click on it opens its options. A pointer handler,
@@ -155,6 +156,7 @@ PanelWindow {
               Separator {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: index > 0
+                ruled: ShellSettings.barSeparators
               }
 
               Item {
@@ -178,6 +180,13 @@ PanelWindow {
         }
       }
     }
+  }
+
+  // an item in a child bar: its module's popup opens under it, not in the island
+  function inChild(item) {
+    for (let p = item; p; p = p.parent)
+      if (p === edgeLeft || p === edgeRight || p === besideLeft || p === besideRight) return true;
+    return false;
   }
 
   // the centre the "beside" groups hold on to, and the gap they keep

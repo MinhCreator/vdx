@@ -118,8 +118,9 @@ row; one empty child bar at a time. Drag it on the preview to one of four
 spots (either edge, either side of the centre); its corner cross (or a drop
 off the preview) removes it. Its band under the preview takes modules like
 the others. A module is in one bar only. In the island style each is
-a pill and its popups open in the island; with no centre showing they meet
-in the middle.
+a pill, its modules' popups open under it (not in the island); with no
+centre showing they meet in the middle. Bar › Style › Separators: the "|"
+between modules, in every bar.
 
 ## Requirements
 

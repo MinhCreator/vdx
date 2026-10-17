@@ -52,8 +52,11 @@ PopupWindow {
     anchor.updateAnchor();
   }
 
-  // the island style takes the content into the island
-  readonly property bool inIsland: Theme.island && !!root.bar.islandItem
+  // the island style takes the content into the island, except a child bar's
+  // module: its popup opens under it. Set on every show (the module may have
+  // moved between bars) and kept until the popup is hidden.
+  property bool inIsland: false
+  function place() { inIsland = Theme.island && !!root.bar.islandItem && !root.bar.inChild(root.anchorItem); }
 
   anchor.window: root.bar
   anchor.edges: Edges.Bottom | (alignLeft ? Edges.Left : Edges.Right)
@@ -91,6 +94,7 @@ PopupWindow {
 
   onVisibleChanged: {
     if (visible) {
+      root.place();
       PopupManager.open(root);       // closes the previous popup: its line is the slide's start
       if (root.inIsland) root.bar.islandItem.showPopup(root);
       underline.start();
@@ -195,7 +199,7 @@ PopupWindow {
   Rectangle {
     id: underline
     parent: root.bar.contentItem
-    visible: active && !PopupManager.frozen && !root.inIsland
+    visible: active && !PopupManager.frozen && !Theme.island
     y: Theme.barEdge - height
     height: 2
     color: root.tintOf(root.anchorItem) ?? Theme.foreground0

@@ -26,12 +26,14 @@ Rectangle {
   function shown(ids) { return ids.length <= perSide ? ids : ids.slice(0, perSide - 1); }
   function extra(ids) { return ids.length <= perSide ? 0 : ids.length - perSide + 1; }
 
-  // filled, unlike the bands of chips under it
+  // filled, unlike the bands of chips under it; the box it sits in is filled
+  // in material, so the bar takes the page's colour there
   height: 30
   radius: Theme.radiusCard
   // the island's pill and every bar beside it: one height
   readonly property int pillHeight: Theme.island ? height - 4 : height - 8
-  color: Theme.island ? "transparent" : Theme.background1
+  readonly property color surface: Theme.material ? Theme.background0 : Theme.background1
+  color: Theme.island ? "transparent" : surface
 
   // ---- the main bar ----
   BarPreviewIcons {
@@ -66,7 +68,7 @@ Rectangle {
     width: pillIcons.width + 2 * Theme.gapWide
     height: root.pillHeight
     radius: Math.min(height / 2, Theme.islandRadius)
-    color: Theme.background1
+    color: root.surface
 
     BarPreviewIcons {
       id: pillIcons

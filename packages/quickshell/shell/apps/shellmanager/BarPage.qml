@@ -137,6 +137,16 @@ Column {
     }
   }
 
+  KitRow {
+    label: "Separators"
+    hint: "A line between modules"
+
+    KitSwitch {
+      checked: ShellSettings.barSeparators
+      onToggled: ShellSettings.set("barSeparators", !checked)
+    }
+  }
+
   // a right click on a module opens its options (the module's own page)
   KitRow {
     label: "Settings on right click"
@@ -242,10 +252,21 @@ Column {
 
   // a glance at the bar (what does not fit a side shows as +N) with its child
   // bars, dragged there to place them; the empty framed bar adds one
-  BarPreview {
+  // in a box, as the font's sample: the preview stands out from the bands
+  Rectangle {
     visible: root.barOn
     width: parent.width
-    screenName: root.screenName
+    height: preview.height + 2 * Theme.gapLoose
+    radius: Theme.radiusControl
+    color: Theme.controlFill
+    border.width: Theme.frameWidth
+    border.color: Theme.gray
+
+    BarPreview {
+      id: preview
+      anchors { left: parent.left; right: parent.right; margins: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+      screenName: root.screenName
+    }
   }
 
   // a band per zone, the folder and HIDDEN: chips in bar order, dragged between bands
