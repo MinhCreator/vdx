@@ -19,7 +19,7 @@ Singleton {
     { id: "workspaces",    label: "Workspaces",    zone: "left",   icon: "layout", settings: "WorkspacesSettings.qml", about: "Hyprland workspaces" },
     { id: "music",         label: "Music",         zone: "left",   icon: "music", settings: "MusicSettings.qml", about: "Liked tracks from Yandex Music" },
     { id: "radio",         label: "Radio",         zone: "left",   icon: "radio", settings: "RadioSettings.qml", about: "Internet radio stations" },
-    { id: "themes",        label: "Themes",        zone: "right",  icon: "brush", settings: "ThemesSettings.qml", about: "Switch the dotfiles theme from a strip of cards" },
+    { id: "themes",        label: "Themes",        zone: "right",  icon: "palette", settings: "ThemesSettings.qml", about: "Switch the dotfiles theme from a strip of cards" },
     { id: "wallpapers",    label: "Wallpapers",    zone: "right",  icon: "image", settings: "WallpapersSettings.qml", about: "Pick the picture of the theme from a strip of cards" },
     { id: "equalizer",     label: "Equalizer",     zone: "center", island: "end", icon: "activity", settings: "EqualizerSettings.qml", about: "The sound as bars while a track plays" },
     { id: "clock",         label: "Clock",         zone: "center", icon: "clock", settings: "ClockSettings.qml", about: "Time, click for the date" },

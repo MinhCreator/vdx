@@ -53,6 +53,7 @@ monitor monitor
 moon dark_mode
 music music_note
 package package_2
+palette palette
 pause pause
 play play_arrow
 power power_settings_new

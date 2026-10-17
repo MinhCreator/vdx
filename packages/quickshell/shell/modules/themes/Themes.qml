@@ -21,7 +21,7 @@ Item {
 
   KitBarItem {
     id: face
-    icon: "brush"
+    icon: "palette"
     text: BarLayout.faceText("themes", ModuleSettings.get("themes", "name", true) ? ThemeService.current : "")
   }
 
