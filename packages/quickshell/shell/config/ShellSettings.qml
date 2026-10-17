@@ -27,6 +27,7 @@ Singleton {
   readonly property string barDotColor: state.barDotColor         // theme | red | yellow | green | blue: that dot's colour
   readonly property int barGap: state.barGap                     // px each side of a separator (Theme.separatorMargin)
   readonly property bool material: state.material                 // controls filled, no frames (Appearance › Controls)
+  readonly property bool passwordDots: state.passwordDots         // password fields show dots, not squares (Appearance › Style)
   readonly property string corners: state.corners                 // sharp | round: the whole shell's corners
   readonly property int cornerRadius: state.cornerRadius          // px, a popup's corner while round (Theme scales the rest)
   readonly property string barStyle: state.barStyle               // solid | island: one strip, or one live island
@@ -85,6 +86,7 @@ Singleton {
       property bool islandHover: true
       property string corners: "sharp"
       property bool material: false
+      property bool passwordDots: false
       property int cornerRadius: 12
       property bool motion: true
       property string motionSpeed: "normal"
