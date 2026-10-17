@@ -42,3 +42,10 @@ hl.config({
 		},
 	},
 })
+
+-- Shell Manager › Appearance › Corners: window rounding (CornersService.qml
+-- writes it and also applies it live)
+local okc, corners = pcall(dofile, os.getenv("HOME") .. "/.local/state/dotfiles/corners.lua")
+if okc and type(corners) == "table" and corners.rounding then
+	hl.config({ decoration = { rounding = corners.rounding } })
+end
