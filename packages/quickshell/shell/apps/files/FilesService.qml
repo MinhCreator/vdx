@@ -262,6 +262,8 @@ Singleton {
 
   // mode: "single" (a click), "toggle" (ctrl), "range" (shift, from the anchor)
   function select(p, mode) {
+    // a picker that takes one file or folder (its request has no `multiple`) selects one row
+    if (picker && !picker.multiple) mode = "single";
     if (mode === "toggle") {
       selection = selection.includes(p) ? selection.filter(s => s !== p) : selection.concat([p]);
     } else if (mode === "range" && anchor !== "") {
