@@ -41,7 +41,7 @@ QtObject {
   readonly property int barHeight: 34
   readonly property int moduleSpacing: 2
   readonly property int edgeMargin: 20
-  readonly property int separatorMargin: 8
+  readonly property int separatorMargin: ShellSettings.barGap   // Bar › Style › Spacing, each side of a separator
   readonly property int workspaceMinWidth: 16
   // Bar › Style island: the island floats this far from the screen's top.
   // barEdge: where the bar ends for windows and popups, either style.

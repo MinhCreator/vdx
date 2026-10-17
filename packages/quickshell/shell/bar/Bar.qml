@@ -111,8 +111,8 @@ PanelWindow {
 
   // ---- child bars ----
   // BarLayout.barsOn this screen, in this bar's row: a side (left | right) at the screen's
-  // edge or beside the centre (the island, the centre zone). Island style: a
-  // pill each, framed like the island; solid: a raised group in the strip.
+  // edge or beside the centre (the island, the centre zone). Island style: an
+  // island each (IslandChild), framed like the island; solid: a raised group in the strip.
   component ChildGroup: Row {
     id: group
 
@@ -128,65 +128,19 @@ PanelWindow {
       model: BarLayout.barsOn(root.modelData.name).filter(b => b.side === group.side && b.place === group.place
                                                                 && BarLayout.barModules(root.modelData.name, b.id).length > 0)
 
-      Rectangle {
-        id: pill
-        required property var modelData
-
-        width: kids.width + 2 * (Theme.island ? Theme.gapGroup : Theme.gapLoose)
-        height: group.band
-        radius: Theme.island ? Math.min(height / 2, Theme.islandRadius) : Theme.radiusControl
-        color: Theme.island ? Theme.background0 : Theme.background1
-        border.width: Theme.island ? Theme.islandFrameWidth : 0
-        border.color: Theme.background2
-
-        Row {
-          id: kids
-          anchors.centerIn: parent
-          spacing: Theme.moduleSpacing
-
-          Repeater {
-            model: BarLayout.barModules(root.modelData.name, pill.modelData.id)
-
-            Row {
-              required property string modelData
-              required property int index
-
-              spacing: Theme.moduleSpacing
-
-              Separator {
-                anchors.verticalCenter: parent.verticalCenter
-                visible: index > 0
-                ruled: ShellSettings.barSeparators
-              }
-
-              Item {
-                anchors.verticalCenter: parent.verticalCenter
-                width: slot.width
-                height: slot.height
-
-                Loader {
-                  id: slot
-                  sourceComponent: root.modules[modelData] ?? null
-                }
-
-                TapHandler {
-                  acceptedButtons: Qt.RightButton
-                  enabled: ShellSettings.barRightSettings
-                  onTapped: root.openSettings(modelData)
-                }
-              }
-            }
-          }
-        }
+      IslandChild {
+        bar: root
+        band: group.band
       }
     }
   }
 
-  // an item in a child bar: its module's popup opens under it, not in the island
-  function inChild(item) {
+  // island style: where a module's popup opens — the child bar's island it
+  // sits in (IslandChild), or the island
+  function popupHost(item) {
     for (let p = item; p; p = p.parent)
-      if (p === edgeLeft || p === edgeRight || p === besideLeft || p === besideRight) return true;
-    return false;
+      if (p.hostsPopups === true) return p;
+    return root.islandItem;
   }
 
   // the centre the "beside" groups hold on to, and the gap they keep

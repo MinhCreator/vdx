@@ -52,11 +52,12 @@ PopupWindow {
     anchor.updateAnchor();
   }
 
-  // the island style takes the content into the island, except a child bar's
-  // module: its popup opens under it. Set on every show (the module may have
-  // moved between bars) and kept until the popup is hidden.
-  property bool inIsland: false
-  function place() { inIsland = Theme.island && !!root.bar.islandItem && !root.bar.inChild(root.anchorItem); }
+  // the island style takes the content into an island: the island, or the
+  // child bar's the module sits in (Bar.popupHost). Set on every show (the
+  // module may have moved between bars) and kept until the popup is hidden.
+  property Item host: null
+  readonly property bool inIsland: !!host
+  function place() { host = Theme.island ? root.bar.popupHost(root.anchorItem) : null; }
 
   anchor.window: root.bar
   anchor.edges: Edges.Bottom | (alignLeft ? Edges.Left : Edges.Right)
@@ -96,7 +97,7 @@ PopupWindow {
     if (visible) {
       root.place();
       PopupManager.open(root);       // closes the previous popup: its line is the slide's start
-      if (root.inIsland) root.bar.islandItem.showPopup(root);
+      if (root.inIsland) root.host.showPopup(root);
       underline.start();
       root.comeIn();
       root.shown();
@@ -105,7 +106,7 @@ PopupWindow {
       root.anchorX = -1;
       underline.stop();
       PopupManager.close(root);
-      if (root.inIsland) root.bar.islandItem.hidePopup(root);
+      if (root.inIsland) root.host.hidePopup(root);
       root.hidden();
     }
   }

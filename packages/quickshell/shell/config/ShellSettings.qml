@@ -23,6 +23,7 @@ Singleton {
   readonly property bool resumeMusic: state.resumeMusic           // ...and resumes once that sound stops
   readonly property bool barRightSettings: state.barRightSettings // a right click on a bar module opens its options
   readonly property bool barSeparators: state.barSeparators       // "|" between the bar's modules
+  readonly property int barGap: state.barGap                     // px each side of a separator (Theme.separatorMargin)
   readonly property bool material: state.material                 // controls filled, no frames (Appearance › Controls)
   readonly property string corners: state.corners                 // sharp | round: the whole shell's corners
   readonly property int cornerRadius: state.cornerRadius          // px, a popup's corner while round (Theme scales the rest)
@@ -67,6 +68,7 @@ Singleton {
       property bool resumeMusic: true
       property bool barRightSettings: true
       property bool barSeparators: true
+      property int barGap: 5
       property string barStyle: "solid"
       property bool islandHover: true
       property string corners: "sharp"

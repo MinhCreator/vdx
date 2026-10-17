@@ -9,7 +9,8 @@ shell.qml      bars per monitor and every app
 apps/          the shell's apps; apps.json is their registry
 bar/           Bar (zones, child bars), ModuleFaces (the modules' Components), BarLayout
                (module registry, layouts, child bars), BarPopup;
-               island/ — Bar › Style island: the bar as one morphing pill, popups inside
+               island/ — Bar › Style island: the bar as one morphing pill, popups inside;
+               IslandChild — a child bar's own island (Bar.popupHost picks one)
 modules/<id>/  bar modules: <Name>.qml, <Name>Popup.qml, <Name>Service.qml
 kit/           UI components, icons/ (outline, solid/), reply.js (a backend's JSON reply)
 components/    Hypr (helpers), ScrimWindow, PopupManager, PopupCatcher, Separator

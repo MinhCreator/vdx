@@ -138,6 +138,23 @@ Column {
   }
 
   KitRow {
+    wide: true
+    label: "Spacing"
+    hint: "Between the modules"
+
+    KitChoices {
+      stretch: true
+      model: [
+        { label: "Tight",  value: 2 },
+        { label: "Normal", value: 5 },
+        { label: "Wide",   value: 8 }
+      ]
+      current: ShellSettings.barGap
+      onPicked: value => ShellSettings.set("barGap", value)
+    }
+  }
+
+  KitRow {
     label: "Separators"
     hint: "A line between modules"
 
