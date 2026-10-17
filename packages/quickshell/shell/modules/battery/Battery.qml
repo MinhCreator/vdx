@@ -18,11 +18,15 @@ Item {
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
 
+  // Content with "Charge only" drops the icon; Name and Icon keep it
+  readonly property bool showIcon: ModuleSettings.get("battery", "text", "content") !== "content"
+    || ModuleSettings.get("battery", "shows", "both") !== "charge"
+
   KitBarItem {
     id: label
-    icon: BatteryService.saver ? "battery-saver" : BatteryService.charging ? "battery-bolt"
+    icon: !root.showIcon ? "" : BatteryService.saver ? "battery-saver" : BatteryService.charging ? "battery-bolt"
         : BatteryService.plugged ? "battery-plugged" : BatteryService.levelIcon
-    text: BarLayout.faceText("battery", ModuleSettings.get("battery", "percent", true) ? String(BatteryService.capacity) : "")
+    text: BarLayout.faceText("battery", String(BatteryService.capacity))
     tint: BatteryService.saver ? Theme.green
          : BatteryService.charging ? Theme.green
          : BatteryService.capacity <= BatteryService.critical ? Theme.red

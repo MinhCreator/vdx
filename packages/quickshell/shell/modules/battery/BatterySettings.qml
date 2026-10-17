@@ -10,5 +10,10 @@ Column {
   KitLabel { text: "BAR" }
   BarTextRow { module: "battery" }
 
-  KitToggleRow { visible: ModuleSettings.get("battery", "text", "content") === "content"; module: "battery"; key: "percent"; label: "Show charge"; hint: "Off: icon only" }
+  KitOptionRow {
+    visible: ModuleSettings.get("battery", "text", "content") === "content"
+    module: "battery"; key: "shows"; fallback: "both"
+    label: "Shows"
+    model: [{ label: "Icon and charge", value: "both" }, { label: "Charge only", value: "charge" }]
+  }
 }
