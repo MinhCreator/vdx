@@ -15,7 +15,11 @@ Column {
   property bool busy: false
   property bool disabled: false
   property bool expanded: false
-  property real boxWidth: Theme.controlWidth     // the standard width of a wide control (KitRow)
+  // The box takes the standard width (KitRow's, so the right edges line up) when
+  // the row has room for it; a narrower row gives the label half of it (less the
+  // gap), down to the least a value reads at. Never wider than the row itself.
+  property real boxWidth: Math.min(width, Math.max(Theme.controlMinWidth,
+    Math.min(Theme.controlWidth, (width - Theme.gapWide) / 2)))
   // The open list floats over what follows instead of pushing it down.
   property bool overlay: false
 
@@ -111,7 +115,8 @@ Column {
 
   // Column lays out no zero-height child, so in overlay mode the list hangs
   // off the row (below it, over the following content) instead of the slot.
-  // The list is as wide as the box and sits under it, on the same right edge.
+  // The list is the standard width (or the row's, when narrower) and sits under
+  // the box on the same right edge, so its choices are not cut.
   Item {
     id: slot
     width: parent.width
@@ -123,7 +128,7 @@ Column {
       parent: root.overlay ? row : slot
       y: root.overlay ? row.height + root.spacing : 0
       visible: root.expanded
-      width: Math.min(root.boxWidth, parent.width)
+      width: Math.min(Theme.controlWidth, parent.width)
       x: parent.width - width
       height: options.implicitHeight + 2 * inset
       radius: Theme.radiusControl
