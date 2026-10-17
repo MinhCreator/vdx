@@ -29,9 +29,9 @@ import qs.modules.wifi
 import qs.modules.windows
 import qs.modules.workspaces
 
-// Every bar module as a Component, made for one bar window (`bar`): the main
-// bar and each extra bar have their own set. A new module: its Component here
-// and an entry in BarLayout.modules.
+// Every bar module as a Component, made for one bar window (`bar`): each
+// screen's bar makes its own set, its child bars use it too. A new module:
+// its Component here and an entry in BarLayout.modules.
 Item {
   id: root
 

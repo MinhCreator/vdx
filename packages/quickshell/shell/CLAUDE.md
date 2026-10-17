@@ -7,8 +7,8 @@ Quickshell config, `qs -c shell`. What exists: [README.md](README.md).
 ```
 shell.qml      bars per monitor and every app
 apps/          the shell's apps; apps.json is their registry
-bar/           Bar (zones), ExtraBar, ModuleFaces (the modules' Components), BarLayout
-               (module registry, layouts, extra bars), BarPopup;
+bar/           Bar (zones, child bars), ModuleFaces (the modules' Components), BarLayout
+               (module registry, layouts, child bars), BarPopup;
                island/ — Bar › Style island: the bar as one morphing pill, popups inside
 modules/<id>/  bar modules: <Name>.qml, <Name>Popup.qml, <Name>Service.qml
 kit/           UI components, icons/ (outline, solid/), reply.js (a backend's JSON reply)
@@ -35,7 +35,7 @@ Imports: `import qs.<dir>` from the config root. Singletons: `pragma Singleton`
    `BarPopup` with `ipcTarget`, `function openPopup()` (for the Folder).
 4. Popup — root `KitFrame`; reads the service, calls its functions.
 5. Register: `BarLayout.modules` (id, label, zone, icon, about, settings) and a
-   `Component` in `bar/ModuleFaces.qml` (every bar makes its own set). A
+   `Component` in `bar/ModuleFaces.qml` (every screen's bar makes its own set). A
    renamed id goes to `BarLayout.renamed`.
 6. Its id in `modules` of a component in `components.toml` (`quickshell` for
    core ones): a module whose components are all off is "not installed".
@@ -99,8 +99,7 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   default lives in the module.
 - Applied at once, except pickers with a preview (Apply) and fields (Enter).
 - A right click on a bar module opens its options page (Bar › Settings on right
-  click, `openSettings` of `bar/Bar.qml` and `bar/ExtraBar.qml`): a module
-  needs no code for it.
+  click, `bar/Bar.qml` `openSettings`): a module needs no code for it.
 
 ## Work
 

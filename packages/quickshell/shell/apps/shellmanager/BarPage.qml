@@ -27,7 +27,7 @@ Column {
     { key: "layout",  label: "Layout",  y: root.barId === "main" && root.barOn ? mainBar.y + layoutGroup.y : -2 }
   ].filter(j => j.y > -2)
 
-  // the bar set up below: "main" or an extra bar's id
+  // the bar set up below: "main" or a child bar's id
   property string barId: "main"
 
   readonly property string focusId: chips.dragId !== "" ? chips.dragId : chips.hoverId
@@ -79,7 +79,7 @@ Column {
   spacing: Theme.gapGroup
 
   // ---- bars ----
-  // the main bar and the extra ones; the page below sets up the one picked
+  // the main bar and its child bars; the page below sets up the one picked
   KitLabel { id: barsGroup; text: "BARS"; value: (1 + BarLayout.bars.length) + " IN ALL" }
 
   Item {
@@ -90,7 +90,7 @@ Column {
       anchors { left: parent.left; right: addButton.left; rightMargin: Theme.gapSmall }
       stretch: true
       model: [{ label: "Main", value: "main", icon: "layout" }].concat(BarLayout.bars.map((b, i) => ({
-        label: "Bar " + (i + 2) + " · " + b.edge, value: b.id, icon: b.shape === "pill" ? "circle" : "app-window" })))
+        label: "Bar " + (i + 2) + " · " + b.side, value: b.id, icon: "circle" })))
       current: root.barId
       onPicked: value => root.barId = value
     }
@@ -258,7 +258,7 @@ Column {
     }
   }
 
-  ExtraBarOptions {
+  ChildBarOptions {
     visible: root.barId !== "main"
     width: parent.width
     barId: root.barId === "main" ? "" : root.barId

@@ -29,14 +29,6 @@ Scope {
     Bar {}
   }
 
-  // extra bars (Shell Manager › Bar › BARS): one window per bar and screen
-  Variants {
-    model: BarLayout.bars.reduce((all, b) => all.concat(Quickshell.screens
-      .filter(s => b.screen === "" || b.screen === s.name).map(s => ({ screen: s, config: b }))), [])
-
-    ExtraBar {}
-  }
-
   ShellManagerWindow {}
   TaskManagerWindow {}
   CleanerWindow {}

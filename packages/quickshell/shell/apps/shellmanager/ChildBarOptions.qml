@@ -4,9 +4,10 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Bar › one extra bar: where it sits (edge, shape, alignment, monitor) and its
-// modules — THIS BAR in order, and OTHERS (the main bar's, or another extra
-// bar's) to drag in from. Remove gives its modules back to the main bar.
+// Bar › one child bar: where it sits in the main bar's row (side, at the edge
+// or by the centre, monitor) and its modules — THIS BAR in order, and OTHERS
+// (the main bar's, or another child bar's) to drag in from. A module is in
+// one bar only. Remove gives its modules back to the main bar.
 Column {
   id: root
 
@@ -31,44 +32,34 @@ Column {
   spacing: Theme.gapGroup
 
   // ---- place ----
-  KitLabel { text: "PLACE"; value: ((root.config.edge ?? "") + " · " + (root.config.shape ?? "")).toUpperCase() }
+  KitLabel {
+    text: "PLACE"
+    value: ((root.config.side ?? "") + " · " + (root.config.place === "island" ? "by the centre" : "at the edge")).toUpperCase()
+  }
 
   KitRow {
     wide: true
-    label: "Edge"
-    hint: "Popups open away from it"
+    label: "Side"
+    hint: "Of the main bar's row"
 
     KitChoices {
       stretch: true
-      model: [{ label: "Top", value: "top" }, { label: "Bottom", value: "bottom" }]
-      current: root.config.edge ?? "bottom"
-      onPicked: value => root.set("edge", value)
+      model: [{ label: "Left", value: "left" }, { label: "Right", value: "right" }]
+      current: root.config.side ?? "right"
+      onPicked: value => root.set("side", value)
     }
   }
 
   KitRow {
     wide: true
-    label: "Shape"
-    hint: "Full width, or a floating pill"
+    label: "Place"
+    hint: Theme.island ? "Screen edge, or by the island" : "Screen edge, or by the centre"
 
     KitChoices {
       stretch: true
-      model: [{ label: "Strip", value: "strip" }, { label: "Pill", value: "pill" }]
-      current: root.config.shape ?? "pill"
-      onPicked: value => root.set("shape", value)
-    }
-  }
-
-  KitRow {
-    wide: true
-    label: "Align"
-    hint: "Where its modules sit"
-
-    KitChoices {
-      stretch: true
-      model: [{ label: "Start", value: "start" }, { label: "Center", value: "center" }, { label: "End", value: "end" }]
-      current: root.config.align ?? "center"
-      onPicked: value => root.set("align", value)
+      model: [{ label: "Edge", value: "edge" }, { label: "Centre", value: "island" }]
+      current: root.config.place ?? "edge"
+      onPicked: value => root.set("place", value)
     }
   }
 

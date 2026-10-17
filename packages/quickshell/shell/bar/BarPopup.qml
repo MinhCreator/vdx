@@ -52,14 +52,12 @@ PopupWindow {
     anchor.updateAnchor();
   }
 
-  // the island style's main bar takes the content into the island; an extra
-  // bar at the bottom opens its popups upwards
+  // the island style takes the content into the island
   readonly property bool inIsland: Theme.island && !!root.bar.islandItem
-  readonly property bool up: root.bar.atBottom === true
 
   anchor.window: root.bar
-  anchor.edges: (up ? Edges.Top : Edges.Bottom) | (alignLeft ? Edges.Left : Edges.Right)
-  anchor.gravity: (up ? Edges.Top : Edges.Bottom) | (alignLeft ? Edges.Right : Edges.Left)
+  anchor.edges: Edges.Bottom | (alignLeft ? Edges.Left : Edges.Right)
+  anchor.gravity: Edges.Bottom | (alignLeft ? Edges.Right : Edges.Left)
 
   // Bar x of the popup's corner, fixed while it is open (-1: closed).
   property real anchorX: -1
@@ -74,8 +72,7 @@ PopupWindow {
       root.anchorX = Math.round(p.x) - 1;
     }
     anchor.rect.x = root.anchorX;
-    const edge = root.bar.popupEdge ?? Theme.barEdge;
-    anchor.rect.y = root.up ? edge - Theme.popupGap : edge - 1;
+    anchor.rect.y = Theme.barEdge - 1;
     anchor.rect.width = 1;
     anchor.rect.height = 1 + Theme.popupGap;
   }
@@ -138,10 +135,10 @@ PopupWindow {
   property int revealWait: 0
 
   property Translate slideIn: Translate {
-    y: Motion.popupStyle === "slide" ? (root.up ? 14 : -14) * (1 - root.reveal) : 0
+    y: Motion.popupStyle === "slide" ? -14 * (1 - root.reveal) : 0
   }
   property Scale growIn: Scale {
-    origin.y: root.up ? root.height : 0
+    origin.y: 0
     origin.x: root.alignLeft ? 0 : root.width
     yScale: Motion.popupStyle === "grow" ? 0.9 + 0.1 * root.reveal : 1
     xScale: Motion.popupStyle === "grow" ? 0.97 + 0.03 * root.reveal : 1
@@ -199,7 +196,7 @@ PopupWindow {
     id: underline
     parent: root.bar.contentItem
     visible: active && !PopupManager.frozen && !root.inIsland
-    y: root.bar.underlineY ?? Theme.barEdge - height
+    y: Theme.barEdge - height
     height: 2
     color: root.tintOf(root.anchorItem) ?? Theme.foreground0
 

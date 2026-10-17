@@ -208,12 +208,13 @@ Singleton {
   function islandReset(screen) { update(screen, { island: null }); }
   function islandCopy(from, to) { update(to, { island: islandLayout(from) }); }
 
-  // ---- extra bars ----
-  // Bars besides the main one (Shell Manager › Bar › BARS): each on an edge
-  // (top | bottom), a strip or a pill (aligned start | center | end), on one
-  // monitor or all ("" ), with its own modules in order. A module given to an
-  // extra bar leaves the main bar and the island on every monitor.
-  readonly property var bars: (state.bars ?? []).map(b => Object.assign({ edge: "bottom", shape: "pill", align: "center",
+  // ---- child bars ----
+  // Small bars that belong to the main one (Shell Manager › Bar › BARS): in
+  // its row, on a side (left | right), at the screen's edge or beside the
+  // island / the centre (place: edge | island), on one monitor or all (""),
+  // with their own modules in order. A module is in one bar only: given to a
+  // child bar it leaves the main bar and the island on every monitor.
+  readonly property var bars: (state.bars ?? []).map(b => Object.assign({ side: "right", place: "edge",
                                                                           screen: "", modules: [] }, b))
   readonly property var takenIds: bars.reduce((all, b) => all.concat(b.modules), [])
   function taken(id) { return takenIds.includes(id); }
@@ -225,7 +226,7 @@ Singleton {
 
   function addBar() {
     const id = "bar" + Date.now().toString(36);
-    state.bars = (state.bars ?? []).concat([{ id: id, edge: "bottom", shape: "pill", align: "center", screen: "", modules: [] }]);
+    state.bars = (state.bars ?? []).concat([{ id: id, side: "right", place: "edge", screen: "", modules: [] }]);
     return id;
   }
   function updateBar(id, change) {
@@ -233,7 +234,7 @@ Singleton {
   }
   function removeBar(id) { state.bars = bars.filter(b => b.id !== id); }
 
-  // a module into an extra bar at `index` (out of any other), or back to the
+  // a module into a child bar at `index` (out of any other), or back to the
   // main bar (barId "")
   function moveToBar(moduleId, barId, index) {
     state.bars = bars.map(b => {
@@ -290,7 +291,7 @@ Singleton {
       property var hidden: []
       property var screens: ({})      // role (main | extra) -> {zones, hidden, folder, off, island}
       property bool shared: false
-      property var bars: []           // extra bars: [{id, edge, shape, align, screen, modules}]
+      property var bars: []           // child bars: [{id, side, place, screen, modules}]
     }
   }
 }

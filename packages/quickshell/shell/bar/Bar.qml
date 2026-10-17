@@ -100,29 +100,133 @@ PanelWindow {
     item: root.islandItem && !root.islandItem.hidden ? root.islandItem.shape : null
 
     Region { item: root.islandItem?.bubble ?? null }
+    Region { item: edgeLeft }
+    Region { item: edgeRight }
+    Region { item: besideLeft }
+    Region { item: besideRight }
+  }
+
+  // ---- child bars ----
+  // BarLayout.bars in this bar's row: a side (left | right) at the screen's
+  // edge or beside the centre (the island, the centre zone). Island style: a
+  // pill each, framed like the island; solid: a raised group in the strip.
+  component ChildGroup: Row {
+    id: group
+
+    property string side
+    property string place
+
+    readonly property real band: Theme.island ? Theme.islandHeight : Theme.barHeight - 8
+
+    y: Theme.island ? Theme.islandTop : Math.round((Theme.barHeight - band) / 2)
+    spacing: Theme.gapMedium
+
+    Repeater {
+      model: BarLayout.barsOn(root.modelData.name).filter(b => b.side === group.side && b.place === group.place
+                                                                && BarLayout.barModules(b.id).length > 0)
+
+      Rectangle {
+        id: pill
+        required property var modelData
+
+        width: kids.width + 2 * (Theme.island ? Theme.gapGroup : Theme.gapLoose)
+        height: group.band
+        radius: Theme.island ? Math.min(height / 2, Theme.islandRadius) : Theme.radiusControl
+        color: Theme.island ? Theme.background0 : Theme.background1
+        border.width: Theme.island ? Theme.islandFrameWidth : 0
+        border.color: Theme.background2
+
+        Row {
+          id: kids
+          anchors.centerIn: parent
+          spacing: Theme.moduleSpacing
+
+          Repeater {
+            model: BarLayout.barModules(pill.modelData.id)
+
+            Row {
+              required property string modelData
+              required property int index
+
+              spacing: Theme.moduleSpacing
+
+              Separator {
+                anchors.verticalCenter: parent.verticalCenter
+                visible: index > 0
+              }
+
+              Item {
+                anchors.verticalCenter: parent.verticalCenter
+                width: slot.width
+                height: slot.height
+
+                Loader {
+                  id: slot
+                  sourceComponent: root.modules[modelData] ?? null
+                }
+
+                TapHandler {
+                  acceptedButtons: Qt.RightButton
+                  enabled: ShellSettings.barRightSettings
+                  onTapped: root.openSettings(modelData)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // the centre the "beside" groups hold on to, and the gap they keep
+  readonly property real centreX: Theme.island ? islandLoader.x : centerZone.x
+  readonly property real centreWidth: Theme.island ? islandLoader.width : centerZone.width
+  readonly property real childGap: Theme.gapMedium
+  // the island's back bubble takes room on its left while a module is open
+  readonly property real bubbleRoom: (root.islandItem?.bubble?.reveal ?? 0) * (Theme.islandHeight + Theme.gapMedium)
+
+  ChildGroup {
+    id: edgeLeft
+    side: "left"; place: "edge"
+    x: Theme.island ? Theme.islandTop * 2 : leftZone.x + leftZone.width + (leftZone.width > 0 ? root.childGap : 0)
+  }
+  ChildGroup {
+    id: edgeRight
+    side: "right"; place: "edge"
+    x: Theme.island ? root.width - width - Theme.islandTop * 2
+                    : rightZone.x - width - (rightZone.width > 0 ? root.childGap : 0)
+  }
+  ChildGroup {
+    id: besideLeft
+    side: "left"; place: "island"
+    x: root.centreX - width - root.childGap - root.bubbleRoom
+  }
+  ChildGroup {
+    id: besideRight
+    side: "right"; place: "island"
+    x: root.centreX + root.centreWidth + root.childGap
   }
 
   Zone {
+    id: leftZone
     name: "left"
     modules: root.modules
     anchors { left: parent.left; leftMargin: Theme.edgeMargin; verticalCenter: parent.verticalCenter }
   }
 
   Zone {
+    id: centerZone
     name: "center"
     modules: root.modules
     anchors.centerIn: parent
   }
 
   Zone {
+    id: rightZone
     name: "right"
     modules: root.modules
     anchors { right: parent.right; rightMargin: Theme.edgeMargin; verticalCenter: parent.verticalCenter }
   }
-
-  // for BarPopup: popups open under the bar's edge
-  readonly property int popupEdge: Theme.barEdge
-  readonly property bool atBottom: false
 
   // island style: the Island; BarPopup opens a module's popup in it
   readonly property Item islandItem: islandLoader.item
