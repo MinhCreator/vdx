@@ -13,7 +13,7 @@ KitFrame {
 
   // ---- header ----
   KitHeader {
-    icon: "vpn-key"
+    icon: "public"
     iconColor: MihomoService.serviceOn ? Theme.foreground0 : Theme.muted
     title: "Mihomo"
     subtitle: MihomoService.serviceOn

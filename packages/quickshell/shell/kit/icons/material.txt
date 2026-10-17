@@ -79,7 +79,7 @@ trash delete
 video videocam
 volume volume_up
 volume-x volume_off
-vpn-key vpn_key
+public public
 wifi wifi
 wifi-off wifi_off
 x close

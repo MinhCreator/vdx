@@ -26,7 +26,7 @@ Item {
 
   KitBarItem {
     id: label
-    icon: "vpn-key"
+    icon: "public"
     text: BarLayout.faceText("mihomo", MihomoService.serviceOn && MihomoService.current !== "" ? root.shortCurrent() : "--")
     tint: MihomoService.serviceOn ? Theme.accentFor("modules", Theme.green) : Theme.gray
   }

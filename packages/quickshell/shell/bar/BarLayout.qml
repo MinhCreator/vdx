@@ -26,7 +26,7 @@ Singleton {
     { id: "brightness",    label: "Brightness",    zone: "right",  icon: "sun", settings: "BrightnessSettings.qml", about: "Backlight, dimming, night light" },
     { id: "audio",         label: "Audio",         zone: "right",  icon: "volume", settings: "AudioSettings.qml", about: "Devices, volumes, app streams" },
     { id: "wifi",          label: "Wi-Fi",         zone: "right",  icon: "wifi", settings: "WifiSettings.qml", about: "Networks, DNS, speed test" },
-    { id: "mihomo",        label: "Mihomo",        zone: "right",  icon: "vpn-key", settings: "MihomoSettings.qml", about: "Proxy service and servers" },
+    { id: "mihomo",        label: "Mihomo",        zone: "right",  icon: "public", settings: "MihomoSettings.qml", about: "Proxy service and servers" },
     { id: "battery",       label: "Battery",       zone: "right",  icon: "battery-full", settings: "BatterySettings.qml", about: "Charge, limit, power profile, GPU" },
     { id: "language",      label: "Language",      zone: "right",  icon: "keyboard", settings: "LanguageSettings.qml", about: "Keyboard layout" },
     { id: "ai",            label: "AI",            zone: "right",  icon: "bot", settings: "AiSettings.qml", about: "Claude Code limits, local Ollama models" },
