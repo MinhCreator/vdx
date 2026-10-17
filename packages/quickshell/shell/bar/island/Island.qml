@@ -306,6 +306,7 @@ Item {
     height: Theme.islandHeight
     radius: Math.min(height / 2, Theme.islandRadius)
     color: backArea.containsMouse ? Theme.background1 : Theme.background0
+    Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
     border.width: Theme.islandFrameWidth
     border.color: Theme.background2
     visible: reveal > 0

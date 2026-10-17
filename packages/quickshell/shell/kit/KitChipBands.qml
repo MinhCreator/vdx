@@ -28,6 +28,12 @@ Column {
   property string hoverId: ""
   readonly property int chipHeight: 28
 
+  // bands and chips already on show: one that is new (a band added, a chip moved
+  // into a band) fades in. `scope` (a monitor) starts it afresh.
+  property string scope: ""
+  property KitSeen seen: KitSeen {}
+  onScopeChanged: seen.reset()
+
   signal dropped(string id, string zone, int index)
 
   // where the pointer would drop: the band under y, then the chip slot in reading
@@ -81,6 +87,11 @@ Column {
       width: board.width
       height: area.height + 12 + lead
 
+      property real grown: 1
+      opacity: grown
+      NumberAnimation { id: bandIn; target: band; property: "grown"; from: 0; to: 1; duration: Motion.normal; easing.type: Motion.easing }
+      Component.onCompleted: if (board.seen.arrived(zone)) bandIn.start()
+
       Rectangle {
         visible: band.lead > 0
         y: band.lead / 2
@@ -93,6 +104,7 @@ Column {
         y: band.lead + 8 + (board.chipHeight - height) / 2
         text: board.zoneLabel(band.zone) + " · " + band.ids.length
         color: band.target ? Theme.foreground0 : Theme.muted
+        Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
         font.pixelSize: Theme.fontSize - 2
         font.letterSpacing: 1
       }
@@ -105,7 +117,8 @@ Column {
         width: parent.width - x
         height: Math.max(board.chipHeight, flow.implicitHeight)
         radius: Theme.radiusCard
-        color: band.target ? Theme.background1 : "transparent"
+        color: band.target ? Theme.background1 : Theme.clear
+        Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
         Flow {
           id: flow
@@ -126,7 +139,14 @@ Column {
               height: board.chipHeight
               radius: Theme.radiusControl
               color: chipArea.containsMouse && board.dragId === "" ? Theme.background3 : Theme.background1
-              opacity: board.dragId === modelData ? 0.25 : 1
+              property real grown: 1
+              property real dim: board.dragId === modelData ? 0.25 : 1
+              Behavior on dim { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
+              Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+              opacity: dim * grown
+              scale: 0.85 + 0.15 * grown
+              NumberAnimation { id: chipIn; target: chip; property: "grown"; from: 0; to: 1; duration: Motion.normal; easing.type: Motion.easing }
+              Component.onCompleted: if (board.seen.arrived(band.zone + "/" + modelData)) chipIn.start()
 
               Row {
                 id: chipRow

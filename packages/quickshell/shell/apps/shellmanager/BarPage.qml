@@ -13,7 +13,7 @@ import qs.kit
 // page decides what each drop means. Island style: the main bar's bands are the
 // island's — LEFT and RIGHT beside the clock in the resting pill, HUB for the
 // chips when it opens.
-Column {
+KitColumn {
   id: root
 
   // the window's fixed header shows these; the page under it scrolls
@@ -297,6 +297,7 @@ Column {
   KitChipBands {
     id: chips
     visible: root.barOn
+    scope: root.screenName
     width: parent.width
     zones: root.columnZones
     idsOf: zone => root.ids(zone)

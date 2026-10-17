@@ -92,7 +92,8 @@ PanelWindow {
 
         width: Math.min(220, 40 + label.implicitWidth)
         height: parent.height
-        color: current ? Theme.background3 : area.containsMouse ? Theme.background1 : "transparent"
+        color: current ? Theme.background3 : area.containsMouse ? Theme.background1 : Theme.clear
+        Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
         // the active one's mark along the bottom, as under an open bar module
         Rectangle {

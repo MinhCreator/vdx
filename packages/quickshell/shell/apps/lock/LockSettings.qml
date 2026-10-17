@@ -8,7 +8,7 @@ import qs.kit
 // the monitors it shows on; then the controls on it: the keyboard layout, the
 // power buttons and the cursor that hides after a few still seconds (apps/lock
 // reads them).
-Column {
+KitColumn {
   id: root
 
   function opt(key, fallback) { return ModuleSettings.get("lock", key, fallback); }

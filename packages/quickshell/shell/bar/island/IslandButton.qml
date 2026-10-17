@@ -16,7 +16,7 @@ Rectangle {
   implicitWidth: iconSize + 14
   implicitHeight: iconSize + 14
   radius: Theme.round ? width / 2 : 0
-  color: !group && area.containsMouse ? Theme.background1 : "transparent"
+  color: !group && area.containsMouse ? Theme.background1 : Theme.clear
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
   KitIcon {

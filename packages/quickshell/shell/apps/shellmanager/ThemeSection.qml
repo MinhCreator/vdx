@@ -198,7 +198,8 @@ Column {
 
                 width: options.width
                 height: 32
-                color: active ? Theme.background3 : itemArea.containsMouse ? Theme.background1 : "transparent"
+                color: active ? Theme.background3 : itemArea.containsMouse ? Theme.controlHover : Theme.clear
+                Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
                 // the theme's own surface, text and accents
                 Row {
@@ -228,6 +229,7 @@ Column {
                   text: item.modelData
                   elide: Text.ElideRight
                   color: item.active || itemArea.containsMouse ? Theme.foreground0 : Theme.foreground2
+                  Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
                   font.weight: item.active ? Font.ExtraBold : Font.DemiBold
                 }
 

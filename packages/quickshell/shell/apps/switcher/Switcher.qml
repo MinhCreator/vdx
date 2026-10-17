@@ -140,9 +140,11 @@ ScrimWindow {
 
           width: root.cellWidth
           height: root.thumbHeight + 32
-          color: current ? Theme.background3 : area.containsMouse ? Theme.background1 : "transparent"
+          color: current ? Theme.background3 : area.containsMouse ? Theme.background1 : Theme.clear
+          Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
           border.width: Theme.frameWidth
           border.color: current ? Theme.foreground0 : Theme.gray
+          Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
           Item {
             width: parent.width

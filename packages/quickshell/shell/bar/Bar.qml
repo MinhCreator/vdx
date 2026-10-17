@@ -110,6 +110,9 @@ PanelWindow {
   }
 
   // ---- child bars ----
+  // the child bars already on show, by spot: one that is new there (its first
+  // module, a drop on another spot) grows in
+  property KitSeen childSeen: KitSeen { motion: Theme.island ? Motion.island : Motion.bar }
   // BarLayout.barsOn this screen, in this bar's row: a side (left | right) at the screen's
   // edge or beside the centre (the island, the centre zone). Island style: an
   // island each (IslandChild), framed like the island; solid: a raised group in the strip.
@@ -129,8 +132,15 @@ PanelWindow {
                                                                 && BarLayout.barModules(root.modelData.name, b.id).length > 0)
 
       IslandChild {
+        id: child
         bar: root
         band: group.band
+
+        property real grown: 1
+        opacity: grown
+        scale: 0.8 + 0.2 * grown
+        NumberAnimation { id: growIn; target: child; property: "grown"; from: 0; to: 1; duration: Motion.normal; easing.type: Motion.easing }
+        Component.onCompleted: if (root.childSeen.arrived(child.modelData.id + "/" + group.side + "/" + group.place)) growIn.start()
       }
     }
   }

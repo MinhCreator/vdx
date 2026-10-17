@@ -19,6 +19,7 @@ ClippingRectangle {
   color: Theme.background1
   border.width: active || area.containsMouse ? 2 : 1
   border.color: active || area.containsMouse ? Theme.foreground2 : Theme.background3
+  Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
   Image {
     anchors { fill: parent; margins: root.border.width }

@@ -23,6 +23,7 @@ Rectangle {
   implicitHeight: 32
   radius: Theme.radiusControl
   color: Theme.material ? (textInput.activeFocus || hover.hovered ? Theme.controlHover : Theme.controlFill) : "transparent"
+  Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
   border.width: Theme.frameWidth
   border.color: textInput.activeFocus || hover.hovered ? Theme.foreground2 : Theme.gray
   Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }

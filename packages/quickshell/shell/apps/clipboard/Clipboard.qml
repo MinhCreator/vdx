@@ -8,6 +8,8 @@ import qs.kit
 // it (the limit: Shell Manager › Shell apps › Clipboard).
 KitFrame {
   id: root
+  // rows already on show: a new one eases in (KitAppear)
+  property KitSeen seen: KitSeen {}
 
   property string query: ""
   property bool confirmClear: false
@@ -101,6 +103,9 @@ KitFrame {
           required property int index
 
           readonly property bool image: modelData.kind === "image"
+
+          // a new copy eases in
+          KitAppear { target: item; seen: root.seen; key: String(item.modelData.id) }
           readonly property bool hot: area.containsMouse || remove.containsMouse
 
           width: rows.width

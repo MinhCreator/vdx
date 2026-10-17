@@ -29,6 +29,7 @@ Grid {
       width: 24
       height: 9
       color: active ? Theme.foreground2 : area.containsMouse ? Theme.background3 : Theme.background1
+      Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
       border.width: Theme.frameWidth
       border.color: active ? Theme.foreground2 : Theme.gray
 

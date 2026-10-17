@@ -49,7 +49,8 @@ Rectangle {
 
           width: rows.width
           height: 32
-          color: active ? Theme.background3 : rowArea.containsMouse ? Theme.background1 : "transparent"
+          color: active ? Theme.background3 : rowArea.containsMouse ? Theme.controlHover : Theme.clear
+          Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
           KitText {
             anchors {

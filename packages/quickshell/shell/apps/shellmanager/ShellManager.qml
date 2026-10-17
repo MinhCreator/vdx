@@ -181,7 +181,7 @@ Rectangle {
             id: item
             width: parent.width
             height: 34
-            color: section.active ? Theme.background3 : itemArea.containsMouse ? Theme.background1 : "transparent"
+            color: section.active ? Theme.background3 : itemArea.containsMouse ? Theme.background1 : Theme.clear
             Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.quick } }
 
             KitIcon {
@@ -251,7 +251,8 @@ Rectangle {
 
                   width: subs.width
                   height: 26
-                  color: subArea.containsMouse ? Theme.background1 : "transparent"
+                  color: subArea.containsMouse ? Theme.background1 : Theme.clear
+                  Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
                   // where the page is, as a thin line beside the name
                   Rectangle {
@@ -266,6 +267,7 @@ Rectangle {
                     text: sub.modelData.label
                     elide: Text.ElideRight
                     color: sub.here || subArea.containsMouse ? Theme.foreground0 : Theme.muted
+                    Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
                     font.weight: sub.here ? Font.ExtraBold : Font.DemiBold
                     font.pixelSize: Theme.fontSize - 1
                   }

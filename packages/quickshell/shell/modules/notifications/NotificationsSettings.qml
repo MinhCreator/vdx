@@ -4,7 +4,7 @@ import qs.kit
 
 // Notifications options in the Shell Manager: the bar's unseen dot (BAR: on the
 // Folder, or the island's pill) and the popup (POPUP).
-Column {
+KitColumn {
   spacing: Theme.gapGroup
 
   KitLabel { text: "BAR" }

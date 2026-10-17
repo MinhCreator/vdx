@@ -103,7 +103,12 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 - Motion: every animation goes through `config/Motion.qml` — a Behavior takes
   `enabled: Motion.<part>` (popups, panels, controls, bar, pages, lock, island) and a
   duration from it (`quick`, `normal`, `slow`, `ms()`), easing `Motion.easing`;
-  set in Shell Manager › Animations.
+  set in Shell Manager › Animations. Rows that show and hide sit in a
+  `KitColumn` (KitFrame's column is one): they fade in, the rest glide. A
+  list's new row (a Repeater remakes them all): `KitAppear` keyed in the list's
+  `KitSeen`. A hover / selected fill fades (`Motion.controls`, `quick`) from
+  `Theme.clear`, never `"transparent"` (black: it flashes dark); rows in a
+  filled box hover with `Theme.controlHover`, the whole row lit, not the text.
 
 ## Settings
 

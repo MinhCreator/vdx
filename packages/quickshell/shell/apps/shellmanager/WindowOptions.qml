@@ -9,7 +9,7 @@ import qs.kit
 // screen, custom pixels) and Position (one of nine spots, at the cursor,
 // custom x, y). Choices apply at once, numbers on Enter; it shows the next
 // time the window opens.
-Column {
+KitColumn {
   id: root
 
   required property var app                 // ShellAppsService.windows entry

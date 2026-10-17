@@ -6,7 +6,7 @@ import qs.kit
 // the whole shell — popups, windows, controls, rows, the island, the icons (the
 // Rounded set). Round sets one radius on a ticked slider; smaller things take a
 // share of it (Theme). The group's label lives in AppearancePage.
-Column {
+KitColumn {
   id: root
 
   readonly property var stops: Theme.cornerStops

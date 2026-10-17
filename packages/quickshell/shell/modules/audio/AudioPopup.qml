@@ -7,6 +7,8 @@ import qs.kit
 // stream.
 KitFrame {
   id: root
+  // rows already on show: a new one eases in (KitAppear)
+  property KitSeen seen: KitSeen {}
 
   readonly property bool headphones: AudioService.headphones
 
@@ -112,7 +114,7 @@ KitFrame {
           height: parent.height
           color: root.micLevel > 0.92 ? Theme.red : root.micLevel > 0.75 ? Theme.yellow : Theme.green
 
-          Behavior on width { NumberAnimation { duration: 60 } }
+          Behavior on width { enabled: Motion.controls; NumberAnimation { duration: 60 } }
         }
       }
     }
@@ -138,7 +140,11 @@ KitFrame {
       model: AudioService.streams
 
       Column {
+        id: stream
         required property var modelData
+
+        // an app that starts playing eases in
+        KitAppear { target: stream; seen: root.seen; key: String(stream.modelData.id) }
 
         width: parent.width
         spacing: Theme.gapTight

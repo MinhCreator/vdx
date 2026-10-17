@@ -83,6 +83,9 @@ QtObject {
   // ---- popups (kit) ----
   // the dimmed screen under the launcher, the keybinds and the overview
   readonly property color scrim: Qt.rgba(background0.r, background0.g, background0.b, 0.7)
+  // no fill, in the hover's colour: a fade to or from it never passes through
+  // black ("transparent" is a black with no alpha)
+  readonly property color clear: Qt.rgba(controlHover.r, controlHover.g, controlHover.b, 0)
 
   // the spacing scale: between the items of a column, in px
   readonly property int gapTight: 2

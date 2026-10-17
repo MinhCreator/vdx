@@ -7,7 +7,7 @@ import qs.modules.windows
 // (tiling, floating, scrolling), the options of the current one, the gaps,
 // frames and shadows, and FLOATING: the switcher and the taskbar, which only
 // the floating mode has. Applied at once: Hyprland reloads.
-Column {
+KitColumn {
   id: root
 
   readonly property var ws: WindowsService

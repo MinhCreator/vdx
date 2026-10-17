@@ -129,7 +129,7 @@ Column {
   Repeater {
     model: [
       { key: "motionPanels",   label: "Panels",      hint: "Launcher, keybinds, overview zoom in" },
-      { key: "motionControls", label: "Controls",    hint: "Hovers, switches, lists, level bars" },
+      { key: "motionControls", label: "Controls",    hint: "Hovers, switches, rows, level bars" },
       { key: "motionBar",      label: "Bar",         hint: "Workspaces and colours" },
       { key: "motionPages",    label: "Pages",       hint: "This window's pages and sidebar" },
       { key: "motionIsland",   label: "Island",      hint: "Morphs between its views" },

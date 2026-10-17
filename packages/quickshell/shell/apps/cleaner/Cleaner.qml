@@ -11,6 +11,8 @@ import qs.kit
 //   contents), each with why and its size; picked ones go to the Trash.
 Rectangle {
   id: root
+  // rows already on show: a new one eases in (KitAppear)
+  property KitSeen seen: KitSeen {}
 
   color: Theme.background0
 
@@ -167,7 +169,11 @@ Rectangle {
         model: root.cs.suggestions
 
         KitRow {
+          id: tip
           required property var modelData
+
+          // the AI's suggestions ease in as they come
+          KitAppear { target: tip; seen: root.seen; key: tip.modelData.path }
 
           label: modelData.path
           hint: modelData.why + " · " + modelData.days + " days old"

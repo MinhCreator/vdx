@@ -8,6 +8,8 @@ KitFrame {
   id: root
 
   readonly property var items: NotificationsService.items
+  // a notification that comes in while it is open eases in
+  property KitSeen seen: KitSeen {}
   readonly property int fresh: items.filter(n => NotificationsService.isFresh(n)).length
 
   signal closeRequested()
@@ -87,6 +89,8 @@ KitFrame {
           required property int index
 
           readonly property bool fresh: NotificationsService.isFresh(modelData)
+
+          KitAppear { target: item; seen: root.seen; key: item.modelData.key }
 
           width: rows.width
           spacing: 3

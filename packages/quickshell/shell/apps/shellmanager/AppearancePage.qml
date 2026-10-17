@@ -6,7 +6,7 @@ import qs.kit
 // live preview, the wallpaper, the system font and the cursor, one section each
 // (ThemeSection … CursorSection), then the STYLE group: icons, corners and
 // controls (IconsSection, CornersSection, ControlsSection) under one label.
-Column {
+KitColumn {
   id: root
 
   // the theme shown in the preview; Apply makes it the active one

@@ -96,7 +96,8 @@ Column {
 
           width: rows.width
           height: root.rowHeight
-          color: current ? Theme.background3 : hover.hovered ? Theme.background1 : "transparent"
+          color: current ? Theme.background3 : hover.hovered ? Theme.background1 : Theme.clear
+          Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
           HoverHandler { id: hover }
 
@@ -106,6 +107,7 @@ Column {
             width: 32
             text: row.modelData.pos
             color: row.current ? Theme.foreground0 : Theme.gray
+            Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
             font.pixelSize: Theme.fontSize - 2
           }
 
@@ -122,6 +124,7 @@ Column {
               text: row.modelData.title
               elide: Text.ElideRight
               color: row.current || hover.hovered ? Theme.foreground0 : Theme.foreground2
+              Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
               font.weight: row.current ? Font.ExtraBold : Font.DemiBold
               font.pixelSize: Theme.fontSize - 1
             }

@@ -5,7 +5,7 @@ import qs.kit
 // Audio options in the Shell Manager: the bar's volume, then the music that
 // AudioPause.qml pauses while another app plays sound (the shell's own
 // options, kept in ShellSettings).
-Column {
+KitColumn {
   spacing: Theme.gapGroup
 
   KitLabel { text: "BAR" }

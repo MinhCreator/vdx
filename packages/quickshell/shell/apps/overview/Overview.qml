@@ -179,6 +179,7 @@ ScrimWindow {
               color: Theme.background2
               border.width: Theme.frameWidth / root.zoom
               border.color: hover.containsMouse ? Theme.foreground0 : Theme.gray
+              Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
               Drag.active: hover.drag.active
               Drag.source: win
               Drag.hotSpot.x: width / 2

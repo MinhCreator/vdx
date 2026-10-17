@@ -26,7 +26,7 @@ Rectangle {
   border.width: framed && !inIsland ? Theme.windowFrameWidth : 0
   border.color: Theme.popupFrame
 
-  Column {
+  KitColumn {
     id: column
     x: root.padding
     y: root.padding - root.headerInset

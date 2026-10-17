@@ -156,12 +156,14 @@ Column {
             width: options.width
             height: 28
             radius: Math.max(0, Theme.radiusControl - 2)
-            color: active ? Theme.background3 : optionArea.containsMouse ? Theme.controlHover : "transparent"
+            color: active ? Theme.background3 : optionArea.containsMouse ? Theme.controlHover : Theme.clear
+            Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
             KitText {
               anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               text: option.modelData.label
               color: option.active || optionArea.containsMouse ? Theme.foreground0 : Theme.foreground2
+              Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
               font.weight: option.active ? Font.ExtraBold : Font.DemiBold
             }
 

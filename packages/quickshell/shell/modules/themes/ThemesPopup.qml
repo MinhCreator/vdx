@@ -177,7 +177,8 @@ KitFrame {
       width: rows.width
       height: 32
       radius: Theme.radiusControl
-      color: picked ? Theme.background3 : area.containsMouse ? Theme.background1 : "transparent"
+      color: picked ? Theme.background3 : area.containsMouse ? Theme.background1 : Theme.clear
+      Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
       // the palette on the theme's own background
       Rectangle {
@@ -213,6 +214,7 @@ KitFrame {
         anchors { left: palette.right; leftMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
         text: row.modelData
         color: row.picked || area.containsMouse ? Theme.foreground0 : Theme.foreground2
+        Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
         font.weight: row.picked ? Font.ExtraBold : Theme.fontWeight
       }
 

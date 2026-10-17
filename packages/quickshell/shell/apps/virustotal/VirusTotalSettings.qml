@@ -5,7 +5,7 @@ import qs.config
 // VirusTotal options in the Shell Manager (ModuleSettings "virustotal"): what
 // the window remembers, how long a lookup waits, and what Report does. The
 // bar module's own row is VirusTotalBarSettings (Shell apps › BAR).
-Column {
+KitColumn {
   spacing: Theme.gapGroup
 
   KitLabel { text: "HISTORY" }

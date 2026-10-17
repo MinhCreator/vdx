@@ -78,7 +78,8 @@ Column {
 
             width: rows.width
             height: 32
-            color: active ? Theme.background3 : rowArea.containsMouse ? Theme.background1 : "transparent"
+            color: active ? Theme.background3 : rowArea.containsMouse ? Theme.controlHover : Theme.clear
+            Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
             KitIcon {
               id: rowIcon
@@ -93,6 +94,7 @@ Column {
               text: row.modelData.label
               elide: Text.ElideRight
               color: row.active || rowArea.containsMouse ? Theme.foreground0 : row.modelData.link || row.modelData.off ? Theme.muted : Theme.foreground2
+              Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
               font.weight: row.active ? Font.ExtraBold : Font.DemiBold
             }
 

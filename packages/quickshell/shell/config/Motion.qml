@@ -9,11 +9,12 @@ import Quickshell
 // part off) snaps in place.
 //   popups   — a bar popup coming in: fade, slide down from the bar, grow
 //   panels   — the launcher, keybinds, switcher, overview: dim and zoom in
-//   controls — hover fades, switch knobs, select chevrons, level bars
+//   controls — hover fades, switch knobs, select chevrons, level bars, rows
+//              easing in and gliding (kit/KitColumn: popups, option pages)
 //   bar      — workspaces changing, the popup underline
 //   pages    — the Shell Manager's pages and sidebar
 //   lock     — the lock screen coming in, a shake on a wrong password
-//   island   — the island (Bar › Style island) morphing between its views
+//   island   — the island (Bar › Look › Shape island) morphing between its views
 Singleton {
   readonly property bool on: ShellSettings.motion
   // slow stretches every duration, fast shortens it

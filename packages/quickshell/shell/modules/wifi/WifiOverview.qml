@@ -7,6 +7,8 @@ import qs.kit
 // signal, traffic, DNS), nearby networks, and actions in the footer.
 Column {
   id: root
+  // rows already on show: a new one eases in (KitAppear)
+  property KitSeen seen: KitSeen {}
 
   readonly property var active: WifiService.networks.find(n => n.ssid === WifiService.ssid) ?? null
   readonly property int signal: active ? active.signal : 0
@@ -152,7 +154,12 @@ Column {
 
         Repeater {
           model: WifiService.networks
-          NetworkRow { width: rows.width }
+          // a network found by a scan eases in
+          NetworkRow {
+            id: net
+            width: rows.width
+            KitAppear { target: net; seen: root.seen; key: net.modelData.ssid }
+          }
         }
       }
     }

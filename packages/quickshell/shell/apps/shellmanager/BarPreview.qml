@@ -17,6 +17,11 @@ Rectangle {
 
   property string screenName
 
+  // child bars already on show, by spot: one that is new there (added, or
+  // dropped on another spot) grows in
+  property KitSeen seen: KitSeen {}
+  onScreenNameChanged: seen.reset()
+
   readonly property int iconStep: 24          // a 14px icon and its gap
   readonly property var children: BarLayout.barsOn(screenName)
   readonly property var center: BarLayout.visibleIn("center", screenName)
@@ -98,6 +103,8 @@ Rectangle {
     property bool adds: false                  // ends in the empty bar that adds one
     spacing: 4
     anchors.verticalCenter: parent.verticalCenter
+    // the groups make room for a bar that comes or goes
+    Behavior on x { enabled: Motion.controls && root.seen.ready; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
 
     Repeater {
       id: minis
@@ -113,7 +120,17 @@ Rectangle {
         height: root.pillHeight
         radius: Theme.island ? Math.min(height / 2, Theme.islandRadius) : Theme.radiusControl
         color: area.containsMouse || root.dragId === bar.id ? Theme.background3 : Theme.background2
-        opacity: root.dragId === bar.id ? 0.35 : 1
+        Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+        // grown: 0 → 1 as it comes in; dim: lifted while it is dragged
+        property real grown: 1
+        property real dim: root.dragId === bar.id ? 0.35 : 1
+        Behavior on dim { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
+        Behavior on width { enabled: Motion.controls && root.seen.ready; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
+        opacity: dim * grown
+        scale: 0.7 + 0.3 * grown
+
+        NumberAnimation { id: growIn; target: mini; property: "grown"; from: 0; to: 1; duration: Motion.normal; easing.type: Motion.easing }
+        Component.onCompleted: if (root.seen.arrived(bar.id + "/" + bar.side + "/" + bar.place)) growIn.start()
 
         BarPreviewIcons {
           id: miniIcons
@@ -160,6 +177,7 @@ Rectangle {
           height: 18
           radius: Theme.pill(height)
           color: closeArea.containsMouse ? Theme.red : Theme.background3
+          Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
           border.width: Theme.islandFrameWidth
           border.color: Theme.background0
 
@@ -184,12 +202,15 @@ Rectangle {
     // a bar still to come, where a new one lands: a click adds it
     Rectangle {
       // one empty child bar at a time: fill it first
-      visible: group.adds && root.dragId === "" && !root.children.some(b => BarLayout.barModules(root.screenName, b.id).length === 0)
+      readonly property bool wanted: group.adds && root.dragId === "" && !root.children.some(b => BarLayout.barModules(root.screenName, b.id).length === 0)
+      opacity: wanted ? 1 : 0
+      visible: opacity > 0
+      Behavior on opacity { enabled: Motion.controls && root.seen.ready; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
       anchors.verticalCenter: parent.verticalCenter
       width: addIcon.width + 2 * Theme.gapMedium + 8
       height: root.pillHeight
       radius: Theme.island ? Math.min(height / 2, Theme.islandRadius) : Theme.radiusControl
-      color: addArea.containsMouse ? Theme.background2 : "transparent"
+      color: addArea.containsMouse ? Theme.background2 : Theme.clear
       border.width: Theme.islandFrameWidth
       border.color: addArea.containsMouse ? Theme.foreground2 : Theme.background3
       Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
@@ -249,6 +270,7 @@ Rectangle {
   Rectangle {
     visible: root.dragId !== "" && root.target >= 0
     x: root.target >= 0 ? root.spots[root.target].x - width / 2 : 0
+    Behavior on x { enabled: Motion.controls && root.dragId !== ""; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
     anchors.verticalCenter: parent.verticalCenter
     width: 2
     height: root.pillHeight
@@ -265,6 +287,7 @@ Rectangle {
     border.width: root.target < 0 ? Theme.islandFrameWidth : 0
     border.color: Theme.red
     opacity: root.target < 0 ? 0.6 : 1
+    Behavior on opacity { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
 
     BarPreviewIcons {
       anchors.centerIn: parent

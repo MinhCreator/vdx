@@ -81,13 +81,15 @@ KitFrame {
 
             width: stations.width
             height: 30
-            color: current ? Theme.background3 : area.containsMouse ? Theme.background1 : "transparent"
+            color: current ? Theme.background3 : area.containsMouse ? Theme.background1 : Theme.clear
+            Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
             KitText {
               anchors { left: parent.left; leftMargin: Theme.gapLoose; right: mark.left; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
               text: station.modelData.name
               elide: Text.ElideRight
               color: station.current || area.containsMouse ? Theme.foreground0 : Theme.foreground2
+              Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
               font.weight: station.current ? Font.ExtraBold : Font.DemiBold
             }
 

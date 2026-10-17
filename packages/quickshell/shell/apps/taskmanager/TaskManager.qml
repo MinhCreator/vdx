@@ -178,7 +178,8 @@ Rectangle {
 
       width: list.width
       height: 30
-      color: active ? Theme.background3 : rowArea.containsMouse ? Theme.background1 : "transparent"
+      color: active ? Theme.background3 : rowArea.containsMouse ? Theme.background1 : Theme.clear
+      Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
       KitText {
         anchors { left: parent.left; leftMargin: Theme.gapLoose; right: userText.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }

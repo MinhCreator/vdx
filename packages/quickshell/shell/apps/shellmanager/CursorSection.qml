@@ -4,7 +4,7 @@ import qs.kit
 
 // Appearance › CURSOR: the selected cursor's shapes in the chosen colour
 // beside the list, its colour and size.
-Column {
+KitColumn {
   id: root
 
   // short names: "Bibata-Modern-Classic" reads "Bibata Classic", "phinger-cursors-dark" "phinger dark"

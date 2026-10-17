@@ -3,7 +3,7 @@ import qs.config
 import qs.kit
 
 // Music options in the Shell Manager.
-Column {
+KitColumn {
   spacing: Theme.gapGroup
 
   // the old "Off" length (0) was the icon alone: it is Shows › Icon now

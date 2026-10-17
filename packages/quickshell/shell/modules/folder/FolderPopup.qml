@@ -50,6 +50,7 @@ KitFrame {
         width: (root.width - 2 * root.padding - 2 * 6) / 3   // three to a row, 6 between
         height: 58
         color: tileArea.containsMouse ? Theme.background3 : Theme.background1
+        Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
         Column {
           anchors.centerIn: parent

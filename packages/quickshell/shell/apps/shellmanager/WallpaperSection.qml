@@ -5,7 +5,7 @@ import qs.kit
 
 // Appearance › WALLPAPER: the theme's colour, a picture per theme from
 // ~/.dotfiles/wallpapers or a colour of your own.
-Column {
+KitColumn {
   id: root
 
   required property Item page               // AppearancePage: the wallpaper shown

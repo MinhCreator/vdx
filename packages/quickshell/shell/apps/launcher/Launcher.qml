@@ -136,7 +136,8 @@ ScrimWindow {
 
             width: list.width
             height: 44
-            color: selected ? Theme.background3 : "transparent"
+            color: selected ? Theme.background3 : Theme.clear
+            Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
             IconImage {
               id: image
