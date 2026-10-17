@@ -20,6 +20,8 @@ KitFrame {
 
   readonly property string viewOption: ModuleSettings.get("wallpapers", "view", "auto")
   readonly property bool cards: viewOption === "cards" || (viewOption === "auto" && inIsland)
+  // the cards alone in the island go bare (no header, no footer); the list keeps its frame
+  readonly property bool bare: inIsland && cards
   readonly property bool wheel: ModuleSettings.get("wallpapers", "wheel", true)
 
   // the pick: an index in `matches`
@@ -62,7 +64,7 @@ KitFrame {
 
   // ---- header (the strip's popup) ----
   KitHeader {
-    visible: !root.inIsland
+    visible: !root.bare
     icon: "image"
     title: "Wallpapers"
     subtitle: (WallpaperService.inUse.split("/").pop() || "—").toUpperCase() + " · " + WallpaperService.pictures.length + " PICTURES"
@@ -84,7 +86,7 @@ KitFrame {
     }
   }
 
-  KitLine { visible: !root.inIsland }
+  KitLine { visible: !root.bare }
 
   KitInput {
     id: search
@@ -253,10 +255,10 @@ KitFrame {
   }
 
   // ---- footer (the strip's popup) ----
-  KitLine { visible: !root.inIsland }
+  KitLine { visible: !root.bare }
 
   KitText {
-    visible: !root.inIsland
+    visible: !root.bare
     text: (root.cards ? "← →" : "↑ ↓") + " pick · enter set · esc close"
     color: Theme.muted
     font.pixelSize: Theme.fontSize - 2
