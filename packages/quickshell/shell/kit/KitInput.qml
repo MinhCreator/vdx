@@ -11,6 +11,9 @@ Rectangle {
   property alias text: textInput.text
   property alias input: textInput
   property alias echoMode: textInput.echoMode
+  // a masked field stands in the middle by default (lock screen, Wi-Fi); a prompt that
+  // reads like a line (polkit) turns it off and the squares start after the prompt
+  property bool centerMasked: true
 
   // keys the field hands on instead of using (a list's arrows): keyPassed(key)
   property var passKeys: []
@@ -42,10 +45,11 @@ Rectangle {
     id: textInput
     // a password stands in the middle of the field: the right margin matches the prompt's side
     readonly property bool masked: echoMode === TextInput.Password
-    anchors { left: Theme.material ? parent.left : prompt.right; leftMargin: Theme.material ? Theme.gapWide : Theme.gapMedium; right: parent.right; rightMargin: masked ? prompt.width + 18 : 10; top: parent.top; bottom: parent.bottom }
+    readonly property bool centred: masked && root.centerMasked
+    anchors { left: Theme.material ? parent.left : prompt.right; leftMargin: Theme.material ? Theme.gapWide : Theme.gapMedium; right: parent.right; rightMargin: centred ? prompt.width + 18 : 10; top: parent.top; bottom: parent.bottom }
     verticalAlignment: TextInput.AlignVCenter
-    horizontalAlignment: masked ? TextInput.AlignHCenter : TextInput.AlignLeft
-    leftPadding: masked ? font.letterSpacing : 0   // the spacing trails every square, the last one too
+    horizontalAlignment: centred ? TextInput.AlignHCenter : TextInput.AlignLeft
+    leftPadding: centred ? font.letterSpacing : 0   // the spacing trails every square, the last one too
     color: Theme.foreground0
     clip: true
     selectByMouse: true

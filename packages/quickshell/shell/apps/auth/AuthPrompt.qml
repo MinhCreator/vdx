@@ -142,6 +142,7 @@ Scope {
           width: parent.width
           placeholder: root.ours ? "your password, to run it" : (root.flow?.inputPrompt ?? "Password").replace(/:\s*$/, "").toLowerCase()
           echoMode: root.flow?.responseVisible ? TextInput.Normal : TextInput.Password
+          centerMasked: false
           onAccepted: root.submit()
           Keys.onEscapePressed: root.cancel()
         }
