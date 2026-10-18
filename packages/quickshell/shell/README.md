@@ -103,7 +103,8 @@ Workspaces, Dropdowns, Window border, all off until switched on. A gradient runs
 Hyprland's focused frame: `hypr/components/appearance.lua` reads
 `~/.local/state/dotfiles/accent.lua`, written by `AccentService.qml`. APPLIES TO › Bar modules
 paints the active state of every bar module with the accent (off: each module's own colour, and
-its colour options show a note instead). Wallpaper and cursor colours use the same field and picker.
+its colour options show a note instead). The wallpaper's custom colour is the same field and picker, with the
+same palette dots (Appearance › Wallpaper › Colour); the cursor's is a plain colour row.
 
 ## Corners
 

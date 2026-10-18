@@ -3,28 +3,28 @@ import Qt.labs.folderlistmodel
 import qs.apps.files
 import qs.config
 import qs.kit
+import "../../kit/colour.js" as Colour
 
 // Appearance › WALLPAPER: the theme's colour, a picture per theme from
-// ~/.dotfiles/wallpapers or a colour of your own.
+// ~/.dotfiles/wallpapers or a colour of your own (the accent's field and picker).
 KitColumn {
   id: root
 
   required property Item page               // AppearancePage: the wallpaper shown
 
   property string imageDraft: ""
-  property string draft: ShellSettings.wallpaperColor
+  property bool pickerOpen: false
 
-  function setWallpaper(value) {
-    const hex = value.trim().replace(/^#?/, "#").toLowerCase();
-    ShellSettings.set("wallpaperColor", hex);
-    ShellSettings.set("wallpaperMode", "custom");
-    draft = hex;
-  }
+  // the custom colour's palette: the dots of the picker, as the accent's
+  readonly property var palette: ["red", "orange", "yellow", "green", "aqua", "blue", "purple"]
+  function colourOf(name) { return Theme.accentColour(name); }
+  function hexOf(name) { return Colour.hexOfColour(colourOf(name)); }
+  // the palette name in use, "" for a colour of your own
+  readonly property string pickedName: palette.filter(n => hexOf(n) === ShellSettings.wallpaperColor)[0] ?? ""
 
   spacing: Theme.gapGroup
 
   KitLabel {
-    id: wallpaperGroup
     text: "WALLPAPER"
     value: page.currentImage !== "" ? page.currentImage.split("/").pop().toUpperCase()
                                     : String(page.wallpaper).toUpperCase()
@@ -50,12 +50,33 @@ KitColumn {
     }
   }
 
-  // ---- custom: a colour of your own ----
-  ColourRow {
+  // ---- custom: a colour of your own, typed (live, Enter not needed) or picked from the palette ----
+  KitRow {
     visible: page.customWallpaper
-    value: root.draft
-    onEdited: text => root.draft = text
-    onAccepted: colour => root.setWallpaper(colour)
+    wide: true
+    label: "Colour"
+    hint: root.pickedName !== "" ? root.pickedName.charAt(0).toUpperCase() + root.pickedName.slice(1) : "Custom"
+
+    KitColourField {
+      value: ShellSettings.wallpaperColor
+      placeholder: "#32302f"
+      live: true
+      open: root.pickerOpen
+      onAccepted: colour => ShellSettings.set("wallpaperColor", colour)
+      onChipClicked: root.pickerOpen = !root.pickerOpen
+    }
+  }
+
+  KitColourPicker {
+    visible: page.customWallpaper && root.pickerOpen
+    width: parent.width
+    colour: ShellSettings.wallpaperColor
+    palette: root.palette
+    picked: root.pickedName
+    colours: name => [root.colourOf(name), root.colourOf(name)]
+    onMoved: hex => ShellSettings.set("wallpaperColor", hex)
+    onReleased: hex => ShellSettings.set("wallpaperColor", hex)
+    onChosen: name => ShellSettings.set("wallpaperColor", root.hexOf(name))
   }
 
   // ---- image: the active theme's folder first, then the shared one ----

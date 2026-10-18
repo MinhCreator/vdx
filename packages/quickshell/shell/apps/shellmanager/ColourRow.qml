@@ -2,10 +2,10 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// A colour setting, one control wherever a colour is typed or picked (wallpaper,
-// cursor, accent): a colour field (chip, hex, chevron), and under it, when open,
-// the picker (palette dots, saturation and brightness, hue). `open` is toggled
-// by the chip or the chevron; `chipClicked` lets the owner close the others.
+// A colour setting, one control wherever a colour is typed or picked (cursor): a
+// colour field (chip, hex, chevron), and under it, when open, the picker
+// (palette dots, saturation and brightness, hue). `open` is toggled by the chip
+// or the chevron; `chipClicked` lets the owner close the others.
 // `live`: every valid typed or dragged colour is handed over at once.
 KitRow {
   id: root
