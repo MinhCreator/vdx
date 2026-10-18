@@ -19,13 +19,12 @@ Scope {
   readonly property string key: image !== "" ? image : hex
 
   function apply() {
-    // a picture that is gone falls back to the colour
-    const set = image === "" ? "awww clear " + hex
-      : "awww img --transition-type fade --transition-duration 0.6 \"" + WallpaperService.dir + "/"
-        + image.replace(/"/g, "") + "\" 2>/dev/null || awww clear " + hex;
+    // $1 is the picture ("" for the colour), $2 the colour; a picture that is gone
+    // falls back to it. A file name never reaches the shell as code.
+    const script = 'set_bg() { if [ -n "$1" ]; then awww img --transition-type fade --transition-duration 0.6 "$1" 2>/dev/null || awww clear "$2"; else awww clear "$2"; fi; }; '
+      + 'for i in $(seq 1 25); do awww query >/dev/null 2>&1 && { set_bg "$1" "$2"; exit 0; }; sleep 0.4; done; exit 1';
     proc.running = false;
-    proc.command = ["bash", "-c",
-      "for i in $(seq 1 25); do awww query >/dev/null 2>&1 && { " + set + "; exit 0; }; sleep 0.4; done; exit 1"];
+    proc.command = ["bash", "-c", script, "bash", image === "" ? "" : WallpaperService.dir + "/" + image, hex];
     proc.running = true;
   }
 
