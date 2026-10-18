@@ -116,6 +116,7 @@ Rectangle {
         hint: "Uploads the file, up to 32 MB"
 
         KitButton {
+          width: Theme.buttonWidth
           anchors.verticalCenter: parent.verticalCenter
           icon: "download"
           text: "Upload"
@@ -211,6 +212,7 @@ Rectangle {
             hint: root.vs.verdictWord(modelData.verdict)
 
             KitButton {
+              width: Theme.buttonWidth
               anchors.verticalCenter: parent.verticalCenter
               text: "Scan"
               onClicked: { field.text = modelData.target; root.go(); }

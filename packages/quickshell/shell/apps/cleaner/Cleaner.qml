@@ -150,6 +150,7 @@ Rectangle {
         hint: "With " + root.cs.model + ", about 15 seconds"
 
         KitButton {
+          width: Theme.buttonWidth
           icon: "bot"
           text: root.cs.suggestions.length > 0 ? "Again" : "Analyse"
           busy: root.cs.analyzing

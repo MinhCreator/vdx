@@ -18,7 +18,8 @@ Rectangle {
 
   signal clicked()
 
-  implicitWidth: content.implicitWidth + (text !== "" ? 24 : 14)
+  // an icon alone is a square of the control height
+  implicitWidth: text !== "" ? content.implicitWidth + 24 : Theme.controlHeight
   implicitHeight: Theme.controlHeight
   radius: Theme.radiusControl
   color: selected ? Theme.background3 : hovered ? Theme.controlHover : Theme.controlFill

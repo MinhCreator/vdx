@@ -79,6 +79,7 @@ KitColumn {
     hint: "Locks the screen now"
 
     KitButton {
+      width: Theme.buttonWidth
       icon: "lock"
       text: "Lock"
       onClicked: Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "lock", "lock"])

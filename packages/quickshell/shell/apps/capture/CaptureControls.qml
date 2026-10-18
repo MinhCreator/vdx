@@ -40,6 +40,7 @@ Column {
     hint: "Stop to save it"
 
     KitButton {
+      width: Theme.buttonWidth
       icon: "square"
       text: "Stop"
       iconTint: Theme.red

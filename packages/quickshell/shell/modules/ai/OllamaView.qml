@@ -88,6 +88,7 @@ Column {
     hint: "Model for the nvim coach"
 
     KitButton {
+      width: Theme.buttonWidth
       icon: "download"
       text: "Pull"
       busy: OllamaService.busy === OllamaService.coachModel

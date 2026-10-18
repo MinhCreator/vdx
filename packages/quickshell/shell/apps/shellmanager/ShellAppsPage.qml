@@ -185,6 +185,7 @@ Column {
                   + " · " + ShellAppsService.placeName(root.window.settings)
 
             KitButton {
+              width: Theme.buttonWidth
               icon: "app-window"
               text: "Set up"
               onClicked: root.windowSetup(root.window.id)
@@ -223,6 +224,7 @@ Column {
             hint: "Dragged on the Bar page"
 
             KitButton {
+              width: Theme.buttonWidth
               icon: "layout"
               text: "Arrange"
               onClicked: root.navigate("bar", "layout")

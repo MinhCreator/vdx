@@ -92,6 +92,7 @@ Column {
     hint: "Made for his own laptop, shared as it is"
 
     KitButton {
+      width: Theme.buttonWidth
       icon: "external"
       text: "GitHub"
       onClicked: Qt.openUrlExternally("https://github.com/diominvd/dotfiles")
@@ -114,6 +115,7 @@ Column {
     hint: "Kills Quickshell and starts it anew"
 
     KitButton {
+      width: Theme.buttonWidth
       icon: "refresh"
       text: "Restart"
       onClicked: Quickshell.execDetached(["sh", "-c",

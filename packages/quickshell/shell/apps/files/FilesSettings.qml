@@ -209,7 +209,7 @@ KitColumn {
     hint: "480 to 1400 px"
 
     KitInput {
-      width: 120
+      width: Theme.buttonWidth
       text: FilesService.pickerWidth + ""
       onAccepted: {
         const v = parseInt(text);
@@ -226,7 +226,7 @@ KitColumn {
     hint: "360 to 1000 px"
 
     KitInput {
-      width: 120
+      width: Theme.buttonWidth
       text: FilesService.pickerHeight + ""
       onAccepted: {
         const v = parseInt(text);

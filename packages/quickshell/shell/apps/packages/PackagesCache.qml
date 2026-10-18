@@ -27,6 +27,7 @@ Column {
     hint: "From " + (page.ps.lastUpdate?.date ?? "").slice(0, 16).replace("T", " ")
 
     KitButton {
+      width: Theme.buttonWidth
       anchors.verticalCenter: parent.verticalCenter
       icon: "rotate-ccw"
       text: "Roll back"
@@ -98,6 +99,7 @@ Column {
       }
 
       KitButton {
+        width: Theme.buttonWidth
         anchors.verticalCenter: parent.verticalCenter
         icon: "rotate-ccw"
         text: "Roll back"
