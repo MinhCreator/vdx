@@ -114,6 +114,7 @@ Singleton {
 
   // ---- listing ----
   property var entries: []           // the folder (or the trash), as the backend reads it
+  readonly property int pollMs: 1000 // the shown folder is read again this often: new and gone files show at once
   property var listing: ({})         // the last reading of each folder, by path: shown again at once
   property bool loading: false       // a folder never read yet: nothing is shown until it is
   property var results: []           // a search in the folder
@@ -552,6 +553,15 @@ Singleton {
     onTriggered: root.refreshDevices()
   }
 
+  // the folder shown is read again while it is open (a search has its own reading)
+  Timer {
+    id: watchTimer
+    interval: root.pollMs
+    repeat: true
+    running: root.active && root.path !== "" && !root.searching
+    onTriggered: root.refresh()
+  }
+
   // ---- the picker, asked for by the file-chooser portal ----
   // {id, mode: open|save, title, multiple, directory, filter: [patterns], folder, name}
   property var picker: null
@@ -634,6 +644,8 @@ Singleton {
         if (!o.ok) { root.error = o.error; return; }
         root.error = "";
         root.listing[listProc.asked] = o.entries;
+        // a poll that finds the same folder changes nothing: the rows keep their hover and selection
+        if (root.pendingReveal === "" && JSON.stringify(o.entries) === JSON.stringify(root.entries)) return;
         root.entries = o.entries;
         if (root.pendingReveal !== "" && o.entries.some(e => e.path === root.pendingReveal)) {
           root.selection = [root.pendingReveal];

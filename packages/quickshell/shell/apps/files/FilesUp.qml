@@ -2,9 +2,9 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// ".." — the first row of a folder's list or grid, the way up. A click (or a
-// double click) goes to the folder above; it is gone where there is none, and
-// while a search runs.
+// ".." — the first row of a folder's list or grid, the way up. A double click
+// goes to the folder above (a single click only selects nothing); it is gone
+// where there is none, and while a search runs.
 Rectangle {
   id: root
 
@@ -38,6 +38,6 @@ Rectangle {
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
     enabled: root.active
-    onClicked: FilesService.up()
+    onDoubleClicked: FilesService.up()
   }
 }
