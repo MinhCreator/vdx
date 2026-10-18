@@ -1,5 +1,6 @@
 import QtQuick
 import Qt.labs.folderlistmodel
+import qs.apps.files
 import qs.config
 import qs.kit
 
@@ -121,11 +122,20 @@ KitColumn {
       spacing: Theme.gapMedium
 
       KitInput {
-        width: parent.width - addImage.width - parent.spacing
+        width: parent.width - chooseImage.width - addImage.width - 2 * parent.spacing
         placeholder: "~/Pictures/wall.jpg"
         text: root.imageDraft
         onTextEdited: root.imageDraft = text
         onAccepted: WallpaperService.add(root.imageDraft, ThemeService.current)
+      }
+
+      KitButton {
+        id: chooseImage
+        icon: "folder"
+        text: "Choose…"
+        disabled: WallpaperService.busy
+        onClicked: FilesService.pick("Pick the wallpaper", FilesService.home + "/Pictures", false, ["image/*"],
+                                     p => { if (p !== "") root.imageDraft = p; })
       }
 
       KitButton {

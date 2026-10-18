@@ -41,6 +41,8 @@ FloatingWindow {
   Connections {
     target: FilesService
     function onPickerDone() { root.visible = false; }
+    // a setting of the shell asks for a folder: the window comes up as the picker
+    function onPickRequested() { root.visible = true; }
     // a request while the browser is already up does not show the window again: the size is set here too
     function onPickerChanged() {
       if (FilesService.picker) Qt.callLater(() => root.resizeTo(FilesService.pickerDims[0], FilesService.pickerDims[1]));

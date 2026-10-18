@@ -1,4 +1,5 @@
 import QtQuick
+import qs.apps.files
 import qs.config
 import qs.kit
 
@@ -296,13 +297,28 @@ Item {
         }
       }
 
-      KitInput {
-        placeholder: "/an/absolute/path · Enter adds it"
-        onAccepted: {
-          const path = text.trim();
-          if (path === "") return;
-          bs.setConfig({ "extra": root.extra.concat([path]) });
-          text = "";
+      Row {
+        width: parent.width
+        spacing: Theme.gapMedium
+
+        KitInput {
+          width: parent.width - chooseExtra.width - parent.spacing
+          placeholder: "/an/absolute/path · Enter adds it"
+          onAccepted: {
+            const path = text.trim();
+            if (path === "") return;
+            bs.setConfig({ "extra": root.extra.concat([path]) });
+            text = "";
+          }
+        }
+
+        KitButton {
+          id: chooseExtra
+          icon: "folder"
+          text: "Choose…"
+          disabled: bs.busy
+          onClicked: FilesService.pickFolder("Back up this folder", FilesService.home,
+                                             p => { if (p !== "") bs.setConfig({ "extra": root.extra.concat([p]) }); })
         }
       }
 

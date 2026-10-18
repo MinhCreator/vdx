@@ -1,4 +1,5 @@
 import QtQuick
+import qs.apps.files
 import qs.config
 import qs.kit
 
@@ -110,9 +111,22 @@ Column {
       hint: "Enter applies; empty: default"
       wide: true
 
-      KitInput {
-        text: modelData.value
-        onAccepted: ModuleSettings.set("capture", modelData.key, text.trim().replace(/\/+$/, ""))
+      Row {
+        spacing: Theme.gapMedium
+
+        KitInput {
+          width: parent.width - chooseDir.width - parent.spacing
+          text: modelData.value
+          onAccepted: ModuleSettings.set("capture", modelData.key, text.trim().replace(/\/+$/, ""))
+        }
+
+        KitButton {
+          id: chooseDir
+          icon: "folder"
+          text: "Choose…"
+          onClicked: FilesService.pickFolder(modelData.label + " folder", modelData.value,
+                                             p => { if (p !== "") ModuleSettings.set("capture", modelData.key, p); })
+        }
       }
     }
   }

@@ -64,7 +64,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | VirusTotal | — | `virustotal toggle` |
 | Clipboard | — | `clipboard toggle` |
 | Backups | — | `backup toggle\|open\|close` (bar module `backup`: last backup, Back up, the restore guide); the terminal: `backup status\|run\|snapshots\|restore\|guide …` (`scripts/backup.py`, restic) |
-| Files | Super+E | `files toggle\|open\|close`, `files go\|reveal\|inspect\|select\|duplicates <path>`, `files choose <json>` (the portal's picker); F1 lists the keys; Ctrl+G list, grid, columns; Ctrl+T terminal here; F2 on several files renames them by a pattern |
+| Files | Super+E | `files toggle\|open\|close`, `files go\|reveal\|inspect\|select\|duplicates <path>`, `files choose <json>` (the portal's picker; a setting's Choose… opens the same picker); F1 lists the keys; Ctrl+G list, grid, columns; Ctrl+T terminal here; F2 on several files renames them by a pattern |
 | Keybinds | Super+B | `keybinds toggle\|open\|close` |
 | Window switcher | Super+Tab (floating mode) | `switcher toggle\|open\|close` |
 | Overview | — | `overview toggle` |

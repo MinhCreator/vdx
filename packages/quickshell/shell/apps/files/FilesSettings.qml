@@ -148,14 +148,27 @@ KitColumn {
     }
   }
 
-  // the fixed folder: a path, or ~ for home; Enter keeps it
-  KitInput {
+  // the fixed folder: a path, or ~ for home; Enter keeps it; Choose… picks it in the window
+  Row {
     visible: FilesService.startMode === "fixed"
-    text: FilesService.startPath
-    placeholder: "~/Documents"
-    onAccepted: {
-      const typed = text.trim();
-      if (typed.startsWith("/") || typed === "~" || typed.startsWith("~/")) FilesService.setOption("startPath", typed);
+    width: parent.width
+    spacing: Theme.gapMedium
+
+    KitInput {
+      width: parent.width - chooseStart.width - parent.spacing
+      text: FilesService.startPath
+      placeholder: "~/Documents"
+      onAccepted: {
+        const typed = text.trim();
+        if (typed.startsWith("/") || typed === "~" || typed.startsWith("~/")) FilesService.setOption("startPath", typed);
+      }
+    }
+
+    KitButton {
+      id: chooseStart
+      icon: "folder"
+      text: "Choose…"
+      onClicked: FilesService.pickFolder("Open at this folder", FilesService.startFolder(), p => { if (p !== "") FilesService.setOption("startPath", p); })
     }
   }
 

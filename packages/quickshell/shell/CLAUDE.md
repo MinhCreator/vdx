@@ -90,8 +90,9 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   { wide: true }`; a size judged by eye with a live result (gaps, radius,
   shares, blur) → `KitSliderRow`, value on the right, snapped to its step; a
   list over 5 or one that changes (monitors, models, tabs) → `KitSelect`; an
-  exact number, text or path → `KitInput` (Enter); a long list to preview →
-  `PickList` + Apply. A slider of 3–4 stops is chips.
+  exact number or text → `KitInput` (Enter); a folder or file → `KitInput` + a
+  `Choose…` button (`FilesService.pickFolder` / `pick`, the Files window's
+  picker); a long list to preview → `PickList` + Apply. A slider of 3–4 stops is chips.
 - Wording: visibility toggles `Show …` (hint `Off: icon only`); `Close after …`
   / `Close when its window opens`; `Opens on`; `<Things> shown`. Off / None is
   the first chip; time units in each chip (`5 s`, `30 min`). British spelling.

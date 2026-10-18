@@ -562,36 +562,53 @@ Singleton {
     onTriggered: root.refresh()
   }
 
-  // ---- the picker, asked for by the file-chooser portal ----
-  // {id, mode: open|save, title, multiple, directory, filter: [patterns], folder, name}
+  // ---- the picker: asked for by the file-chooser portal, or by a setting of the shell ----
+  // {id, mode: open|save, title, multiple, directory, filter: [patterns], folder, name, onPick}
+  // id is the portal's request ("" for the shell's own); onPick(path) is the shell's answer ("" when cancelled)
   property var picker: null
   property string pickerReturn: ""
   signal pickerDone()
+  signal pickRequested()
 
   // the shell's IPC: the portal's request as JSON
   function choose(json) {
     const r = parse(json);
     if (!r.id) return;
-    if (picker) finishPick([], 1);
-    pickerReturn = path || home;
-    picker = {
+    begin({
       // the title comes from another program: plain text, a short one
       id: r.id, mode: r.mode, title: String(r.title || "").replace(/<[^>]*>/g, "").slice(0, 80)
                                       || (r.mode === "save" ? "Save File" : r.directory ? "Select Folder" : "Open File"),
       multiple: !!r.multiple, directory: !!r.directory,
       filter: r.filters && r.filters.length > 0 ? r.filters[0].patterns : [],
       folder: r.folder, name: r.name || ""
-    };
-    selection = [];
-    anchor = "";
-    if (r.folder === path) refresh();
-    else go(r.folder);
+    }, null);
   }
 
-  // the answer goes to the portal; the window gives way to what it was showing
+  // a folder (or a file, of the filter's patterns) for a setting of the shell ("Choose…"): the window
+  // shows the picker and onPick gets the path
+  function pick(title, start, directory, filter, onPick) {
+    begin({ id: "", mode: "open", title: title, multiple: false, directory: directory, filter: filter, folder: start || home, name: "" }, onPick);
+    pickRequested();
+  }
+  function pickFolder(title, start, onPick) { pick(title, start, true, [], onPick); }
+
+  function begin(request, onPick) {
+    if (picker) finishPick([], 1);
+    pickerReturn = path || home;
+    request.onPick = onPick;
+    picker = request;
+    selection = [];
+    anchor = "";
+    if (request.folder === path) refresh();
+    else go(request.folder);
+  }
+
+  // the answer goes to the portal (or to the shell's caller); the window gives way to what it was showing
   function finishPick(paths, response) {
     if (!picker) return;
-    run(answerProc, ["answer", picker.id, JSON.stringify({ response: response, paths: paths })], "");
+    const asked = picker;
+    if (asked.onPick) asked.onPick(response === 0 && paths.length > 0 ? paths[0] : "");
+    else run(answerProc, ["answer", asked.id, JSON.stringify({ response: response, paths: paths })], "");
     picker = null;
     go(pickerReturn);
     pickerDone();
