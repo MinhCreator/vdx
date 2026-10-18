@@ -12,6 +12,7 @@ Singleton {
 
   // ---- tuning ----
   readonly property int statusPollMs: 5000
+  readonly property int changeMs: 500         // the least gap between two re-reads on events
   readonly property int pingPollMs: 3000
   readonly property int trafficRestartMs: 2000
   readonly property int speedtestTimeoutMs: 60000
@@ -90,6 +91,72 @@ Singleton {
 
   function showSpeedtest() {
     view = "speedtest";
+    measure();
+  }
+
+  // ---- Network settings ----
+  property var saved: []                       // see wifi.sh --saved
+  property var details: null                   // see wifi.sh --details
+  property string saveError: ""
+  property string hiddenError: ""
+  property bool hiddenBusy: false
+
+  function refreshSaved() { if (radioOn) savedProc.running = true; }
+  function refreshDetails() { if (connected) detailsProc.running = true; }
+
+  function setSaved(uuid, key, value, extra) {
+    saveError = "";
+    run(setSavedProc, ["--set", uuid, key, value, extra ?? ""]);
+  }
+
+  // ---- Ethernet and the hotspot ----
+  property var ethernet: null                  // see wifi.sh --ethernet
+  property string ethernetError: ""
+  property bool ethernetBusy: false
+  property var hotspot: null                   // see wifi.sh --hotspot
+  property string hotspotError: ""
+  property bool hotspotBusy: false
+
+  function refreshEthernet() { ethernetProc.running = true; }
+  function refreshHotspot() { hotspotProc.running = true; }
+
+  function setEthernet(on) {
+    if (ethernetBusy) return;
+    ethernetBusy = true;
+    ethernetError = "";
+    run(ethernetActionProc, ["--ethernet", on ? "on" : "off"]);
+  }
+
+  function setHotspot(on) {
+    if (hotspotBusy) return;
+    hotspotBusy = true;
+    hotspotError = "";
+    run(hotspotActionProc, ["--hotspot-switch", on ? "on" : "off"]);
+  }
+
+  // one hotspot setting; a password goes through $WIFI_PASS
+  function setHotspotSetting(key, value) {
+    if (hotspotBusy) return;
+    hotspotBusy = true;
+    hotspotError = "";
+    hotspotActionProc.environment = { WIFI_PASS: key === "password" ? value : "" };
+    run(hotspotActionProc, ["--hotspot-set", key, key === "password" ? "" : value]);
+  }
+
+  function disconnectNetwork() {
+    if (!connected) return;
+    run(disconnectProc, ["--disconnect"]);
+  }
+
+  function connectHidden(name, pw) {
+    if (hiddenBusy || name === "") return;
+    hiddenBusy = true;
+    hiddenError = "";
+    hiddenProc.environment = { WIFI_PASS: pw };
+    run(hiddenProc, ["--hidden", name]);
+  }
+
+  function measure() {
     speedtest = null;
     speedtestError = "";
     speedtestBusy = true;
@@ -149,6 +216,9 @@ Singleton {
     refreshStatus();
     refreshNetworks();
     refreshDns();
+    refreshDetails();
+    refreshEthernet();
+    refreshHotspot();
   }
 
   function refreshStatus() { statusProc.running = true; }
@@ -169,7 +239,43 @@ Singleton {
     speedtestTimeout.stop();
   }
 
+  // ---- events ----
+  // NetworkManager reports each change (a link up or down, an access point seen):
+  // the first one re-reads at once, the ones after it in changeMs come as one more.
+  property bool changePending: false
+
+  function changed() {
+    if (changeTimer.running) { changePending = true; return; }
+    refresh();
+    changeTimer.restart();
+  }
+
+  Process {
+    id: listenProc
+    command: ["bash", root.script, "--listen"]
+    running: true
+    stdout: SplitParser { onRead: root.changed() }
+    onExited: listenRestart.restart()
+  }
+
+  Timer {
+    id: listenRestart
+    interval: 3000
+    onTriggered: listenProc.running = true
+  }
+
+  Timer {
+    id: changeTimer
+    interval: root.changeMs
+    onTriggered: if (root.changePending) {
+      root.changePending = false;
+      root.refresh();
+      changeTimer.restart();
+    }
+  }
+
   // ---- polling ----
+  // the fallback when no event comes: the status every statusPollMs
   Timer {
     interval: root.statusPollMs
     running: true
@@ -321,6 +427,105 @@ Singleton {
         const o = root.parse(text);
         root.pingMs = o?.ok ? o.ping : 0;
         root.packetLoss = o?.ok ? o.loss : 0;
+      }
+    }
+  }
+
+  Process {
+    id: savedProc
+    command: ["bash", root.script, "--saved"]
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const o = root.parse(text);
+        if (o?.ok) root.saved = o.saved;
+      }
+    }
+  }
+
+  Process {
+    id: detailsProc
+    command: ["bash", root.script, "--details"]
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const o = root.parse(text);
+        root.details = o?.ok ? o : null;
+      }
+    }
+  }
+
+  Process {
+    id: setSavedProc
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const o = root.parse(text);
+        root.saveError = o?.ok ? "" : (o?.error ?? "could not change the network");
+        root.refreshSaved();
+      }
+    }
+  }
+
+  Process {
+    id: disconnectProc
+    stdout: StdioCollector {
+      onStreamFinished: root.refresh()
+    }
+  }
+
+  Process {
+    id: hiddenProc
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const o = root.parse(text);
+        root.hiddenBusy = false;
+        root.hiddenError = o?.ok ? "" : (o?.error ?? "could not connect");
+        root.refresh();
+        root.refreshSaved();
+      }
+    }
+  }
+
+  Process {
+    id: ethernetProc
+    command: ["bash", root.script, "--ethernet"]
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const o = root.parse(text);
+        root.ethernet = o?.ok ? o : null;
+      }
+    }
+  }
+
+  Process {
+    id: ethernetActionProc
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const o = root.parse(text);
+        root.ethernetBusy = false;
+        root.ethernetError = o?.ok ? "" : (o?.error ?? "could not change the wired connection");
+        root.refreshEthernet();
+      }
+    }
+  }
+
+  Process {
+    id: hotspotProc
+    command: ["bash", root.script, "--hotspot"]
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const o = root.parse(text);
+        root.hotspot = o?.ok ? o : null;
+      }
+    }
+  }
+
+  Process {
+    id: hotspotActionProc
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const o = root.parse(text);
+        root.hotspotBusy = false;
+        root.hotspotError = o?.ok ? "" : (o?.error ?? "could not change the hotspot");
+        root.refreshHotspot();
       }
     }
   }

@@ -7,15 +7,18 @@ import qs.kit
 // on the left, the chosen page on the right under its fixed header, scrolling
 // on its own. Under the open section its groups (`jumps` of the page) jump
 // there on a click.
-// The sections come in three groups, by what the user is after:
+// The sections come in four groups, by what the user is after:
 //   LOOK     — how it looks and moves
 //     APPEARANCE — theme, accent, wallpaper, font, cursor, shape and controls;
 //     ANIMATIONS — how the shell moves: all on / off, speed, each part on its own.
 //   DESKTOP  — the desktop itself
 //     BAR        — the layout of the bar's zones, modules on / off.
 //     WINDOWS    — the window mode, each mode's options, gaps, the taskbar.
+//   SYSTEM   — the machine's connections
+//     NETWORK    — Wi-Fi, saved and new networks, hotspot, Ethernet.
+//     BLUETOOTH  — the adapter, paired and nearby devices.
 //   SHELL    — the shell's own apps and parts
-//     SHELL APPS — each app: its options, its window, its bar module; the launcher,
+//     APPS       — each app: its options, its window, its bar module; the launcher,
 //                  keybinds and lock screen are here too, and the Shell Manager's own opening.
 //     MODULES    — each bar module's own options (the music's pause is the audio's).
 //     ABOUT      — the ideas behind it, the author, versions.
@@ -40,6 +43,8 @@ Rectangle {
     { value: "animations", label: "Animations", icon: "zap" },
     { value: "bar",        label: "Bar",        icon: "layout",     caption: "DESKTOP" },
     { value: "windows",    label: "Windows",    icon: "app-window" },
+    { value: "network",    label: "Network",    icon: "wifi",       caption: "SYSTEM" },
+    { value: "bluetooth",  label: "Bluetooth",  icon: "bluetooth" },
     { value: "apps",       label: "Apps",       icon: "grid",       caption: "SHELL" },
     { value: "modules",    label: "Modules",    icon: "puzzle" },
     { value: "about",      label: "About",      icon: "info" }
@@ -70,7 +75,8 @@ Rectangle {
   }
 
   function pageFor(value) {
-    return ({ bar: bar, animations: animations, windows: windows, modules: modules, apps: apps, about: about })[value] ?? appearance;
+    return ({ bar: bar, animations: animations, windows: windows, network: network, bluetooth: bluetooth,
+              modules: modules, apps: apps, about: about })[value] ?? appearance;
   }
   readonly property Item currentPage: pageFor(tab)
 
@@ -332,8 +338,8 @@ Rectangle {
     NumberAnimation on contentY {
       id: scroll
       running: false
-      duration: 220
-      easing.type: Easing.OutCubic
+      duration: Motion.normal
+      easing.type: Motion.easing
     }
 
     // a new page comes in: a fade and a short move from the right
@@ -348,6 +354,8 @@ Rectangle {
                                animations.visible ? animations.implicitHeight : 0,
                                apps.visible ? apps.height : 0,
                                windows.visible ? windows.implicitHeight : 0,
+                               network.visible ? network.implicitHeight : 0,
+                               bluetooth.visible ? bluetooth.implicitHeight : 0,
                                about.visible ? about.implicitHeight : 0,
                                modules.visible ? modules.height : 0)
 
@@ -357,6 +365,8 @@ Rectangle {
       // fills the window and scrolls its two panes itself
       ShellAppsPage { id: apps;  width: parent.width; onNavigate: (t, k) => root.navigate(t, k); onWindowSetup: id => windowDialog.appId = id; height: page.height - pages.y - 20; visible: root.tab === "apps" }
       WindowsPage { id: windows; width: parent.width; visible: root.tab === "windows" }
+      NetworkPage   { id: network;   width: parent.width; visible: root.tab === "network" }
+      BluetoothPage { id: bluetooth; width: parent.width; visible: root.tab === "bluetooth" }
       AboutPage   { id: about;   width: parent.width; visible: root.tab === "about" }
       ModulesPage { id: modules; width: parent.width; onNavigate: (t, k) => root.navigate(t, k); height: page.height - pages.y - 20; visible: root.tab === "modules" }
     }

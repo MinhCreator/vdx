@@ -24,7 +24,7 @@ Item {
   KitBarItem {
     id: label
     icon: WifiService.radioOn ? "wifi" : "wifi-off"
-    text: BarLayout.faceText("wifi", !ModuleSettings.get("wifi", "name", true) ? "" : WifiService.connected ? root.name : "--")
+    text: BarLayout.faceText("wifi", WifiService.connected ? root.name : "--")
     tint: WifiService.connected ? Theme.accentFor("modules", Theme.green) : Theme.gray
   }
 

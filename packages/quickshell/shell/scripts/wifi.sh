@@ -13,6 +13,13 @@
 #   --speedtest          {ok, down, up, ping, jitter, best, worst, lan, duration,
 #                         ip, server, dev, gateway}  Mbps / ms / s; lan = gateway RTT
 #   --traffic            {up, down}  bytes in the last second, one line a second
+#   --listen             {ok}        one line per change NetworkManager reports (nmcli monitor),
+#                                    for the service to re-read at once; runs until killed
+#   --details            {ok, chan, freq, rate, security, bssid}   the access point in use
+#   --saved              {ok, saved: [{uuid, ssid, active, autoconnect, priority, metered, dns}]}
+#   --set UUID KEY VALUE {ok, error}   KEY autoconnect yes|no | priority N | metered yes|no|unknown
+#   --disconnect         {ok, error}   the Wi-Fi device goes down until it is connected again
+#   --hidden SSID        {ok, error}   connect to a hidden network; password in $WIFI_PASS
 
 set -u
 export LC_ALL=C
@@ -142,6 +149,198 @@ cmd_dns() {
   esac
 }
 
+# The access point in use: channel, frequency, rate, security and BSSID.
+cmd_details() {
+  local line chan freq rate sec bssid
+  line=$(nmcli -t --escape no -f IN-USE,CHAN,FREQ,RATE,SECURITY,BSSID device wifi list --rescan no 2>/dev/null |
+         sed -n 's/^\*://p' | head -n1)
+  [ -z "$line" ] && { error "not connected"; return; }
+  IFS=: read -r chan freq rate sec bssid <<<"$line"
+  jq -cn --arg chan "$chan" --arg freq "${freq% MHz}" --arg rate "$rate" \
+         --arg sec "$sec" --arg bssid "$bssid" \
+    '{ok:true, chan:$chan, freq:$freq, rate:$rate, security:$sec, bssid:$bssid}'
+}
+
+# The saved Wi-Fi profiles, the active one first, with the settings the Network page shows.
+cmd_saved() {
+  local d active uuid ssid auto prio metered
+  d=$(dev)
+  active=$([ -n "$d" ] && active_uuid "$d")
+  saved_profiles | while IFS=$'\t' read -r uuid ssid; do
+    { read -r auto; read -r prio; read -r metered; read -r ignore; read -r dns; } < <(
+      nmcli -g connection.autoconnect,connection.autoconnect-priority,connection.metered,ipv4.ignore-auto-dns,ipv4.dns connection show uuid "$uuid" 2>/dev/null)
+    jq -cn --arg uuid "$uuid" --arg ssid "$ssid" --arg auto "$auto" --arg prio "$prio" \
+           --arg metered "$metered" --arg ignore "$ignore" --arg dns "$dns" \
+           --argjson active "$([ "$uuid" = "$active" ] && echo true || echo false)" \
+      '{uuid:$uuid, ssid:$ssid, active:$active, autoconnect:($auto == "yes"),
+        priority:(($prio | tonumber?) // 0), metered:$metered,
+        dns:(if $ignore == "yes" then $dns else "" end)}'
+  done | jq -cs '{ok:true, saved: sort_by([(if .active then 0 else 1 end), .ssid])}'
+}
+
+# The device an active profile is up on, if any.
+active_dev() { nmcli -t -f UUID,DEVICE connection show --active | awk -F: -v u="$1" '$1==u && $2!=""{print $2; exit}'; }
+
+# One setting of a saved profile (wifi or ethernet); the values are checked before
+# nmcli sees them. A network setting of an active profile is re-applied at once.
+cmd_set() {
+  local uuid=$1 key=$2 value=$3 extra=${4:-} addr gw dev
+  local -a args
+  [[ $uuid =~ ^[0-9a-f-]{36}$ ]] || { error "bad profile"; return; }
+  case "$key" in
+    autoconnect) [[ $value == yes || $value == no ]] || { error "expected yes|no"; return; }
+                 args=(connection.autoconnect "$value") ;;
+    priority)    [[ $value =~ ^-?[0-9]+$ ]] || { error "expected a number"; return; }
+                 args=(connection.autoconnect-priority "$value") ;;
+    metered)     [[ $value == yes || $value == no || $value == unknown ]] || { error "expected yes|no|unknown"; return; }
+                 args=(connection.metered "$value") ;;
+    dns)         if [ "$value" = auto ]; then
+                   args=(ipv4.ignore-auto-dns no ipv4.dns "")
+                 else
+                   [[ $value =~ ^[0-9a-fA-F.:,]+$ ]] || { error "expected DNS servers, comma separated"; return; }
+                   args=(ipv4.ignore-auto-dns yes ipv4.dns "$value")
+                 fi ;;
+    ipv4)        case "$value" in
+                   auto)   args=(ipv4.method auto ipv4.addresses "" ipv4.gateway "") ;;
+                   manual) read -r addr gw <<<"$extra"
+                           [[ $addr =~ ^[0-9.]+/[0-9]{1,2}$ && $gw =~ ^[0-9.]+$ ]] || { error "expected ADDRESS/PREFIX GATEWAY"; return; }
+                           args=(ipv4.method manual ipv4.addresses "$addr" ipv4.gateway "$gw") ;;
+                   *)      error "expected auto|manual"; return ;;
+                 esac ;;
+    ipv6)        case "$value" in
+                   auto) args=(ipv6.method auto) ;;
+                   off)  args=(ipv6.method disabled) ;;
+                   *)    error "expected auto|off"; return ;;
+                 esac ;;
+    *)           error "unknown setting: $key"; return ;;
+  esac
+  nmcli connection modify uuid "$uuid" "${args[@]}" >/dev/null 2>&1 || { error "could not change $key"; return; }
+  case "$key" in
+    dns|ipv4|ipv6) dev=$(active_dev "$uuid"); [ -n "$dev" ] && nmcli device reapply "$dev" >/dev/null 2>&1 ;;
+  esac
+  ok
+}
+
+# ---- ethernet ----
+eth()      { nmcli -t -f DEVICE,TYPE device | awk -F: '$2=="ethernet"{print $1; exit}'; }
+eth_uuid() { nmcli -t -f UUID,TYPE,DEVICE connection show | awk -F: -v d="$1" '$2=="802-3-ethernet" && $3==d{print $1; exit}'; }
+
+# The wired device: its link and address, and the profile's settings.
+cmd_ethernet() {
+  local e uuid state carrier speed mac ip gw out
+  local -a p
+  e=$(eth)
+  [ -z "$e" ] && { error "no ethernet device"; return; }
+  case "${1:-}" in
+    on)  uuid=$(eth_uuid "$e")
+         if [ -z "$uuid" ]; then
+           nmcli connection add type ethernet ifname "$e" con-name "Ethernet $e" autoconnect yes >/dev/null 2>&1 || { error "could not add the profile"; return; }
+           uuid=$(eth_uuid "$e")
+         fi
+         out=$(nmcli --wait 20 connection up uuid "$uuid" 2>&1) && { ok; return; }
+         out=${out%%$'\n'*}; error "${out#Error: }"; return ;;
+    off) nmcli device disconnect "$e" >/dev/null 2>&1 && ok || error "could not disconnect" ; return ;;
+    "") ;;
+    *)   error "expected on|off"; return ;;
+  esac
+  state=$(dev_field "$e" GENERAL.STATE | sed 's/^[0-9]* (\(.*\))$/\1/')
+  carrier=$(dev_field "$e" WIRED-PROPERTIES.CARRIER)
+  speed=$(dev_field "$e" CAPABILITIES.SPEED)
+  mac=$(dev_field "$e" GENERAL.HWADDR)
+  ip=$(dev_field "$e" IP4.ADDRESS | head -n1)
+  gw=$(dev_field "$e" IP4.GATEWAY | head -n1)
+  uuid=$(eth_uuid "$e")
+  p=()
+  [ -n "$uuid" ] && mapfile -t p < <(nmcli -g connection.autoconnect,ipv4.method,ipv4.addresses,ipv4.gateway,ipv4.dns,ipv6.method,connection.metered connection show uuid "$uuid" 2>/dev/null)
+  jq -cn --arg state "$state" --arg carrier "$carrier" --arg speed "$speed" --arg mac "$mac" \
+         --arg ip "${ip%%/*}" --arg gw "$gw" --arg uuid "$uuid" \
+         --arg auto "${p[0]:-yes}" --arg method "${p[1]:-auto}" --arg addr "${p[2]:-}" \
+         --arg gwcfg "${p[3]:-}" --arg dns "${p[4]:-}" --arg ipv6 "${p[5]:-auto}" --arg metered "${p[6]:-unknown}" \
+    '{ok:true, state:$state, carrier:($carrier == "yes"), speed:$speed, mac:$mac, ip:$ip, gateway:$gw,
+      uuid:$uuid, autoconnect:($auto == "yes"), method:$method, addresses:$addr, gw:$gwcfg,
+      dns:$dns, ipv6:($ipv6 != "disabled"), metered:$metered}'
+}
+
+# ---- hotspot: a Wi-Fi profile in AP mode on the Wi-Fi device, shared with dnsmasq ----
+HOTSPOT=Hotspot
+hotspot_uuid() { nmcli -t -f UUID,NAME,TYPE connection show | awk -F: -v n="$HOTSPOT" '$2==n && $3=="802-11-wireless"{print $1; exit}'; }
+
+cmd_hotspot() {
+  local d uuid supported=false active=false ssid channel clients=0
+  d=$(dev)
+  [ -z "$d" ] && { error "no wifi device"; return; }
+  [ "$(dev_field "$d" WIFI-PROPERTIES.AP)" = yes ] && supported=true
+  uuid=$(hotspot_uuid)
+  if [ -n "$uuid" ]; then
+    nmcli -t -f UUID connection show --active | grep -qx "$uuid" && active=true
+    ssid=$(nmcli -g 802-11-wireless.ssid connection show uuid "$uuid" 2>/dev/null)
+    channel=$(nmcli -g 802-11-wireless.channel connection show uuid "$uuid" 2>/dev/null)
+  fi
+  $active && clients=$(iw dev "$d" station dump 2>/dev/null | grep -c '^Station' || true)
+  jq -cn --argjson supported "$supported" --argjson active "$active" --arg uuid "$uuid" \
+         --arg ssid "${ssid:-$(uname -n)}" --arg channel "${channel:-0}" --argjson clients "${clients:-0}" \
+    '{ok:true, supported:$supported, active:$active, uuid:$uuid, ssid:$ssid, channel:$channel, clients:$clients}'
+}
+
+cmd_hotspot_switch() {
+  local uuid out
+  uuid=$(hotspot_uuid)
+  [ -z "$uuid" ] && { error "set a password first"; return; }
+  case "$1" in
+    on)  out=$(nmcli --wait 20 connection up uuid "$uuid" 2>&1) && { ok; return; }
+         out=${out%%$'\n'*}; error "${out#Error: }" ;;
+    off) nmcli connection down uuid "$uuid" >/dev/null 2>&1 && ok || error "could not stop the hotspot" ;;
+    *)   error "expected on|off" ;;
+  esac
+}
+
+# One setting of the hotspot: ssid, channel (auto|1|6|11) or password ($WIFI_PASS, 8 to 63
+# characters). The profile is made with the password, and the other settings are set after.
+cmd_hotspot_set() {
+  local key=$1 value=$2 pw=${WIFI_PASS:-} d uuid
+  uuid=$(hotspot_uuid)
+  case "$key" in
+    ssid)     [ ${#value} -ge 1 ] && [ ${#value} -le 32 ] || { error "a name is 1 to 32 characters"; return; } ;;
+    channel)  case "$value" in auto) value=0 ;; 1|6|11) ;; *) error "expected auto|1|6|11"; return ;; esac ;;
+    password) [ ${#pw} -ge 8 ] && [ ${#pw} -le 63 ] || { error "a password is 8 to 63 characters"; return; } ;;
+    *)        error "unknown setting: $key"; return ;;
+  esac
+  if [ -z "$uuid" ]; then
+    [ "$key" = password ] || { error "set a password first"; return; }
+    d=$(dev)
+    [ -z "$d" ] && { error "no wifi device"; return; }
+    nmcli connection add type wifi ifname "$d" con-name "$HOTSPOT" autoconnect no ssid "$(uname -n)" \
+      802-11-wireless.mode ap 802-11-wireless.band bg ipv4.method shared ipv6.method ignore \
+      wifi-sec.key-mgmt wpa-psk wifi-sec.proto rsn wifi-sec.pairwise ccmp wifi-sec.group ccmp \
+      wifi-sec.psk "$pw" >/dev/null 2>&1 && ok || error "could not make the hotspot"
+    return
+  fi
+  case "$key" in
+    ssid)     nmcli connection modify uuid "$uuid" 802-11-wireless.ssid "$value" ;;
+    channel)  nmcli connection modify uuid "$uuid" 802-11-wireless.channel "$value" ;;
+    password) nmcli connection modify uuid "$uuid" wifi-sec.psk "$pw" ;;
+  esac >/dev/null 2>&1 && ok || error "could not change $key"
+}
+
+cmd_disconnect() {
+  local d
+  d=$(dev)
+  [ -n "$d" ] && nmcli device disconnect "$d" >/dev/null 2>&1 && ok || error "could not disconnect"
+}
+
+# A hidden network is named, not scanned: the profile a failed try leaves is dropped.
+cmd_hidden() {
+  local ssid=$1 pw=${WIFI_PASS:-} d uuid out
+  d=$(dev)
+  [ -z "$d" ] && { error "no wifi device"; return; }
+  [ -z "$ssid" ] && { error "name the network"; return; }
+  out=$(nmcli --wait 25 device wifi connect "$ssid" hidden yes ${pw:+password "$pw"} ifname "$d" 2>&1) && { ok; return; }
+  uuid=$(uuid_for_ssid "$ssid")
+  [ -n "$uuid" ] && nmcli connection delete uuid "$uuid" >/dev/null 2>&1
+  out=${out%%$'\n'*}
+  error "${out#Error: }"
+}
+
 # "rtt min/avg/max/mdev = 1.2/2.3/3.4/0.5 ms"
 rtt_min()  { sed -nE 's|^rtt [^=]+= ([0-9.]+)/.*|\1|p'; }
 rtt_avg()  { sed -nE 's|^rtt [^=]+= [0-9.]+/([0-9.]+)/.*|\1|p'; }
@@ -220,5 +419,15 @@ case "${1:-}" in
   --ping)      cmd_ping ;;
   --speedtest) cmd_speedtest ;;
   --traffic)   cmd_traffic ;;
+  --details)   cmd_details ;;
+  --saved)     cmd_saved ;;
+  --set)       cmd_set "${2:-}" "${3:-}" "${4:-}" "${5:-}" ;;
+  --ethernet)  cmd_ethernet "${2:-}" ;;
+  --hotspot)   cmd_hotspot ;;
+  --hotspot-switch) cmd_hotspot_switch "${2:-}" ;;
+  --hotspot-set)    cmd_hotspot_set "${2:-}" "${3:-}" ;;
+  --disconnect) cmd_disconnect ;;
+  --hidden)    cmd_hidden "${2:-}" ;;
+  --listen)    stdbuf -oL nmcli monitor 2>/dev/null | while read -r _; do ok; done ;;
   *)           error "unknown command: ${1:-}" ;;
 esac

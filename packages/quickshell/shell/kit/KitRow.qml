@@ -15,12 +15,14 @@ Item {
   property string hint: ""
   property color labelColor: Theme.foreground0
   property bool wide: false
+  property bool dimmed: false       // its option is unavailable (the adapter is off)
 
   readonly property bool stacked: wide && width < Theme.rowStackBelow
 
   default property alias trailing: slot.data
 
   width: parent ? parent.width : 0
+  opacity: dimmed ? 0.4 : 1
   implicitHeight: stacked ? text.implicitHeight + 8 + slot.height
                           : Math.max(text.implicitHeight, slot.height)
 

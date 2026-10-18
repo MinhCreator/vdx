@@ -51,7 +51,8 @@ requires = ["hypr"]
 suggests = ["mako", "gtk"]
 pacman = ["quickshell", "python-gobject", "xdg-desktop-portal", "udisks2", "ffmpegthumbnailer", "poppler", "awww", "hyprsunset", "brightnessctl", "gpu-screen-recorder", "wiremix",
           "libpulse", "bluez", "bluez-utils", "networkmanager", "libnotify", "upower",
-          "pacman-contrib", "glib2", "fd", "xdg-utils", "ttf-jetbrains-mono-nerd", "cava", "restic"]
+          "pacman-contrib", "glib2", "fd", "xdg-utils", "ttf-jetbrains-mono-nerd", "cava", "restic",
+          "dnsmasq", "iw"]
 links = ["quickshell", "xdg-portal"]
 modules = ["workspaces", "clock", "equalizer", "themes", "wallpapers", "brightness", "audio", "wifi", "bluetooth", "battery", "language", "shell",
            "notifications", "capture", "clipboard", "sysmon", "taskmanager", "cleaner", "backup", "packages",
