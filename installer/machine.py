@@ -136,7 +136,7 @@ def show(hw: dict, overrides: dict) -> None:
 def show_environment() -> None:
     env = detect.environment()
     print()
-    print(f"  {'distro':17s} {env['distro']}" + ("" if env["distro"] == "arch" else f" {dim('(only Arch is supported)')}"))
+    print(f"  {'distro':17s} {env['distro']}" + ("" if env["arch"] else f" {dim('(only Arch and its derivatives are supported)')}"))
     print(f"  {'hyprland':17s} {env['hyprland'] or '--'}")
     print(f"  {'aur helper':17s} {env['aur_helper'] or '--'}")
     print(f"  {'login shell':17s} {env['shell']}")

@@ -65,6 +65,13 @@ class Detect(unittest.TestCase):
         fakesys.put(self.root, "proc/asound/card1/codec#0", "Codec: Realtek ALC294")
         self.assertEqual(detect.traits(detect.hardware(self.root))["quirks"], [])
 
+    def test_arch_derivatives_count_as_arch(self):
+        for text, arch in (('ID=arch\n', True), ('ID=endeavouros\nID_LIKE=arch\n', True),
+                           ('ID="cachyos"\nID_LIKE="arch"\n', True), ('ID=ubuntu\nID_LIKE=debian\n', False), ('', False)):
+            with self.subTest(text=text):
+                fakesys.put(self.root, "etc/os-release", text)
+                self.assertEqual(detect.environment(self.root)["arch"], arch)
+
 
 if __name__ == "__main__":
     unittest.main()

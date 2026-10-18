@@ -170,6 +170,8 @@ def environment(root: Path = Path("/")) -> dict:
     groups = sorted(g.gr_name for g in grp.getgrall() if user.pw_name in g.gr_mem)
     return {
         "distro": osr.get("ID", "unknown"),
+        # EndeavourOS, CachyOS, Manjaro… say ID_LIKE=arch: pacman, the AUR and systemd work the same
+        "arch": osr.get("ID") == "arch" or "arch" in osr.get("ID_LIKE", "").split(),
         "hyprland": hypr,
         "aur_helper": next((h for h in ("paru", "yay") if shutil.which(h)), ""),
         "user": user.pw_name,

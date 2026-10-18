@@ -20,7 +20,7 @@ The shell up close: [packages/quickshell/shell](packages/quickshell/shell/README
 
 ## Install
 
-Arch Linux, a user with sudo, `git` and `python` ≥ 3.11:
+Arch Linux (or a derivative: EndeavourOS, CachyOS…), a user with sudo, `git` and `python` ≥ 3.11:
 
 ```bash
 sudo pacman -S --needed git python

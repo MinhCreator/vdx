@@ -18,8 +18,8 @@ def environment_problems() -> list[str]:
     out = []
     if env["root"]:
         out.append("running as root: run as your user, sudo is asked for when needed")
-    if env["distro"] != "arch":
-        out.append(f"distro {env['distro']!r}: only Arch Linux is supported")
+    if not env["arch"]:
+        out.append(f"distro {env['distro']!r}: only Arch Linux and its derivatives are supported")
     out += [f"{tool}: not found" for tool in ("pacman", "git", "sudo") if not shutil.which(tool)]
     return out
 
