@@ -18,6 +18,7 @@ Column {
       id: field
       width: parent.width - filterBox.width - sortBox.width - 16
       placeholder: "Search by name, description or program"
+      onTextChanged: page.query = text.trim().toLowerCase()
     }
 
     KitSelect {

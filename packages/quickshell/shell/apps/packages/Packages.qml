@@ -20,7 +20,7 @@ Rectangle {
   // installed
   property string filter: "all"             // all | apps | repo | aur
   property string sortBy: PackagesService.opt("sortBy", "name")   // name | size | date; the option is the start
-  readonly property string query: field.text.trim().toLowerCase()
+  property string query: ""                 // the Installed tab's search, lower-cased
   readonly property var shown: ps.installed.filter(p =>
       (filter === "all" || (filter === "apps" && p.apps.length > 0)
        || (filter === "repo" && !p.aur) || (filter === "aur" && p.aur))
