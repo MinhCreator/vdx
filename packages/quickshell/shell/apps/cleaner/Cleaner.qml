@@ -146,12 +146,12 @@ Rectangle {
       }
 
       KitRow {
-        label: "Analyze"
+        label: "Analyse"
         hint: "With " + root.cs.model + ", about 15 seconds"
 
         KitButton {
           icon: "bot"
-          text: root.cs.suggestions.length > 0 ? "Again" : "Analyze"
+          text: root.cs.suggestions.length > 0 ? "Again" : "Analyse"
           busy: root.cs.analyzing
           onClicked: root.cs.analyze()
         }

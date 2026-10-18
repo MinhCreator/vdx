@@ -75,8 +75,8 @@ Rectangle {
   border.color: Theme.background2
   clip: true
 
-  Behavior on width { enabled: Motion.island && Theme.island; NumberAnimation { duration: Motion.slow; easing.type: Easing.OutQuint } }
-  Behavior on height { enabled: Motion.island && Theme.island; NumberAnimation { duration: Motion.slow; easing.type: Easing.OutQuint } }
+  Behavior on width { enabled: Motion.island && Theme.island; NumberAnimation { duration: Motion.slow; easing.type: Motion.morph } }
+  Behavior on height { enabled: Motion.island && Theme.island; NumberAnimation { duration: Motion.slow; easing.type: Motion.morph } }
   Behavior on radius { enabled: Motion.island && Theme.island; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
 
   // the modules: they stay (their popups live in them), faded while one is open

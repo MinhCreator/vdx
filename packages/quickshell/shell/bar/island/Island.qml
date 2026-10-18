@@ -153,8 +153,8 @@ Item {
     visible: opacity > 0
     Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
 
-    Behavior on width { enabled: Motion.island; NumberAnimation { duration: Motion.slow; easing.type: Easing.OutQuint } }
-    Behavior on height { enabled: Motion.island; NumberAnimation { duration: Motion.slow; easing.type: Easing.OutQuint } }
+    Behavior on width { enabled: Motion.island; NumberAnimation { duration: Motion.slow; easing.type: Motion.morph } }
+    Behavior on height { enabled: Motion.island; NumberAnimation { duration: Motion.slow; easing.type: Motion.morph } }
     Behavior on radius { enabled: Motion.island; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
 
     HoverHandler { id: hover }
@@ -319,7 +319,7 @@ Item {
     scale: 0.6 + 0.4 * reveal
 
     property real reveal: on ? 1 : 0
-    Behavior on reveal { enabled: Motion.island; NumberAnimation { duration: Motion.slow; easing.type: Easing.OutQuint } }
+    Behavior on reveal { enabled: Motion.island; NumberAnimation { duration: Motion.slow; easing.type: Motion.morph } }
 
     KitIcon {
       anchors.centerIn: parent

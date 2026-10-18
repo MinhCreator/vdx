@@ -107,10 +107,10 @@ Rectangle {
       // a wrong password: a short shake from side to side
       SequentialAnimation {
         id: shakeAnim
-        NumberAnimation { target: shake; property: "x"; to: -10; duration: 50; easing.type: Easing.OutQuad }
-        NumberAnimation { target: shake; property: "x"; to: 8; duration: 70 }
-        NumberAnimation { target: shake; property: "x"; to: -5; duration: 60 }
-        NumberAnimation { target: shake; property: "x"; to: 0; duration: 60; easing.type: Easing.OutQuad }
+        NumberAnimation { target: shake; property: "x"; to: -10; duration: Motion.ms(50); easing.type: Motion.easing }
+        NumberAnimation { target: shake; property: "x"; to: 8; duration: Motion.ms(70) }
+        NumberAnimation { target: shake; property: "x"; to: -5; duration: Motion.ms(60) }
+        NumberAnimation { target: shake; property: "x"; to: 0; duration: Motion.ms(60); easing.type: Motion.easing }
       }
 
       Connections {

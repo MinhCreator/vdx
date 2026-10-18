@@ -72,7 +72,7 @@ Row {
         border.width: root.style === "dashes" || workspace.highlighted ? 0 : 1
         border.color: workspace.tone
 
-        Behavior on color { enabled: Motion.bar; ColorAnimation { duration: Motion.slow; easing.type: Easing.OutSine } }
+        Behavior on color { enabled: Motion.bar; ColorAnimation { duration: Motion.slow; easing.type: Motion.tint } }
       }
 
       KitText {
@@ -83,7 +83,7 @@ Row {
         text: workspace.modelData.id === 10 ? "0" : workspace.modelData.name.replace(/^name:/, "")
         color: workspace.tone
 
-        Behavior on color { enabled: Motion.bar; ColorAnimation { duration: Motion.slow; easing.type: Easing.OutSine } }
+        Behavior on color { enabled: Motion.bar; ColorAnimation { duration: Motion.slow; easing.type: Motion.tint } }
       }
 
       MouseArea {

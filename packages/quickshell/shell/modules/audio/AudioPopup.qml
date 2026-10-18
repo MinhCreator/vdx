@@ -114,7 +114,7 @@ KitFrame {
           height: parent.height
           color: root.micLevel > 0.92 ? Theme.red : root.micLevel > 0.75 ? Theme.yellow : Theme.green
 
-          Behavior on width { enabled: Motion.controls; NumberAnimation { duration: 60 } }
+          Behavior on width { enabled: Motion.controls; NumberAnimation { duration: Motion.ms(60) } }
         }
       }
     }

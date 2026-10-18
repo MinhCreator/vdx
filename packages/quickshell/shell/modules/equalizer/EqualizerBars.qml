@@ -44,7 +44,7 @@ Row {
       opacity: IslandService.playing ? 1 : 0.5
       height: Math.max(width, root.height * (EqualizerService.levels[index] ?? 0))
 
-      Behavior on height { enabled: Motion.bar; NumberAnimation { duration: 70 } }
+      Behavior on height { enabled: Motion.bar; NumberAnimation { duration: Motion.ms(70) } }
     }
   }
 }

@@ -125,7 +125,7 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 - Refactors keep the look; a new look is prototyped on one popup first.
 - Motion: every animation goes through `config/Motion.qml` — a Behavior takes
   `enabled: Motion.<part>` (popups, panels, controls, bar, pages, lock, island) and a
-  duration from it (`quick`, `normal`, `slow`, `ms()`), easing `Motion.easing`;
+  duration from it (`quick`, `normal`, `slow`, `ms()`), easing `Motion.easing` (`morph` for a shape that resizes, `tint` for a colour);
   set in Shell Manager › Animations. Rows that show and hide sit in a
   `KitColumn` (KitFrame's column is one): they fade in, the rest glide. A
   list's new row (a Repeater remakes them all): `KitAppear` keyed in the list's

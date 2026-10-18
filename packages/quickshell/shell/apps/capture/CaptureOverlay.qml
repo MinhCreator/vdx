@@ -58,10 +58,10 @@ Variants {
     property real fy: target.y
     property real fw: target.width
     property real fh: target.height
-    Behavior on fx { enabled: root.glide; NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
-    Behavior on fy { enabled: root.glide; NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
-    Behavior on fw { enabled: root.glide; NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
-    Behavior on fh { enabled: root.glide; NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
+    Behavior on fx { enabled: root.glide && Motion.panels; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
+    Behavior on fy { enabled: root.glide && Motion.panels; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
+    Behavior on fw { enabled: root.glide && Motion.panels; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
+    Behavior on fh { enabled: root.glide && Motion.panels; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
     readonly property bool live: CaptureService.shown && !CaptureService.closing
 
     function setTarget(r) {
@@ -260,7 +260,7 @@ Variants {
         anchors.fill: parent
         opacity: root.live ? 1 : 0
 
-        Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+        Behavior on opacity { enabled: Motion.panels; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
 
         readonly property rect r: root.hasTarget ? Qt.rect(root.fx, root.fy, root.fw, root.fh) : Qt.rect(0, 0, 0, 0)
 
@@ -347,7 +347,7 @@ Variants {
         border.color: Theme.frame
         opacity: root.live ? 1 : 0
 
-        Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+        Behavior on opacity { enabled: Motion.panels; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
 
         KitText {
           id: hintText

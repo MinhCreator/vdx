@@ -181,11 +181,7 @@ Singleton {
   function setMode(value) { settings.mode = value; }
   function setKind(value) { settings.kind = value; }
   function setAudio(value) { settings.audio = value; }
-  function setFps(value) { ModuleSettings.set("capture", "fps", value); }
-  function setQuality(value) { ModuleSettings.set("capture", "quality", value); }
   function setCursor(value) { settings.cursor = value; }
-  function setEncoder(value) { ModuleSettings.set("capture", "encoder", value); }
-  function setCodec(value) { ModuleSettings.set("capture", "codec", value); }
 
   // where a new shot is written first: its folder, or the cache until Save as / never
   function shotPath() {

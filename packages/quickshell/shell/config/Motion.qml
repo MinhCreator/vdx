@@ -38,4 +38,7 @@ Singleton {
 
   // things coming in decelerate; nothing bounces
   readonly property int easing: Easing.OutCubic
+  // a shape that resizes (the island): a longer tail; a colour that changes: a gentle one
+  readonly property int morph: Easing.OutQuint
+  readonly property int tint: Easing.OutSine
 }

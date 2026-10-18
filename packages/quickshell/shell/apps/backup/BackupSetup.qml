@@ -383,7 +383,7 @@ Item {
           width: BackupService.buttonWidth
           anchors.verticalCenter: parent.verticalCenter
           icon: "bot"
-          text: "Analyze"
+          text: "Analyse"
           busy: bs.busy && bs.jobKind === "ai"
           disabled: bs.busy
           onClicked: bs.analyze()
