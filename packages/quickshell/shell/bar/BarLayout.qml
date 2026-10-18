@@ -36,7 +36,7 @@ Singleton {
     { id: "capture",       label: "Capture",       zone: "right",  icon: "camera", about: "Screenshots and screen recording · the app" },
     { id: "clipboard",     label: "Clipboard",     zone: "right",  icon: "clipboard", about: "Copy history, images to drag out" },
     { id: "sysmon",        label: "System",        zone: "right",  icon: "cpu", settings: "SysmonSettings.qml", about: "CPU, memory, GPU, disks, network, sensors" },
-    { id: "taskmanager",   label: "Task Manager",  zone: "right",  icon: "activity", about: "Load and the busiest programs · Super + D: the full window" },
+    { id: "taskmanager",   label: "Task Manager",  zone: "right",  icon: "activity", about: "Load and the busiest programs · Ctrl + Shift + Esc: the full window" },
     { id: "cleaner",       label: "Cleaner",       zone: "right",  icon: "brush", about: "What can go, the safe part in one click · Super + X: the full window" },
     { id: "backup",        label: "Backups",       zone: "right",  icon: "shield", about: "Last backup, back up now, the restore guide · the full window" },
     { id: "virustotal",    label: "VirusTotal",    zone: "right",  icon: "scan", about: "A hash, URL or file checked against VirusTotal" },

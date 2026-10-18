@@ -16,7 +16,7 @@ end
 -- apps
 bind("Apps", mainMod .. " + Q", hl.dsp.exec_cmd("kitty"), "Terminal")
 bind("Apps", mainMod .. " + E", hl.dsp.exec_cmd("qs -c shell ipc call files toggle"), "Files")
-bind("Apps", mainMod .. " + R", hl.dsp.exec_cmd("qs -c shell ipc call launcher toggle"), "Launcher")
+bind("Apps", "ALT + space", hl.dsp.exec_cmd("qs -c shell ipc call launcher toggle"), "Launcher")
 bind("Apps", mainMod .. " + Z", hl.dsp.exec_cmd("qs -c shell ipc call lock lock"), "Lock the screen")
 -- the shell's lock screen: if the shell dies while locked, started again it locks anew
 hl.config({ misc = { allow_session_lock_restore = true } })
@@ -24,7 +24,7 @@ hl.config({ misc = { allow_session_lock_restore = true } })
 -- shell
 bind("Shell", mainMod .. " + S", hl.dsp.exec_cmd("qs -c shell ipc call shell toggle"), "Shell Manager")
 bind("Shell", mainMod .. " + B", hl.dsp.exec_cmd("qs -c shell ipc call keybinds toggle"), "Keybinds")
-bind("Shell", mainMod .. " + D", hl.dsp.exec_cmd("qs -c shell ipc call taskmanager toggle"), "Task manager")
+bind("Shell", "CTRL + SHIFT + Escape", hl.dsp.exec_cmd("qs -c shell ipc call taskmanager toggle"), "Task manager")
 bind("Shell", mainMod .. " + X", hl.dsp.exec_cmd("qs -c shell ipc call cleaner toggle"), "Cleaner")
 -- Super + Tab (the window switcher) is the floating mode's: modes/floating.lua
 

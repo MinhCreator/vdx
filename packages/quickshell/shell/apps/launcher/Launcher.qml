@@ -4,7 +4,7 @@ import qs.components
 import qs.config
 import qs.kit
 
-// The launcher (Super+R), like rofi: the screen dims, in the middle a
+// The launcher (Alt+Space), like rofi: the screen dims, in the middle a
 // search over one of four lists — Apps, Files (in ~), Shell (the shell's own
 // actions) and Power. Typing filters, ↑ ↓ pick, Enter runs, Tab / Shift+Tab
 // switch the list, Escape or a click on the dimmed screen closes.

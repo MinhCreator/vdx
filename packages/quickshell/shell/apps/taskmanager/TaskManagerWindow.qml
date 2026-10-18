@@ -4,7 +4,7 @@ import Quickshell.Io
 import qs.components
 import qs.config
 
-// The task manager as a window of its own (its window rule comes from scripts/shellapps.py (Shell Manager › Shell apps)). Super+D or
+// The task manager as a window of its own (its window rule comes from scripts/shellapps.py (Shell Manager › Shell apps)). Ctrl+Shift+Esc or
 // `qs -c shell ipc call taskmanager toggle`; Escape clears the search,
 // then closes. Processes are polled only while it is open.
 FloatingWindow {

@@ -19,11 +19,11 @@ Full quality: [shell-demo.mp4](../../../docs/shell/shell-demo.mp4).
     <td colspan="2"><img src="../../../docs/shell/sm-bar.png" alt="Shell Manager, Bar"><br><sub>Shell Manager › Bar: modules dragged between zones and the Folder</sub></td>
   </tr>
   <tr>
-    <td><img src="../../../docs/shell/launcher.png" alt="Launcher"><br><sub>System menu (Super+R)</sub></td>
+    <td><img src="../../../docs/shell/launcher.png" alt="Launcher"><br><sub>System menu (Alt+Space)</sub></td>
     <td><img src="../../../docs/shell/keybinds.png" alt="Keybinds"><br><sub>Keybinds (Super+B)</sub></td>
   </tr>
   <tr>
-    <td><img src="../../../docs/shell/taskmanager.png" alt="Task manager"><br><sub>Task Manager (Super+D)</sub></td>
+    <td><img src="../../../docs/shell/taskmanager.png" alt="Task manager"><br><sub>Task Manager (Ctrl+Shift+Esc)</sub></td>
     <td><img src="../../../docs/shell/cleaner.png" alt="Cleaner"><br><sub>Cleaner (Super+X)</sub></td>
   </tr>
   <tr>
@@ -54,11 +54,11 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | App | Key | IPC |
 |---|---|---|
 | Shell Manager | Super+S | `shell toggle`, `shell open <page>[:<group or app>]` |
-| Task Manager | Super+D | `taskmanager toggle` |
+| Task Manager | Ctrl+Shift+Esc | `taskmanager toggle` |
 | Cleaner | Super+X | `cleaner toggle` |
 | Capture | Super+Shift+S | `capture open\|stop\|close` |
 | Capture (window) | — | `captures toggle` |
-| System menu | Super+R | `launcher toggle` |
+| System menu | Alt+Space | `launcher toggle` |
 | Packages | — | `packages toggle` |
 | Display | — | `display toggle` |
 | VirusTotal | — | `virustotal toggle` |

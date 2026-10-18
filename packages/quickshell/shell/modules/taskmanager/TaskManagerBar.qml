@@ -6,7 +6,7 @@ import qs.config
 import qs.kit
 
 // Bar module: the task manager's icon; the popup shows the load and the
-// busiest programs with End, and opens the full window (Super+D).
+// busiest programs with End, and opens the full window (Ctrl+Shift+Esc).
 Item {
   id: root
 

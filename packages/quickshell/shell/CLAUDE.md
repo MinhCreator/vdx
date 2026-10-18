@@ -118,7 +118,7 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   No hex in QML — `Theme.*` only (a custom colour is picked on the spectrum or typed in Shell Manager and
   kept in settings). Dimmed screens use `Theme.scrim`.
 - Bar: one colour per item; a missing value shows `--`.
-- Key hints: `Super + D`; footers `key action · key action`, lowercase.
+- Key hints: `Super + S`; footers `key action · key action`, lowercase.
 - Icons: Material Symbols SVG in `kit/icons`, `fill="#ffffff"`; every icon
   has a filled twin of the same name in `solid/` and Rounded twins in
   `round/` and `round/solid/` (Material names: `icons/material.txt`).
