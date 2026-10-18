@@ -41,14 +41,19 @@ cmd_status() {
     b=$(battery)
     [[ -z "$b" ]] && { echo '{"present":false}'; return; }
     num() { local v; v=$(cat "$b/$1" 2>/dev/null); echo "${v:-0}"; }
+    # µWh; a battery that counts charge (µAh) instead is converted with its voltage
+    uwh() { local v; v=$(num "energy_$1"); (( v )) || v=$(( $(num "charge_$1") * $(num voltage_now) / 1000000 )); echo "$v"; }
+    local watts; watts=$(num power_now)
+    (( watts )) || watts=$(( $(num current_now) * $(num voltage_now) / 1000000 ))
+    watts=${watts#-}
     jq -cn \
         --arg status "$(cat "$b/status" 2>/dev/null)" \
         --argjson capacity "$(num capacity)" \
         --argjson plugged "$(plugged)" \
-        --argjson energy "$(num energy_now)" \
-        --argjson energyFull "$(num energy_full)" \
-        --argjson energyDesign "$(num energy_full_design)" \
-        --argjson power "$(num power_now)" \
+        --argjson energy "$(uwh now)" \
+        --argjson energyFull "$(uwh full)" \
+        --argjson energyDesign "$(uwh full_design)" \
+        --argjson power "$watts" \
         --argjson cycles "$(num cycle_count)" \
         --argjson threshold "$(cat "$b/charge_control_end_threshold" 2>/dev/null || echo 100)" \
         --arg profile "$(cat "$PROFILE" 2>/dev/null)" \

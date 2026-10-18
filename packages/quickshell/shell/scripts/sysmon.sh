@@ -30,7 +30,7 @@ mem=$(awk '/^(MemTotal|MemAvailable|SwapTotal|SwapFree):/ { v[$1] = $2 * 1024 }
 tcpu=null; twifi=null; nvme=(); fans=()
 for h in /sys/class/hwmon/hwmon*; do
   case $(cat "$h/name" 2>/dev/null) in
-    coretemp) tcpu=$(( $(cat "$h/temp1_input") / 1000 )) ;;
+    coretemp|k10temp|zenpower) tcpu=$(( $(cat "$h/temp1_input") / 1000 )) ;;
     nvme) nvme+=("$(( $(cat "$h/temp1_input") / 1000 ))") ;;
     iwlwifi*) twifi=$(( $(cat "$h/temp1_input" 2>/dev/null || echo 0) / 1000 )) ;;
   esac
@@ -61,7 +61,7 @@ done
 
 iface=$(ip route show default 2>/dev/null | awk '{ print $5; exit }')
 net=$(awk -v i="${iface:-}" -F'[: ]+' '$2 == i { printf "{\"iface\":\"%s\",\"rx\":%d,\"tx\":%d}", i, $3, $11 }' /proc/net/dev)
-io=$(awk '$3 ~ /^(nvme[0-9]+n[0-9]+|sd[a-z]+)$/ { r += $6; w += $10 } END { printf "{\"read\":%d,\"write\":%d}", r * 512, w * 512 }' /proc/diskstats)
+io=$(awk '$3 ~ /^(nvme[0-9]+n[0-9]+|sd[a-z]+|vd[a-z]+|mmcblk[0-9]+)$/ { r += $6; w += $10 } END { printf "{\"read\":%d,\"write\":%d}", r * 512, w * 512 }' /proc/diskstats)
 disks=$(df -B1 --output=target,size,used -x tmpfs -x devtmpfs -x efivarfs -x overlay 2>/dev/null |
   awk 'NR > 1 { printf "%s{\"mount\":\"%s\",\"size\":%d,\"used\":%d}", (n++ ? "," : ""), $1, $2, $3 }')
 

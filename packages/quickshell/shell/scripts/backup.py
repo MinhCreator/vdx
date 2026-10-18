@@ -107,9 +107,10 @@ def ago(ts):
     if not ts:
         return "never"
     s = time.time() - ts
-    for limit, div, word in ((3600, 60, "min"), (86400, 3600, "h"), (1e12, 86400, "days")):
+    for limit, div, word in ((3600, 60, "min"), (86400, 3600, "h"), (float("inf"), 86400, "day")):
         if s < limit:
-            return f"{max(1, int(s // div))} {word} ago"
+            n = max(1, int(s // div))
+            return f"{n} {word}{'s' if word == 'day' and n > 1 else ''} ago"
 
 
 # ---- config ----

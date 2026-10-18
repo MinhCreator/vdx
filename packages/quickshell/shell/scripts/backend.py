@@ -9,7 +9,12 @@ sys.path, so the link in ~/.config/quickshell/shell/scripts works too.
     fail(msg)                     out({"ok": False, "error": msg})
     run(args, timeout=10)         CompletedProcess (text, captured), or None when the
                                   program is missing or it timed out"""
-import json, subprocess, sys
+import json, os, subprocess, sys
+
+# Backends read the output of pacman, journalctl and the like ("Installed Size :"): in a
+# translated locale that text is another language. LANGUAGE=C turns translations off for the
+# programs a backend starts and leaves the locale (file names, encodings) alone.
+os.environ["LANGUAGE"] = "C"
 
 
 def out(obj):
