@@ -11,6 +11,8 @@ KitColumn {
   id: root
 
   property string tab: "wifi"                 // wifi | hotspot | ethernet
+  // the tabs the window's header shows
+  readonly property var tabs: [{ label: "Wi-Fi", value: "wifi" }, { label: "Hotspot", value: "hotspot" }, { label: "Ethernet", value: "ethernet" }]
 
   readonly property var ws: WifiService
   readonly property var eth: ws.ethernet
@@ -74,15 +76,6 @@ KitColumn {
 
   Timer { id: disarmDisconnect; interval: 3000; onTriggered: root.disconnectArmed = false }
   Timer { id: disarmHotspot; interval: 3000; onTriggered: root.hotspotArmed = false }
-
-  // ---- the three kinds of connection ----
-  KitChoices {
-    width: parent.width
-    stretch: true
-    model: [{ label: "Wi-Fi", value: "wifi" }, { label: "Hotspot", value: "hotspot" }, { label: "Ethernet", value: "ethernet" }]
-    current: root.tab
-    onPicked: value => root.tab = value
-  }
 
   // ---- wi-fi tab ----
   KitColumn {

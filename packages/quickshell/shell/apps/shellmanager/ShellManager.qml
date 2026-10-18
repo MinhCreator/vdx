@@ -320,6 +320,14 @@ Rectangle {
       icon: root.currentPage.icon
       title: root.currentPage.title
       subtitle: root.currentPage.subtitle
+
+      // a page with tabs (Network) lists them: `tabs` [{label, value}], `tab`
+      KitChoices {
+        visible: (root.currentPage.tabs ?? []).length > 0
+        model: root.currentPage.tabs ?? []
+        current: root.currentPage.tab ?? ""
+        onPicked: value => root.currentPage.tab = value
+      }
     }
 
     KitLine {}

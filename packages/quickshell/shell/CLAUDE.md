@@ -78,7 +78,7 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   the header sits at `windowPadding - Theme.headerInset`, a footer at
   `bottomMargin: Theme.windowPadding`. A `KitFrame` window sets `headerInset`
   and `bottomInset` (`Theme.textDescent`) instead of offsets. Popups keep 16.
-- Header: icon, title in normal case, subtitle in caps joined by ` · `.
+- Header: icon, title in normal case, subtitle in caps joined by ` · `. Tabs are `KitChoices` on its right; a Shell Manager page lists them as `tabs` + `tab`.
 - Group: `KitLabel` in caps (a noun, current value on the right), then rows.
 - Row: `KitRow` — label (capitalised) and hint (sentence case, no full stop)
   left, control right. A hint in a wide row ≤ 29 chars (the Modules page
