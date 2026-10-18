@@ -1,6 +1,6 @@
 """dotfiles installer — living with an installed machine: update, doctor, uninstall, rollback.
 
-  update     git pull --ff-only, then setup with the new code (a fresh process)
+  update     git pull --ff-only, the submodules it moved, then setup with the new code
   doctor     this machine's health: what setup would still do, plus what it
              can't see (services not running, capabilities, Hyprland's errors,
              generated files out of step, hardware changed) — each with a fix
@@ -33,6 +33,25 @@ def git(*cmd: str) -> subprocess.CompletedProcess:
 
 # --------------------------------------------------------------------------- update
 
+def sync_submodules(old: str, paths: list[str]) -> None:
+    """A pull that moved a submodule's recorded commit brings its checkout along, but only a
+    clean one that is behind it: local work in a submodule is never moved or lost."""
+    for path in paths:
+        if not git("diff", "--name-only", old, "HEAD", "--", path).stdout.strip() or not (ROOT / path / ".git").exists():
+            continue
+        sub = ["git", "-C", str(ROOT / path)]
+        want = git("rev-parse", f"HEAD:{path}").stdout.strip()
+        if subprocess.run([*sub, "status", "--porcelain"], capture_output=True, text=True).stdout.strip():
+            warn(f"{path}: has local changes, left at its commit")
+        elif subprocess.run([*sub, "cat-file", "-e", want + "^{commit}"], capture_output=True).returncode == 0 \
+                and subprocess.run([*sub, "merge-base", "--is-ancestor", "HEAD", want], capture_output=True).returncode != 0:
+            warn(f"{path}: has commits of its own, left at its commit")
+        elif git("submodule", "update", "--init", "--recursive", "--", path).returncode == 0:
+            ok(f"{path}: moved to {want[:7]}")
+        else:
+            warn(f"{path}: could not move to {want[:7]}: git submodule update --init {path}")
+
+
 def cmd_update(args) -> int:
     heading("Updating the repo")
     upstream = git("rev-parse", "--abbrev-ref", "@{u}").stdout.strip()
@@ -57,6 +76,7 @@ def cmd_update(args) -> int:
             ok(f"{upstream}: " + (f"{len(new.splitlines())} new commit(s)" if new else "up to date"))
             for line in new.splitlines():
                 print(f"      {line}")
+            sync_submodules(old, steps.context(args).each("submodules"))
     # the pull may have changed the installer itself: setup runs in a new process
     sys.stdout.flush()
     flags = [f for f, on in (("--dry-run", getattr(args, "dry_run", False)), ("-y", getattr(args, "yes", False)),
@@ -90,9 +110,7 @@ def health(ctx: steps.Ctx) -> list[tuple[str, str, str]]:
         if steps.enabled(unit) == "enabled" and not steps.active(unit):
             out.append(("err", f"{unit} is enabled but not running", f"systemctl status {unit}"))
     for unit in ctx.each("user_services") if steps.systemd_running(user=True) else []:
-        if steps.enabled(unit, True) == "enabled" and \
-                subprocess.run(["systemctl", "--user", "is-active", unit], capture_output=True, text=True).stdout.strip() != "active" \
-:
+        if steps.enabled(unit, True) == "enabled" and not steps.active(unit, True):
             out.append(("err", f"{unit} (--user) is enabled but not running", f"systemctl --user status {unit}"))
     if ctx.has("vpn") and Path("/usr/bin/mihomo").exists() and "cap_net_admin" not in getcap("/usr/bin/mihomo"):
         out.append(("err", "mihomo lacks its capabilities (TUN, port 53)",

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import io
+import os
 import subprocess
 import tempfile
 import unittest
@@ -145,6 +146,70 @@ class Update(unittest.TestCase):
              mock.patch.object(maintain.os, "execv") as execv, mock.patch("sys.stdout", new=io.StringIO()):
             self.assertEqual(maintain.cmd_update(argparse.Namespace(dry_run=False, yes=False)), 1)
         execv.assert_not_called()
+
+
+class SyncSubmodules(unittest.TestCase):
+    """A pull moves a submodule's recorded commit; its checkout follows only when that loses nothing."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        base = Path(self.tmp.name)
+        self.env = {"GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t", "GIT_COMMITTER_NAME": "t",
+                    "GIT_COMMITTER_EMAIL": "t@t", "GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "protocol.file.allow",
+                    "GIT_CONFIG_VALUE_0": "always", "PATH": os.environ["PATH"]}
+        self.sub_origin, self.root = base / "sub.git", base / "root"
+        self.g(base, "init", "-q", "-b", "main", str(self.sub_origin))
+        self.commit(self.sub_origin, "a")
+        self.g(base, "init", "-q", "-b", "main", str(self.root))
+        self.g(self.root, "submodule", "add", "-q", str(self.sub_origin), "mod")
+        self.g(self.root, "commit", "-qm", "add mod")
+        self.old = self.git_out(self.root, "rev-parse", "HEAD")
+        self.commit(self.sub_origin, "b")                      # upstream moves on
+        self.g(self.root / "mod", "pull", "-q")
+        self.g(self.root, "commit", "-qam", "bump mod")        # the pull's result: a new recorded commit
+        self.want = self.git_out(self.root, "rev-parse", "HEAD:mod")
+        self.g(self.root / "mod", "checkout", "-q", "HEAD~1")  # ... and the checkout is still behind
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def g(self, cwd, *args):
+        subprocess.run(["git", *args], cwd=cwd, env=self.env, check=True, capture_output=True)
+
+    def git_out(self, cwd, *args):
+        return subprocess.run(["git", *args], cwd=cwd, env=self.env, check=True, capture_output=True, text=True).stdout.strip()
+
+    def commit(self, repo, name):
+        (repo / name).write_text(name)
+        self.g(repo, "add", name)
+        self.g(repo, "commit", "-qm", name)
+
+    def sync(self):
+        def git(*cmd):
+            return subprocess.run(["git", "-C", str(self.root), *cmd], env=self.env, capture_output=True, text=True)
+        with mock.patch.object(maintain, "ROOT", self.root), mock.patch.object(maintain, "git", side_effect=git), \
+             mock.patch.dict("os.environ", self.env), mock.patch("sys.stdout", new=io.StringIO()):
+            maintain.sync_submodules(self.old, ["mod"])
+
+    def head(self):
+        return self.git_out(self.root / "mod", "rev-parse", "HEAD")
+
+    def test_a_clean_checkout_behind_follows(self):
+        self.sync()
+        self.assertEqual(self.head(), self.want)
+
+    def test_local_changes_stay(self):
+        (self.root / "mod" / "a").write_text("edited")
+        before = self.head()
+        self.sync()
+        self.assertEqual(self.head(), before)
+        self.assertEqual((self.root / "mod" / "a").read_text(), "edited")
+
+    def test_commits_of_its_own_stay(self):
+        self.commit(self.root / "mod", "mine")
+        before = self.head()
+        self.sync()
+        self.assertEqual(self.head(), before)
 
 
 if __name__ == "__main__":

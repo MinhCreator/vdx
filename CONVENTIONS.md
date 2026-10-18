@@ -101,8 +101,9 @@ environment (Arch, not root, pacman / git / sudo), `check components`,
 
 `installer/maintain.py`:
 
-- `update` pulls (fast-forward only) and runs `setup` in a new process, so
-  the pulled installer is the one that runs.
+- `update` pulls (fast-forward only), moves the submodules whose recorded commit
+  changed (only a clean checkout that is behind it), and runs `setup` in a new
+  process, so the pulled installer is the one that runs.
 - `doctor` is `check` for the machine: the plan's pending work plus what it
   can't see — services enabled but not running, mihomo's capabilities,
   Hyprland's config errors, `machine/` out of step, a session on another

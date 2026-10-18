@@ -289,8 +289,8 @@ def enabled(unit: str, user: bool = False) -> str:
     return (r.stdout.strip() or "not-found").splitlines()[0]
 
 
-def active(unit: str) -> bool:
-    return quiet(["systemctl", "is-active", unit]).stdout.strip() == "active"
+def active(unit: str, user: bool = False) -> bool:
+    return quiet(["systemctl", *(["--user"] if user else []), "is-active", unit]).stdout.strip() == "active"
 
 
 class Services(Step):
