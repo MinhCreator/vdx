@@ -1,6 +1,7 @@
 pragma Singleton
 import QtQuick
 import Quickshell
+import qs.components
 import qs.config
 
 // Accent outside the shell: the focused window's border in Hyprland (Appearance
@@ -28,8 +29,7 @@ Singleton {
 
   function apply() {
     const lua = border ? "return { border = " + colour + " }" : "return {}";
-    Quickshell.execDetached(["bash", "-c", 'mkdir -p "$(dirname "$1")" && printf "%s\\n" "$2" > "$1"',
-                             "_", stateFile, lua]);
+    Hypr.writeState(stateFile, lua + "\n");
     Quickshell.execDetached(["hyprctl", "eval", "hl.config({general = {col = {active_border = " + colour + "}}})"]);
   }
 }

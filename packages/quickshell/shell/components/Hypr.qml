@@ -35,6 +35,13 @@ Singleton {
       + "[ -n \"$i\" ] && hyprctl switchxkblayout \"$n\" $((i-1)) >/dev/null"]);
   }
 
+  // text into a file of the dotfiles' state (its folder made first); `after` is a fixed
+  // command line run when it is written, never built from input
+  function writeState(path, text, after) {
+    Quickshell.execDetached(["bash", "-c", 'mkdir -p "$(dirname "$1")" && printf "%s" "$2" > "$1"' + (after ? " && " + after : ""),
+                             "_", path, text]);
+  }
+
   // Lua in Hyprland's config state (hypr/components: SnapWindow, MinimizeWindow…)
   function call(lua) { Quickshell.execDetached(["hyprctl", "eval", lua]); }
 

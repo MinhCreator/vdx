@@ -1,6 +1,7 @@
 pragma Singleton
 import QtQuick
 import Quickshell
+import qs.components
 import qs.config
 
 // Appearance › Corners outside the shell: Hyprland's window rounding (now,
@@ -18,8 +19,7 @@ Singleton {
 
   function apply() {
     const lua = "return { rounding = " + rounding + " }";
-    Quickshell.execDetached(["bash", "-c", 'mkdir -p "$(dirname "$1")" && printf "%s\\n" "$2" > "$1"',
-                             "_", stateFile, lua]);
+    Hypr.writeState(stateFile, lua + "\n");
     Quickshell.execDetached(["hyprctl", "eval", "hl.config({decoration = {rounding = " + rounding + "}})"]);
     Quickshell.execDetached(["makoctl", "mode", rounding > 0 ? "-a" : "-r", "round"]);
   }

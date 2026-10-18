@@ -37,8 +37,7 @@ Singleton {
     if (value === mode) return;
     mode = value;
     // the config reloads: the mode's windows, binds and gestures set from scratch
-    run(["bash", "-c", 'mkdir -p "$(dirname "$1")" && printf "%s\\n" "$2" > "$1" && hyprctl reload',
-         "_", stateFile, value]);
+    Hypr.writeState(stateFile, value + "\n", "hyprctl reload");
   }
 
   // ---- options ----
@@ -50,11 +49,8 @@ Singleton {
     const lua = "-- written by the Shell Manager › Windows (WindowsService.qml)\nreturn {\n"
       + ["gapsIn", "gapsOut", "mfact", "columnWidth", "borders", "shadows"].map(k => "\t" + k + " = " + opts[k] + ",\n").join("")
       + ["newStatus", "arrange", "scrollKeys"].map(k => "\t" + k + " = \"" + opts[k] + "\",\n").join("") + "}\n";
-    run(["bash", "-c", 'mkdir -p "$(dirname "$1")" && printf "%s" "$2" > "$1" && hyprctl reload',
-         "_", stateDir + "windows.lua", lua]);
+    Hypr.writeState(stateDir + "windows.lua", lua, "hyprctl reload");
   }
-
-  function run(command) { Quickshell.execDetached(command); }
 
   FileView {
     path: root.stateDir + "windows.json"
