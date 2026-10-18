@@ -65,7 +65,7 @@ Item {
         hint: "Picked in the Files window"
 
         KitButton {
-          width: BackupService.buttonWidth
+          width: Theme.buttonWidth
           anchors.verticalCenter: parent.verticalCenter
           icon: "folder"
           text: "Choose…"
@@ -95,7 +95,7 @@ Item {
         hint: "It encrypts every snapshot"
 
         KitButton {
-          width: BackupService.buttonWidth
+          width: Theme.buttonWidth
           anchors.verticalCenter: parent.verticalCenter
           visible: bs.configured && bs.revealed === ""
           icon: "lock"
@@ -106,7 +106,7 @@ Item {
         }
 
         KitButton {
-          width: BackupService.buttonWidth
+          width: Theme.buttonWidth
           anchors.verticalCenter: parent.verticalCenter
           visible: bs.revealed !== ""
           icon: bs.copied ? "check" : "clipboard"
@@ -287,7 +287,7 @@ Item {
           labelColor: Theme.foreground1
 
           KitButton {
-            width: BackupService.buttonWidth
+            width: Theme.buttonWidth
             anchors.verticalCenter: parent.verticalCenter
             icon: "trash"
             text: "Remove"
@@ -345,7 +345,7 @@ Item {
           labelColor: Theme.foreground1
 
           KitButton {
-            width: BackupService.buttonWidth
+            width: Theme.buttonWidth
             anchors.verticalCenter: parent.verticalCenter
             icon: "trash"
             text: "Remove"
@@ -380,7 +380,7 @@ Item {
         hint: "Looks at your biggest folders"
 
         KitButton {
-          width: BackupService.buttonWidth
+          width: Theme.buttonWidth
           anchors.verticalCenter: parent.verticalCenter
           icon: "bot"
           text: "Analyse"
@@ -415,7 +415,7 @@ Item {
       }
 
       KitButton {
-        width: BackupService.buttonWidth
+        width: Theme.buttonWidth
         visible: root.aiCount > 0
         icon: "check"
         text: "Leave out " + root.aiCount

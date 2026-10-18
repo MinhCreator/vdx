@@ -21,7 +21,7 @@ Rectangle {
   signal accepted(string colour)
   signal chipClicked()
 
-  implicitHeight: 32
+  implicitHeight: Theme.controlHeight
   radius: Theme.radiusControl
   color: input.activeFocus || hover.hovered ? Theme.controlHover : Theme.controlFill
   border.width: Theme.frameWidth

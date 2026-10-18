@@ -3,11 +3,14 @@ import qs.config
 import qs.kit
 import qs.modules.wifi
 
-// Network: the Wi-Fi radio, the connection in use, the saved networks, a hidden
-// network to join, the hotspot and the wired connection. Each group has the same
-// order: its switch or state first, then the settings, then the facts.
+// Network, a tab each for Wi-Fi (the radio, the connection in use, the saved
+// networks, a hidden network to join), the hotspot and the wired connection.
+// Each group has the same order: its switch or state first, then the settings,
+// then the facts.
 KitColumn {
   id: root
+
+  property string tab: "wifi"                 // wifi | hotspot | ethernet
 
   readonly property var ws: WifiService
   readonly property var eth: ws.ethernet
@@ -42,14 +45,18 @@ KitColumn {
   readonly property string subtitle: !ws.radioOn ? "OFF" : ws.connected ? ws.ssid.toUpperCase() : "NOT CONNECTED"
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
-  readonly property var jumps: [
-    { key: "wifi",       label: "Wi-Fi",      y: wifiGroup.y },
-    { key: "connection", label: "Connection", y: ws.connected ? connectionGroup.y : -2 },
-    { key: "saved",      label: "Saved",      y: savedGroup.y },
-    { key: "new",        label: "New",        y: newGroup.y },
-    { key: "hotspot",    label: "Hotspot",    y: hotspotGroup.y },
-    { key: "ethernet",   label: "Ethernet",   y: ethernetGroup.y }
+  // (only the open tab's: the others are not on the page)
+  readonly property var jumps: tab !== "wifi" ? [] : [
+    { key: "wifi",       label: "Wi-Fi",      y: wifiGroup.y + wifiTab.y },
+    { key: "connection", label: "Connection", y: ws.connected ? connectionGroup.y + wifiTab.y : -2 },
+    { key: "saved",      label: "Saved",      y: savedGroup.y + wifiTab.y },
+    { key: "new",        label: "New",        y: newGroup.y + wifiTab.y }
   ].filter(j => j.y > -2)
+
+  // a link from another page (a module's Open) lands on the tab that holds the group
+  function jump(key) {
+    tab = key === "hotspot" || key === "ethernet" ? key : "wifi";
+  }
 
   spacing: Theme.gapGroup
 
@@ -68,478 +75,505 @@ KitColumn {
   Timer { id: disarmDisconnect; interval: 3000; onTriggered: root.disconnectArmed = false }
   Timer { id: disarmHotspot; interval: 3000; onTriggered: root.hotspotArmed = false }
 
-  // ---- wi-fi ----
-  KitLabel { id: wifiGroup; text: "WI-FI"; value: ws.connected ? "CONNECTED" : ws.radioOn ? "NOT CONNECTED" : "OFF" }
-
-  KitRow {
-    label: "Wi-Fi"
-    hint: "Off: nothing connects"
-
-    KitSwitch {
-      checked: ws.radioOn
-      disabled: ws.toggling
-      onToggled: ws.toggleRadio()
-    }
+  // ---- the three kinds of connection ----
+  KitChoices {
+    width: parent.width
+    stretch: true
+    model: [{ label: "Wi-Fi", value: "wifi" }, { label: "Hotspot", value: "hotspot" }, { label: "Ethernet", value: "ethernet" }]
+    current: root.tab
+    onPicked: value => root.tab = value
   }
 
-  KitLine {}
+  // ---- wi-fi tab ----
+  KitColumn {
+    id: wifiTab
+    width: parent.width
+    visible: root.tab === "wifi"
+    spacing: Theme.gapGroup
 
-  // ---- the connection in use ----
-  KitLabel { id: connectionGroup; visible: ws.connected; text: "CONNECTION"; value: ws.ssid.toUpperCase() }
+    // ---- wi-fi ----
+    KitLabel { id: wifiGroup; text: "WI-FI"; value: ws.connected ? "CONNECTED" : ws.radioOn ? "NOT CONNECTED" : "OFF" }
 
-  KitRow {
-    visible: ws.connected
-    label: "Speed test"
-    hint: ws.speedtestBusy ? "Measuring…" : ws.speedtestError !== "" ? "Failed, try again"
-      : ws.speedtest ? Math.round(ws.speedtest.down) + " down · " + Math.round(ws.speedtest.up) + " up Mbps"
-      : "Download, upload and ping"
+    KitRow {
+      label: "Wi-Fi"
+      hint: "Off: nothing connects"
 
-    KitButton {
-      width: Theme.buttonWidth
-      text: "Run"
-      busy: ws.speedtestBusy
-      disabled: ws.speedtestBusy
-      onClicked: ws.measure()
+      KitSwitch {
+        checked: ws.radioOn
+        disabled: ws.toggling
+        onToggled: ws.toggleRadio()
+      }
     }
-  }
 
-  KitRow {
-    visible: ws.connected
-    label: ws.ssid
-    hint: "The network stays saved"
+    KitLine {}
 
-    KitButton {
-      width: Theme.buttonWidth
-      text: root.disconnectArmed ? "Sure?" : "Disconnect"
-      onClicked: {
-        if (root.disconnectArmed) {
-          root.disconnectArmed = false;
-          ws.disconnectNetwork();
-        } else {
-          root.disconnectArmed = true;
-          disarmDisconnect.restart();
+    // ---- the connection in use ----
+    KitLabel { id: connectionGroup; visible: ws.connected; text: "CONNECTION"; value: ws.ssid.toUpperCase() }
+
+    KitRow {
+      visible: ws.connected
+      label: "Speed test"
+      hint: ws.speedtestBusy ? "Measuring…" : ws.speedtestError !== "" ? "Failed, try again"
+        : ws.speedtest ? Math.round(ws.speedtest.down) + " down · " + Math.round(ws.speedtest.up) + " up Mbps"
+        : "Download, upload and ping"
+
+      KitButton {
+        width: Theme.buttonWidth
+        text: "Run"
+        busy: ws.speedtestBusy
+        disabled: ws.speedtestBusy
+        onClicked: ws.measure()
+      }
+    }
+
+    KitRow {
+      visible: ws.connected
+      label: ws.ssid
+      hint: "The network stays saved"
+
+      KitButton {
+        width: Theme.buttonWidth
+        text: root.disconnectArmed ? "Sure?" : "Disconnect"
+        onClicked: {
+          if (root.disconnectArmed) {
+            root.disconnectArmed = false;
+            ws.disconnectNetwork();
+          } else {
+            root.disconnectArmed = true;
+            disarmDisconnect.restart();
+          }
+        }
+      }
+    }
+
+    KitRow {
+      visible: ws.connected
+      label: "Address"
+      KitText { text: ws.ipAddress || "—"; color: Theme.foreground2 }
+    }
+
+    KitRow {
+      visible: ws.connected
+      label: "Gateway"
+      KitText { text: ws.gateway || "—"; color: Theme.foreground2 }
+    }
+
+    KitRow {
+      visible: ws.connected
+      label: "Channel"
+      KitText { text: root.ws.details ? "ch " + root.ws.details.chan + " · " + root.ws.details.freq + " MHz" : "—"; color: Theme.foreground2 }
+    }
+
+    KitRow {
+      visible: ws.connected
+      label: "Rate"
+      KitText { text: ws.details?.rate ?? "—"; color: Theme.foreground2 }
+    }
+
+    KitRow {
+      visible: ws.connected
+      label: "Security"
+      KitText { text: ws.details?.security || "Open"; color: Theme.foreground2 }
+    }
+
+    KitRow {
+      visible: ws.connected
+      label: "BSSID"
+      KitText { text: ws.details?.bssid ?? "—"; color: Theme.foreground2 }
+    }
+
+    KitLine { visible: ws.connected }
+
+    // ---- saved networks ----
+    KitLabel { id: savedGroup; text: "SAVED"; value: root.inRange.length + " IN RANGE · " + ws.saved.length + " SAVED" }
+
+    KitRow {
+      visible: ws.saved.length > 0
+      wide: true
+      label: "Show"
+
+      KitChoices {
+        stretch: true
+        model: [{ label: "In range", value: "range" }, { label: "All", value: "all" }]
+        current: root.scope
+        onPicked: value => root.scope = value
+      }
+    }
+
+    KitSelect {
+      visible: root.listed.length > 0
+      label: "Network"
+      model: root.listed.map(p => ({
+        label: p.ssid + (p.active ? " · connected" : (root.inRange.indexOf(p) >= 0) ? " · in range" : ""),
+        value: p.uuid
+      }))
+      current: root.chosen?.uuid ?? ""
+      onPicked: value => root.selected = value
+    }
+
+    KitText {
+      visible: root.scope === "range" && root.inRange.length === 0 && ws.saved.length > 0
+      width: parent.width
+      text: "None in range. All lists " + ws.saved.length + " saved."
+      color: Theme.muted
+      wrapMode: Text.WordWrap
+    }
+
+    KitRow {
+      visible: root.chosen !== null && !root.chosen.active
+      label: "Connection"
+      hint: (root.inRange.indexOf(root.chosen) >= 0) ? "Joins it now" : "Out of range"
+
+      KitButton {
+        width: Theme.buttonWidth
+        text: "Connect"
+        busy: ws.connectingSsid !== "" && ws.connectingSsid === root.chosen?.ssid
+        disabled: !(root.inRange.indexOf(root.chosen) >= 0) || ws.connectingSsid !== ""
+        onClicked: ws.connect(root.chosen.ssid, "")
+      }
+    }
+
+    KitRow {
+      visible: root.chosen !== null
+      label: "Connect automatically"
+      hint: "Joins when it is in range"
+
+      KitSwitch {
+        checked: root.chosen?.autoconnect ?? false
+        onToggled: ws.setSaved(root.chosen.uuid, "autoconnect", root.chosen.autoconnect ? "no" : "yes")
+      }
+    }
+
+    KitRow {
+      visible: root.chosen !== null
+      wide: true
+      label: "Priority"
+      hint: "Higher joins first"
+
+      KitChoices {
+        stretch: true
+        model: [{ label: "Low", value: -10 }, { label: "Normal", value: 0 }, { label: "High", value: 10 }]
+        current: root.chosen?.priority ?? 0
+        onPicked: value => ws.setSaved(root.chosen.uuid, "priority", String(value))
+      }
+    }
+
+    KitSelect {
+      visible: root.chosen !== null
+      label: "DNS"
+      hint: "Applies at the next connect"
+      model: root.dnsChoices
+      current: root.dnsLabel(root.chosen?.dns)
+      onPicked: value => ws.setSaved(root.chosen.uuid, "dns", root.dnsServers(value) || "auto")
+    }
+
+    KitRow {
+      visible: root.chosen !== null
+      wide: true
+      label: "Metered"
+      hint: "Yes: apps save data"
+
+      KitChoices {
+        stretch: true
+        model: [{ label: "Auto", value: "unknown" }, { label: "Yes", value: "yes" }, { label: "No", value: "no" }]
+        current: root.chosen?.metered ?? "unknown"
+        onPicked: value => ws.setSaved(root.chosen.uuid, "metered", value)
+      }
+    }
+
+    KitText {
+      visible: ws.saveError !== ""
+      width: parent.width
+      text: ws.saveError
+      color: Theme.red
+      wrapMode: Text.WordWrap
+    }
+
+    KitLine {}
+
+    // ---- a new network that does not show ----
+    KitLabel { id: newGroup; text: "NEW" }
+
+    KitRow {
+      wide: true
+      label: "Name"
+      hint: "A hidden one is typed here"
+
+      KitInput {
+        id: newName
+        placeholder: "SSID"
+      }
+    }
+
+    KitRow {
+      wide: true
+      label: "Password"
+      hint: "Empty: an open network"
+
+      KitInput {
+        id: newPass
+        placeholder: "password"
+        echoMode: TextInput.Password
+      }
+    }
+
+    KitRow {
+      label: "Join"
+      hint: ws.hiddenError !== "" ? ws.hiddenError : "Saved once it joins"
+
+      KitButton {
+        width: Theme.buttonWidth
+        text: "Connect"
+        busy: ws.hiddenBusy
+        disabled: !ws.radioOn || newName.text === ""
+        onClicked: {
+          ws.connectHidden(newName.text, newPass.text);
+          newPass.text = "";
         }
       }
     }
   }
 
-  KitRow {
-    visible: ws.connected
-    label: "Address"
-    KitText { text: ws.ipAddress || "—"; color: Theme.foreground2 }
-  }
-
-  KitRow {
-    visible: ws.connected
-    label: "Gateway"
-    KitText { text: ws.gateway || "—"; color: Theme.foreground2 }
-  }
-
-  KitRow {
-    visible: ws.connected
-    label: "Channel"
-    KitText { text: root.ws.details ? "ch " + root.ws.details.chan + " · " + root.ws.details.freq + " MHz" : "—"; color: Theme.foreground2 }
-  }
-
-  KitRow {
-    visible: ws.connected
-    label: "Rate"
-    KitText { text: ws.details?.rate ?? "—"; color: Theme.foreground2 }
-  }
-
-  KitRow {
-    visible: ws.connected
-    label: "Security"
-    KitText { text: ws.details?.security || "Open"; color: Theme.foreground2 }
-  }
-
-  KitRow {
-    visible: ws.connected
-    label: "BSSID"
-    KitText { text: ws.details?.bssid ?? "—"; color: Theme.foreground2 }
-  }
-
-  KitLine { visible: ws.connected }
-
-  // ---- saved networks ----
-  KitLabel { id: savedGroup; text: "SAVED"; value: root.inRange.length + " IN RANGE · " + ws.saved.length + " SAVED" }
-
-  KitRow {
-    visible: ws.saved.length > 0
-    wide: true
-    label: "Show"
-
-    KitChoices {
-      stretch: true
-      model: [{ label: "In range", value: "range" }, { label: "All", value: "all" }]
-      current: root.scope
-      onPicked: value => root.scope = value
-    }
-  }
-
-  KitSelect {
-    visible: root.listed.length > 0
-    label: "Network"
-    model: root.listed.map(p => ({
-      label: p.ssid + (p.active ? " · connected" : (root.inRange.indexOf(p) >= 0) ? " · in range" : ""),
-      value: p.uuid
-    }))
-    current: root.chosen?.uuid ?? ""
-    onPicked: value => root.selected = value
-  }
-
-  KitText {
-    visible: root.scope === "range" && root.inRange.length === 0 && ws.saved.length > 0
+  // ---- hotspot tab ----
+  KitColumn {
     width: parent.width
-    text: "None in range. All lists " + ws.saved.length + " saved."
-    color: Theme.muted
-    wrapMode: Text.WordWrap
-  }
+    visible: root.tab === "hotspot"
+    spacing: Theme.gapGroup
 
-  KitRow {
-    visible: root.chosen !== null && !root.chosen.active
-    label: "Connection"
-    hint: (root.inRange.indexOf(root.chosen) >= 0) ? "Joins it now" : "Out of range"
-
-    KitButton {
-      width: Theme.buttonWidth
-      text: "Connect"
-      busy: ws.connectingSsid !== "" && ws.connectingSsid === root.chosen?.ssid
-      disabled: !(root.inRange.indexOf(root.chosen) >= 0) || ws.connectingSsid !== ""
-      onClicked: ws.connect(root.chosen.ssid, "")
+    // ---- hotspot: this machine shares its connection over Wi-Fi ----
+    KitLabel {
+      id: hotspotGroup
+      text: "HOTSPOT"
+      value: root.hs?.active ? "ON · " + root.hs.clients + " CLIENTS" : "OFF"
     }
-  }
 
-  KitRow {
-    visible: root.chosen !== null
-    label: "Connect automatically"
-    hint: "Joins when it is in range"
+    KitRow {
+      label: "Hotspot"
+      hint: !root.hs?.supported ? "This Wi-Fi card cannot host one"
+        : !root.hs?.uuid ? "Set a password first"
+        : "Wi-Fi drops while it is on"
 
-    KitSwitch {
-      checked: root.chosen?.autoconnect ?? false
-      onToggled: ws.setSaved(root.chosen.uuid, "autoconnect", root.chosen.autoconnect ? "no" : "yes")
-    }
-  }
-
-  KitRow {
-    visible: root.chosen !== null
-    wide: true
-    label: "Priority"
-    hint: "Higher joins first"
-
-    KitChoices {
-      stretch: true
-      model: [{ label: "Low", value: -10 }, { label: "Normal", value: 0 }, { label: "High", value: 10 }]
-      current: root.chosen?.priority ?? 0
-      onPicked: value => ws.setSaved(root.chosen.uuid, "priority", String(value))
-    }
-  }
-
-  KitSelect {
-    visible: root.chosen !== null
-    label: "DNS"
-    hint: "Applies at the next connect"
-    model: root.dnsChoices
-    current: root.dnsLabel(root.chosen?.dns)
-    onPicked: value => ws.setSaved(root.chosen.uuid, "dns", root.dnsServers(value) || "auto")
-  }
-
-  KitRow {
-    visible: root.chosen !== null
-    wide: true
-    label: "Metered"
-    hint: "Yes: apps save data"
-
-    KitChoices {
-      stretch: true
-      model: [{ label: "Auto", value: "unknown" }, { label: "Yes", value: "yes" }, { label: "No", value: "no" }]
-      current: root.chosen?.metered ?? "unknown"
-      onPicked: value => ws.setSaved(root.chosen.uuid, "metered", value)
-    }
-  }
-
-  KitText {
-    visible: ws.saveError !== ""
-    width: parent.width
-    text: ws.saveError
-    color: Theme.red
-    wrapMode: Text.WordWrap
-  }
-
-  KitLine {}
-
-  // ---- a new network that does not show ----
-  KitLabel { id: newGroup; text: "NEW" }
-
-  KitRow {
-    wide: true
-    label: "Name"
-    hint: "A hidden one is typed here"
-
-    KitInput {
-      id: newName
-      placeholder: "SSID"
-    }
-  }
-
-  KitRow {
-    wide: true
-    label: "Password"
-    hint: "Empty: an open network"
-
-    KitInput {
-      id: newPass
-      placeholder: "password"
-      echoMode: TextInput.Password
-    }
-  }
-
-  KitRow {
-    label: "Join"
-    hint: ws.hiddenError !== "" ? ws.hiddenError : "Saved once it joins"
-
-    KitButton {
-      width: Theme.buttonWidth
-      text: "Connect"
-      busy: ws.hiddenBusy
-      disabled: !ws.radioOn || newName.text === ""
-      onClicked: {
-        ws.connectHidden(newName.text, newPass.text);
-        newPass.text = "";
-      }
-    }
-  }
-
-  KitLine {}
-
-  // ---- hotspot: this machine shares its connection over Wi-Fi ----
-  KitLabel {
-    id: hotspotGroup
-    text: "HOTSPOT"
-    value: root.hs?.active ? "ON · " + root.hs.clients + " CLIENTS" : "OFF"
-  }
-
-  KitRow {
-    label: "Hotspot"
-    hint: !root.hs?.supported ? "This Wi-Fi card cannot host one"
-      : !root.hs?.uuid ? "Set a password first"
-      : "Wi-Fi drops while it is on"
-
-    KitButton {
-      width: Theme.buttonWidth
-      text: root.hs?.active ? "Stop" : root.hotspotArmed ? "Sure?" : "Start"
-      busy: ws.hotspotBusy
-      disabled: !ws.radioOn || !(root.hs?.supported ?? false) || !(root.hs?.uuid ?? "") || ws.hotspotBusy
-      onClicked: {
-        if (root.hs?.active) {
-          ws.setHotspot(false);
-        } else if (ws.connected && !root.hotspotArmed) {
-          root.hotspotArmed = true;
-          disarmHotspot.restart();
-        } else {
-          root.hotspotArmed = false;
-          ws.setHotspot(true);
+      KitButton {
+        width: Theme.buttonWidth
+        text: root.hs?.active ? "Stop" : root.hotspotArmed ? "Sure?" : "Start"
+        busy: ws.hotspotBusy
+        disabled: !ws.radioOn || !(root.hs?.supported ?? false) || !(root.hs?.uuid ?? "") || ws.hotspotBusy
+        onClicked: {
+          if (root.hs?.active) {
+            ws.setHotspot(false);
+          } else if (ws.connected && !root.hotspotArmed) {
+            root.hotspotArmed = true;
+            disarmHotspot.restart();
+          } else {
+            root.hotspotArmed = false;
+            ws.setHotspot(true);
+          }
         }
       }
     }
-  }
 
-  KitRow {
-    wide: true
-    label: "Name"
-    hint: "The network the phones see"
+    KitRow {
+      wide: true
+      label: "Name"
+      hint: "The network the phones see"
 
-    KitInput {
-      text: root.hs?.ssid ?? ""
-      placeholder: "name"
-      onAccepted: ws.setHotspotSetting("ssid", text)
-    }
-  }
-
-  KitRow {
-    wide: true
-    label: "Password"
-    hint: "8 characters or more"
-
-    KitInput {
-      placeholder: "password"
-      echoMode: TextInput.Password
-      onAccepted: {
-        ws.setHotspotSetting("password", text);
-        text = "";
+      KitInput {
+        text: root.hs?.ssid ?? ""
+        placeholder: "name"
+        onAccepted: ws.setHotspotSetting("ssid", text)
       }
     }
-  }
 
-  KitRow {
-    wide: true
-    label: "Channel"
-    hint: "Auto picks a free one"
+    KitRow {
+      wide: true
+      label: "Password"
+      hint: "8 characters or more"
 
-    KitChoices {
-      stretch: true
-      model: [{ label: "Auto", value: "auto" }, { label: "1", value: "1" }, { label: "6", value: "6" }, { label: "11", value: "11" }]
-      current: (root.hs?.channel ?? "0") === "0" ? "auto" : root.hs?.channel
-      onPicked: value => ws.setHotspotSetting("channel", value)
-    }
-  }
-
-  KitText {
-    visible: ws.hotspotError !== ""
-    width: parent.width
-    text: ws.hotspotError
-    color: Theme.red
-    wrapMode: Text.WordWrap
-  }
-
-  KitLine {}
-
-  // ---- wired ----
-  KitLabel {
-    id: ethernetGroup
-    text: "ETHERNET"
-    value: !root.eth ? "NO DEVICE" : root.eth.state === "connected" ? "CONNECTED" : root.eth.carrier ? "CABLE IN" : "NO CABLE"
-  }
-
-  KitRow {
-    visible: root.eth !== null
-    label: "Wired"
-    hint: "Off until you connect again"
-
-    KitButton {
-      width: Theme.buttonWidth
-      text: root.eth?.state === "connected" ? "Disconnect" : "Connect"
-      busy: ws.ethernetBusy
-      disabled: ws.ethernetBusy
-      onClicked: ws.setEthernet(root.eth?.state !== "connected")
-    }
-  }
-
-  KitRow {
-    visible: root.eth !== null
-    label: "Connect automatically"
-    hint: "Joins when the cable is in"
-
-    KitSwitch {
-      checked: root.eth?.autoconnect ?? false
-      disabled: !root.eth?.uuid
-      onToggled: ws.setSaved(root.eth.uuid, "autoconnect", root.eth.autoconnect ? "no" : "yes")
-    }
-  }
-
-  KitRow {
-    visible: root.eth !== null
-    wide: true
-    label: "Addressing"
-    hint: "Manual: a fixed address"
-
-    KitChoices {
-      stretch: true
-      model: [{ label: "Auto", value: "auto" }, { label: "Manual", value: "manual" }]
-      current: root.manual ? "manual" : "auto"
-      onPicked: value => {
-        if (value === "auto") {
-          root.manualPick = false;
-          if (root.eth?.uuid) ws.setSaved(root.eth.uuid, "ipv4", "auto");
-        } else {
-          root.manualPick = true;
+      KitInput {
+        placeholder: "password"
+        echoMode: TextInput.Password
+        onAccepted: {
+          ws.setHotspotSetting("password", text);
+          text = "";
         }
       }
     }
-  }
 
-  KitRow {
-    visible: root.eth !== null && root.manual
-    wide: true
-    label: "Address"
-    hint: "Address and prefix"
+    KitRow {
+      wide: true
+      label: "Channel"
+      hint: "Auto picks a free one"
 
-    KitInput {
-      id: ethAddr
-      text: root.eth?.addresses ?? ""
-      placeholder: "192.168.1.10/24"
-      onAccepted: root.applyManual()
+      KitChoices {
+        stretch: true
+        model: [{ label: "Auto", value: "auto" }, { label: "1", value: "1" }, { label: "6", value: "6" }, { label: "11", value: "11" }]
+        current: (root.hs?.channel ?? "0") === "0" ? "auto" : root.hs?.channel
+        onPicked: value => ws.setHotspotSetting("channel", value)
+      }
+    }
+
+    KitText {
+      visible: ws.hotspotError !== ""
+      width: parent.width
+      text: ws.hotspotError
+      color: Theme.red
+      wrapMode: Text.WordWrap
     }
   }
 
-  KitRow {
-    visible: root.eth !== null && root.manual
-    wide: true
-    label: "Gateway"
-    hint: "Press Enter to apply"
-
-    KitInput {
-      id: ethGateway
-      text: root.eth?.gw ?? ""
-      placeholder: "192.168.1.1"
-      onAccepted: root.applyManual()
-    }
-  }
-
-  KitSelect {
-    visible: root.eth !== null
-    label: "DNS"
-    hint: "Applies now while connected"
-    model: root.dnsChoices
-    current: root.dnsLabel(root.eth?.dns)
-    onPicked: value => ws.setSaved(root.eth.uuid, "dns", root.dnsServers(value) || "auto")
-  }
-
-  KitRow {
-    visible: root.eth !== null
-    label: "IPv6"
-    hint: "Off: IPv4 only"
-
-    KitSwitch {
-      checked: root.eth?.ipv6 ?? true
-      disabled: !root.eth?.uuid
-      onToggled: ws.setSaved(root.eth.uuid, "ipv6", root.eth.ipv6 ? "off" : "auto")
-    }
-  }
-
-  KitRow {
-    visible: root.eth !== null
-    wide: true
-    label: "Metered"
-    hint: "Yes: apps save data"
-
-    KitChoices {
-      stretch: true
-      model: [{ label: "Auto", value: "unknown" }, { label: "Yes", value: "yes" }, { label: "No", value: "no" }]
-      current: root.eth?.metered ?? "unknown"
-      onPicked: value => ws.setSaved(root.eth.uuid, "metered", value)
-    }
-  }
-
-  KitRow {
-    visible: root.eth !== null
-    label: "Address"
-    KitText { text: root.eth?.ip || "—"; color: Theme.foreground2 }
-  }
-
-  KitRow {
-    visible: root.eth !== null
-    label: "Gateway"
-    KitText { text: root.eth?.gateway || "—"; color: Theme.foreground2 }
-  }
-
-  KitRow {
-    visible: root.eth !== null
-    label: "Speed"
-    KitText { text: root.eth?.speed || "—"; color: Theme.foreground2 }
-  }
-
-  KitRow {
-    visible: root.eth !== null
-    label: "MAC"
-    KitText { text: root.eth?.mac ?? "—"; color: Theme.foreground2 }
-  }
-
-  KitText {
-    visible: root.ws.ethernetError !== ""
+  // ---- ethernet tab ----
+  KitColumn {
     width: parent.width
-    text: root.ws.ethernetError
-    color: Theme.red
-    wrapMode: Text.WordWrap
+    visible: root.tab === "ethernet"
+    spacing: Theme.gapGroup
+
+    // ---- wired ----
+    KitLabel {
+      id: ethernetGroup
+      text: "ETHERNET"
+      value: !root.eth ? "NO DEVICE" : root.eth.state === "connected" ? "CONNECTED" : root.eth.carrier ? "CABLE IN" : "NO CABLE"
+    }
+
+    KitRow {
+      visible: root.eth !== null
+      label: "Wired"
+      hint: "Off until you connect again"
+
+      KitButton {
+        width: Theme.buttonWidth
+        text: root.eth?.state === "connected" ? "Disconnect" : "Connect"
+        busy: ws.ethernetBusy
+        disabled: ws.ethernetBusy
+        onClicked: ws.setEthernet(root.eth?.state !== "connected")
+      }
+    }
+
+    KitRow {
+      visible: root.eth !== null
+      label: "Connect automatically"
+      hint: "Joins when the cable is in"
+
+      KitSwitch {
+        checked: root.eth?.autoconnect ?? false
+        disabled: !root.eth?.uuid
+        onToggled: ws.setSaved(root.eth.uuid, "autoconnect", root.eth.autoconnect ? "no" : "yes")
+      }
+    }
+
+    KitRow {
+      visible: root.eth !== null
+      wide: true
+      label: "Addressing"
+      hint: "Manual: a fixed address"
+
+      KitChoices {
+        stretch: true
+        model: [{ label: "Auto", value: "auto" }, { label: "Manual", value: "manual" }]
+        current: root.manual ? "manual" : "auto"
+        onPicked: value => {
+          if (value === "auto") {
+            root.manualPick = false;
+            if (root.eth?.uuid) ws.setSaved(root.eth.uuid, "ipv4", "auto");
+          } else {
+            root.manualPick = true;
+          }
+        }
+      }
+    }
+
+    KitRow {
+      visible: root.eth !== null && root.manual
+      wide: true
+      label: "Address"
+      hint: "Address and prefix"
+
+      KitInput {
+        id: ethAddr
+        text: root.eth?.addresses ?? ""
+        placeholder: "192.168.1.10/24"
+        onAccepted: root.applyManual()
+      }
+    }
+
+    KitRow {
+      visible: root.eth !== null && root.manual
+      wide: true
+      label: "Gateway"
+      hint: "Press Enter to apply"
+
+      KitInput {
+        id: ethGateway
+        text: root.eth?.gw ?? ""
+        placeholder: "192.168.1.1"
+        onAccepted: root.applyManual()
+      }
+    }
+
+    KitSelect {
+      visible: root.eth !== null
+      label: "DNS"
+      hint: "Applies now while connected"
+      model: root.dnsChoices
+      current: root.dnsLabel(root.eth?.dns)
+      onPicked: value => ws.setSaved(root.eth.uuid, "dns", root.dnsServers(value) || "auto")
+    }
+
+    KitRow {
+      visible: root.eth !== null
+      label: "IPv6"
+      hint: "Off: IPv4 only"
+
+      KitSwitch {
+        checked: root.eth?.ipv6 ?? true
+        disabled: !root.eth?.uuid
+        onToggled: ws.setSaved(root.eth.uuid, "ipv6", root.eth.ipv6 ? "off" : "auto")
+      }
+    }
+
+    KitRow {
+      visible: root.eth !== null
+      wide: true
+      label: "Metered"
+      hint: "Yes: apps save data"
+
+      KitChoices {
+        stretch: true
+        model: [{ label: "Auto", value: "unknown" }, { label: "Yes", value: "yes" }, { label: "No", value: "no" }]
+        current: root.eth?.metered ?? "unknown"
+        onPicked: value => ws.setSaved(root.eth.uuid, "metered", value)
+      }
+    }
+
+    KitRow {
+      visible: root.eth !== null
+      label: "Address"
+      KitText { text: root.eth?.ip || "—"; color: Theme.foreground2 }
+    }
+
+    KitRow {
+      visible: root.eth !== null
+      label: "Gateway"
+      KitText { text: root.eth?.gateway || "—"; color: Theme.foreground2 }
+    }
+
+    KitRow {
+      visible: root.eth !== null
+      label: "Speed"
+      KitText { text: root.eth?.speed || "—"; color: Theme.foreground2 }
+    }
+
+    KitRow {
+      visible: root.eth !== null
+      label: "MAC"
+      KitText { text: root.eth?.mac ?? "—"; color: Theme.foreground2 }
+    }
+
+    KitText {
+      visible: root.ws.ethernetError !== ""
+      width: parent.width
+      text: root.ws.ethernetError
+      color: Theme.red
+      wrapMode: Text.WordWrap
+    }
   }
 }

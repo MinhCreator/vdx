@@ -88,7 +88,7 @@ Column {
       id: box
       anchors.right: parent.right
       width: root.boxWidth
-      height: 30
+      height: Theme.controlHeight
       radius: Theme.radiusControl
       color: boxArea.containsMouse && !root.disabled ? Theme.controlHover : Theme.controlFill
       border.width: Theme.frameWidth

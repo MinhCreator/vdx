@@ -88,7 +88,7 @@ Item {
           }
 
           KitButton {
-            width: BackupService.buttonWidth
+            width: Theme.buttonWidth
             anchors.verticalCenter: parent.verticalCenter
             icon: "folder"
             text: "Browse"
@@ -113,7 +113,7 @@ Item {
         hint: "Into a new folder in ~/Restore"
 
         KitButton {
-          width: BackupService.buttonWidth
+          width: Theme.buttonWidth
           anchors.verticalCenter: parent.verticalCenter
           icon: "rotate-ccw"
           text: "Restore"
@@ -129,7 +129,7 @@ Item {
         hint: "Repository packages, then enable and groups"
 
         KitButton {
-          width: BackupService.buttonWidth
+          width: Theme.buttonWidth
           anchors.verticalCenter: parent.verticalCenter
           icon: "package"
           text: "Install"
@@ -145,7 +145,7 @@ Item {
         hint: "Built by yay, in a terminal, one by one"
 
         KitButton {
-          width: BackupService.buttonWidth
+          width: Theme.buttonWidth
           anchors.verticalCenter: parent.verticalCenter
           icon: "package"
           text: "Build"
@@ -162,7 +162,7 @@ Item {
         labelColor: root.armed ? Theme.red : Theme.foreground0
 
         KitButton {
-          width: BackupService.buttonWidth
+          width: Theme.buttonWidth
           anchors.verticalCenter: parent.verticalCenter
           icon: root.armed ? "check" : "trash"
           text: root.armed ? "Sure?" : "Forget"
@@ -178,7 +178,7 @@ Item {
         hint: bs.restored
 
         KitButton {
-          width: BackupService.buttonWidth
+          width: Theme.buttonWidth
           anchors.verticalCenter: parent.verticalCenter
           icon: "folder"
           text: "Open"
@@ -193,7 +193,7 @@ Item {
         hint: bs.browsing ? "Listing…" : bs.entries.length + " entries"
 
         KitButton {
-          width: BackupService.buttonWidth
+          width: Theme.buttonWidth
           anchors.verticalCenter: parent.verticalCenter
           icon: "arrow-up"
           text: "Up"
@@ -216,7 +216,7 @@ Item {
           labelColor: modelData.dir ? Theme.foreground0 : Theme.foreground1
 
           KitButton {
-            width: BackupService.buttonWidth
+            width: Theme.buttonWidth
             anchors.verticalCenter: parent.verticalCenter
             visible: entry.modelData.dir
             icon: "folder"
@@ -226,7 +226,7 @@ Item {
           }
 
           KitButton {
-            width: BackupService.buttonWidth
+            width: Theme.buttonWidth
             anchors.verticalCenter: parent.verticalCenter
             icon: "rotate-ccw"
             text: "Restore"

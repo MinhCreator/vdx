@@ -332,6 +332,13 @@ Rectangle {
     clip: true
     boundsBehavior: Flickable.StopAtBounds
     interactive: contentHeight > height
+    // a page with tabs (Network) shows a tab from its top
+    Connections {
+      target: root.currentPage
+      ignoreUnknownSignals: true
+      function onTabChanged() { page.contentY = 0; }
+    }
+
     // a scroll by hand lets the marker follow the page again
     onContentYChanged: if (!scroll.running) root.pinnedJump = ""
 

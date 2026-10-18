@@ -95,7 +95,7 @@ Rectangle {
       }
 
       KitButton {
-        width: BackupService.buttonWidth
+        width: Theme.buttonWidth
         id: cancel
         anchors { right: parent.right; verticalCenter: parent.verticalCenter }
         visible: root.bs.busy && root.bs.jobKind === "run"

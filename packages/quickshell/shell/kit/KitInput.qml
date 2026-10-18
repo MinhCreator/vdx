@@ -23,7 +23,7 @@ Rectangle {
   signal keyPassed(int key)
 
   width: parent ? parent.width : 0
-  implicitHeight: 32
+  implicitHeight: Theme.controlHeight
   radius: Theme.radiusControl
   color: Theme.material ? (textInput.activeFocus || hover.hovered ? Theme.controlHover : Theme.controlFill) : "transparent"
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }

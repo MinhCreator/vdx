@@ -19,7 +19,7 @@ Rectangle {
   signal clicked()
 
   implicitWidth: content.implicitWidth + (text !== "" ? 24 : 14)
-  implicitHeight: 30
+  implicitHeight: Theme.controlHeight
   radius: Theme.radiusControl
   color: selected ? Theme.background3 : hovered ? Theme.controlHover : Theme.controlFill
   border.width: Theme.frameWidth

@@ -47,7 +47,7 @@ Item {
       }
 
       KitButton {
-        width: BackupService.buttonWidth
+        width: Theme.buttonWidth
         visible: bs.loaded && !bs.configured
         text: "Open Setup"
         icon: "settings"
@@ -88,7 +88,7 @@ Item {
         hint: root.running ? "Backing up · " + (bs.progress >= 0 ? bs.progress + "%" : "starting") : "Everything below, once a root pass"
 
         KitButton {
-          width: BackupService.buttonWidth
+          width: Theme.buttonWidth
           anchors.verticalCenter: parent.verticalCenter
           icon: "download"
           text: "Back up"
@@ -104,7 +104,7 @@ Item {
         hint: "Reads its index, not the data"
 
         KitButton {
-          width: BackupService.buttonWidth
+          width: Theme.buttonWidth
           anchors.verticalCenter: parent.verticalCenter
           icon: "shield"
           text: "Check"

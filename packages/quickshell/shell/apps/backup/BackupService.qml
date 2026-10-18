@@ -20,8 +20,6 @@ Singleton {
   // ---- tuning ----
   readonly property int messageMs: 6000
   readonly property int revealMs: 20000     // the password stays on show this long
-  // every text button of the backups shares this width, so a column of them lines up
-  readonly property int buttonWidth: 120
 
   // ---- settings and status ----
   property var config: ({})
