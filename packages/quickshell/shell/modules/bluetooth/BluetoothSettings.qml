@@ -1,0 +1,12 @@
+import QtQuick
+import qs.bar
+import qs.config
+import qs.kit
+
+// Bluetooth options in the Shell Manager: what the bar shows (Bar text).
+Column {
+  spacing: Theme.gapGroup
+
+  KitLabel { text: "BAR" }
+  BarTextRow { module: "bluetooth" }
+}

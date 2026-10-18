@@ -15,6 +15,8 @@ battery-full battery_android_full
 battery-plugged battery_android_shield
 battery-saver battery_android_plus
 bell notifications
+bluetooth bluetooth
+bluetooth-off bluetooth_disabled
 bot smart_toy
 brush brush
 camera photo_camera
