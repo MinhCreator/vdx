@@ -88,7 +88,7 @@ Singleton {
 
   // ---- the shell's own apps (apps/apps.json); keys from the live binds ----
   function keysOf(bind) { return KeybindsService.keysFor(bind).join(" + "); }
-  readonly property var shellApps: ShellAppsService.entries
+  readonly property var shellApps: ShellAppsService.entries.filter(e => ShellAppsService.installed(e))
     .map(e => ({ icon: e.icon, title: e.label, hint: e.about, keys: keysOf(e.bind), run: () => ShellAppsService.run(e) }))
 
   // ---- the shell's own actions ----

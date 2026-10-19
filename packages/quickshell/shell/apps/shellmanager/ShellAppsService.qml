@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.bar
 import qs.config
 import "../../kit/reply.js" as Reply
 
@@ -26,6 +27,10 @@ Singleton {
   readonly property var entries: {
     try { return JSON.parse(registry.text()); } catch (e) { return []; }
   }
+
+  // an app whose bar module's components are all off (BarLayout.notInstalled):
+  // greyed in Shell apps, out of the launcher
+  function installed(entry) { return !entry?.module || BarLayout.installed(entry.module); }
 
   function run(entry) { Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", entry.ipc, entry.open]); }
 

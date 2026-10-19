@@ -72,7 +72,7 @@ Column {
       width: Theme.sideWidth
       height: parent.height
       title: "APPS"
-      model: ShellAppsService.entries
+      model: ShellAppsService.entries.map(e => Object.assign({ off: !ShellAppsService.installed(e) }, e))
       selected: root.selected
       onPicked: id => root.selected = id
     }
@@ -158,11 +158,19 @@ Column {
 
         KitLine {}
 
+        // its components are off on this machine: nothing to set until installed
+        KitRow {
+          visible: root.entry !== null && !ShellAppsService.installed(root.entry)
+          label: "Not installed"
+          hint: "components add " + (BarLayout.notInstalled[root.entry?.module] ?? []).join(" or ")
+          labelColor: Theme.foreground2
+        }
+
         // the app and its bar module, each on its own tab, so every option
         // says what it belongs to (only for apps with a module)
         KitChoices {
           width: parent.width
-          visible: root.hasModule
+          visible: root.hasModule && ShellAppsService.installed(root.entry)
           stretch: true
           model: [{ label: "App", value: "app", icon: "app-window" },
                   { label: "Bar module", value: "bar", icon: "layout" }]
@@ -173,7 +181,7 @@ Column {
         // ---- the app: how its window opens first, then its own options ----
         Column {
           width: parent.width
-          visible: root.scope === "app"
+          visible: root.scope === "app" && ShellAppsService.installed(root.entry)
           spacing: Theme.gapGroup
 
           // one line: how it opens now; the options in a dialog (WindowDialog)
@@ -205,7 +213,7 @@ Column {
         // ---- its bar module: a short version of the app in the bar ----
         Column {
           width: parent.width
-          visible: root.scope === "bar"
+          visible: root.scope === "bar" && ShellAppsService.installed(root.entry)
           spacing: Theme.gapGroup
 
           KitText {
