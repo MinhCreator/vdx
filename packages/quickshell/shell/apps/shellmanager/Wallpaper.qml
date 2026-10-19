@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
+import qs.apps.display
 import qs.config
 
 // Wallpaper through awww: the active theme's picture from ~/.dotfiles/wallpapers
