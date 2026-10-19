@@ -607,6 +607,91 @@ Result (2026-10-19): **Implemented, partially verified.**
   moving between monitors are unseen; the Add button end to end (the copy
   target changed only).
 
+### Phase 2 — 12-K: three small fixes seen while testing (owner, 2026-10-19)
+
+Category A. Found in 12-A, 12-B and 12-H testing.
+
+1. Stale lock marker. Evidence (live): `$XDG_RUNTIME_DIR/shell-lock/locked`
+   holds this Hyprland session's signature while unlocked, written 23:44:54
+   (a reload), next to an `eDP-1.jpg` of 23:21 that an unlock should have
+   removed; the log shows "Session lock object was destroyed without
+   unlocking" on every reload but the first. Root cause: the marker
+   `FileView` in `apps/lock/Lock.qml` reads the marker in every generation, so
+   once one is left behind (an unlock that did not reach `cleanup`, e.g. in
+   a generation that was torn down), each live reload locks again from it and
+   writes it anew; the old generation then dies locked. Fix: the marker is a
+   crash marker — only the first generation of a process reads it
+   (`PersistentProperties`: `started`); a reload takes the lock state from
+   the generation before (`PersistentProperties`: `locked`), and an unlocked
+   reload or start removes a marker that is not acted on (the dir holds
+   nothing worth keeping while unlocked).
+2. `modules/workspaces/Workspaces.qml:32` `Qt.callLater(() => started = true)`:
+   the closure outlives a Row the zone's Repeater remade → WARN "Invalid
+   write to global property". Fix: a `Timer` of 0 ms owned by the Row (it
+   goes with it).
+3. Leading `|` in a zone. `bar/Bar.qml` puts a separator before every shown
+   module but the first; a face that takes no room (equalizer while paused
+   with Show when paused off, `implicitWidth: 0`) or is not visible still
+   counts. Fix: the zone counts only cells that draw (`blank`: a module whose
+   loaded face has no width or is hidden); a blank cell draws no separator
+   and the next one sees the cell before it.
+
+Files edited: `apps/lock/Lock.qml`, `modules/workspaces/Workspaces.qml`,
+`bar/Bar.qml`, this file, the roadmap.
+
+Acceptance:
+- Live reload (a file written in place) while unlocked: no "Session lock
+  object was destroyed" in the log, no lock; the stale marker is gone.
+- Lock / crash (owner, needs the password): Super+Z, unlock → no
+  `shell-lock` dir; Super+Z, a reload while locked (touch a file over ssh),
+  unlock → unlocks, dir gone; Super+Z, `kill -KILL $(pgrep -x qs)` → locked
+  again within ~2 s, password unlocks, dir gone.
+- Workspaces: a reload with the layout loading → no "Invalid write" WARN;
+  a new workspace still opens up.
+- A centre zone `equalizer, clock` with the face empty: no `|` before the clock.
+- `./install.py check` green; `qs log -c shell` no new WARN / ERROR.
+
+Result (2026-10-20): **Implemented, partially verified.** After a
+restart (stale marker removed first — the screen was not locked, screenshot):
+- one supervisor + `qs`; no `shell-lock` dir; log without WARN / ERROR;
+- a reload needs a real change (a write of the same bytes reloads nothing —
+  why the live reloads "stopped" below); 3 reloads (a newline added and
+  taken off, the state files swapped): no "Session lock object was
+  destroyed", no lock, no marker, no "Invalid write";
+- Solid style, main centre `equalizer, clock, …`, nothing playing: `00:08 |
+  [capture]`, no leading `|` (screenshot); the owner's `settings.json` /
+  `layout.json` put back (`diff` same);
+- not run: steps 3–5 below (a lock needs the owner's password to end).
+
+Before (2026-10-19):
+- The log (`--log-times`): the 7 reloads of the running `qs` are all before
+  this work (last 23:44:53; the marker rewritten 23:44:54 — the old code
+  locking again from it). Edits since, also written in place, reload
+  nothing, so none of the three fixes is loaded; a restart is needed, and
+  with the marker still there the new process locks (by design: it reads as
+  a crash while locked). Left to the owner (password at the screen).
+- How the first marker outlived its unlock (the 23:21 blur lock's
+  `eDP-1.jpg` is still there): not found; the fix stops it from mattering.
+- The screen while the old code "locked" on reload: not locked (a
+  screenshot); whether Hyprland holds a lock nobody draws is not known.
+- `check shell syntax` ✓.
+
+Owner's steps (in order):
+1. Restart: `kill $(pgrep -x qs)`, then
+   `hyprctl eval 'hl.exec_cmd("~/.config/quickshell/shell/scripts/supervise.sh")'`.
+   The lock screen comes up (the old marker): unlock with the password →
+   `ls $XDG_RUNTIME_DIR/shell-lock` gives "No such file".
+2. Write a shell file in place (e.g. `printf '' >> …/bar/Bar.qml`): the
+   log gets "Reloading" with no "Session lock object was destroyed"; no lock.
+3. Super+Z, unlock → no `shell-lock` dir.
+4. Super+Z; from ssh / a tty write a file in place (a reload while locked);
+   still locked, the password unlocks → dir gone, no ERROR.
+5. Super+Z; from ssh / a tty `kill -KILL $(pgrep -x qs)` → locked again
+   within ~2 s, the password unlocks → dir gone.
+6. `qs log -c shell | grep -E 'Invalid write|ERROR'` → nothing new; the
+   centre zone with the equalizer empty (paused, Show when paused off) has
+   no `|` before the clock.
+
 ### Proposed tasks (for approval)
 
 Order by value / risk: 03 follow-up (U-03) and 01 follow-up (U-04) — category A, small; 12-A default bar + overflow (U-01); 12-B supervisor (U-02); 12-D memory and polling (U-06, U-07); 12-E hardware states (U-09); 12-F gating apps + component split (U-10, with 09-A); 12-I first run (U-14); 12-G contrast + text size (U-11); 12-H monitors + wallpapers (U-13, U-15); 12-C keyboard (U-05, after 05 p1). Into 05 phase 1 as inputs: U-08, U-12 (and U-05's focus token). U-16 deferred; U-17 a docs fix.
