@@ -288,6 +288,34 @@ Found while testing (new finding, not fixed here):
 |---|---|---|---|---|---|---|---|---|---|
 | U-18 | Every shell restart leaks its listener scripts | live: after a day of restarts, 39 `music.sh` / `bluetooth.sh` / `wifi.sh --listen` with ppid 1 plus 61 of their subshells (killed by hand: only those outside the live `qs` tree); an in-place crash restart also keeps the old set as children (10 under one `qs`). `wifi.sh:431` / `bluetooth.sh:179` pipe `nmcli monitor` / `gdbus monitor` into a read loop, `music.sh:61-67` loops on `mpc idle` (else `sleep 2`); none is killed with its parent, and a closed stdout only ends one at its next write | processes and memory grow with each restart; old listeners keep polling | S3 | S | low | — | listeners exit when stdout closes or their parent goes (`trap` + check `$PPID`, or `exec` the monitor command so the kill reaches it) | new 12-J (A) |
 
+### Phase 2 — 12-J: listeners end with the shell (U-18; "continue", 2026-10-19)
+
+Category A. Files: `scripts/listen.sh` (new, sourced), `scripts/wifi.sh`,
+`scripts/bluetooth.sh`, `scripts/music.sh`, this file, the roadmap.
+
+Steps: `listen.sh` › `listen_to <cmd…>` runs the monitor in a process
+substitution (its pid known), reads it with a 2 s timeout, writes `ok` per
+event, and ends — killing the monitor — when its parent (`qs`) is gone, the
+monitor ends, or a write fails (SIGPIPE ignored, so a closed stdout is an
+error, not a silent death). `music.sh` `cmd_listen`: the same parent check,
+`mpc idle` under `timeout 30` so a gone parent is seen within 30 s.
+
+Acceptance: kill `qs` (TERM and KILL): within ~2 s (music ≤ 30 s) no
+`--listen` with ppid 1; a Wi-Fi / Bluetooth event still reaches the shell
+(toggle Bluetooth power: the popup follows); `shellcheck` clean.
+
+Result (2026-10-19): **Implemented and verified.** A fake parent that dies
+after 3 s: Wi-Fi and Bluetooth listeners and their monitors gone within 2 s,
+the music one within 30 s; a 2 s BlueZ scan under it gave 4 `ok` lines
+(events still pass; instead of toggling power, which would drop the owner's
+devices). The real shell killed by TERM and by KILL (the supervisor's
+restart): no listener of the new code left with ppid 1 (the ones left
+dated from before the change). Old leftovers of the whole day removed by
+hand: ~100 processes (`--listen` shells, `nmcli` / `gdbus monitor`,
+`mpc idle`). `shellcheck -S warning -x` clean. An in-place crash restart
+keeps the old set until its next write (stdout closed → the write fails →
+it ends): not waited for.
+
 ### Proposed tasks (for approval)
 
 Order by value / risk: 03 follow-up (U-03) and 01 follow-up (U-04) — category A, small; 12-A default bar + overflow (U-01); 12-B supervisor (U-02); 12-D memory and polling (U-06, U-07); 12-E hardware states (U-09); 12-F gating apps + component split (U-10, with 09-A); 12-I first run (U-14); 12-G contrast + text size (U-11); 12-H monitors + wallpapers (U-13, U-15); 12-C keyboard (U-05, after 05 p1). Into 05 phase 1 as inputs: U-08, U-12 (and U-05's focus token). U-16 deferred; U-17 a docs fix.
