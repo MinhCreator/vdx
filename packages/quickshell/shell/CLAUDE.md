@@ -71,6 +71,10 @@ Read it before any visual work.
   values `ModuleSettings.get("<id>", "<key>", default)` (`modules.json`). The
   default lives in the module.
 - Applied at once, except pickers with a preview (Apply) and fields (Enter).
+- Schema: `settings.json`, `modules.json`, `layout.json` carry `version`. A change
+  to a stored shape (a key renamed, moved, a value's meaning) adds a step to
+  `scripts/settings_migrate.py` (`MIGRATIONS`, `VERSION`) with a test in
+  `tests/test_settings_migrate.py`; the QML still reads the old shape (a live reload runs no migration).
 - A right click on a bar module opens its options page (Bar › Behaviour › Right
   click opens options, `bar/Bar.qml` `openSettings`): a module needs no code for it.
 

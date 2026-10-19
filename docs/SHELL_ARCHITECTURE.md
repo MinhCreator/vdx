@@ -17,7 +17,7 @@ Parts marked *not inspected* are names and roles only.
 Hyprland ── autostart.lua (hyprland.start)
    ├─ awww-daemon            wallpaper surface (`--no-cache`: starts empty; the shell sets the picture)
    ├─ shellapps.py ensure    window rules for the shell's apps (repo hypr config)
-   ├─ supervise.sh           runs qs; starts it again when it ends by a crash (not a kill);
+   ├─ supervise.sh           runs settings_migrate.py, then qs; starts it again when it ends by a crash (not a kill);
    │                         most crashes Quickshell restarts in place itself (crash report window)
    │   └─ qs -c shell        ONE process: bars, island, popups, apps, lock, polkit agent
    ├─ mako                   the notification server (toasts in Solid style, history)
@@ -69,10 +69,11 @@ links, secrets, `/etc`, units, services). `link` also writes
 
 | Store | File (`~/.local/state/quickshell/by-shell/<id>/`) | API | Notes |
 |---|---|---|---|
-| Shell options | `settings.json` | `ShellSettings` property + `set()` | ~75 keys, no schema version |
+| Shell options | `settings.json` | `ShellSettings` property + `set()` | 36 keys; `version` (schema, below) |
 | Module / app options | `modules.json` › `values.<id>` | `ModuleSettings.get(id, key, default)` / `set` | default lives in the module; written on each change, external edits reloaded |
-| Bar layout | `layout.json` | `BarLayout` | renames via `BarLayout.renamed`; not watched |
+| Bar layout | `layout.json` | `BarLayout` | renames via `BarLayout.renamed` (live fallback); not watched |
 | Notifications history | `notifications.json` (statePath) | `NotificationsService` | — |
+| Schema | `version` in the three files above | `scripts/settings_migrate.py` (`VERSION`, `MIGRATIONS`), run by `supervise.sh` before qs | a file is written only when changed, old one as `.bak`; `tests/test_settings_migrate.py` |
 | Dotfiles state | `~/.local/state/dotfiles/` | installer + shell | `components.json` (modules not installed), `accent.lua`, `window-mode`, `shell-apps.json` |
 
 Settings UI = **Shell Manager** (`apps/shellmanager/`, Super+S). Pages:

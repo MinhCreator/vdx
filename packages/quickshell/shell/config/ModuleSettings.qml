@@ -42,6 +42,7 @@ Singleton {
 
     JsonAdapter {
       id: state
+      property int version: 0         // schema (scripts/settings_migrate.py stamps it)
       property var values: ({})
     }
   }

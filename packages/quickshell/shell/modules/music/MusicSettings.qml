@@ -7,12 +7,6 @@ import qs.kit
 KitColumn {
   spacing: Theme.gapGroup
 
-  // the old "Off" length (0) was the icon alone: it is Shows › Icon now
-  Component.onCompleted: if (ModuleSettings.get("music", "titleLength", 60) === 0) {
-    ModuleSettings.set("music", "show", "icon");
-    ModuleSettings.set("music", "titleLength", 60);
-  }
-
   KitLabel { text: "BAR" }
   BarTextRow { module: "music" }
 

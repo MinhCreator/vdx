@@ -96,6 +96,7 @@ Singleton {
 
     JsonAdapter {
       id: state
+      property int version: 0         // schema (scripts/settings_migrate.py stamps it)
       property bool solidIcons: false
       property string managerStart: "main"
       property string managerTab: "appearance"

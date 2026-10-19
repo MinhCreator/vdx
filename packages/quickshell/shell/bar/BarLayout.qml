@@ -368,6 +368,7 @@ Singleton {
 
     JsonAdapter {
       id: state
+      property int version: 0         // schema (scripts/settings_migrate.py stamps it)
       property var zones: null
       property var hidden: []
       property var screens: ({})      // role (main | extra) -> {zones, hidden, folder, off, island, islandClock, bars}

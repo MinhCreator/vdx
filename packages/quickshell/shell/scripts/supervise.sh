@@ -10,13 +10,18 @@
 # (SEGV, ABRT, KILL from the OOM killer, an error code): mako draws toasts
 # again (its island mode off: no island is left), and qs starts after a
 # second; the 5th crash within a minute stops it, with a critical toast.
+# Before each start, settings_migrate.py brings the option files up to date.
 set -u
 
 limit=5      # crashes ...
 window=60    # ... within this many seconds stop it
 crashes=()
 
+here=$(dirname "$(readlink -f "$0")")
+
 while true; do
+  # the option files up to the current schema first (a failure starts it anyway)
+  python3 "$here/settings_migrate.py" >/dev/null 2>&1
   qs -n -c shell
   code=$?
   case $code in 0 | 129 | 130 | 143) exit 0 ;; esac
