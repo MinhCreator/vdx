@@ -17,8 +17,8 @@ must be approved before implementation.
 | # | Task | Cat | Depends on | Gate | Status |
 |---|---|---|---|---|---|
 | [00](implementation-plans/00_REPOSITORY_AUDIT.md) | Repository audit | — | — | — | Done (planning), partial coverage — see its "Not inspected" |
-| [01](implementation-plans/01_NOTIFICATION_SYSTEM.md) | Notifications: A reappear, B click, E capture toggles | A | — | — | Not started |
-| [01](implementation-plans/01_NOTIFICATION_SYSTEM.md) | Notifications: C lifecycle, D toast duration | B | 01 A/B | lifecycle table + D-01..03 | Not started |
+| [01](implementation-plans/01_NOTIFICATION_SYSTEM.md) | Notifications: A reappear, B click, E capture toggles | A | — | — | Implemented, partially verified (B: no default action in island style) |
+| [01](implementation-plans/01_NOTIFICATION_SYSTEM.md) | Notifications: C lifecycle, D toast duration | B | 01 A/B | lifecycle table + D-01..03 | Implemented, partially verified (visual check open) |
 | [02-A](implementation-plans/02_FILEPICKER_AND_AUDIO_FIXES.md) | Filepicker stale listing | A | — | — | Not started |
 | [02-B](implementation-plans/02_FILEPICKER_AND_AUDIO_FIXES.md) | Duplicate microphone | A/B | — | device model (D-05) | Not started |
 | [03](implementation-plans/03_DISPLAY_AND_WALLPAPER_FIXES.md) | Wallpaper after Display change and at login | A | — | D-04 if Hyprland bg changes | Not started |

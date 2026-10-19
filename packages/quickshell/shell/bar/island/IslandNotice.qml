@@ -4,7 +4,7 @@ import qs.kit
 import "../../kit/markup.js" as Markup
 
 // A new notification: app badge, app name with "now", summary and body.
-// Click opens the notifications popup; the cross dismisses. The island stacks
+// Click focuses its app's window, else opens the notifications popup; the cross dismisses. The island stacks
 // one per row (Island › notice).
 Item {
   id: root
@@ -70,7 +70,7 @@ Item {
   MouseArea {
     anchors.fill: parent
     cursorShape: Qt.PointingHandCursor
-    onClicked: { root.dismissed(); IslandService.openNotifications(); }
+    onClicked: { root.dismissed(); IslandService.activate(root.n); }
   }
 
   IslandButton {

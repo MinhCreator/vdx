@@ -22,9 +22,13 @@ Singleton {
 
   property real openedSeenAt: 0                // seenAt before the popup opened: marks fresh rows
 
+  // the centre opened (from anywhere): the island's toasts close
+  signal opened()
+
   function popupShown() {
     openedSeenAt = state.seenAt;
     state.seenAt = Date.now();
+    root.opened();
   }
 
   // the island's last notice went away: the batch counts as seen (the rows stay)
@@ -58,10 +62,12 @@ Singleton {
     return true;
   }
 
-  // Adds mako's notifications newer than the last one taken (mako ids grow;
-  // a lower top id means mako restarted and numbering began again), so a
-  // cleared history stays clear. The first run on a fresh state only notes
-  // where the ids are: what mako already holds is not news.
+  // One row per notification: its mako id within one mako run (`epoch`; a
+  // lower top id means mako restarted and numbering began again). A new id is
+  // news. A row mako sends again with new text (replaces_id) is updated in
+  // place and comes back as news. Any other known or cleared id is left alone,
+  // so a cleared history stays clear. The first run on a fresh state only
+  // notes where the ids are: what mako already holds is not news.
   function ingest(list) {
     const top = list.reduce((m, n) => Math.max(m, n.id), 0);
     if (!state.tracked) {
@@ -69,17 +75,25 @@ Singleton {
       state.tracked = true;
       return;
     }
-    if (top < state.lastId) state.lastId = 0;
-    const known = new Set(state.items.map(n => n.key));
+    if (top < state.lastId) {
+      state.lastId = 0;
+      state.epoch += 1;
+    }
     const now = Date.now();
-    const fresh = list
-      .filter(n => n.id > state.lastId)
-      .map(n => ({ key: n.id + "|" + n.summary + "|" + n.body, app: n.app, desktop: n.desktop,
-                   summary: n.summary, body: n.body, urgency: n.urgency, time: now }))
-      .filter(n => !known.has(n.key));
+    const rows = new Map(state.items.map(n => [n.key, n]));
+    const news = [];
+    for (const n of list) {
+      const key = state.epoch + "|" + n.id;
+      const row = rows.get(key);
+      if (row ? row.summary === n.summary && row.body === n.body && row.urgency === n.urgency
+              : n.id <= state.lastId) continue;
+      news.push({ key: key, app: n.app, desktop: n.desktop, summary: n.summary, body: n.body,
+                  urgency: n.urgency, time: now });
+    }
     state.lastId = Math.max(state.lastId, top);
-    if (fresh.length > 0)
-      state.items = fresh.concat(state.items).slice(0, root.historyMax);
+    if (news.length > 0)
+      state.items = news.concat(state.items.filter(n => !news.some(f => f.key === n.key)))
+                        .slice(0, root.historyMax);
   }
 
   function refresh() {
@@ -142,6 +156,7 @@ Singleton {
       property var items: []
       property real seenAt: 0
       property int lastId: 0
+      property int epoch: 0                   // mako runs so far: its ids restart each run
       property bool tracked: false            // lastId is known
     }
   }

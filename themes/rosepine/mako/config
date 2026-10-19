@@ -30,3 +30,20 @@ invisible=1
 # Appearance › Corners round: the shell turns this mode on
 [mode=round]
 border-radius=10
+
+# Notifications › Toasts › Toast duration: the shell switches one of these
+[mode=toast-3]
+default-timeout=3000
+
+[mode=toast-5]
+default-timeout=5000
+
+[mode=toast-10]
+default-timeout=10000
+
+[mode=toast-0]
+default-timeout=0
+
+# Critical stays until dismissed; last, so it wins over the modes above
+[urgency=critical]
+default-timeout=0

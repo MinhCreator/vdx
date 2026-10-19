@@ -1,6 +1,6 @@
 # 01 — Notification system
 
-Status: Not started · Category: A (parts A, B, E) / B (parts C, D) ·
+Status: Implemented, partially verified (A, B without default action, C, D, E) · Category: A (parts A, B, E) / B (parts C, D) ·
 Depends on: nothing · Gate: before part C+D implementation (lifecycle spec + D-01 approved).
 Spec: §5.1 A–E.
 
@@ -130,6 +130,10 @@ Nothing delegated.
 - C: `notify-send -r <id>` updates the toast and the centre row, no duplicate (needs `ingest` change).
 - B: a notification from an app with a window (e.g. Telegram) focuses it; one
   with a default action runs it; one with neither opens the centre (or per D-02).
+  **Limit (decided 2026-10-19, option 1):** in island style mako hides
+  notifications (`invisible=1`), so `makoctl list` never shows them and
+  `invoke` has no target. Island clicks focus the window or open the centre;
+  the default action is not run there. Solid style is unaffected.
 - C: every row of the lifecycle table observed.
 - D: each duration observed in both styles; change applies to the next toast
   without restart; "Until dismissed" stays until ×; expiry leaves the centre row.

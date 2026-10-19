@@ -67,6 +67,16 @@ KitColumn {
 
   KitLine {}
 
+  KitLabel { text: "TOASTS" }
+
+  KitOptionRow {
+    module: "notifications"; key: "toastSeconds"; fallback: 5
+    label: "Toast duration"; hint: "Critical stays until dismissed"
+    model: [{ label: "3 s", value: 3 }, { label: "5 s", value: 5 }, { label: "10 s", value: 10 }, { label: "Until dismissed", value: 0 }]
+  }
+
+  KitLine {}
+
   KitLabel { text: "POPUP" }
 
   KitOptionRow {

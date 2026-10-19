@@ -356,7 +356,10 @@ Item {
     id: flashTimer
     onTriggered: {
       if (root.flash === "notice" && hover.hovered) restart();
-      else root.flash = "";
+      else {
+        if (root.flash === "notice") IslandService.clearNotices();
+        root.flash = "";
+      }
     }
   }
 
@@ -370,9 +373,15 @@ Item {
     function onFlashed(kind, ms) {
       // a change made from the island (its wheel, its chips) is shown there: no flash
       if (kind === "osd" && hover.hovered) return;
+      // an OSD replaces a notice flash: its toasts are over, not waiting
+      if (root.flash === "notice" && kind !== "notice") IslandService.clearNotices();
       root.flash = kind;
-      flashTimer.interval = ms;
-      flashTimer.restart();
+      // ms 0: stays until the notices are dismissed (onNoticesChanged ends it)
+      flashTimer.stop();
+      if (ms > 0) {
+        flashTimer.interval = ms;
+        flashTimer.restart();
+      }
     }
     function onRequested(v, screen) {
       if (screen !== "" && screen !== root.bar.screen?.name) return;

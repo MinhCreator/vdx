@@ -96,6 +96,13 @@ Column {
 
   KitLine {}
 
+  KitLabel { text: "NOTIFICATIONS" }
+
+  KitToggleRow { module: "capture"; key: "notifyShot"; fallback: true; label: "Notify after a screenshot"; hint: "Errors still notify" }
+  KitToggleRow { module: "capture"; key: "notifyRecord"; fallback: true; label: "Notify after a recording"; hint: "Errors still notify" }
+
+  KitLine {}
+
   KitLabel { text: "FOLDERS" }
 
   Repeater {

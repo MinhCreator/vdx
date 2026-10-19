@@ -25,7 +25,9 @@ Singleton {
 
   // ---- tuning ----
   readonly property int osdMs: 1600            // a volume / brightness flash
-  readonly property int noticeMs: 5000         // a notification flash
+  // a notification flash: Notifications › Toasts › Toast duration (0: until dismissed)
+  readonly property int toastSeconds: ModuleSettings.get("notifications", "toastSeconds", 5)
+  readonly property int noticeMs: toastSeconds * 1000
   readonly property int quietStartMs: 3000     // values read at startup are not news
 
   // a flash: "osd" or "notice"; `requested`: a view asked for over IPC
@@ -112,11 +114,26 @@ Singleton {
       const fresh = NotificationsService.items.filter(n => n.time > root.noticeTime && now - n.time <= 10000);
       if (fresh.length === 0) return;
       root.noticeTime = fresh[0].time;
-      root.notices = fresh.concat(root.notices).slice(0, root.noticeMax);
+      // a replaced notification (same key) takes its old toast's place
+      root.notices = fresh.concat(root.notices.filter(n => !fresh.some(f => f.key === n.key)))
+                          .slice(0, root.noticeMax);
       root.noticeMore = Math.max(0, fresh.length - root.noticeMax);
+      // critical toasts stay until dismissed, as in mako's [urgency=critical]
       const critical = fresh.some(n => n.urgency === "critical");
-      root.flashed("notice", critical ? root.noticeMs * 2 : root.noticeMs);
+      root.flashed("notice", critical ? 0 : root.noticeMs);
     }
+  }
+
+  // the notice flash is over, or an OSD replaces it: its toasts leave the
+  // island (the centre keeps them), so a later notice does not bring them back
+  function clearNotices() {
+    root.notices = [];
+    root.noticeMore = 0;
+  }
+
+  // a click on a notice: its app's window, else the notifications popup (D-02)
+  function activate(item) {
+    if (!NotificationsService.focusApp(item)) openNotifications();
   }
 
   function dismissNotice(key) {
@@ -132,9 +149,25 @@ Singleton {
   // while the island shows them; they still reach its history
   readonly property bool island: Theme.island
   onIslandChanged: makoMode()
-  Component.onCompleted: makoMode()
+  Component.onCompleted: { makoMode(); toastMode(); }
   function makoMode() {
     Quickshell.execDetached(["makoctl", "mode", island ? "-a" : "-r", "island"]);
+  }
+
+  // the toast duration is one of mako's toast-N modes (themes/*/mako/config),
+  // so Solid toasts follow the setting too; the island reads it itself
+  onToastSecondsChanged: toastMode()
+  function toastMode() {
+    const keep = "toast-" + toastSeconds;
+    const args = ["makoctl", "mode", "-a", keep];
+    for (const s of [3, 5, 10, 0]) if (("toast-" + s) !== keep) args.push("-r", "toast-" + s);
+    Quickshell.execDetached(args);
+  }
+
+  // the centre opened (from anywhere): the toasts close, the centre keeps them
+  Connections {
+    target: NotificationsService
+    function onOpened() { root.clearNotices(); }
   }
 
   function openNotifications() {

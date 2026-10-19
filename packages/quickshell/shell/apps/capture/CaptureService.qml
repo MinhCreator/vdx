@@ -91,6 +91,8 @@ Singleton {
   // after a recording: folder | ask. Shell Manager › Apps › Capture, and the panel.
   readonly property string shotTarget: ModuleSettings.get("capture", "shotTarget", "folder")
   readonly property string videoTarget: ModuleSettings.get("capture", "videoTarget", "folder")
+  readonly property bool notifyShot: ModuleSettings.get("capture", "notifyShot", true)     // off: no toast; errors still show
+  readonly property bool notifyRecord: ModuleSettings.get("capture", "notifyRecord", true)
   readonly property string cacheDir: Quickshell.env("HOME") + "/.cache/quickshell-capture"
   // a capture waiting for its Save as answer: {kind: shot | video, tmp, path}
   property var pending: null
@@ -192,7 +194,7 @@ Singleton {
   // goes to the clipboard, then to wherever shotTarget says.
   function shotSaved(path) {
     close();
-    const copy = 'wl-copy --type image/png < "$1" && notify-send -a Capture -i "$1" "$2" "$3"';
+    const copy = 'wl-copy --type image/png < "$1"' + (notifyShot ? ' && notify-send -a Capture -i "$1" "$2" "$3"' : "");
     if (shotTarget === "ask") {
       run(["sh", "-c", 'wl-copy --type image/png < "$1"', "sh", path]);
       pending = { kind: "shot", tmp: path, path: shotDir + "/" + path.split("/").pop() };
@@ -207,7 +209,9 @@ Singleton {
     const p = pending;
     pending = null;
     const target = path.trim().replace(/^~(?=\/|$)/, Quickshell.env("HOME"));
-    run(["sh", "-c", 'mkdir -p "$(dirname "$2")" && mv "$1" "$2" && notify-send -a Capture "$3" "$2" || notify-send -a Capture -u critical "Could not save" "$2"',
+    const notify = p.kind === "shot" ? notifyShot : notifyRecord;
+    run(["sh", "-c", 'mkdir -p "$(dirname "$2")" && mv "$1" "$2"' + (notify ? ' && notify-send -a Capture "$3" "$2"' : "")
+                     + ' || notify-send -a Capture -u critical "Could not save" "$2"',
          "sh", p.tmp, target, p.kind === "shot" ? "Screenshot saved" : "Recording saved"]);
   }
 
@@ -327,7 +331,7 @@ Singleton {
       if (code === 0 || code === 130 || code === 2) {
         if (root.recordAsk)
           root.pending = { kind: "video", tmp: root.recordFile, path: root.videoDir + "/" + root.recordFile.split("/").pop() };
-        else
+        else if (root.notifyRecord)
           root.run(["notify-send", "-a", "Capture", "Recording saved", root.recordFile]);
       } else
         root.fail("Recording failed", recorderErr.text.trim().split("\n").pop() || "gpu-screen-recorder exited with " + code);
