@@ -5,8 +5,9 @@ import qs.config
 
 // The Shell Manager as a window of its own (its window rule comes from scripts/shellapps.py (Shell Manager › Shell apps)). Opened
 // from the bar's Shell button, Super+S, `qs -c shell ipc call shell toggle` or
-// `… shell open <page>[:<group or app>]` (appearance, animations, bar, windows, apps,
-// modules, about; launcher, keybinds, lock open their app in apps, media the audio in
+// `… shell open <page>[:<group or app>]` (appearance, animations, bar, modules,
+// windows, lockscreen, notifications, network, bluetooth, apps, about; launcher and
+// keybinds open their app in apps, lock the lock screen, media the audio in
 // modules); Escape closes it.
 FloatingWindow {
   id: root

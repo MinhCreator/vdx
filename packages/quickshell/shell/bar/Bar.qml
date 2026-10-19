@@ -26,12 +26,11 @@ PanelWindow {
   ModuleFaces { id: faces; bar: root }
 
   // a module's options in the Shell Manager (a right click on it): an app's
-  // bar module on the app's tab, the others on their page under Modules
+  // module too, on its page under Bar modules (notifications: its own page)
   function openSettings(id) {
     const app = ShellAppsService.entries.find(a => a.module === id) ?? null;
     const has = app ? !!app.moduleSettings : !!BarLayout.modules.find(p => p.id === id)?.settings;
-    if (has) Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "shell", "open",
-                                      (app ? "apps" : "modules") + ":" + id]);
+    if (has) Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "shell", "open", "modules:" + id]);
   }
 
   component Zone: Row {

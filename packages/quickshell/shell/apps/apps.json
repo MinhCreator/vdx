@@ -11,7 +11,7 @@
     "settings": "apps/keybinds/KeybindsSettings.qml" },
   { "id": "lock", "label": "Lock screen", "icon": "lock", "about": "A session lock with a PAM password",
     "bind": "Lock the screen", "ipc": "lock", "open": "lock",
-    "settings": "apps/lock/LockSettings.qml" },
+    "settings": "apps/lock/LockSettings.qml", "page": "lockscreen" },
   { "id": "overview", "label": "Overview", "icon": "columns", "about": "Workspaces as one scrolling strip",
     "ipc": "overview", "open": "toggle" },
   { "id": "taskmanager", "label": "Task Manager", "icon": "activity", "about": "Processes, CPU and memory, End / Kill",

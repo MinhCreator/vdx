@@ -55,8 +55,8 @@ description), ipc + open, `window` {id, title, width, height} for a window of
 its own, `settings`, `module` + `moduleSettings` when it has a bar module,
 `desktop` (the id of its `.desktop` file, when it ships one: the launcher lists the
 app once, not twice).
-A bar module of an app is set with the app (Apps › Bar module tab; Modules lists it with a link), not
-in Modules.
+A bar module of an app is set in Bar modules like any other (its `moduleSettings`);
+Apps shows a link row to it (decision 0002).
 
 ## UI
 

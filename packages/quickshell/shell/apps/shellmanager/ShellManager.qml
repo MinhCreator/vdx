@@ -7,21 +7,24 @@ import qs.kit
 // on the left, the chosen page on the right under its fixed header, scrolling
 // on its own. Under the open section its groups (`jumps` of the page) jump
 // there on a click.
-// The sections come in four groups, by what the user is after:
+// The sections come in four groups, by what the user is after (decision 0002):
 //   LOOK     — how it looks and moves
-//     APPEARANCE — theme, accent, wallpaper, font, cursor, shape and controls;
+//     APPEARANCE — theme, accent, wallpaper, text, cursor, shape and controls;
 //     ANIMATIONS — how the shell moves: all on / off, speed, each part on its own.
 //   DESKTOP  — the desktop itself
-//     BAR        — the layout of the bar's zones, modules on / off.
-//     WINDOWS    — the window mode, each mode's options, gaps, the taskbar.
+//     BAR           — the layout of the bar's zones, modules on / off.
+//     BAR MODULES   — each bar module's own options, an app's module too.
+//     WINDOWS       — the window mode, each mode's options, gaps, the taskbar.
+//     LOCK SCREEN   — what the lock shows and where.
+//     NOTIFICATIONS — toasts, the history popup, the bar's marks.
 //   SYSTEM   — the machine's connections
 //     NETWORK    — Wi-Fi, saved and new networks, hotspot, Ethernet.
 //     BLUETOOTH  — the adapter, paired and nearby devices.
 //   SHELL    — the shell's own apps and parts
-//     APPS       — each app: its options, its window, its bar module; the launcher,
-//                  keybinds and lock screen are here too, and the Shell Manager's own opening.
-//     MODULES    — each bar module's own options (the music's pause is the audio's).
+//     APPS       — each app: its options and its window; the launcher and keybinds
+//                  are here too, and the Shell Manager's own opening.
 //     ABOUT      — the ideas behind it, the author, versions.
+// A page may offer `changed` + `reset()`: Reset (two steps) in the header.
 Rectangle {
   id: root
 
@@ -42,19 +45,24 @@ Rectangle {
     { value: "appearance", label: "Appearance", icon: "sun",        caption: "LOOK" },
     { value: "animations", label: "Animations", icon: "zap" },
     { value: "bar",        label: "Bar",        icon: "layout",     caption: "DESKTOP" },
+    { value: "modules",    label: "Bar modules", icon: "puzzle" },
     { value: "windows",    label: "Windows",    icon: "app-window" },
+    { value: "lockscreen", label: "Lock screen", icon: "lock" },
+    { value: "notifications", label: "Notifications", icon: "bell" },
     { value: "network",    label: "Network",    icon: "wifi",       caption: "SYSTEM" },
     { value: "bluetooth",  label: "Bluetooth",  icon: "bluetooth" },
     { value: "apps",       label: "Apps",       icon: "grid",       caption: "SHELL" },
-    { value: "modules",    label: "Modules",    icon: "puzzle" },
     { value: "about",      label: "About",      icon: "info" }
   ]
 
-  // the pages that moved: Launcher, Keybinds and Lock screen are apps (Shell
-  // apps), Media is the audio's (Modules). Their old names still open them:
-  // `shell open lock`, a saved last page.
+  // the pages that moved: Launcher and Keybinds are apps (Apps), Media is the
+  // audio's (Bar modules), the lock and the notifications have pages of their
+  // own (05). Their old names still open them: `shell open lock`,
+  // `apps:lock`, `modules:notifications`, a saved last page.
   function resolve(value, target) {
-    if (["launcher", "keybinds", "lock"].includes(value)) return { tab: "apps", target: value };
+    if (["launcher", "keybinds"].includes(value)) return { tab: "apps", target: value };
+    if (value === "lock" || (value === "apps" && target === "lock")) return { tab: "lockscreen", target: "" };
+    if (value === "modules" && target === "notifications") return { tab: "notifications", target: "" };
     if (value === "media") return { tab: "modules", target: "audio" };
     return { tab: value, target: target ?? "" };
   }
@@ -76,7 +84,8 @@ Rectangle {
 
   function pageFor(value) {
     return ({ bar: bar, animations: animations, windows: windows, network: network, bluetooth: bluetooth,
-              modules: modules, apps: apps, about: about })[value] ?? appearance;
+              modules: modules, apps: apps, about: about, lockscreen: lockscreen,
+              notifications: notifications })[value] ?? appearance;
   }
   readonly property Item currentPage: pageFor(tab)
 
@@ -136,7 +145,7 @@ Rectangle {
       // the page's first label sits this far under the header: the list starts there too
       y: brand.y + brand.height + Theme.gapGroup
       width: parent.width - 2 * Theme.windowPadding
-      height: parent.height - y - 40
+      height: parent.height - y - Theme.windowPadding
       contentHeight: navColumn.implicitHeight
       clip: true
       interactive: contentHeight > height
@@ -186,7 +195,7 @@ Rectangle {
             radius: Theme.radiusControl
             id: item
             width: parent.width
-            height: 34
+            height: 30
             color: section.active ? Theme.background3 : itemArea.containsMouse ? Theme.background1 : Theme.clear
             Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.quick } }
 
@@ -294,12 +303,6 @@ Rectangle {
     }
     }
 
-    KitText {
-      anchors { left: parent.left; leftMargin: Theme.windowPadding; bottom: parent.bottom; bottomMargin: 14 }
-      text: "Esc close"
-      color: Theme.muted
-      font.pixelSize: Theme.fontSize - 2
-    }
   }
 
   // hairline between navigation and page
@@ -320,6 +323,13 @@ Rectangle {
       icon: root.currentPage.icon
       title: root.currentPage.title
       subtitle: root.currentPage.subtitle
+
+      // a page that can go back to its defaults: `changed`, `reset()`
+      KitResetButton {
+        visible: typeof root.currentPage.reset === "function"
+        changed: root.currentPage.changed ?? false
+        onReset: root.currentPage.reset()
+      }
 
       // a page with tabs (Network) lists them: `tabs` [{label, value}], `tab`
       KitChoices {
@@ -372,6 +382,8 @@ Rectangle {
                                network.visible ? network.implicitHeight : 0,
                                bluetooth.visible ? bluetooth.implicitHeight : 0,
                                about.visible ? about.implicitHeight : 0,
+                               lockscreen.visible ? lockscreen.implicitHeight : 0,
+                               notifications.visible ? notifications.implicitHeight : 0,
                                modules.visible ? modules.height : 0)
 
       AppearancePage { id: appearance; width: parent.width; visible: root.tab === "appearance" }
@@ -383,6 +395,8 @@ Rectangle {
       NetworkPage   { id: network;   width: parent.width; visible: root.tab === "network" }
       BluetoothPage { id: bluetooth; width: parent.width; visible: root.tab === "bluetooth" }
       AboutPage   { id: about;   width: parent.width; visible: root.tab === "about" }
+      LockScreenPage { id: lockscreen; width: parent.width; visible: root.tab === "lockscreen" }
+      NotificationsPage { id: notifications; width: parent.width; visible: root.tab === "notifications" }
       ModulesPage { id: modules; width: parent.width; onNavigate: (t, k) => root.navigate(t, k); height: page.height - pages.y - 20; visible: root.tab === "modules" }
     }
   }

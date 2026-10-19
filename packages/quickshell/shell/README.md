@@ -68,7 +68,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | Keybinds | Super+B | `keybinds toggle\|open\|close` |
 | Window switcher | Super+Tab (floating mode) | `switcher toggle\|open\|close` |
 | Overview | — | `overview toggle` |
-| Lock screen | Super+Z | `lock lock` (options: Shell Manager › Apps › Lock screen) |
+| Lock screen | Super+Z | `lock lock` (options: Shell Manager › Lock screen) |
 | Taskbar | — | floating mode only |
 | Root prompt | — | polkit agent; asks before every root action |
 
@@ -89,7 +89,7 @@ a tty (Ctrl+Alt+F2), log in, then
 Bar modules live in `modules/<id>/`; each popup opens with
 `qs -c shell ipc call <id> toggle` (except clipboard `clip`, taskmanager
 `tasks`, cleaner `clean`, virustotal `scan`, packages `updates`). Order, zones and visibility: Shell Manager
-› Bar. Options: Shell Manager › Modules (an app's module: a link to › Apps).
+› Bar. Options: Shell Manager › Bar modules (an app's module too; Notifications: its own page).
 A new layout (and Bar › Layout › Reset) shows workspaces, the clock, audio, Wi-Fi,
 Bluetooth, battery, notifications, Shell and the Folder; the rest start in the Folder
 (`BarLayout.defaultBar`), one drag from the bar. In the strip, modules of LEFT / RIGHT
@@ -139,7 +139,7 @@ and HIDDEN; Bar › Monitor › Island clock, per monitor: off with nothing besi
 island hides there until it has something to show. Volume / brightness changes pass over it as a flash, but not
 when made from the island itself (its chips, the open volume popup) or while the pointer rests on it; new
 notifications pass over it too (mako only keeps them: its `island` mode); a click on one focuses its app's window, else opens the centre. A new OSD or the end of the flash clears them from the island (the centre keeps them). Modules › Notifications › Toasts › Toast duration sets how long (Until dismissed: critical always stays so); the centre opening closes them. The track in the hub is the player (Bar › Behaviour › Show the player: off leaves the chips);
-the equalizer has no clicks (its colour and Show when paused: Modules › Equalizer;
+the equalizer has no clicks (its colour and Show when paused: Bar modules › Equalizer;
 a gradient runs left to right).
 Right click on a chip: its options (the hub closes). Middle click: play / pause. The wheel belongs to the modules.
 
@@ -157,10 +157,10 @@ an island of its own: its modules' popups open inside it as in the island
 (`bar/island/IslandChild.qml`); with no centre showing they meet in the
 middle. Bar › Look › Module gap and Separators: the room between modules and
 the "|" in it, in every bar. Bar › Layout › ADD › Separator: a custom "|",
-dragged into a band (a click puts it at the end of RIGHT); its chip's cross removes it. Modules › Notifications › Unseen dot: the dot shows
+dragged into a band (a click puts it at the end of RIGHT); its chip's cross removes it. Notifications › Unseen dot: the dot shows
 while the notifications centre is tucked away — on the Folder in the strip, on
 the island's resting pill when the centre is in the hub, never beside the bell
-in the bar. Moving the centre sets the switch; the switch overrides until the next move. Modules › Notifications › Bell badge: the bell's own dot or count, off by default.
+in the bar. Moving the centre sets the switch; the switch overrides until the next move. Notifications › Bell badge: the bell's own dot or count, off by default.
 
 ## Requirements
 

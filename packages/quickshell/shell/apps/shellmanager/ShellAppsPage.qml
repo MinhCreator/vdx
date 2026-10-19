@@ -17,19 +17,20 @@ Column {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "grid"
   readonly property string title: "Apps"
-  readonly property string subtitle: ShellAppsService.entries.length + " APPS · "
+  readonly property string subtitle: listed.length + " APPS · "
                                      + ShellAppsService.windows.length + " WITH A WINDOW"
 
   // its own list does the job of the sidebar's group links
   readonly property var jumps: []
 
-  property string selected: ShellAppsService.entries[0].id
-  readonly property var entry: ShellAppsService.entries.find(e => e.id === selected) ?? null
+  // an app with a page of its own (Lock screen) is set there, not here
+  readonly property var listed: ShellAppsService.entries.filter(e => !e.page)
+  property string selected: listed[0]?.id ?? ""
+  readonly property var entry: listed.find(e => e.id === selected) ?? null
   // its window's settings (shellapps.py), when it has one
   readonly property var window: entry?.window ? (ShellAppsService.windows.find(a => a.id === entry.window.id) ?? null) : null
 
   // the tab: the app or its bar module (an app with a module only)
-  property string scope: "app"
   readonly property bool hasModule: !!entry?.module
 
   // where its bar module stands on the main bar: hidden | folder | a zone
@@ -55,7 +56,9 @@ Column {
     const bar = key.endsWith(":bar");
     const id = bar ? key.slice(0, -4) : key;
     const e = ShellAppsService.entries.find(e => e.id === id || e.module === id);
-    if (e) { selected = e.id; scope = (!bar && e.id === id) || !e.module ? "app" : "bar"; }
+    if (e?.page) { navigate(e.page, ""); return; }
+    if (e && bar && e.module) { navigate("modules", e.module); return; }
+    if (e) selected = e.id;
   }
 
   spacing: Theme.gapGroup
@@ -72,7 +75,7 @@ Column {
       width: Theme.sideWidth
       height: parent.height
       title: "APPS"
-      model: ShellAppsService.entries.map(e => Object.assign({ off: !ShellAppsService.installed(e) }, e))
+      model: root.listed.map(e => Object.assign({ off: !ShellAppsService.installed(e) }, e))
       selected: root.selected
       onPicked: id => root.selected = id
     }
@@ -166,22 +169,10 @@ Column {
           labelColor: Theme.foreground2
         }
 
-        // the app and its bar module, each on its own tab, so every option
-        // says what it belongs to (only for apps with a module)
-        KitChoices {
-          width: parent.width
-          visible: root.hasModule && ShellAppsService.installed(root.entry)
-          stretch: true
-          model: [{ label: "App", value: "app", icon: "app-window" },
-                  { label: "Bar module", value: "bar", icon: "layout" }]
-          current: root.scope
-          onPicked: value => root.scope = value
-        }
-
         // ---- the app: how its window opens first, then its own options ----
         Column {
           width: parent.width
-          visible: root.scope === "app" && ShellAppsService.installed(root.entry)
+          visible: ShellAppsService.installed(root.entry)
           spacing: Theme.gapGroup
 
           // one line: how it opens now; the options in a dialog (WindowDialog)
@@ -210,44 +201,12 @@ Column {
           }
         }
 
-        // ---- its bar module: a short version of the app in the bar ----
-        Column {
-          width: parent.width
-          visible: root.scope === "bar" && ShellAppsService.installed(root.entry)
-          spacing: Theme.gapGroup
-
-          KitText {
-            width: parent.width
-            wrapMode: Text.WordWrap
-            color: Theme.muted
-            font.pixelSize: Theme.fontSize - 2
-            text: "The app's short version in the bar: a summary and quick actions; a click opens its popup."
-          }
-
-          KitLabel { text: "PLACE"; value: root.place.toUpperCase() }
-
-          KitRow {
-            visible: root.place !== "hidden"
-            label: "Zone and order"
-            hint: "Dragged on the Bar page"
-
-            KitButton {
-              width: Theme.buttonWidth
-              icon: "layout"
-              text: "Arrange"
-              onClicked: root.navigate("bar", "layout")
-            }
-          }
-
-          KitLine { visible: barOptions.active }
-
-          Loader {
-            id: barOptions
-            width: parent.width
-            visible: active
-            active: !!root.entry?.moduleSettings
-            source: active ? Quickshell.shellPath(root.entry.moduleSettings) : ""
-          }
+        // its bar module's options are in Bar modules (05)
+        KitLinkRow {
+          visible: root.hasModule && ShellAppsService.installed(root.entry)
+          label: "Bar module"
+          hint: "In Bar modules › " + (root.entry?.label ?? "")
+          target: "modules:" + (root.entry?.module ?? "")
         }
 
         // an app with nothing to set gets a row in their place, like one
@@ -261,5 +220,5 @@ Column {
     }
   }
 
-  onSelectedChanged: { pane.contentY = 0; scope = "app"; }
+  onSelectedChanged: pane.contentY = 0
 }

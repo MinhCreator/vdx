@@ -77,7 +77,7 @@ links, secrets, `/etc`, units, services). `link` also writes
 | Dotfiles state | `~/.local/state/dotfiles/` | installer + shell | `components.json` (modules not installed), `accent.lua`, `window-mode`, `shell-apps.json` |
 
 Settings UI = **Shell Manager** (`apps/shellmanager/`, Super+S). Pages:
-Appearance, Animations · Bar, Windows · Network, Bluetooth · Apps, Modules · About.
+Appearance, Animations · Bar, Bar modules, Windows, Lock screen, Notifications · Network, Bluetooth · Apps, About (decision 0002).
 An app's or module's options are its `<Name>Settings.qml`, shown under Apps
 or Modules. Applied at once (pickers with preview: Apply; fields: Enter).
 

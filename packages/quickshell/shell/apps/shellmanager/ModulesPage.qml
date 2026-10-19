@@ -4,17 +4,19 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Modules: the list on the left, the chosen one's options on the right —
-// its own <Name>Settings.qml (the registry's `settings`), values kept in
-// ModuleSettings, Reset to the defaults. Each pane scrolls on its own. Where a
-// module sits is set on the Bar page.
+// Bar modules: every bar module in a list on the left, the chosen one's options
+// on the right — its own <Name>Settings.qml (the registry's `settings`, or its
+// app's `moduleSettings` in apps/apps.json), values kept in ModuleSettings,
+// Reset to the defaults (an app's module shares its id with the app: Reset
+// brings back both). Notifications has a page of its own: a link there. Each
+// pane scrolls on its own. Where a module sits is set on the Bar page.
 Column {
   id: root
 
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "puzzle"
-  readonly property string title: "Modules"
-  readonly property string subtitle: BarLayout.modules.length + " MODULES · " + own.filter(p => p.settings).length + " WITH OPTIONS · " + (BarLayout.modules.length - own.length) + " SET WITH APPS"
+  readonly property string title: "Bar modules"
+  readonly property string subtitle: BarLayout.modules.length + " MODULES · " + BarLayout.modules.filter(p => !!optionsOf(p)).length + " WITH OPTIONS"
 
   // its own list does the job of the sidebar's group links
   readonly property var jumps: []
@@ -22,15 +24,27 @@ Column {
   signal navigate(string tab, string target)
 
   // another page names a module (Media's pause is Audio's): it is chosen here
-  function jump(id) { if (own.some(p => p.id === id)) selected = id; }
+  function jump(id) {
+    if (pages[id]) navigate(pages[id], "");
+    else if (BarLayout.modules.some(p => p.id === id)) selected = id;
+  }
 
-  // the app a module belongs to (apps/apps.json), if any: such a module is set
-  // with its app, in Apps, and listed here as a link to its Bar module tab
+  // modules whose options live on a page of their own: the list links there
+  readonly property var pages: ({ notifications: "notifications" })
+
+  // the app a module belongs to (apps/apps.json), if any: its options page is the app's `moduleSettings`
   function appOf(id) { return ShellAppsService.entries.find(a => a.module === id) ?? null; }
+  // a module's options page as a shell path, "" without one
+  function optionsOf(p) {
+    const app = appOf(p.id);
+    if (app) return app.moduleSettings ?? "";
+    if (!p.settings) return "";
+    return p.settings.includes("/") ? p.settings : "modules/" + p.id + "/" + p.settings;
+  }
 
-  readonly property var own: BarLayout.modules.filter(p => !root.appOf(p.id))
-  property string selected: (own.find(p => p.settings) ?? own[0])?.id ?? ""
-  readonly property var module: own.find(p => p.id === selected) ?? null
+  property string selected: BarLayout.modules[0]?.id ?? ""
+  readonly property var module: BarLayout.modules.find(p => p.id === selected) ?? null
+  readonly property string options: module ? optionsOf(module) : ""
 
   spacing: Theme.gapGroup
 
@@ -45,12 +59,9 @@ Column {
       width: Theme.sideWidth
       height: parent.height
       title: "MODULES"
-      model: BarLayout.modules.map(p => Object.assign({ link: !!root.appOf(p.id), off: !BarLayout.installed(p.id) }, p))
+      model: BarLayout.modules.map(p => Object.assign({ link: !!root.pages[p.id], off: !BarLayout.installed(p.id) }, p))
       selected: root.selected
-      onPicked: id => {
-        if (root.appOf(id)) root.navigate("apps", id + ":bar");
-        else root.selected = id;
-      }
+      onPicked: id => root.jump(id)
     }
 
     // ---- the chosen module: its name and options, scrolling on their own ----
@@ -105,18 +116,24 @@ Column {
             }
           }
 
-          KitButton {
+          KitResetButton {
             id: resetButton
             anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-            visible: !!root.module?.settings
-            icon: "rotate-ccw"
-            text: "Reset"
-            disabled: !ModuleSettings.changed(root.selected)
-            onClicked: ModuleSettings.reset(root.selected)
+            visible: root.options !== ""
+            changed: ModuleSettings.changed(root.selected)
+            onReset: ModuleSettings.reset(root.selected)
           }
         }
 
         KitLine {}
+
+        // an app's module: the app's own options are with the app
+        KitLinkRow {
+          visible: root.module !== null && !!root.appOf(root.selected) && BarLayout.installed(root.selected)
+          label: "The app"
+          hint: "In Apps › " + (root.appOf(root.selected)?.label ?? "")
+          target: "apps:" + (root.appOf(root.selected)?.id ?? "")
+        }
 
         // its components are off on this machine: nothing to set until installed
         KitRow {
@@ -130,14 +147,13 @@ Column {
         Loader {
           width: parent.width
           visible: active
-          active: !!root.module?.settings && BarLayout.installed(root.selected)
-          source: active ? Quickshell.shellPath(root.module.settings.includes("/") ? root.module.settings
-                                                 : "modules/" + root.module.id + "/" + root.module.settings) : ""
+          active: root.options !== "" && BarLayout.installed(root.selected)
+          source: active ? Quickshell.shellPath(root.options) : ""
         }
 
         // a module without options gets a row in their place, like one
         KitRow {
-          visible: !root.module?.settings && BarLayout.installed(root.selected)
+          visible: root.options === "" && BarLayout.installed(root.selected)
           label: "No options"
           hint: "Nothing to set here"
           labelColor: Theme.foreground2
