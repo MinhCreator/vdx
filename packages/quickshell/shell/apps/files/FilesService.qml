@@ -77,7 +77,8 @@ Singleton {
     return where;
   }
 
-  function open() { if (path === "") go(startFolder()); }
+  // the window comes up: a folder already shown is read at once (its cached rows show until then)
+  function open() { if (path === "") go(startFolder()); else refresh(); }
 
   function go(where) {
     if (where === "" || where === path) return;
