@@ -500,6 +500,61 @@ Result (2026-10-19): **Implemented and verified.**
   reload logged "Session lock object was destroyed without unlocking": the
   relock marker of 12-B may be left behind after an unlock. Not looked into.
 
+### Phase 2 — 12-G: hint contrast and a text size (U-11; owner: "12-G, 12-H by the plan", 2026-10-19)
+
+Category B (a look change, approved as U-11's recommendation). Found while
+planning: `muted` is kitty's `color8` (and tmux's, nvim's) — raising it in
+`mktheme.py` would recolour the terminal too. So the shell lifts it for
+itself: theme files unchanged.
+
+Scope:
+1. `Theme.muted` = the theme's `muted` mixed toward `foreground0` in 2 %
+   steps until it reaches 4.5:1 on `background0` (`Theme.legible`); a theme
+   already there keeps its colour (graphite, ember, khaki, rosé pine,
+   kanagawa). Below now: gruvbox 4.44, catppuccin 4.44, mono 4.36,
+   tokyonight 4.10, dracula 3.98, everforest 3.84, onedark 3.73, nord 3.50.
+2. Text drawn in `gray` takes `muted`: the clock face, the music queue's
+   numbers, the island's OSD value, notice body, artist and times, the hub's
+   artist, a field's placeholder, Shell Manager's sidebar captions and
+   `Esc close`. `gray` stays for frames, ticks, icons, the `|` separator, the
+   `❯` prompt and inactive text (the speed test before a result, a dimmed
+   slider's value — WCAG exempts inactive parts).
+3. Appearance › FONT › Text size: `12 px · 13 px · 14 px · 15 px` (chips),
+   default 13; `Theme.fontSize` reads it (`ShellSettings.textSize`), every
+   `fontSize ± n` follows. The bar's and the island's heights stay; the lock
+   clock and the overview's numbers keep their own sizes.
+Out: `gray` on frames and icons (WCAG 1.4.11, 3:1 — a separate look
+question); a text size above 15 (fixed bar and row heights).
+
+Files edited: `config/Theme.qml`, `config/ShellSettings.qml`,
+`apps/shellmanager/FontSection.qml`, `modules/clock/Clock.qml`,
+`modules/music/MusicQueue.qml`, `bar/island/{IslandOsd,IslandNotice,IslandMedia,IslandHub}.qml`,
+`kit/KitInput.qml`, `apps/shellmanager/ShellManager.qml`, `shell/CLAUDE.md`
+(UI › colour of hints, the text size), this file, the roadmap.
+
+Acceptance:
+- `Theme.muted` on `background0` ≥ 4.5 in every theme (computed for each
+  theme's colours by the same formula, in Python); unchanged where it was.
+- Screenshots (gruvbox): a popup, Shell Manager's sidebar, the island's
+  media before / after — hints a step lighter, nothing else moved.
+- Text size 15: the Wi-Fi popup and Shell Manager › Appearance with no text
+  cut or overlapping (screenshots); back to 13: as before.
+- `./install.py check` green; log no new WARN.
+
+Result (2026-10-19): **Implemented, partially verified.**
+- Contrast, same formula in Python over all 13 themes' colours: lowest now
+  4.51 (gruvbox 4.44 → 4.51, catppuccin → 4.54, mono → 4.60, tokyonight →
+  4.57, dracula → 4.60, everforest → 4.55, onedark → 4.52, nord → 4.55);
+  graphite, ember, khaki, rosé pine, kanagawa unchanged.
+- Screenshots (gruvbox, island): the Wi-Fi popup at 13 px as before (gruvbox
+  moves 2 %: not visible); at 15 px the Wi-Fi popup and Shell Manager ›
+  Appearance with nothing overlapping (the popup's `This PC` address elides
+  beside a long ping line). Back to 13: the owner's `settings.json` put back
+  (`diff` same).
+- `./install.py check` all ✓; log no new WARN.
+- Not seen: the Text size row itself (below the fold; no scroll by IPC), the
+  other 12 themes drawn, every app window at 15 px.
+
 ### Proposed tasks (for approval)
 
 Order by value / risk: 03 follow-up (U-03) and 01 follow-up (U-04) — category A, small; 12-A default bar + overflow (U-01); 12-B supervisor (U-02); 12-D memory and polling (U-06, U-07); 12-E hardware states (U-09); 12-F gating apps + component split (U-10, with 09-A); 12-I first run (U-14); 12-G contrast + text size (U-11); 12-H monitors + wallpapers (U-13, U-15); 12-C keyboard (U-05, after 05 p1). Into 05 phase 1 as inputs: U-08, U-12 (and U-05's focus token). U-16 deferred; U-17 a docs fix.
