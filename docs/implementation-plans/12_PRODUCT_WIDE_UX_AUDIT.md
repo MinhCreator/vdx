@@ -360,6 +360,20 @@ lines; six volume steps → 1 line (a card change; the 300 ms refresh folds it).
 the battery face on unplug (UPower path; owner: pull the charger), a headphone
 plug (owner).
 
+### 12-D part 2: memory — measured, not changed (owner: "don't go deep into optimisation", 2026-10-19)
+
+Fresh `qs` 30 s after start: RSS 577 MB, of it ~317 MB file-backed (Qt
+libraries, fonts, icons: shared, reclaimable) and 260 MB anonymous. With the
+ten app windows taken out of `shell.qml` (a temporary edit, put back, `git
+diff` empty): RSS 492 MB, anonymous 182 MB. The windows cost ~78 MB of the
+shell's own memory (~30 %). The 834 MB of U-06 was growth over a session
+with popups and windows opened, not the price at start.
+
+Left as an option, not done: `LazyLoader` for the ten windows (about −80 MB;
+risk: a window's state — the Files listing, the Shell Manager page — starts
+over each opening). U-06 stays S3; the growth over a long session is not
+looked into.
+
 ### Proposed tasks (for approval)
 
 Order by value / risk: 03 follow-up (U-03) and 01 follow-up (U-04) — category A, small; 12-A default bar + overflow (U-01); 12-B supervisor (U-02); 12-D memory and polling (U-06, U-07); 12-E hardware states (U-09); 12-F gating apps + component split (U-10, with 09-A); 12-I first run (U-14); 12-G contrast + text size (U-11); 12-H monitors + wallpapers (U-13, U-15); 12-C keyboard (U-05, after 05 p1). Into 05 phase 1 as inputs: U-08, U-12 (and U-05's focus token). U-16 deferred; U-17 a docs fix.
