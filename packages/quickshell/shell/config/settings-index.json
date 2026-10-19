@@ -354,42 +354,6 @@
   "target": "network:connection"
  },
  {
-  "label": "Address",
-  "hint": "",
-  "where": "Network › CONNECTION",
-  "target": "network:connection"
- },
- {
-  "label": "Gateway",
-  "hint": "",
-  "where": "Network › CONNECTION",
-  "target": "network:connection"
- },
- {
-  "label": "Channel",
-  "hint": "",
-  "where": "Network › CONNECTION",
-  "target": "network:connection"
- },
- {
-  "label": "Rate",
-  "hint": "",
-  "where": "Network › CONNECTION",
-  "target": "network:connection"
- },
- {
-  "label": "Security",
-  "hint": "",
-  "where": "Network › CONNECTION",
-  "target": "network:connection"
- },
- {
-  "label": "BSSID",
-  "hint": "",
-  "where": "Network › CONNECTION",
-  "target": "network:connection"
- },
- {
   "label": "Show",
   "hint": "",
   "where": "Network › SAVED",
@@ -733,7 +697,7 @@
  },
  {
   "label": "Window border",
-  "hint": "The focused window's frame (Windows › Frames)",
+  "hint": "The focused window's frame",
   "where": "Appearance",
   "target": "appearance:accent"
  },
@@ -753,6 +717,12 @@
   "label": "Fill",
   "hint": "",
   "where": "Appearance › ACCENT",
+  "target": "appearance:accent"
+ },
+ {
+  "label": "Window frames",
+  "hint": "On or off: in Windows › Decoration",
+  "where": "Appearance › APPLIES TO",
   "target": "appearance:accent"
  },
  {
@@ -793,7 +763,13 @@
  },
  {
   "label": "Text size",
-  "hint": "The shell's; GTK apps: in Display",
+  "hint": "The shell's own text",
+  "where": "Appearance › TEXT",
+  "target": "appearance:font"
+ },
+ {
+  "label": "GTK apps text",
+  "hint": "In the Display app",
   "where": "Appearance › TEXT",
   "target": "appearance:font"
  },
@@ -2160,12 +2136,6 @@
   "target": "apps:files"
  },
  {
-  "label": "Sort",
-  "hint": "",
-  "where": "Apps › Files",
-  "target": "apps:files"
- },
- {
   "label": "Search",
   "hint": "",
   "where": "Apps › Files",
@@ -2252,25 +2222,25 @@
  {
   "label": "Sort by",
   "hint": "Trash: the newest first",
-  "where": "Apps › Files › SORT",
+  "where": "Apps › Files › LIST",
   "target": "apps:files"
  },
  {
   "label": "Descending",
   "hint": "Click a caption to flip it",
-  "where": "Apps › Files › SORT",
+  "where": "Apps › Files › LIST",
   "target": "apps:files"
  },
  {
   "label": "Folders first",
   "hint": "",
-  "where": "Apps › Files › SORT",
+  "where": "Apps › Files › LIST",
   "target": "apps:files"
  },
  {
   "label": "Group by",
   "hint": "Type: the kinds one after another",
-  "where": "Apps › Files › SORT",
+  "where": "Apps › Files › LIST",
   "target": "apps:files"
  },
  {

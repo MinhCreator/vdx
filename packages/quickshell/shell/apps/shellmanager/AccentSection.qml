@@ -18,7 +18,7 @@ KitColumn {
     { value: "choices",    label: "Choices",       hint: "The picked one" },
     { value: "workspaces", label: "Workspaces",    hint: "The focused one" },
     { value: "selects",    label: "Dropdowns",     hint: "The open one's frame" },
-    { value: "window",     label: "Window border", hint: "The focused window's frame (Windows › Frames)" },
+    { value: "window",     label: "Window border", hint: "The focused window's frame" },
     { value: "modules",    label: "Bar modules",   hint: "Active states, the equalizer; not warnings" }
   ]
   readonly property var onKeys: targets.map(t => t.value).filter(k => ShellSettings.accentWhere[k] === true)
@@ -202,5 +202,12 @@ KitColumn {
         onToggled: root.setTarget(modelData.value, !target.targetOn)
       }
     }
+  }
+
+  KitLinkRow {
+    visible: ShellSettings.accent && ShellSettings.accentWhere.window === true
+    label: "Window frames"
+    hint: "On or off: in Windows › Decoration"
+    target: "windows:gaps"
   }
 }

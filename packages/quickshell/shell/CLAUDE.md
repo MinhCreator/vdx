@@ -78,6 +78,8 @@ Read it before any visual work.
 - Search (the sidebar's): `config/settings-index.json`, built from the pages'
   literal `label:` / `hint:` by `scripts/settings_index.py`; after a row changes run
   it (`check` fails on a stale index). A new page or settings file goes in its `PAGES` / registry walk.
+  It also writes `config/settings-keys.json` (each app / app-module settings file's keys):
+  an app and its bar module share a ModuleSettings id and reset apart by it.
 - A right click on a bar module opens its options page (Bar › Behaviour › Right
   click opens options, `bar/Bar.qml` `openSettings`): a module needs no code for it.
 

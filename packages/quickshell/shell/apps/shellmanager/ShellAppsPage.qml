@@ -151,8 +151,12 @@ Column {
 
             KitResetButton {
               visible: !!root.entry?.settings
-              changed: ModuleSettings.changed(root.selected)
-              onReset: ModuleSettings.reset(root.selected)
+              // an app with a bar module: every key but the module's (they stay)
+              readonly property var moduleKeys: root.hasModule ? (ModuleSettings.keysOf(root.entry.moduleSettings) ?? []) : []
+              readonly property var keys: root.hasModule
+                ? Object.keys(ModuleSettings.values[root.selected] ?? {}).filter(k => !moduleKeys.includes(k)) : null
+              changed: ModuleSettings.changed(root.selected, keys)
+              onReset: ModuleSettings.reset(root.selected, keys)
             }
           }
         }

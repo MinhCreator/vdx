@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """The Shell Manager's search index, read from the settings pages' QML.
 
-    settings_index.py            writes config/settings-index.json
-    settings_index.py --check    the path when the file is out of date (exit 1)
+    settings_index.py            writes config/settings-index.json, config/settings-keys.json
+    settings_index.py --check    the paths of the files out of date (exit 1)
 
 An entry is a row the pages write out — {"label", "hint", "where", "target"}:
 `where` is "Page › GROUP", `target` what `shell open` takes ("bar:look",
@@ -10,12 +10,17 @@ An entry is a row the pages write out — {"label", "hint", "where", "target"}:
 list (a one-line object with a `value:` and no `hint:` is a choice); a computed
 label is not found. The group is the KitLabel above it (and an entry itself); a group that is one of
 the page's jumps makes the target that jump. Every bar module and app is an
-entry of its own too. ./install.py check fails on a stale index."""
+entry of its own too. ./install.py check fails on a stale index.
+
+settings-keys.json: the ModuleSettings keys each settings file of an app and
+of its bar module writes ({file: [key, ...]}): the two share one id, so the
+module's Reset clears only its keys, the app's every other one."""
 import json, re, sys
 from pathlib import Path
 
 SHELL = Path(__file__).resolve().parent.parent
 OUT = SHELL / "config" / "settings-index.json"
+KEYS = SHELL / "config" / "settings-keys.json"
 SM = SHELL / "apps" / "shellmanager"
 
 # the pages with their own rows: tab, title, files (Appearance's sections each one jump)
@@ -111,18 +116,37 @@ def build() -> list:
     return unique
 
 
-def render() -> str:
-    return json.dumps(build(), indent=1, ensure_ascii=False) + "\n"
+def keys_of(path: Path) -> list:
+    text = path.read_text()
+    found = re.findall(r'\bkey:\s*"(\w+)"', text) + re.findall(r'ModuleSettings\.\w+\("[\w-]+",\s*"(\w+)"', text)
+    if "BarTextRow" in text:
+        found.append("text")
+    return sorted(set(found))
+
+
+def build_keys() -> dict:
+    out = {}
+    for a in json.loads((SHELL / "apps" / "apps.json").read_text()):
+        for k in ("settings", "moduleSettings"):
+            if a.get("module") and a.get(k):
+                out[a[k]] = keys_of(SHELL / a[k])
+    return out
+
+
+def render() -> dict:
+    return {OUT: json.dumps(build(), indent=1, ensure_ascii=False) + "\n",
+            KEYS: json.dumps(build_keys(), indent=1) + "\n"}
 
 
 def main(argv: list) -> int:
-    text = render()
+    files = render()
     if "--check" in argv:
-        if not OUT.is_file() or OUT.read_text() != text:
-            print(OUT.relative_to(SHELL.parent.parent.parent))
-            return 1
-        return 0
-    OUT.write_text(text)
+        stale = [p for p, text in files.items() if not p.is_file() or p.read_text() != text]
+        for p in stale:
+            print(p.relative_to(SHELL.parent.parent.parent))
+        return 1 if stale else 0
+    for p, text in files.items():
+        p.write_text(text)
     return 0
 
 

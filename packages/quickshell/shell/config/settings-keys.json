@@ -1,0 +1,86 @@
+{
+ "apps/taskmanager/TaskManagerSettings.qml": [
+  "confirm",
+  "group",
+  "kernel",
+  "onlyMine",
+  "refresh",
+  "sortBy"
+ ],
+ "apps/taskmanager/TaskManagerBarSettings.qml": [
+  "closeOnOpen",
+  "popupRows",
+  "text"
+ ],
+ "apps/cleaner/CleanerSettings.qml": [
+  "ai",
+  "confirm",
+  "model"
+ ],
+ "apps/cleaner/CleanerBarSettings.qml": [
+  "biggest",
+  "closeOnOpen",
+  "text"
+ ],
+ "apps/clipboard/ClipboardSettings.qml": [
+  "confirm"
+ ],
+ "apps/clipboard/ClipboardBarSettings.qml": [
+  "closeOnCopy",
+  "closeOnOpen",
+  "rows",
+  "search",
+  "text"
+ ],
+ "apps/display/DisplayBarSettings.qml": [
+  "text"
+ ],
+ "apps/packages/PackagesSettings.qml": [
+  "aur",
+  "cacheView",
+  "checkOnOpen",
+  "confirm",
+  "interval",
+  "sortBy",
+  "startTab"
+ ],
+ "apps/packages/PackagesBarSettings.qml": [
+  "closeOnOpen",
+  "popupRollback",
+  "popupRows",
+  "showCount",
+  "text",
+  "tint"
+ ],
+ "apps/virustotal/VirusTotalSettings.qml": [
+  "historyKeep",
+  "keepHistory",
+  "reportAction",
+  "waitSeconds"
+ ],
+ "apps/virustotal/VirusTotalBarSettings.qml": [
+  "clipboard",
+  "closeOnOpen",
+  "text",
+  "tint"
+ ],
+ "apps/backup/BackupBarSettings.qml": [
+  "text"
+ ],
+ "apps/capture/CaptureSettings.qml": [
+  "codec",
+  "encoder",
+  "fps",
+  "notifyRecord",
+  "notifyShot",
+  "quality",
+  "shortcut",
+  "shotDir",
+  "shotTarget",
+  "videoDir",
+  "videoTarget"
+ ],
+ "apps/capture/CaptureBarSettings.qml": [
+  "text"
+ ]
+}

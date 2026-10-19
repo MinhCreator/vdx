@@ -120,8 +120,10 @@ Column {
             id: resetButton
             anchors { right: parent.right; verticalCenter: parent.verticalCenter }
             visible: root.options !== ""
-            changed: ModuleSettings.changed(root.selected)
-            onReset: ModuleSettings.reset(root.selected)
+            // an app's module: only its own keys, the app's stay
+            readonly property var keys: root.appOf(root.selected) ? ModuleSettings.keysOf(root.options) : null
+            changed: ModuleSettings.changed(root.selected, keys)
+            onReset: ModuleSettings.reset(root.selected, keys)
           }
         }
 

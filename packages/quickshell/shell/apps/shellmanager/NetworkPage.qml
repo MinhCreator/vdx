@@ -139,40 +139,30 @@ KitColumn {
       }
     }
 
-    KitRow {
+    // the connection's facts, two columns of label · value lines
+    Row {
+      id: facts
       visible: ws.connected
-      label: "Address"
-      KitText { text: ws.ipAddress || "—"; color: Theme.foreground2 }
-    }
+      width: parent.width
+      spacing: Theme.gapGroup
 
-    KitRow {
-      visible: ws.connected
-      label: "Gateway"
-      KitText { text: ws.gateway || "—"; color: Theme.foreground2 }
-    }
+      Column {
+        width: (facts.width - facts.spacing) / 2
+        spacing: Theme.gapMedium
 
-    KitRow {
-      visible: ws.connected
-      label: "Channel"
-      KitText { text: root.ws.details ? "ch " + root.ws.details.chan + " · " + root.ws.details.freq + " MHz" : "—"; color: Theme.foreground2 }
-    }
+        KitInfo { width: parent.width; label: "Address"; value: ws.ipAddress || "—" }
+        KitInfo { width: parent.width; label: "Gateway"; value: ws.gateway || "—" }
+        KitInfo { width: parent.width; label: "Channel"; value: root.ws.details ? root.ws.details.chan + " · " + root.ws.details.freq + " MHz" : "—" }
+      }
 
-    KitRow {
-      visible: ws.connected
-      label: "Rate"
-      KitText { text: ws.details?.rate ?? "—"; color: Theme.foreground2 }
-    }
+      Column {
+        width: (facts.width - facts.spacing) / 2
+        spacing: Theme.gapMedium
 
-    KitRow {
-      visible: ws.connected
-      label: "Security"
-      KitText { text: ws.details?.security || "Open"; color: Theme.foreground2 }
-    }
-
-    KitRow {
-      visible: ws.connected
-      label: "BSSID"
-      KitText { text: ws.details?.bssid ?? "—"; color: Theme.foreground2 }
+        KitInfo { width: parent.width; label: "Rate"; value: ws.details?.rate ?? "—" }
+        KitInfo { width: parent.width; label: "Security"; value: ws.details?.security || "Open" }
+        KitInfo { width: parent.width; label: "BSSID"; value: ws.details?.bssid ?? "—" }
+      }
     }
 
     KitLine { visible: ws.connected }

@@ -86,7 +86,7 @@ KitFrame {
   KitRow {
     wide: true
     label: "GTK apps"
-    hint: "GTK only; the shell's: Appearance › Text"
+    hint: "GTK only"
 
     KitChoices {
       stretch: true
@@ -96,6 +96,12 @@ KitFrame {
       busyValue: ds.working === "text" ? ds.pending : null
       onPicked: value => ds.setText(value)
     }
+  }
+
+  KitLinkRow {
+    label: "The shell's text"
+    hint: "In Shell Manager › Appearance › Text"
+    target: "appearance:font"
   }
 
   KitText {

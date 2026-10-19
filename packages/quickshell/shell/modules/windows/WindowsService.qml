@@ -46,10 +46,27 @@ Singleton {
   function setOption(key, value) {
     if (opts[key] === value) return;
     opts[key] = value;
-    const lua = "-- written by the Shell Manager › Windows (WindowsService.qml)\nreturn {\n"
+    Hypr.writeState(stateDir + "windows.lua", luaText(), "hyprctl reload");
+  }
+
+  // what Hyprland reads (windows.lua) from the options
+  function luaText() {
+    return "-- written by the Shell Manager › Windows (WindowsService.qml)\nreturn {\n"
       + ["gapsIn", "gapsOut", "mfact", "columnWidth", "borders", "shadows"].map(k => "\t" + k + " = " + opts[k] + ",\n").join("")
       + ["newStatus", "arrange", "scrollKeys"].map(k => "\t" + k + " = \"" + opts[k] + "\",\n").join("") + "}\n";
-    Hypr.writeState(stateDir + "windows.lua", lua, "hyprctl reload");
+  }
+
+  // options written by someone else (About › Settings import / reset): Hyprland gets them too
+  function syncLua() {
+    luaFile.reload();
+    if (luaFile.text() !== luaText()) Hypr.writeState(stateDir + "windows.lua", luaText(), "hyprctl reload");
+  }
+
+  FileView {
+    id: luaFile
+    path: root.stateDir + "windows.lua"
+    blockLoading: true
+    printErrors: false
   }
 
   FileView {
@@ -58,6 +75,7 @@ Singleton {
     watchChanges: true
     onFileChanged: reload()
     onAdapterUpdated: writeAdapter()
+    onLoaded: Qt.callLater(root.syncLua)
 
     JsonAdapter {
       id: opts

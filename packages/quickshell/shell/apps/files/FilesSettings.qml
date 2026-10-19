@@ -65,9 +65,6 @@ KitColumn {
     }
   }
 
-  KitLine {}
-
-  KitLabel { text: "SORT" }
 
   KitRow {
     wide: true

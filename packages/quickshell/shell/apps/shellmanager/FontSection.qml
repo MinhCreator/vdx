@@ -137,7 +137,7 @@ Column {
   KitRow {
     wide: true
     label: "Text size"
-    hint: "The shell's; GTK apps: in Display"
+    hint: "The shell's own text"
 
     KitChoices {
       stretch: true
@@ -145,6 +145,12 @@ Column {
       current: ShellSettings.textSize
       onPicked: value => ShellSettings.set("textSize", value)
     }
+  }
+
+  KitLinkRow {
+    label: "GTK apps text"
+    hint: "In the Display app"
+    app: "display"
   }
 
   KitText {

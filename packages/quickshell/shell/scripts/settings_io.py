@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """The shell's options as one file (About › Settings). One JSON object on stdout.
 
-    settings_io.py export <file> [--dir D]               {"ok", "files": [...]}
-    settings_io.py import <file> [--dir D] [--pid P]     {"ok", "files": [...]}
-    settings_io.py reset [--dir D] [--pid P]             {"ok", "files": [...]}
+    settings_io.py export <file> [--dir D] [--windows-dir W]             {"ok", "files": [...]}
+    settings_io.py import <file> [--dir D] [--windows-dir W] [--pid P]   {"ok", "files": [...]}
+    settings_io.py reset [--dir D] [--windows-dir W] [--pid P]           {"ok", "files": [...]}
 
 The bundle is {"kind": KIND, "version", "files": {name: data}} for the option
-files settings_migrate.py knows (settings, modules, layout); the Windows page
-(Hyprland's) and the theme are not in it. Import migrates each file to the
+files settings_migrate.py knows (settings, modules, layout, in D) and the
+Windows page's (windows.json and the mode, window-mode, in W:
+~/.local/state/dotfiles; the shell rewrites windows.lua from them, Hyprland
+reloads). The theme is not in it. Import migrates each file to the
 current version; import and reset keep every file they replace as <file>.bak
 (reset first writes the whole set to settings-before-reset.json beside them).
 A bad bundle changes nothing ({"ok": false, "error"}, exit 1).
@@ -22,16 +24,27 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import settings_migrate as sm  # noqa: E402
 
 KIND = "dotfiles-shell-settings"
+WINDOWS = {"windows.json": dict, "window-mode": str}     # in the dotfiles state dir
+MODES = ("tiling", "floating", "scrolling")
 
 
-def bundle(folder: Path) -> dict:
+def windows_dir() -> Path:
+    return Path(os.environ.get("XDG_STATE_HOME") or Path.home() / ".local/state") / "dotfiles"
+
+
+def where(name: str, folder: Path, wfolder: Path) -> Path:
+    return (wfolder if name in WINDOWS else folder) / name
+
+
+def bundle(folder: Path, wfolder: Path) -> dict:
     files = {}
-    for name in sm.FILES:
+    for name in (*sm.FILES, *WINDOWS):
         try:
-            data = json.loads((folder / name).read_text())
+            text = where(name, folder, wfolder).read_text()
+            data = text.strip() if name == "window-mode" else json.loads(text)
         except (OSError, ValueError):
             continue
-        if isinstance(data, dict):
+        if isinstance(data, WINDOWS.get(name, dict)):
             files[name] = data
     return {"kind": KIND, "version": sm.VERSION, "files": files}
 
@@ -46,26 +59,34 @@ def read_bundle(path: Path) -> dict:
         raise ValueError(f"{path} is not JSON") from None
     if not isinstance(data, dict) or data.get("kind") != KIND or not isinstance(data.get("files"), dict):
         raise ValueError(f"{path} is not a shell settings file")
-    files = {n: d for n, d in data["files"].items() if n in sm.FILES and isinstance(d, dict)}
+    files = {n: d for n, d in data["files"].items()
+             if (n in sm.FILES and isinstance(d, dict)) or (n in WINDOWS and isinstance(d, WINDOWS[n]))}
+    if files.get("window-mode", MODES[0]) not in MODES:
+        del files["window-mode"]
     if not files:
         raise ValueError(f"{path} has no options")
-    return {n: sm.migrate(n, d) for n, d in files.items()}
+    return {n: sm.migrate(n, d) if n in sm.FILES else d for n, d in files.items()}
 
 
 def write(path: Path, data) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(path.name + ".tmp")
-    tmp.write_text(json.dumps(data, indent=4) + "\n")
+    tmp.write_text(data + "\n" if isinstance(data, str) else json.dumps(data, indent=4) + "\n")
     tmp.replace(path)
 
 
-def replace_files(folder: Path, files: dict) -> list:
-    """Each file → <file>.bak, then the new content ({"version"} alone: defaults)."""
+def replace_files(folder: Path, wfolder: Path, files: dict) -> list:
+    """Each file → <file>.bak, then the new content ({"version"} or {} alone: defaults)."""
     for name, data in files.items():
-        old = folder / name
+        old = where(name, folder, wfolder)
         if old.exists():
             old.replace(old.with_name(name + ".bak"))
         write(old, data)
     return list(files)
+
+
+def defaults() -> dict:
+    return {**{n: {"version": sm.VERSION} for n in sm.FILES}, "windows.json": {}, "window-mode": MODES[0]}
 
 
 def stop_shell(pid: int) -> None:
@@ -87,10 +108,14 @@ def start_shell() -> None:
 
 def main(argv: list) -> int:
     args = argv[1:]
-    folder, pid = sm.state_dir(), 0
+    folder, wfolder, pid = sm.state_dir(), windows_dir(), 0
     if "--dir" in args:
         i = args.index("--dir")
         folder = Path(args[i + 1])
+        del args[i:i + 2]
+    if "--windows-dir" in args:
+        i = args.index("--windows-dir")
+        wfolder = Path(args[i + 1])
         del args[i:i + 2]
     if "--pid" in args:
         i = args.index("--pid")
@@ -99,19 +124,19 @@ def main(argv: list) -> int:
     cmd = args[0] if args else ""
     try:
         if cmd == "export" and len(args) == 2:
-            data = bundle(folder)
+            data = bundle(folder, wfolder)
             write(Path(args[1]).expanduser(), data)
             files = list(data["files"])
         elif cmd == "import" and len(args) == 2:
             new = read_bundle(Path(args[1]).expanduser())
             if pid:
                 stop_shell(pid)
-            files = replace_files(folder, new)
+            files = replace_files(folder, wfolder, new)
         elif cmd == "reset" and len(args) == 1:
-            write(folder / "settings-before-reset.json", bundle(folder))
+            write(folder / "settings-before-reset.json", bundle(folder, wfolder))
             if pid:
                 stop_shell(pid)
-            files = replace_files(folder, {n: {"version": sm.VERSION} for n in sm.FILES})
+            files = replace_files(folder, wfolder, defaults())
         else:
             print(__doc__.split("\n\n")[1], file=sys.stderr)
             return 2
@@ -119,6 +144,8 @@ def main(argv: list) -> int:
         print(json.dumps({"ok": False, "error": str(e)}))
         return 1
     if pid:
+        if "window-mode" in files:
+            subprocess.run(["hyprctl", "reload"], capture_output=True)      # the mode is Hyprland's config
         start_shell()
     print(json.dumps({"ok": True, "files": files}))
     return 0

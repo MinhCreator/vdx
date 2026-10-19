@@ -17,13 +17,33 @@ Singleton {
     return v === undefined ? fallback : v;
   }
 
-  function changed(module) { return Object.keys(values[module] ?? {}).length > 0; }
+  // `keys` (optional): only those (an app and its bar module share one id:
+  // config/settings-keys.json lists each one's)
+  function changed(module, keys) {
+    return Object.keys(values[module] ?? {}).some(k => !keys || keys.includes(k));
+  }
 
   // back to the module's defaults
-  function reset(module) {
+  function reset(module, keys) {
     const all = Object.assign({}, values);
-    delete all[module];
+    if (keys) {
+      const left = Object.assign({}, all[module] ?? {});
+      for (const k of keys) delete left[k];
+      all[module] = left;
+    } else {
+      delete all[module];
+    }
     state.values = all;
+  }
+
+  // the keys of each app's and app module's settings file (scripts/settings_index.py)
+  property var fileKeys: ({})
+  function keysOf(file) { return fileKeys[file] ?? null; }
+
+  FileView {
+    path: Quickshell.shellDir + "/config/settings-keys.json"
+    printErrors: false
+    onLoaded: { try { root.fileKeys = JSON.parse(text()); } catch (e) { root.fileKeys = {}; } }
   }
 
   function set(module, key, value) {

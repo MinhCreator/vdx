@@ -70,10 +70,10 @@ Rectangle {
   }
 
   // ---- search ----
-  // the sidebar's search (its header's button): every page's rows from
+  // the sidebar's search (the field over the sections): every page's rows from
   // config/settings-index.json (scripts/settings_index.py, rebuilt with the
   // pages); a label match before a hint or place one, a pick opens its place
-  property bool searching: false
+  readonly property bool searching: searchField.text.trim() !== ""
   property var index: []
   property int picked: 0
   readonly property var results: {
@@ -84,14 +84,10 @@ Rectangle {
     return first.concat(then).slice(0, 30);
   }
   onResultsChanged: picked = 0
-  onSearchingChanged: {
-    searchField.text = "";
-    if (searching) searchField.input.forceActiveFocus();
-  }
 
   function search(words) {
-    searching = true;
     searchField.text = words;
+    searchField.input.forceActiveFocus();
   }
 
   function openResult(e) {
@@ -109,7 +105,7 @@ Rectangle {
   Shortcut {
     sequences: [StandardKey.Cancel]
     enabled: root.searching
-    onActivated: root.searching = false
+    onActivated: searchField.text = ""
   }
 
   // the open section's group links, unfolded by a second click on it
@@ -120,7 +116,7 @@ Rectangle {
   // pages' links between each other (an app's bar module and back)
   function navigate(value, target) {
     const r = resolve(value, target);
-    searching = false;
+    searchField.text = "";
     tab = r.tab;
     const p = pageFor(r.tab);
     const j = p.jumps.find(x => x.key === r.target);
@@ -176,45 +172,31 @@ Rectangle {
       spacing: Theme.gapGroup
 
       KitHeader {
-        visible: !root.searching
         icon: "settings"
         title: "Shell Manager"
         subtitle: "SUPER + S"
-
-        KitButton {
-          icon: "search"
-          onClicked: root.searching = true
-        }
-      }
-
-      // in the header's place while searching: as tall, so the list stays put
-      Item {
-        visible: root.searching
-        width: parent.width
-        height: brandHeight.implicitHeight
-
-        KitHeader { id: brandHeight; visible: false; title: "x"; subtitle: "x" }
-
-        KitInput {
-          id: searchField
-          width: nav.width
-          anchors.verticalCenter: parent.verticalCenter
-          placeholder: "search settings"
-          passKeys: [Qt.Key_Up, Qt.Key_Down]
-          onAccepted: root.openResult(root.results[root.picked])
-          onKeyPassed: key => root.picked = Math.max(0, Math.min(root.results.length - 1, root.picked + (key === Qt.Key_Down ? 1 : -1)))
-        }
       }
 
       KitLine {}
+    }
+
+    // the search, first in the list: typing swaps the sections for results
+    KitInput {
+      id: searchField
+      x: Theme.windowPadding
+      y: brand.y + brand.height + Theme.gapMedium
+      width: nav.width
+      placeholder: "search"
+      passKeys: [Qt.Key_Up, Qt.Key_Down]
+      onAccepted: root.openResult(root.results[root.picked])
+      onKeyPassed: key => root.picked = Math.max(0, Math.min(root.results.length - 1, root.picked + (key === Qt.Key_Down ? 1 : -1)))
     }
 
     // the sections scroll when their group links outgrow the window
     Flickable {
       id: nav
       x: Theme.windowPadding
-      // the page's first label sits this far under the header: the list starts there too
-      y: brand.y + brand.height + Theme.gapGroup
+      y: searchField.y + searchField.height + Theme.gapMedium
       width: parent.width - 2 * Theme.windowPadding
       height: parent.height - y - Theme.windowPadding
       visible: !root.searching
@@ -240,8 +222,8 @@ Rectangle {
           readonly property bool active: modelData.value === root.tab
           readonly property bool hasJumps: root.pageFor(modelData.value).jumps.length > 0
           readonly property bool unfolded: active && root.navOpen
-          // a group after the first starts a gap of gapGroup between the groups' captions
-          readonly property int lead: index > 0 ? Theme.gapGroup - Theme.gapHair : 0
+          // a group after the first starts a gap of gapMedium between the groups' captions
+          readonly property int lead: index > 0 ? Theme.gapMedium : 0
 
           width: parent.width
           spacing: Theme.gapTight
@@ -267,7 +249,7 @@ Rectangle {
             radius: Theme.radiusControl
             id: item
             width: parent.width
-            height: 30
+            height: 28
             color: section.active ? Theme.background3 : itemArea.containsMouse ? Theme.background1 : Theme.clear
             Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.quick } }
 
@@ -432,7 +414,7 @@ Rectangle {
     }
 
     KitText {
-      visible: searchField.text.trim() !== "" && root.results.length === 0
+      visible: root.results.length === 0
       x: Theme.gapLoose
       text: "Nothing found"
       color: Theme.muted
