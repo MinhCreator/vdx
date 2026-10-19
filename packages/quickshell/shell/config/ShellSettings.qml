@@ -66,7 +66,7 @@ Singleton {
   // keys back to their defaults; managerTab is not an option
   readonly property var keys: Object.keys(defaults).filter(k => typeof defaults[k] !== "function"
     && !["objectName", "version", "managerTab"].includes(k))
-  function reset(list) { for (const k of list) state[k] = defaults[k]; }
+  function reset(list) { for (const k of list) state[k] = JSON.parse(JSON.stringify(defaults[k])); }
   function changed(list) { return list.some(k => JSON.stringify(state[k]) !== JSON.stringify(defaults[k])); }
   ShellState { id: defaults }
 

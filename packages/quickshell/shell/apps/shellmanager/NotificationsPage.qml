@@ -18,12 +18,10 @@ Column {
   readonly property var jumps: []
 
   // the header's Reset
-  readonly property bool changed: ModuleSettings.changed("notifications")
-                                  || !ShellSettings.barFolderDot || ShellSettings.barDotColor !== "red"
+  readonly property bool changed: ModuleSettings.changed("notifications") || ShellSettings.changed(["barFolderDot", "barDotColor"])
   function reset() {
     ModuleSettings.reset("notifications");
-    ShellSettings.set("barFolderDot", true);
-    ShellSettings.set("barDotColor", "red");
+    ShellSettings.reset(["barFolderDot", "barDotColor"]);
   }
 
   NotificationsSettings { width: parent.width }

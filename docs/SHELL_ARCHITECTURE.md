@@ -74,12 +74,15 @@ links, secrets, `/etc`, units, services). `link` also writes
 | Bar layout | `layout.json` | `BarLayout` | renames via `BarLayout.renamed` (live fallback); not watched |
 | Notifications history | `notifications.json` (statePath) | `NotificationsService` | — |
 | Schema | `version` in the three files above | `scripts/settings_migrate.py` (`VERSION`, `MIGRATIONS`), run by `supervise.sh` before qs | a file is written only when changed, old one as `.bak`; `tests/test_settings_migrate.py` |
+| Export / import / reset | one bundle of the three files | `scripts/settings_io.py`, About › Settings | import migrates; import and reset stop the shell, write (old files `.bak`), start it again; `tests/test_settings_io.py` |
 | Dotfiles state | `~/.local/state/dotfiles/` | installer + shell | `components.json` (modules not installed), `accent.lua`, `window-mode`, `shell-apps.json` |
 
 Settings UI = **Shell Manager** (`apps/shellmanager/`, Super+S). Pages:
 Appearance, Animations · Bar, Bar modules, Windows, Lock screen, Notifications · Network, Bluetooth · Apps, About (decision 0002).
 An app's or module's options are its `<Name>Settings.qml`, shown under Apps
 or Bar modules (Lock screen, Notifications: own pages). Applied at once (pickers with preview: Apply; fields: Enter).
+A page with its own options has Reset in the header (two steps: Reset, Sure?); Appearance,
+Animations and Bar reset their `ShellSettings` keys (`ShellSettings.reset(keys)`, defaults in `config/ShellState.qml`).
 
 ## Feature map
 

@@ -90,6 +90,8 @@ Bar modules live in `modules/<id>/`; each popup opens with
 `qs -c shell ipc call <id> toggle` (except clipboard `clip`, taskmanager
 `tasks`, cleaner `clean`, virustotal `scan`, packages `updates`). Order, zones and visibility: Shell Manager
 › Bar. Options: Shell Manager › Bar modules (an app's module too; Notifications: its own page).
+Every page has Reset in its header; About › Settings exports every option to one file, imports it
+(the shell restarts) and resets everything (the old set kept as `settings-before-reset.json`).
 A new layout (and Bar › Layout › Reset) shows workspaces, the clock, audio, Wi-Fi,
 Bluetooth, battery, notifications, Shell and the Folder; the rest start in the Folder
 (`BarLayout.defaultBar`), one drag from the bar. In the strip, modules of LEFT / RIGHT

@@ -29,6 +29,11 @@ KitColumn {
     + (ShellSettings.accent ? " · ACCENT " + ShellSettings.accentStops.map(n => n === "theme" ? "THEME" : n.toUpperCase()).join(" → ") : "")
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
+  // the header's Reset: these ShellSettings keys back to their defaults; the theme and the cursor stay
+  readonly property var resetKeys: ["font", "textSize", "solidIcons", "wallpaperMode", "wallpaperColor", "wallpaperImages", "wallpaperOutputs", "corners", "cornerRadius", "material", "passwordDots", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere"]
+  readonly property bool changed: ShellSettings.changed(resetKeys)
+  function reset() { ShellSettings.reset(resetKeys); }
+
   readonly property var jumps: [
     { key: "themes",    label: "Themes",    y: themeSection.y },
     { key: "accent",    label: "Accent",    y: accentSection.y },

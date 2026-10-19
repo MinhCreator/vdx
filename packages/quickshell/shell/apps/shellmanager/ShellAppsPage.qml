@@ -149,12 +149,10 @@ Column {
 
             Item { width: 6; height: 1; visible: !!root.entry?.settings }
 
-            KitButton {
+            KitResetButton {
               visible: !!root.entry?.settings
-              icon: "rotate-ccw"
-              text: "Reset"
-              disabled: !ModuleSettings.changed(root.selected)
-              onClicked: ModuleSettings.reset(root.selected)
+              changed: ModuleSettings.changed(root.selected)
+              onReset: ModuleSettings.reset(root.selected)
             }
           }
         }

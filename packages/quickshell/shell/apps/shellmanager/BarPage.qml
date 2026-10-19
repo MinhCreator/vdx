@@ -24,6 +24,11 @@ KitColumn {
     + Quickshell.screens.length + " MONITORS"
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
+  // the header's Reset: these ShellSettings keys back to their defaults; the layout has its own Reset
+  readonly property var resetKeys: ["barStyle", "looks", "barRightSettings"]
+  readonly property bool changed: ShellSettings.changed(resetKeys)
+  function reset() { ShellSettings.reset(resetKeys); }
+
   readonly property var jumps: [
     { key: "look",      label: "Look",      y: lookGroup.y },
     { key: "behaviour", label: "Behaviour", y: behaviourGroup.y },
@@ -311,11 +316,9 @@ KitColumn {
                                : BarLayout.copyLayout(root.other, root.screenName)
       }
 
-      KitButton {
-        icon: "rotate-ccw"
-        text: "Reset"
-        disabled: root.island ? !BarLayout.islandCustomized(root.screenName) : !BarLayout.customized(root.screenName)
-        onClicked: root.island ? BarLayout.islandReset(root.screenName) : BarLayout.reset(root.screenName)
+      KitResetButton {
+        changed: root.island ? BarLayout.islandCustomized(root.screenName) : BarLayout.customized(root.screenName)
+        onReset: root.island ? BarLayout.islandReset(root.screenName) : BarLayout.reset(root.screenName)
       }
     }
   }

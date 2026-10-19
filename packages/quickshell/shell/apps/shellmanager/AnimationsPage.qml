@@ -17,6 +17,11 @@ Column {
     : ShellSettings.motionSpeed.toUpperCase() + " · POPUPS " + ShellSettings.motionPopups.toUpperCase()
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
+  // the header's Reset: these ShellSettings keys back to their defaults
+  readonly property var resetKeys: ["motion", "motionSpeed", "motionPopups", "underlineAnimation", "motionPanels", "motionControls", "motionBar", "motionPages", "motionIsland", "motionLock"]
+  readonly property bool changed: ShellSettings.changed(resetKeys)
+  function reset() { ShellSettings.reset(resetKeys); }
+
   readonly property var jumps: [
     { key: "general", label: "General", y: generalGroup.y },
     { key: "parts",   label: "Parts",   y: partsGroup.y }

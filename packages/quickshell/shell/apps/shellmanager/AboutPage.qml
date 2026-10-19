@@ -1,11 +1,13 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.apps.files
 import qs.config
 import qs.kit
 
 // About: what this shell believes, how it is put together, who made it and
-// what it runs on, and a forced restart of the shell.
+// what it runs on, the options as one file (export, import, reset everything:
+// scripts/settings_io.py) and a forced restart of the shell.
 Column {
   id: root
 
@@ -19,10 +21,36 @@ Column {
     { key: "philosophy", label: "Philosophy", y: philosophy.y },
     { key: "concept",    label: "Concept",    y: concept.y },
     { key: "author",     label: "Author",     y: author.y },
+    { key: "settings",   label: "Settings",   y: settings.y },
     { key: "system",     label: "System",     y: system.y }
   ]
 
   property var versions: ({})
+  property string ioStatus: ""                 // the last export, on the group's label
+
+  // import and reset stop this shell, write the files and start it again: run
+  // outside it, a failure told by a notification
+  function detached(args) {
+    Quickshell.execDetached(["bash", "-c", "out=$(python3 \"$0\" \"$@\") || notify-send -a Shell \"Settings not changed\" "
+                             + "\"$(jq -r .error <<<\"$out\")\"", Paths.scriptsDir + "/settings_io.py"]
+                            .concat(args, ["--pid", String(Quickshell.processId)]));
+  }
+
+  function exportTo(args) {
+    ioProc.command = ["python3", Paths.scriptsDir + "/settings_io.py"].concat(args);
+    ioProc.running = true;
+  }
+
+  Process {
+    id: ioProc
+    stdout: StdioCollector {
+      onStreamFinished: {
+        let r = {};
+        try { r = JSON.parse(text); } catch (e) { r = { ok: false, error: "no answer" }; }
+        root.ioStatus = r.ok ? "Exported" : r.error;
+      }
+    }
+  }
 
   spacing: Theme.gapGroup
 
@@ -102,6 +130,46 @@ Column {
   KitLine {}
 
   // ---- system ----
+  KitLabel { id: settings; text: "SETTINGS"; value: root.ioStatus.toUpperCase() }
+
+  KitRow {
+    label: "Export"
+    hint: "Every option to shell-settings.json in a folder"
+
+    KitButton {
+      width: Theme.buttonWidth
+      icon: "arrow-up"
+      text: "Export…"
+      onClicked: FilesService.pickFolder("Export the settings to", FilesService.home,
+                                         p => { if (p !== "") root.exportTo(["export", p + "/shell-settings.json"]); })
+    }
+  }
+
+  KitRow {
+    label: "Import"
+    hint: "Replaces every option; the shell restarts"
+
+    KitButton {
+      width: Theme.buttonWidth
+      icon: "download"
+      text: "Import…"
+      onClicked: FilesService.pick("Import the settings", FilesService.home, false, ["application/json"],
+                                   p => { if (p !== "") root.detached(["import", p]); })
+    }
+  }
+
+  KitRow {
+    label: "Reset everything"
+    hint: "Defaults; the old set kept as settings-before-reset.json"
+
+    KitResetButton {
+      width: Theme.buttonWidth
+      onReset: root.detached(["reset"])
+    }
+  }
+
+  KitLine {}
+
   KitLabel { id: system; text: "SYSTEM"; value: (root.versions.commit ?? "").toUpperCase() }
 
   KitInfo { width: parent.width; label: "Theme"; value: root.versions.theme ?? "--" }
