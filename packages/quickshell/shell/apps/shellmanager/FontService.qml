@@ -15,6 +15,7 @@ Singleton {
   id: root
 
   readonly property string script: Paths.scriptsDir + "/fonts.py"
+  readonly property string supervisor: Paths.scriptsDir + "/supervise.sh"
 
   // ---- state ----
   property var fonts: []                    // [{id, family, installed}]
@@ -43,10 +44,13 @@ Singleton {
   }
 
   // the running shell only knows the fonts it found at start
+  // (also About › Restart, the launcher's Restart shell): a TERM ends the
+  // supervisor of this one too, the new one comes with its own
   function restartShell() {
     Quickshell.execDetached(["bash", "-c",
       "sleep 0.3; kill " + Quickshell.processId + "; while kill -0 " + Quickshell.processId
-      + " 2>/dev/null; do sleep 0.1; done; setsid qs -c shell -d"]);
+      + " 2>/dev/null; do sleep 0.1; done; setsid -f \"$1\" >/dev/null 2>&1",
+      "restart", root.supervisor]);
   }
 
   Component.onCompleted: refresh()

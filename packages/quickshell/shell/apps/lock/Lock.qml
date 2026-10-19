@@ -9,9 +9,9 @@ import qs.config
 // The lock screen (Super+Z, `ipc call lock lock`): a Wayland session lock
 // with LockScreen on every monitor (dark but for one, if so set); the password goes through PAM (its
 // `login` service). If the shell dies while locked, Hyprland
-// keeps the screen locked; `qs -c shell` started again locks it anew
-// (misc.allow_session_lock_restore). Options: Shell Manager › Shell apps › Lock screen
-// (ModuleSettings "lock").
+// keeps the screen locked; the shell started again (scripts/supervise.sh)
+// finds the marker it left and locks anew (misc.allow_session_lock_restore).
+// Options: Shell Manager › Shell apps › Lock screen (ModuleSettings "lock").
 Scope {
   id: root
 
@@ -65,6 +65,27 @@ Scope {
   }
 
   Process { id: cleanup; command: ["rm", "-rf", root.snapshotDir] }
+
+  // ---- after a crash ----
+  // Locked, a marker in the runtime dir holds this Hyprland session's
+  // signature (it goes with the dir on unlock). A shell that starts and finds
+  // it for this session died while locked: it locks again at once (no
+  // snapshot: the screen is Hyprland's dead-lock one). One from another
+  // session is old: ignored.
+  readonly property string session: Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") ?? ""
+  readonly property string marker: snapshotDir + "/locked"
+
+  Process {
+    id: mark
+    command: ["bash", "-c", "umask 077; mkdir -p \"$(dirname \"$1\")\" && printf '%s\\n' \"$2\" > \"$1\"",
+              "lock", root.marker, root.session]
+  }
+
+  FileView {
+    path: root.marker
+    printErrors: false
+    onLoaded: if (root.session !== "" && text().trim() === root.session) sessionLock.locked = true
+  }
 
   // ---- power ----
   function power(action) {
@@ -124,6 +145,7 @@ Scope {
 
     onLockedChanged: {
       if (!locked) { cleanup.running = true; return; }
+      mark.running = true;
       root.focusedScreen = Hyprland.focusedMonitor?.name ?? "";
       root.typed = "";
       devices.running = true;

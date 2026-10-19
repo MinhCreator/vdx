@@ -109,7 +109,8 @@ Column {
   KitInfo { width: parent.width; label: "Quickshell"; value: root.versions.qs ?? "--" }
   KitInfo { width: parent.width; label: "Kernel"; value: root.versions.kernel ?? "--" }
 
-  // a fresh process: this one is killed, Hyprland starts a new one
+  // a fresh process: this one is killed, Hyprland starts a new one (through
+  // the supervisor, as at login: FontService.restartShell)
   KitRow {
     label: "Restart the shell"
     hint: "Kills Quickshell and starts it anew"
@@ -118,9 +119,7 @@ Column {
       width: Theme.buttonWidth
       icon: "refresh"
       text: "Restart"
-      onClicked: Quickshell.execDetached(["sh", "-c",
-        "qs kill -c shell; while qs list -c shell 2>/dev/null | grep -q Instance; do sleep 0.2; done; "
-        + "hyprctl eval 'hl.exec_cmd(\"qs -c shell\")'"])
+      onClicked: FontService.restartShell()
     }
   }
 }

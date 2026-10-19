@@ -18,7 +18,8 @@ components/    Hypr (helpers), ScrimWindow, PopupManager, PopupCatcher, Separato
 config/        Theme (the look only), Colors (from the active theme), Format (text of
                numbers), Paths, ShellSettings, ModuleSettings, Motion
 scripts/       backends: one JSON object per command, commands in the header;
-               out / fail / run come from backend.py (the folder is on sys.path)
+               out / fail / run come from backend.py (the folder is on sys.path);
+               supervise.sh is not one: it runs qs and starts it again after a crash
 ```
 
 Imports: `import qs.<dir>` from the config root. Singletons: `pragma Singleton`
@@ -147,8 +148,10 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 
 - New file: `./install.py link`, then restart. Edits reload live, except
   `IpcHandler` functions.
-- Restart: `kill <pid>` (`qs list --all`), then
-  `hyprctl eval 'hl.exec_cmd("qs -c shell")'`; exactly one instance.
+- Restart: `kill <pid>` (`qs list --all`; a TERM also ends its supervisor), then
+  `hyprctl eval 'hl.exec_cmd("~/.config/quickshell/shell/scripts/supervise.sh")'`;
+  exactly one instance (the supervisor runs `qs -n`). A bare `qs -c shell` has no
+  restart after a crash.
 - Check: `~/.dotfiles/install.py check shell syntax`; `qs log -c shell | grep -E 'ERROR|WARN'`; popups
   `qs -c shell ipc call <id> toggle`; screenshots `grim -g "X,Y WxH"`.
 - Don't test overlays that grab the keyboard while the user is typing.

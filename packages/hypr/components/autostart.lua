@@ -11,7 +11,8 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("awww-daemon --no-cache")
 	-- the shell's window rules, written once on a fresh install
 	hl.exec_cmd("python3 ~/.config/quickshell/shell/scripts/shellapps.py ensure")
-	hl.exec_cmd("qs -c shell")
+	-- the shell, started again if it crashes (not when it is killed or restarted)
+	hl.exec_cmd("~/.config/quickshell/shell/scripts/supervise.sh")
 	hl.exec_cmd("mako")
 	-- the cursor picked in the Shell Manager, at its size
 	hl.exec_cmd("python3 ~/.config/quickshell/shell/scripts/cursors.py restore")

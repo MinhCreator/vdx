@@ -17,7 +17,9 @@ Parts marked *not inspected* are names and roles only.
 Hyprland ── autostart.lua (hyprland.start)
    ├─ awww-daemon            wallpaper surface (`--no-cache`: starts empty; the shell sets the picture)
    ├─ shellapps.py ensure    window rules for the shell's apps (repo hypr config)
-   ├─ qs -c shell            ONE process: bars, island, popups, apps, lock, polkit agent
+   ├─ supervise.sh           runs qs; starts it again when it ends by a crash (not a kill);
+   │                         most crashes Quickshell restarts in place itself (crash report window)
+   │   └─ qs -c shell        ONE process: bars, island, popups, apps, lock, polkit agent
    ├─ mako                   the notification server (toasts in Solid style, history)
    ├─ cursors.py restore
    └─ display.py restore     monitor scales/positions saved by the Display app
@@ -25,7 +27,9 @@ Hyprland ── autostart.lua (hyprland.start)
 
 Everything in the shell is one Quickshell process: a QML error in a shared
 file can drop the whole bar; a crash also takes the lock screen
-(`WlSessionLock`; Hyprland keeps the session locked, `allow_session_lock_restore`).
+(`WlSessionLock`; Hyprland keeps the session locked, `allow_session_lock_restore`)
+until the supervisor's new `qs` locks again (marker in
+`$XDG_RUNTIME_DIR/shell-lock/locked`, this session's signature).
 
 ## Layers inside the shell
 

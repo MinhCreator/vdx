@@ -75,6 +75,15 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 IPC: `qs -c shell ipc call <target> <function>`. Window mode:
 `windowmode set tiling|floating|scrolling`.
 
+After a crash Quickshell itself usually starts the shell again in the same
+process and opens its crash report window. When the process ends instead
+(killed by the OOM killer, a crash right after start), `scripts/supervise.sh`,
+which Hyprland starts the shell through, starts it again in a second (five
+in a minute: it stops with a toast); a kill or Restart (About, the system
+menu) is not a crash. Locked when it crashed, the new one locks again. No bar and no way to a terminal: switch to
+a tty (Ctrl+Alt+F2), log in, then
+`HYPRLAND_INSTANCE_SIGNATURE=$(ls /run/user/$UID/hypr | tail -1) hyprctl eval 'hl.exec_cmd("~/.config/quickshell/shell/scripts/supervise.sh")'`.
+
 ## Modules
 
 Bar modules live in `modules/<id>/`; each popup opens with

@@ -128,7 +128,7 @@ def health(ctx: steps.Ctx) -> list[tuple[str, str, str]]:
                 out.append(("err", f"Hyprland reports: {errors.splitlines()[0]}", "hyprctl configerrors"))
     if ctx.has("quickshell") and os.environ.get("WAYLAND_DISPLAY") and shutil.which("qs") \
             and "Process ID" not in subprocess.run(["qs", "list", "--all"], capture_output=True, text=True).stdout:
-        out.append(("warn", "the shell is not running", "qs -c shell -d"))
+        out.append(("warn", "the shell is not running", "setsid -f ~/.config/quickshell/shell/scripts/supervise.sh"))
     if BACKUPS.is_dir() and any(BACKUPS.iterdir()):
         n = sum(1 for _ in BACKUPS.iterdir())
         out.append(("warn", f"{n} backup folder(s) of replaced files", f"look in {short(BACKUPS)}; ./install.py rollback puts them back"))
