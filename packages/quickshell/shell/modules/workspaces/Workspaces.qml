@@ -29,7 +29,8 @@ Row {
     seen[id] = true;
     return fresh;
   }
-  Component.onCompleted: Qt.callLater(() => started = true)
+  // a timer, not Qt.callLater: it goes with the Row when a zone remakes it
+  Timer { interval: 0; running: true; onTriggered: root.started = true }
   // a workspace closed and opened again is new again
   onOrderedChanged: {
     const ids = ordered.map(w => String(w.id));

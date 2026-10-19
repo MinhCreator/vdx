@@ -68,10 +68,12 @@ Scope {
 
   // ---- after a crash ----
   // Locked, a marker in the runtime dir holds this Hyprland session's
-  // signature (it goes with the dir on unlock). A shell that starts and finds
-  // it for this session died while locked: it locks again at once (no
-  // snapshot: the screen is Hyprland's dead-lock one). One from another
-  // session is old: ignored.
+  // signature (it goes with the dir on unlock). Only a new process reads it:
+  // finding it for this session, the shell died while locked and locks again
+  // at once (no snapshot: the screen is Hyprland's dead-lock one). A live
+  // reload takes the lock state the generation before saw locked / unlocked,
+  // so a marker left behind never locks it. Not acted on (another session's, or
+  // unlocked after a reload), the dir is removed.
   readonly property string session: Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") ?? ""
   readonly property string marker: snapshotDir + "/locked"
 
@@ -81,10 +83,26 @@ Scope {
               "lock", root.marker, root.session]
   }
 
-  FileView {
-    path: root.marker
-    printErrors: false
-    onLoaded: if (root.session !== "" && text().trim() === root.session) sessionLock.locked = true
+  // exit 0: the marker is this session's
+  Process {
+    id: readMark
+    command: ["bash", "-c", "[ -n \"$2\" ] && [ \"$(cat \"$1\" 2>/dev/null)\" = \"$2\" ]", "lock", root.marker, root.session]
+    onExited: code => { if (code === 0) sessionLock.locked = true; else cleanup.running = true; }
+  }
+
+  PersistentProperties {
+    id: persist
+    reloadableId: "lock"
+    property bool started: false
+    property bool locked: false
+
+    onLoaded: {
+      if (!started) { started = true; readMark.running = true; }
+      else if (locked) sessionLock.locked = true;
+      // not locked before, not now (WlSessionLock is Reloadable: whatever
+      // it carried over is put right)
+      else { sessionLock.locked = false; cleanup.running = true; }
+    }
   }
 
   // ---- power ----
@@ -144,6 +162,7 @@ Scope {
     id: sessionLock
 
     onLockedChanged: {
+      persist.locked = locked;
       if (!locked) { cleanup.running = true; return; }
       mark.running = true;
       root.focusedScreen = Hyprland.focusedMonitor?.name ?? "";

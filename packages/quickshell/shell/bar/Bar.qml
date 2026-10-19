@@ -44,6 +44,15 @@ PanelWindow {
     // folded into the Folder for want of room (BarLayout.overflow), and the rest
     readonly property var folded: BarLayout.overflow[root.modelData.name] ?? []
     readonly property var shown: ids.filter(id => !folded.includes(id))
+    // shown modules whose face draws nothing (no width, or hidden): no
+    // separator for them, the next one looks past them
+    property var blank: []
+    readonly property var drawn: shown.filter(id => !blank.includes(id))
+    function setBlank(id, on) {
+      const has = blank.includes(id);
+      if (on && !has) blank = blank.concat([id]);
+      else if (!on && has) blank = blank.filter(b => b !== id);
+    }
 
     spacing: Theme.moduleSpacing
     onIdsChanged: root.scheduleFold()
@@ -58,8 +67,11 @@ PanelWindow {
         readonly property bool custom: BarLayout.isSeparator(modelData)
         // folded: hidden, and no face here — the Folder makes it (one popup, one IPC target)
         readonly property bool folded: zone.folded.includes(modelData)
-        readonly property int at: zone.shown.indexOf(modelData)
+        readonly property bool blank: !custom && !folded && (slot.width <= 0 || !(slot.item?.visible ?? false))
+        readonly property int at: zone.drawn.indexOf(modelData)
 
+        onBlankChanged: zone.setBlank(modelData, blank)
+        Component.onCompleted: zone.setBlank(modelData, blank)
         visible: !folded
         spacing: Theme.moduleSpacing
 
@@ -67,7 +79,7 @@ PanelWindow {
         // between two modules (none next to a custom one)
         Separator {
           anchors.verticalCenter: parent.verticalCenter
-          visible: cell.custom || (cell.at > 0 && !BarLayout.isSeparator(zone.shown[cell.at - 1]))
+          visible: cell.custom || (cell.at > 0 && !BarLayout.isSeparator(zone.drawn[cell.at - 1]))
           ruled: cell.custom || ShellSettings.barSeparators
         }
 
