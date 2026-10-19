@@ -19,7 +19,8 @@ config/        Theme (the look only), Colors (from the active theme), Format (te
                numbers), Paths, ShellSettings, ModuleSettings, Motion
 scripts/       backends: one JSON object per command, commands in the header;
                out / fail / run come from backend.py (the folder is on sys.path);
-               supervise.sh is not one: it runs qs and starts it again after a crash
+               supervise.sh is not one: it runs qs and starts it again after a crash;
+               listen.sh is sourced by a backend's --listen: it ends with the shell
 ```
 
 Imports: `import qs.<dir>` from the config root. Singletons: `pragma Singleton`

@@ -58,12 +58,17 @@ cmd_status() {
           }'
 }
 
+# ends with the shell that started it: its parent gone (seen within the idle's
+# 30 s) or its stdout closed (a failed write, SIGPIPE ignored)
 cmd_listen() {
-    local prev="" out
-    while :; do
+    local prev="" out code parent=$PPID
+    trap '' PIPE
+    while kill -0 "$parent" 2>/dev/null; do
         out=$(cmd_status)
-        [[ "$out" != "$prev" ]] && { echo "$out"; prev=$out; }
-        mpc idle player playlist options >/dev/null 2>&1 || sleep 2
+        if [[ "$out" != "$prev" ]]; then echo "$out" || return; prev=$out; fi
+        timeout 30 mpc idle player playlist options >/dev/null 2>&1
+        code=$?
+        (( code == 0 || code == 124 )) || sleep 2       # 124: the 30 s are up; else no MPD
     done
 }
 

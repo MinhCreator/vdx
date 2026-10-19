@@ -176,6 +176,6 @@ case "${1:-}" in
   --discoverable-timeout) cmd_discoverable_timeout "${2:-}" ;;
   --pairable)             cmd_switch pairable "${2:-}" pairing ;;
   --block)                cmd_block "${2:-}" "${3:-}" ;;
-  --listen)     stdbuf -oL gdbus monitor --system --dest org.bluez 2>/dev/null | while read -r _; do ok; done ;;
+  --listen)     . "${BASH_SOURCE[0]%/*}/listen.sh"; listen_to gdbus monitor --system --dest org.bluez ;;
   *)            error "unknown command: ${1:-}" ;;
 esac

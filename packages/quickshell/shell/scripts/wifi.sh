@@ -428,6 +428,6 @@ case "${1:-}" in
   --hotspot-set)    cmd_hotspot_set "${2:-}" "${3:-}" ;;
   --disconnect) cmd_disconnect ;;
   --hidden)    cmd_hidden "${2:-}" ;;
-  --listen)    stdbuf -oL nmcli monitor 2>/dev/null | while read -r _; do ok; done ;;
+  --listen)    . "${BASH_SOURCE[0]%/*}/listen.sh"; listen_to nmcli monitor ;;
   *)           error "unknown command: ${1:-}" ;;
 esac
