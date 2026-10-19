@@ -38,6 +38,22 @@ class Picks(unittest.TestCase):
         self.assertIn("mpd", p.on)
 
 
+class Keys(unittest.TestCase):
+    def test_escape_is_back_not_quit(self):
+        self.assertEqual(wizard.key_name("\x1b"), "left")
+
+    def test_q_asks_once_more(self):
+        q = wizard.Quit()
+        self.assertEqual(q.press("quit"), "ask")
+        self.assertEqual(q.press("quit"), "quit")
+
+    def test_another_key_between_starts_over(self):
+        q = wizard.Quit()
+        q.press("quit")
+        self.assertEqual(q.press("down"), "down")
+        self.assertEqual(q.press("quit"), "ask")
+
+
 class Start(unittest.TestCase):
     def answers(self, profile, managed):
         with mock.patch.object(machine, "load", return_value=profile), \

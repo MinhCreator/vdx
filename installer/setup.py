@@ -142,4 +142,19 @@ def setup(args, stamp: str, log: Path) -> int:
         for line in left:
             warn(line)
     note(f"log: {short(log)}")
+    lines = next_steps(os.environ)
+    if lines:
+        heading("Next")
+        for line in lines:
+            print("  " + line)
     return code
+
+
+def next_steps(env) -> list[str]:
+    """How to get into the desktop, after a first install from a tty; inside
+    a Hyprland session (an update) the user is there already: nothing."""
+    if env.get("HYPRLAND_INSTANCE_SIGNATURE"):
+        return []
+    return ["log in on a tty and run start-hyprland",
+            "Super + S  Shell Manager: the look, the bar, every option",
+            "Super + B  every keybind · Alt + Space  launcher · Super + Q  terminal"]

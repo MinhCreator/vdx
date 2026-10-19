@@ -31,11 +31,13 @@ cd ~/.dotfiles
 
 The wizard shows the machine and the checks, the detected hardware, every
 component by group (desktop, terminal, editor, apps, music, network, AI),
-the theme and keyboard, then a summary; nothing is written before it. Then
+the theme and keyboard, then a summary; nothing is written before it (Esc
+goes back, q twice quits). Then
 `setup` runs: preflight, the plan, packages (yay is built when missing),
 submodules, links, plugins, `/etc` files (a diff first), services, the
 login shell. Each step skips what is in place; boot settings (the NVIDIA
-driver, mkinitcpio) are only listed for you.
+driver, mkinitcpio) are only listed for you. Run from a tty, it ends with
+the way in: `start-hyprland` and the first keys.
 
 Without the wizard: `./install.py components set <name>…`, then
 `./install.py setup` (`--dry-run` shows the plan). Hyprland needs the Lua

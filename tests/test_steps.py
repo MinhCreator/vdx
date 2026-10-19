@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -90,6 +91,20 @@ class Setup(unittest.TestCase):
         log = next(self.state.glob("setup-*.log")).read_text()
         self.assertIn("do a", log)
         self.assertNotIn("\x1b[", log)
+
+    def test_a_first_install_from_a_tty_ends_with_the_way_in(self):
+        with mock.patch.dict("os.environ"):
+            os.environ.pop("HYPRLAND_INSTANCE_SIGNATURE", None)
+            self.run_setup([Fake("a")])
+        log = next(self.state.glob("setup-*.log")).read_text()
+        self.assertIn("start-hyprland", log)
+        self.assertIn("Super + S", log)
+
+    def test_inside_a_session_there_is_no_next_block(self):
+        self.assertEqual(setup.next_steps({"HYPRLAND_INSTANCE_SIGNATURE": "x"}), [])
+        with mock.patch.dict("os.environ", {"HYPRLAND_INSTANCE_SIGNATURE": "x"}):
+            self.run_setup([Fake("a")])
+        self.assertNotIn("start-hyprland", next(self.state.glob("setup-*.log")).read_text())
 
 
 class Backups(unittest.TestCase):

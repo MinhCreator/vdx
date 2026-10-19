@@ -2,8 +2,8 @@
 
 Welcome (the machine, the checks) → hardware → one screen per group of
 components → settings (theme, keyboard) → summary → setup runs in the
-terminal. Keys: ↑ ↓ move · space tick / change · → or enter next · ← back ·
-q quit. Nothing is written before the summary is confirmed.
+terminal. Keys: ↑ ↓ move · space tick / change · → or enter next · ← or esc
+back · q twice quit. Nothing is written before the summary is confirmed.
 
 `Picks` is the selection logic (tested without a terminal); the rest draws.
 """
@@ -117,6 +117,36 @@ def save(a: Answers) -> None:
     THEME_FILE.write_text(a.theme + "\n")
 
 
+# --------------------------------------------------------------------------- keys
+
+QUIT_ASK = "q again to quit: nothing is written"
+
+
+def key_name(k) -> str:
+    """A key from get_wch as the wizard's word for it; Esc is back."""
+    if isinstance(k, int):
+        return {curses.KEY_UP: "up", curses.KEY_DOWN: "down", curses.KEY_LEFT: "left", curses.KEY_RIGHT: "right",
+                curses.KEY_BACKSPACE: "left", curses.KEY_ENTER: "enter", curses.KEY_RESIZE: "resize"}.get(k, "")
+    return {"\n": "enter", "\r": "enter", " ": "space", "k": "up", "j": "down", "h": "left", "l": "right",
+            "\x7f": "left", "\x1b": "left", "q": "quit"}.get(k, k)
+
+
+class Quit:
+    """q asks once more: only a second q in a row quits (every pick is lost)."""
+
+    def __init__(self):
+        self.armed = False
+
+    def press(self, name: str) -> str:
+        if name != "quit":
+            self.armed = False
+            return name
+        if self.armed:
+            return "quit"
+        self.armed = True
+        return "ask"
+
+
 # --------------------------------------------------------------------------- drawing
 
 class UI:
@@ -128,6 +158,7 @@ class UI:
             curses.init_pair(i, c, -1)
         self.GREEN, self.YELLOW, self.CYAN, self.RED = (curses.color_pair(i) for i in range(1, 5))
         self.message = ""
+        self.quit = Quit()
 
     # ---- frame ----
 
@@ -155,13 +186,11 @@ class UI:
                 self.scr.addnstr(y, x, text, w - 1 - x, attr)
 
     def key(self) -> str:
-        k = self.scr.get_wch()
-        names = {curses.KEY_UP: "up", curses.KEY_DOWN: "down", curses.KEY_LEFT: "left", curses.KEY_RIGHT: "right",
-                 curses.KEY_BACKSPACE: "left", curses.KEY_ENTER: "enter", curses.KEY_RESIZE: "resize"}
-        if isinstance(k, int):
-            return names.get(k, "")
-        return {"\n": "enter", "\r": "enter", " ": "space", "k": "up", "j": "down", "h": "left", "l": "right",
-                "\x7f": "left", "\x1b": "quit", "q": "quit"}.get(k, k)
+        name = self.quit.press(key_name(self.scr.get_wch()))
+        if name == "ask":
+            self.message = QUIT_ASK
+            return ""
+        return name
 
     # ---- pages ----
 
@@ -348,7 +377,7 @@ class UI:
             h, w = self.scr.getmaxyx()
             if h < 20 or w < 72:
                 self.scr.erase()
-                self.put(0, 0, f"the window is {w}×{h}: make it at least 72×20 (q quits)")
+                self.put(0, 0, f"the window is {w}×{h}: make it at least 72×20 (q twice quits)")
                 if self.key() == "quit":
                     return False
                 continue
