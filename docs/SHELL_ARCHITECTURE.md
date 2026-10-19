@@ -66,7 +66,7 @@ links, secrets, `/etc`, units, services). `link` also writes
 | Store | File (`~/.local/state/quickshell/by-shell/<id>/`) | API | Notes |
 |---|---|---|---|
 | Shell options | `settings.json` | `ShellSettings` property + `set()` | ~75 keys, no schema version |
-| Module / app options | `modules.json` › `values.<id>` | `ModuleSettings.get(id, key, default)` / `set` | default lives in the module; written on exit |
+| Module / app options | `modules.json` › `values.<id>` | `ModuleSettings.get(id, key, default)` / `set` | default lives in the module; written on each change, external edits reloaded |
 | Bar layout | `layout.json` | `BarLayout` | renames via `BarLayout.renamed`; not watched |
 | Notifications history | `notifications.json` (statePath) | `NotificationsService` | — |
 | Dotfiles state | `~/.local/state/dotfiles/` | installer + shell | `components.json` (modules not installed), `accent.lua`, `window-mode`, `shell-apps.json` |

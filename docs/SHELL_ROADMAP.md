@@ -7,7 +7,7 @@ numbers below). Process and how to run a task:
 Architecture: [SHELL_ARCHITECTURE.md](SHELL_ARCHITECTURE.md). Testing:
 [SHELL_TESTING.md](SHELL_TESTING.md). Decisions: [decisions/](decisions/README.md).
 
-Updated: 2026-10-19 (planning pass; no code changed).
+Updated: 2026-10-19 (planning pass; task 12 findings; no code changed).
 
 ## Phases
 
@@ -23,7 +23,7 @@ must be approved before implementation.
 | [02-B](implementation-plans/02_FILEPICKER_AND_AUDIO_FIXES.md) | Duplicate microphone | A/B | — | device model (D-05) | Implemented, partially verified (model A; headset switch not tested live) |
 | [03](implementation-plans/03_DISPLAY_AND_WALLPAPER_FIXES.md) | Wallpaper after Display change and at login | A | — | D-04 if Hyprland bg changes | Implemented, partially verified (re-login and Display check open; D-04 open) |
 | [04](implementation-plans/04_BLUETOOTH_LABEL_FIX.md) | Bluetooth "Rescan" | A | — | — | Implemented, partially verified |
-| [12](implementation-plans/12_PRODUCT_WIDE_UX_AUDIT.md) | Product-wide UX audit (findings) | C | 00 (best after 01–04) | findings approved | Not started |
+| [12](implementation-plans/12_PRODUCT_WIDE_UX_AUDIT.md) | Product-wide UX audit (findings) | C | 00 (best after 01–04) | findings approved | Findings done (17); slice 1 (U-03, U-04, U-17) implemented and verified; 12-A (default bar, overflow) implemented, partially verified; next 12-B |
 | [05](implementation-plans/05_SETTINGS_REDESIGN.md) | Settings redesign — phase 1 proposal | C | 12, 0001 | proposal | Not started |
 | [05](implementation-plans/05_SETTINGS_REDESIGN.md) | Settings redesign — phase 2 slices | C | 05 p1 approved, 01-D | per slice | Not started |
 | [06](implementation-plans/06_LOCKSCREEN_CUSTOMIZATION.md) | Lock screen section + customisation | B/C | 05 p1, 03 | proposal | Not started |
@@ -118,7 +118,7 @@ Order changes against spec §3.3, with reasons:
 | §11 "camera" | No webcam in the repo | D-11 |
 | §12.2, §15 | Agents vs the owner's standing rule | D-06 |
 | §3.1 / §14.1 file set | Duplicates `shell/CLAUDE.md` / `CONVENTIONS.md` | decision 0001 |
-| §2.2 "no arbitrary delays" | Existing delays (300 ms refresh, wallpaper wait loop) | ranked by 12, not fixed ad hoc |
+| §2.2 "no arbitrary delays" | Existing delays (300 ms refresh, wallpaper wait loop) | ranked by 12, not fixed ad hoc (12: not ranked as findings — no user-visible effect found; U-07 covers the polls) |
 
 ## Spec coverage
 

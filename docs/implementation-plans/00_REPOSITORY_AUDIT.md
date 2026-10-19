@@ -139,8 +139,9 @@ Bar, Windows · Network, Bluetooth · Apps, Modules · About. Storage:
 `ShellSettings` (`settings.json`, ~75 properties), `ModuleSettings`
 (`modules.json`, under `values`), `BarLayout` (`layout.json`). Per-app/module
 `<Name>Settings.qml` pages. No search. Migration exists only as
-`BarLayout.renamed`; there is no settings schema version. The shell writes
-`modules.json` on exit (external edits while it runs are lost).
+`BarLayout.renamed`; there is no settings schema version. `settings.json` and
+`modules.json` are written on each change and reloaded on an external edit;
+`layout.json` is not watched (corrected by 12, U-17).
 
 ### §7 Lock screen
 
