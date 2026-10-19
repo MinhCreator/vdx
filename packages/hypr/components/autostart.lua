@@ -7,7 +7,8 @@ require("components.machine").load("autostart")
 
 hl.on("hyprland.start", function()
 	-- the bar fills it with the theme's (or the user's) solid colour
-	hl.exec_cmd("awww-daemon")
+	-- no cache: the daemon would show the last picture it cached, not the chosen one
+	hl.exec_cmd("awww-daemon --no-cache")
 	-- the shell's window rules, written once on a fresh install
 	hl.exec_cmd("python3 ~/.config/quickshell/shell/scripts/shellapps.py ensure")
 	hl.exec_cmd("qs -c shell")

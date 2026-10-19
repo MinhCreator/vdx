@@ -31,6 +31,13 @@ Scope {
   onKeyChanged: apply()
   Component.onCompleted: apply()
 
+  // a monitor's scale, rate or place changed: awww redraws its last picture at the
+  // new size, which can be another one (the cache), so the chosen one goes on again
+  Connections {
+    target: DisplayService
+    function onApplied() { root.apply(); }
+  }
+
   // a monitor plugged in later has no picture yet (awww sets only the outputs
   // it knows of): apply again once it is up, else it shows Hyprland's default
   Connections {

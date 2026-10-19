@@ -15,7 +15,7 @@ Parts marked *not inspected* are names and roles only.
 
 ```
 Hyprland ── autostart.lua (hyprland.start)
-   ├─ awww-daemon            wallpaper surface (restores its cache on start / output change)
+   ├─ awww-daemon            wallpaper surface (`--no-cache`: starts empty; the shell sets the picture)
    ├─ shellapps.py ensure    window rules for the shell's apps (repo hypr config)
    ├─ qs -c shell            ONE process: bars, island, popups, apps, lock, polkit agent
    ├─ mako                   the notification server (toasts in Solid style, history)

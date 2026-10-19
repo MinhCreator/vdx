@@ -143,6 +143,14 @@ class Mode(unittest.TestCase):
         lua = eval_.call_args[0][0][-1]
         self.assertIn('mode = "1920x1080@144.00301"', lua)
 
+    def test_apply_never_restores_awww_cache(self):
+        # awww restore redraws the cached picture, not the chosen one (the shell redraws)
+        ok = mock.Mock(returncode=0, stdout="", stderr="")
+        with mock.patch.object(display, "run_or_fail", return_value=ok), \
+             mock.patch.object(display, "run") as run_:
+            display.apply(mon("eDP-1", 0, 0), scale=1.25)
+        run_.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

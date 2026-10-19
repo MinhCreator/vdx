@@ -1,6 +1,6 @@
 # 03 — Wallpaper overwritten by Displays and at session start
 
-Status: Not started · Category: A · Depends on: nothing · Gate: none for
+Status: Implemented, partially verified (login and live Display check open) · Category: A · Depends on: nothing · Gate: none for
 `--no-cache`-style fixes; owner approval if Hyprland's own background or
 startup order changes visibly (D-04). Spec: §5.4, §5.5 (one root cause).
 Shell paths are under `packages/quickshell/shell/`.
@@ -82,3 +82,31 @@ Changing wallpaper modes or the picker; arbitrary sleeps; editing generated them
 ## Report
 
 Per README › Report format.
+
+**Root cause (evidence):** `~/.cache/awww/0.12.1/<output>` holds
+`…/wallpapers/gruvbox/stripes.jpg` on all three outputs, while the chosen
+background was a colour (`awww query`: `currently displaying: color: 32302F`).
+`display.py` `apply()` ran `awww restore` after each monitor change, which drew
+the cached picture; the daemon also starts from that cache.
+
+**Changes:**
+- `scripts/display.py`: `apply()` no longer calls `awww restore`.
+- `apps/display/DisplayService.qml`: new `applied()` signal, emitted when a change succeeds.
+- `apps/shellmanager/Wallpaper.qml`: `Connections` on `DisplayService.applied` → `apply()`.
+- `packages/hypr/components/autostart.lua`: `awww-daemon --no-cache` (step 3, applied up front: the cache is always stale for this shell).
+- `tests/test_display.py`: `test_apply_never_restores_awww_cache`.
+
+**Validation run:** `python3 -m unittest tests/test_display.py` (13 OK);
+`./install.py check tests hypr` ✓; `./install.py check shell syntax` ✓; `ruff check` on the two Python files ✓;
+`qs log -c shell`: only Qt text-input WARN lines, no new ERROR.
+
+**Not verified:** a Display scale/position change with the owner watching the
+wallpaper; a re-login (the `--no-cache` line takes effect only on a new session);
+a plugged monitor; sharpness of `awww img` at the new scale. The live display was not changed.
+
+**D-04 (step 4), done after the owner reported Hyprland's stock wallpaper at login:**
+`packages/hypr/components/appearance.lua` sets `misc.force_default_wallpaper = 0`,
+`disable_hyprland_logo = true`, `background_color = colors.background1` (the theme's
+role, the colour the shell sets). `./install.py check hypr` and `Hyprland --verify-config` ok.
+Not seen on screen yet: the live socket was stale in the check, so the value is not read back;
+confirm at the next login.

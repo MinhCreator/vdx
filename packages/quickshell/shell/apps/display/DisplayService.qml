@@ -22,6 +22,9 @@ Singleton {
   property var pending: null                // the value being applied
   property string error: ""
 
+  // a change was applied in Hyprland: the wallpaper redraws at the new scales
+  signal applied()
+
   function refresh() { if (!listProc.running) listProc.running = true; }
 
   function setScale(name, scale) {
@@ -96,6 +99,7 @@ Singleton {
         root.working = "";
         root.pending = null;
         if (!r.ok) { root.error = r.error; root.refresh(); return; }
+        root.applied();
         root.refresh();
       }
     }

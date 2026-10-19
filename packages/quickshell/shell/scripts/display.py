@@ -130,8 +130,8 @@ def apply(m, scale=None, pos=None, rate=None):
     r = run_or_fail(["hyprctl", "eval", lua])
     if r.returncode != 0 or "error" in (r.stdout + r.stderr).lower():
         fail(f"hyprctl eval: {(r.stdout + r.stderr).strip() or 'failed'}")
-    # awww draws the picture at the scale it saw when it was set: restore it at the new one
-    run(["awww", "restore"])
+    # no `awww restore` here: it redraws the last image awww cached (the theme's first
+    # picture), not the one the user chose. The shell redraws the wallpaper (Wallpaper.qml).
 
 
 def scale_choices(current):

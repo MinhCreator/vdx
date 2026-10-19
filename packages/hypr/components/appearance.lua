@@ -17,6 +17,14 @@ hl.config({
 		},
 	},
 
+	-- until the shell sets its wallpaper: the theme's background1 (the shell's own colour),
+	-- not Hyprland's mascot pictures and logo
+	misc = {
+		force_default_wallpaper = 0,
+		disable_hyprland_logo = true,
+		background_color = colors.background1,
+	},
+
 	master = {
 		new_status = "slave",
 		mfact = 0.5,
