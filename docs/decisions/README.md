@@ -5,11 +5,12 @@ One file per significant architecture or design decision:
 
 | # | Decision | Status |
 |---|---|---|
-| [0001](0001-documentation-system.md) | Documentation system for the shell project | Accepted |
+| [0001](0001-documentation-system.md) | Documentation system for the shell project | Superseded by 0003 |
 | [0002](0002-settings-ia.md) | Settings information architecture | Accepted |
+| [0003](0003-docs-layout.md) | Docs layout: index + one topic per file | Accepted |
 
 Open questions that will become records are listed in the roadmap
-([SHELL_ROADMAP.md › Decisions awaiting the owner](../SHELL_ROADMAP.md#decisions-awaiting-the-owner)).
+([roadmap.md › Open questions](../roadmap.md#open-questions)).
 
 ## Statuses
 
@@ -26,7 +27,7 @@ An independent review (agent or human) is recorded in the file but is not an app
 # NNNN — Title
 
 Status: Proposed | Accepted (YYYY-MM-DD) | Superseded by NNNN | Rejected
-Phase: <implementation-plans/NN_….md>
+Phase: <tasks/NN_….md>
 
 ## Context
 The problem and the facts from the repository (paths).

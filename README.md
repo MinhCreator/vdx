@@ -61,7 +61,7 @@ config layer (0.55+); log in from a tty and run `start-hyprland`.
 | `uninstall [--system]` · `rollback` | take it off · put replaced files back |
 
 Destructive commands ask first; `-y` answers yes. All of them:
-[CONVENTIONS.md](CONVENTIONS.md#commands).
+[docs/repo/commands.md](docs/repo/commands.md).
 
 ## Layout
 
@@ -110,4 +110,4 @@ Submodules (cloned with their component): `packages/nvim`,
   and back in (its environment is set at start).
 - Logs of each setup: `~/.local/state/dotfiles/setup-<time>.log`.
 
-Rules for changing anything: [CONVENTIONS.md](CONVENTIONS.md). License: MIT.
+Rules for changing anything: [docs/README.md](docs/README.md). License: MIT.

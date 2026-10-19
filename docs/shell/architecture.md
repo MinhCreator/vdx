@@ -1,15 +1,13 @@
 # Shell architecture
 
 How the shell is built and where its responsibilities end. Code rules:
-[packages/quickshell/shell/CLAUDE.md](../packages/quickshell/shell/CLAUDE.md);
-repo and installer: [CONVENTIONS.md](../CONVENTIONS.md); what exists for a
-user: [shell/README.md](../packages/quickshell/shell/README.md). Decisions:
-[decisions/](decisions/README.md). Paths below are under
+[packages/quickshell/shell/CLAUDE.md](../../packages/quickshell/shell/CLAUDE.md);
+repo and installer: [docs/](../README.md); what exists for a
+user: [shell/README.md](../../packages/quickshell/shell/README.md). Decisions:
+[decisions/](../decisions/README.md). Paths below are under
 `packages/quickshell/shell/` unless they start with the repo root.
 
-Status: written from the audit of 2026-10-19
-([00_REPOSITORY_AUDIT.md](implementation-plans/00_REPOSITORY_AUDIT.md)).
-Parts marked *not inspected* are names and roles only.
+Status: written from the repository audit of 2026-10-19. Parts marked *not inspected* are names and roles only.
 
 ## Runtime
 
@@ -60,7 +58,7 @@ Runtime-written theme-ish state goes to `~/.local/state/dotfiles/`
 `./install.py setup`: preflight → plan → steps (packages, AUR, submodules,
 links, secrets, `/etc`, units, services). `link` also writes
 `~/.local/state/dotfiles/components.json` (modules not installed) and
-`hypr/machine/*.lua`. `doctor` checks the machine. Details: CONVENTIONS.md.
+`hypr/machine/*.lua`. `doctor` checks the machine. Details: [repo/installer.md](../repo/installer.md).
 
 *Not inspected (lifecycle):* restart behaviour of every `Process` beyond
 `NotificationsService.monitorProc` (restarts after 2 s) and the wallpaper wait loop (25 × 0.4 s).
@@ -116,7 +114,7 @@ still loads, so it must tolerate missing binaries.
 ## Boundaries (current rules)
 
 - Only scripts touch the system; services never shell out with untrusted text.
-- Colours only through `Theme.*`; tokens per `docs/SHELL_DESIGN_SYSTEM.md`.
+- Colours only through `Theme.*`; tokens per [design.md](design.md).
 - Repo-linked files (theme configs) are never written at runtime; runtime state
   goes to the state dirs.
 - `/etc` only via `system/` and `./install.py system install`.

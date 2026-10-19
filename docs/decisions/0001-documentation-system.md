@@ -1,6 +1,7 @@
 # 0001 — Documentation system for the shell project
 
-Status: Accepted (2026-10-20, owner; D-07)
+Status: Superseded by [0003](0003-docs-layout.md) (file layout); accepted 2026-10-20.
+Paths below are the old ones.
 Phase: [00_REPOSITORY_AUDIT.md](../implementation-plans/00_REPOSITORY_AUDIT.md)
 
 ## Context

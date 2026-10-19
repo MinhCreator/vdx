@@ -41,7 +41,7 @@ class Restore(unittest.TestCase):
         self.put(".config/a.conf", "old a")
         self.put(".config/b.conf", "old b")
         (self.home / ".config").mkdir()
-        (self.home / ".config/a.conf").symlink_to(ROOT / "CONVENTIONS.md")   # a link of ours
+        (self.home / ".config/a.conf").symlink_to(ROOT / "README.md")   # a link of ours
         (self.home / ".config/b.conf").write_text("new b")                    # someone's real file
         done, kept = maintain.restore(self.backup, self.home)
         self.assertEqual((self.home / ".config/a.conf").read_text(), "old a")

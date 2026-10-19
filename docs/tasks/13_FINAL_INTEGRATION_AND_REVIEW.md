@@ -12,10 +12,10 @@ item has an honest status.
 ## Steps
 
 1. `git log` since the last review: list every phase commit; map to roadmap rows.
-2. Automated: `./install.py check`, `ruff check`, shellcheck (see `SHELL_TESTING.md`),
+2. Automated: `./install.py check`, `ruff check`, shellcheck (see `shell/testing.md`),
    `tests/fresh-machine.sh defaults` and with the music/torrent components (owner agrees: slow).
-3. Manual: the shared regression scenarios (`SHELL_TESTING.md`) + each phase's regression list.
-4. Docs: every statement in `SHELL_ARCHITECTURE.md`, `shell/README.md`,
+3. Manual: the shared regression scenarios (`shell/testing.md`) + each phase's regression list.
+4. Docs: every statement in `shell/architecture.md`, `shell/README.md`,
    `shell/CLAUDE.md`, roadmap and decision records matches the code (grep
    names); proposals still marked proposed; superseded decisions marked.
 5. Spec coverage: walk the spec §5–§14 and tick each requirement against a

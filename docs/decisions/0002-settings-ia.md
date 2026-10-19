@@ -1,12 +1,12 @@
 # 0002 — Settings information architecture
 
 Status: Accepted (2026-10-20, owner, chat; Q6 declined, Q7 changed)
-Phase: [05_SETTINGS_REDESIGN.md](../implementation-plans/05_SETTINGS_REDESIGN.md) › Proposal
+Phase: task 05, settings redesign (done; plan in git history) › Proposal
 
 ## Context
 
 The Shell Manager (`packages/quickshell/shell/apps/shellmanager/`) has 9 pages
-and ~260 option rows on 39 pages ([inventory](../implementation-plans/05_settings_inventory.md)).
+and ~260 option rows on 39 pages (inventory: git history, `docs/implementation-plans/05_settings_inventory.md`).
 Where an option lives follows the code's split, not the user's task: an app's bar
 module is set under Apps, other modules under Modules; Lock screen is an app;
 toast duration is a bar module's option (12: U-12). Resets are instant and

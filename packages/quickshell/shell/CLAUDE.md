@@ -61,7 +61,7 @@ Apps shows a link row to it (decision 0002).
 ## UI
 
 The design system — tokens, controls, wording, colour, motion, Settings
-pages — is [docs/SHELL_DESIGN_SYSTEM.md](../../../docs/SHELL_DESIGN_SYSTEM.md).
+pages — is [docs/shell/design.md](../../../docs/shell/design.md).
 Read it before any visual work.
 
 ## Settings

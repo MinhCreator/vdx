@@ -3,7 +3,7 @@
 The shell's UI rules: tokens, controls, wording, colour, motion. Binding for
 every face, popup, window and Settings page of `packages/quickshell/shell/`
 (paths below are relative to it). Code rules: `packages/quickshell/shell/CLAUDE.md`.
-Split out of it by [decision 0001](decisions/0001-documentation-system.md) option 3
+Split out of it by [decision 0001](../decisions/0001-documentation-system.md) option 3
 (2026-10-20, with task 05). Rules without a keyword are MUST (0001); new rules say
 MUST / SHOULD / MAY.
 
@@ -90,7 +90,7 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 
 ## Settings pages
 
-Added by task 05 ([decision 0002](decisions/0002-settings-ia.md)).
+Added by task 05 ([decision 0002](../decisions/0002-settings-ia.md)).
 
 - MUST: where a setting lives follows the user's area, not the code: every bar
   module's options in Bar modules (an app's module too), an app's own options in

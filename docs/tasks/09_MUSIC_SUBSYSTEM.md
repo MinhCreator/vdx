@@ -11,7 +11,7 @@ in its own repository only (CLAUDE.md).
 `scripts/yandex_likes.py`, `bar/island/IslandService.qml` (media),
 `bar/island/IslandMedia.qml`, `modules/audio/AudioPause.qml`,
 `packages/mpd/{mpd.conf,dirs.conf,package.toml}`, `installer/shell.py`,
-`tests/test_shell.py`, `CONVENTIONS.md` › Components, `shell/README.md` › Requirements.
+`tests/test_shell.py`, `docs/repo/components.md`, `shell/README.md` › Requirements.
 
 ## Findings so far
 

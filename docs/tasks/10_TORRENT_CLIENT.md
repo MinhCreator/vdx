@@ -22,7 +22,7 @@ Out: implementing BitTorrent; search/indexer sites; RSS (unless approved later).
 an app with a backend and a window as the pattern: `apps/backup/` +
 `scripts/backup.py` + `tests/test_backup.py` (progress lines, one reply);
 `apps/packages/` (long jobs); `modules/notifications/` (after 01);
-`CONVENTIONS.md` › Add a component, Add a program a config uses.
+`docs/repo/recipes.md` › Add a component, Add a program a config uses.
 
 ## Phase 1 — research and design (no code)
 

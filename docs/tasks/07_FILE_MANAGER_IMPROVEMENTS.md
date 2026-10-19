@@ -8,7 +8,7 @@ Three parts, run in order A → B → C or independently (they touch different f
 
 `apps/files/*.qml` (start with `FilesService.qml`, `FilesWindow.qml`,
 `FilesSidebar.qml`, `FilesPlace.qml`, `FilesSettings.qml`), `scripts/files.py`
-(`places`, `devices`, `stat`), `tests/test_files.py`, `docs/SHELL_DESIGN_SYSTEM.md`.
+(`places`, `devices`, `stat`), `tests/test_files.py`, `docs/shell/design.md`.
 
 ---
 

@@ -1,6 +1,7 @@
 # dotfiles — rules for agents
 
-Read [CONVENTIONS.md](CONVENTIONS.md) before changing anything. In short:
+Docs index: [docs/README.md](docs/README.md) — one topic per file; read the
+files your change touches, not all of them. In short:
 
 - Configs live in `packages/<pkg>/`, linked file by file: after adding or
   removing a file run `./install.py link`, then `./install.py verify`.
@@ -21,14 +22,14 @@ Read [CONVENTIONS.md](CONVENTIONS.md) before changing anything. In short:
 - No secrets in git; check `git diff --cached` before committing.
 - Submodules (`packages/nvim`, `packages/scripts/{yandex-music,radio,vpn}`) are
   changed in their own repositories.
-- Commits: the rules in CONVENTIONS.md (## Commits). Branch `main`; published
+- Commits: `docs/repo/commits.md`. Branch `main`; published
   history is not rewritten without the owner.
-- Before each commit run the three checks of "Before a commit" (security,
+- Before each commit run the three checks of `docs/repo/commits.md` › Before a commit (security,
   tests, docs) and tell the user their result.
 - Commands that check out old commits: `git -c core.hooksPath=/dev/null …`,
   then `./install.py link`.
 - The shell (Quickshell): `packages/quickshell/shell/CLAUDE.md`; its UI rules
-  (tokens, controls, wording, Settings pages): `docs/SHELL_DESIGN_SYSTEM.md`.
-- Shell project work: `docs/SHELL_ROADMAP.md`; a task runs from its file in
-  `docs/implementation-plans/` (how: that folder's README).
+  (tokens, controls, wording, Settings pages): `docs/shell/design.md`.
+- Shell project work: `docs/roadmap.md`; a task runs from its file in
+  `docs/tasks/` (how: that folder's README).
 - Don't commit or revert someone else's uncommitted changes without asking.

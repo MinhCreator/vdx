@@ -7,7 +7,7 @@
 
 Run without arguments for a menu with a status overview, `install` for the
 wizard, or a command (`./install.py --help`). How the repo is laid out and
-how to change it: CONVENTIONS.md.
+how to change it: docs/README.md.
 
   components.toml   what can be installed: one entry per checkbox
   .machine.toml     this machine: detected hardware, overrides, the choice (local)

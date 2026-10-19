@@ -1,0 +1,65 @@
+# Installer
+
+Wizard, setup, update, doctor, uninstall; how to change the installer.
+
+## The wizard
+
+`./install.py install` (`installer/wizard.py`, curses): welcome with the
+checks → hardware → one screen per component group → settings (theme,
+layouts, the switch key) → summary. Only the confirmed summary writes
+`.machine.toml` and `.theme`; then `setup` runs. It opens on the saved
+choice; on a machine set up before choices were saved, on what is on now;
+only a fresh machine starts from the defaults.
+
+## Setup
+
+`./install.py setup` = preflight, the plan, then each step with work
+(`installer/steps.py`): packages, the AUR helper (yay-bin, built when none
+is there), AUR packages, submodules, links, the secrets template, `private/`,
+Oh My Zsh and plugins, `/etc`, user units, services and masks, the login
+shell, Neovim's plugins. `--dry-run` stops at the plan; `--noconfirm` goes
+to pacman, yay and makepkg. Each step is asked again right before it runs
+(earlier steps make work for later ones); a failed step stops the run and
+the next run skips what is done. Never done, only listed "by hand": group
+membership, rival services, boot settings (`hint`), units without a running
+systemd (a container, a chroot).
+
+Preflight, before anything with sudo, for `setup` and `deps`: the
+environment (Arch, not root, pacman / git / sudo), `check components`,
+`check hypr` and the tests. One problem stops the install.
+
+## Living with it
+
+`installer/maintain.py`:
+
+- `update` pulls (fast-forward only), moves the submodules whose recorded commit
+  changed (only a clean checkout that is behind it), and runs `setup` in a new
+  process, so the pulled installer is the one that runs.
+- `doctor` is `check` for the machine: the plan's pending work plus what it
+  can't see — services enabled but not running, mihomo's capabilities,
+  Hyprland's config errors, `machine/` out of step, a session on another
+  GPU environment, changed hardware — each with its fix.
+- `uninstall [--system]` removes links, generated files (they carry
+  `hypr.MARK`) and, with `--system`, our `/etc` files nobody changed;
+  `rollback` puts backed-up files back. Packages, services and anything
+  that isn't ours stay; a file in the way of a restore stays in its backup.
+- A link that replaces a real file moves it to
+  `~/.local/state/dotfiles/backup/<time>/`, by its path from `~`.
+
+## Change the installer
+
+One module per concern in `installer/`: `paths`, `ui`, `model` (links,
+system files), `links`, `theme`, `system`, `deps`, `components`, `choose`
+(the `components` command), `detect`, `machine`, `hypr`, `shell`, `steps`,
+`setup`, `preflight`, `wizard`, `maintain`, `check`, `menu`, `cli`.
+
+- A behaviour change comes with a test in `tests/` (fake `/sys` trees in
+  `tests/fakesys.py`; nothing touches the real machine).
+- A new kind of setup work: a `Step` in `STEPS` whose `pending()` only looks
+  and `run()` is idempotent; a test in `tests/test_steps.py`.
+- A change to what setup does also runs on a clean Arch:
+  `tests/fresh-machine.sh [defaults | component…]` (podman; clones the
+  committed repo as a new user, runs setup unattended, then doctor, verify,
+  a second setup with nothing to do, uninstall).
+- A refactor keeps the output of `status`, `verify`, `system status` and
+  `deps --check`: compare before and after.

@@ -1,32 +1,35 @@
-# Implementation plans
+# Tasks
 
-One file per phase or independent task. Order, status and approvals:
-[SHELL_ROADMAP.md](../SHELL_ROADMAP.md). Requirements: the spec
-`CLAUDE_SHELL_PROJECT_MASTER_INSTRUCTIONS.md` (§ numbers below refer to it).
-This file is the authority for the process; code rules stay in
-`packages/quickshell/shell/CLAUDE.md` and `CONVENTIONS.md`.
+One file per open task; a finished one is deleted (README › Rules for these
+docs). Order, status and approvals: [roadmap.md](../roadmap.md). Requirements:
+[spec.md](../spec.md) (§ numbers refer to it). This file is the authority for
+the process; code and repo rules: [docs/README.md](../README.md).
 
 ## Running a task in a new Claude Code session
 
 Paste, with the file name:
 
 ```
-Run docs/implementation-plans/NN_NAME.md (part X if it has parts).
-Read it, docs/implementation-plans/README.md and the files it lists under
+Run docs/tasks/NN_NAME.md (part X if it has parts).
+Read it, docs/tasks/README.md and the files it lists under
 "Read first". Follow its approval gate: stop and report at the gate.
 ```
 
 The agent then:
 
-1. Reads the plan, this file, `CLAUDE.md`, `CONVENTIONS.md`,
-   `packages/quickshell/shell/CLAUDE.md`, and the plan's "Read first".
+1. Reads the plan, this file, `CLAUDE.md`, `packages/quickshell/shell/CLAUDE.md`,
+   the topic files the plan needs (`docs/README.md`), and its "Read first".
 2. Checks the roadmap: dependencies done, gate approved where required.
    Not met → reports and stops.
 3. Re-checks the plan's facts in code (files move; the plan is a snapshot).
    A wrong fact is fixed in the plan file, not silently worked around.
 4. Works in the plan's order; stops at the gate with a report.
-5. Ends with the report (below) and the docs updated in the order of
-   [decision 0001](../decisions/0001-documentation-system.md) › Update order.
+5. Ends with the report (below) and the docs updated in this order, same
+   commit as the code: the plan (status, report) → the roadmap row → topic
+   files the change made wrong (architecture, design, README, `shell/CLAUDE.md`)
+   → a decision record if a choice was made → `shell/testing.md` if validation
+   changed. When the task is done: what is left goes to the roadmap, the plan
+   file is deleted.
 
 After a gate is approved, the plan file gets its phase-2 Scope, Steps,
 Acceptance and "Files edited" written in **before** any code (spec §3.1).
@@ -50,7 +53,7 @@ decision silently: it writes the question in the report.
 - [ ] Relevant files read in full where they are edited; callers found (`grep`).
 - [ ] Current vs intended behaviour written down; root cause has evidence.
 - [ ] Related settings, stores, events, components named.
-- [ ] Existing tests and checks for the area known (`docs/SHELL_TESTING.md`).
+- [ ] Existing tests and checks for the area known (`docs/shell/testing.md`).
 - [ ] Regressions listed (the plan's checklist + the shared scenarios).
 - [ ] No new dependency, public interface change or settings migration without a line of reason in the plan or a decision record.
 
@@ -59,7 +62,7 @@ decision silently: it writes the question in the report.
 - [ ] Script → service → face/popup split (`shell/CLAUDE.md` › A module / An app).
 - [ ] Registered: `BarLayout.modules` + `ModuleFaces`, or `apps/apps.json`; component in `components.toml`.
 - [ ] Settings through `ShellSettings` or `ModuleSettings`, default in the module, applied without restart.
-- [ ] Controls, wording, tokens per `docs/SHELL_DESIGN_SYSTEM.md`; one prototype screen approved before rollout (visual work).
+- [ ] Controls, wording, tokens per `docs/shell/design.md`; one prototype screen approved before rollout (visual work).
 - [ ] Missing binary / service / hardware handled: a state in the UI, no log errors.
 - [ ] Component off → "not installed", nothing breaks.
 - [ ] Docs made wrong by the change fixed (README, CLAUDE.md, architecture).
@@ -71,7 +74,7 @@ decision silently: it writes the question in the report.
 - [ ] `./install.py check` green; `ruff check`, shellcheck clean.
 - [ ] `qs log -c shell` without new ERROR / WARN.
 - [ ] Regression checklist walked; what was not tested is written down with why.
-- [ ] CONVENTIONS › Before a commit: security / tests / docs answered to the owner.
+- [ ] `docs/repo/commits.md` › Before a commit: security / tests / docs answered to the owner.
 
 ## Agents (§12.2, §15)
 

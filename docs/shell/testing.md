@@ -1,7 +1,7 @@
 # Shell testing and release checks
 
 What can be checked, how, and what stays manual. Commit rules ("Before a
-commit", "Before a push"): [CONVENTIONS.md](../CONVENTIONS.md) — not repeated here.
+commit", "Before a push"): [repo/commits.md](../repo/commits.md) — not repeated here.
 
 ## Automated (verified 2026-10-19, all green on `d855ef6`)
 
