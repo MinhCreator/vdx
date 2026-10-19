@@ -466,7 +466,8 @@ Category B, small. Out: a theme preview in the wizard.
 
 1. `setup` ends, outside a Hyprland session (the first install, from a tty),
    with a "Next" block: log in on a tty and run `start-hyprland`; Super + S
-   the Shell Manager, Super + B every keybind, Alt + Space the system menu.
+   the Shell Manager, Super + B every keybind, Alt + Space the launcher
+   (corrected: the plan said "the system menu"), Super + Q a terminal.
    Inside a session (an `update`) nothing new is printed. `setup.next_steps`.
 2. The shell's very first start (no `settings.json` yet) shows one toast with
    the same keys. `ShellSettings.firstRun` (not saved).
@@ -480,8 +481,24 @@ Files: `installer/setup.py`, `installer/wizard.py`, `tests/test_steps.py`,
 Acceptance: tests for `next_steps` and the wizard keys; the toast on a fresh
 state dir (a copy, then the owner's put back); `./install.py check` green.
 
-Status: **Not started** — planned 2026-10-19, the session ended before code
-(a draft of `next_steps` was reverted). Next session starts here.
+Result (2026-10-19): **Implemented and verified.**
+- `setup.next_steps(env)`; tests: a run with no `HYPRLAND_INSTANCE_SIGNATURE`
+  logs `start-hyprland` and `Super + S`, one inside a session nothing.
+- Wizard: `key_name` (Esc → back) and `Quit` (q asks, a second q in a row
+  quits, any other key starts over); 3 tests. All installer tests pass.
+- The toast: `ShellSettings.firstRun` is set only when `settings.json` is
+  missing (`FileViewError.FileNotFound`, not a broken file). The state dir
+  backed up, `settings.json` removed, shell restarted: mako lists "Welcome"
+  from `Shell`; the owner's state put back (`diff -r` same), restarted: no
+  toast, log clean. `./install.py check` all ✓, `ruff` clean.
+- Not seen: the "Next" block on a real tty install (`fresh-machine.sh` not
+  run: owner); the wizard's screens drawn (keys tested without curses).
+- Seen, not caused by 12-I: on a fresh state dir Quickshell logs one WARN
+  `fileview: got operation finished from dropped operation` (the defaults
+  written while the watch reloads). `$XDG_RUNTIME_DIR/shell-lock/locked` of
+  this session was present while the screen was not locked, and a live
+  reload logged "Session lock object was destroyed without unlocking": the
+  relock marker of 12-B may be left behind after an unlock. Not looked into.
 
 ### Proposed tasks (for approval)
 
