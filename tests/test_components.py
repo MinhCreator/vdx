@@ -53,6 +53,22 @@ class Selection(unittest.TestCase):
         self.assertEqual(components.selected(profile, CAT), {"core", "radio", "mpd"})
         self.assertIsNone(components.saved({"hardware": HW_TUF}))
 
+    def test_a_split_component_follows_its_parent(self):
+        cat = catalog(core={"group": "core"}, shell={"group": "desktop"},
+                      backups={"group": "desktop", "requires": ["shell"], "split_from": "shell"})
+        before = {"components": {"selected": ["shell"]}}          # saved before the split
+        self.assertIn("backups", components.selected(before, cat))
+        took_off = {"components": {"selected": ["shell"], "off": ["backups"]}}
+        self.assertNotIn("backups", components.selected(took_off, cat))
+        self.assertNotIn("backups", components.selected({"components": {"selected": []}}, cat))
+
+    def test_record_keeps_a_split_component_off(self):
+        cat = catalog(core={"group": "core"}, shell={"group": "desktop"},
+                      backups={"group": "desktop", "requires": ["shell"], "split_from": "shell"})
+        self.assertEqual(components.record({"core", "shell"}, cat), {"selected": ["shell"], "off": ["backups"]})
+        self.assertEqual(components.record({"core", "shell", "backups"}, cat), {"selected": ["shell", "backups"]})
+        self.assertEqual(components.record({"core"}, cat), {"selected": []})
+
     def test_required_by(self):
         self.assertEqual(components.required_by("mpd", {"mpd", "radio", "hypr"}, CAT), ["radio"])
 
@@ -93,13 +109,15 @@ class Problems(unittest.TestCase):
             f={"group": "hardware", "auto": ["quirk:nope", "moon"]},
             g={"group": "desktop", "links": ["a/b"]},
             h={"group": "desktop", "links": ["a/b"]},
+            i={"group": "desktop", "split_from": "h"},
         )
         text = "\n".join(components.problems(bad))
         for needle in ("[a]: unknown field 'pakman'", "[a] requires itself", "[c]: group 'games'",
                        "requires 'ghost': no such component", "[d]: hardware needs auto",
                        "[e]: auto is for hardware only", "[e]: pacman and aur both list x",
                        "auto 'quirk:nope': no such quirk", "auto 'moon': unknown term",
-                       "links 'a/b' is in both [g] and [h]"):
+                       "links 'a/b' is in both [g] and [h]",
+                       "[i]: split_from 'h' must be a component it requires"):
             self.assertIn(needle, text)
 
 

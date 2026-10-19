@@ -86,7 +86,7 @@ def start(cat: dict) -> Answers:
     hw = {**hw, **profile.get("override", {})}
     saved = components.saved(profile)
     if saved is not None:
-        first = set(saved)
+        first = components.selected(profile, cat)      # with what was split off since
     elif find_managed():
         # set up before choices were saved: start from what is on now, not
         # from a stranger's defaults (they'd switch the owner's things off)
@@ -105,7 +105,7 @@ def save(a: Answers) -> None:
     p = dict(a.profile)
     p["version"] = machine.VERSION
     p.setdefault("hardware", detect.hardware())
-    p["components"] = {"selected": a.picks.chosen()}
+    p["components"] = components.record(a.picks.on, a.picks.cat)
     hypr = dict(p.get("hypr", {}))
     hypr["layouts"] = a.layouts
     if a.toggle and "," in a.layouts:

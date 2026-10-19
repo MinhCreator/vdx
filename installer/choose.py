@@ -16,7 +16,7 @@ def save(names: set[str], cat: dict) -> None:
     profile = machine.load() or {}
     profile.setdefault("version", machine.VERSION)
     profile.setdefault("hardware", detect.hardware())
-    profile["components"] = {"selected": [n for n in cat if n in names and cat[n]["group"] != "core"]}
+    profile["components"] = components.record(names, cat)
     machine.save(profile)
 
 

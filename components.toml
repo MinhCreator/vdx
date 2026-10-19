@@ -23,6 +23,8 @@
 #   masks        system units masked (they fight a service of this component)
 #   secrets      keys of private/manifest.json it uses
 #   hint         a manual step printed, never done (boot loader, initramfs, ...)
+#   split_from   a component it was split off (and requires): on wherever that one
+#                is, unless [components] off in .machine.toml names it
 
 # ---- core ----
 
@@ -51,14 +53,40 @@ requires = ["hypr"]
 suggests = ["mako", "gtk"]
 pacman = ["quickshell", "python-gobject", "xdg-desktop-portal", "udisks2", "ffmpegthumbnailer", "poppler", "awww", "hyprsunset", "brightnessctl", "gpu-screen-recorder", "wiremix",
           "libpulse", "bluez", "bluez-utils", "networkmanager", "libnotify", "upower",
-          "pacman-contrib", "glib2", "fd", "xdg-utils", "ttf-jetbrains-mono-nerd", "cava", "restic",
+          "glib2", "fd", "xdg-utils", "ttf-jetbrains-mono-nerd", "cava",
           "dnsmasq", "iw"]
 links = ["quickshell", "xdg-portal"]
 modules = ["workspaces", "clock", "equalizer", "themes", "wallpapers", "brightness", "audio", "wifi", "bluetooth", "battery", "language", "shell",
-           "notifications", "capture", "clipboard", "sysmon", "taskmanager", "cleaner", "backup", "packages",
+           "notifications", "capture", "clipboard", "sysmon", "taskmanager",
            "display", "windows", "folder"]
 system = ["etc/polkit-1/rules.d/50-pkexec-keep.rules"]
 services = ["NetworkManager.service", "bluetooth.service"]
+
+# parts of the shell that can stay off: their files are linked with quickshell
+# (shell.qml imports them), only their bar module, app and packages go
+[shell-backups]
+group = "desktop"
+about = "Backups in the shell: restic snapshots, Back up, restore"
+requires = ["quickshell"]
+split_from = "quickshell"
+pacman = ["restic"]
+modules = ["backup"]
+
+[shell-cleaner]
+group = "desktop"
+about = "Cleaner in the shell: caches and old packages, the safe part in one click"
+requires = ["quickshell"]
+split_from = "quickshell"
+pacman = ["pacman-contrib"]
+modules = ["cleaner"]
+
+[shell-packages]
+group = "desktop"
+about = "Packages in the shell: pending updates, one click to update"
+requires = ["quickshell"]
+split_from = "quickshell"
+pacman = ["pacman-contrib"]
+modules = ["packages"]
 
 [mako]
 group = "desktop"

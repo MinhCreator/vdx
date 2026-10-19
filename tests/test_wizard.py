@@ -73,6 +73,17 @@ class Save(unittest.TestCase):
             self.assertEqual(p["override"], {"battery": "BAT1"})
             self.assertEqual(theme.read_text(), "nord\n")
 
+    def test_a_split_component_left_out_is_saved_off(self):
+        cat = {**CAT, "backups": {**CAT["mako"], "about": "b", "default": True, "requires": ["quickshell"],
+                                  "split_from": "quickshell"}}
+        with tempfile.TemporaryDirectory() as tmp:
+            prof = Path(tmp) / ".machine.toml"
+            a = wizard.Answers(picks=wizard.Picks(cat, {"quickshell"}), theme="nord", layouts="us",
+                               toggle="", hw=HW_AMD, profile={})
+            with mock.patch.object(machine, "PROFILE", prof), mock.patch.object(wizard, "THEME_FILE", Path(tmp) / ".theme"):
+                wizard.save(a)
+            self.assertEqual(tomllib.loads(prof.read_text())["components"]["off"], ["backups"])
+
     def test_one_layout_needs_no_switch(self):
         with tempfile.TemporaryDirectory() as tmp:
             prof = Path(tmp) / ".machine.toml"

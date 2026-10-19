@@ -2,7 +2,9 @@
 
 The selection lives in .machine.toml ([components] selected). Without one,
 every component is on except hardware whose `auto` doesn't hold here, so a
-machine that never chose behaves as before components existed.
+machine that never chose behaves as before components existed. A component
+split off another (`split_from`) is on wherever that one is, unless
+[components] off names it: a list saved before the split keeps what it had.
 """
 
 from __future__ import annotations
@@ -16,7 +18,7 @@ CATALOG = ROOT / "components.toml"
 GROUPS = ["core", "desktop", "terminal", "editor", "apps", "music", "network", "ai", "personal", "hardware"]
 LISTS = {"requires", "suggests", "auto", "pacman", "aur", "links", "submodules", "modules",
          "system", "services", "user_services", "user_units", "masks", "secrets"}
-FIELDS = LISTS | {"group", "about", "default", "hint"}
+FIELDS = LISTS | {"group", "about", "default", "hint", "split_from"}
 
 
 # --------------------------------------------------------------------------- catalog
@@ -72,6 +74,27 @@ def defaults(cat: dict, hw: dict) -> set[str]:
     return closure(picked, cat)
 
 
+def switched_off(profile: dict | None) -> set[str]:
+    """Split components the user took off ([components] off)."""
+    off = (profile or {}).get("components", {}).get("off")
+    return set(off) if isinstance(off, list) else set()
+
+
+def with_splits(names: set[str], cat: dict, off: set[str]) -> set[str]:
+    """names plus the components split off one of them, but those switched off."""
+    return names | {n for n, c in cat.items() if c.get("split_from") in names and n not in off}
+
+
+def record(names: set[str], cat: dict) -> dict:
+    """The [components] table for a selection: what is on, and the split
+    components left out while their parent is on (else they'd come back)."""
+    table: dict = {"selected": [n for n in cat if n in names and cat[n]["group"] != "core"]}
+    off = [n for n, c in cat.items() if c.get("split_from") in names and n not in names]
+    if off:
+        table["off"] = off
+    return table
+
+
 def saved(profile: dict | None) -> list[str] | None:
     """The selection written in the profile; None when it has never chosen."""
     sel = (profile or {}).get("components", {}).get("selected")
@@ -85,7 +108,7 @@ def selected(profile: dict | None = None, cat: dict | None = None) -> set[str]:
     names = saved(profile)
     if names is None:
         return closure(everything(cat, machine.hardware(profile)), cat)
-    return closure(set(names), cat)
+    return closure(with_splits(set(names), cat, switched_off(profile)), cat)
 
 
 def required_by(name: str, names: set[str], cat: dict) -> list[str]:
@@ -137,6 +160,8 @@ def problems(cat: dict | None = None) -> list[str]:
                 out.append(f"{where}: {k} lists a name twice")
         for k in ("requires", "suggests"):
             out += [f"{where}: {k} {r!r}: no such component" for r in c[k] if r not in cat]
+        if "split_from" in c and (c["split_from"] not in cat or c["split_from"] not in c["requires"]):
+            out.append(f"{where}: split_from {c['split_from']!r} must be a component it requires")
         if c["auto"] and c.get("group") != "hardware":
             out.append(f"{where}: auto is for hardware only")
         if c.get("group") == "hardware" and not c["auto"]:

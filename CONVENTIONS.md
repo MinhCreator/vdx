@@ -45,6 +45,10 @@ hardware (`gpu-nvidia`, `laptop`). Its header documents every field.
   `asus`, `quirk:<name>`; `!term` negates).
 - Packages count as installed when anything provides them (`pacman -T`:
   `yay-bin` is `yay`).
+- A part split off a component (`split_from`, e.g. `shell-backups` off
+  `quickshell`) is on wherever its parent is, unless `[components] off`
+  names it; leaving it out (wizard, `components remove|set`) writes `off`.
+  A selection saved before the split keeps what it had.
 
 ### The machine profile
 
