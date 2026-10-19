@@ -7,7 +7,7 @@ Shell paths are under `packages/quickshell/shell/`.
 
 ## Part A — Filepicker shows stale files
 
-Status: Not started · Category: A · Depends on: nothing · Gate: none (report the refresh strategy in the report).
+Status: Implemented, partially verified (2026-10-19; Files window and portal picker checked, `Choose…` not checked) · Category: A · Depends on: nothing · Gate: none (report the refresh strategy in the report).
 
 ### Objective
 
@@ -31,6 +31,17 @@ Out: new watcher daemons (inotify) unless evidence demands it; Files features; U
 not `searching`; `open()` does nothing when `path` is set; `run()` keeps one
 `next` request while busy; replies for a folder left behind are dropped.
 Last change 2026-10-18 (`d14e745`) may already fix it — reproduce first.
+
+Reproduced 2026-10-19 on the running shell: not reproduced. A file created after
+the Files window opened (Files window, and portal picker via `ipc call files choose`)
+appears within 1.5 s; a file created before a reopen shows. The poll from `d14e745`
+covers the visible case. The gap left: `open()` did nothing when the folder was
+already shown, so a reopened window showed its cached rows until the first 1 s tick.
+Fix: `open()` reads the shown folder at once (`FilesService.qml`). Refresh strategy:
+unchanged poll (1 s while visible), `open()` + `show()` read at once, one listing in
+flight per folder (`run()` keeps the latest request).
+Not checked: `Choose…` from Shell Manager; a stalled read (a hung mount) would block
+the queue — no evidence of it here.
 
 ### Requirements
 
@@ -69,7 +80,7 @@ Visual changes; new dependencies; a permanent watcher without evidence.
 
 ## Part B — Duplicate microphone entries
 
-Status: Not started · Category: A (B if the device model changes) · Depends on: nothing ·
+Status: Implemented, partially verified (2026-10-19, model A for inputs and outputs; the switch to a headset not tested live) · Category: A (B if the device model changes) · Depends on: nothing ·
 Gate: approval of the device model (step 3) before changing what the list shows.
 
 ### Objective
@@ -94,6 +105,42 @@ One source node, ports `analog-input-internal-mic` and `analog-input-mic`
 (jack, quirk, no presence detect, both "availability unknown"). `entriesOf`
 lists a port when it is active → the jack mic shows while active, vanishes
 after Internal is chosen.
+
+Cause (2026-10-19, from code and `pactl list sources`; no headset plugged, so the
+plug path is not seen): `entriesOf` always lists `…internal-mic` (`p.name.includes("internal")`),
+and lists `…analog-input-mic` only when it is the active port, or when it is
+available and not "unknown" (jack mic with `jackIn`). Selecting Internal
+(`select()` → `pactl set-source-port`) makes the mic entry vanish: the list's shape
+depends on the selection. The mic port is kept by WirePlumber: its
+`~/.local/state/wireplumber/default-routes` has an `analog-input-mic` entry, so
+the port stays after a restart. No auto-switch expected: the tmpfiles quirk
+(`headset-mic.conf`) keeps the port without presence detect.
+
+Proposal for the gate (Model A, recommended): the list depends on `jackIn` only,
+never on the selection. Internal Microphone is always listed. Headset Microphone
+is listed while `jackIn` (a headset in the jack is seen on the output side, which
+has presence detect) and labelled by its port. If the mic is the active source
+while `jackIn` is false, no second entry: the dropdown shows a hint ("Microphone ·
+not detected") on the current choice. Remove the "or when it is the one in use"
+clause of `entriesOf`. Model B (not recommended): the mic always listed, dimmed
+with "not detected" when `jackIn` is false.
+Question for the owner: A or B.
+
+Correction (2026-10-19, the owner: the bug was on the output side, Speakers): the
+same mechanism is in `outputs` (`entriesOf(sinks)`). The built-in sink has
+`analog-output-speaker` (Speaker, "availability unknown", listed always) and
+`analog-output-headphones` (Headphones, "not available" without a plug; listed only
+while active or available). With headphones in, the codec reports the speaker
+"not available", so `entriesOf` lists it only while it is the active port. Choosing
+Headphones makes the Speakers entry vanish: the list depends on the selection
+again. Not seen live: no headset is plugged and the output routing is the user's
+audio, so no `pactl set-sink-port` test was run.
+Model A extends to outputs: the list depends on availability only. A port that is
+"not available" is not listed; the active one that is not available gets a hint on
+the current choice. Speakers are listed while the codec does not say "not available";
+Headphones while available. The output side is a behaviour change, so the plan's
+"Forbidden: output-side behaviour changes" needs the owner's approval first.
+Question for the owner: approve model A for inputs and outputs (or B for each)?
 
 ### Requirements
 

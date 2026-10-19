@@ -19,8 +19,8 @@ must be approved before implementation.
 | [00](implementation-plans/00_REPOSITORY_AUDIT.md) | Repository audit | — | — | — | Done (planning), partial coverage — see its "Not inspected" |
 | [01](implementation-plans/01_NOTIFICATION_SYSTEM.md) | Notifications: A reappear, B click, E capture toggles | A | — | — | Implemented, partially verified (B: no default action in island style) |
 | [01](implementation-plans/01_NOTIFICATION_SYSTEM.md) | Notifications: C lifecycle, D toast duration | B | 01 A/B | lifecycle table + D-01..03 | Implemented, partially verified (visual check open) |
-| [02-A](implementation-plans/02_FILEPICKER_AND_AUDIO_FIXES.md) | Filepicker stale listing | A | — | — | Not started |
-| [02-B](implementation-plans/02_FILEPICKER_AND_AUDIO_FIXES.md) | Duplicate microphone | A/B | — | device model (D-05) | Not started |
+| [02-A](implementation-plans/02_FILEPICKER_AND_AUDIO_FIXES.md) | Filepicker stale listing | A | — | — | Implemented, partially verified (not reproduced; `open()` refresh added) |
+| [02-B](implementation-plans/02_FILEPICKER_AND_AUDIO_FIXES.md) | Duplicate microphone | A/B | — | device model (D-05) | Implemented, partially verified (model A; headset switch not tested live) |
 | [03](implementation-plans/03_DISPLAY_AND_WALLPAPER_FIXES.md) | Wallpaper after Display change and at login | A | — | D-04 if Hyprland bg changes | Implemented, partially verified (re-login and Display check open; D-04 open) |
 | [04](implementation-plans/04_BLUETOOTH_LABEL_FIX.md) | Bluetooth "Rescan" | A | — | — | Implemented, partially verified |
 | [12](implementation-plans/12_PRODUCT_WIDE_UX_AUDIT.md) | Product-wide UX audit (findings) | C | 00 (best after 01–04) | findings approved | Not started |
