@@ -33,7 +33,7 @@ KitColumn {
     { key: "themes",    label: "Themes",    y: themeSection.y },
     { key: "accent",    label: "Accent",    y: accentSection.y },
     { key: "wallpaper", label: "Wallpaper", y: wallpaperSection.y },
-    { key: "font",      label: "Font",      y: fontSection.y },
+    { key: "font",      label: "Text",      y: fontSection.y },
     { key: "cursor",    label: "Cursor",    y: cursorSection.y },
     { key: "shape",     label: "Shape",     y: shapeLabel.y },
     { key: "controls",  label: "Controls",  y: controlsLabel.y }

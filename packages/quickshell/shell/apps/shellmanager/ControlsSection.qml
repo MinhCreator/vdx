@@ -10,7 +10,7 @@ Column {
 
   KitRow {
     wide: true
-    label: "Controls"
+    label: "Style"
     hint: "Material: filled, no frames"
 
     KitChoices {

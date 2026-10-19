@@ -107,9 +107,14 @@ KitColumn {
     }
   }
 
+  KitLine {}
+
+  // ---- floating only: the switcher and the taskbar ----
+  KitLabel { id: floatingGroup; visible: root.floating; text: "FLOATING" }
+
   KitRow {
     wide: true
-    visible: root.ws.mode === "floating"
+    visible: root.floating
     label: "Arrange"
     hint: "On switching to floating"
 
@@ -120,11 +125,6 @@ KitColumn {
       onPicked: value => root.ws.setOption("arrange", value)
     }
   }
-
-  KitLine {}
-
-  // ---- floating only: the switcher and the taskbar ----
-  KitLabel { id: floatingGroup; visible: root.floating; text: "FLOATING" }
 
   KitRow {
     visible: root.floating
@@ -151,7 +151,7 @@ KitColumn {
   KitRow {
     visible: root.floating && root.o.taskbar
     wide: true
-    label: "Shape"
+    label: "Taskbar shape"
     hint: root.o.taskbarShape === "island" ? "A pill over the windows" : "A strip along the bottom"
 
     KitChoices {
@@ -194,6 +194,13 @@ KitColumn {
       checked: root.o.borders
       onToggled: root.ws.setOption("borders", !root.o.borders)
     }
+  }
+
+  KitLinkRow {
+    visible: root.o.borders
+    label: "Frame colour"
+    hint: "In Appearance › Accent › Window border"
+    target: "appearance:accent"
   }
 
   KitRow {

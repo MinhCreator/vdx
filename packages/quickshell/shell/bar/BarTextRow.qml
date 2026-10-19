@@ -1,4 +1,5 @@
 import QtQuick
+import qs.config
 import qs.kit
 
 // The first row of a module's BAR group: Content (its own text, the options under
@@ -7,6 +8,7 @@ import qs.kit
 // has Name and Icon only.
 KitOptionRow {
   property bool hasContent: true
+  readonly property bool content: ModuleSettings.get(module, "text", fallback) === "content"   // the content rows' `visible`
 
   key: "text"
   fallback: hasContent ? "content" : "name"

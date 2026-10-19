@@ -16,6 +16,10 @@ Column {
     model: [{ label: "Updates", value: "updates" }, { label: "Installed", value: "installed" }, { label: "Cache", value: "cache" }]
   }
 
+  KitLine {}
+
+  KitLabel { text: "UPDATES" }
+
   KitToggleRow { module: "packages"; key: "checkOnOpen"; label: "Check on open"; hint: "Once in ten minutes at most" }
 
   KitOptionRow {

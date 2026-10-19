@@ -9,4 +9,12 @@ Column {
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "wifi" }
+
+  KitLine {}
+
+  KitLinkRow {
+    label: "Wi-Fi"
+    hint: "Networks, DNS, the speed test: Network"
+    target: "network"
+  }
 }

@@ -17,7 +17,7 @@ Column {
 
   KitLabel {
     id: fontGroup
-    text: "FONT"
+    text: "TEXT"
     value: FontService.current.replace(" Nerd Font", "").toUpperCase() + " · " + ShellSettings.textSize + " PX"
   }
 
@@ -137,7 +137,7 @@ Column {
   KitRow {
     wide: true
     label: "Text size"
-    hint: "The bar keeps its height"
+    hint: "The shell's; GTK apps: in Display"
 
     KitChoices {
       stretch: true

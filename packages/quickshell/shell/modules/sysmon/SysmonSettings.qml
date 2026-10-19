@@ -9,27 +9,28 @@ Column {
   spacing: Theme.gapGroup
 
   KitLabel { text: "BAR" }
-  BarTextRow { module: "sysmon" }
+  BarTextRow { id: barText; module: "sysmon" }
 
   KitToggleRow {
+    visible: barText.content
     module: "sysmon"; key: "barPercent"
     label: "Show CPU load"
     hint: "Off: icon only"
   }
 
-  KitToggleRow { module: "sysmon"; key: "barMemory";  fallback: false; label: "Show memory";        hint: "Used, in percent" }
-  KitToggleRow { module: "sysmon"; key: "barTemp";    fallback: false; label: "Show temperature";   hint: "CPU sensor" }
-  KitToggleRow { module: "sysmon"; key: "barGpu";     fallback: false; label: "Show GPU load";      hint: "NVIDIA, while awake" }
-  KitToggleRow { module: "sysmon"; key: "barNetwork"; fallback: false; label: "Show network speed"; hint: "Down and up" }
+  KitToggleRow { visible: barText.content; module: "sysmon"; key: "barMemory";  fallback: false; label: "Show memory";        hint: "Used, in percent" }
+  KitToggleRow { visible: barText.content; module: "sysmon"; key: "barTemp";    fallback: false; label: "Show temperature";   hint: "CPU sensor" }
+  KitToggleRow { visible: barText.content; module: "sysmon"; key: "barGpu";     fallback: false; label: "Show GPU load";      hint: "NVIDIA, while awake" }
+  KitToggleRow { visible: barText.content; module: "sysmon"; key: "barNetwork"; fallback: false; label: "Show network speed"; hint: "Down and up" }
 
   KitLine {}
 
   KitLabel { text: "POPUP" }
 
-  KitToggleRow { module: "sysmon"; key: "cores";   label: "CPU cores";  hint: "A bar per core under the load" }
-  KitToggleRow { module: "sysmon"; key: "memory";  label: "Memory";     hint: "Used, total, swap" }
-  KitToggleRow { module: "sysmon"; key: "gpu";     label: "GPU";        hint: "Intel clock, NVIDIA load and memory" }
-  KitToggleRow { module: "sysmon"; key: "disks";   label: "Disks";      hint: "Read / write, each partition" }
-  KitToggleRow { module: "sysmon"; key: "network"; label: "Network";    hint: "Down / up speed" }
-  KitToggleRow { module: "sysmon"; key: "sensors"; label: "Sensors";    hint: "NVMe and Wi-Fi heat, fans" }
+  KitToggleRow { module: "sysmon"; key: "cores";   label: "Show CPU cores";  hint: "A bar per core under the load" }
+  KitToggleRow { module: "sysmon"; key: "memory";  label: "Show memory";     hint: "Used, total, swap" }
+  KitToggleRow { module: "sysmon"; key: "gpu";     label: "Show GPU";        hint: "Intel clock, NVIDIA load and memory" }
+  KitToggleRow { module: "sysmon"; key: "disks";   label: "Show disks";      hint: "Read / write, each partition" }
+  KitToggleRow { module: "sysmon"; key: "network"; label: "Show network";    hint: "Down / up speed" }
+  KitToggleRow { module: "sysmon"; key: "sensors"; label: "Show sensors";    hint: "NVMe and Wi-Fi heat, fans" }
 }

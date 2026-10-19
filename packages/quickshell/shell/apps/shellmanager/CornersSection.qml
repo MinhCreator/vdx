@@ -17,7 +17,7 @@ KitColumn {
   KitRow {
     wide: true
     label: "Corners"
-    hint: "Round also rounds the icons"
+    hint: "Also windows and toasts; Round rounds the icons"
 
     KitChoices {
       stretch: true

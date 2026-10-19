@@ -86,7 +86,7 @@ KitFrame {
   KitRow {
     wide: true
     label: "GTK apps"
-    hint: "All monitors · GTK only"
+    hint: "GTK only; the shell's: Appearance › Text"
 
     KitChoices {
       stretch: true

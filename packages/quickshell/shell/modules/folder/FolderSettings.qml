@@ -9,4 +9,12 @@ Column {
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "folder" }
+
+  KitLine {}
+
+  KitLinkRow {
+    label: "Unseen dot"
+    hint: "In Notifications › Bar"
+    target: "notifications"
+  }
 }

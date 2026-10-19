@@ -31,4 +31,12 @@ Column {
 
   KitToggleRow { module: "wallpapers"; key: "english"; fallback: true; label: "English layout on open"; hint: "Switches the keyboard" }
   KitToggleRow { module: "wallpapers"; key: "wheel"; fallback: true; label: "Wheel picks"; hint: "Over the cards or the list" }
+
+  KitLine {}
+
+  KitLinkRow {
+    label: "Wallpaper"
+    hint: "The popup switches; set it in Appearance"
+    target: "appearance:wallpaper"
+  }
 }

@@ -101,6 +101,12 @@ Column {
   KitToggleRow { module: "capture"; key: "notifyShot"; fallback: true; label: "Notify after a screenshot"; hint: "Errors still notify" }
   KitToggleRow { module: "capture"; key: "notifyRecord"; fallback: true; label: "Notify after a recording"; hint: "Errors still notify" }
 
+  KitLinkRow {
+    label: "Toasts"
+    hint: "How long, the history: Notifications"
+    target: "notifications"
+  }
+
   KitLine {}
 
   KitLabel { text: "FOLDERS" }

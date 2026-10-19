@@ -131,7 +131,7 @@ KitColumn {
   KitRow {
     wide: true
     label: "Icon size"
-    hint: "Bar icons only"
+    hint: "Bar icons; kept for each shape"
 
     KitChoices {
       stretch: true
@@ -148,7 +148,7 @@ KitColumn {
   KitRow {
     wide: true
     label: "Module gap"
-    hint: ""
+    hint: "Kept for each shape"
 
     KitChoices {
       stretch: true

@@ -31,4 +31,12 @@ Column {
 
   KitToggleRow { module: "themes"; key: "english"; fallback: true; label: "English layout on open"; hint: "Switches the keyboard" }
   KitToggleRow { module: "themes"; key: "wheel"; fallback: true; label: "Wheel picks"; hint: "Over the cards or the list" }
+
+  KitLine {}
+
+  KitLinkRow {
+    label: "Theme"
+    hint: "The popup switches; set it in Appearance"
+    target: "appearance:themes"
+  }
 }

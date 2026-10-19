@@ -3,7 +3,7 @@ import Quickshell
 import qs.config
 import qs.kit
 
-// Lock screen options in Shell apps (ModuleSettings "lock"): what the lock
+// Lock screen options, the Lock screen page (ModuleSettings "lock"): what the lock
 // (Super+Z) shows — the background, the clock, the blur, the date, the user and
 // the monitors it shows on; then the controls on it: the keyboard layout, the
 // power buttons and the cursor that hides after a few still seconds (apps/lock
@@ -20,7 +20,7 @@ KitColumn {
 
   KitOptionRow {
     module: "lock"; key: "background"; fallback: "solid"
-    label: "Background"; hint: "Blurred: desktop as it was"
+    label: "Background"; hint: "Wallpaper: as in Appearance. Blurred: the desktop"
     model: [{ label: "Solid", value: "solid" }, { label: "Wallpaper", value: "wallpaper" }, { label: "Blurred", value: "blur" }]
   }
 
@@ -36,13 +36,18 @@ KitColumn {
 
   KitOptionRow {
     module: "lock"; key: "clock"; fallback: "24h"
-    label: "Clock"; hint: ""
+    label: "Clock format"; hint: ""
     model: [{ label: "24h", value: "24h" }, { label: "12h", value: "12h" }]
   }
 
-  KitToggleRow { module: "lock"; key: "date"; fallback: true; label: "Date"; hint: "" }
+  KitToggleRow { module: "lock"; key: "date"; fallback: true; label: "Show date"; hint: "" }
 
-  KitToggleRow { module: "lock"; key: "user"; fallback: true; label: "User"; hint: "" }
+  KitToggleRow { module: "lock"; key: "user"; fallback: true; label: "Show user name"; hint: "" }
+
+  KitLine {}
+
+  // ---- where ----
+  KitLabel { text: "WHERE" }
 
   // other monitors stay dark; typing there still goes into the password
   KitSelect {

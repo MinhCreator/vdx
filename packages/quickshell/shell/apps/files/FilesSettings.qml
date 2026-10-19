@@ -131,7 +131,7 @@ KitColumn {
 
   KitLine {}
 
-  KitLabel { text: "BEHAVIOUR" }
+  KitLabel { text: "OPENING" }
 
   KitToggleRow { module: "files"; key: "singleClick"; fallback: false; label: "Open on one click"; hint: "Ctrl and shift still select" }
 

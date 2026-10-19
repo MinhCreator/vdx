@@ -12,7 +12,7 @@ KitColumn {
   // Appearance › Accent (APPLIES TO Bar modules) takes the bars: the dots stay, dimmed
   KitRow {
     label: "Colour"
-    hint: Theme.accentOn("modules") ? "Follows the accent colour" : "Sea and sunset: gradients"
+    hint: Theme.accentOn("modules") ? "Set by Accent › Bar modules" : "Sea and sunset: gradients"
 
     KitSwatches {
       disabled: Theme.accentOn("modules")
@@ -21,6 +21,13 @@ KitColumn {
       colours: name => Theme.equalizerColours(name)
       onChosen: name => ModuleSettings.set("equalizer", "colour", name)
     }
+  }
+
+  KitLinkRow {
+    visible: Theme.accentOn("modules")
+    label: "Accent"
+    hint: "In Appearance › Accent › Bar modules"
+    target: "appearance:accent"
   }
 
   KitToggleRow {

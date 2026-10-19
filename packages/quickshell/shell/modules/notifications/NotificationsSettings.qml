@@ -4,7 +4,7 @@ import qs.config
 import qs.kit
 
 // Notifications options in the Shell Manager: the bar's unseen dot (BAR: on the
-// Folder, or the island's pill) and the popup (POPUP).
+// Folder, or the island's pill) and the history popup (HISTORY).
 KitColumn {
   spacing: Theme.gapGroup
 
@@ -26,36 +26,11 @@ KitColumn {
     hint: "Theme: the text colour"
     visible: ShellSettings.barFolderDot
 
-    // a colour dot per choice, pushed to the right edge (laid out right to left,
-    // so the model runs backwards); the picked one carries a ring
-    Row {
-      spacing: Theme.gapMedium
-      layoutDirection: Qt.RightToLeft
-
-      Repeater {
-        model: ["blue", "green", "yellow", "red", "theme"]
-
-        Rectangle {
-          id: swatch
-          required property string modelData
-          readonly property bool picked: ShellSettings.barDotColor === modelData
-            || (modelData === "theme" && ShellSettings.barDotColor === "light")
-
-          anchors.verticalCenter: parent.verticalCenter
-          width: 18
-          height: 18
-          radius: Theme.pill(height)
-          color: Theme.notifyDot(modelData)
-          border.width: picked ? 2 : 0
-          border.color: Theme.foreground0
-
-          MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: ShellSettings.set("barDotColor", swatch.modelData)
-          }
-        }
-      }
+    KitSwatches {
+      model: ["blue", "green", "yellow", "red", "theme"]
+      picked: ShellSettings.barDotColor === "light" ? "theme" : ShellSettings.barDotColor
+      colours: name => [Theme.notifyDot(name), Theme.notifyDot(name)]
+      onChosen: name => ShellSettings.set("barDotColor", name)
     }
   }
 
@@ -71,19 +46,27 @@ KitColumn {
 
   KitOptionRow {
     module: "notifications"; key: "toastSeconds"; fallback: 5
-    label: "Toast duration"; hint: "Critical stays until dismissed"
-    model: [{ label: "3 s", value: 3 }, { label: "5 s", value: 5 }, { label: "10 s", value: 10 }, { label: "Until dismissed", value: 0 }]
+    label: "Toast duration"; hint: "Stay: until dismissed. Critical always stays"
+    model: [{ label: "3 s", value: 3 }, { label: "5 s", value: 5 }, { label: "10 s", value: 10 }, { label: "Stay", value: 0 }]
   }
 
   KitLine {}
 
-  KitLabel { text: "POPUP" }
+  KitLabel { text: "HISTORY" }
 
   KitOptionRow {
     module: "notifications"; key: "rows"; fallback: 6
-    label: "Rows before scrolling"; hint: "How tall the history gets"
+    label: "Notifications shown"; hint: "Before the list scrolls"
     model: [{ label: "4", value: 4 }, { label: "6", value: 6 }, { label: "10", value: 10 }]
   }
 
   KitToggleRow { module: "notifications"; key: "closeOnClear"; fallback: false; label: "Close after clear"; hint: "Off: the popup stays open" }
+
+  KitLine {}
+
+  KitLinkRow {
+    label: "Capture notifications"
+    hint: "After a screenshot or a recording: in Capture"
+    target: "apps:capture"
+  }
 }

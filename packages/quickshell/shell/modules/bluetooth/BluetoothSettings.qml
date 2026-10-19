@@ -9,4 +9,12 @@ Column {
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "bluetooth" }
+
+  KitLine {}
+
+  KitLinkRow {
+    label: "Bluetooth"
+    hint: "Devices and pairing: Bluetooth"
+    target: "bluetooth"
+  }
 }
