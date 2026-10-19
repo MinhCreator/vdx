@@ -21,7 +21,7 @@ Out: PAM / authentication changes, idle-lock policy, a second lock implementatio
 
 `apps/lock/*.qml` in full; `apps/apps.json` (lock); `apps/shellmanager/ShellManager.qml`
 (page moves: `pageFor`, renamed pages); `apps/shellmanager/{WallpaperService,Wallpaper}.qml`;
-`kit/` controls; `shell/CLAUDE.md` › UI; 03's outcome.
+`kit/` controls; `docs/SHELL_DESIGN_SYSTEM.md`; 03's outcome.
 
 ## Findings so far
 

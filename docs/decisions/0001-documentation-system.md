@@ -1,6 +1,6 @@
 # 0001 — Documentation system for the shell project
 
-Status: Proposed (2026-10-19)
+Status: Accepted (2026-10-20, owner; D-07)
 Phase: [00_REPOSITORY_AUDIT.md](../implementation-plans/00_REPOSITORY_AUDIT.md)
 
 ## Context
@@ -24,14 +24,14 @@ unless asked").
    only when task 05 adds the Settings control specification and the file
    gets too long to read every session.
 
-## Decision (proposed): option 3
+## Decision: option 3
 
 | Spec document | In this repo | Role |
 |---|---|---|
 | SHELL_PROJECT_ROADMAP | `docs/SHELL_ROADMAP.md` (new) | phases, status, dependencies, approvals |
 | SHELL_ARCHITECTURE | `docs/SHELL_ARCHITECTURE.md` (new) | runtime, layers, stores, feature map, boundaries |
 | SHELL_DEVELOPMENT_GUIDELINES | `CONVENTIONS.md` + `packages/quickshell/shell/CLAUDE.md` (existing) | binding rules |
-| SHELL_DESIGN_SYSTEM | `shell/CLAUDE.md` › UI (existing); split later (option 3) | tokens, controls, wording |
+| SHELL_DESIGN_SYSTEM | `docs/SHELL_DESIGN_SYSTEM.md` (split out of `shell/CLAUDE.md` › UI on 2026-10-20, task 05) | tokens, controls, wording, Settings pages |
 | SHELL_TESTING_AND_RELEASE | `docs/SHELL_TESTING.md` (new) + CONVENTIONS › Before a commit / push | verified commands, manual scenarios |
 | decisions/README | `docs/decisions/` (new) | one record per decision |
 | implementation-plans/* | `docs/implementation-plans/` (new) + its README (process, checklists, agents) | one executable task per file |
@@ -39,7 +39,7 @@ unless asked").
 
 Rules:
 
-- **One authority per rule.** Others link to it. Code rules: `shell/CLAUDE.md`;
+- **One authority per rule.** Others link to it. Code rules: `shell/CLAUDE.md`; UI rules: `docs/SHELL_DESIGN_SYSTEM.md`;
   repo / installer / commits: `CONVENTIONS.md`; process: `implementation-plans/README.md`.
 - **MUST / SHOULD / MAY.** New rules are written with these words; existing
   imperative rules in `shell/CLAUDE.md` count as MUST until a task marks them
@@ -57,7 +57,9 @@ Rules:
   pointing to the roadmap.
 - `CONVENTIONS.md` "No new docs unless asked" stays; these docs exist because
   the owner asked (2026-10-19).
-- Revisit when task 05 is approved (split of the UI section).
+- Revisit when task 05 is approved (split of the UI section). Done 2026-10-20:
+  the owner asked for the split with 05's approval; `docs/SHELL_DESIGN_SYSTEM.md`
+  is the one authority for UI rules, `shell/CLAUDE.md` › UI links it.
 
 ## Sources
 

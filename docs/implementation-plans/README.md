@@ -59,7 +59,7 @@ decision silently: it writes the question in the report.
 - [ ] Script → service → face/popup split (`shell/CLAUDE.md` › A module / An app).
 - [ ] Registered: `BarLayout.modules` + `ModuleFaces`, or `apps/apps.json`; component in `components.toml`.
 - [ ] Settings through `ShellSettings` or `ModuleSettings`, default in the module, applied without restart.
-- [ ] Controls, wording, tokens per `shell/CLAUDE.md` › UI; one prototype screen approved before rollout (visual work).
+- [ ] Controls, wording, tokens per `docs/SHELL_DESIGN_SYSTEM.md`; one prototype screen approved before rollout (visual work).
 - [ ] Missing binary / service / hardware handled: a state in the UI, no log errors.
 - [ ] Component off → "not installed", nothing breaks.
 - [ ] Docs made wrong by the change fixed (README, CLAUDE.md, architecture).

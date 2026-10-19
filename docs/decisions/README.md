@@ -5,7 +5,8 @@ One file per significant architecture or design decision:
 
 | # | Decision | Status |
 |---|---|---|
-| [0001](0001-documentation-system.md) | Documentation system for the shell project | Proposed |
+| [0001](0001-documentation-system.md) | Documentation system for the shell project | Accepted |
+| [0002](0002-settings-ia.md) | Settings information architecture | Accepted |
 
 Open questions that will become records are listed in the roadmap
 ([SHELL_ROADMAP.md › Decisions awaiting the owner](../SHELL_ROADMAP.md#decisions-awaiting-the-owner)).

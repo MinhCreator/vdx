@@ -10,7 +10,7 @@ Two parts; A is smaller and goes first; B is Category C.
 `apps/launcher/Launcher.qml`, `apps/keybinds/Keybinds.qml`,
 `config/ShellSettings.qml` (`barStyle`, `looks`, `clockOpens`, `hubPlayer`),
 `apps/shellmanager/BarPage.qml`, `shell/README.md` › Island / Child bars,
-`shell/CLAUDE.md` › UI. Owner's taste notes for the bar: islands rejected as the default look, wanted only as an option.
+`docs/SHELL_DESIGN_SYSTEM.md`. Owner's taste notes for the bar: islands rejected as the default look, wanted only as an option.
 
 ---
 

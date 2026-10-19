@@ -4,10 +4,11 @@ All shell project work: phases, status, order, dependencies, approvals.
 Requirements: `CLAUDE_SHELL_PROJECT_MASTER_INSTRUCTIONS.md` (repo root; §
 numbers below). Process and how to run a task:
 [implementation-plans/README.md](implementation-plans/README.md).
-Architecture: [SHELL_ARCHITECTURE.md](SHELL_ARCHITECTURE.md). Testing:
+Architecture: [SHELL_ARCHITECTURE.md](SHELL_ARCHITECTURE.md). UI rules:
+[SHELL_DESIGN_SYSTEM.md](SHELL_DESIGN_SYSTEM.md). Testing:
 [SHELL_TESTING.md](SHELL_TESTING.md). Decisions: [decisions/](decisions/README.md).
 
-Updated: 2026-10-19 (planning pass; task 12 findings; no code changed).
+Updated: 2026-10-20 (05 phase 1 proposal; 0001 accepted; no code changed).
 
 ## Phases
 
@@ -24,8 +25,8 @@ must be approved before implementation.
 | [03](implementation-plans/03_DISPLAY_AND_WALLPAPER_FIXES.md) | Wallpaper after Display change and at login | A | — | D-04 if Hyprland bg changes | Implemented, partially verified (re-login and Display check open; D-04 open) |
 | [04](implementation-plans/04_BLUETOOTH_LABEL_FIX.md) | Bluetooth "Rescan" | A | — | — | Implemented, partially verified |
 | [12](implementation-plans/12_PRODUCT_WIDE_UX_AUDIT.md) | Product-wide UX audit (findings) | C | 00 (best after 01–04) | findings approved | Findings done (17); slice 1 (U-03, U-04, U-17) implemented and verified; 12-A (default bar, overflow) and 12-B (supervisor, relock) implemented, partially verified; 12-J (U-18 leaked listeners) implemented and verified; 12-D part 1 (idle polling) implemented, partially verified; 12-D part 2 (memory) measured only (windows ~78 MB; lazy loading left as an option); 12-E (missing hardware), 12-F (apps gated, shell-backups / -cleaner / -packages split off) implemented, partially verified; 12-I (first run) implemented and verified; 12-G (hint contrast, text size) implemented, partially verified; 12-H (monitors, wallpapers) implemented, partially verified; 12-K (stale lock marker, workspaces WARN, leading separator) implemented, partially verified (lock / unlock left to the owner); next 12-C |
-| [05](implementation-plans/05_SETTINGS_REDESIGN.md) | Settings redesign — phase 1 proposal | C | 12, 0001 | proposal | Not started |
-| [05](implementation-plans/05_SETTINGS_REDESIGN.md) | Settings redesign — phase 2 slices | C | 05 p1 approved, 01-D | per slice | Not started |
+| [05](implementation-plans/05_SETTINGS_REDESIGN.md) | Settings redesign — phase 1 proposal | C | 12, 0001 | proposal | Done; approved 2026-10-20 (ADR 0002 accepted) |
+| [05](implementation-plans/05_SETTINGS_REDESIGN.md) | Settings redesign — phase 2 slices | C | 05 p1 approved, 01-D | per slice | In progress |
 | [06](implementation-plans/06_LOCKSCREEN_CUSTOMIZATION.md) | Lock screen section + customisation | B/C | 05 p1, 03 | proposal | Not started |
 | [07-A](implementation-plans/07_FILE_MANAGER_IMPROVEMENTS.md) | Files: storage home page | B | 02-A | proposal | Not started |
 | [07-B](implementation-plans/07_FILE_MANAGER_IMPROVEMENTS.md) | Files: custom sidebar | B | 02-A, 07-A | proposal | Not started |
@@ -39,7 +40,7 @@ must be approved before implementation.
 | [10](implementation-plans/10_TORRENT_CLIENT.md) | Torrent client | C | 05 p1, 01; 07-A optional | design + engine ADR | Not started |
 | [13](implementation-plans/13_FINAL_INTEGRATION_AND_REVIEW.md) | Integration, regressions, docs | B | each milestone | — | Not started |
 | D1 | Docs: mark `shell/CLAUDE.md` UI/Settings rules MUST/SHOULD/MAY; add UI-state rules (§3.3 item 5, §14.2, §16) | B | 0001 accepted | owner reviews the diff | Not started |
-| — | Docs: guidelines/design system split (0001 option 3) | — | 05 p1 approved | 0001 | Researched/proposed; awaiting approval |
+| — | Docs: guidelines/design system split (0001 option 3) | — | 05 p1 approved | 0001 | Implemented and verified (2026-10-20: `docs/SHELL_DESIGN_SYSTEM.md`) |
 
 ## Dependency map
 
@@ -94,9 +95,9 @@ Order changes against spec §3.3, with reasons:
 | D-04 | Hyprland's own background = theme colour, to cover the moment before the shell | yes, if visible after the cache fix | 03 |
 | D-05 | Input list model for jack ports with unknown presence | list only when plausible; active-but-unplugged shown with a hint | 02-B |
 | D-06 | Agents: spec §12.2/§15 wants Haiku implementers and an Opus reviewer; owner rule is no agents unless asked per task | ask per task; default none | all |
-| D-07 | Accept decision 0001 (docs system; no separate guidelines/design-system files yet) | accept | docs |
+| D-07 | Accept decision 0001 (docs system; no separate guidelines/design-system files yet) | **accepted 2026-10-20** | docs |
 | D-08 | The "Rescan" label also before any scan ran | keep as asked | 04 |
-| D-09 | Settings schema version + migrations (none today) | add in 05 phase 2 first slice | 05 |
+| D-09 | Settings schema version + migrations (none today) | add in 05 phase 2 first slice (S1: Python, run by `supervise.sh`; 05 Q4) | 05 |
 | D-10 | Rename module `music` (Yandex) and give the generic player the name | `yandex` + `player` (or `music`) | 09-B |
 | D-11 | "Camera" in the spec = Capture (screen capture)? A webcam app is not in the repo | confirm Capture | 11 |
 | D-12 | Torrent engine | after 10 phase 1 research | 10 |

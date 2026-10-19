@@ -27,7 +27,8 @@ Read [CONVENTIONS.md](CONVENTIONS.md) before changing anything. In short:
   tests, docs) and tell the user their result.
 - Commands that check out old commits: `git -c core.hooksPath=/dev/null …`,
   then `./install.py link`.
-- The shell (Quickshell): `packages/quickshell/shell/CLAUDE.md`.
+- The shell (Quickshell): `packages/quickshell/shell/CLAUDE.md`; its UI rules
+  (tokens, controls, wording, Settings pages): `docs/SHELL_DESIGN_SYSTEM.md`.
 - Shell project work: `docs/SHELL_ROADMAP.md`; a task runs from its file in
   `docs/implementation-plans/` (how: that folder's README).
 - Don't commit or revert someone else's uncommitted changes without asking.

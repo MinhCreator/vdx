@@ -111,7 +111,7 @@ still loads, so it must tolerate missing binaries.
 ## Boundaries (current rules)
 
 - Only scripts touch the system; services never shell out with untrusted text.
-- Colours only through `Theme.*`; tokens per `shell/CLAUDE.md` › UI.
+- Colours only through `Theme.*`; tokens per `docs/SHELL_DESIGN_SYSTEM.md`.
 - Repo-linked files (theme configs) are never written at runtime; runtime state
   goes to the state dirs.
 - `/etc` only via `system/` and `./install.py system install`.
