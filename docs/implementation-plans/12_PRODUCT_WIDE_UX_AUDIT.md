@@ -460,6 +460,29 @@ Result (2026-10-19): **Implemented, partially verified.**
   the same `installed()`); the wizard's screens drawn. Hyprland binds of an
   app that is off (Super+X for Cleaner) still open its window: left as is.
 
+### Phase 2 — 12-I: first run (U-14; owner: "everything by the plan", 2026-10-19)
+
+Category B, small. Out: a theme preview in the wizard.
+
+1. `setup` ends, outside a Hyprland session (the first install, from a tty),
+   with a "Next" block: log in on a tty and run `start-hyprland`; Super + S
+   the Shell Manager, Super + B every keybind, Alt + Space the system menu.
+   Inside a session (an `update`) nothing new is printed. `setup.next_steps`.
+2. The shell's very first start (no `settings.json` yet) shows one toast with
+   the same keys. `ShellSettings.firstRun` (not saved).
+3. Wizard: Esc is back (was: quit at once, every pick lost); q asks once more
+   ("q again to quit: nothing is written").
+
+Files: `installer/setup.py`, `installer/wizard.py`, `tests/test_steps.py`,
+`tests/test_wizard.py`, `config/ShellSettings.qml`, `shell.qml`, `README.md`
+(the wizard's keys), this file, the roadmap.
+
+Acceptance: tests for `next_steps` and the wizard keys; the toast on a fresh
+state dir (a copy, then the owner's put back); `./install.py check` green.
+
+Status: **Not started** — planned 2026-10-19, the session ended before code
+(a draft of `next_steps` was reverted). Next session starts here.
+
 ### Proposed tasks (for approval)
 
 Order by value / risk: 03 follow-up (U-03) and 01 follow-up (U-04) — category A, small; 12-A default bar + overflow (U-01); 12-B supervisor (U-02); 12-D memory and polling (U-06, U-07); 12-E hardware states (U-09); 12-F gating apps + component split (U-10, with 09-A); 12-I first run (U-14); 12-G contrast + text size (U-11); 12-H monitors + wallpapers (U-13, U-15); 12-C keyboard (U-05, after 05 p1). Into 05 phase 1 as inputs: U-08, U-12 (and U-05's focus token). U-16 deferred; U-17 a docs fix.
