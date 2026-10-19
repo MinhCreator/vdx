@@ -316,6 +316,50 @@ hand: ~100 processes (`--listen` shells, `nmcli` / `gdbus monitor`,
 keeps the old set until its next write (stdout closed → the write fails →
 it ends): not waited for.
 
+Correction (same day, found in 12-D): the TERM case above was misread. On
+its way out Quickshell sends its processes TERM; bash died by the signal and
+its EXIT trap never ran, so `nmcli monitor` / `gdbus monitor` were left (the
+fake parent sent no signal, so it did not show). `listen.sh` now turns TERM /
+INT / HUP into `exit`. Re-checked: shell TERM → after 3 s only `music.sh`
+(its `timeout 30 mpc idle`, by design ≤ 30 s); shell KILL → none after 34 s.
+
+### Phase 2 — 12-D part 1: idle polling (U-07; "continue", 2026-10-19)
+
+Category B (a bar value updates less often while its popup is closed).
+Measured cost of one run (`time bash <script>`): `mihomo.sh --status` 0.098 s
+CPU, `wifi.sh --status` 0.164 s, `battery.sh --status` 0.050 s, `audio.sh`
+0.019 s, `brightness.sh --get` 0.010 s — at their intervals ≈ 11 % of one
+core, all the time.
+
+Changes (popup open → as now; closed → slower or by event):
+- Mihomo status: 2 s open, 15 s closed (`idlePollMs`).
+- Wi-Fi status: 5 s open, 20 s closed; NM changes already come by `--listen`.
+- Battery: 3 s open, 30 s closed, and at once on a UPower change of the
+  display device (plugged / unplugged, percentage) — `Quickshell.Services.UPower`.
+- Audio ports: `audio.sh --listen` (`pactl subscribe`, card and server events
+  only, through `listen_to` with a line filter) replaces the 2 s poll; a 30 s
+  poll stays as a fallback. Brightness (0.5 %) left.
+
+Files: `MihomoService.qml`, `Mihomo.qml` (none: hooks exist), `WifiService.qml`,
+`BatteryService.qml`, `Battery.qml` (onHidden), `AudioService.qml`,
+`scripts/audio.sh`, `scripts/listen.sh`, this file, the roadmap.
+
+Acceptance: 60 s idle sample of `ps --ppid <qs>`: mihomo ≤ 5 runs, wifi ≤ 4,
+battery ≤ 3 (+ UPower), audio.sh ≤ 3; a headphone plug or a default-sink
+change still updates the audio popup at once (a sink switch by `pactl`); the
+battery face follows unplug within ~1 s (owner: unplug); `shellcheck`, log clean.
+
+Result (2026-10-19): **Implemented, partially verified.** 60 s sample of the
+shell's children every 0.2 s, popups closed: `mihomo.sh --status` 2,
+`wifi.sh --status` 2, `bluetooth.sh --devices` 3, `audio.sh` only its
+`--listen` (the sample misses runs shorter than 0.2 s, e.g. battery's 50 ms;
+before: ~90 runs a minute). Estimated idle cost ≈ 2 % of a core, from ≈ 11 %.
+`audio.sh --listen` under a fake parent: a null sink loaded and unloaded → 5
+lines; six volume steps → 1 line (a card change; the 300 ms refresh folds it).
+`shellcheck -S warning -x`, `./install.py check` ✓, log clean. Not checked:
+the battery face on unplug (UPower path; owner: pull the charger), a headphone
+plug (owner).
+
 ### Proposed tasks (for approval)
 
 Order by value / risk: 03 follow-up (U-03) and 01 follow-up (U-04) — category A, small; 12-A default bar + overflow (U-01); 12-B supervisor (U-02); 12-D memory and polling (U-06, U-07); 12-E hardware states (U-09); 12-F gating apps + component split (U-10, with 09-A); 12-I first run (U-14); 12-G contrast + text size (U-11); 12-H monitors + wallpapers (U-13, U-15); 12-C keyboard (U-05, after 05 p1). Into 05 phase 1 as inputs: U-08, U-12 (and U-05's focus token). U-16 deferred; U-17 a docs fix.
