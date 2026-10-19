@@ -555,6 +555,58 @@ Result (2026-10-19): **Implemented, partially verified.**
 - Not seen: the Text size row itself (below the fold; no scroll by IPC), the
   other 12 themes drawn, every app window at 15 px.
 
+### Phase 2 — 12-H: monitors and wallpapers (U-13, U-15; owner: "12-G, 12-H by the plan", 2026-10-19)
+
+Category B. Three parts; with one monitor nothing new shows in the UI.
+
+1. U-15 — pictures a user adds live outside the repo:
+   `~/.local/share/dotfiles/wallpapers/` (`WallpaperService.userDir`). Add
+   copies there; its pictures are listed for every theme between the
+   theme's own and `common/`, kept as `user/<file>`;
+   `WallpaperService.pathOf(rel)` turns a kept name into a path (Wallpaper,
+   the lock screen, the theme preview). Pictures already in the repo stay
+   where they are. The Appearance grid lists `WallpaperService.pictures`
+   (one list, the same order as before plus the user's).
+2. U-13 — a picture per monitor (image mode, more than one monitor):
+   Appearance › Wallpaper › Monitor (`Every monitor` + each name, a
+   `KitSelect`); a pick for one monitor goes to
+   `ShellSettings.wallpaperOutputs` (theme → output → picture), a pick for
+   every monitor clears that theme's. Wallpaper: `awww img` for all, then
+   `awww img -o <output>` for each override; a colour mode stays one colour.
+3. U-13 — the main monitor is a pick: Bar › Monitor › Main monitor
+   (`Automatic` + each name; more than one monitor, bars not shared);
+   `BarLayout` `state.main`, used while that monitor is connected, else the
+   automatic rule (the first external one).
+Out: a third role for a third monitor; per-monitor colour wallpapers.
+
+Files edited: `apps/shellmanager/{WallpaperService,Wallpaper,WallpaperSection,ThemePreview,BarPage}.qml`,
+`apps/lock/LockScreen.qml`, `config/ShellSettings.qml`, `bar/BarLayout.qml`,
+`shell/README.md` (if it names the wallpaper folders), this file, the roadmap.
+
+Acceptance:
+- Add a picture: it lands in `~/.local/share/dotfiles/wallpapers/`, is
+  picked and drawn (`awww query`); `git status` of the repo unchanged.
+- An override for `eDP-1` in `settings.json`: `awww query` shows it on
+  eDP-1; cleared: the theme's picture back.
+- A headless second output (`hyprctl output create headless`, removed
+  after): the Monitor rows show; a per-monitor picture on each; Main
+  monitor set to it moves the main bar (screenshots), Automatic moves it
+  back.
+- The owner's `settings.json` / `layout.json` put back; `check` green; log
+  without new WARN.
+
+Result (2026-10-19): **Implemented, partially verified.**
+- A picture in `~/.local/share/dotfiles/wallpapers/` kept as `user/…`:
+  `awww query` shows it from there; an `eDP-1` override in `settings.json`
+  → `awww query` shows the override; cleared → the theme's picture back.
+  The repo's `git status` unchanged. Owner's `settings.json` put back
+  (`diff` same), test picture removed.
+- `check shell syntax` ✓; log no new WARN.
+- Not done (owner: keep token use down; it would change the live session):
+  the headless second output — the Monitor select, Main monitor and a bar
+  moving between monitors are unseen; the Add button end to end (the copy
+  target changed only).
+
 ### Proposed tasks (for approval)
 
 Order by value / risk: 03 follow-up (U-03) and 01 follow-up (U-04) — category A, small; 12-A default bar + overflow (U-01); 12-B supervisor (U-02); 12-D memory and polling (U-06, U-07); 12-E hardware states (U-09); 12-F gating apps + component split (U-10, with 09-A); 12-I first run (U-14); 12-G contrast + text size (U-11); 12-H monitors + wallpapers (U-13, U-15); 12-C keyboard (U-05, after 05 p1). Into 05 phase 1 as inputs: U-08, U-12 (and U-05's focus token). U-16 deferred; U-17 a docs fix.
