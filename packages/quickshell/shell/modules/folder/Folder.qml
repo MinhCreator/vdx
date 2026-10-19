@@ -5,7 +5,7 @@ import qs.config
 import qs.kit
 
 // Bar module: a folder for modules tucked off the bar (Shell Manager › Bar,
-// FOLDER row); the count next to it. Its popup lists them as tiles; a tile
+// FOLDER row) and for those the strip has no room for; the count next to it. Its popup lists them as tiles; a tile
 // opens that module's own popup. The modules themselves live here, at the
 // folder's size and transparent, so their popups open where the folder's does.
 Item {
@@ -14,7 +14,8 @@ Item {
   required property PanelWindow bar
   property var modules: ({})          // Bar's module id -> Component
 
-  readonly property var ids: BarLayout.inFolder(bar.screen?.name ?? "")
+  // the ones put here and the ones the strip had no room for (BarLayout.overflow)
+  readonly property var ids: BarLayout.folderShown(bar.screen?.name ?? "")
 
   function moduleItem(id) {
     for (let i = 0; i < tucked.count; i++)

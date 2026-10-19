@@ -48,6 +48,12 @@ Singleton {
   ]
   readonly property var zones: ["left", "center", "right"]
 
+  // A layout never arranged (and one Reset) shows these on the strip; every
+  // other module starts in the Folder, one drag from the bar.
+  readonly property var defaultBar: ["workspaces", "clock", "audio", "wifi", "bluetooth", "battery",
+                                     "notifications", "shell", "folder"]
+  function defaultFolder() { return modules.map(p => p.id).filter(id => !defaultBar.includes(id)); }
+
   // Old ids still found in saved layouts: old -> new.
   readonly property var renamed: ({ claude: "ai", plugins: "shell" })
 
@@ -87,10 +93,18 @@ Singleton {
 
   // In the folder (the Folder module's popup) on this bar, in order: off the
   // strip but still there, one click away.
+  // The saved folder: `null` (never arranged, or Reset) is the default one; an
+  // entry from before the Folder has none, nor has the shared layout saved
+  // before per-monitor ones.
+  function savedFolder(screen) {
+    const e = entry(screen);
+    if (e) return e.folder === null ? defaultFolder() : (e.folder ?? []);
+    return state.zones === null && state.hidden.length === 0 ? defaultFolder() : [];
+  }
   function inFolder(screen) {
     const known = modules.map(p => p.id);
     const off = hidden(screen);
-    return (entry(screen)?.folder ?? []).map(id => renamed[id] ?? id)
+    return savedFolder(screen).map(id => renamed[id] ?? id)
       .filter(id => known.includes(id) && id !== "folder" && !off.includes(id) && installed(id) && !taken(id, screen));
   }
   function customized(screen) {
@@ -197,7 +211,24 @@ Singleton {
   // this bar takes another one's layout (Extra copying Main)
   function copyLayout(from, to) { update(to, { zones: layout(from), hidden: hidden(from), folder: inFolder(from) }); }
 
-  function reset(screen) { update(screen, { zones: null, hidden: [], folder: [] }); }
+  function reset(screen) { update(screen, { zones: null, hidden: [], folder: null }); }
+
+  // ---- overflow ----
+  // Solid style: what does not fit a side of this monitor's strip folds into
+  // its Folder (Bar.qml works it out from the faces' widths). Never saved:
+  // with room again it comes back.
+  property var overflow: ({})                  // screen -> [id]
+  function setOverflow(screen, ids) {
+    if ((overflow[screen] ?? []).join() === ids.join()) return;
+    const all = Object.assign({}, overflow);
+    all[screen] = ids;
+    overflow = all;
+  }
+  // the Folder's tiles: the saved ones, then the folded ones
+  function folderShown(screen) {
+    const saved = inFolder(screen);
+    return saved.concat((overflow[screen] ?? []).filter(id => !saved.includes(id) && !isSeparator(id)));
+  }
 
   // ---- island (Bar › Style island) ----
   // Its own layout per role, apart from the strip's: start / end — beside the

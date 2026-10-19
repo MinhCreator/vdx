@@ -41,44 +41,55 @@ PanelWindow {
     property var modules: ({})
 
     readonly property var ids: Theme.island ? [] : BarLayout.visibleIn(zone.name, root.modelData.name)
+    // folded into the Folder for want of room (BarLayout.overflow), and the rest
+    readonly property var folded: BarLayout.overflow[root.modelData.name] ?? []
+    readonly property var shown: ids.filter(id => !folded.includes(id))
 
     spacing: Theme.moduleSpacing
+    onIdsChanged: root.scheduleFold()
 
     Repeater {
       model: zone.ids
 
       Row {
-        required property string modelData
-        required property int index
-        readonly property bool custom: BarLayout.isSeparator(modelData)
+        id: cell
 
+        required property string modelData
+        readonly property bool custom: BarLayout.isSeparator(modelData)
+        // folded: hidden, and no face here — the Folder makes it (one popup, one IPC target)
+        readonly property bool folded: zone.folded.includes(modelData)
+        readonly property int at: zone.shown.indexOf(modelData)
+
+        visible: !folded
         spacing: Theme.moduleSpacing
 
         // a custom separator is its own line, always drawn; the automatic one sits
         // between two modules (none next to a custom one)
         Separator {
           anchors.verticalCenter: parent.verticalCenter
-          visible: parent.custom || (index > 0 && !BarLayout.isSeparator(zone.ids[index - 1]))
-          ruled: parent.custom || ShellSettings.barSeparators
+          visible: cell.custom || (cell.at > 0 && !BarLayout.isSeparator(zone.shown[cell.at - 1]))
+          ruled: cell.custom || ShellSettings.barSeparators
         }
 
         // the module; a right click on it opens its options. A pointer handler,
         // not an overlay: hover, the cursor and the wheel stay with the module
         Item {
-          visible: !parent.custom
+          visible: !cell.custom
           anchors.verticalCenter: parent.verticalCenter
           width: slot.width
           height: slot.height
 
           Loader {
             id: slot
-            sourceComponent: zone.modules[modelData] ?? null
+            sourceComponent: cell.folded ? null : zone.modules[cell.modelData] ?? null
+            // the width it takes, kept for when it is folded
+            onWidthChanged: if (!cell.folded && !cell.custom) root.noteWidth(cell.modelData, width)
           }
 
           TapHandler {
             acceptedButtons: Qt.RightButton
             enabled: ShellSettings.barRightSettings
-            onTapped: root.openSettings(modelData)
+            onTapped: root.openSettings(cell.modelData)
           }
         }
       }
@@ -215,6 +226,75 @@ PanelWindow {
     name: "right"
     modules: root.modules
     anchors { right: parent.right; rightMargin: Theme.edgeMargin; verticalCenter: parent.verticalCenter }
+  }
+
+  // ---- overflow ----
+  // Solid style: LEFT and RIGHT keep to their side of the centre (and of the
+  // child bars); what does not fit folds into the Folder, from the centre
+  // outwards, and comes back once there is room. Worked out from each face's
+  // last width, so a folded face (not made here) still counts. No Folder on
+  // this bar: nothing folds.
+  readonly property int foldGap: 24            // kept free between a side and the centre
+  property var faceWidths: ({})                // module id -> px
+
+  function noteWidth(id, w) {
+    if (w <= 0 || faceWidths[id] === w) return;
+    faceWidths[id] = w;
+    scheduleFold();
+  }
+  function scheduleFold() { Qt.callLater(root.computeFold); }
+
+  // a zone's width with these ids, as Zone lays them out
+  function zoneWidth(ids) {
+    let w = 0;
+    for (let i = 0; i < ids.length; i++) {
+      if (i > 0) w += Theme.moduleSpacing;
+      if (BarLayout.isSeparator(ids[i])) { w += separatorProbe.implicitWidth; continue; }
+      if (i > 0 && !BarLayout.isSeparator(ids[i - 1])) w += separatorProbe.implicitWidth + Theme.moduleSpacing;
+      w += faceWidths[ids[i]] ?? 0;
+    }
+    return w;
+  }
+
+  // what leaves `ids` (taken in `outward` order) until it fits `room`
+  function fold(ids, room, outward) {
+    let kept = ids.slice();
+    const out = [];
+    for (const id of outward) {
+      if (zoneWidth(kept) <= room) break;
+      if (id === "folder") continue;
+      out.push(id);
+      kept = kept.filter(x => x !== id);
+    }
+    return out;
+  }
+
+  function computeFold() {
+    const screen = root.modelData.name;
+    const left = BarLayout.visibleIn("left", screen);
+    const right = BarLayout.visibleIn("right", screen);
+    const folder = left.concat(BarLayout.visibleIn("center", screen), right).includes("folder");
+    if (Theme.island || !folder || root.width <= 0) { BarLayout.setOverflow(screen, []); return; }
+    const centreStart = centerZone.x - (besideLeft.width > 0 ? besideLeft.width + root.childGap : 0);
+    const centreEnd = centerZone.x + centerZone.width + (besideRight.width > 0 ? besideRight.width + root.childGap : 0);
+    const leftRoom = centreStart - Theme.edgeMargin - root.foldGap - (edgeLeft.width > 0 ? edgeLeft.width + root.childGap : 0);
+    const rightRoom = root.width - Theme.edgeMargin - centreEnd - root.foldGap - (edgeRight.width > 0 ? edgeRight.width + root.childGap : 0);
+    BarLayout.setOverflow(screen, fold(left, leftRoom, left.slice().reverse()).concat(fold(right, rightRoom, right)));
+  }
+
+  onWidthChanged: scheduleFold()
+  Connections { target: centerZone; function onWidthChanged() { root.scheduleFold(); } }
+  Connections { target: edgeLeft; function onWidthChanged() { root.scheduleFold(); } }
+  Connections { target: edgeRight; function onWidthChanged() { root.scheduleFold(); } }
+  Connections { target: besideLeft; function onWidthChanged() { root.scheduleFold(); } }
+  Connections { target: besideRight; function onWidthChanged() { root.scheduleFold(); } }
+  Connections { target: Theme; function onIslandChanged() { root.scheduleFold(); } }
+
+  // the width of one "|" with its room, for zoneWidth
+  Separator {
+    id: separatorProbe
+    visible: false
+    onImplicitWidthChanged: root.scheduleFold()
   }
 
   // Super+Shift+S with no Capture module on this bar: the panel from the centre

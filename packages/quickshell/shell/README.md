@@ -81,6 +81,11 @@ Bar modules live in `modules/<id>/`; each popup opens with
 `qs -c shell ipc call <id> toggle` (except clipboard `clip`, taskmanager
 `tasks`, cleaner `clean`, virustotal `scan`, packages `updates`). Order, zones and visibility: Shell Manager
 › Bar. Options: Shell Manager › Modules (an app's module: a link to › Apps).
+A new layout (and Bar › Layout › Reset) shows workspaces, the clock, audio, Wi-Fi,
+Bluetooth, battery, notifications, Shell and the Folder; the rest start in the Folder
+(`BarLayout.defaultBar`), one drag from the bar. In the strip, modules of LEFT / RIGHT
+that don't fit beside the centre fold into the Folder, nearest the centre first, and
+come back when there is room (not saved; no Folder on the bar, no folding).
 
 Workspaces, Music, Radio, Equalizer, Clock, Themes, Wallpapers, Brightness, Audio, Wi-Fi, Bluetooth, Mihomo, Battery,
 Language, AI, Shell, Notifications, Capture, Clipboard, System, Task Manager,
