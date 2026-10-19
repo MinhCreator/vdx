@@ -352,16 +352,21 @@ Item {
   }
 
   // ---- flashes ----
+  // a notice waits while the pointer rests on it or while a view it can't pass
+  // over (a module's popup, the power menu) is open: its time starts once shown
   Timer {
     id: flashTimer
     onTriggered: {
-      if (root.flash === "notice" && hover.hovered) restart();
+      if (root.flash === "notice" && (hover.hovered || root.shown !== "notice")) restart();
+      // the OSD is over: the critical notices it passed over come back, untimed
+      else if (root.flash === "osd" && IslandService.notices.length > 0) root.flash = "notice";
       else {
-        if (root.flash === "notice") IslandService.clearNotices();
+        if (root.flash === "notice") IslandService.clearNotices(false);
         root.flash = "";
       }
     }
   }
+  onShownChanged: if (shown === "notice" && flashTimer.running) flashTimer.restart()
 
   Connections {
     target: IslandService
@@ -373,8 +378,9 @@ Item {
     function onFlashed(kind, ms) {
       // a change made from the island (its wheel, its chips) is shown there: no flash
       if (kind === "osd" && hover.hovered) return;
-      // an OSD replaces a notice flash: its toasts are over, not waiting
-      if (root.flash === "notice" && kind !== "notice") IslandService.clearNotices();
+      // an OSD replaces a notice flash: its plain toasts are over, not waiting;
+      // the critical ones wait for its end (flashTimer)
+      if (root.flash === "notice" && kind !== "notice") IslandService.clearNotices(true);
       root.flash = kind;
       // ms 0: stays until the notices are dismissed (onNoticesChanged ends it)
       flashTimer.stop();

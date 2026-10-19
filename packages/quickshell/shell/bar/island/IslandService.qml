@@ -118,16 +118,19 @@ Singleton {
       root.notices = fresh.concat(root.notices.filter(n => !fresh.some(f => f.key === n.key)))
                           .slice(0, root.noticeMax);
       root.noticeMore = Math.max(0, fresh.length - root.noticeMax);
-      // critical toasts stay until dismissed, as in mako's [urgency=critical]
-      const critical = fresh.some(n => n.urgency === "critical");
-      root.flashed("notice", critical ? 0 : root.noticeMs);
+      // critical toasts stay until dismissed, as in mako's [urgency=critical]:
+      // a plain one stacked with a critical one waits with it
+      root.flashed("notice", root.hasCritical() ? 0 : root.noticeMs);
     }
   }
 
+  function hasCritical() { return root.notices.some(n => n.urgency === "critical"); }
+
   // the notice flash is over, or an OSD replaces it: its toasts leave the
-  // island (the centre keeps them), so a later notice does not bring them back
-  function clearNotices() {
-    root.notices = [];
+  // island (the centre keeps them), so a later notice does not bring them back.
+  // keepCritical (an OSD): the critical ones stay, to come back after it
+  function clearNotices(keepCritical) {
+    root.notices = keepCritical ? root.notices.filter(n => n.urgency === "critical") : [];
     root.noticeMore = 0;
   }
 
