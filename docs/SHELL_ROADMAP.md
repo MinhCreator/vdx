@@ -22,7 +22,7 @@ must be approved before implementation.
 | [02-A](implementation-plans/02_FILEPICKER_AND_AUDIO_FIXES.md) | Filepicker stale listing | A | — | — | Not started |
 | [02-B](implementation-plans/02_FILEPICKER_AND_AUDIO_FIXES.md) | Duplicate microphone | A/B | — | device model (D-05) | Not started |
 | [03](implementation-plans/03_DISPLAY_AND_WALLPAPER_FIXES.md) | Wallpaper after Display change and at login | A | — | D-04 if Hyprland bg changes | Not started |
-| [04](implementation-plans/04_BLUETOOTH_LABEL_FIX.md) | Bluetooth "Rescan" | A | — | — | Not started |
+| [04](implementation-plans/04_BLUETOOTH_LABEL_FIX.md) | Bluetooth "Rescan" | A | — | — | Implemented, partially verified |
 | [12](implementation-plans/12_PRODUCT_WIDE_UX_AUDIT.md) | Product-wide UX audit (findings) | C | 00 (best after 01–04) | findings approved | Not started |
 | [05](implementation-plans/05_SETTINGS_REDESIGN.md) | Settings redesign — phase 1 proposal | C | 12, 0001 | proposal | Not started |
 | [05](implementation-plans/05_SETTINGS_REDESIGN.md) | Settings redesign — phase 2 slices | C | 05 p1 approved, 01-D | per slice | Not started |

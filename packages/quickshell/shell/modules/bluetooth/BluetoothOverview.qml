@@ -56,7 +56,7 @@ Column {
   KitText {
     width: parent.width
     visible: BluetoothService.powered && BluetoothService.error === "" && BluetoothService.devices.length === 0
-    text: "No devices yet. Scan finds the ones nearby."
+    text: "No devices yet. Rescan finds the ones nearby."
     color: Theme.muted
     wrapMode: Text.WordWrap
   }
@@ -185,7 +185,7 @@ Column {
 
     KitButton {
       icon: "refresh"
-      text: "Scan"
+      text: "Rescan"
       busy: BluetoothService.scanning
       disabled: !BluetoothService.powered || BluetoothService.scanning
       onClicked: BluetoothService.scan()

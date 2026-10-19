@@ -191,7 +191,7 @@ KitColumn {
 
     KitButton {
       width: Theme.buttonWidth
-      text: "Scan"
+      text: "Rescan"
       busy: bt.scanning
       disabled: !bt.powered || bt.scanning
       onClicked: bt.scan()
@@ -201,7 +201,7 @@ KitColumn {
   KitText {
     visible: bt.powered && bt.nearbyDevices.length === 0
     width: parent.width
-    text: "Scan finds devices nearby."
+    text: "Rescan finds devices nearby."
     color: Theme.muted
     wrapMode: Text.WordWrap
   }

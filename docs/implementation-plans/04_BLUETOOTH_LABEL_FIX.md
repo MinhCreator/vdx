@@ -1,6 +1,6 @@
 # 04 — Bluetooth "Scan" → "Rescan"
 
-Status: Not started · Category: A · Depends on: nothing · Gate: none. Spec: §5.6.
+Status: Implemented, partially verified · Category: A · Depends on: nothing · Gate: none. Spec: §5.6.
 Shell paths are under `packages/quickshell/shell/`.
 
 ## Objective
