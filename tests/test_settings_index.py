@@ -4,7 +4,6 @@ Shell Manager opens, and the common tasks (05 › Journeys) are found by a word.
 from __future__ import annotations
 
 import importlib.util
-import json
 import unittest
 from pathlib import Path
 

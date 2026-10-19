@@ -41,9 +41,9 @@ def read_bundle(path: Path) -> dict:
     try:
         data = json.loads(path.read_text())
     except OSError as e:
-        raise ValueError(f"cannot read {path}: {e.strerror}")
+        raise ValueError(f"cannot read {path}: {e.strerror}") from None
     except ValueError:
-        raise ValueError(f"{path} is not JSON")
+        raise ValueError(f"{path} is not JSON") from None
     if not isinstance(data, dict) or data.get("kind") != KIND or not isinstance(data.get("files"), dict):
         raise ValueError(f"{path} is not a shell settings file")
     files = {n: d for n, d in data["files"].items() if n in sm.FILES and isinstance(d, dict)}

@@ -1,6 +1,6 @@
 # 05 — Settings (Shell Manager) redesign
 
-Status: Phase 1 approved 2026-10-20; phase 2 in progress · Category: C · Depends on: 12 (findings), 01-D (the
+Status: Done 2026-10-20 (phase 1 approved, phase 2 S0–S7 committed; tree test not run, owner's call) · Category: C · Depends on: 12 (findings), 01-D (the
 notification settings exist), decision 0001 ·
 Gate: **proposal approved before any implementation**; then each slice is reviewed. Spec: §6.
 Shell paths are under `packages/quickshell/shell/`.
@@ -160,6 +160,26 @@ Phase 1: any code. Phase 2: changes outside the approved slice; feature changes.
 ## Report
 
 Research format for phase 1; implementation format per slice.
+
+### Phase 2 report (2026-10-20)
+
+| Slice | Commit | Result |
+|---|---|---|
+| S0 docs, 0001 / 0002 accepted, `docs/SHELL_DESIGN_SYSTEM.md` | e858bde | done |
+| S1 schema version + migrations | 04be1d6 | owner's files migrated, every value kept; 9 tests |
+| S2 + S3 navigation, Lock screen / Notifications pages, Bar modules (one commit, not two) | 9d9c14c | every old `shell open` value and right click checked live |
+| S4 rows | 76da361 | renames, regroups, link rows and hints of Proposal › 9 |
+| S5 resets, About › Settings | 18e3914 | two-step everywhere; export → import equal on the owner's files; import live (restart) |
+| S6 search | c4048b5 | 408 entries; the 15 journeys found by a word (test); `check` fails on a stale index |
+| S7 docs | this commit | README, architecture, testing, roadmap, inventory re-walk |
+
+Deviations: Accent › Window border ↔ Windows › Frames is a link row on Frames and a
+hint on Accent (its rows are a switch list); Text size ↔ Display › GTK apps are hints
+both ways (Display is an app window, not a page). Not done (optional in the inventory):
+Files Sort + List as one group; Network's facts block. Reset everything and import
+stop and restart the shell: the shell writes its in-memory options back otherwise.
+The Windows page (Hyprland's state) is not in the export. Known: an app and its bar
+module share one ModuleSettings id, so Reset on either resets both.
 
 ## Proposal
 

@@ -8,7 +8,7 @@ Architecture: [SHELL_ARCHITECTURE.md](SHELL_ARCHITECTURE.md). UI rules:
 [SHELL_DESIGN_SYSTEM.md](SHELL_DESIGN_SYSTEM.md). Testing:
 [SHELL_TESTING.md](SHELL_TESTING.md). Decisions: [decisions/](decisions/README.md).
 
-Updated: 2026-10-20 (05 phase 1 proposal; 0001 accepted; no code changed).
+Updated: 2026-10-20 (05 done: settings redesign phase 2, S0–S7).
 
 ## Phases
 
@@ -26,7 +26,7 @@ must be approved before implementation.
 | [04](implementation-plans/04_BLUETOOTH_LABEL_FIX.md) | Bluetooth "Rescan" | A | — | — | Implemented, partially verified |
 | [12](implementation-plans/12_PRODUCT_WIDE_UX_AUDIT.md) | Product-wide UX audit (findings) | C | 00 (best after 01–04) | findings approved | Findings done (17); slice 1 (U-03, U-04, U-17) implemented and verified; 12-A (default bar, overflow) and 12-B (supervisor, relock) implemented, partially verified; 12-J (U-18 leaked listeners) implemented and verified; 12-D part 1 (idle polling) implemented, partially verified; 12-D part 2 (memory) measured only (windows ~78 MB; lazy loading left as an option); 12-E (missing hardware), 12-F (apps gated, shell-backups / -cleaner / -packages split off) implemented, partially verified; 12-I (first run) implemented and verified; 12-G (hint contrast, text size) implemented, partially verified; 12-H (monitors, wallpapers) implemented, partially verified; 12-K (stale lock marker, workspaces WARN, leading separator) implemented, partially verified (lock / unlock left to the owner); next 12-C |
 | [05](implementation-plans/05_SETTINGS_REDESIGN.md) | Settings redesign — phase 1 proposal | C | 12, 0001 | proposal | Done; approved 2026-10-20 (ADR 0002 accepted) |
-| [05](implementation-plans/05_SETTINGS_REDESIGN.md) | Settings redesign — phase 2 slices | C | 05 p1 approved, 01-D | per slice | In progress |
+| [05](implementation-plans/05_SETTINGS_REDESIGN.md) | Settings redesign — phase 2 slices | C | 05 p1 approved, 01-D | per slice | Done 2026-10-20 (report in the plan) |
 | [06](implementation-plans/06_LOCKSCREEN_CUSTOMIZATION.md) | Lock screen section + customisation | B/C | 05 p1, 03 | proposal | Not started |
 | [07-A](implementation-plans/07_FILE_MANAGER_IMPROVEMENTS.md) | Files: storage home page | B | 02-A | proposal | Not started |
 | [07-B](implementation-plans/07_FILE_MANAGER_IMPROVEMENTS.md) | Files: custom sidebar | B | 02-A, 07-A | proposal | Not started |

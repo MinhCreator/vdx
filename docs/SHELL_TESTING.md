@@ -9,8 +9,8 @@ commit", "Before a push"): [CONVENTIONS.md](../CONVENTIONS.md) — not repeated 
 |---|---|
 | `./install.py check` | all groups below |
 | `./install.py check syntax` | py compile, json/jsonc, toml, xml, `bash -n`, `zsh -n`, `luac -p`, qmllint **syntax only** (`/usr/lib/qt6/bin/qmllint`) |
-| `./install.py check shell` | icons and their solid / rounded twins, module ids registered in `ModuleFaces` and `components.toml` |
-| `./install.py check tests` | `tests/` (unittest): installer, `files.py`, `display.py`, `backup.py`, shell gating, portal config |
+| `./install.py check shell` | icons and their solid / rounded twins, module ids registered in `ModuleFaces` and `components.toml`, the settings search index current |
+| `./install.py check tests` | `tests/` (unittest): installer, `files.py`, `display.py`, `backup.py`, shell gating, portal config, settings migrate / export-import / search index |
 | `./install.py check hypr` | `Hyprland --verify-config` with and without `machine/` |
 | `./install.py check components` | the catalog against the repo and pacman |
 | `ruff check` | Python lint (`ruff.toml`) |

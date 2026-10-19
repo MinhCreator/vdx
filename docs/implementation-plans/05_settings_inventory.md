@@ -241,3 +241,7 @@ in 32 `*Settings.qml`; Shell Manager page rows: ~95 (+ Network / Bluetooth syste
 Arrange 1); R 9; C 4 (three Reset buttons, the dot colour); G 2 (optional);
 X 2 (the Apps › Bar module tab; the Music / Radio inline migration, after slice 1).
 No option is removed, no key is renamed: every move is a UI move.
+
+Re-walk 2026-10-20 (after S6): every M, R and C row is in its new place and wording;
+G optional rows (Files Sort + List) and the Network facts block left as they are;
+deviations in the plan's Phase 2 report.
