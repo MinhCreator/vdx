@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.UPower
 import qs.config
 
 // Battery state, charge limit, power profile and GPU mode on top of
@@ -12,7 +13,8 @@ Singleton {
   id: root
 
   // ---- tuning ----
-  readonly property int pollMs: 3000
+  readonly property int pollMs: 3000              // while the popup is open
+  readonly property int idlePollMs: 30000         // closed; UPower changes read it at once
   readonly property int warning: 30               // %, yellow
   readonly property int critical: 15              // %, red
   readonly property var notifyLevels: [15, 5]     // %, low-battery notifications
@@ -61,7 +63,10 @@ Singleton {
   property var busy: null                      // value being applied, for its spinner
   property string error: ""
 
+  property bool popupOpen: false
+  function popupHidden() { popupOpen = false; }
   function popupShown() {
+    popupOpen = true;
     error = "";
     refresh();
     run(gpuProc, ["--gpu"]);
@@ -122,8 +127,20 @@ Singleton {
   onDischargingChanged: checkLevel()
 
   // ---- polling ----
+  // UPower tells of a plug, an unplug or a new percentage: read it now, not at
+  // the next tick (the details — limit, health, profile — are battery.sh's)
+  Connections {
+    target: UPower.displayDevice
+    function onStateChanged() { root.refresh(); }
+    function onPercentageChanged() { root.refresh(); }
+  }
+  Connections {
+    target: UPower
+    function onOnBatteryChanged() { root.refresh(); }
+  }
+
   Timer {
-    interval: root.pollMs
+    interval: root.popupOpen ? root.pollMs : root.idlePollMs
     running: true
     repeat: true
     triggeredOnStart: true

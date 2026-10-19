@@ -48,6 +48,7 @@ Item {
     implicitWidth: content.implicitWidth
     implicitHeight: content.implicitHeight
     onShown: BatteryService.popupShown()
+    onHidden: BatteryService.popupHidden()
 
     BatteryPopup {
       id: content

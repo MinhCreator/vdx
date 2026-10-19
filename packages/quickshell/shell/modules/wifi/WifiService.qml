@@ -11,7 +11,8 @@ Singleton {
   id: root
 
   // ---- tuning ----
-  readonly property int statusPollMs: 5000
+  readonly property int statusPollMs: 5000     // while the popup is open
+  readonly property int idlePollMs: 20000      // closed: the face (NM changes come by --listen)
   readonly property int changeMs: 500         // the least gap between two re-reads on events
   readonly property int pingPollMs: 3000
   readonly property int trafficRestartMs: 2000
@@ -275,9 +276,9 @@ Singleton {
   }
 
   // ---- polling ----
-  // the fallback when no event comes: the status every statusPollMs
+  // the fallback when no event comes (signal level, a missed change)
   Timer {
-    interval: root.statusPollMs
+    interval: root.popupOpen ? root.statusPollMs : root.idlePollMs
     running: true
     repeat: true
     onTriggered: root.refreshStatus()

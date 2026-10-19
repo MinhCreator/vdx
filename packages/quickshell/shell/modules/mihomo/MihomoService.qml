@@ -12,7 +12,8 @@ Singleton {
 
   // ---- tuning ----
   readonly property string defaultGroup: "Proxies"
-  readonly property int statusPollMs: 2000
+  readonly property int statusPollMs: 2000     // while the popup is open
+  readonly property int idlePollMs: 15000      // closed: the face only
   readonly property int trafficRestartMs: 2000
   readonly property string script: Paths.scriptsDir + "/mihomo.sh"
 
@@ -113,7 +114,7 @@ Singleton {
 
   // ---- polling ----
   Timer {
-    interval: root.statusPollMs
+    interval: root.popupOpen ? root.statusPollMs : root.idlePollMs
     running: true
     repeat: true
     onTriggered: root.refreshStatus()

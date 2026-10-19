@@ -11,7 +11,8 @@ Singleton {
   id: root
 
   // ---- tuning ----
-  readonly property int portPollMs: 2000
+  readonly property int portPollMs: 30000      // the fallback; changes come by `audio.sh --listen`
+  readonly property int listenRestartMs: 3000
   readonly property int maxPercent: 150  // the bar wheel may push the sink this far
   readonly property int scrollStep: 5    // %, a wheel step on the bar
   readonly property string script: Paths.scriptsDir + "/audio.sh"
@@ -148,5 +149,21 @@ Singleton {
     running: true
     repeat: true
     onTriggered: portProc.running = true
+  }
+
+  // a jack, a profile, the default device, a device come or gone: the ports
+  // again, once the burst of events is over (portRefresh)
+  Process {
+    id: listenProc
+    command: ["bash", root.script, "--listen"]
+    running: true
+    stdout: SplitParser { onRead: portRefresh.restart() }
+    onExited: listenRestart.restart()
+  }
+
+  Timer {
+    id: listenRestart
+    interval: root.listenRestartMs
+    onTriggered: listenProc.running = true
   }
 }
