@@ -75,6 +75,16 @@ Scope {
     AccentService.apply();
   }
 
+  // the very first start: where the options and the keys are
+  Connections {
+    target: ShellSettings
+    function onFirstRunChanged() {
+      if (ShellSettings.firstRun)
+        Quickshell.execDetached(["notify-send", "-a", "Shell", "Welcome",
+          "Super + S  Shell Manager\nSuper + B  every keybind\nAlt + Space  launcher"]);
+    }
+  }
+
   // Super+Shift+S: screenshot or recording of a region, window or screen
   CaptureOverlay {}
 

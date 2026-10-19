@@ -76,6 +76,8 @@ Singleton {
   // until the file is read the options are their defaults (barStyle solid):
   // the bars wait for it (shell.qml), or the island window starts as a strip
   property bool loaded: false
+  // no settings.json yet: the shell's very first start (a hint toast, shell.qml); not saved
+  property bool firstRun: false
 
   FileView {
     path: Quickshell.statePath("settings.json")
@@ -84,7 +86,8 @@ Singleton {
     onFileChanged: reload()
     onAdapterUpdated: writeAdapter()
     onLoaded: root.loaded = true
-    onLoadFailed: {
+    onLoadFailed: error => {
+      root.firstRun = error === FileViewError.FileNotFound;
       writeAdapter();
       root.loaded = true;
     }
