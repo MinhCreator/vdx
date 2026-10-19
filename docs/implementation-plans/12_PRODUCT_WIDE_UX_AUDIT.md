@@ -80,7 +80,7 @@ polish; effort S/M/L. No code was changed.
 | ID | Finding | Evidence | User impact | Sev | Effort | Risk | Depends on | Recommendation | Task |
 |---|---|---|---|---|---|---|---|---|---|
 | U-01 | A fresh bar shows **every** installed module: ~20 in RIGHT on a default install; the real bar has no overflow | code: `bar/BarLayout.qml:293-305` `normalize` puts every known module in its zone, `state.hidden` starts `[]`; `bar/Bar.qml:199-218` three unconstrained `Row`s, centre `anchors.centerIn` — nothing clips or folds. `components.toml` › `quickshell` brings 23 modules. Only the Shell Manager preview has `+N` (`BarPage.qml` comment ~312). Not seen: the owner's layout is customised and in Island style | the first thing a new user sees: a crowded strip whose RIGHT zone likely runs over the clock and LEFT on ≤ 1600 px | S1 | M | low (defaults only; saved layouts untouched) | — | a short default set (workspaces · clock · audio, wifi, bluetooth, battery, notifications, shell, folder; the rest in the Folder); a real-bar overflow into the Folder or `+N`. Owner screenshot of a fresh state first | new 12-A (B) |
-| U-02 | No supervisor for `qs`: a crash or a QML error in a shared file leaves no bar and a dead lock screen; the only "Restart shell" lives inside `qs` | code: `packages/hypr/components/autostart.lua:14` `exec_cmd("qs -c shell")` once; `apps/launcher/LauncherService.qml:101`; `docs/SHELL_ARCHITECTURE.md:26-28`. No recovery note in README / CONVENTIONS / shell README (grep `crash\|recover\|lockdead`) | a stranger without a bar has no visible way back short of a terminal they may not have bound; locked → tty + `hyprctl` | S2 | S | medium: exactly one instance is a rule (`shell/CLAUDE.md` › Work) | — | a restart loop or a systemd user unit (`Restart=on-failure`, no restart on clean exit) + a recovery paragraph in the shell README | new 12-B (B, owner approval: process model) |
+| U-02 | *(Half wrong — Quickshell restarts most crashes in place itself; see 12-B result.)* No supervisor for `qs`: a crash or a QML error in a shared file leaves no bar and a dead lock screen; the only "Restart shell" lives inside `qs` | code: `packages/hypr/components/autostart.lua:14` `exec_cmd("qs -c shell")` once; `apps/launcher/LauncherService.qml:101`; `docs/SHELL_ARCHITECTURE.md:26-28`. No recovery note in README / CONVENTIONS / shell README (grep `crash\|recover\|lockdead`) | a stranger without a bar has no visible way back short of a terminal they may not have bound; locked → tty + `hyprctl` | S2 | S | medium: exactly one instance is a rule (`shell/CLAUDE.md` › Work) | — | a restart loop or a systemd user unit (`Restart=on-failure`, no restart on clean exit) + a recovery paragraph in the shell README | new 12-B (B, owner approval: process model) |
 | U-03 | Regression of task 03: `Wallpaper.qml` uses `DisplayService` without `import qs.apps.display` — the re-apply after a Display change never runs | live: `qs log -c shell` → `Wallpaper.qml[37]: ReferenceError: DisplayService is not defined` and `Detected function "onApplied" … no signal`; code: imports at `apps/shellmanager/Wallpaper.qml:1-5`, signal at `apps/display/DisplayService.qml:26` | the 03 fix rests on `--no-cache` + no `awww restore` alone; the hook it adds is dead and a WARN is in every log (03 acceptance: no new WARN) | S2 | S | low | 03 | add the import; re-check 03's Display acceptance | 03 follow-up (A) |
 | U-04 | Island toasts are lost: a **critical** one is wiped by any OSD (volume / brightness key); a toast that comes while a module popup or the power view is open never shows | code: `bar/island/Island.qml:34-35` (`shown` keeps `module` / `power` over a flash), `:357-361` (timer end clears notices), `:377` (an OSD calls `clearNotices`), `IslandService.qml:121-123,129-132` (critical = no timer, but `clearNotices` drops all). README line 127 says critical "always stays" | a low-battery or auth warning disappears on a volume press; notices while a popup is open are only in the centre | S2 | S | low | 01 C/D | keep critical rows through an OSD; queue the flash until the open view closes (or show the unseen dot) | 01 follow-up (A) |
 | U-05 | Keyboard and assistive tech: settings and popups are mouse-only | code: whole shell — `activeFocusOnTab` 1, `KeyNavigation` 0, `Accessible.*` 0; focus visuals only in `kit/KitInput.qml`, `kit/KitColourField.qml`; `KitSwitch`/`KitButton` are bare `MouseArea`s. Escape is handled widely (BarPopup, windows, island). Hypothesis: a popup opened by a key gets the keyboard only after a click (`bar/Bar.qml:102` `OnDemand`) | no Tab / Enter / Space anywhere in Shell Manager or popups; no screen reader names (WCAG 2.2 SC 2.1.1, 2.4.7, 4.1.2) | S2 | L | medium: every Kit control; focus ring is a visual change | 05 p1 (design tokens for focus) | focus + keys in the Kit controls (Space toggles, arrows in Choices, Enter activates), one visible focus token, `Accessible.name/role`; prototype on the Wi-Fi popup | new 12-C (B/C) |
@@ -221,6 +221,72 @@ item when the zone's Repeater remakes it while `layout.json` loads (WARN
 "Invalid write to global property"); a centre zone with a hidden face before
 the clock (equalizer while paused) draws a leading `|`. Small A fixes, not
 done here.
+
+### Phase 2 — 12-B: the shell starts again after a crash (U-02; owner: "continue", 2026-10-19)
+
+Category B. Found while planning: `apps/lock/Lock.qml:11-13` says a shell
+started again locks anew, but nothing does it — `sessionLock.locked` starts
+false, so a crash while locked leaves Hyprland's dead-lock screen even after
+a restart.
+
+Scope: a supervisor script; every start / restart path goes through it; the
+lock comes back after a crash while locked; the docs. Out: a QML error that
+leaves `qs` running without a bar (Quickshell reloads on the next edit; not a
+crash); a systemd unit (it would need the session's environment imported and
+fights the kill-and-start restarts).
+
+Files edited: `scripts/supervise.sh` (new), `packages/hypr/components/autostart.lua`,
+`apps/shellmanager/AboutPage.qml`, `apps/shellmanager/FontService.qml`,
+`apps/lock/Lock.qml`, `installer/maintain.py` (doctor's hint), `shell/CLAUDE.md`
+(Work › Restart, Layout), `shell/README.md`, `docs/SHELL_ARCHITECTURE.md`, this file, the roadmap.
+
+Design:
+- `supervise.sh` runs `qs -n -c shell` in the foreground. Exit 0 (also a
+  duplicate: `-n` exits 0) or a kill by HUP / INT / TERM (Restart, `qs kill`,
+  logout): done. Anything else (SEGV, ABRT, KILL from the OOM killer, an error
+  code): mako's `island` mode off (nothing else would draw a toast), then
+  start again after 1 s; the 5th crash within 60 s stops it with a critical
+  notification.
+- Restart paths keep "kill, wait, start", the start being the supervisor.
+- Lock: on lock, `$XDG_RUNTIME_DIR/shell-lock/locked` holds the Hyprland
+  instance signature (the dir is removed on unlock, as now); at start, a
+  marker of this session locks at once (plain colour, no snapshot). A stale
+  marker from another session is ignored.
+
+Acceptance:
+- `kill -SEGV <qs>`: a new `qs` within ~2 s, one instance, bar back.
+- Restart from About and `kill <qs>`+start: one instance, the supervisor of
+  the old one gone (`pgrep -af supervise`).
+- Five SEGVs in a row: stops, critical toast visible (mako mode reset).
+- Lock after a crash: not run by the agent (it needs the owner's password at
+  the screen); steps written for the owner.
+- `shellcheck`, `ruff`, `./install.py check` green; log clean.
+
+Result (2026-10-19): **Implemented, partially verified.**
+- U-02 was half wrong: Quickshell 0.3.2 has its own crash handler. On SEGV it
+  re-execs the config in the same process (same pid, new launch time in
+  `qs list`) and opens a crash report window (`org.quickshell`); when the
+  crash comes right after start, the process exits (139) instead. The
+  supervisor covers the exits and KILL; the relock covers both.
+- `kill -SEGV`: first run — process ended, the supervisor started a new one;
+  second — Quickshell restarted in place. One instance each time.
+- The restart command (`FontService.restartShell`'s, run by hand): old qs and
+  its supervisor gone, one new supervisor + qs.
+- Five `kill -KILL` in a row: four restarts, then stop; the critical toast
+  "The shell keeps crashing" drawn by mako (island mode taken off; screenshot).
+  The shell started again by hand; mako back to `island` by the shell.
+- `shellcheck -S warning`, `ruff`, `./install.py check` all ✓; log clean.
+- Not run: the lock after a crash (needs the owner's password at the screen).
+  Owner's check: Super+Z, then from a tty or ssh `kill -KILL $(pgrep -x qs)`;
+  within ~2 s the lock screen is back and the password unlocks.
+- About › Restart and the launcher's Restart shell clicked: not done (no
+  pointer automation); they call the command tested above.
+
+Found while testing (new finding, not fixed here):
+
+| ID | Finding | Evidence | User impact | Sev | Effort | Risk | Depends on | Recommendation | Task |
+|---|---|---|---|---|---|---|---|---|---|
+| U-18 | Every shell restart leaks its listener scripts | live: after a day of restarts, 39 `music.sh` / `bluetooth.sh` / `wifi.sh --listen` with ppid 1 plus 61 of their subshells (killed by hand: only those outside the live `qs` tree); an in-place crash restart also keeps the old set as children (10 under one `qs`). `wifi.sh:431` / `bluetooth.sh:179` pipe `nmcli monitor` / `gdbus monitor` into a read loop, `music.sh:61-67` loops on `mpc idle` (else `sleep 2`); none is killed with its parent, and a closed stdout only ends one at its next write | processes and memory grow with each restart; old listeners keep polling | S3 | S | low | — | listeners exit when stdout closes or their parent goes (`trap` + check `$PPID`, or `exec` the monitor command so the kill reaches it) | new 12-J (A) |
 
 ### Proposed tasks (for approval)
 
