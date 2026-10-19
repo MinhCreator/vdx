@@ -20,7 +20,8 @@ Item {
   KitBarItem {
     id: label
     icon: BrightnessService.nightActive ? "moon" : "sun"
-    text: BarLayout.faceText("brightness", ModuleSettings.get("brightness", "percent", true) ? String(BrightnessService.brightness) : "")
+    text: BarLayout.faceText("brightness", !ModuleSettings.get("brightness", "percent", true) ? ""
+      : BrightnessService.available ? String(BrightnessService.brightness) : "--")
     tint: BrightnessService.nightActive ? Theme.accentFor("modules", Theme.orange) : Theme.foreground0
   }
 
@@ -30,7 +31,7 @@ Item {
     cursorShape: Qt.PointingHandCursor
     onClicked: popup.toggle()
     onWheel: wheel => {
-      if (wheel.angleDelta.y !== 0)
+      if (wheel.angleDelta.y !== 0 && BrightnessService.available)
         BrightnessService.stepBrightness(wheel.angleDelta.y > 0 ? BrightnessService.scrollStep : -BrightnessService.scrollStep);
     }
   }

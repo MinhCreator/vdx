@@ -3,7 +3,8 @@
 # battery.sh — battery, power profile and GPU mode backend for modules/battery.
 #
 #   --status          {present, capacity, status, plugged, energy, energyFull, energyDesign,
-#                      power, cycles, threshold, profile, profiles}   Wh / W / %
+#                      power, cycles, threshold, limit, profile, profiles}   Wh / W / %;
+#                      limit: the kernel takes a charge limit
 #   --threshold N     {ok, error}   charge limit, %
 #   --profile NAME    {ok, error}   platform profile
 #   --gpu             {mode, pending, action}
@@ -56,11 +57,12 @@ cmd_status() {
         --argjson power "$watts" \
         --argjson cycles "$(num cycle_count)" \
         --argjson threshold "$(cat "$b/charge_control_end_threshold" 2>/dev/null || echo 100)" \
+        --argjson limit "$([[ -e "$b/charge_control_end_threshold" ]] && echo true || echo false)" \
         --arg profile "$(cat "$PROFILE" 2>/dev/null)" \
         --arg profiles "$(cat "$PROFILE"_choices 2>/dev/null)" \
         '{present: true, status: $status, capacity: $capacity, plugged: $plugged,
           energy: ($energy / 1e6), energyFull: ($energyFull / 1e6), energyDesign: ($energyDesign / 1e6),
-          power: ($power / 1e6), cycles: $cycles, threshold: $threshold,
+          power: ($power / 1e6), cycles: $cycles, threshold: $threshold, limit: $limit,
           profile: $profile, profiles: ($profiles | split(" ") | map(select(. != "")))}'
 }
 

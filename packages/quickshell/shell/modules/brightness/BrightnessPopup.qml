@@ -17,7 +17,7 @@ KitFrame {
     icon: BrightnessService.nightActive ? "moon" : "sun"
     iconColor: BrightnessService.nightActive ? Theme.orange : Theme.foreground0
     title: "Brightness"
-    subtitle: "BRIGHTNESS " + BrightnessService.brightness + "%"
+    subtitle: (BrightnessService.available ? "BRIGHTNESS " + BrightnessService.brightness + "%" : "NO BACKLIGHT")
       + (BrightnessService.nightActive ? " · NIGHT LIGHT" : "")
   }
 
@@ -29,6 +29,7 @@ KitFrame {
     spacing: Theme.gapGroup
 
     KitSliderRow {
+      visible: BrightnessService.available     // dimming and the night light work without one
       label: "BRIGHTNESS"
       value: BrightnessService.brightness / 100
       text: BrightnessService.brightness + "%"

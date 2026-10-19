@@ -2,7 +2,7 @@
 #
 # brightness.sh — backlight and night light backend for modules/brightness.
 #
-#   --get                      {brightness}   backlight, %
+#   --get                      {brightness}   backlight, %; none: {ok: false, error: "no backlight"}
 #   --set N                    {brightness}   set the backlight to N %
 #   --step ±N                  {brightness}   change the backlight by N %
 #   --apply TEMPERATURE GAMMA  {ok, error}    TEMPERATURE in K or "off", GAMMA in %
@@ -12,8 +12,12 @@
 
 set -u
 
+# the backlight class only: with no backlight brightnessctl would take an LED
 emit() {
-    brightnessctl -m 2>/dev/null | awk -F, '{ sub("%", "", $4); printf "{\"brightness\":%d}\n", $4 }'
+    local line
+    line=$(brightnessctl -m -c backlight 2>/dev/null | head -1)
+    [[ -n "$line" ]] || { echo '{"ok":false,"error":"no backlight"}'; return; }
+    awk -F, '{ sub("%", "", $4); printf "{\"brightness\":%d}\n", $4 }' <<<"$line"
 }
 
 daemon() {
@@ -41,11 +45,11 @@ cmd_apply() {
 
 case "${1:-}" in
     --get)   emit ;;
-    --set)   brightnessctl -q -n1 set "${2:-0}%"; emit ;;
+    --set)   brightnessctl -q -n1 -c backlight set "${2:-0}%"; emit ;;
     --step)
         case "${2:-0}" in
-            -*) brightnessctl -q -n1 set "${2#-}%-" ;;
-            *)  brightnessctl -q -n1 set "+${2#+}%" ;;
+            -*) brightnessctl -q -n1 -c backlight set "${2#-}%-" ;;
+            *)  brightnessctl -q -n1 -c backlight set "+${2#+}%" ;;
         esac
         emit
         ;;

@@ -22,6 +22,7 @@ Singleton {
 
   // ---- backlight ----
   property int brightness: 0                   // %
+  property bool available: true                // a backlight to set (a desktop has none)
 
   // ---- night light ----
   readonly property bool nightActive: state.night
@@ -147,7 +148,9 @@ Singleton {
       onStreamFinished: {
         try {
           // A drag still queued wins over the value this run read back.
-          if (root.pendingSet < 0) root.brightness = JSON.parse(text).brightness;
+          const r = JSON.parse(text);
+          root.available = r.ok !== false;
+          if (root.available && root.pendingSet < 0) root.brightness = r.brightness;
         } catch (e) {}
       }
     }

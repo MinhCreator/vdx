@@ -11,7 +11,7 @@ KitFrame {
     : Math.floor(BatteryService.minutesLeft / 60) + ":" + String(BatteryService.minutesLeft % 60).padStart(2, "0")
   readonly property string summary: BatteryService.charging ? "CHARGING · " + timeLeft + " TO " + BatteryService.threshold + "%"
     : BatteryService.discharging ? "DISCHARGING · " + timeLeft + " LEFT"
-    : BatteryService.plugged ? "PLUGGED IN · LIMIT " + BatteryService.threshold + "%"
+    : BatteryService.plugged ? "PLUGGED IN" + (BatteryService.limitSupported ? " · LIMIT " + BatteryService.threshold + "%" : "")
     : "IDLE"
   readonly property color levelColor: BatteryService.capacity <= BatteryService.critical ? Theme.red
     : BatteryService.capacity <= BatteryService.warning ? Theme.yellow : Theme.green
@@ -96,6 +96,7 @@ KitFrame {
 
     KitSelect {
       id: limit
+      visible: BatteryService.limitSupported
       label: "Charge limit"
       hint: "Stop charging at"
       model: BatteryService.limits.map(v => ({ label: v + "%", value: v }))

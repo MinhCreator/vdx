@@ -33,7 +33,8 @@ KitFrame {
     icon: !AudioService.live || AudioService.muted ? "volume-x" : root.headphones ? "headphones" : "volume"
     iconColor: AudioService.live && !AudioService.muted ? Theme.foreground0 : Theme.muted
     title: "Audio"
-    subtitle: !AudioService.live ? "OFF"
+    subtitle: !AudioService.sink ? "NO OUTPUT"
+      : !AudioService.live ? "OFF"
       : AudioService.muted ? "OUTPUT MUTED"
       : "VOLUME " + AudioService.volume + "%"
 
@@ -56,7 +57,7 @@ KitFrame {
     AudioDeviceDropdown {
       id: output
       label: "Device"
-      hint: AudioService.outputNote || "Default output"
+      hint: AudioService.outputs.length === 0 ? "None found" : AudioService.outputNote || "Default output"
       entries: AudioService.outputs
       current: AudioService.outputKey
       onExpandedChanged: if (expanded) input.expanded = false
@@ -80,7 +81,7 @@ KitFrame {
     AudioDeviceDropdown {
       id: input
       label: "Device"
-      hint: AudioService.inputNote || "Default input"
+      hint: AudioService.inputs.length === 0 ? "None found" : AudioService.inputNote || "Default input"
       entries: AudioService.inputs
       current: AudioService.inputKey
       onExpandedChanged: if (expanded) output.expanded = false
