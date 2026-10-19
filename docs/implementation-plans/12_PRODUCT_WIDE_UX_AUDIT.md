@@ -409,6 +409,57 @@ seen: the `--` faces, `NO BACKLIGHT`, `NO OUTPUT`, `None found` and the
 hidden limit row (no machine without a backlight, a sink or the threshold
 file here).
 
+### Phase 2 — 12-F: optional apps gated, `quickshell` split (U-10; owner: "everything by the plan", 2026-10-19)
+
+Category B (installer + wizard). Two parts.
+
+1. Apps: an app whose bar module is not installed (`apps.json` › `module` in
+   `BarLayout.notInstalled`) leaves Shell Manager › Apps (shown greyed with the
+   `components add` hint, as Modules does) and the launcher.
+2. Split: new components, `requires = ["quickshell"]`, default on, group
+   desktop, no `links` (every QML file stays linked with `quickshell`, or
+   `shell.qml`'s imports break): `shell-backups` (module `backup`, `restic`),
+   `shell-cleaner` (module `cleaner`), `shell-packages` (module `packages`,
+   `pacman-contrib`). Capture, the hotspot (`dnsmasq`, `iw`) and the wave
+   (`cava`) stay in `quickshell` (core features / degrade without).
+
+Migration (found while planning): a saved selection lists what is on, so a
+component newer than it would be off — the owner and every set-up machine
+would lose Backups / Cleaner / Packages. New catalog field `split_from`: such
+a component is on wherever its parent is, unless `[components] off` names it;
+saving (wizard, `components add|remove|set`) writes `off` for a split
+component left out while its parent is on. A fresh machine is unchanged
+(default on). Tests in `tests/test_components.py` (and the wizard's save).
+
+Files: `components.toml`, `installer/components.py`, `installer/choose.py`,
+`installer/wizard.py`, `tests/test_components.py`, `tests/test_wizard.py`,
+`CONVENTIONS.md` (components fields), `apps/shellmanager/ShellAppsPage.qml`,
+`apps/launcher/LauncherService.qml`, this file, the roadmap.
+
+Acceptance: tests green; `./install.py components` on this machine lists the
+three on (owner's saved list has none of them); `components remove
+shell-cleaner` then `add` round-trips through `off` (on a copy of the
+profile); `check components` green; with `shell-cleaner` off the Cleaner
+module and app leave the bar, Apps and the launcher (`components.json`),
+then back. `tests/fresh-machine.sh` not run (owner).
+
+Result (2026-10-19): **Implemented, partially verified.**
+- Tests: 4 new (split follows parent, `off` keeps it off, `record`, catalog
+  check; the wizard writes `off`); all 141 installer tests pass;
+  `check components tests` ✓.
+- The real catalog, a selection saved before the split → all three on; with
+  `off = ["shell-cleaner"]` → that one off.
+- This machine: `components remove shell-cleaner` → `off = ["shell-cleaner"]`,
+  `components.json` › `cleaner`, Shell Manager › Apps › Cleaner shows "Not
+  installed · components add shell-cleaner" (screenshot); `add` → back.
+  Correction to the plan's acceptance: the owner's profile has no
+  `[components]` at all ("nothing chosen": everything is on), so the
+  migration was not what kept the three on here; the round trip wrote a
+  saved list, so the profile was put back from its backup (`diff` empty).
+- Not checked: the launcher without the app (code: `shellApps` filtered by
+  the same `installed()`); the wizard's screens drawn. Hyprland binds of an
+  app that is off (Super+X for Cleaner) still open its window: left as is.
+
 ### Proposed tasks (for approval)
 
 Order by value / risk: 03 follow-up (U-03) and 01 follow-up (U-04) — category A, small; 12-A default bar + overflow (U-01); 12-B supervisor (U-02); 12-D memory and polling (U-06, U-07); 12-E hardware states (U-09); 12-F gating apps + component split (U-10, with 09-A); 12-I first run (U-14); 12-G contrast + text size (U-11); 12-H monitors + wallpapers (U-13, U-15); 12-C keyboard (U-05, after 05 p1). Into 05 phase 1 as inputs: U-08, U-12 (and U-05's focus token). U-16 deferred; U-17 a docs fix.
