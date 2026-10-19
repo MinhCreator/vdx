@@ -106,7 +106,7 @@ Column {
             anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
             width: 32
             text: row.modelData.pos
-            color: row.current ? Theme.foreground0 : Theme.gray
+            color: row.current ? Theme.foreground0 : Theme.muted
             Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
             font.pixelSize: Theme.fontSize - 2
           }

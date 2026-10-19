@@ -39,7 +39,7 @@ Item {
       visible: text !== ""
       text: IslandService.artist
       textFormat: Text.PlainText
-      color: Theme.gray
+      color: Theme.muted
       elide: Text.ElideRight
     }
   }
@@ -60,7 +60,7 @@ Item {
     KitText {
       id: elapsed
       text: root.time(IslandService.position)
-      color: Theme.gray
+      color: Theme.muted
       font.pixelSize: Theme.fontSize - 2
     }
 
@@ -100,7 +100,7 @@ Item {
       id: remain
       anchors.right: parent.right
       text: IslandService.length > 0 ? "-" + root.time(IslandService.length - IslandService.position) : "--"
-      color: Theme.gray
+      color: Theme.muted
       font.pixelSize: Theme.fontSize - 2
     }
   }

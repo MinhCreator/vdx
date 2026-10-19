@@ -88,7 +88,7 @@ Item {
           visible: text !== ""
           text: IslandService.artist
           textFormat: Text.PlainText
-          color: Theme.gray
+          color: Theme.muted
           font.pixelSize: Theme.fontSize - 1
           elide: Text.ElideRight
         }

@@ -14,6 +14,7 @@ Singleton {
   readonly property string managerStart: state.managerStart        // main | last: the page the Shell Manager opens on
   readonly property string managerTab: state.managerTab            // the page it was left on
   readonly property string font: state.font                       // family, kept in step with fontconfig
+  readonly property int textSize: state.textSize                  // px, the shell's text (Theme.fontSize): 12 | 13 | 14 | 15
   readonly property string underlineAnimation: state.underlineAnimation  // none | grow | slide
   readonly property string wallpaperMode: state.wallpaperMode     // theme | custom | image
   readonly property var wallpaperImages: state.wallpaperImages     // theme -> path under ~/.dotfiles/wallpapers
@@ -98,6 +99,7 @@ Singleton {
       property string managerStart: "main"
       property string managerTab: "appearance"
       property string font: "JetBrainsMono Nerd Font"
+      property int textSize: 13
       property string underlineAnimation: "none"
       property string wallpaperMode: "theme"
       property string wallpaperColor: "#32302f"

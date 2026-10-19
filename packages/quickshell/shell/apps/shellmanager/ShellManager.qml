@@ -176,7 +176,7 @@ Rectangle {
               id: captionText
               anchors { left: parent.left; leftMargin: Theme.gapLoose; top: parent.top; topMargin: section.lead }
               text: section.modelData.caption ?? ""
-              color: Theme.gray
+              color: Theme.muted
               font.pixelSize: Theme.fontSize - 2
               font.weight: Font.DemiBold
             }
@@ -297,7 +297,7 @@ Rectangle {
     KitText {
       anchors { left: parent.left; leftMargin: Theme.windowPadding; bottom: parent.bottom; bottomMargin: 14 }
       text: "Esc close"
-      color: Theme.gray
+      color: Theme.muted
       font.pixelSize: Theme.fontSize - 2
     }
   }

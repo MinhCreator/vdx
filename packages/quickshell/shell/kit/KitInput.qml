@@ -91,7 +91,7 @@ Rectangle {
       visible: textInput.text === "" && (Theme.material || !textInput.activeFocus)
       text: root.placeholder
       elide: Text.ElideRight
-      color: Theme.gray
+      color: Theme.muted
     }
   }
 }

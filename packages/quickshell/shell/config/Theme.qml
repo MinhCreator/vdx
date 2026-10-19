@@ -30,9 +30,29 @@ QtObject {
   readonly property color blue:   live.blue ?? Colors.blue
   readonly property color purple: live.purple ?? Colors.purple
   readonly property color gray:   live.gray ?? Colors.gray
-  readonly property color muted:  live.muted ?? Colors.muted
+  // hints and captions: the theme's muted, lifted toward foreground0 until it
+  // reads (WCAG 4.5:1 on background0); the theme file keeps its own (kitty's color8)
+  readonly property color muted:  legible(live.muted ?? Colors.muted, background0)
   readonly property color frame:  live.frame ?? Colors.frame
   readonly property color dim:    live.dim ?? Colors.dim
+
+  function luminance(c: color): real {
+    const f = v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b);
+  }
+  function contrast(a: color, b: color): real {
+    const x = luminance(a), y = luminance(b);
+    return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+  }
+  // c mixed toward foreground0 in 2 % steps until it has 4.5:1 on `on`
+  function legible(c: color, on: color): color {
+    const to = foreground0;
+    for (let t = 0; t < 1; t += 0.02) {
+      const m = Qt.rgba(c.r + (to.r - c.r) * t, c.g + (to.g - c.g) * t, c.b + (to.b - c.b) * t, 1);
+      if (contrast(m, on) >= 4.5) return m;
+    }
+    return to;
+  }
 
   // the unseen dot (Bar › Notifications dot colour): a name of the choices;
   // "theme" (and anything else) is the theme's own text colour
@@ -75,7 +95,7 @@ QtObject {
 
   // ---- type and bar metrics ----
   readonly property string fontFamily: ShellSettings.font     // the system monospace, Shell Manager › Appearance
-  readonly property int fontSize: 13
+  readonly property int fontSize: ShellSettings.textSize      // Appearance › Font › Text size
   readonly property int fontWeight: Font.DemiBold
   readonly property int barHeight: 34
   readonly property int moduleSpacing: 2

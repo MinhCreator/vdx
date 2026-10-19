@@ -21,7 +21,7 @@ Item {
   KitText {
     id: label
     text: Qt.formatDateTime(root.now, root.full ? "dddd, dd MMMM yyyy HH:mm:ss" : root.format)
-    color: Theme.gray
+    color: Theme.muted
   }
 
   Timer {

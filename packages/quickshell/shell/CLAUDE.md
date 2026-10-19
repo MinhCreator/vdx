@@ -119,6 +119,10 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
      takes `accent` alone.
   No hex in QML — `Theme.*` only (a custom colour is picked on the spectrum or typed in Shell Manager and
   kept in settings). Dimmed screens use `Theme.scrim`.
+- Text: secondary text (hints, captions, times) is `Theme.muted`, lifted to
+  4.5:1 on `background0` in every theme; `gray` is for frames, ticks, icons and
+  inactive text only. Sizes are `Theme.fontSize ± n` (Appearance › Font › Text
+  size, 12–15), never a literal.
 - Bar: one colour per item; a missing value shows `--`.
 - Key hints: `Super + S`; footers `key action · key action`, lowercase.
 - Icons: Material Symbols SVG in `kit/icons`, `fill="#ffffff"`; every icon

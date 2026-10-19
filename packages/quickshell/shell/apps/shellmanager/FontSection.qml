@@ -3,7 +3,7 @@ import qs.config
 import qs.kit
 
 // Appearance › FONT: a sample in the selected font beside the list; Apply
-// installs it if needed and makes it the system one.
+// installs it if needed and makes it the system one. Then the shell's text size.
 Column {
   id: root
 
@@ -18,7 +18,7 @@ Column {
   KitLabel {
     id: fontGroup
     text: "FONT"
-    value: FontService.current.replace(" Nerd Font", "").toUpperCase()
+    value: FontService.current.replace(" Nerd Font", "").toUpperCase() + " · " + ShellSettings.textSize + " PX"
   }
 
   // a sample in the selected font beside the list
@@ -130,6 +130,20 @@ Column {
           onClicked: FontService.apply(root.fontRow)
         }
       }
+    }
+  }
+
+  // the shell's own text (Theme.fontSize); larger stops at 15: the bar's and rows' heights are fixed
+  KitRow {
+    wide: true
+    label: "Text size"
+    hint: "The bar keeps its height"
+
+    KitChoices {
+      stretch: true
+      model: [12, 13, 14, 15].map(n => ({ label: n + " px", value: n }))
+      current: ShellSettings.textSize
+      onPicked: value => ShellSettings.set("textSize", value)
     }
   }
 

@@ -61,7 +61,7 @@ Item {
       visible: text !== ""
       text: Markup.plain(root.n?.body).replace(/\s+/g, " ")
       textFormat: Text.PlainText
-      color: Theme.gray
+      color: Theme.muted
       font.pixelSize: Theme.fontSize - 1
       elide: Text.ElideRight
     }

@@ -38,6 +38,6 @@ Item {
     width: 34
     horizontalAlignment: Text.AlignRight
     text: IslandService.osdMuted ? "off" : Math.round(IslandService.osdLevel * 100) + "%"
-    color: Theme.gray
+    color: Theme.muted
   }
 }
