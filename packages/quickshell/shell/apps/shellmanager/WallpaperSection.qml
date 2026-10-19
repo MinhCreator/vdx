@@ -1,18 +1,25 @@
 import QtQuick
-import Qt.labs.folderlistmodel
+import Quickshell
 import qs.apps.files
 import qs.config
 import qs.kit
 import "../../kit/colour.js" as Colour
 
-// Appearance › WALLPAPER: the theme's colour, a picture per theme from
-// ~/.dotfiles/wallpapers or a colour of your own (the accent's field and picker).
+// Appearance › WALLPAPER: the theme's colour, a picture per theme (and per
+// monitor, with more than one) from the repo's wallpapers or the user's own
+// folder, or a colour of your own (the accent's field and picker).
 KitColumn {
   id: root
 
   required property Item page               // AppearancePage: the wallpaper shown
 
   property string imageDraft: ""
+  // the monitor a picked picture is for: "" every monitor
+  property string output: ""
+  readonly property var screens: Quickshell.screens.map(s => s.name)
+  readonly property var overrides: WallpaperService.outputsFor(ThemeService.current)
+  // the picture shown where the next pick goes
+  readonly property string shown: output !== "" && overrides[output] ? overrides[output] : page.currentImage
   property bool pickerOpen: false
 
   // the custom colour's palette: the dots of the picker, as the accent's
@@ -79,50 +86,37 @@ KitColumn {
     onChosen: name => ShellSettings.set("wallpaperColor", root.hexOf(name))
   }
 
-  // ---- image: the active theme's folder first, then the shared one ----
+  // ---- image: the active theme's folder first, the user's, then the shared one ----
+  // with more than one monitor, a pick goes to every monitor or to one
+  KitSelect {
+    visible: page.imageWallpaper && root.screens.length > 1
+    label: "Monitor"
+    hint: root.output === "" ? "Drops each monitor's own" : root.overrides[root.output] ? "Its own picture" : "The theme's picture"
+    model: [{ label: "Every monitor", value: "" }].concat(root.screens.map(n => ({ label: n, value: n })))
+    current: root.screens.includes(root.output) ? root.output : ""
+    onPicked: value => root.output = value
+  }
+
   Flow {
     width: parent.width
-    visible: page.imageWallpaper && themePictures.count + commonPictures.count > 0
+    visible: page.imageWallpaper && WallpaperService.pictures.length > 0
     spacing: Theme.gapSmall
 
     Repeater {
-      model: FolderListModel {
-        id: themePictures
-        folder: "file://" + WallpaperService.dir + "/" + ThemeService.current
-        nameFilters: WallpaperService.extensions
-        showDirs: false
-      }
+      model: WallpaperService.pictures
 
       WallpaperThumb {
-        required property string fileName
-        required property string filePath
-        source: filePath
-        active: page.currentImage === ThemeService.current + "/" + fileName
-        onClicked: WallpaperService.choose(ThemeService.current, ThemeService.current + "/" + fileName)
-      }
-    }
-
-    Repeater {
-      model: FolderListModel {
-        id: commonPictures
-        folder: "file://" + WallpaperService.dir + "/common"
-        nameFilters: WallpaperService.extensions
-        showDirs: false
-      }
-
-      WallpaperThumb {
-        required property string fileName
-        required property string filePath
-        source: filePath
-        active: page.currentImage === "common/" + fileName
-        onClicked: WallpaperService.choose(ThemeService.current, "common/" + fileName)
+        required property var modelData
+        source: modelData.path
+        active: root.shown === modelData.rel
+        onClicked: WallpaperService.choose(ThemeService.current, modelData.rel, root.output)
       }
     }
   }
 
   KitText {
     width: parent.width
-    visible: page.imageWallpaper && themePictures.count + commonPictures.count === 0
+    visible: page.imageWallpaper && WallpaperService.pictures.length === 0
     text: "No pictures yet — add one below, or put files into wallpapers/" + ThemeService.current + " or wallpapers/common."
     color: Theme.muted
     wrapMode: Text.WordWrap
@@ -136,7 +130,7 @@ KitColumn {
   KitRow {
     visible: page.imageWallpaper
     label: "Add image"
-    hint: "Copied into this theme's folder"
+    hint: "Kept outside the repo"
     wide: true
 
     Row {
@@ -147,7 +141,7 @@ KitColumn {
         placeholder: "~/Pictures/wall.jpg"
         text: root.imageDraft
         onTextEdited: root.imageDraft = text
-        onAccepted: WallpaperService.add(root.imageDraft, ThemeService.current)
+        onAccepted: WallpaperService.add(root.imageDraft, ThemeService.current, root.output)
       }
 
       KitButton {
@@ -165,7 +159,7 @@ KitColumn {
         text: "Add"
         busy: WallpaperService.busy
         disabled: root.imageDraft.trim() === ""
-        onClicked: WallpaperService.add(root.imageDraft, ThemeService.current)
+        onClicked: WallpaperService.add(root.imageDraft, ThemeService.current, root.output)
       }
     }
   }

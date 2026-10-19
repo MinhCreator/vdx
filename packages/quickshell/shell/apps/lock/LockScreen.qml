@@ -30,7 +30,7 @@ Rectangle {
   // colour; blurred: the desktop as it was just before locking
   readonly property string image: background === "blur" ? lock.snapshot(screenName)
     : ShellSettings.wallpaperMode === "image" && WallpaperService.imageFor(ThemeService.current) !== ""
-      ? "file://" + WallpaperService.dir + "/" + WallpaperService.imageFor(ThemeService.current) : ""
+      ? "file://" + WallpaperService.pathOf(WallpaperService.imageFor(ThemeService.current)) : ""
 
   color: background === "solid" || !main ? Theme.background0
        : ShellSettings.wallpaperMode === "custom" ? ShellSettings.wallpaperColor : Theme.background1

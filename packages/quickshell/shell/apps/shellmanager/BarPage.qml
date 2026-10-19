@@ -231,6 +231,18 @@ KitColumn {
     onPicked: value => root.screenName = value
   }
 
+  KitSelect {
+    visible: Quickshell.screens.length > 1 && !BarLayout.shared
+    label: "Main monitor"
+    hint: "Automatic: the external one"
+    model: [{ label: "Automatic", value: "" }].concat(Quickshell.screens.map(s => ({ label: s.name, value: s.name })))
+    current: BarLayout.mainPick
+    onPicked: value => {
+      BarLayout.setMainPick(value);
+      root.screenName = BarLayout.mainScreen();
+    }
+  }
+
   KitRow {
     visible: Quickshell.screens.length > 1
     label: "Same bar everywhere"

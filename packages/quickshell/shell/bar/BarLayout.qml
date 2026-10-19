@@ -70,8 +70,12 @@ Singleton {
   // panel and any further monitor while docked. A role never set up uses the
   // shared layout (the one saved before per-monitor layouts).
   function isInternal(name) { return /^(eDP|LVDS|DSI)/.test(name); }
+  // Bar › Monitor › Main monitor: a picked one while it is connected, else that rule
+  readonly property string mainPick: state.main
+  function setMainPick(name) { state.main = name; }
   function mainScreen() {
     const names = Quickshell.screens.map(s => s.name);
+    if (names.includes(mainPick)) return mainPick;
     return names.find(n => !isInternal(n)) ?? names[0] ?? "";
   }
   // `shared`: every monitor shows the main bar
@@ -368,6 +372,7 @@ Singleton {
       property var hidden: []
       property var screens: ({})      // role (main | extra) -> {zones, hidden, folder, off, island, islandClock, bars}
       property bool shared: false
+      property string main: ""        // the main monitor's name, "" automatic
     }
   }
 }

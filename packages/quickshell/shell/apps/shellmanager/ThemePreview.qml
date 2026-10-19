@@ -88,7 +88,7 @@ ClippingRectangle {
     Image {
       anchors.fill: parent
       visible: root.page.previewImage !== ""
-      source: visible ? "file://" + WallpaperService.dir + "/" + root.page.previewImage : ""
+      source: visible ? "file://" + WallpaperService.pathOf(root.page.previewImage) : ""
       sourceSize: Qt.size(width, height)
       fillMode: Image.PreserveAspectCrop
       asynchronous: true

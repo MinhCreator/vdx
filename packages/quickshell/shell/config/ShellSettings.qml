@@ -17,8 +17,9 @@ Singleton {
   readonly property int textSize: state.textSize                  // px, the shell's text (Theme.fontSize): 12 | 13 | 14 | 15
   readonly property string underlineAnimation: state.underlineAnimation  // none | grow | slide
   readonly property string wallpaperMode: state.wallpaperMode     // theme | custom | image
-  readonly property var wallpaperImages: state.wallpaperImages     // theme -> path under ~/.dotfiles/wallpapers
+  readonly property var wallpaperImages: state.wallpaperImages     // theme -> picture (WallpaperService.pathOf)
   readonly property string wallpaperColor: state.wallpaperColor   // #rrggbb, for custom
+  readonly property var wallpaperOutputs: state.wallpaperOutputs   // theme -> {output: picture}: monitors with their own
   readonly property bool pauseMusic: state.pauseMusic             // MPD pauses while another app plays sound
   readonly property bool resumeMusic: state.resumeMusic           // ...and resumes once that sound stops
   readonly property bool barRightSettings: state.barRightSettings // a right click on a bar module opens its options
@@ -104,6 +105,7 @@ Singleton {
       property string wallpaperMode: "theme"
       property string wallpaperColor: "#32302f"
       property var wallpaperImages: ({})
+      property var wallpaperOutputs: ({})
       property bool pauseMusic: false
       property bool resumeMusic: true
       property bool barRightSettings: true
