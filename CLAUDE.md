@@ -33,3 +33,6 @@ files your change touches, not all of them. In short:
 - Shell project work: `docs/roadmap.md`; a task runs from its file in
   `docs/tasks/` (how: that folder's README).
 - Don't commit or revert someone else's uncommitted changes without asking.
+- Docs upkeep (same commit as the change): fix what the change made wrong;
+  a rule or fact you had to find out that is written nowhere goes into its
+  topic file; a new file only with a line in `docs/README.md`.

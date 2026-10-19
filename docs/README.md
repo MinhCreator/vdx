@@ -38,6 +38,35 @@ and agents. A rule that is in the way is changed in its file.
 | Why something is the way it is | [decisions/](decisions/README.md) |
 | The original requirements (cited as §) | [spec.md](spec.md) |
 
+## Asking an agent
+
+Rules load by themselves (`CLAUDE.md` → this index), so a request says only
+what to do, where, and when to stop. Templates (any language):
+
+A task that has a plan:
+
+```
+Run docs/tasks/NN_NAME.md (part X).
+```
+
+A bug or a small change without a plan:
+
+```
+<what is wrong, or what I want; where I saw it>.
+Find the topic files for this area in docs/README.md and read them, then the code.
+Tell me the cause and the plan in a few lines before changing anything.
+```
+
+Something big or new:
+
+```
+I want <X>. Write a plan in docs/tasks/ (shape: docs/tasks/README.md),
+add it to the roadmap and stop for my approval. No code yet.
+```
+
+Useful endings: "commit when done" · "don't commit" · "stop after the
+research" · "show me one screen first".
+
 ## Rules for these docs
 
 - English, terse, facts only; proposals say "proposed".
