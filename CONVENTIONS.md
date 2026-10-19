@@ -22,7 +22,7 @@ Arch Linux + Hyprland. `install.py` (Python ≥ 3.11, stdlib only, code in
 | Wallpapers | `wallpapers/<theme>/`, `wallpapers/common/` | read by the Shell Manager |
 | Installer state | `~/.local/state/dotfiles/` | logs, the setup journal, backups, what the shell reads |
 | Installer tests | `tests/` | `./install.py check tests`; run before every install |
-| Notes | `docs/` | — |
+| Notes, the shell roadmap, task plans, decisions | `docs/` | — |
 
 ### Components
 
