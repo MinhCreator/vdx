@@ -38,6 +38,9 @@ Singleton {
   readonly property var inputs: entriesOf(sources)
   readonly property string outputKey: keyOf(sink)
   readonly property string inputKey: keyOf(source)
+  // the port in use, when it is not in the list (not detected): a note for the dropdown
+  readonly property string outputNote: noteOf(sink, outputs, outputKey)
+  readonly property string inputNote: noteOf(source, inputs, inputKey)
 
   // Whether output or input is still live; the header switch mutes both.
   readonly property bool live: !muted || !(source?.audio?.muted ?? true)
@@ -58,13 +61,24 @@ Singleton {
 
   function keyOf(node) { return node ? node.name + "|" + (ports[node.name]?.active ?? "") : ""; }
 
+  // the port in use is not among the entries: it is not detected (unplugged, or a jack mic
+  // the codec can't tell is plugged); the box shows the note instead of an entry
+  function noteOf(node, entries, key) {
+    if (!node || entries.some(e => e.key === key)) return "";
+    const info = ports[node.name];
+    const p = (info?.list ?? []).find(x => x.name === info.active);
+    return p ? "Not detected: " + p.port : "";
+  }
+
+  // The lists depend on what the codec reports, never on which port is in use: a
+  // selection does not change their shape. A port reported "not available" is left out.
+  // The built-in mic is always listed; a jack mic that can't tell it is plugged (availability
+  // unknown) is listed only while headphones are in.
   function entriesOf(nodes) {
     const entries = [];
     for (const node of nodes) {
       const info = ports[node.name];
-      // a jack mic that can't tell it is plugged (availability unknown) is
-      // listed only while headphones are in, or when it is the one in use
-      const list = (info?.list ?? []).filter(p => p.name === info.active || (p.type === "Speaker" && p.available) || p.name.includes("internal")
+      const list = (info?.list ?? []).filter(p => p.name.includes("internal")
                                                || (p.available && !(p.unknown && p.type === "Mic" && !root.jackIn)));
       if (list.length === 0)
         entries.push({ key: node.name + "|" + (info?.active ?? ""), node: node, port: "", label: nameOf(node), about: node.description });

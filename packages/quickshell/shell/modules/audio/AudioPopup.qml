@@ -56,7 +56,7 @@ KitFrame {
     AudioDeviceDropdown {
       id: output
       label: "Device"
-      hint: "Default output"
+      hint: AudioService.outputNote || "Default output"
       entries: AudioService.outputs
       current: AudioService.outputKey
       onExpandedChanged: if (expanded) input.expanded = false
@@ -80,7 +80,7 @@ KitFrame {
     AudioDeviceDropdown {
       id: input
       label: "Device"
-      hint: "Default input"
+      hint: AudioService.inputNote || "Default input"
       entries: AudioService.inputs
       current: AudioService.inputKey
       onExpandedChanged: if (expanded) output.expanded = false
