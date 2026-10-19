@@ -374,6 +374,41 @@ risk: a window's state — the Files listing, the Shell Manager page — starts
 over each opening). U-06 stays S3; the growth over a long session is not
 looked into.
 
+### Phase 2 — 12-E: missing hardware shows as missing (U-09; owner: "go", 2026-10-19)
+
+Category A/B, kept small (owner: no deep work). Out: an error state for all
+15 services; component gating of battery / brightness.
+
+- Brightness: `brightness.sh` asks for the `backlight` class only (no
+  backlight: `brightnessctl` would take an LED) and answers
+  `{"ok":false,"error":"no backlight"}`; `BrightnessService.available`. Face
+  `--`, wheel off; popup: subtitle `NO BACKLIGHT`, the BRIGHTNESS slider gone.
+  The face is not hidden: dimming and the night light (hyprsunset) work
+  without a backlight.
+- Audio: no default sink → face `--`; popup subtitle `NO OUTPUT`; a device
+  row with nothing to list says `None found`.
+- Battery: `battery.sh --status` adds `limit` (the threshold file exists);
+  the Charge limit row shows only then.
+
+Files: `scripts/brightness.sh`, `modules/brightness/{BrightnessService,Brightness,BrightnessPopup}.qml`,
+`modules/audio/{Audio,AudioPopup}.qml`, `scripts/battery.sh`,
+`modules/battery/{BatteryService,BatteryPopup}.qml`, this file, the roadmap.
+
+Acceptance: `brightness.sh --get` with a fake `brightnessctl` that finds
+nothing → the error JSON; on this laptop the same values as before; the
+popups look unchanged here (screenshots); `shellcheck`, log clean. The
+no-hardware faces themselves: not reproducible here (said so).
+
+Result (2026-10-19): **Implemented, partially verified.** `brightness.sh
+--get` here `{"brightness":100}`, `--step -5 / +5` 95 / 100; with a fake
+`brightnessctl` that finds nothing `{"ok":false,"error":"no backlight"}`.
+`battery.sh --status` here `limit: true`. After a restart the Brightness and
+Battery popups look as before (screenshots: slider, `CHARGING · … TO 100%`,
+Charge limit row); log clean; `shellcheck`, `check shell syntax` ✓. Not
+seen: the `--` faces, `NO BACKLIGHT`, `NO OUTPUT`, `None found` and the
+hidden limit row (no machine without a backlight, a sink or the threshold
+file here).
+
 ### Proposed tasks (for approval)
 
 Order by value / risk: 03 follow-up (U-03) and 01 follow-up (U-04) — category A, small; 12-A default bar + overflow (U-01); 12-B supervisor (U-02); 12-D memory and polling (U-06, U-07); 12-E hardware states (U-09); 12-F gating apps + component split (U-10, with 09-A); 12-I first run (U-14); 12-G contrast + text size (U-11); 12-H monitors + wallpapers (U-13, U-15); 12-C keyboard (U-05, after 05 p1). Into 05 phase 1 as inputs: U-08, U-12 (and U-05's focus token). U-16 deferred; U-17 a docs fix.
