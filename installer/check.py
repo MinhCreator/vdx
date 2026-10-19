@@ -347,6 +347,11 @@ def shell_problems() -> list[str]:
     # IPC targets written out twice answer only once
     found = re.findall(r'(?:target|ipcTarget):\s*"([\w-]+)"', "\n".join(t for p, t in qml.items() if "IpcHandler" in t or "ipcTarget" in t))
     out += [f"IPC target {t!r} is declared twice" for t in sorted({t for t in found if found.count(t) > 1})]
+    # the Shell Manager's search index is read from the pages: rebuilt with them
+    index = SHELL / "scripts" / "settings_index.py"
+    if index.is_file():
+        r = subprocess.run([sys.executable, str(index), "--check"], capture_output=True, text=True)
+        out += [f"{line}: out of date — run {rel(index)}" for line in r.stdout.splitlines() if line]
     return out
 
 

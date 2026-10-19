@@ -75,6 +75,9 @@ Read it before any visual work.
   to a stored shape (a key renamed, moved, a value's meaning) adds a step to
   `scripts/settings_migrate.py` (`MIGRATIONS`, `VERSION`) with a test in
   `tests/test_settings_migrate.py`; the QML still reads the old shape (a live reload runs no migration).
+- Search (the sidebar's): `config/settings-index.json`, built from the pages'
+  literal `label:` / `hint:` by `scripts/settings_index.py`; after a row changes run
+  it (`check` fails on a stale index). A new page or settings file goes in its `PAGES` / registry walk.
 - A right click on a bar module opens its options page (Bar › Behaviour › Right
   click opens options, `bar/Bar.qml` `openSettings`): a module needs no code for it.
 

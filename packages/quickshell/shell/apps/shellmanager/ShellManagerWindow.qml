@@ -30,7 +30,7 @@ FloatingWindow {
 
   Shortcut {
     sequences: [StandardKey.Cancel]
-    enabled: !manager.dialogOpen          // Escape closes the dialog first
+    enabled: !manager.dialogOpen && !manager.searching   // Escape closes the dialog or the search first
     onActivated: ShellSettings.managerOpen = false
   }
 
@@ -43,6 +43,11 @@ FloatingWindow {
       const [p, target] = page.split(":");
       ShellSettings.managerOpen = true;
       manager.navigate(({ themes: "appearance", wallpaper: "appearance", layout: "bar" })[p] ?? p, target ?? "");
+    }
+    // the sidebar's search, `search <words>` typed in
+    function search(words: string): void {
+      ShellSettings.managerOpen = true;
+      manager.search(words);
     }
   }
 }

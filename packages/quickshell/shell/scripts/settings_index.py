@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+"""The Shell Manager's search index, read from the settings pages' QML.
+
+    settings_index.py            writes config/settings-index.json
+    settings_index.py --check    the path when the file is out of date (exit 1)
+
+An entry is a row the pages write out — {"label", "hint", "where", "target"}:
+`where` is "Page › GROUP", `target` what `shell open` takes ("bar:look",
+"modules:sysmon", "apps:files"). A row is a `label: "…"` outside a choice
+list (a one-line object with a `value:` and no `hint:` is a choice); a computed
+label is not found. The group is the KitLabel above it (and an entry itself); a group that is one of
+the page's jumps makes the target that jump. Every bar module and app is an
+entry of its own too. ./install.py check fails on a stale index."""
+import json, re, sys
+from pathlib import Path
+
+SHELL = Path(__file__).resolve().parent.parent
+OUT = SHELL / "config" / "settings-index.json"
+SM = SHELL / "apps" / "shellmanager"
+
+# the pages with their own rows: tab, title, files (Appearance's sections each one jump)
+PAGES = [
+    ("appearance", "Appearance", ["AppearancePage.qml"]),
+    ("animations", "Animations", ["AnimationsPage.qml"]),
+    ("bar", "Bar", ["BarPage.qml"]),
+    ("windows", "Windows", ["WindowsPage.qml"]),
+    ("network", "Network", ["NetworkPage.qml"]),
+    ("bluetooth", "Bluetooth", ["BluetoothPage.qml"]),
+    ("about", "About", ["AboutPage.qml"]),
+]
+SECTIONS = {"ThemeSection.qml": "themes", "AccentSection.qml": "accent", "WallpaperSection.qml": "wallpaper",
+            "FontSection.qml": "font", "CursorSection.qml": "cursor", "CornersSection.qml": "shape",
+            "IconsSection.qml": "shape", "ControlsSection.qml": "controls"}
+
+ROW = re.compile(r'\blabel:\s*"([^"]+)"')
+GROUP = re.compile(r'KitLabel\s*\{[^}]*?\btext:\s*"([A-Z][A-Z0-9 -]+)"')
+
+
+def jumps(text: str) -> dict:
+    """Group title (upper case) -> jump key, from the page's `jumps`."""
+    return {label.upper(): key for key, label in re.findall(r'\{\s*key:\s*"(\w+)",\s*label:\s*"([^"]+)"', text)}
+
+
+def rows(text: str) -> list:
+    """(group, label, hint) of every row, in file order."""
+    text = re.sub(r"property var jumps: \[.*?\n  \]", "", text, flags=re.S)   # the page's own jump list
+    marks = [(m.start(), "g", m.group(1)) for m in GROUP.finditer(text)]
+    marks += [(m.start(), "r", m) for m in ROW.finditer(text)]
+    out, group = [], ""
+    for pos, kind, v in sorted(marks, key=lambda x: x[0]):
+        if kind == "g":
+            group = v
+            continue
+        # the object or element the label is in: from the nearest open brace to its close
+        start = text.rfind("{", 0, pos)
+        end = text.find("}", pos)
+        body = text[start:end]
+        if "\n" not in body and re.search(r"\bvalue:", body) and not re.search(r"\bhint:", body):
+            continue                                    # a choice ({ label, value } on a line), not a row
+        hint = re.search(r'\bhint:\s*"([^"]*)"', text[pos:text.find("\n\n", pos) if "\n\n" in text[pos:] else len(text)])
+        out.append((group, v.group(1), hint.group(1) if hint else ""))
+    return out
+
+
+def entries_of(path: Path, title: str, tab: str, target: str = "") -> list:
+    text = path.read_text()
+    own = jumps(text)
+    out = []
+    # each group is found by its title too
+    for group in dict.fromkeys(GROUP.findall(text)):
+        t = target or (f"{tab}:{own[group]}" if group in own else tab)
+        out.append({"label": group.capitalize(), "hint": "", "where": title, "target": t})
+    for group, label, hint in rows(text):
+        t = target or (f"{tab}:{own[group]}" if group in own else tab)
+        out.append({"label": label, "hint": hint, "where": " › ".join(x for x in (title, group) if x), "target": t})
+    return out
+
+
+def build() -> list:
+    out = []
+    for tab, title, files in PAGES:
+        for f in files:
+            out += entries_of(SM / f, title, tab)
+    for f, key in SECTIONS.items():
+        out += entries_of(SM / f, "Appearance", "appearance", f"appearance:{key}")
+    out += entries_of(SHELL / "apps/lock/LockSettings.qml", "Lock screen", "lockscreen")
+    out += entries_of(SHELL / "modules/notifications/NotificationsSettings.qml", "Notifications", "notifications")
+    layout = (SHELL / "bar" / "BarLayout.qml").read_text()
+    for entry in re.findall(r'\{ id: "\w+",[^}]*\}', layout):
+        mid = re.search(r'id: "(\w+)"', entry).group(1)
+        label = re.search(r'label: "([^"]+)"', entry).group(1)
+        about = re.search(r'about: "([^"]*)"', entry)
+        target = "notifications" if mid == "notifications" else f"modules:{mid}"
+        out.append({"label": label, "hint": about.group(1) if about else "", "where": "Bar modules", "target": target})
+        settings = re.search(r'settings: "([\w.]+)"', entry)
+        if settings and mid != "notifications":
+            out += entries_of(SHELL / "modules" / mid / settings.group(1), f"Bar modules › {label}", "modules", target)
+    for a in json.loads((SHELL / "apps" / "apps.json").read_text()):
+        target = a.get("page") or f"apps:{a['id']}"
+        out.append({"label": a["label"], "hint": a.get("about", ""), "where": "Apps", "target": target})
+        if a.get("settings") and not a.get("page"):
+            out += entries_of(SHELL / a["settings"], f"Apps › {a['label']}", "apps", target)
+        if a.get("moduleSettings"):
+            out += entries_of(SHELL / a["moduleSettings"], f"Bar modules › {a['label']}", "modules", f"modules:{a['module']}")
+    seen, unique = set(), []
+    for e in out:
+        k = (e["label"], e["where"], e["target"])
+        if k not in seen:
+            seen.add(k)
+            unique.append(e)
+    return unique
+
+
+def render() -> str:
+    return json.dumps(build(), indent=1, ensure_ascii=False) + "\n"
+
+
+def main(argv: list) -> int:
+    text = render()
+    if "--check" in argv:
+        if not OUT.is_file() or OUT.read_text() != text:
+            print(OUT.relative_to(SHELL.parent.parent.parent))
+            return 1
+        return 0
+    OUT.write_text(text)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

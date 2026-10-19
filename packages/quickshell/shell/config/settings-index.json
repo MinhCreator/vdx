@@ -1,0 +1,2450 @@
+[
+ {
+  "label": "Shape",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:shape"
+ },
+ {
+  "label": "Controls",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:controls"
+ },
+ {
+  "label": "General",
+  "hint": "",
+  "where": "Animations",
+  "target": "animations:general"
+ },
+ {
+  "label": "Parts",
+  "hint": "",
+  "where": "Animations",
+  "target": "animations:parts"
+ },
+ {
+  "label": "Animations",
+  "hint": "Off: everything snaps in place",
+  "where": "Animations › GENERAL",
+  "target": "animations:general"
+ },
+ {
+  "label": "Speed",
+  "hint": "How long every move takes",
+  "where": "Animations › GENERAL",
+  "target": "animations:general"
+ },
+ {
+  "label": "Sample",
+  "hint": "Click to preview",
+  "where": "Animations › GENERAL",
+  "target": "animations:general"
+ },
+ {
+  "label": "Bar popups",
+  "hint": "How a popup comes in under the bar",
+  "where": "Animations › PARTS",
+  "target": "animations:parts"
+ },
+ {
+  "label": "Underline",
+  "hint": "The line under an open module",
+  "where": "Animations › PARTS",
+  "target": "animations:parts"
+ },
+ {
+  "label": "Panels",
+  "hint": "Launcher, keybinds, overview zoom in",
+  "where": "Animations › PARTS",
+  "target": "animations:parts"
+ },
+ {
+  "label": "Controls",
+  "hint": "Hovers, switches, rows, level bars",
+  "where": "Animations › PARTS",
+  "target": "animations:parts"
+ },
+ {
+  "label": "Bar",
+  "hint": "Workspaces and colours",
+  "where": "Animations › PARTS",
+  "target": "animations:parts"
+ },
+ {
+  "label": "Pages",
+  "hint": "This window's pages and sidebar",
+  "where": "Animations › PARTS",
+  "target": "animations:parts"
+ },
+ {
+  "label": "Island",
+  "hint": "Morphs between its views",
+  "where": "Animations › PARTS",
+  "target": "animations:parts"
+ },
+ {
+  "label": "Lock screen",
+  "hint": "Comes in, shakes on a wrong password",
+  "where": "Animations › PARTS",
+  "target": "animations:parts"
+ },
+ {
+  "label": "Look",
+  "hint": "",
+  "where": "Bar",
+  "target": "bar:look"
+ },
+ {
+  "label": "Behaviour",
+  "hint": "",
+  "where": "Bar",
+  "target": "bar:behaviour"
+ },
+ {
+  "label": "Monitor",
+  "hint": "",
+  "where": "Bar",
+  "target": "bar:monitor"
+ },
+ {
+  "label": "Shape",
+  "hint": "Strip, or a morphing pill",
+  "where": "Bar › LOOK",
+  "target": "bar:look"
+ },
+ {
+  "label": "Icon size",
+  "hint": "Bar icons; kept for each shape",
+  "where": "Bar › LOOK",
+  "target": "bar:look"
+ },
+ {
+  "label": "Module gap",
+  "hint": "Kept for each shape",
+  "where": "Bar › LOOK",
+  "target": "bar:look"
+ },
+ {
+  "label": "Separators",
+  "hint": "Automatic line between modules",
+  "where": "Bar › LOOK",
+  "target": "bar:look"
+ },
+ {
+  "label": "Open the hub",
+  "hint": "Hover or click the clock",
+  "where": "Bar › BEHAVIOUR",
+  "target": "bar:behaviour"
+ },
+ {
+  "label": "Show the player",
+  "hint": "Off: chips only",
+  "where": "Bar › BEHAVIOUR",
+  "target": "bar:behaviour"
+ },
+ {
+  "label": "Right click opens options",
+  "hint": "On any bar module",
+  "where": "Bar › BEHAVIOUR",
+  "target": "bar:behaviour"
+ },
+ {
+  "label": "Main monitor",
+  "hint": "Automatic: the external one",
+  "where": "Bar › MONITOR",
+  "target": "bar:monitor"
+ },
+ {
+  "label": "Same bar everywhere",
+  "hint": "",
+  "where": "Bar › MONITOR",
+  "target": "bar:monitor"
+ },
+ {
+  "label": "Show bar",
+  "hint": "",
+  "where": "Bar › MONITOR",
+  "target": "bar:monitor"
+ },
+ {
+  "label": "Island clock",
+  "hint": "Off: island hides when empty",
+  "where": "Bar › MONITOR",
+  "target": "bar:monitor"
+ },
+ {
+  "label": "Separator",
+  "hint": "",
+  "where": "Bar › MONITOR",
+  "target": "bar:monitor"
+ },
+ {
+  "label": "Mode",
+  "hint": "",
+  "where": "Windows",
+  "target": "windows:mode"
+ },
+ {
+  "label": "Floating",
+  "hint": "",
+  "where": "Windows",
+  "target": "windows:floating"
+ },
+ {
+  "label": "Decoration",
+  "hint": "",
+  "where": "Windows",
+  "target": "windows:gaps"
+ },
+ {
+  "label": "Windows",
+  "hint": "",
+  "where": "Windows › MODE",
+  "target": "windows:mode"
+ },
+ {
+  "label": "Scroll with",
+  "hint": "Arrows: no mouse needed",
+  "where": "Windows › MODE",
+  "target": "windows:mode"
+ },
+ {
+  "label": "Master size",
+  "hint": "",
+  "where": "Windows › MODE",
+  "target": "windows:mode"
+ },
+ {
+  "label": "New window",
+  "hint": "Where it opens",
+  "where": "Windows › MODE",
+  "target": "windows:mode"
+ },
+ {
+  "label": "Column width",
+  "hint": "A new column's share",
+  "where": "Windows › MODE",
+  "target": "windows:mode"
+ },
+ {
+  "label": "Arrange",
+  "hint": "On switching to floating",
+  "where": "Windows › FLOATING",
+  "target": "windows:floating"
+ },
+ {
+  "label": "Switcher",
+  "hint": "Super + Tab: this workspace's windows",
+  "where": "Windows › FLOATING",
+  "target": "windows:floating"
+ },
+ {
+  "label": "Taskbar",
+  "hint": "This workspace's windows, in a bar",
+  "where": "Windows › FLOATING",
+  "target": "windows:floating"
+ },
+ {
+  "label": "Taskbar shape",
+  "hint": "",
+  "where": "Windows › FLOATING",
+  "target": "windows:floating"
+ },
+ {
+  "label": "Inner gap",
+  "hint": "",
+  "where": "Windows › DECORATION",
+  "target": "windows:gaps"
+ },
+ {
+  "label": "Outer gap",
+  "hint": "",
+  "where": "Windows › DECORATION",
+  "target": "windows:gaps"
+ },
+ {
+  "label": "Frames",
+  "hint": "A 2px frame round every window",
+  "where": "Windows › DECORATION",
+  "target": "windows:gaps"
+ },
+ {
+  "label": "Frame colour",
+  "hint": "In Appearance › Accent › Window border",
+  "where": "Windows › DECORATION",
+  "target": "windows:gaps"
+ },
+ {
+  "label": "Shadows",
+  "hint": "",
+  "where": "Windows › DECORATION",
+  "target": "windows:gaps"
+ },
+ {
+  "label": "Wi-fi",
+  "hint": "",
+  "where": "Network",
+  "target": "network:wifi"
+ },
+ {
+  "label": "Connection",
+  "hint": "",
+  "where": "Network",
+  "target": "network:connection"
+ },
+ {
+  "label": "Saved",
+  "hint": "",
+  "where": "Network",
+  "target": "network:saved"
+ },
+ {
+  "label": "New",
+  "hint": "",
+  "where": "Network",
+  "target": "network:new"
+ },
+ {
+  "label": "Hotspot",
+  "hint": "",
+  "where": "Network",
+  "target": "network"
+ },
+ {
+  "label": "Ethernet",
+  "hint": "",
+  "where": "Network",
+  "target": "network"
+ },
+ {
+  "label": "Wi-Fi",
+  "hint": "",
+  "where": "Network",
+  "target": "network"
+ },
+ {
+  "label": "Connection",
+  "hint": "",
+  "where": "Network",
+  "target": "network"
+ },
+ {
+  "label": "Saved",
+  "hint": "",
+  "where": "Network",
+  "target": "network"
+ },
+ {
+  "label": "New",
+  "hint": "",
+  "where": "Network",
+  "target": "network"
+ },
+ {
+  "label": "Wi-Fi",
+  "hint": "Off: nothing connects",
+  "where": "Network › WI-FI",
+  "target": "network:wifi"
+ },
+ {
+  "label": "Speed test",
+  "hint": "",
+  "where": "Network › CONNECTION",
+  "target": "network:connection"
+ },
+ {
+  "label": "Address",
+  "hint": "",
+  "where": "Network › CONNECTION",
+  "target": "network:connection"
+ },
+ {
+  "label": "Gateway",
+  "hint": "",
+  "where": "Network › CONNECTION",
+  "target": "network:connection"
+ },
+ {
+  "label": "Channel",
+  "hint": "",
+  "where": "Network › CONNECTION",
+  "target": "network:connection"
+ },
+ {
+  "label": "Rate",
+  "hint": "",
+  "where": "Network › CONNECTION",
+  "target": "network:connection"
+ },
+ {
+  "label": "Security",
+  "hint": "",
+  "where": "Network › CONNECTION",
+  "target": "network:connection"
+ },
+ {
+  "label": "BSSID",
+  "hint": "",
+  "where": "Network › CONNECTION",
+  "target": "network:connection"
+ },
+ {
+  "label": "Show",
+  "hint": "",
+  "where": "Network › SAVED",
+  "target": "network:saved"
+ },
+ {
+  "label": "Network",
+  "hint": "",
+  "where": "Network › SAVED",
+  "target": "network:saved"
+ },
+ {
+  "label": "Connection",
+  "hint": "",
+  "where": "Network › SAVED",
+  "target": "network:saved"
+ },
+ {
+  "label": "Connect automatically",
+  "hint": "Joins when it is in range",
+  "where": "Network › SAVED",
+  "target": "network:saved"
+ },
+ {
+  "label": "Priority",
+  "hint": "Higher joins first",
+  "where": "Network › SAVED",
+  "target": "network:saved"
+ },
+ {
+  "label": "DNS",
+  "hint": "Applies at the next connect",
+  "where": "Network › SAVED",
+  "target": "network:saved"
+ },
+ {
+  "label": "Metered",
+  "hint": "Yes: apps save data",
+  "where": "Network › SAVED",
+  "target": "network:saved"
+ },
+ {
+  "label": "Name",
+  "hint": "A hidden one is typed here",
+  "where": "Network › NEW",
+  "target": "network:new"
+ },
+ {
+  "label": "Password",
+  "hint": "Empty: an open network",
+  "where": "Network › NEW",
+  "target": "network:new"
+ },
+ {
+  "label": "Join",
+  "hint": "",
+  "where": "Network › NEW",
+  "target": "network:new"
+ },
+ {
+  "label": "Hotspot",
+  "hint": "",
+  "where": "Network › HOTSPOT",
+  "target": "network"
+ },
+ {
+  "label": "Name",
+  "hint": "The network the phones see",
+  "where": "Network › HOTSPOT",
+  "target": "network"
+ },
+ {
+  "label": "Password",
+  "hint": "8 characters or more",
+  "where": "Network › HOTSPOT",
+  "target": "network"
+ },
+ {
+  "label": "Channel",
+  "hint": "Auto picks a free one",
+  "where": "Network › HOTSPOT",
+  "target": "network"
+ },
+ {
+  "label": "Wired",
+  "hint": "Off until you connect again",
+  "where": "Network › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "Connect automatically",
+  "hint": "Joins when the cable is in",
+  "where": "Network › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "Addressing",
+  "hint": "Manual: a fixed address",
+  "where": "Network › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "Address",
+  "hint": "Address and prefix",
+  "where": "Network › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "Gateway",
+  "hint": "Press Enter to apply",
+  "where": "Network › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "DNS",
+  "hint": "Applies now while connected",
+  "where": "Network › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "IPv6",
+  "hint": "Off: IPv4 only",
+  "where": "Network › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "Metered",
+  "hint": "Yes: apps save data",
+  "where": "Network › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "Speed",
+  "hint": "",
+  "where": "Network › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "MAC",
+  "hint": "",
+  "where": "Network › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "Bluetooth",
+  "hint": "",
+  "where": "Bluetooth",
+  "target": "bluetooth:adapter"
+ },
+ {
+  "label": "Connected",
+  "hint": "",
+  "where": "Bluetooth",
+  "target": "bluetooth:connected"
+ },
+ {
+  "label": "Paired",
+  "hint": "",
+  "where": "Bluetooth",
+  "target": "bluetooth:paired"
+ },
+ {
+  "label": "Nearby",
+  "hint": "",
+  "where": "Bluetooth",
+  "target": "bluetooth:nearby"
+ },
+ {
+  "label": "Bluetooth",
+  "hint": "Off: nothing connects",
+  "where": "Bluetooth › BLUETOOTH",
+  "target": "bluetooth:adapter"
+ },
+ {
+  "label": "Name",
+  "hint": "Shown to other devices",
+  "where": "Bluetooth › BLUETOOTH",
+  "target": "bluetooth:adapter"
+ },
+ {
+  "label": "Visible to others",
+  "hint": "Off: hidden",
+  "where": "Bluetooth › BLUETOOTH",
+  "target": "bluetooth:adapter"
+ },
+ {
+  "label": "Visible for",
+  "hint": "Then hidden again",
+  "where": "Bluetooth › BLUETOOTH",
+  "target": "bluetooth:adapter"
+ },
+ {
+  "label": "Pairable",
+  "hint": "Off: refuses new pairings",
+  "where": "Bluetooth › BLUETOOTH",
+  "target": "bluetooth:adapter"
+ },
+ {
+  "label": "Device",
+  "hint": "",
+  "where": "Bluetooth › PAIRED",
+  "target": "bluetooth:paired"
+ },
+ {
+  "label": "Connection",
+  "hint": "Not connected",
+  "where": "Bluetooth › PAIRED",
+  "target": "bluetooth:paired"
+ },
+ {
+  "label": "Connect automatically",
+  "hint": "Trusted: joins when near",
+  "where": "Bluetooth › PAIRED",
+  "target": "bluetooth:paired"
+ },
+ {
+  "label": "Blocked",
+  "hint": "Refused; a connected one drops",
+  "where": "Bluetooth › PAIRED",
+  "target": "bluetooth:paired"
+ },
+ {
+  "label": "Address",
+  "hint": "",
+  "where": "Bluetooth › PAIRED",
+  "target": "bluetooth:paired"
+ },
+ {
+  "label": "Look for devices",
+  "hint": "Looks for 8 s",
+  "where": "Bluetooth › NEARBY",
+  "target": "bluetooth:nearby"
+ },
+ {
+  "label": "Philosophy",
+  "hint": "",
+  "where": "About",
+  "target": "about:philosophy"
+ },
+ {
+  "label": "Concept",
+  "hint": "",
+  "where": "About",
+  "target": "about:concept"
+ },
+ {
+  "label": "Author",
+  "hint": "",
+  "where": "About",
+  "target": "about:author"
+ },
+ {
+  "label": "Settings",
+  "hint": "",
+  "where": "About",
+  "target": "about:settings"
+ },
+ {
+  "label": "System",
+  "hint": "",
+  "where": "About",
+  "target": "about:system"
+ },
+ {
+  "label": "diominvd",
+  "hint": "Made for his own laptop, shared as it is",
+  "where": "About › AUTHOR",
+  "target": "about:author"
+ },
+ {
+  "label": "Export",
+  "hint": "Every option to shell-settings.json in a folder",
+  "where": "About › SETTINGS",
+  "target": "about:settings"
+ },
+ {
+  "label": "Import",
+  "hint": "Replaces every option; the shell restarts",
+  "where": "About › SETTINGS",
+  "target": "about:settings"
+ },
+ {
+  "label": "Reset everything",
+  "hint": "Defaults; the old set kept as settings-before-reset.json",
+  "where": "About › SETTINGS",
+  "target": "about:settings"
+ },
+ {
+  "label": "Restart the shell",
+  "hint": "Kills Quickshell and starts it anew",
+  "where": "About › SYSTEM",
+  "target": "about:system"
+ },
+ {
+  "label": "Theme",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:themes"
+ },
+ {
+  "label": "Accent",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:accent"
+ },
+ {
+  "label": "Applies to",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:accent"
+ },
+ {
+  "label": "Switches",
+  "hint": "The ones that are on",
+  "where": "Appearance",
+  "target": "appearance:accent"
+ },
+ {
+  "label": "Sliders",
+  "hint": "The filled part",
+  "where": "Appearance",
+  "target": "appearance:accent"
+ },
+ {
+  "label": "Choices",
+  "hint": "The picked one",
+  "where": "Appearance",
+  "target": "appearance:accent"
+ },
+ {
+  "label": "Workspaces",
+  "hint": "The focused one",
+  "where": "Appearance",
+  "target": "appearance:accent"
+ },
+ {
+  "label": "Dropdowns",
+  "hint": "The open one's frame",
+  "where": "Appearance",
+  "target": "appearance:accent"
+ },
+ {
+  "label": "Window border",
+  "hint": "The focused window's frame (Windows › Frames)",
+  "where": "Appearance",
+  "target": "appearance:accent"
+ },
+ {
+  "label": "Bar modules",
+  "hint": "Active states, the equalizer; not warnings",
+  "where": "Appearance",
+  "target": "appearance:accent"
+ },
+ {
+  "label": "Accent",
+  "hint": "Off: monochrome",
+  "where": "Appearance › ACCENT",
+  "target": "appearance:accent"
+ },
+ {
+  "label": "Fill",
+  "hint": "",
+  "where": "Appearance › ACCENT",
+  "target": "appearance:accent"
+ },
+ {
+  "label": "Wallpaper",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:wallpaper"
+ },
+ {
+  "label": "Source",
+  "hint": "",
+  "where": "Appearance › WALLPAPER",
+  "target": "appearance:wallpaper"
+ },
+ {
+  "label": "Colour",
+  "hint": "",
+  "where": "Appearance › WALLPAPER",
+  "target": "appearance:wallpaper"
+ },
+ {
+  "label": "Monitor",
+  "hint": "",
+  "where": "Appearance › WALLPAPER",
+  "target": "appearance:wallpaper"
+ },
+ {
+  "label": "Add image",
+  "hint": "Kept outside the repo",
+  "where": "Appearance › WALLPAPER",
+  "target": "appearance:wallpaper"
+ },
+ {
+  "label": "Text",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:font"
+ },
+ {
+  "label": "Text size",
+  "hint": "The shell's; GTK apps: in Display",
+  "where": "Appearance › TEXT",
+  "target": "appearance:font"
+ },
+ {
+  "label": "Cursor",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:cursor"
+ },
+ {
+  "label": "Colour",
+  "hint": "",
+  "where": "Appearance › CURSOR",
+  "target": "appearance:cursor"
+ },
+ {
+  "label": "Size",
+  "hint": "Pixels at scale 1, applied at once",
+  "where": "Appearance › CURSOR",
+  "target": "appearance:cursor"
+ },
+ {
+  "label": "Corners",
+  "hint": "Also windows and toasts; Round rounds the icons",
+  "where": "Appearance",
+  "target": "appearance:shape"
+ },
+ {
+  "label": "Radius",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:shape"
+ },
+ {
+  "label": "Icons",
+  "hint": "Bar, popups and windows",
+  "where": "Appearance",
+  "target": "appearance:shape"
+ },
+ {
+  "label": "Style",
+  "hint": "Material: filled, no frames",
+  "where": "Appearance",
+  "target": "appearance:controls"
+ },
+ {
+  "label": "Password dots",
+  "hint": "Off: squares",
+  "where": "Appearance",
+  "target": "appearance:controls"
+ },
+ {
+  "label": "Look",
+  "hint": "",
+  "where": "Lock screen",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Where",
+  "hint": "",
+  "where": "Lock screen",
+  "target": "lockscreen"
+ },
+ {
+  "label": "On screen",
+  "hint": "",
+  "where": "Lock screen",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Background",
+  "hint": "Wallpaper: as in Appearance. Blurred: the desktop",
+  "where": "Lock screen › LOOK",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Blur",
+  "hint": "",
+  "where": "Lock screen › LOOK",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Clock format",
+  "hint": "",
+  "where": "Lock screen › LOOK",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Show date",
+  "hint": "",
+  "where": "Lock screen › LOOK",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Show user name",
+  "hint": "",
+  "where": "Lock screen › LOOK",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Monitors",
+  "hint": "Focused: the one in use",
+  "where": "Lock screen › WHERE",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Keyboard layout",
+  "hint": "Beside the field, a click switches it",
+  "where": "Lock screen › ON SCREEN",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Power buttons",
+  "hint": "Suspend, reboot, shut down",
+  "where": "Lock screen › ON SCREEN",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Hide cursor when idle",
+  "hint": "Shows again when the mouse moves",
+  "where": "Lock screen › ON SCREEN",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Hide after",
+  "hint": "Seconds without a mouse move",
+  "where": "Lock screen › ON SCREEN",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Try it",
+  "hint": "Locks the screen now",
+  "where": "Lock screen › ON SCREEN",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Notifications",
+  "target": "notifications"
+ },
+ {
+  "label": "Toasts",
+  "hint": "",
+  "where": "Notifications",
+  "target": "notifications"
+ },
+ {
+  "label": "History",
+  "hint": "",
+  "where": "Notifications",
+  "target": "notifications"
+ },
+ {
+  "label": "Unseen dot",
+  "hint": "Marks unseen notifications",
+  "where": "Notifications › BAR",
+  "target": "notifications"
+ },
+ {
+  "label": "Dot colour",
+  "hint": "Theme: the text colour",
+  "where": "Notifications › BAR",
+  "target": "notifications"
+ },
+ {
+  "label": "Bell badge",
+  "hint": "Off: the tint only",
+  "where": "Notifications › BAR",
+  "target": "notifications"
+ },
+ {
+  "label": "Toast duration",
+  "hint": "Stay: until dismissed. Critical always stays",
+  "where": "Notifications › TOASTS",
+  "target": "notifications"
+ },
+ {
+  "label": "Notifications shown",
+  "hint": "Before the list scrolls",
+  "where": "Notifications › HISTORY",
+  "target": "notifications"
+ },
+ {
+  "label": "Close after clear",
+  "hint": "Off: the popup stays open",
+  "where": "Notifications › HISTORY",
+  "target": "notifications"
+ },
+ {
+  "label": "Capture notifications",
+  "hint": "After a screenshot or a recording: in Capture",
+  "where": "Notifications › HISTORY",
+  "target": "notifications"
+ },
+ {
+  "label": "Workspaces",
+  "hint": "Hyprland workspaces",
+  "where": "Bar modules",
+  "target": "modules:workspaces"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Workspaces",
+  "target": "modules:workspaces"
+ },
+ {
+  "label": "Workspaces as",
+  "hint": "How each workspace is drawn",
+  "where": "Bar modules › Workspaces › BAR",
+  "target": "modules:workspaces"
+ },
+ {
+  "label": "Music",
+  "hint": "Liked tracks from Yandex Music",
+  "where": "Bar modules",
+  "target": "modules:music"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Music",
+  "target": "modules:music"
+ },
+ {
+  "label": "Shows",
+  "hint": "",
+  "where": "Bar modules › Music › BAR",
+  "target": "modules:music"
+ },
+ {
+  "label": "Max length",
+  "hint": "Longer ones end with …",
+  "where": "Bar modules › Music › BAR",
+  "target": "modules:music"
+ },
+ {
+  "label": "Radio",
+  "hint": "Internet radio stations",
+  "where": "Bar modules",
+  "target": "modules:radio"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Radio",
+  "target": "modules:radio"
+ },
+ {
+  "label": "Shows",
+  "hint": "",
+  "where": "Bar modules › Radio › BAR",
+  "target": "modules:radio"
+ },
+ {
+  "label": "Max length",
+  "hint": "Longer ones end with …",
+  "where": "Bar modules › Radio › BAR",
+  "target": "modules:radio"
+ },
+ {
+  "label": "Themes",
+  "hint": "Switch the dotfiles theme from a strip of cards",
+  "where": "Bar modules",
+  "target": "modules:themes"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Themes",
+  "target": "modules:themes"
+ },
+ {
+  "label": "Popup",
+  "hint": "",
+  "where": "Bar modules › Themes",
+  "target": "modules:themes"
+ },
+ {
+  "label": "Show theme name",
+  "hint": "Next to the brush icon",
+  "where": "Bar modules › Themes › BAR",
+  "target": "modules:themes"
+ },
+ {
+  "label": "Wheel on the bar",
+  "hint": "Switches to the next theme",
+  "where": "Bar modules › Themes › BAR",
+  "target": "modules:themes"
+ },
+ {
+  "label": "View",
+  "hint": "Auto: cards in the island",
+  "where": "Bar modules › Themes › POPUP",
+  "target": "modules:themes"
+ },
+ {
+  "label": "English layout on open",
+  "hint": "Switches the keyboard",
+  "where": "Bar modules › Themes › POPUP",
+  "target": "modules:themes"
+ },
+ {
+  "label": "Wheel picks",
+  "hint": "Over the cards or the list",
+  "where": "Bar modules › Themes › POPUP",
+  "target": "modules:themes"
+ },
+ {
+  "label": "Theme",
+  "hint": "The popup switches; set it in Appearance",
+  "where": "Bar modules › Themes › POPUP",
+  "target": "modules:themes"
+ },
+ {
+  "label": "Wallpapers",
+  "hint": "Pick the picture of the theme from a strip of cards",
+  "where": "Bar modules",
+  "target": "modules:wallpapers"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Wallpapers",
+  "target": "modules:wallpapers"
+ },
+ {
+  "label": "Popup",
+  "hint": "",
+  "where": "Bar modules › Wallpapers",
+  "target": "modules:wallpapers"
+ },
+ {
+  "label": "Show picture name",
+  "hint": "Next to the image icon",
+  "where": "Bar modules › Wallpapers › BAR",
+  "target": "modules:wallpapers"
+ },
+ {
+  "label": "Wheel on the bar",
+  "hint": "Switches to the next picture",
+  "where": "Bar modules › Wallpapers › BAR",
+  "target": "modules:wallpapers"
+ },
+ {
+  "label": "View",
+  "hint": "Auto: cards in the island",
+  "where": "Bar modules › Wallpapers › POPUP",
+  "target": "modules:wallpapers"
+ },
+ {
+  "label": "English layout on open",
+  "hint": "Switches the keyboard",
+  "where": "Bar modules › Wallpapers › POPUP",
+  "target": "modules:wallpapers"
+ },
+ {
+  "label": "Wheel picks",
+  "hint": "Over the cards or the list",
+  "where": "Bar modules › Wallpapers › POPUP",
+  "target": "modules:wallpapers"
+ },
+ {
+  "label": "Wallpaper",
+  "hint": "The popup switches; set it in Appearance",
+  "where": "Bar modules › Wallpapers › POPUP",
+  "target": "modules:wallpapers"
+ },
+ {
+  "label": "Equalizer",
+  "hint": "The sound as bars while a track plays",
+  "where": "Bar modules",
+  "target": "modules:equalizer"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Equalizer",
+  "target": "modules:equalizer"
+ },
+ {
+  "label": "Colour",
+  "hint": "",
+  "where": "Bar modules › Equalizer › BAR",
+  "target": "modules:equalizer"
+ },
+ {
+  "label": "Accent",
+  "hint": "In Appearance › Accent › Bar modules",
+  "where": "Bar modules › Equalizer › BAR",
+  "target": "modules:equalizer"
+ },
+ {
+  "label": "Show when paused",
+  "hint": "Off: shown only while it plays",
+  "where": "Bar modules › Equalizer › BAR",
+  "target": "modules:equalizer"
+ },
+ {
+  "label": "Clock",
+  "hint": "Time, click for the date",
+  "where": "Bar modules",
+  "target": "modules:clock"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Clock",
+  "target": "modules:clock"
+ },
+ {
+  "label": "Format",
+  "hint": "",
+  "where": "Bar modules › Clock › BAR",
+  "target": "modules:clock"
+ },
+ {
+  "label": "Show seconds",
+  "hint": "14:05:32",
+  "where": "Bar modules › Clock › BAR",
+  "target": "modules:clock"
+ },
+ {
+  "label": "Show date",
+  "hint": "Wed 15 · 14:05",
+  "where": "Bar modules › Clock › BAR",
+  "target": "modules:clock"
+ },
+ {
+  "label": "Brightness",
+  "hint": "Backlight, dimming, night light",
+  "where": "Bar modules",
+  "target": "modules:brightness"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Brightness",
+  "target": "modules:brightness"
+ },
+ {
+  "label": "Show brightness",
+  "hint": "Off: icon only",
+  "where": "Bar modules › Brightness › BAR",
+  "target": "modules:brightness"
+ },
+ {
+  "label": "Audio",
+  "hint": "Devices, volumes, app streams",
+  "where": "Bar modules",
+  "target": "modules:audio"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Audio",
+  "target": "modules:audio"
+ },
+ {
+  "label": "Auto-pause",
+  "hint": "",
+  "where": "Bar modules › Audio",
+  "target": "modules:audio"
+ },
+ {
+  "label": "Show volume",
+  "hint": "Off: icon only",
+  "where": "Bar modules › Audio › BAR",
+  "target": "modules:audio"
+ },
+ {
+  "label": "Pause on other sound",
+  "hint": "Pauses MPD while a player plays",
+  "where": "Bar modules › Audio › AUTO-PAUSE",
+  "target": "modules:audio"
+ },
+ {
+  "label": "Resume when it stops",
+  "hint": "Only music the shell paused",
+  "where": "Bar modules › Audio › AUTO-PAUSE",
+  "target": "modules:audio"
+ },
+ {
+  "label": "Wi-Fi",
+  "hint": "Networks, DNS, speed test",
+  "where": "Bar modules",
+  "target": "modules:wifi"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Wi-Fi",
+  "target": "modules:wifi"
+ },
+ {
+  "label": "Wi-Fi",
+  "hint": "Networks, DNS, the speed test: Network",
+  "where": "Bar modules › Wi-Fi › BAR",
+  "target": "modules:wifi"
+ },
+ {
+  "label": "Bluetooth",
+  "hint": "Devices: connect, pair, forget · battery",
+  "where": "Bar modules",
+  "target": "modules:bluetooth"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Bluetooth",
+  "target": "modules:bluetooth"
+ },
+ {
+  "label": "Bluetooth",
+  "hint": "Devices and pairing: Bluetooth",
+  "where": "Bar modules › Bluetooth › BAR",
+  "target": "modules:bluetooth"
+ },
+ {
+  "label": "Mihomo",
+  "hint": "Proxy service and servers",
+  "where": "Bar modules",
+  "target": "modules:mihomo"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Mihomo",
+  "target": "modules:mihomo"
+ },
+ {
+  "label": "Battery",
+  "hint": "Charge, limit, power profile, GPU",
+  "where": "Bar modules",
+  "target": "modules:battery"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Battery",
+  "target": "modules:battery"
+ },
+ {
+  "label": "Shows",
+  "hint": "",
+  "where": "Bar modules › Battery › BAR",
+  "target": "modules:battery"
+ },
+ {
+  "label": "Language",
+  "hint": "Keyboard layout",
+  "where": "Bar modules",
+  "target": "modules:language"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Language",
+  "target": "modules:language"
+ },
+ {
+  "label": "AI",
+  "hint": "Claude Code limits, local Ollama models",
+  "where": "Bar modules",
+  "target": "modules:ai"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › AI",
+  "target": "modules:ai"
+ },
+ {
+  "label": "Limit",
+  "hint": "Its percent is shown in the bar",
+  "where": "Bar modules › AI › BAR",
+  "target": "modules:ai"
+ },
+ {
+  "label": "Shell",
+  "hint": "Shell Manager: options, modules, layout",
+  "where": "Bar modules",
+  "target": "modules:shell"
+ },
+ {
+  "label": "Notifications",
+  "hint": "History of notifications",
+  "where": "Bar modules",
+  "target": "notifications"
+ },
+ {
+  "label": "Capture",
+  "hint": "Screenshots and screen recording · the app",
+  "where": "Bar modules",
+  "target": "modules:capture"
+ },
+ {
+  "label": "Clipboard",
+  "hint": "Copy history, images to drag out",
+  "where": "Bar modules",
+  "target": "modules:clipboard"
+ },
+ {
+  "label": "System",
+  "hint": "CPU, memory, GPU, disks, network, sensors",
+  "where": "Bar modules",
+  "target": "modules:sysmon"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › System",
+  "target": "modules:sysmon"
+ },
+ {
+  "label": "Popup",
+  "hint": "",
+  "where": "Bar modules › System",
+  "target": "modules:sysmon"
+ },
+ {
+  "label": "Show CPU load",
+  "hint": "Off: icon only",
+  "where": "Bar modules › System › BAR",
+  "target": "modules:sysmon"
+ },
+ {
+  "label": "Show memory",
+  "hint": "Used, in percent",
+  "where": "Bar modules › System › BAR",
+  "target": "modules:sysmon"
+ },
+ {
+  "label": "Show temperature",
+  "hint": "CPU sensor",
+  "where": "Bar modules › System › BAR",
+  "target": "modules:sysmon"
+ },
+ {
+  "label": "Show GPU load",
+  "hint": "NVIDIA, while awake",
+  "where": "Bar modules › System › BAR",
+  "target": "modules:sysmon"
+ },
+ {
+  "label": "Show network speed",
+  "hint": "Down and up",
+  "where": "Bar modules › System › BAR",
+  "target": "modules:sysmon"
+ },
+ {
+  "label": "Show CPU cores",
+  "hint": "A bar per core under the load",
+  "where": "Bar modules › System › POPUP",
+  "target": "modules:sysmon"
+ },
+ {
+  "label": "Show memory",
+  "hint": "Used, total, swap",
+  "where": "Bar modules › System › POPUP",
+  "target": "modules:sysmon"
+ },
+ {
+  "label": "Show GPU",
+  "hint": "Intel clock, NVIDIA load and memory",
+  "where": "Bar modules › System › POPUP",
+  "target": "modules:sysmon"
+ },
+ {
+  "label": "Show disks",
+  "hint": "Read / write, each partition",
+  "where": "Bar modules › System › POPUP",
+  "target": "modules:sysmon"
+ },
+ {
+  "label": "Show network",
+  "hint": "Down / up speed",
+  "where": "Bar modules › System › POPUP",
+  "target": "modules:sysmon"
+ },
+ {
+  "label": "Show sensors",
+  "hint": "NVMe and Wi-Fi heat, fans",
+  "where": "Bar modules › System › POPUP",
+  "target": "modules:sysmon"
+ },
+ {
+  "label": "Task Manager",
+  "hint": "Load and the busiest programs · Ctrl + Shift + Esc: the full window",
+  "where": "Bar modules",
+  "target": "modules:taskmanager"
+ },
+ {
+  "label": "Cleaner",
+  "hint": "What can go, the safe part in one click · Super + X: the full window",
+  "where": "Bar modules",
+  "target": "modules:cleaner"
+ },
+ {
+  "label": "Backups",
+  "hint": "Last backup, back up now, the restore guide · the full window",
+  "where": "Bar modules",
+  "target": "modules:backup"
+ },
+ {
+  "label": "VirusTotal",
+  "hint": "A hash, URL or file checked against VirusTotal",
+  "where": "Bar modules",
+  "target": "modules:virustotal"
+ },
+ {
+  "label": "Packages",
+  "hint": "Pending updates, one click to update · the full window",
+  "where": "Bar modules",
+  "target": "modules:packages"
+ },
+ {
+  "label": "Display",
+  "hint": "Monitor scale, position and text size · the full window",
+  "where": "Bar modules",
+  "target": "modules:display"
+ },
+ {
+  "label": "Windows",
+  "hint": "Window mode: tiling, floating, scrolling",
+  "where": "Bar modules",
+  "target": "modules:windows"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Windows",
+  "target": "modules:windows"
+ },
+ {
+  "label": "Popup",
+  "hint": "",
+  "where": "Bar modules › Windows",
+  "target": "modules:windows"
+ },
+ {
+  "label": "Close after picking a mode",
+  "hint": "Off: popup stays open",
+  "where": "Bar modules › Windows › POPUP",
+  "target": "modules:windows"
+ },
+ {
+  "label": "Close after the grid",
+  "hint": "Off: popup stays open",
+  "where": "Bar modules › Windows › POPUP",
+  "target": "modules:windows"
+ },
+ {
+  "label": "Chat",
+  "hint": "A chat with a free opencode model",
+  "where": "Bar modules",
+  "target": "modules:chat"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Chat",
+  "target": "modules:chat"
+ },
+ {
+  "label": "Model",
+  "hint": "",
+  "where": "Bar modules › Chat",
+  "target": "modules:chat"
+ },
+ {
+  "label": "Opencode",
+  "hint": "",
+  "where": "Bar modules › Chat",
+  "target": "modules:chat"
+ },
+ {
+  "label": "Model",
+  "hint": "A new chat uses it",
+  "where": "Bar modules › Chat › MODEL",
+  "target": "modules:chat"
+ },
+ {
+  "label": "Background server",
+  "hint": "Off: starts per message",
+  "where": "Bar modules › Chat › OPENCODE",
+  "target": "modules:chat"
+ },
+ {
+  "label": "Folder",
+  "hint": "Modules tucked away, one click from the bar",
+  "where": "Bar modules",
+  "target": "modules:folder"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Folder",
+  "target": "modules:folder"
+ },
+ {
+  "label": "Unseen dot",
+  "hint": "In Notifications › Bar",
+  "where": "Bar modules › Folder › BAR",
+  "target": "modules:folder"
+ },
+ {
+  "label": "Shell Manager",
+  "hint": "The shell's settings: this window",
+  "where": "Apps",
+  "target": "apps:shell-manager"
+ },
+ {
+  "label": "Opening",
+  "hint": "",
+  "where": "Apps › Shell Manager",
+  "target": "apps:shell-manager"
+ },
+ {
+  "label": "Opens on",
+  "hint": "The first page, or the last one",
+  "where": "Apps › Shell Manager › OPENING",
+  "target": "apps:shell-manager"
+ },
+ {
+  "label": "Launcher",
+  "hint": "The system menu: its tabs, apps, windows and more",
+  "where": "Apps",
+  "target": "apps:launcher"
+ },
+ {
+  "label": "Layout",
+  "hint": "",
+  "where": "Apps › Launcher",
+  "target": "apps:launcher"
+ },
+ {
+  "label": "Opening",
+  "hint": "",
+  "where": "Apps › Launcher",
+  "target": "apps:launcher"
+ },
+ {
+  "label": "Visible rows",
+  "hint": "The rest scrolls",
+  "where": "Apps › Launcher › LAYOUT",
+  "target": "apps:launcher"
+ },
+ {
+  "label": "Width",
+  "hint": "",
+  "where": "Apps › Launcher › LAYOUT",
+  "target": "apps:launcher"
+ },
+ {
+  "label": "Position",
+  "hint": "",
+  "where": "Apps › Launcher › LAYOUT",
+  "target": "apps:launcher"
+ },
+ {
+  "label": "Opens on",
+  "hint": "The tab shown first",
+  "where": "Apps › Launcher › OPENING",
+  "target": "apps:launcher"
+ },
+ {
+  "label": "Clear search on close",
+  "hint": "Off: the search stays as it was",
+  "where": "Apps › Launcher › OPENING",
+  "target": "apps:launcher"
+ },
+ {
+  "label": "English layout on open",
+  "hint": "Switches the keyboard when it opens",
+  "where": "Apps › Launcher › OPENING",
+  "target": "apps:launcher"
+ },
+ {
+  "label": "Keybinds",
+  "hint": "Every keybind, by tab",
+  "where": "Apps",
+  "target": "apps:keybinds"
+ },
+ {
+  "label": "Layout",
+  "hint": "",
+  "where": "Apps › Keybinds",
+  "target": "apps:keybinds"
+ },
+ {
+  "label": "Opening",
+  "hint": "",
+  "where": "Apps › Keybinds",
+  "target": "apps:keybinds"
+ },
+ {
+  "label": "Visible rows",
+  "hint": "The rest scrolls",
+  "where": "Apps › Keybinds › LAYOUT",
+  "target": "apps:keybinds"
+ },
+ {
+  "label": "Width",
+  "hint": "",
+  "where": "Apps › Keybinds › LAYOUT",
+  "target": "apps:keybinds"
+ },
+ {
+  "label": "Position",
+  "hint": "",
+  "where": "Apps › Keybinds › LAYOUT",
+  "target": "apps:keybinds"
+ },
+ {
+  "label": "Opens on",
+  "hint": "The tab shown first",
+  "where": "Apps › Keybinds › OPENING",
+  "target": "apps:keybinds"
+ },
+ {
+  "label": "Clear search on close",
+  "hint": "Off: the search stays as it was",
+  "where": "Apps › Keybinds › OPENING",
+  "target": "apps:keybinds"
+ },
+ {
+  "label": "English layout on open",
+  "hint": "Switches the keyboard when it opens",
+  "where": "Apps › Keybinds › OPENING",
+  "target": "apps:keybinds"
+ },
+ {
+  "label": "Lock screen",
+  "hint": "A session lock with a PAM password",
+  "where": "Apps",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Overview",
+  "hint": "Workspaces as one scrolling strip",
+  "where": "Apps",
+  "target": "apps:overview"
+ },
+ {
+  "label": "Task Manager",
+  "hint": "Processes, CPU and memory, End / Kill",
+  "where": "Apps",
+  "target": "apps:taskmanager"
+ },
+ {
+  "label": "List",
+  "hint": "",
+  "where": "Apps › Task Manager",
+  "target": "apps:taskmanager"
+ },
+ {
+  "label": "Safety",
+  "hint": "",
+  "where": "Apps › Task Manager",
+  "target": "apps:taskmanager"
+ },
+ {
+  "label": "Group by program",
+  "hint": "One row, its processes summed",
+  "where": "Apps › Task Manager › LIST",
+  "target": "apps:taskmanager"
+ },
+ {
+  "label": "Only my processes",
+  "hint": "Off: root's and the system's too",
+  "where": "Apps › Task Manager › LIST",
+  "target": "apps:taskmanager"
+ },
+ {
+  "label": "Kernel threads",
+  "hint": "Kworkers and the like",
+  "where": "Apps › Task Manager › LIST",
+  "target": "apps:taskmanager"
+ },
+ {
+  "label": "Sort by",
+  "hint": "Also a click on a column title",
+  "where": "Apps › Task Manager › LIST",
+  "target": "apps:taskmanager"
+ },
+ {
+  "label": "Refresh",
+  "hint": "While it is open",
+  "where": "Apps › Task Manager › LIST",
+  "target": "apps:taskmanager"
+ },
+ {
+  "label": "Ask before ending",
+  "hint": "End / Kill asks “Sure?” once",
+  "where": "Apps › Task Manager › SAFETY",
+  "target": "apps:taskmanager"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Task Manager",
+  "target": "modules:taskmanager"
+ },
+ {
+  "label": "Popup",
+  "hint": "",
+  "where": "Bar modules › Task Manager",
+  "target": "modules:taskmanager"
+ },
+ {
+  "label": "Programs shown",
+  "hint": "The rest in the window",
+  "where": "Bar modules › Task Manager › POPUP",
+  "target": "modules:taskmanager"
+ },
+ {
+  "label": "Close when its window opens",
+  "hint": "",
+  "where": "Bar modules › Task Manager › POPUP",
+  "target": "modules:taskmanager"
+ },
+ {
+  "label": "Cleaner",
+  "hint": "Caches, trash, system; an AI mode",
+  "where": "Apps",
+  "target": "apps:cleaner"
+ },
+ {
+  "label": "Safety",
+  "hint": "",
+  "where": "Apps › Cleaner",
+  "target": "apps:cleaner"
+ },
+ {
+  "label": "Ai",
+  "hint": "",
+  "where": "Apps › Cleaner",
+  "target": "apps:cleaner"
+ },
+ {
+  "label": "Ask before cleaning",
+  "hint": "The button asks “Sure?” once",
+  "where": "Apps › Cleaner › SAFETY",
+  "target": "apps:cleaner"
+ },
+ {
+  "label": "AI mode",
+  "hint": "Claude suggests what in ~ could go",
+  "where": "Apps › Cleaner › AI",
+  "target": "apps:cleaner"
+ },
+ {
+  "label": "Model",
+  "hint": "Haiku quick · Sonnet careful",
+  "where": "Apps › Cleaner › AI",
+  "target": "apps:cleaner"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Cleaner",
+  "target": "modules:cleaner"
+ },
+ {
+  "label": "Popup",
+  "hint": "",
+  "where": "Bar modules › Cleaner",
+  "target": "modules:cleaner"
+ },
+ {
+  "label": "Categories shown",
+  "hint": "The rest in the window",
+  "where": "Bar modules › Cleaner › POPUP",
+  "target": "modules:cleaner"
+ },
+ {
+  "label": "Close when its window opens",
+  "hint": "",
+  "where": "Bar modules › Cleaner › POPUP",
+  "target": "modules:cleaner"
+ },
+ {
+  "label": "Clipboard",
+  "hint": "Copy history, images to drag out",
+  "where": "Apps",
+  "target": "apps:clipboard"
+ },
+ {
+  "label": "History",
+  "hint": "",
+  "where": "Apps › Clipboard",
+  "target": "apps:clipboard"
+ },
+ {
+  "label": "Safety",
+  "hint": "",
+  "where": "Apps › Clipboard",
+  "target": "apps:clipboard"
+ },
+ {
+  "label": "Entries kept",
+  "hint": "Older ones drop off",
+  "where": "Apps › Clipboard › HISTORY",
+  "target": "apps:clipboard"
+ },
+ {
+  "label": "Ask before clearing",
+  "hint": "Clear asks “Sure?” once",
+  "where": "Apps › Clipboard › SAFETY",
+  "target": "apps:clipboard"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Clipboard",
+  "target": "modules:clipboard"
+ },
+ {
+  "label": "Popup",
+  "hint": "",
+  "where": "Bar modules › Clipboard",
+  "target": "modules:clipboard"
+ },
+ {
+  "label": "Entries shown",
+  "hint": "The rest scrolls",
+  "where": "Bar modules › Clipboard › POPUP",
+  "target": "modules:clipboard"
+ },
+ {
+  "label": "Search field",
+  "hint": "Narrows the list as you type",
+  "where": "Bar modules › Clipboard › POPUP",
+  "target": "modules:clipboard"
+ },
+ {
+  "label": "Close after copying",
+  "hint": "Off: popup stays open",
+  "where": "Bar modules › Clipboard › POPUP",
+  "target": "modules:clipboard"
+ },
+ {
+  "label": "Close when its window opens",
+  "hint": "",
+  "where": "Bar modules › Clipboard › POPUP",
+  "target": "modules:clipboard"
+ },
+ {
+  "label": "Display",
+  "hint": "Monitor scale, position and the text size",
+  "where": "Apps",
+  "target": "apps:display"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Display",
+  "target": "modules:display"
+ },
+ {
+  "label": "Packages",
+  "hint": "Updates, installed packages, cache and rollback",
+  "where": "Apps",
+  "target": "apps:packages"
+ },
+ {
+  "label": "Opening",
+  "hint": "",
+  "where": "Apps › Packages",
+  "target": "apps:packages"
+ },
+ {
+  "label": "Updates",
+  "hint": "",
+  "where": "Apps › Packages",
+  "target": "apps:packages"
+ },
+ {
+  "label": "List",
+  "hint": "",
+  "where": "Apps › Packages",
+  "target": "apps:packages"
+ },
+ {
+  "label": "Safety",
+  "hint": "",
+  "where": "Apps › Packages",
+  "target": "apps:packages"
+ },
+ {
+  "label": "Opens on",
+  "hint": "The tab shown first",
+  "where": "Apps › Packages › OPENING",
+  "target": "apps:packages"
+ },
+ {
+  "label": "Check on open",
+  "hint": "Once in ten minutes at most",
+  "where": "Apps › Packages › UPDATES",
+  "target": "apps:packages"
+ },
+ {
+  "label": "Background check",
+  "hint": "How often updates are checked",
+  "where": "Apps › Packages › UPDATES",
+  "target": "apps:packages"
+ },
+ {
+  "label": "Include the AUR",
+  "hint": "Counted and listed with the repos",
+  "where": "Apps › Packages › UPDATES",
+  "target": "apps:packages"
+ },
+ {
+  "label": "Sort installed by",
+  "hint": "Name, size, or newest first",
+  "where": "Apps › Packages › LIST",
+  "target": "apps:packages"
+ },
+ {
+  "label": "Cache shows",
+  "hint": "Old versions, or all cached",
+  "where": "Apps › Packages › LIST",
+  "target": "apps:packages"
+ },
+ {
+  "label": "Ask before uninstalling",
+  "hint": "Uninstall asks “Sure?” once",
+  "where": "Apps › Packages › SAFETY",
+  "target": "apps:packages"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Packages",
+  "target": "modules:packages"
+ },
+ {
+  "label": "Popup",
+  "hint": "",
+  "where": "Bar modules › Packages",
+  "target": "modules:packages"
+ },
+ {
+  "label": "Count on the icon",
+  "hint": "The number of pending updates",
+  "where": "Bar modules › Packages › BAR",
+  "target": "modules:packages"
+ },
+ {
+  "label": "Yellow when pending",
+  "hint": "The number turns yellow",
+  "where": "Bar modules › Packages › BAR",
+  "target": "modules:packages"
+ },
+ {
+  "label": "Updates shown",
+  "hint": "The rest in the window",
+  "where": "Bar modules › Packages › POPUP",
+  "target": "modules:packages"
+ },
+ {
+  "label": "Roll back button",
+  "hint": "Rolls back the last upgrade",
+  "where": "Bar modules › Packages › POPUP",
+  "target": "modules:packages"
+ },
+ {
+  "label": "Close when its window opens",
+  "hint": "",
+  "where": "Bar modules › Packages › POPUP",
+  "target": "modules:packages"
+ },
+ {
+  "label": "VirusTotal",
+  "hint": "A hash, URL or file checked against VirusTotal",
+  "where": "Apps",
+  "target": "apps:virustotal"
+ },
+ {
+  "label": "History",
+  "hint": "",
+  "where": "Apps › VirusTotal",
+  "target": "apps:virustotal"
+ },
+ {
+  "label": "Lookups",
+  "hint": "",
+  "where": "Apps › VirusTotal",
+  "target": "apps:virustotal"
+ },
+ {
+  "label": "Lookups kept",
+  "hint": "Under the field, newest first",
+  "where": "Apps › VirusTotal › HISTORY",
+  "target": "apps:virustotal"
+ },
+ {
+  "label": "Keep between runs",
+  "hint": "Saved in the state folder",
+  "where": "Apps › VirusTotal › HISTORY",
+  "target": "apps:virustotal"
+ },
+ {
+  "label": "Wait for analysis",
+  "hint": "Max wait for new files",
+  "where": "Apps › VirusTotal › LOOKUPS",
+  "target": "apps:virustotal"
+ },
+ {
+  "label": "Report button",
+  "hint": "Opens the page or copies link",
+  "where": "Apps › VirusTotal › LOOKUPS",
+  "target": "apps:virustotal"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › VirusTotal",
+  "target": "modules:virustotal"
+ },
+ {
+  "label": "Popup",
+  "hint": "",
+  "where": "Bar modules › VirusTotal",
+  "target": "modules:virustotal"
+ },
+ {
+  "label": "Colour by verdict",
+  "hint": "Red malicious, yellow suspicious",
+  "where": "Bar modules › VirusTotal › BAR",
+  "target": "modules:virustotal"
+ },
+ {
+  "label": "Read the clipboard",
+  "hint": "Fills the field with a hash or URL",
+  "where": "Bar modules › VirusTotal › POPUP",
+  "target": "modules:virustotal"
+ },
+ {
+  "label": "Close when its window opens",
+  "hint": "",
+  "where": "Bar modules › VirusTotal › POPUP",
+  "target": "modules:virustotal"
+ },
+ {
+  "label": "Files",
+  "hint": "Browse, copy, move, search and the trash",
+  "where": "Apps",
+  "target": "apps:files"
+ },
+ {
+  "label": "View",
+  "hint": "",
+  "where": "Apps › Files",
+  "target": "apps:files"
+ },
+ {
+  "label": "List",
+  "hint": "",
+  "where": "Apps › Files",
+  "target": "apps:files"
+ },
+ {
+  "label": "Sort",
+  "hint": "",
+  "where": "Apps › Files",
+  "target": "apps:files"
+ },
+ {
+  "label": "Search",
+  "hint": "",
+  "where": "Apps › Files",
+  "target": "apps:files"
+ },
+ {
+  "label": "Opening",
+  "hint": "",
+  "where": "Apps › Files",
+  "target": "apps:files"
+ },
+ {
+  "label": "Terminal",
+  "hint": "",
+  "where": "Apps › Files",
+  "target": "apps:files"
+ },
+ {
+  "label": "Picker",
+  "hint": "",
+  "where": "Apps › Files",
+  "target": "apps:files"
+ },
+ {
+  "label": "Safety",
+  "hint": "",
+  "where": "Apps › Files",
+  "target": "apps:files"
+ },
+ {
+  "label": "Actions",
+  "hint": "",
+  "where": "Apps › Files",
+  "target": "apps:files"
+ },
+ {
+  "label": "Show as",
+  "hint": "Ctrl + G in the window",
+  "where": "Apps › Files › VIEW",
+  "target": "apps:files"
+ },
+ {
+  "label": "Show preview",
+  "hint": "The selected file, at right",
+  "where": "Apps › Files › VIEW",
+  "target": "apps:files"
+ },
+ {
+  "label": "Preview lines",
+  "hint": "Of a text file",
+  "where": "Apps › Files › VIEW",
+  "target": "apps:files"
+ },
+ {
+  "label": "Show frames",
+  "hint": "Off: no lines",
+  "where": "Apps › Files › VIEW",
+  "target": "apps:files"
+ },
+ {
+  "label": "Show key hints",
+  "hint": "Off: no line under the list",
+  "where": "Apps › Files › VIEW",
+  "target": "apps:files"
+ },
+ {
+  "label": "Show hidden files",
+  "hint": "Ctrl + H in the window",
+  "where": "Apps › Files › LIST",
+  "target": "apps:files"
+ },
+ {
+  "label": "Show thumbnails",
+  "hint": "Off: an icon",
+  "where": "Apps › Files › LIST",
+  "target": "apps:files"
+ },
+ {
+  "label": "Dates",
+  "hint": "Today shows the time only",
+  "where": "Apps › Files › LIST",
+  "target": "apps:files"
+ },
+ {
+  "label": "Sort by",
+  "hint": "Trash: the newest first",
+  "where": "Apps › Files › SORT",
+  "target": "apps:files"
+ },
+ {
+  "label": "Descending",
+  "hint": "Click a caption to flip it",
+  "where": "Apps › Files › SORT",
+  "target": "apps:files"
+ },
+ {
+  "label": "Folders first",
+  "hint": "",
+  "where": "Apps › Files › SORT",
+  "target": "apps:files"
+ },
+ {
+  "label": "Group by",
+  "hint": "Type: the kinds one after another",
+  "where": "Apps › Files › SORT",
+  "target": "apps:files"
+ },
+ {
+  "label": "Results kept",
+  "hint": "Then the search stops",
+  "where": "Apps › Files › SEARCH",
+  "target": "apps:files"
+ },
+ {
+  "label": "Time limit",
+  "hint": "Then the results so far",
+  "where": "Apps › Files › SEARCH",
+  "target": "apps:files"
+ },
+ {
+  "label": "Open on one click",
+  "hint": "Ctrl and shift still select",
+  "where": "Apps › Files › OPENING",
+  "target": "apps:files"
+ },
+ {
+  "label": "Open at",
+  "hint": "Last folder, or a fixed one",
+  "where": "Apps › Files › OPENING",
+  "target": "apps:files"
+ },
+ {
+  "label": "Size",
+  "hint": "Custom: sizes below",
+  "where": "Apps › Files › PICKER",
+  "target": "apps:files"
+ },
+ {
+  "label": "Width",
+  "hint": "480 to 1400 px",
+  "where": "Apps › Files › PICKER",
+  "target": "apps:files"
+ },
+ {
+  "label": "Height",
+  "hint": "360 to 1000 px",
+  "where": "Apps › Files › PICKER",
+  "target": "apps:files"
+ },
+ {
+  "label": "Ask before deleting",
+  "hint": "Delete for good asks once",
+  "where": "Apps › Files › SAFETY",
+  "target": "apps:files"
+ },
+ {
+  "label": "Ask before trashing",
+  "hint": "Delete asks once",
+  "where": "Apps › Files › SAFETY",
+  "target": "apps:files"
+ },
+ {
+  "label": "Backups",
+  "hint": "Encrypted snapshots of home, /etc and the package list; restore",
+  "where": "Apps",
+  "target": "apps:backup"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Backups",
+  "target": "modules:backup"
+ },
+ {
+  "label": "Capture",
+  "hint": "Screenshots and recordings, a library",
+  "where": "Apps",
+  "target": "apps:capture"
+ },
+ {
+  "label": "Shortcut",
+  "hint": "",
+  "where": "Apps › Capture",
+  "target": "apps:capture"
+ },
+ {
+  "label": "Saving",
+  "hint": "",
+  "where": "Apps › Capture",
+  "target": "apps:capture"
+ },
+ {
+  "label": "Recording",
+  "hint": "",
+  "where": "Apps › Capture",
+  "target": "apps:capture"
+ },
+ {
+  "label": "Problems",
+  "hint": "",
+  "where": "Apps › Capture",
+  "target": "apps:capture"
+ },
+ {
+  "label": "Notifications",
+  "hint": "",
+  "where": "Apps › Capture",
+  "target": "apps:capture"
+ },
+ {
+  "label": "Folders",
+  "hint": "",
+  "where": "Apps › Capture",
+  "target": "apps:capture"
+ },
+ {
+  "label": "Shortcut opens",
+  "hint": "No module: the bar's centre",
+  "where": "Apps › Capture › SHORTCUT",
+  "target": "apps:capture"
+ },
+ {
+  "label": "After a screenshot",
+  "hint": "Also copied to the clipboard",
+  "where": "Apps › Capture › SAVING",
+  "target": "apps:capture"
+ },
+ {
+  "label": "After a recording",
+  "hint": "Ask: Esc saves to folder",
+  "where": "Apps › Capture › SAVING",
+  "target": "apps:capture"
+ },
+ {
+  "label": "Quality",
+  "hint": "Low tints flat greys",
+  "where": "Apps › Capture › RECORDING",
+  "target": "apps:capture"
+ },
+ {
+  "label": "Frame rate",
+  "hint": "",
+  "where": "Apps › Capture › RECORDING",
+  "target": "apps:capture"
+ },
+ {
+  "label": "Codec",
+  "hint": "Auto: HEVC on the GPU",
+  "where": "Apps › Capture › RECORDING",
+  "target": "apps:capture"
+ },
+ {
+  "label": "Encoder",
+  "hint": "Auto: iGPU on battery",
+  "where": "Apps › Capture › RECORDING",
+  "target": "apps:capture"
+ },
+ {
+  "label": "Notify after a screenshot",
+  "hint": "Errors still notify",
+  "where": "Apps › Capture › NOTIFICATIONS",
+  "target": "apps:capture"
+ },
+ {
+  "label": "Notify after a recording",
+  "hint": "Errors still notify",
+  "where": "Apps › Capture › NOTIFICATIONS",
+  "target": "apps:capture"
+ },
+ {
+  "label": "Toasts",
+  "hint": "How long, the history: Notifications",
+  "where": "Apps › Capture › NOTIFICATIONS",
+  "target": "apps:capture"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Capture",
+  "target": "modules:capture"
+ }
+]

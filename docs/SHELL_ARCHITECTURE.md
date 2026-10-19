@@ -74,6 +74,7 @@ links, secrets, `/etc`, units, services). `link` also writes
 | Bar layout | `layout.json` | `BarLayout` | renames via `BarLayout.renamed` (live fallback); not watched |
 | Notifications history | `notifications.json` (statePath) | `NotificationsService` | — |
 | Schema | `version` in the three files above | `scripts/settings_migrate.py` (`VERSION`, `MIGRATIONS`), run by `supervise.sh` before qs | a file is written only when changed, old one as `.bak`; `tests/test_settings_migrate.py` |
+| Search index | `config/settings-index.json` | `scripts/settings_index.py` (from the pages' QML), the sidebar's search, `shell search <words>` | `check` fails when stale; `tests/test_settings_index.py` (the common tasks found) |
 | Export / import / reset | one bundle of the three files | `scripts/settings_io.py`, About › Settings | import migrates; import and reset stop the shell, write (old files `.bak`), start it again; `tests/test_settings_io.py` |
 | Dotfiles state | `~/.local/state/dotfiles/` | installer + shell | `components.json` (modules not installed), `accent.lua`, `window-mode`, `shell-apps.json` |
 

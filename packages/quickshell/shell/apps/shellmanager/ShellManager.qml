@@ -1,4 +1,6 @@
 import QtQuick
+import Quickshell
+import Quickshell.Io
 import qs.bar
 import qs.config
 import qs.kit
@@ -67,6 +69,49 @@ Rectangle {
     return { tab: value, target: target ?? "" };
   }
 
+  // ---- search ----
+  // the sidebar's search (its header's button): every page's rows from
+  // config/settings-index.json (scripts/settings_index.py, rebuilt with the
+  // pages); a label match before a hint or place one, a pick opens its place
+  property bool searching: false
+  property var index: []
+  property int picked: 0
+  readonly property var results: {
+    const q = searchField.text.trim().toLowerCase();
+    if (q === "") return [];
+    const first = index.filter(e => e.label.toLowerCase().includes(q));
+    const then = index.filter(e => !first.includes(e) && (e.hint + " " + e.where).toLowerCase().includes(q));
+    return first.concat(then).slice(0, 30);
+  }
+  onResultsChanged: picked = 0
+  onSearchingChanged: {
+    searchField.text = "";
+    if (searching) searchField.input.forceActiveFocus();
+  }
+
+  function search(words) {
+    searching = true;
+    searchField.text = words;
+  }
+
+  function openResult(e) {
+    if (!e) return;
+    const [tab, target] = e.target.split(":");
+    navigate(tab, target ?? "");
+  }
+
+  FileView {
+    path: Quickshell.shellDir + "/config/settings-index.json"
+    printErrors: false
+    onLoaded: { try { root.index = JSON.parse(text()); } catch (e) { root.index = []; } }
+  }
+
+  Shortcut {
+    sequences: [StandardKey.Cancel]
+    enabled: root.searching
+    onActivated: root.searching = false
+  }
+
   // the open section's group links, unfolded by a second click on it
   property bool navOpen: false
   readonly property bool dialogOpen: windowDialog.visible
@@ -75,6 +120,7 @@ Rectangle {
   // pages' links between each other (an app's bar module and back)
   function navigate(value, target) {
     const r = resolve(value, target);
+    searching = false;
     tab = r.tab;
     const p = pageFor(r.tab);
     const j = p.jumps.find(x => x.key === r.target);
@@ -130,9 +176,34 @@ Rectangle {
       spacing: Theme.gapGroup
 
       KitHeader {
+        visible: !root.searching
         icon: "settings"
         title: "Shell Manager"
         subtitle: "SUPER + S"
+
+        KitButton {
+          icon: "search"
+          onClicked: root.searching = true
+        }
+      }
+
+      // in the header's place while searching: as tall, so the list stays put
+      Item {
+        visible: root.searching
+        width: parent.width
+        height: brandHeight.implicitHeight
+
+        KitHeader { id: brandHeight; visible: false; title: "x"; subtitle: "x" }
+
+        KitInput {
+          id: searchField
+          width: nav.width
+          anchors.verticalCenter: parent.verticalCenter
+          placeholder: "search settings"
+          passKeys: [Qt.Key_Up, Qt.Key_Down]
+          onAccepted: root.openResult(root.results[root.picked])
+          onKeyPassed: key => root.picked = Math.max(0, Math.min(root.results.length - 1, root.picked + (key === Qt.Key_Down ? 1 : -1)))
+        }
       }
 
       KitLine {}
@@ -146,6 +217,7 @@ Rectangle {
       y: brand.y + brand.height + Theme.gapGroup
       width: parent.width - 2 * Theme.windowPadding
       height: parent.height - y - Theme.windowPadding
+      visible: !root.searching
       contentHeight: navColumn.implicitHeight
       clip: true
       interactive: contentHeight > height
@@ -303,6 +375,68 @@ Rectangle {
     }
     }
 
+  }
+
+  // the search's results where the sections are: label, and the page › group it is on
+  ListView {
+    id: found
+    visible: root.searching
+    x: nav.x
+    y: nav.y
+    width: nav.width
+    height: nav.height
+    clip: true
+    spacing: Theme.gapHair
+    boundsBehavior: Flickable.StopAtBounds
+    model: root.results
+    currentIndex: root.picked
+    onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
+
+    delegate: Rectangle {
+      id: hit
+      required property var modelData
+      required property int index
+
+      width: found.width
+      height: hitText.implicitHeight + 2 * Theme.gapTight
+      radius: Theme.radiusControl
+      color: index === root.picked ? Theme.background3 : hitArea.containsMouse ? Theme.background1 : Theme.clear
+
+      Column {
+        id: hitText
+        anchors { left: parent.left; leftMargin: Theme.gapLoose; right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+
+        KitText {
+          width: parent.width
+          elide: Text.ElideRight
+          text: hit.modelData.label
+          font.weight: Font.DemiBold
+        }
+
+        KitText {
+          width: parent.width
+          elide: Text.ElideRight
+          text: hit.modelData.where.toUpperCase()
+          color: Theme.muted
+          font.pixelSize: Theme.fontSize - 2
+        }
+      }
+
+      MouseArea {
+        id: hitArea
+        anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+        onClicked: root.openResult(hit.modelData)
+      }
+    }
+
+    KitText {
+      visible: searchField.text.trim() !== "" && root.results.length === 0
+      x: Theme.gapLoose
+      text: "Nothing found"
+      color: Theme.muted
+    }
   }
 
   // hairline between navigation and page

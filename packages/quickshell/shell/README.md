@@ -53,7 +53,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 
 | App | Key | IPC |
 |---|---|---|
-| Shell Manager | Super+S | `shell toggle`, `shell open <page>[:<group or app>]` |
+| Shell Manager | Super+S | `shell toggle`, `shell open <page>[:<group or app>]`, `shell search <words>` (the sidebar's search) |
 | Task Manager | Ctrl+Shift+Esc | `taskmanager toggle` |
 | Cleaner | Super+X | `cleaner toggle` |
 | Capture | Super+Shift+S | `capture open\|stop\|close` |
