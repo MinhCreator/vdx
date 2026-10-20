@@ -94,6 +94,13 @@ class Owners(unittest.TestCase):
         self.assertEqual(components.owner("home/.zshenv", self.TABLE), "zsh")
         self.assertIsNone(components.owner("home/.profile", self.TABLE))
 
+    def test_the_yandex_backend_belongs_to_its_component(self):
+        # the shell's own backends stay with quickshell; yandex.py (the module and the app) with yandex-music
+        table = components.claims(components.load())
+        self.assertEqual(components.owner("quickshell/shell/scripts/yandex.py", table), "yandex-music")
+        self.assertEqual(components.owner("quickshell/shell/scripts/music.sh", table), "quickshell")
+        self.assertEqual(components.owner("quickshell/shell/scripts/backend.py", table), "quickshell")
+
 
 class Problems(unittest.TestCase):
     def test_a_clean_catalog(self):

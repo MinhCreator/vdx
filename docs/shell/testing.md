@@ -42,6 +42,7 @@ Each phase lists the ones it touches; these are the shared base.
 | Settings | value persists across a shell restart; applies without restart; reopen the page; default when the key is absent |
 | Optional parts | the feature's component off (`./install.py components remove <c>`, `link`): no QML errors, module "not installed" |
 | Missing hardware / service | binary absent, service stopped, no device: the UI shows a state, the log stays clean |
+| Files: USB | plug a stick: a USB row appears (unmounted: size shown, power button); its button mounts it (eject then); the eject button unmounts; unplug: the row goes. Only a real stick tests this |
 | Lock | lock, wrong password, right password, every monitor, after a theme switch |
 | UI states | default, hover, focus (keyboard), active / selected, disabled, loading, error, empty, unavailable — each that applies to the touched control or view |
 | Settings lifecycle | reset to default; migration from an old state file (copy of `by-shell/<id>/`); two settings that affect one feature changed in both orders |

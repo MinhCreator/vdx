@@ -96,7 +96,7 @@ Animations and Bar reset their `ShellSettings` keys (`ShellSettings.reset(keys)`
 | Lock | `apps/lock/` | Quickshell `WlSessionLock`, PAM | options in `modules.json` › `lock` |
 | Island / hub | `bar/island/` | `ShellSettings.barStyle` | hub = island view from the clock; the Launcher and Keys chips open the launcher and the keybinds (their panels `apps/launcher/LauncherPanel.qml`, `apps/keybinds/KeybindsPanel.qml`) as island views |
 | Player | `modules/player/` (`PlayerService` = MPD + every MPRIS player, one list) | MPRIS players; the island's media reads `PlayerService` | `AudioPause` reads MPRIS too |
-| Music (Yandex) | `modules/yandex/`, `modules/mpd/`, `scripts/music.sh`, `scripts/yandex_likes.py` | component `yandex-music` (+ `mpd`, submodule); module id `yandex` (was `music`) | `YandexService` feeds `PlayerService` (the MPD source) and `AudioPause` |
+| Music (Yandex) | `modules/yandex/`, `modules/mpd/`, `scripts/music.sh`, `scripts/yandex.py`; app `apps/yandex/` | component `yandex-music` (+ `mpd`, submodule; owns `scripts/yandex.py`); module and app id `yandex` (module was `music`) | `YandexService` feeds `PlayerService` (the MPD source) and `AudioPause`; the app's data is `YandexLibrary` ([decision 0004](decisions/0004-yandex-music-app.md)) |
 | Radio | `modules/radio/` | component `radio` (+ `mpd`) | shares `MpdService` |
 | Capture | `apps/capture/`, `modules/capture/` | `grim`, `gpu-screen-recorder`, `wl-copy`, `notify-send` | the only "camera" in the repo: screen capture |
 | Launcher, Keybinds | `apps/launcher/`, `apps/keybinds/` | Hyprland binds | a window (Alt+Space, Super+B) and the island's Launcher / Keys chips: the same panels |

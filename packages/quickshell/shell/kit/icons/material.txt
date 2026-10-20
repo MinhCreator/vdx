@@ -88,3 +88,11 @@ x close
 zap bolt
 plus add
 text text_fields
+more more_vert
+chevron-right chevron_right
+history history
+home home
+star star
+hard-drive hard_drive
+usb usb
+eject eject

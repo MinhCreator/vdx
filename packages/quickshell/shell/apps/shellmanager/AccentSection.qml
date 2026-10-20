@@ -16,7 +16,6 @@ KitColumn {
     { value: "switches",   label: "Switches",      hint: "The ones that are on" },
     { value: "sliders",    label: "Sliders",       hint: "The filled part" },
     { value: "choices",    label: "Choices",       hint: "The picked one" },
-    { value: "workspaces", label: "Workspaces",    hint: "The focused one" },
     { value: "selects",    label: "Dropdowns",     hint: "The open one's frame" },
     { value: "modules",    label: "Bar modules",   hint: "Active states, the equalizer; not warnings" }
   ]

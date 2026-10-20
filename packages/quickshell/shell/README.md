@@ -20,8 +20,9 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | Display | — | `display toggle` |
 | VirusTotal | — | `virustotal toggle` |
 | Clipboard | — | `clipboard toggle` |
+| Yandex Music | — | `yandex-music toggle\|open\|close`: a player (the playing track in a box at the bottom with its equalizer; full mode fills the window with the cover, timeline and controls beside it); Queue, Likes, Search, Playlists. A track's ⋮ opens its menu (play, like, add to or remove from a playlist). Update runs the sync. Needs the `yandex-music` component (else "Not installed") |
 | Backups | — | `backup toggle\|open\|close` (bar module `backup`: last backup, Back up, the restore guide); the terminal: `backup status\|run\|snapshots\|restore\|guide …` (`scripts/backup.py`, restic) |
-| Files | Super+E | `files toggle\|open\|close`, `files go\|reveal\|inspect\|duplicates <path>`, `files choose <json>` (the portal's picker; a setting's Choose… opens the same picker); F1 lists the keys; Ctrl+G list, grid, columns; Ctrl+T terminal here; F2 on several files renames them by a pattern; the sidebar's "This computer" shows the storage (used / free, unmounted drives mount on a click); the sidebar is one list: drag to reorder, right click to hide or unpin, Settings › SIDEBAR; a folder's right click › Pin to sidebar |
+| Files | Super+E | `files toggle\|open\|close`, `files go\|reveal\|inspect\|duplicates <path>`, `files choose <json>` (the portal's picker; a setting's Choose… opens the same picker); F1 lists the keys; Ctrl+G list, grid, columns; Ctrl+T terminal here; F2 on several files renames them by a pattern; the sidebar's "This computer" shows the storage (used / free, unmounted drives mount on a click); the sidebar is in sections: PLACES (drag to reorder within it; right click to hide, Settings › SIDEBAR), PINNED (your folders; drag to reorder; right click › Unpin; a folder's right click › Pin to sidebar), USB (plugged-in removable drives, mounted or not, with a mount / eject button at the row's end), DEVICES (other drives mounted for you); Recent (recently-used.xbel) and Starred (Ctrl+S) in the sidebar; the list shows folders as tiles above a table of files (checkboxes, ⋮ menu, Type / Size / Modified columns), the path as crumbs (Ctrl+L types one); typing a letter jumps to a name; the look and columns in Settings › Apps › Files |
 | Keybinds | Super+B | `keybinds toggle\|open\|close` |
 | Window switcher | Super+Tab (floating mode) | `switcher toggle\|open\|close` |
 | Overview | — | `overview toggle` |
@@ -134,7 +135,7 @@ in the bar. Moving the centre sets the switch; the switch overrides until the ne
 | File scans | `VIRUSTOTAL_API_KEY` (env or `~/.config/secrets/env`) |
 | Music likes | Yandex Music token (`~/.config/scripts/yandex-music/token`) |
 | Island wave | `cava` (without it the wave is made up) |
-| Files: devices | `udisks2` (`udisksctl`), removable drives show in the sidebar; `findmnt` for "This computer" |
+| Files: devices | `udisks2` (`udisksctl`): the sidebar's USB and DEVICES sections (`files.py devices`, `removable` tells them apart); `findmnt` for "This computer" |
 | Player | MPRIS players (Spotify, a browser, mpv: each needs its MPRIS support, e.g. `mpv-mpris` for mpv); the Yandex Music / radio of MPD come through MPD |
 | Files: file chooser and links | `python-gobject`, `xdg-desktop-portal` (portal backend: `scripts/files_portal.py`, config `packages/xdg-portal/`) |
 

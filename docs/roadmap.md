@@ -25,9 +25,9 @@ approves before code.
 | Task | Cat | Depends on | Gate | Status |
 |---|---|---|---|---|
 | [06](tasks/06_LOCKSCREEN_CUSTOMIZATION.md) Lock screen customisation | B/C | — | proposal | Not started |
-| [07](tasks/07_FILE_MANAGER_IMPROVEMENTS.md) Files: A storage home · B custom sidebar · C fewer frames | A/B | A before B | proposal / prototype | Implemented (A, B, C); owner's look pending |
+| [07](tasks/07_FILE_MANAGER_IMPROVEMENTS.md) Files: A storage home · B custom sidebar · C fewer frames | A/B | A before B | proposal / prototype | Implemented (A, B, C); sidebar sections and USB section added; owner's look pending |
 | [08](tasks/08_BAR_ISLAND_AND_NOTCH_MODE.md) A Launcher + Keybinds in the island · B notch bar style | B / C | A before B | concept; B research + decision | A implemented (clicks not run here); B not started |
-| [09](tasks/09_MUSIC_SUBSYSTEM.md) A Yandex Music optional · B generic player · C Yandex Music app | A–C | A → B → C | per part | A and B implemented; C not started |
+| [09](tasks/09_MUSIC_SUBSYSTEM.md) A Yandex Music optional · B generic player · C Yandex Music app | A–C | A → B → C | per part | A and B implemented (fresh-machine test skipped by owner); C implemented, look and search/playlist clicks not run; [decision 0004](decisions/0004-yandex-music-app.md) |
 | [12](tasks/12_KEYBOARD_ACCESS.md) Keyboard and assistive access | B/C | — | prototype popup | Not started |
 | [11](tasks/11_CAMERA_ARCHITECTURE.md) Capture ("camera") architecture | C | D-11 | proposal | Not started |
 | [10](tasks/10_TORRENT_CLIENT.md) Torrent client | C | 07-A optional | design + engine decision | Not started |
@@ -51,7 +51,7 @@ Done in code, not yet seen by the owner:
   Hyprland's background colour at login.
 - Lock: stale-marker fix — lock, kill the shell, unlock (steps 3–5).
 - A second monitor (bars, wallpapers); `tests/fresh-machine.sh defaults` (~840 MB, needs a yes).
-- Files: "This computer" look; the sidebar drag, pin, hide and Restore defaults (Settings › SIDEBAR); the frames removal (screenshot).
+- Files: "This computer" look; the sidebar drag (within PLACES / PINNED), pin, hide and Restore defaults (Settings › SIDEBAR); the USB section with a real stick (plugged, mounted, unmounted by its button, unplugged); the frames removal (screenshot).
 - Island: the Launcher and Keys chips by a real click; Escape back to the hub; the outside click; the Solid style unchanged.
 - Player: Spotify and a browser (MPRIS); the module's placement in the Folder or the bar (new modules start there); the Yandex module under its new id `yandex` (IPC `yandex`).
 

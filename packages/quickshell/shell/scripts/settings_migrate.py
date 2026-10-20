@@ -14,7 +14,7 @@ QML keeps reading the old shapes too (a live reload runs without this)."""
 import hashlib, json, os, sys
 from pathlib import Path
 
-VERSION = 3
+VERSION = 4
 FILES = ("settings.json", "modules.json", "layout.json")
 RENAMED = {"claude": "ai", "plugins": "shell"}       # module ids that changed (BarLayout.renamed)
 
@@ -93,7 +93,16 @@ def to_3(name: str, data: dict) -> None:
             values.setdefault("yandex", values.pop("music"))
 
 
-MIGRATIONS = {0: to_1, 1: to_2, 2: to_3}          # n -> the step from version n to n + 1
+def to_4(name: str, data: dict) -> None:
+    """Version 4: the file manager's key hints line is gone, and its option with it."""
+    if name == "modules.json":
+        values = data.get("values")
+        files = values.get("files") if isinstance(values, dict) else None
+        if isinstance(files, dict):
+            files.pop("hints", None)
+
+
+MIGRATIONS = {0: to_1, 1: to_2, 2: to_3, 3: to_4}          # n -> the step from version n to n + 1
 
 
 def migrate(name: str, data: dict) -> dict:

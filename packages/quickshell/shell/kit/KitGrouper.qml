@@ -69,7 +69,10 @@ Item {
   function layout() {
     const col = root.column;
     if (!col) return;
-    if (root.outer) { root.outer.relayout(); return; }
+    // looked up here, not once at creation: a Loader's item completes before it is placed in the
+    // page, and a grouper that took itself for the outermost would draw its own boxes over the page's
+    root.outer = root.findOuter();
+    if (root.outer) { root.boxes = []; root.lines = []; root.outer.relayout(); return; }
     prepare(col);
     // the outermost column keeps room for its last box's lower padding (a pane's scroll reaches it)
     col.bottomPadding = -(col.spacing + root.height) + root.padY;
@@ -122,7 +125,7 @@ Item {
   }
   Timer { id: soon; interval: 0; onTriggered: root.layout() }
   Timer { id: settle; interval: Motion.normal + 40; onTriggered: root.layout() }
-  Component.onCompleted: { root.outer = root.findOuter(); soon.restart(); }
+  Component.onCompleted: soon.restart()
 
   Repeater {
     model: root.boxes

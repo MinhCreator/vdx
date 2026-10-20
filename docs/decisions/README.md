@@ -8,6 +8,7 @@ One file per significant architecture or design decision:
 | [0001](0001-documentation-system.md) | Documentation system for the shell project | Superseded by 0003 |
 | [0002](0002-settings-ia.md) | Settings information architecture | Accepted |
 | [0003](0003-docs-layout.md) | Docs layout: index + one topic per file | Accepted |
+| [0004](0004-yandex-music-app.md) | Yandex Music app: scope, playback and backend | Accepted |
 
 Open questions that will become records are listed in the roadmap
 ([roadmap.md › Open questions](../roadmap.md#open-questions)).

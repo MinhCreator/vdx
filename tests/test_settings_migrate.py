@@ -90,6 +90,11 @@ class Migrate(unittest.TestCase):
                          {"sidebar": [{"path": "/home/u/src", "name": "src", "kind": "folder", "hidden": False}],
                           "view": "list"})
 
+    def test_the_files_key_hints_option_goes(self):
+        self.write("modules.json", {"version": 3, "values": {"files": {"hints": False, "view": "grid"}}})
+        self.run_it()
+        self.assertEqual(self.read("modules.json")["values"]["files"], {"view": "grid"})
+
     def test_an_existing_sidebar_is_kept(self):
         kept = [{"path": "trash:", "name": "Trash", "kind": "trash", "hidden": True}]
         self.write("modules.json", {"values": {"files": {"bookmarks": [{"name": "x", "path": "/x"}], "sidebar": kept}}})

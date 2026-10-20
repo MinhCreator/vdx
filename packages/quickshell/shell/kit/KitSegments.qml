@@ -27,10 +27,10 @@ Rectangle {
   border.color: Theme.gray
   opacity: disabled ? 0.4 : 1
 
-  // material: the segments are cut to the pill (inside its outline)
+  // the segments are cut to the outline's inside: material the pill, terminal the rounded frame
   ClippingRectangle {
     anchors { fill: parent; margins: root.m3 ? 1 : root.inset }
-    radius: root.m3 ? Math.max(0, root.radius - 1) : 0
+    radius: Math.max(0, root.radius - (root.m3 ? 1 : root.inset))
     color: Theme.clear
 
     Row {
@@ -51,7 +51,7 @@ Rectangle {
 
           width: segments.width / root.model.length
           height: segments.height
-          radius: root.m3 ? 0 : Math.max(0, Theme.radiusControl - root.inset)
+          radius: 0      // the outer corners come from the clip; each segment's own corners would notch the joint
           color: selected ? Theme.background3 : hovered ? Theme.background2 : Theme.clear
 
           Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
