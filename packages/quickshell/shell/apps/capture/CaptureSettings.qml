@@ -121,25 +121,14 @@ Column {
       required property var modelData
 
       label: modelData.label
-      hint: "Enter applies; empty: default"
+      hint: modelData.value
       wide: true
 
-      Row {
-        spacing: Theme.gapMedium
-
-        KitInput {
-          width: parent.width - chooseDir.width - parent.spacing
-          text: modelData.value
-          onAccepted: ModuleSettings.set("capture", modelData.key, text.trim().replace(/\/+$/, ""))
-        }
-
-        KitButton {
-          id: chooseDir
-          icon: "folder"
-          text: "Choose…"
-          onClicked: FilesService.pickFolder(modelData.label + " folder", modelData.value,
-                                             p => { if (p !== "") ModuleSettings.set("capture", modelData.key, p); })
-        }
+      KitButton {
+        icon: "folder"
+        text: "Choose…"
+        onClicked: FilesService.pickFolder(modelData.label + " folder", modelData.value,
+                                           p => { if (p !== "") ModuleSettings.set("capture", modelData.key, p); })
       }
     }
   }

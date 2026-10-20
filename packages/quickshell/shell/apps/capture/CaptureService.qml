@@ -257,7 +257,6 @@ Singleton {
 
   // the app's window, on its Library tab (CaptureWindow's IpcHandler)
   function openLibrary() { run(["qs", "-c", "shell", "ipc", "call", "captures", "library"]); }
-
   function fail(title, message) {
     run(["notify-send", "-a", "Capture", "-u", "critical", title, message]);
   }

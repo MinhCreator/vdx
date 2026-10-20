@@ -48,6 +48,7 @@ Item {
     anchorItem: root.anchorItem
     moduleId: "capture"
     bar: root.bar
+    detached: ModuleSettings.get("capture", "detached", false)
     implicitWidth: content.implicitWidth
     implicitHeight: content.implicitHeight
     onHidden: if (root.startPending) settle.restart()

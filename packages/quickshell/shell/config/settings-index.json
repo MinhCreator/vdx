@@ -846,12 +846,6 @@
   "target": "appearance:accent"
  },
  {
-  "label": "Workspaces",
-  "hint": "The focused one",
-  "where": "Appearance",
-  "target": "appearance:accent"
- },
- {
   "label": "Dropdowns",
   "hint": "The open one's frame",
   "where": "Appearance",
@@ -1134,6 +1128,12 @@
   "target": "modules:yandex"
  },
  {
+  "label": "Window",
+  "hint": "",
+  "where": "Bar modules › Yandex Music",
+  "target": "modules:yandex"
+ },
+ {
   "label": "Shows",
   "hint": "",
   "where": "Bar modules › Yandex Music › BAR",
@@ -1143,6 +1143,12 @@
   "label": "Max length",
   "hint": "Longer ones end with …",
   "where": "Bar modules › Yandex Music › BAR",
+  "target": "modules:yandex"
+ },
+ {
+  "label": "Yandex Music",
+  "hint": "The player, playlists and the full mode",
+  "where": "Bar modules › Yandex Music › WINDOW",
   "target": "modules:yandex"
  },
  {
@@ -1246,6 +1252,24 @@
   "hint": "The popup switches; all of them in Themes",
   "where": "Bar modules › Themes › POPUP",
   "target": "modules:themes"
+ },
+ {
+  "label": "Tray",
+  "hint": "Status icons of running apps · right click: their menu",
+  "where": "Bar modules",
+  "target": "modules:tray"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Tray",
+  "target": "modules:tray"
+ },
+ {
+  "label": "Collapse",
+  "hint": "Icons behind a dots button",
+  "where": "Bar modules › Tray › BAR",
+  "target": "modules:tray"
  },
  {
   "label": "Mode",
@@ -1755,6 +1779,12 @@
   "label": "Bar",
   "hint": "",
   "where": "Bar modules › Folder",
+  "target": "modules:folder"
+ },
+ {
+  "label": "Symbol",
+  "hint": "",
+  "where": "Bar modules › Folder › BAR",
   "target": "modules:folder"
  },
  {
@@ -2334,7 +2364,19 @@
   "target": "apps:files"
  },
  {
-  "label": "List",
+  "label": "Rows",
+  "hint": "",
+  "where": "Apps › Files",
+  "target": "apps:files"
+ },
+ {
+  "label": "Columns",
+  "hint": "",
+  "where": "Apps › Files",
+  "target": "apps:files"
+ },
+ {
+  "label": "Order",
   "hint": "",
   "where": "Apps › Files",
   "target": "apps:files"
@@ -2376,6 +2418,24 @@
   "target": "apps:files"
  },
  {
+  "label": "Places shown",
+  "hint": "",
+  "where": "Apps › Files",
+  "target": "apps:files"
+ },
+ {
+  "label": "Pinned",
+  "hint": "",
+  "where": "Apps › Files",
+  "target": "apps:files"
+ },
+ {
+  "label": "Recent and starred",
+  "hint": "",
+  "where": "Apps › Files",
+  "target": "apps:files"
+ },
+ {
   "label": "Actions",
   "hint": "",
   "where": "Apps › Files",
@@ -2384,6 +2444,30 @@
  {
   "label": "Show as",
   "hint": "Ctrl + G in the window",
+  "where": "Apps › Files › VIEW",
+  "target": "apps:files"
+ },
+ {
+  "label": "Density",
+  "hint": "A row's height in the list",
+  "where": "Apps › Files › VIEW",
+  "target": "apps:files"
+ },
+ {
+  "label": "Card size",
+  "hint": "Of the grid",
+  "where": "Apps › Files › VIEW",
+  "target": "apps:files"
+ },
+ {
+  "label": "Folders as tiles",
+  "hint": "List: folders above files",
+  "where": "Apps › Files › VIEW",
+  "target": "apps:files"
+ },
+ {
+  "label": "Path bar",
+  "hint": "Ctrl + L types a path",
   "where": "Apps › Files › VIEW",
   "target": "apps:files"
  },
@@ -2400,51 +2484,87 @@
   "target": "apps:files"
  },
  {
-  "label": "Show key hints",
-  "hint": "Off: no line under the list",
-  "where": "Apps › Files › VIEW",
+  "label": "Checkboxes",
+  "hint": "Tick rows to select them",
+  "where": "Apps › Files › ROWS",
+  "target": "apps:files"
+ },
+ {
+  "label": "Menu button",
+  "hint": "A ⋮ on the hovered row",
+  "where": "Apps › Files › ROWS",
   "target": "apps:files"
  },
  {
   "label": "Show hidden files",
   "hint": "Ctrl + H in the window",
-  "where": "Apps › Files › LIST",
+  "where": "Apps › Files › ROWS",
   "target": "apps:files"
  },
  {
   "label": "Show thumbnails",
   "hint": "Off: an icon",
-  "where": "Apps › Files › LIST",
+  "where": "Apps › Files › ROWS",
+  "target": "apps:files"
+ },
+ {
+  "label": "Show extensions",
+  "hint": "Off: photo, not photo.jpg",
+  "where": "Apps › Files › ROWS",
   "target": "apps:files"
  },
  {
   "label": "Dates",
   "hint": "Today shows the time only",
-  "where": "Apps › Files › LIST",
+  "where": "Apps › Files › ROWS",
+  "target": "apps:files"
+ },
+ {
+  "label": "Type",
+  "hint": "Folder, or the extension",
+  "where": "Apps › Files › COLUMNS",
+  "target": "apps:files"
+ },
+ {
+  "label": "Size",
+  "hint": "",
+  "where": "Apps › Files › COLUMNS",
+  "target": "apps:files"
+ },
+ {
+  "label": "Modified",
+  "hint": "Trash: when it was deleted",
+  "where": "Apps › Files › COLUMNS",
+  "target": "apps:files"
+ },
+ {
+  "label": "Folder sizes",
+  "hint": "Its items; off: --",
+  "where": "Apps › Files › COLUMNS",
   "target": "apps:files"
  },
  {
   "label": "Sort by",
   "hint": "Trash: the newest first",
-  "where": "Apps › Files › LIST",
+  "where": "Apps › Files › ORDER",
   "target": "apps:files"
  },
  {
   "label": "Descending",
   "hint": "Click a caption to flip it",
-  "where": "Apps › Files › LIST",
+  "where": "Apps › Files › ORDER",
   "target": "apps:files"
  },
  {
   "label": "Folders first",
   "hint": "",
-  "where": "Apps › Files › LIST",
+  "where": "Apps › Files › ORDER",
   "target": "apps:files"
  },
  {
   "label": "Group by",
-  "hint": "Type: the kinds one after another",
-  "where": "Apps › Files › LIST",
+  "hint": "Type: the kinds in turn",
+  "where": "Apps › Files › ORDER",
   "target": "apps:files"
  },
  {
@@ -2456,6 +2576,12 @@
  {
   "label": "Time limit",
   "hint": "Then the results so far",
+  "where": "Apps › Files › SEARCH",
+  "target": "apps:files"
+ },
+ {
+  "label": "Type to find",
+  "hint": "A letter jumps to a name",
   "where": "Apps › Files › SEARCH",
   "target": "apps:files"
  },
@@ -2499,6 +2625,30 @@
   "label": "Ask before trashing",
   "hint": "Delete asks once",
   "where": "Apps › Files › SAFETY",
+  "target": "apps:files"
+ },
+ {
+  "label": "Show devices",
+  "hint": "Drives plugged in",
+  "where": "Apps › Files › SIDEBAR",
+  "target": "apps:files"
+ },
+ {
+  "label": "No folders pinned",
+  "hint": "Right click a folder in Files",
+  "where": "Apps › Files › PINNED",
+  "target": "apps:files"
+ },
+ {
+  "label": "Recent files",
+  "hint": "The newest, at most",
+  "where": "Apps › Files › RECENT AND STARRED",
+  "target": "apps:files"
+ },
+ {
+  "label": "Starred",
+  "hint": "Ctrl + S stars a selection",
+  "where": "Apps › Files › RECENT AND STARRED",
   "target": "apps:files"
  },
  {
@@ -2620,5 +2770,53 @@
   "hint": "",
   "where": "Bar modules › Capture",
   "target": "modules:capture"
+ },
+ {
+  "label": "Popup",
+  "hint": "",
+  "where": "Bar modules › Capture",
+  "target": "modules:capture"
+ },
+ {
+  "label": "Own window",
+  "hint": "Under the bar, not from the island",
+  "where": "Bar modules › Capture › POPUP",
+  "target": "modules:capture"
+ },
+ {
+  "label": "Yandex Music",
+  "hint": "A player: likes, search, playlists; plays what the update downloaded",
+  "where": "Apps",
+  "target": "apps:yandex"
+ },
+ {
+  "label": "Start",
+  "hint": "",
+  "where": "Apps › Yandex Music",
+  "target": "apps:yandex"
+ },
+ {
+  "label": "Player",
+  "hint": "",
+  "where": "Apps › Yandex Music",
+  "target": "apps:yandex"
+ },
+ {
+  "label": "Opens on",
+  "hint": "Each time the window opens",
+  "where": "Apps › Yandex Music › START",
+  "target": "apps:yandex"
+ },
+ {
+  "label": "Time left",
+  "hint": "The timeline counts down",
+  "where": "Apps › Yandex Music › PLAYER",
+  "target": "apps:yandex"
+ },
+ {
+  "label": "Close when a track plays",
+  "hint": "The window hides after a click",
+  "where": "Apps › Yandex Music › PLAYER",
+  "target": "apps:yandex"
  }
 ]

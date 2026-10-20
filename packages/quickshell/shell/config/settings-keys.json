@@ -78,6 +78,17 @@
   "videoTarget"
  ],
  "apps/capture/CaptureBarSettings.qml": [
+  "detached",
   "text"
+ ],
+ "apps/yandex/YandexAppSettings.qml": [
+  "closeOnPlay",
+  "defaultTab",
+  "showRemaining"
+ ],
+ "modules/yandex/YandexSettings.qml": [
+  "show",
+  "text",
+  "titleLength"
  ]
 }
