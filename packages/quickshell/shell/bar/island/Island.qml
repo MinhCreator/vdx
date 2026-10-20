@@ -147,7 +147,7 @@ Item {
     osd:     [290, Theme.islandHeight],
     notice:  [400, noticeHeight()],
     power:   [434, 86],
-    module:  [Math.max(Theme.popupWidth, popupContent?.implicitWidth ?? 0), popupContent?.implicitHeight ?? Theme.islandHeight]
+    module:  [popupContent?.fitWidth ? popupContent.implicitWidth : Math.max(Theme.popupWidth, popupContent?.implicitWidth ?? 0), popupContent?.implicitHeight ?? Theme.islandHeight]
   })
   readonly property var size: sizes[shown]
 
