@@ -18,6 +18,8 @@ Singleton {
   readonly property string portalScript: Paths.scriptsDir + "/files_portal.py"
   readonly property string trashPath: "trash:"
   readonly property string computerPath: "computer:"             // This computer: the storage (volumes)
+  readonly property string recentPath: "recent:"                 // the files opened lately (recently-used.xbel)
+  readonly property string starredPath: "starred:"               // the files and folders starred
   readonly property string home: Quickshell.env("HOME")
 
   // ---- options ----
@@ -38,7 +40,6 @@ Singleton {
   readonly property bool thumbnails: opt("thumbnails", true)
   readonly property bool singleClick: opt("singleClick", false)
   readonly property string dateFormat: opt("dateFormat", "short") // short | iso
-  readonly property bool hints: opt("hints", true)
   readonly property string terminal: opt("terminal", "kitty --directory")
   readonly property string groupBy: opt("groupBy", "none")       // none | type
   readonly property int searchLimit: opt("searchLimit", 300)
@@ -54,6 +55,23 @@ Singleton {
   readonly property var pickerDims: pickerSize === "custom" ? [pickerWidth, pickerHeight]
                                    : (pickerPresets[pickerSize] ?? pickerPresets.medium)
   readonly property int childWidth: opt("childWidth", 200)
+  // the look of the window (Shell Manager › Shell apps › Files)
+  readonly property string density: opt("density", "normal")      // compact | normal | roomy: a row's height
+  readonly property int rowHeight: ({ compact: 28, normal: 34, roomy: 40 })[density] ?? 34
+  readonly property bool checkboxes: opt("checkboxes", true)      // a box to tick at a row's start
+  readonly property bool rowActions: opt("rowActions", true)      // the ⋮ at a row's end: its menu
+  readonly property bool folderTiles: opt("folderTiles", true)    // the list: folders as tiles above the files
+  readonly property bool showSize: opt("showSize", true)
+  readonly property bool showDate: opt("showDate", true)
+  readonly property bool showKind: opt("showKind", false)
+  readonly property bool folderCounts: opt("folderCounts", true)  // a folder's size column: its items
+  readonly property bool extensions: opt("extensions", true)      // off: names without their extension
+  readonly property string pathBar: opt("pathBar", "crumbs")      // crumbs | field
+  readonly property bool showDevices: opt("showDevices", true)
+  readonly property string gridSize: opt("gridSize", "medium")    // small | medium | large
+  readonly property int recentLimit: opt("recentLimit", 50)
+  readonly property bool typeAhead: opt("typeAhead", true)        // typing a name jumps to it
+  readonly property var starred: opt("starred", [])               // paths
 
   function setOption(key, value) { ModuleSettings.set("files", key, value); }
 
@@ -68,8 +86,14 @@ Singleton {
   readonly property bool atComputer: path === computerPath
   readonly property bool canBack: historyIndex > 0
   readonly property bool canForward: historyIndex < history.length - 1
-  readonly property bool canUp: path !== "" && !inTrash && !atComputer && path !== "/"
-  readonly property string title: atComputer ? "This computer" : inTrash ? "Trash" : path === "/" ? "Root" : path.split("/").pop()
+  readonly property bool atRecent: path === recentPath
+  readonly property bool atStarred: path === starredPath
+  // a place that is not a folder: nothing is made or pasted in it, there is no folder above
+  readonly property bool virtual: path.endsWith(":")
+  readonly property bool writable: path !== "" && !virtual
+  readonly property bool canUp: path !== "" && !virtual && path !== "/"
+  readonly property string title: atComputer ? "This computer" : inTrash ? "Trash" : atRecent ? "Recent" : atStarred ? "Starred"
+                                : path === "/" ? "Root" : path.split("/").pop()
 
   // Settings › Behaviour › Open at: the last folder (remembered), or a folder fixed in the settings
   readonly property string startMode: opt("startMode", "last")          // last | fixed
@@ -99,7 +123,7 @@ Singleton {
     historyIndex = index;
     path = history[index];
     // the last folder browsed is the one opened next time (not the trash, not a picker's folder)
-    if (path !== trashPath && path !== computerPath && !picker) setOption("lastPath", path);
+    if (!virtual && !picker) setOption("lastPath", path);
     query = "";
     everywhere = false;
     dupes = false;
@@ -127,7 +151,7 @@ Singleton {
   property string query: ""          // a filter of the folder (Ctrl + F), or the search everywhere's text
   property bool everywhere: false    // Ctrl + K: the search reads Home, recursively
   // typing searches the folder shown and everything below it; Ctrl + K searches all of Home
-  readonly property bool searching: (query.trim() !== "" && !inTrash) || dupes
+  readonly property bool searching: (query.trim() !== "" && !virtual) || dupes
   property bool dupes: false          // the duplicates of a folder, in the list
   property int dupGroups: 0
   property string dupKey: ""
@@ -189,6 +213,7 @@ Singleton {
       if (groupBy === "type" && kindRank(a.kind) !== kindRank(b.kind)) return kindRank(a.kind) - kindRank(b.kind);
       if (foldersFirst && (a.kind === "dir") !== (b.kind === "dir")) return a.kind === "dir" ? -1 : 1;
       if (inTrash) return (b.deleted ?? "").localeCompare(a.deleted ?? "") || a.name.localeCompare(b.name);
+      if (atRecent) return (b.visited ?? "").localeCompare(a.visited ?? "");
       const c = sortBy === "size" ? a.size - b.size
               : sortBy === "mtime" ? a.mtime - b.mtime
               : a.name.localeCompare(b.name);
@@ -246,7 +271,12 @@ Singleton {
     if (dupes) { run(dupProc, ["duplicates", dupKey], dupKey); return; }
     if (atComputer) { refreshVolumes(); return; }
     if (inTrash) run(listProc, ["trash-list"], path);
-    else run(listProc, ["list", path], path);
+    else if (atRecent) run(listProc, ["recent", String(recentLimit)], path);
+    else if (atStarred) {
+      if (starred.length > 0) run(listProc, ["entries"].concat(starred), path);
+      else { entries = []; loading = false; }
+    }
+    else run(listProc, ["list", path].concat(folderCounts ? ["counts"] : []), path);
     if (searching) searchTimer.restart();
   }
 
@@ -327,7 +357,7 @@ Singleton {
   // ---- cut, copy, paste: the files kept until pasted (cut) or until replaced ----
   property var clip: []
   property string clipMode: ""       // copy | move
-  readonly property bool canPaste: clip.length > 0 && !inTrash
+  readonly property bool canPaste: clip.length > 0 && writable
 
   function copySelection() { if (selection.length) { clip = selection.slice(); clipMode = "copy"; toSystemClipboard(clip); } }
   function cutSelection() { if (selection.length) { clip = selection.slice(); clipMode = "move"; toSystemClipboard(clip); } }
@@ -353,7 +383,7 @@ Singleton {
 
   // ctrl + v with nothing cut or copied here: the files on the system clipboard are copied in
   function pasteFromSystem() {
-    if (inTrash || externalPaste.running) return;
+    if (!writable || externalPaste.running) return;
     externalPaste.running = true;
   }
 
@@ -553,7 +583,9 @@ Singleton {
   // Stored as "sidebar" (modules.json): [{path, name, kind, hidden}]. A default that is not stored yet
   // comes first in its default order, so a new place shows up; [] is the defaults.
   function defaultEntries() {
-    return [{ name: "This computer", path: computerPath, kind: "computer" }]
+    return [{ name: "This computer", path: computerPath, kind: "computer" },
+            { name: "Recent", path: recentPath, kind: "recent" },
+            { name: "Starred", path: starredPath, kind: "starred" }]
       .concat(places.map(p => ({ name: p.name, path: p.path, kind: "place" })))
       .concat([{ name: "Trash", path: trashPath, kind: "trash" }]);
   }
@@ -588,6 +620,22 @@ Singleton {
   }
   function restoreSidebar() { setSidebar([]); }
 
+  // ---- starred: files and folders kept in the sidebar's Starred ----
+  function isStarred(p) { return starred.includes(p); }
+  function toggleStar(paths) {
+    const all = paths.every(p => starred.includes(p));
+    setOption("starred", all ? starred.filter(p => !paths.includes(p)) : starred.concat(paths.filter(p => !starred.includes(p))));
+    if (atStarred) refresh();
+  }
+
+  // a name as the list shows it: without its extension when Settings › Names say so
+  function shownName(e) {
+    if (extensions || e.kind === "dir") return e.name;
+    const i = e.name.lastIndexOf(".");
+    return i > 0 ? e.name.slice(0, i) : e.name;
+  }
+
+
 
   // ---- places (the backend's: Home, the user folders, Root) and devices (udisks2) ----
   property var places: []
@@ -604,7 +652,7 @@ Singleton {
   Timer {
     id: udisksDebounce
     interval: 400
-    onTriggered: { root.refreshDevices(); if (root.atComputer) root.refreshVolumes(); }
+    onTriggered: { root.refreshDevices(); root.refreshVolumes(); }
   }
   Process {
     id: udisksMonitor
@@ -612,7 +660,7 @@ Singleton {
     running: root.active
     stdout: SplitParser { onRead: udisksDebounce.restart() }
   }
-  onActiveChanged: if (active) { refreshDevices(); if (atComputer) refreshVolumes(); }
+  onActiveChanged: if (active) { refreshDevices(); refreshVolumes(); }
 
   // the folder shown is read again while it is open (a search has its own reading)
   Timer {

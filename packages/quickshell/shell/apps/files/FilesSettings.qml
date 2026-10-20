@@ -3,13 +3,13 @@ import qs.config
 import qs.kit
 
 // Files options in the Shell Manager (Shell apps › Files, ModuleSettings
-// "files"), by what they change: the view, the list's order, the search, what
-// a click does, the file chooser's size, what asks first, and the actions of
-// the right click's menu.
+// "files"), by what they change: the view, the rows and their columns, the
+// order, the search, the sidebar, recent and starred files, what a click does,
+// the file chooser's size, what asks first, and the actions of the right click's menu.
 KitColumn {
   spacing: Theme.gapGroup
 
-  KitLabel { text: "VIEW" }
+  KitLabel { text: "VIEW"; value: FilesService.view.toUpperCase() }
 
   KitRow {
     wide: true
@@ -20,6 +20,44 @@ KitColumn {
       model: [{ label: "List", value: "list" }, { label: "Grid", value: "grid" }, { label: "Columns", value: "columns" }]
       current: FilesService.view
       onPicked: value => FilesService.setOption("view", value)
+    }
+  }
+
+  KitRow {
+    wide: true
+    label: "Density"
+    hint: "A row's height in the list"
+
+    KitSegments {
+      model: [{ label: "Compact", value: "compact" }, { label: "Normal", value: "normal" }, { label: "Roomy", value: "roomy" }]
+      current: FilesService.density
+      onPicked: value => FilesService.setOption("density", value)
+    }
+  }
+
+  KitRow {
+    wide: true
+    label: "Card size"
+    hint: "Of the grid"
+
+    KitSegments {
+      model: [{ label: "Small", value: "small" }, { label: "Medium", value: "medium" }, { label: "Large", value: "large" }]
+      current: FilesService.gridSize
+      onPicked: value => FilesService.setOption("gridSize", value)
+    }
+  }
+
+  KitToggleRow { module: "files"; key: "folderTiles"; fallback: true; label: "Folders as tiles"; hint: "List: folders above files" }
+
+  KitRow {
+    wide: true
+    label: "Path bar"
+    hint: "Ctrl + L types a path"
+
+    KitSegments {
+      model: [{ label: "Crumbs", value: "crumbs" }, { label: "Field", value: "field" }]
+      current: FilesService.pathBar
+      onPicked: value => FilesService.setOption("pathBar", value)
     }
   }
 
@@ -38,15 +76,19 @@ KitColumn {
     }
   }
 
-  KitToggleRow { module: "files"; key: "hints"; fallback: true; label: "Show key hints"; hint: "Off: no line under the list" }
-
   KitLine {}
 
-  KitLabel { text: "LIST" }
+  KitLabel { text: "ROWS" }
+
+  KitToggleRow { module: "files"; key: "checkboxes"; fallback: true; label: "Checkboxes"; hint: "Tick rows to select them" }
+
+  KitToggleRow { module: "files"; key: "rowActions"; fallback: true; label: "Menu button"; hint: "A ⋮ on the hovered row" }
 
   KitToggleRow { module: "files"; key: "hidden"; fallback: false; label: "Show hidden files"; hint: "Ctrl + H in the window" }
 
   KitToggleRow { module: "files"; key: "thumbnails"; fallback: true; label: "Show thumbnails"; hint: "Off: an icon" }
+
+  KitToggleRow { module: "files"; key: "extensions"; fallback: true; label: "Show extensions"; hint: "Off: photo, not photo.jpg" }
 
   KitRow {
     wide: true
@@ -60,6 +102,21 @@ KitColumn {
     }
   }
 
+  KitLine {}
+
+  KitLabel { text: "COLUMNS"; value: [FilesService.showKind, FilesService.showSize, FilesService.showDate].filter(x => x).length + " OF 3" }
+
+  KitToggleRow { module: "files"; key: "showKind"; fallback: false; label: "Type"; hint: "Folder, or the extension" }
+
+  KitToggleRow { module: "files"; key: "showSize"; fallback: true; label: "Size" }
+
+  KitToggleRow { module: "files"; key: "showDate"; fallback: true; label: "Modified"; hint: "Trash: when it was deleted" }
+
+  KitToggleRow { module: "files"; key: "folderCounts"; fallback: true; label: "Folder sizes"; hint: "Its items; off: --" }
+
+  KitLine {}
+
+  KitLabel { text: "ORDER" }
 
   KitRow {
     wide: true
@@ -80,7 +137,7 @@ KitColumn {
   KitRow {
     wide: true
     label: "Group by"
-    hint: "Type: the kinds one after another"
+    hint: "Type: the kinds in turn"
 
     KitSegments {
       model: [{ label: "None", value: "none" }, { label: "Type", value: "type" }]
@@ -116,6 +173,8 @@ KitColumn {
       onPicked: value => FilesService.setOption("searchSeconds", value)
     }
   }
+
+  KitToggleRow { module: "files"; key: "typeAhead"; fallback: true; label: "Type to find"; hint: "A letter jumps to a name" }
 
   KitLine {}
 
@@ -233,16 +292,46 @@ KitColumn {
   KitLine {}
 
   // the sidebar's items in their order: shown or hidden; the sidebar itself is reordered by dragging
-  KitLabel { text: "SIDEBAR"; value: FilesService.sidebarItems.filter(i => !i.hidden).length + " SHOWN" }
+  KitLabel { text: "SIDEBAR" }
+
+  KitToggleRow { module: "files"; key: "showDevices"; fallback: true; label: "Show devices"; hint: "Drives plugged in" }
+
+  KitLine {}
+
+  // the sidebar's rows shown or hidden, by section; the order is set by dragging in the sidebar
+  KitLabel { text: "PLACES SHOWN"; value: FilesService.sidebarItems.filter(i => i.kind !== "folder" && !i.hidden).length + " OF " + FilesService.sidebarItems.filter(i => i.kind !== "folder").length }
 
   Repeater {
-    model: FilesService.sidebarItems
+    model: FilesService.sidebarItems.filter(i => i.kind !== "folder")
 
     KitRow {
       required property var modelData
-      wide: true
       label: modelData.name
-      hint: ({ computer: "This computer", place: "Place", trash: "Trash", folder: "Pinned folder" })[modelData.kind] ?? ""
+      hint: ({ computer: "The storage", recent: "Files opened lately", starred: "Files you starred",
+               place: "Place", trash: "Trash" })[modelData.kind] ?? ""
+
+      KitSwitch {
+        checked: !modelData.hidden
+        onToggled: FilesService.setHidden(modelData.path, checked)
+      }
+    }
+  }
+
+  KitLabel { text: "PINNED"; value: FilesService.sidebarItems.filter(i => i.kind === "folder").length + "" }
+
+  KitRow {
+    visible: FilesService.sidebarItems.filter(i => i.kind === "folder").length === 0
+    label: "No folders pinned"
+    hint: "Right click a folder in Files"
+  }
+
+  Repeater {
+    model: FilesService.sidebarItems.filter(i => i.kind === "folder")
+
+    KitRow {
+      required property var modelData
+      label: modelData.name
+      hint: modelData.path
 
       KitSwitch {
         checked: !modelData.hidden
@@ -255,6 +344,35 @@ KitColumn {
     text: "Restore defaults"
     icon: "rotate-ccw"
     onClicked: FilesService.restoreSidebar()
+  }
+
+  KitLine {}
+
+  KitLabel { text: "RECENT AND STARRED"; value: FilesService.starred.length + " STARRED" }
+
+  KitRow {
+    wide: true
+    label: "Recent files"
+    hint: "The newest, at most"
+
+    KitSegments {
+      model: [{ label: "20", value: 20 }, { label: "50", value: 50 }, { label: "100", value: 100 }]
+      current: FilesService.recentLimit
+      onPicked: value => FilesService.setOption("recentLimit", value)
+    }
+  }
+
+  KitRow {
+    wide: true
+    label: "Starred"
+    hint: "Ctrl + S stars a selection"
+
+    KitButton {
+      text: "Clear"
+      icon: "x"
+      disabled: FilesService.starred.length === 0
+      onClicked: FilesService.setOption("starred", [])
+    }
   }
 
   KitLine {}

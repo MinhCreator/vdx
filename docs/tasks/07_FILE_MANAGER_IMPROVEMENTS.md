@@ -1,6 +1,6 @@
 # 07 — File manager: storage home page, custom sidebar, fewer frames
 
-Status: Implemented, partially verified (A and B and C in code; the owner approved all three on 2026-10-20; drag, pin and hide not clicked through here; C's screenshot check is the owner's) · Depends on: 02-A (listing fixes land first, same files) ·
+Status: Implemented, partially verified (A and B and C in code; the owner approved all three on 2026-10-20; drag, pin and hide not clicked through here; C's screenshot check is the owner's; B's sections and the USB section (2026-10-20, owner request) have no real stick tested yet) · Depends on: 02-A (listing fixes land first, same files) ·
 Spec: §8. Shell paths are under `packages/quickshell/shell/`.
 Three parts, run in order A → B → C or independently (they touch different files mostly; A and B both touch `FilesSidebar.qml` — not in parallel).
 
@@ -38,7 +38,7 @@ appears/disappears; unmounted partition mounts on click; no pseudo fs.
 
 Category: B · Gate: proposal approved (2026-10-20).
 
-Done: one ordered list (`FilesService.sidebarItems`, stored as `sidebar` in `modules.json`): drag a row to reorder, right click to hide or unpin (a default is hidden, a folder unpinned), a folder's right click › Pin to sidebar, Settings › SIDEBAR with a switch per item and Restore defaults; devices stay automatic; the empty state. Bookmarks migrated by `settings_migrate.py` version 2 (tested).
+Done: sections (PLACES, PINNED, USB, DEVICES; `FilesSidebar.qml`): each keeps the stored order (`FilesService.sidebarItems`, stored as `sidebar` in `modules.json`); a drag stays inside its section; USB lists removable drives plugged in, mounted or not, with a mount / eject button (`FilesPlace` `action`); `files.py devices` gives `removable`. Earlier: drag a row to reorder, right click to hide or unpin (a default is hidden, a folder unpinned), a folder's right click › Pin to sidebar, Settings › SIDEBAR with a switch per item and Restore defaults; devices stay automatic; the empty state. Bookmarks migrated by `settings_migrate.py` version 2 (tested).
 
 - Audit current sections (places from backend, bookmarks, devices) and actions (bookmark/unbookmark).
 - Proposal: one ordered list of pinned entries (places + bookmarks), show/hide per default place, drag to reorder, add current folder, remove, "Restore defaults"; devices section stays automatic.

@@ -42,6 +42,33 @@ class Files(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual({e["name"]: e["kind"] for e in o["entries"]}, {"a.txt": "text", ".hidden": "file"})
 
+    def test_list_counts_a_folders_items_when_asked(self):
+        o, _ = self.call("list", str(self.home), "counts")
+        self.assertEqual({e["name"]: e.get("count") for e in o["entries"] if e["kind"] == "dir"}, {"src": 2, "dst": 0})
+        o, _ = self.call("list", str(self.home))
+        self.assertNotIn("count", o["entries"][0])
+
+    def test_recent_lists_existing_files_newest_first_once(self):
+        a, b = self.path("src/a.txt"), self.path("src/.hidden")
+        xbel = self.home / ".local/share/recently-used.xbel"
+        xbel.parent.mkdir(parents=True)
+        xbel.write_text(f'''<?xml version="1.0"?><xbel version="1.0">
+<bookmark href="file://{a}" visited="2026-01-01T10:00:00Z"/>
+<bookmark href="file://{b}" visited="2026-02-01T10:00:00Z"/>
+<bookmark href="file://{a}" visited="2026-03-01T10:00:00Z"/>
+<bookmark href="file://{self.home}/gone.txt" visited="2026-04-01T10:00:00Z"/>
+<bookmark href="https://example.org/" visited="2026-05-01T10:00:00Z"/>
+<bookmark href="file://{self.home}/src" visited="2026-06-01T10:00:00Z"/></xbel>''')
+        o, code = self.call("recent")
+        self.assertEqual(code, 0)
+        self.assertEqual([e["path"] for e in o["entries"]], [a, b])
+        o, _ = self.call("recent", "1")
+        self.assertEqual(len(o["entries"]), 1)
+
+    def test_entries_skips_paths_that_are_gone(self):
+        o, _ = self.call("entries", self.path("src/a.txt"), self.path("nope"))
+        self.assertEqual([e["name"] for e in o["entries"]], ["a.txt"])
+
     def test_a_name_taken_by_a_paste_gets_a_number(self):
         self.call("paste", "copy", self.path("dst"), self.path("src/a.txt"))
         o, _ = self.call("paste", "copy", self.path("dst"), self.path("src/a.txt"))
@@ -195,6 +222,23 @@ class VolumesFrom(unittest.TestCase):
                          [("nas", "network"), ("USB", "removable"), ("sdc1", "removable")])
         self.assertEqual(rows[2]["mount"], "")
         self.assertEqual(rows[2]["size"], "16G")
+
+    def test_devices_tell_removable_drives_and_keep_unmounted_ones(self):
+        blocks = [
+            {"name": "sdb", "path": "/dev/sdb", "type": "disk", "rm": "1", "children": [
+                {"name": "sdb1", "path": "/dev/sdb1", "type": "part", "fstype": "vfat", "label": "STICK",
+                 "mountpoint": "/run/media/u/STICK", "size": "8G"}]},
+            {"name": "sdc1", "path": "/dev/sdc1", "type": "part", "fstype": "exfat", "label": "",
+             "mountpoint": None, "hotplug": "1", "size": "16G"},
+            {"name": "sda2", "path": "/dev/sda2", "type": "part", "fstype": "ext4", "label": "root",
+             "mountpoint": "/", "size": "100G"},
+        ]
+        nodes = list(self.files.block_nodes(blocks))
+        devices = self.files.devices_from(nodes, lambda p: (100, 40))
+        self.assertEqual([(d["name"], d["removable"], d["mount"]) for d in devices],
+                         [("STICK", True, "/run/media/u/STICK"), ("sdc1", True, "")])
+        self.assertEqual((devices[0]["total"], devices[0]["free"]), (100, 40))
+        self.assertEqual((devices[1]["total"], devices[1]["free"]), (0, 0))
 
     def test_a_bind_mount_of_the_same_source_is_not_a_second_row(self):
         mounts = [

@@ -5,7 +5,9 @@ delete, restore. Trash follows the freedesktop spec in the home trash; a file
 on another device goes through `gio trash` (that device's own trash) and does
 not show in the trash list.
 
-    list <dir>                       {"path", "entries": [entry, ...]}
+    list <dir> [counts]              {"path", "entries": [entry, ...]}; counts: a folder's "count" of items
+    recent [limit]                   the files opened lately (recently-used.xbel), the newest first, "visited"
+    entries <path...>                an entry per path that still exists (the starred ones)
     search <dir> <query> [limit seconds]   entries whose name contains the query (walk, capped)
     places                           {"places": [{name, path}, ...]} from user-dirs.dirs
     mkdir <path>                     a new folder
@@ -22,7 +24,7 @@ not show in the trash list.
     empty-trash                      {"ok": true}
     preview <path> [lines]           {"text"}: the first lines of a text file ("" when binary)
     rename-all <json>                [[path, new name], ...] in one go, {"done", "errors"}
-    devices                          {"devices": [{name, path, mount, size, fstype}, ...]}
+    devices                          {"devices": [{name, path, mount, removable, size, fstype, total, free}, ...]}
     volumes                          {"volumes": [{name, path, mount, mounts, fstype, kind, total, free, size}]}
                                      the "This computer" page: real filesystems once each, unmounted drives last
     mount <device> / unmount <device>   udisks2 (/dev/…); mount: {"mount": where it went}
@@ -146,7 +148,15 @@ def each(names, action):
     out({"ok": True, "done": done, "errors": errors})
 
 
-def cmd_list(path):
+def item_count(path):
+    try:
+        with os.scandir(path) as it:
+            return sum(1 for _ in it)
+    except OSError:
+        return -1
+
+
+def cmd_list(path, counts=False):
     path = os.path.abspath(os.path.expanduser(path))
     if not os.path.isdir(path):
         fail(f"not a folder: {path}")
@@ -155,7 +165,51 @@ def cmd_list(path):
     except PermissionError:
         fail("permission denied")
     entries = [e for e in (entry(os.path.join(path, n)) for n in names) if e]
+    if counts:
+        for e in entries:
+            if e["kind"] == "dir":
+                e["count"] = item_count(e["path"])
     out({"ok": True, "path": path, "entries": entries})
+
+
+def recent_from(text, limit):
+    """The local files of a recently-used.xbel, the newest visit first, each once."""
+    import xml.etree.ElementTree as ET
+    try:
+        root = ET.fromstring(text)
+    except ET.ParseError:
+        return []
+    seen = {}
+    for b in root.iter("bookmark"):
+        href = b.get("href", "")
+        if not href.startswith("file://"):
+            continue
+        path = urllib.parse.unquote(href[7:])
+        when = b.get("visited") or b.get("modified") or ""
+        if when > seen.get(path, ""):
+            seen[path] = when
+    found = []
+    for path, when in sorted(seen.items(), key=lambda kv: kv[1], reverse=True):
+        e = entry(path)
+        if e and e["kind"] != "dir":
+            e["visited"] = when
+            found.append(e)
+            if len(found) >= limit:
+                break
+    return found
+
+
+def cmd_recent(limit=50):
+    try:
+        with open(os.path.join(DATA, "recently-used.xbel"), encoding="utf-8") as f:
+            text = f.read()
+    except OSError:
+        text = "<xbel/>"
+    out({"ok": True, "entries": recent_from(text, limit)})
+
+
+def cmd_entries(paths):
+    out({"ok": True, "entries": [e for e in (entry(p) for p in paths) if e]})
 
 
 def cmd_search(root, query, limit=SEARCH_LIMIT, seconds=SEARCH_SECONDS):
@@ -419,24 +473,24 @@ def read_lsblk():
         fail("could not read lsblk")
 
 
-def cmd_devices():
+def devices_from(nodes, usage):
+    """The sidebar's devices: removable drives (plugged in, mounted or not) and anything udisks mounted
+    for the user. nodes: block_nodes(); usage(path) -> (total, free). "removable" tells the USB section
+    from the rest."""
     devices = []
-    for d, removable in block_nodes(read_lsblk()):
+    for d, removable in nodes:
         mount = d.get("mountpoint") or ""
-        # removable drives, and anything udisks mounted for the user
         if removable or mount.startswith(("/run/media/", "/media/")):
-            total = free = 0
-            if mount:
-                try:
-                    usage = shutil.disk_usage(mount)
-                    total, free = usage.total, usage.free
-                except OSError:
-                    pass
+            total, free = usage(mount) if mount else (0, 0)
             devices.append({"name": d.get("label") or os.path.basename(d.get("path") or ""),
-                            "path": d.get("path") or "", "mount": mount,
+                            "path": d.get("path") or "", "mount": mount, "removable": removable,
                             "size": d.get("size") or "", "fstype": d.get("fstype"),
                             "total": total, "free": free})
-    out({"ok": True, "devices": devices})
+    return devices
+
+
+def cmd_devices():
+    out({"ok": True, "devices": devices_from(block_nodes(read_lsblk()), disk_space)})
 
 
 def volumes_from(mounts, nodes, usage):
@@ -655,8 +709,12 @@ def main(argv):
     if not argv:
         fail(usage)
     cmd, args = argv[0], argv[1:]
-    if cmd == "list" and len(args) == 1:
-        cmd_list(args[0])
+    if cmd == "list" and len(args) in (1, 2):
+        cmd_list(args[0], args[1:] == ["counts"])
+    elif cmd == "recent" and len(args) in (0, 1):
+        cmd_recent(*(int(a) for a in args))
+    elif cmd == "entries" and args:
+        cmd_entries(args)
     elif cmd == "search" and len(args) in (2, 4):
         cmd_search(args[0], args[1], *(int(a) for a in args[2:]))
     elif cmd == "places" and not args:

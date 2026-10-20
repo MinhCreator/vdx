@@ -20,7 +20,7 @@ Rectangle {
 
   clip: true
   radius: Theme.radiusCard
-  color: "transparent"
+  color: Theme.background1
 
   onFolderChanged: {
     if (proc.running) proc.running = false;
@@ -45,23 +45,27 @@ Rectangle {
     id: caption
     // the caption starts where the names start
     x: Theme.gapLoose + Theme.iconSmall + Theme.gapMedium
-    y: 0   // the same line as the list's caption row
+    height: 34   // the same height as the list's captions
+    verticalAlignment: Text.AlignVCenter
     width: root.width - x - Theme.gapSmall
     text: root.title
     color: Theme.muted
     elide: Text.ElideRight
     font.pixelSize: Theme.fontSize - 2
     font.letterSpacing: 1
+    font.weight: Font.DemiBold
   }
 
-  KitLine {
+  Rectangle {
     id: line
-    anchors { left: parent.left; right: parent.right; top: caption.bottom; topMargin: Theme.gapTight }
+    anchors { left: parent.left; right: parent.right; top: caption.bottom; leftMargin: Theme.gapWide; rightMargin: Theme.gapWide }
+    height: 1
+    color: Theme.background3
   }
 
   ListView {
     id: list
-    anchors { left: parent.left; right: parent.right; top: line.bottom; bottom: parent.bottom; margins: Theme.gapTight }
+    anchors { left: parent.left; right: parent.right; top: line.bottom; bottom: parent.bottom; margins: Theme.gapHair }
     clip: true
     model: root.rowsModel
     boundsBehavior: Flickable.StopAtBounds

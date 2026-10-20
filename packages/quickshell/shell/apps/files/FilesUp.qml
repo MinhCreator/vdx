@@ -17,16 +17,17 @@ Rectangle {
   color: area.containsMouse ? Theme.background2 : Theme.clear
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
-  // the '..' sits in the icon column, the hint in the name column
+  // the '..' sits in the icon column, the hint in the name column (after the box to tick, when there is one)
+  readonly property int iconX: Theme.gapWide + (FilesService.checkboxes && !FilesService.picker ? 16 + Theme.gapWide : 0)
   KitText {
     id: dots
-    anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+    anchors { left: parent.left; leftMargin: root.iconX; verticalCenter: parent.verticalCenter }
     text: ".."
     font.weight: Font.ExtraBold
   }
 
   KitText {
-    anchors { left: parent.left; leftMargin: Theme.gapLoose + Theme.iconSmall + Theme.gapMedium; verticalCenter: parent.verticalCenter }
+    anchors { left: dots.right; leftMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
     text: "Up"
     color: Theme.muted
     font.pixelSize: Theme.fontSize - 2

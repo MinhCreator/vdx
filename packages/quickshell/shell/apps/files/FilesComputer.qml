@@ -2,8 +2,8 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// This computer: the storage of the system. The view button decides the look: grid (a card per
-// storage, used and free space as a bar) or list (a row per storage). A mounted one opens on a
+// This computer: the storage of the system. The view button decides the look: grid (a raised card per
+// storage, used and free space as a bar) or list (the folder list's table: a row per storage). A mounted one opens on a
 // click; a removable drive not mounted yet mounts on a click and opens. Right click for the menu.
 Rectangle {
   id: root
@@ -14,9 +14,9 @@ Rectangle {
   // the storage in the sort's order: by name, or by size (the largest first)
   readonly property var storage: FilesService.volumes.slice().sort((a, b) =>
     FilesService.computerSort === "size" ? b.total - a.total : a.name.localeCompare(b.name))
-  readonly property int barWidth: 160       // the list's fixed columns: the used bar, then the free / total text
-  readonly property int spaceWidth: 200
-  readonly property int gap: Theme.gapLoose
+  readonly property int barWidth: 140       // the list's fixed columns: the used bar, the space text
+  readonly property int spaceWidth: 180
+  readonly property int rowH: 48
 
   radius: Theme.radiusCard
   color: "transparent"
@@ -24,6 +24,9 @@ Rectangle {
 
   function kindOf(d) { return ({ disk: "DISK", removable: "REMOVABLE", network: "NETWORK" })[d.kind] ?? "DISK"; }
   function usedOf(d) { return d.total > 0 ? (d.total - d.free) / d.total : 0; }
+  // nearly full: the warning colours, as the sidebar's storage
+  function levelOf(v) { return v > 0.95 ? Theme.red : v > 0.85 ? Theme.yellow : Theme.foreground1; }
+  function iconOf(d) { return d.kind === "network" ? "server" : d.kind === "removable" ? "package" : "hard-drive"; }
   function caption(d) {
     return d.mount !== "" ? kindOf(d) + " · " + (d.fstype ?? "").toUpperCase()
                           : kindOf(d) + " · NOT MOUNTED" + (d.size ? " · " + d.size : "");
@@ -46,26 +49,27 @@ Rectangle {
 
   KitText {
     visible: root.storage.length === 0
-    anchors { left: parent.left; top: parent.top; margins: Theme.gapLoose }
+    anchors { left: parent.left; top: parent.top; topMargin: Theme.gapGroup }
     text: "No storage found"
     color: Theme.muted
   }
 
-  // ---- grid: a card each ----
+  // ---- grid: a raised card each ----
   Flickable {
     visible: root.asGrid
-    anchors { fill: parent; margins: Theme.gapSmall }
+    anchors.fill: parent
     contentHeight: flow.implicitHeight
     clip: true
+    interactive: contentHeight > height
     boundsBehavior: Flickable.StopAtBounds
 
     Grid {
       id: flow
       // as many cards as fit at ~240 px; they share the width, so the row is always full
-      readonly property int cols: Math.max(1, Math.floor((width + spacing) / (240 + spacing)))
-      readonly property real cardWidth: (width - spacing * (cols - 1)) / cols
+      readonly property int across: Math.max(1, Math.floor((width + Theme.gapMedium) / (240 + Theme.gapMedium)))
+      readonly property real cardWidth: (width - Theme.gapMedium * (across - 1)) / across
       width: parent.width
-      columns: cols
+      columns: across
       spacing: Theme.gapMedium
 
       Repeater {
@@ -77,44 +81,48 @@ Rectangle {
           readonly property bool mounted: modelData.mount !== ""
 
           width: flow.cardWidth
-          height: 92
-          radius: Theme.radiusControl
-          color: area.containsMouse ? Theme.background2 : Theme.clear
+          height: 96
+          radius: Theme.radiusCard
+          color: area.containsMouse ? Theme.background2 : Theme.background1
           Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
           KitIcon {
             id: glyph
-            anchors { left: parent.left; top: parent.top; leftMargin: Theme.gapLoose; topMargin: Theme.gapLoose }
-            name: modelData.kind === "network" ? "server" : modelData.kind === "removable" ? "package" : "monitor"
-            size: Theme.iconSmall
+            anchors { left: parent.left; top: parent.top; leftMargin: Theme.gapWide; topMargin: Theme.gapWide + 2 }
+            name: root.iconOf(card.modelData)
+            size: Theme.iconSmall + 2
           }
 
-          KitText {
-            anchors { left: glyph.right; leftMargin: Theme.gapMedium; right: parent.right; rightMargin: Theme.gapLoose; top: parent.top; topMargin: Theme.gapLoose }
-            text: card.modelData.name
-            elide: Text.ElideRight
-            font.weight: Font.ExtraBold
-          }
+          Column {
+            anchors { left: glyph.right; leftMargin: Theme.gapMedium; right: parent.right; rightMargin: Theme.gapWide; top: parent.top; topMargin: Theme.gapWide }
 
-          KitText {
-            anchors { left: glyph.right; leftMargin: Theme.gapMedium; right: parent.right; rightMargin: Theme.gapLoose; top: glyph.bottom; topMargin: 2 }
-            text: root.caption(card.modelData)
-            elide: Text.ElideRight
-            color: Theme.muted
-            font.pixelSize: Theme.fontSize - 2
+            KitText {
+              width: parent.width
+              text: card.modelData.name
+              elide: Text.ElideRight
+              font.weight: Font.ExtraBold
+            }
+
+            KitText {
+              width: parent.width
+              text: root.caption(card.modelData)
+              elide: Text.ElideRight
+              color: Theme.muted
+              font.pixelSize: Theme.fontSize - 2
+            }
           }
 
           KitBar {
             visible: card.mounted
-            anchors { left: parent.left; right: parent.right; leftMargin: Theme.gapLoose; rightMargin: Theme.gapLoose; bottom: space.top; bottomMargin: Theme.gapTight }
+            anchors { left: parent.left; right: parent.right; leftMargin: Theme.gapWide; rightMargin: Theme.gapWide; bottom: space.top; bottomMargin: Theme.gapSmall }
             value: root.usedOf(card.modelData)
-            tint: value > 0.9 ? Theme.accent : Theme.foreground1
+            tint: root.levelOf(value)
           }
 
           KitText {
             id: space
             visible: card.mounted
-            anchors { left: parent.left; leftMargin: Theme.gapLoose; bottom: parent.bottom; bottomMargin: Theme.gapLoose }
+            anchors { left: parent.left; leftMargin: Theme.gapWide; bottom: parent.bottom; bottomMargin: Theme.gapWide }
             text: root.space(card.modelData)
             color: Theme.muted
             font.pixelSize: Theme.fontSize - 2
@@ -136,115 +144,138 @@ Rectangle {
     }
   }
 
-  // ---- list: a caption row, then a row each; the columns are the same for all rows ----
-  Item {
-    id: head
-    visible: !root.asGrid
-    anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.gapSmall }
-    height: nameCap.implicitHeight + Theme.gapTight
-
-    KitText {
-      id: nameCap
-      anchors { left: parent.left; leftMargin: Theme.gapLoose + Theme.iconSmall + Theme.gapMedium; verticalCenter: parent.verticalCenter }
-      text: "NAME"
-      color: Theme.muted
-      font.pixelSize: Theme.fontSize - 2
-      font.letterSpacing: 1
-    }
-    KitText {
-      anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
-      width: root.spaceWidth
-      horizontalAlignment: Text.AlignRight
-      text: "FREE OF TOTAL"
-      color: Theme.muted
-      font.pixelSize: Theme.fontSize - 2
-      font.letterSpacing: 1
-    }
-    KitLine {
-      anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-    }
-  }
-
+  // ---- list: the folder list's table: captions, then a row each, in one raised box ----
   Flickable {
-    visible: !root.asGrid
-    anchors { fill: parent; margins: Theme.gapSmall; topMargin: head.height + Theme.gapSmall }
-    contentHeight: rows.implicitHeight
+    visible: !root.asGrid && root.storage.length > 0
+    anchors.fill: parent
+    contentHeight: box.height
     clip: true
+    interactive: contentHeight > height
     boundsBehavior: Flickable.StopAtBounds
 
-    Column {
-      id: rows
+    Rectangle {
+      id: box
       width: parent.width
-      spacing: 2
+      height: table.implicitHeight + Theme.gapSmall
+      radius: Theme.radiusCard
+      color: Theme.background1
 
-      Repeater {
-        model: root.asGrid ? [] : root.storage
+      // the fixed columns from the right: the used bar, the space; the name takes the rest
+      readonly property real barX: width - Theme.gapWide - root.barWidth
+      readonly property real spaceX: barX - Theme.gapWide - root.spaceWidth
+      readonly property var seps: [barX - Theme.gapWide / 2, spaceX - Theme.gapWide / 2]
 
-        Rectangle {
-          id: row
-          required property var modelData
-          readonly property bool mounted: modelData.mount !== ""
+      Column {
+        id: table
+        width: parent.width
 
-          width: rows.width
-          height: 48
-          radius: Theme.radiusControl
-          color: rowArea.containsMouse ? Theme.background2 : Theme.clear
-          Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+        Item {
+          id: captions
+          width: parent.width
+          height: 34
 
-          KitIcon {
-            id: rowGlyph
-            anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
-            name: row.modelData.kind === "network" ? "server" : row.modelData.kind === "removable" ? "package" : "monitor"
-            size: Theme.iconSmall
+          FilesCaption { x: 0; width: box.spaceX; height: parent.height; textX: Theme.gapWide + Theme.iconSmall + 2 + Theme.gapMedium; text: "NAME" }
+          FilesCaption { x: box.spaceX; width: root.spaceWidth; height: parent.height; alignRight: true; text: "FREE OF TOTAL" }
+          FilesCaption { x: box.barX; width: root.barWidth; height: parent.height; textX: 0; text: "USED" }
+
+          Repeater {
+            model: box.seps
+            Rectangle { required property real modelData; x: modelData; y: Theme.gapMedium; width: 1; height: captions.height - 2 * Theme.gapMedium; color: Theme.background3 }
           }
 
-          // the name takes what the fixed columns leave
-          Column {
-            anchors { left: rowGlyph.right; leftMargin: Theme.gapMedium; right: spaceText.left; rightMargin: root.gap; verticalCenter: parent.verticalCenter }
+          Rectangle { anchors.bottom: parent.bottom; x: Theme.gapWide; width: parent.width - 2 * Theme.gapWide; height: 1; color: Theme.background3 }
+        }
+
+        Repeater {
+          model: root.asGrid ? [] : root.storage
+
+          Item {
+            id: row
+            required property var modelData
+            required property int index
+            readonly property bool mounted: modelData.mount !== ""
+
+            width: table.width
+            height: root.rowH
+
+            Rectangle {
+              anchors { fill: parent; leftMargin: Theme.gapHair; rightMargin: Theme.gapHair }
+              radius: Theme.radiusControl
+              color: rowArea.containsMouse ? Theme.background2 : Theme.clear
+              Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+            }
+
+            // the hairline between rows
+            Rectangle {
+              visible: row.index > 0
+              x: Theme.gapWide
+              width: parent.width - 2 * Theme.gapWide
+              height: 1
+              color: Theme.background2
+            }
+
+            Repeater {
+              model: box.seps
+              Rectangle { required property real modelData; x: modelData; y: Theme.gapSmall; width: 1; height: row.height - 2 * Theme.gapSmall; color: Theme.background2 }
+            }
+
+            KitIcon {
+              id: rowGlyph
+              x: Theme.gapWide
+              anchors.verticalCenter: parent.verticalCenter
+              name: root.iconOf(row.modelData)
+              size: Theme.iconSmall + 2
+            }
+
+            Column {
+              x: rowGlyph.x + rowGlyph.width + Theme.gapMedium
+              width: box.spaceX - Theme.gapWide - x
+              anchors.verticalCenter: parent.verticalCenter
+
+              KitText {
+                width: parent.width
+                text: row.modelData.name
+                elide: Text.ElideRight
+                font.weight: Font.ExtraBold
+              }
+              KitText {
+                width: parent.width
+                text: root.caption(row.modelData)
+                elide: Text.ElideRight
+                color: Theme.muted
+                font.pixelSize: Theme.fontSize - 2
+              }
+            }
 
             KitText {
-              width: parent.width
-              text: row.modelData.name
-              elide: Text.ElideRight
-              font.weight: Font.ExtraBold
-            }
-            KitText {
-              width: parent.width
-              text: root.caption(row.modelData)
-              elide: Text.ElideRight
+              x: box.spaceX
+              width: root.spaceWidth
+              anchors.verticalCenter: parent.verticalCenter
+              horizontalAlignment: Text.AlignRight
+              text: row.mounted ? Format.humanSize(row.modelData.free) + " of " + Format.humanSize(row.modelData.total) : "--"
               color: Theme.muted
-              font.pixelSize: Theme.fontSize - 2
+              font.pixelSize: Theme.fontSize - 1
             }
-          }
 
-          KitText {
-            id: spaceText
-            anchors { right: meter.left; rightMargin: root.gap; verticalCenter: parent.verticalCenter }
-            width: root.spaceWidth
-            horizontalAlignment: Text.AlignRight
-            text: row.mounted ? Format.humanSize(row.modelData.free) + " / " + Format.humanSize(row.modelData.total) : ""
-            color: Theme.muted
-            font.pixelSize: Theme.fontSize - 2
-          }
+            KitBar {
+              visible: row.mounted
+              x: box.barX
+              width: root.barWidth
+              anchors.verticalCenter: parent.verticalCenter
+              value: root.usedOf(row.modelData)
+              tint: root.levelOf(value)
+            }
 
-          KitBar {
-            id: meter
-            visible: row.mounted
-            anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
-            width: root.barWidth
-            value: root.usedOf(row.modelData)
-            tint: value > 0.9 ? Theme.accent : Theme.foreground1
-          }
-
-          MouseArea {
-            id: rowArea
-            anchors.fill: parent
-            hoverEnabled: true
-            acceptedButtons: Qt.LeftButton | Qt.RightButton
-            cursorShape: Qt.PointingHandCursor
-            onClicked: mouse => {
-              if (mouse.button === Qt.RightButton) root.menu(row.modelData, row.mapToItem(null, mouse.x, mouse.y));
-              else root.open(row.modelData);
+            MouseArea {
+              id: rowArea
+              anchors.fill: parent
+              hoverEnabled: true
+              acceptedButtons: Qt.LeftButton | Qt.RightButton
+              cursorShape: Qt.PointingHandCursor
+              onClicked: mouse => {
+                if (mouse.button === Qt.RightButton) root.menu(row.modelData, row.mapToItem(null, mouse.x, mouse.y));
+                else root.open(row.modelData);
+              }
             }
           }
         }

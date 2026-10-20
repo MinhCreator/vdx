@@ -6,7 +6,8 @@ import qs.kit
 // right; the current place is filled. A left click opens it, a right click
 // reports where it was (scene coordinates) so Files can open its menu. With
 // `draggable`, a left drag reports the pointer (dragged while it moves, dropped
-// on release) so the sidebar can reorder its rows.
+// on release) so the sidebar can reorder its rows. `action`: an icon button at the end of the row
+// (a device's mount or unmount); its click is `actioned`, not `clicked`.
 Rectangle {
   id: root
 
@@ -17,11 +18,13 @@ Rectangle {
   property bool draggable: false
   property bool moved: false           // the press became a drag: no click
   property real pressY: 0
+  property string action: ""
 
   signal clicked()
   signal rightClicked(point at)
   signal dragged(real sceneY)
   signal dropped(real sceneY)
+  signal actioned()
 
   width: parent ? parent.width : 0
   height: 28
@@ -47,7 +50,7 @@ Rectangle {
 
   KitText {
     id: hintText
-    anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+    anchors { right: parent.right; rightMargin: Theme.gapLoose + actionButton.width * (root.action !== "" ? 1 : 0); verticalCenter: parent.verticalCenter }
     visible: root.hint !== ""
     text: root.hint
     color: Theme.muted
@@ -71,6 +74,23 @@ Rectangle {
       if (root.moved) return;
       if (mouse.button === Qt.RightButton) root.rightClicked(root.mapToItem(null, mouse.x, mouse.y));
       else root.clicked();
+    }
+  }
+
+  MouseArea {
+    id: actionButton
+    visible: root.action !== ""
+    anchors { right: parent.right; top: parent.top; bottom: parent.bottom }
+    width: height
+    hoverEnabled: true
+    cursorShape: Qt.PointingHandCursor
+    onClicked: root.actioned()
+
+    KitIcon {
+      anchors.centerIn: parent
+      name: root.action
+      size: Theme.iconSmall
+      tint: actionButton.containsMouse ? Theme.foreground0 : Theme.foreground2
     }
   }
 }

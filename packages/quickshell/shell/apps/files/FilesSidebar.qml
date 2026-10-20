@@ -2,28 +2,48 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// The sidebar: one ordered list (This computer, the places, the trash, the folders pinned), then the
-// devices, which come and go by themselves. Drag a row to move it; right click a row for its menu.
+// The sidebar, in sections: PLACES (This computer, Recent, Starred, the places, Trash), PINNED (the folders
+// you pinned), USB (removable drives, plugged in or not: a button mounts or unmounts), DEVICES (other drives
+// mounted for you), then the space left on Home's filesystem. Each section keeps its own order: a drag moves a
+// row within its section. Right click a row for its menu.
 // No frame: the strip beside it (Files' split) is the only line.
 Item {
   id: root
 
   required property var files   // the Files window
-  readonly property int visibleCount: FilesService.sidebarItems.filter(i => !i.hidden).length
+  // the stored list, each row with its place in it ("at"), by section
+  readonly property var placeItems: FilesService.sidebarItems.map((i, at) => Object.assign({ at: at }, i)).filter(i => i.kind !== "folder")
+  readonly property var pinnedItems: FilesService.sidebarItems.map((i, at) => Object.assign({ at: at }, i)).filter(i => i.kind === "folder")
+  readonly property var usbDevices: FilesService.showDevices ? FilesService.devices.filter(d => d.removable) : []
+  readonly property var otherDevices: FilesService.showDevices ? FilesService.devices.filter(d => !d.removable) : []
+  readonly property int visiblePlaces: placeItems.filter(i => !i.hidden).length
 
-  // the row being dragged (its index in the stored list), and the row a drop would land beside
+  // the row being dragged (its place in the stored list, its section), and the row a drop would land beside
   property int dragFrom: -1
+  property string dragKind: ""
   property int dropAt: -1
 
+  // the nearest row of the dragged row's section to a scene height
   function rowAt(sceneY) {
+    const rep = dragKind === "folder" ? pinnedRows : placeRows;
     let best = -1, dist = Infinity;
-    for (let i = 0; i < rows.count; i++) {
-      const r = rows.itemAt(i);
+    for (let i = 0; i < rep.count; i++) {
+      const r = rep.itemAt(i);
       if (!r || !r.visible) continue;
       const d = Math.abs(r.mapToItem(null, 0, r.height / 2).y - sceneY);
-      if (d < dist) { dist = d; best = i; }
+      if (d < dist) { dist = d; best = r.modelData.at; }
     }
     return best;
+  }
+
+  // the row at a place in the stored list (the drop line's target)
+  function rowFor(at) {
+    for (const rep of [placeRows, pinnedRows])
+      for (let i = 0; i < rep.count; i++) {
+        const r = rep.itemAt(i);
+        if (r && r.modelData.at === at) return r;
+      }
+    return null;
   }
 
   function drop() {
@@ -41,10 +61,18 @@ Item {
     ];
   }
 
+  function deviceMenu(d) {
+    return [
+      { label: "Open", disabled: d.mount === "", run: () => FilesService.go(d.mount) },
+      { label: "Mount", disabled: d.mount !== "", run: () => FilesService.mountDevice(d, false) },
+      { label: "Unmount", disabled: d.mount === "", run: () => FilesService.unmountDevice(d) },
+      { label: "Properties", run: () => FilesService.deviceProperties(d) },
+    ];
+  }
+
   Flickable {
     id: sidebar
     anchors.fill: parent
-    anchors.rightMargin: Theme.gapSmall
     contentHeight: sideColumn.implicitHeight
     clip: true
     boundsBehavior: Flickable.StopAtBounds
@@ -54,69 +82,90 @@ Item {
       width: sidebar.width
       spacing: Theme.gapTight
 
-      KitLabel { x: Theme.gapLoose; width: parent.width - Theme.gapLoose; text: "PLACES" }
+      FilesSideCaption { text: "PLACES"; visible: root.visiblePlaces > 0 }
 
       Repeater {
-        id: rows
-        model: FilesService.sidebarItems
+        id: placeRows
+        model: root.placeItems
 
         FilesPlace {
           required property var modelData
-          required property int index
           visible: !modelData.hidden
           draggable: true
-          icon: modelData.kind === "computer" ? "monitor" : modelData.kind === "trash" ? "trash"
-              : modelData.kind === "place" ? root.files.placeIcon(modelData.name) : "folder"
+          icon: ({ computer: "monitor", trash: "trash", recent: "history", starred: "star" })[modelData.kind]
+              ?? (modelData.kind === "place" ? root.files.placeIcon(modelData.name) : "folder")
+          hint: modelData.kind === "starred" && FilesService.starred.length > 0 ? FilesService.starred.length + "" : ""
           text: modelData.name
           current: FilesService.path === modelData.path
           onClicked: FilesService.go(modelData.path)
           onRightClicked: at => root.files.menuAt(at, root.rowMenu(modelData))
-          onDragged: sceneY => { root.dragFrom = index; root.dropAt = root.rowAt(sceneY); }
+          onDragged: sceneY => { root.dragFrom = modelData.at; root.dragKind = "place"; root.dropAt = root.rowAt(sceneY); }
           onDropped: sceneY => { root.dropAt = root.rowAt(sceneY); root.drop(); }
         }
       }
 
-      // what is left when every row is hidden
-      KitLabel {
-        x: Theme.gapLoose
-        width: parent.width - Theme.gapLoose
-        visible: root.visibleCount === 0
-        text: "NOTHING PINNED"
-      }
-      Item {
-        width: sidebar.width
-        height: visible ? hint.implicitHeight : 0
-        visible: root.visibleCount === 0
-        KitText {
-          id: hint
-          width: parent.width - Theme.gapLoose
-          x: Theme.gapLoose
-          wrapMode: Text.WordWrap
-          color: Theme.muted
-          font.pixelSize: Theme.fontSize - 2
-          text: "Right click a folder › Pin to sidebar"
-        }
-      }
-
-      Item { width: 1; height: Theme.gapMedium; visible: FilesService.devices.length > 0 }
-      KitLabel { x: Theme.gapLoose; width: parent.width - Theme.gapLoose; text: "DEVICES"; visible: FilesService.devices.length > 0 }
+      FilesSideCaption { text: "PINNED"; lead: root.visiblePlaces > 0 ? Theme.gapMedium : 0 }
 
       Repeater {
-        model: FilesService.devices
+        id: pinnedRows
+        model: root.pinnedItems
 
         FilesPlace {
           required property var modelData
-          icon: "package"
+          visible: !modelData.hidden
+          draggable: true
+          icon: "folder"
+          text: modelData.name
+          current: FilesService.path === modelData.path
+          onClicked: FilesService.go(modelData.path)
+          onRightClicked: at => root.files.menuAt(at, root.rowMenu(modelData))
+          onDragged: sceneY => { root.dragFrom = modelData.at; root.dragKind = "folder"; root.dropAt = root.rowAt(sceneY); }
+          onDropped: sceneY => { root.dropAt = root.rowAt(sceneY); root.drop(); }
+        }
+      }
+
+      // nothing pinned: the hairline that the section has no rows
+      Rectangle {
+        visible: root.pinnedItems.length === 0
+        x: Theme.gapLoose
+        width: sidebar.width - 2 * Theme.gapLoose
+        height: 1
+        color: Theme.background3
+      }
+
+      // removable drives: plugged in, mounted or not; the button at the end mounts or unmounts
+      FilesSideCaption { text: "USB"; lead: Theme.gapMedium; visible: root.usbDevices.length > 0 }
+
+      Repeater {
+        model: root.usbDevices
+
+        FilesPlace {
+          required property var modelData
+          icon: "usb"
+          text: modelData.name
+          hint: modelData.mount !== "" ? "" : modelData.size
+          action: modelData.mount !== "" ? "eject" : "power"
+          current: modelData.mount !== "" && FilesService.path.startsWith(modelData.mount)
+          onClicked: modelData.mount !== "" ? FilesService.go(modelData.mount) : FilesService.mountDevice(modelData, true)
+          onActioned: modelData.mount !== "" ? FilesService.unmountDevice(modelData) : FilesService.mountDevice(modelData, false)
+          onRightClicked: at => root.files.menuAt(at, root.deviceMenu(modelData))
+        }
+      }
+
+      // the other drives udisks mounted for the user
+      FilesSideCaption { text: "DEVICES"; lead: Theme.gapMedium; visible: root.otherDevices.length > 0 }
+
+      Repeater {
+        model: root.otherDevices
+
+        FilesPlace {
+          required property var modelData
+          icon: "hard-drive"
           text: modelData.name
           hint: modelData.mount !== "" ? "" : modelData.size
           current: modelData.mount !== "" && FilesService.path.startsWith(modelData.mount)
           onClicked: modelData.mount !== "" ? FilesService.go(modelData.mount) : FilesService.mountDevice(modelData, true)
-          onRightClicked: at => root.files.menuAt(at, [
-            { label: "Open", disabled: modelData.mount === "", run: () => FilesService.go(modelData.mount) },
-            { label: "Mount", disabled: modelData.mount !== "", run: () => FilesService.mountDevice(modelData, false) },
-            { label: "Unmount", disabled: modelData.mount === "", run: () => FilesService.unmountDevice(modelData) },
-            { label: "Properties", run: () => FilesService.deviceProperties(modelData) },
-          ])
+          onRightClicked: at => root.files.menuAt(at, root.deviceMenu(modelData))
         }
       }
     }
@@ -124,7 +173,7 @@ Item {
     // the drop line: where the dragged row lands
     Rectangle {
       visible: root.dragFrom >= 0 && root.dropAt >= 0 && root.dropAt !== root.dragFrom
-      readonly property var target: visible ? rows.itemAt(root.dropAt) : null
+      readonly property var target: visible ? root.rowFor(root.dropAt) : null
       x: 0
       width: sideColumn.width
       height: 2
