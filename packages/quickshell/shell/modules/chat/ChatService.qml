@@ -62,6 +62,9 @@ Singleton {
     session = "";
   }
 
+  // a reply's code block to the clipboard (its Copy button)
+  function copy(text) { Quickshell.execDetached(["wl-copy", "--", text]); }
+
   Process {
     id: proc
     property string reply: ""

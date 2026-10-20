@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import qs.components
 import qs.config
 import qs.kit
 
@@ -63,7 +64,7 @@ KitColumn {
         visible: root.app.id !== "shell-manager"
         icon: "external"
         text: "Open it"
-        onClicked: Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", root.ipc, "open"])
+        onClicked: ShellIpc.call(root.ipc, "open")
       }
     }
   }

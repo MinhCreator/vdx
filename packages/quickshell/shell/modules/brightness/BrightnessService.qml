@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // Backlight, night light and dimming on top of scripts/brightness.sh. The bar
 // module and the popup only read these properties and call these functions.
@@ -146,12 +147,11 @@ Singleton {
     id: backlightProc
     stdout: StdioCollector {
       onStreamFinished: {
-        try {
-          // A drag still queued wins over the value this run read back.
-          const r = JSON.parse(text);
-          root.available = r.ok !== false;
-          if (root.available && root.pendingSet < 0) root.brightness = r.brightness;
-        } catch (e) {}
+        // A drag still queued wins over the value this run read back.
+        const r = Reply.parse(text, "brightness.sh", null);
+        if (!r) return;
+        root.available = r.ok !== false;
+        if (root.available && root.pendingSet < 0) root.brightness = r.brightness;
       }
     }
     onExited: root.flushBacklight()

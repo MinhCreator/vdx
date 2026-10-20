@@ -59,7 +59,8 @@ Column {
   Process {
     id: versionProc
     command: ["bash", "-c", "printf '%s\\n' \"$(hyprctl version -j | jq -r .version)\" \"$(qs --version | awk '{print $2}')\" "
-                          + "\"$(uname -r)\" \"$(cat ~/.dotfiles/.theme 2>/dev/null || echo gruvbox)\" \"$(git -C ~/.dotfiles rev-parse --short HEAD)\""]
+                          + "\"$(uname -r)\" \"$(cat \"$1/.theme\" 2>/dev/null || echo gruvbox)\" \"$(git -C \"$1\" rev-parse --short HEAD)\"",
+              "_", ThemeService.dotfiles]
     stdout: StdioCollector {
       onStreamFinished: {
         const [hypr, qs, kernel, theme, commit] = text.trim().split("\n");
@@ -69,6 +70,7 @@ Column {
   }
 
   component Paragraph: KitText {
+    property bool kitUnboxed: true    // text of the page, not a row
     width: parent.width
     wrapMode: Text.WordWrap
     color: Theme.foreground2
@@ -190,4 +192,6 @@ Column {
       onClicked: FontService.restartShell()
     }
   }
+
+  KitGrouper {}
 }

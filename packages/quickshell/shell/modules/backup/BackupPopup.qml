@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import qs.components
 import qs.apps.backup
 import qs.config
 import qs.kit
@@ -19,7 +20,7 @@ KitFrame {
     BackupService.tabRequest = "";
     BackupService.tabRequest = tab;
     root.openWindow();
-    Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "backup", "open"]);
+    ShellIpc.call("backup", "open");
   }
 
   KitHeader {

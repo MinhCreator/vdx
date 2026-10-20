@@ -54,7 +54,7 @@ config layer (0.55+); log in from a tty and run `start-hyprland`.
 | `machine [show\|detect]` | the detected hardware (`.machine.toml`) |
 | `theme list\|current\|set <name>` | themes; `set` re-links and reloads |
 | `link` · `verify` · `status` | links: create · check · per package |
-| `check [group…]` | the repo itself: links, syntax, themes, components, tests, hypr, shell |
+| `check [group…]` | the repo itself: links, syntax, themes, components, tests, hypr, shell, repo |
 | `uninstall [--system]` · `rollback` | take it off · put replaced files back |
 
 Destructive commands ask first; `-y` answers yes. All of them:

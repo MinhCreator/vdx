@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Services.UPower
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // Battery state, charge limit, power profile and GPU mode on top of
 // scripts/battery.sh. The bar module and the popup only read these properties
@@ -153,7 +154,8 @@ Singleton {
     id: statusProc
     stdout: StdioCollector {
       onStreamFinished: {
-        try { root.info = JSON.parse(text); } catch (e) {}
+        const o = Reply.parse(text, "battery.sh", null);
+        if (o) root.info = o;
       }
     }
   }
@@ -162,12 +164,11 @@ Singleton {
     id: gpuProc
     stdout: StdioCollector {
       onStreamFinished: {
-        try {
-          const o = JSON.parse(text);
-          root.gpuMode = o.mode;
-          root.gpuPending = o.pending;
-          root.gpuAction = o.action;
-        } catch (e) {}
+        const o = Reply.parse(text, "battery.sh", null);
+        if (!o) return;
+        root.gpuMode = o.mode;
+        root.gpuPending = o.pending;
+        root.gpuAction = o.action;
       }
     }
   }
@@ -176,8 +177,7 @@ Singleton {
     id: actionProc
     stdout: StdioCollector {
       onStreamFinished: {
-        let o = null;
-        try { o = JSON.parse(text); } catch (e) {}
+        const o = Reply.parse(text, "battery.sh");
         root.busy = null;
         if (!o?.ok) root.error = o?.error ?? "action failed";
         root.refresh();

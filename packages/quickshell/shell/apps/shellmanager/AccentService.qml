@@ -30,6 +30,6 @@ Singleton {
   function apply() {
     const lua = border ? "return { border = " + colour + " }" : "return {}";
     Hypr.writeState(stateFile, lua + "\n");
-    Quickshell.execDetached(["hyprctl", "eval", "hl.config({general = {col = {active_border = " + colour + "}}})"]);
+    Hypr.call("hl.config({general = {col = {active_border = " + colour + "}}})");
   }
 }

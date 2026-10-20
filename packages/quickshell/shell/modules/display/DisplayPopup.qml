@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import qs.components
 import qs.apps.display
 import qs.config
 import qs.kit
@@ -25,7 +26,7 @@ KitFrame {
       icon: "external"
       onClicked: {
         root.openWindow();
-        Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "shell", "open", "displays"]);
+        ShellIpc.call("shell", "open", ["displays"]);
       }
     }
   }

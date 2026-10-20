@@ -19,4 +19,4 @@ Arch Linux + Hyprland. `install.py` (Python ≥ 3.11, stdlib only, code in
 | Wallpapers | `wallpapers/<theme>/`, `wallpapers/common/`; the user's own in `~/.local/share/dotfiles/wallpapers/` | read by the Shell Manager |
 | Installer state | `~/.local/state/dotfiles/` | logs, the setup journal, backups, what the shell reads |
 | Installer tests | `tests/` | `./install.py check tests`; run before every install |
-| Docs: topics, roadmap, tasks, decisions | `docs/` | index: `docs/README.md` |
+| Docs: one topic per file | `docs/` | index: `docs/README.md` |

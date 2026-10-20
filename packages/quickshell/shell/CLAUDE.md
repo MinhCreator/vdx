@@ -13,14 +13,17 @@ bar/           Bar (zones, child bars), ModuleFaces (the modules' Components), B
                IslandChild — a child bar's own island (Bar.popupHost picks one)
 modules/<id>/  bar modules: <Name>.qml, <Name>Popup.qml, <Name>Service.qml
 kit/           UI components, icons/ (outline, solid/), reply.js (a backend's JSON reply),
-               markup.js (an app's markup as plain text)
-components/    Hypr (helpers), ScrimWindow, PopupManager, PopupCatcher, Separator
+               markup.js (an app's markup as plain text), colour.js (hex / HSV)
+components/    Hypr (helpers), ShellIpc (the shell's own IPC from inside it), ScrimWindow,
+               PopupManager, PopupCatcher, Separator, ThemeCurtain
 config/        Theme (the look only), Colors (from the active theme), Format (text of
                numbers), Paths, ShellSettings, ModuleSettings, Motion
 scripts/       backends: one JSON object per command, commands in the header;
                out / fail / run come from backend.py (the folder is on sys.path);
-               supervise.sh is not one: it runs qs and starts it again after a crash;
-               listen.sh is sourced by a backend's --listen: it ends with the shell
+               not backends: supervise.sh (runs qs, starts it again after a crash),
+               listen.sh (sourced by a backend's --listen: it ends with the shell),
+               settings_*.py (tools with their own main and tests), files_portal.py
+               (a D-Bus service), themes.sh (lines, not JSON)
 ```
 
 Imports: `import qs.<dir>` from the config root. Singletons: `pragma Singleton`
@@ -41,7 +44,8 @@ Imports: `import qs.<dir>` from the config root. Singletons: `pragma Singleton`
    `Bar text › Name` or `Icon`, from `BarTextRow` at the top of its BAR settings); a module
    with no content takes `BarLayout.faceText(id, BarLayout.label(id))` and `hasContent: false`.
    Options that only shape the content show under Content.
-4. Popup — root `KitFrame`; reads the service, calls its functions.
+4. Popup — root `KitFrame`; reads the service, calls its functions. Another app or
+   window opens by `ShellIpc.call(<target>, <fn>)`, never a `qs` spawned by hand.
 5. Register: `BarLayout.modules` (id, label, zone, icon, about, settings) and a
    `Component` in `bar/ModuleFaces.qml` (every screen's bar makes its own set). A
    renamed id goes to `BarLayout.renamed`.
@@ -56,7 +60,7 @@ its own, `settings`, `module` + `moduleSettings` when it has a bar module,
 `desktop` (the id of its `.desktop` file, when it ships one: the launcher lists the
 app once, not twice).
 A bar module of an app is set in Bar modules like any other (its `moduleSettings`);
-Apps shows a link row to it (decision 0002).
+Apps shows a link row to it.
 
 ## UI
 
@@ -90,7 +94,8 @@ Read it before any visual work.
 - Restart: `kill <pid>` (`qs list --all`; a TERM also ends its supervisor), then
   `hyprctl eval 'hl.exec_cmd("~/.config/quickshell/shell/scripts/supervise.sh")'`;
   exactly one instance (the supervisor runs `qs -n`). A bare `qs -c shell` has no
-  restart after a crash.
+  restart after a crash. A config that does not load is not a crash: the supervisor
+  toasts the error once and starts qs again when a `.qml` / `.js` file changes.
 - Check: `~/.dotfiles/install.py check shell syntax`; `qs log -c shell | grep -E 'ERROR|WARN'`; popups
   `qs -c shell ipc call <id> toggle`; screenshots `grim -g "X,Y WxH"`.
 - Don't test overlays that grab the keyboard while the user is typing.

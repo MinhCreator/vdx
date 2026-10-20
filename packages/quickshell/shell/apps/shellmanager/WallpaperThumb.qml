@@ -17,7 +17,7 @@ ClippingRectangle {
   width: 96
   height: 54
   color: Theme.background1
-  border.width: active || area.containsMouse ? 2 : 1
+  border.width: active || area.containsMouse ? Theme.ring : Theme.hairline
   border.color: active || area.containsMouse ? Theme.foreground2 : Theme.background3
   Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 

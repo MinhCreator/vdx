@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // Local Ollama on top of scripts/ollama.sh: server state, downloaded and
 // loaded models, start / stop / pull / unload. Polled only while the AI
@@ -60,7 +61,8 @@ Singleton {
     id: statusProc
     stdout: StdioCollector {
       onStreamFinished: {
-        try { root.status = JSON.parse(text); } catch (e) {}
+        const o = Reply.parse(text, "ollama.sh", null);
+        if (o) root.status = o;
       }
     }
   }
@@ -69,8 +71,7 @@ Singleton {
     id: actionProc
     stdout: StdioCollector {
       onStreamFinished: {
-        let o = null;
-        try { o = JSON.parse(text); } catch (e) {}
+        const o = Reply.parse(text, "ollama.sh");
         root.busy = null;
         if (!o?.ok) root.error = o?.error ?? "action failed";
         root.refresh();

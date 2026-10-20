@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import qs.components
 import qs.config
 
 // A setting kept on another Shell Manager page, shown where it is also looked
@@ -46,8 +47,6 @@ Item {
     anchors.fill: parent
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
-    onClicked: Quickshell.execDetached(root.app !== ""
-      ? ["qs", "-c", "shell", "ipc", "call", root.app, "toggle"]
-      : ["qs", "-c", "shell", "ipc", "call", "shell", "open", root.target])
+    onClicked: root.app !== "" ? ShellIpc.call(root.app, "toggle") : ShellIpc.call("shell", "open", [root.target])
   }
 }

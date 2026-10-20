@@ -61,7 +61,7 @@ Item {
     height: content.height + 2 * root.pad
     radius: Theme.radiusCard
     color: Theme.background0
-    border.width: 1
+    border.width: Theme.hairline
     border.color: Theme.background2
 
     // one row: the square and its hue strip on the left, the palette fills the rest
@@ -182,7 +182,7 @@ Item {
             height: root.paletteRows > 1 ? (square.height - Theme.gapSmall) / 2 : square.height
             radius: Math.min(6, Theme.radiusControl + 2)
             readonly property color ink: Colour.hsvOf(String(pair[0]))?.v > 0.6 ? Qt.rgba(0, 0, 0, 1) : Qt.rgba(1, 1, 1, 1)
-            border.width: chosen ? 2 : tileArea.containsMouse ? 1 : 0
+            border.width: chosen ? Theme.ring : tileArea.containsMouse ? Theme.hairline : 0
             border.color: chosen ? Theme.foreground0 : Theme.foreground2
             gradient: Gradient {
               orientation: Gradient.Horizontal

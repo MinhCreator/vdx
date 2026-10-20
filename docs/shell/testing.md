@@ -3,14 +3,14 @@
 What can be checked, how, and what stays manual. Commit rules ("Before a
 commit", "Before a push"): [repo/commits.md](../repo/commits.md) — not repeated here.
 
-## Automated (verified 2026-10-19, all green on `d855ef6`)
+## Automated (verified 2026-10-20, all green)
 
 | Command | Covers |
 |---|---|
 | `./install.py check` | all groups below |
 | `./install.py check syntax` | py compile, json/jsonc, toml, xml, `bash -n`, `zsh -n`, `luac -p`, qmllint **syntax only** (`/usr/lib/qt6/bin/qmllint`) |
 | `./install.py check shell` | icons and their solid / rounded twins, module ids registered in `ModuleFaces` and `components.toml`, the settings search index current |
-| `./install.py check tests` | `tests/` (unittest): installer, `files.py`, `display.py`, `backup.py`, shell gating, portal config, settings migrate / export-import / search index |
+| `./install.py check tests` | `tests/` (unittest): installer and doctor, `files.py`, `display.py`, `backup.py`, shell gating, portal config, settings migrate / export-import / search index, `supervise.sh` (a kill, a config error, a crash loop) |
 | `./install.py check hypr` | `Hyprland --verify-config` with and without `machine/` |
 | `./install.py check components` | the catalog against the repo and pacman |
 | `ruff check` | Python lint (`ruff.toml`) |
@@ -23,7 +23,10 @@ pure JS file) SHOULD go there so a `tests/test_*.py` can cover it.
 ## Shell runtime checks (manual)
 
 - Log: `qs log -c shell | grep -E 'ERROR|WARN'` — empty after the change.
-- Restart (new files, IPC changes): see `shell/CLAUDE.md` › Work.
+- Restart (new files, IPC changes): see `shell/CLAUDE.md` › Work. From a terminal
+  opened before Hyprland restarted, `HYPRLAND_INSTANCE_SIGNATURE` is stale: a shell
+  started from it has no Hyprland (start it through `hyprctl -i <instance> eval …`,
+  the instance from `hyprctl instances -j`).
 - Open a surface: `qs -c shell ipc call <target> toggle`.
 - Screenshot: `grim -g "X,Y WxH" out.png`.
 - Notifications: `notify-send -a Test "title" "body"`; mako state `makoctl list -j`, `makoctl history -j`, `makoctl mode`.

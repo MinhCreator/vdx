@@ -31,7 +31,6 @@ set -u
 
 MANAGER="$HOME/.config/scripts/yandex-music/manager.py"
 STATIONS="$HOME/.config/scripts/radio/stations.json"
-COVERS="${XDG_CACHE_HOME:-$HOME/.cache}/quickshell/music"
 YANDEX_DIR="$HOME/Music/yandex"
 
 ok()    { echo '{"ok":true}'; }

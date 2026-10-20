@@ -3,8 +3,7 @@
 How the shell is built and where its responsibilities end. Code rules:
 [packages/quickshell/shell/CLAUDE.md](../../packages/quickshell/shell/CLAUDE.md);
 repo and installer: [docs/](../README.md); what exists for a
-user: [shell/README.md](../../packages/quickshell/shell/README.md). Decisions:
-[decisions/](../decisions/README.md). Paths below are under
+user: [shell/README.md](../../packages/quickshell/shell/README.md). Paths below are under
 `packages/quickshell/shell/` unless they start with the repo root.
 
 Status: written from the repository audit of 2026-10-19. Parts marked *not inspected* are names and roles only.
@@ -16,6 +15,7 @@ Hyprland ── autostart.lua (hyprland.start)
    ├─ awww-daemon            wallpaper surface (`--no-cache`: starts empty; the shell sets the picture)
    ├─ shellapps.py ensure    window rules for the shell's apps (repo hypr config)
    ├─ supervise.sh           runs settings_migrate.py, then qs; starts it again when it ends by a crash (not a kill);
+   │                         a config that does not load (exit 255): one toast, a new start when a file changes;
    │                         most crashes Quickshell restarts in place itself (crash report window)
    │   └─ qs -c shell        ONE process: bars, island, popups, apps, lock, polkit agent
    ├─ mako                   the notification server (toasts in Solid style, history)
@@ -40,7 +40,7 @@ until the supervisor's new `qs` locks again (marker in
 | Bar | `bar/` (`Bar`, `BarLayout`, `BarPopup`, `ModuleFaces`), `bar/island/` | zones, child bars, island views, popup hosting | module logic |
 | Kit | `kit/` (`Kit*.qml`, icons, `reply.js`, `markup.js`) | shared controls and parsing | feature logic |
 | Config | `config/` (`Theme`, `Colors`, `Motion`, `Format`, `Paths`, `ShellSettings`, `ModuleSettings`) | tokens and settings stores | — |
-| Components | `components/` (`Hypr`, `PopupManager`, `PopupCatcher`, `ScrimWindow`, …) | Hyprland helpers, popup arbitration | — |
+| Components | `components/` (`Hypr`, `ShellIpc`, `PopupManager`, `PopupCatcher`, `ScrimWindow`, …) | Hyprland helpers, the shell's own IPC, popup arbitration | — |
 
 ## Themes
 
@@ -67,7 +67,7 @@ links, secrets, `/etc`, units, services). `link` also writes
 
 | Store | File (`~/.local/state/quickshell/by-shell/<id>/`) | API | Notes |
 |---|---|---|---|
-| Shell options | `settings.json` | `ShellSettings` property + `set()` | 36 keys; `version` (schema, below) |
+| Shell options | `settings.json` | `ShellSettings` property + `set()` | keys and defaults in `config/ShellState.qml`; `version` (schema, below) |
 | Module / app options | `modules.json` › `values.<id>` | `ModuleSettings.get(id, key, default)` / `set` | default lives in the module; written on each change, external edits reloaded |
 | Bar layout | `layout.json` | `BarLayout` | renames via `BarLayout.renamed` (live fallback); not watched |
 | Notifications history | `notifications.json` (statePath) | `NotificationsService` | — |
@@ -77,7 +77,7 @@ links, secrets, `/etc`, units, services). `link` also writes
 | Dotfiles state | `~/.local/state/dotfiles/` | installer + shell | `components.json` (modules not installed), `accent.lua`, `window-mode`, `shell-apps.json` |
 
 Settings UI = **Shell Manager** (`apps/shellmanager/`, Super+S). Pages:
-Appearance, Themes, Fonts, Cursor, Animations · Bar, Bar modules, Windows, Lock screen, Notifications · Network, Bluetooth, Displays · Apps, About (decision 0002).
+Appearance, Themes, Fonts, Cursor, Animations · Bar, Bar modules, Windows, Lock screen, Notifications · Network, Bluetooth, Displays · Apps, About.
 An app's or module's options are its `<Name>Settings.qml`, shown under Apps
 or Bar modules (Lock screen, Notifications: own pages). Applied at once (pickers with preview: Apply; fields: Enter).
 A page with its own options has Reset in the header (two steps: Reset, Sure?); Appearance,
@@ -95,8 +95,8 @@ Animations and Bar reset their `ShellSettings` keys (`ShellSettings.reset(keys)`
 | Files + picker | `apps/files/`, `scripts/files.py`, `scripts/files_portal.py`, `packages/xdg-portal/` | `xdg-desktop-portal`, `python-gobject`, `udisks2` | the shell's FileChooser portal and `FileManager1` |
 | Lock | `apps/lock/` | Quickshell `WlSessionLock`, PAM | options in `modules.json` › `lock` |
 | Island / hub | `bar/island/` | `ShellSettings.barStyle` | hub = island view from the clock; the Launcher and Keys chips open the launcher and the keybinds (their panels `apps/launcher/LauncherPanel.qml`, `apps/keybinds/KeybindsPanel.qml`) as island views |
-| Music (bar module), Music app | `modules/music/` (bar face, popup, Settings); `modules/player/PlayerService` = MPD + every MPRIS player, one list; app `apps/music/` (bar module `music`) | MPRIS players; the island's media and the Music window read `PlayerService` | `AudioPause` reads MPRIS too; the window's tabs read `YandexLibrary` / `YandexService`, `music_files.py`, `RadioService` only while `BarLayout.installed` ([decision 0006](decisions/0006-music-app.md)) |
-| Music (Yandex) | `modules/yandex/`, `modules/mpd/`, `scripts/music.sh`, `scripts/yandex.py`, `modules/yandex/YandexLibrary.qml` | component `yandex-music` (+ `mpd`, submodule; owns `scripts/yandex.py`); a music section `yandex` (BarLayout.sections), not a bar module | `YandexService` feeds `PlayerService` (the MPD source) and `AudioPause`; the Music app's Yandex section reads `YandexLibrary` ([decision 0004](decisions/0004-yandex-music-app.md), [0006](decisions/0006-music-app.md)) |
+| Music (bar module), Music app | `modules/music/` (bar face, popup, Settings); `modules/player/PlayerService` = MPD + every MPRIS player, one list; app `apps/music/` (bar module `music`) | MPRIS players; the island's media and the Music window read `PlayerService` | `AudioPause` reads MPRIS too; the window's tabs read `YandexLibrary` / `YandexService`, `music_files.py`, `RadioService` only while `BarLayout.installed` |
+| Music (Yandex) | `modules/yandex/`, `modules/mpd/`, `scripts/music.sh`, `scripts/yandex.py`, `modules/yandex/YandexLibrary.qml` | component `yandex-music` (+ `mpd`, submodule; owns `scripts/yandex.py`); a music section `yandex` (BarLayout.sections), not a bar module | `YandexService` feeds `PlayerService` (the MPD source) and `AudioPause`; the Music app's Yandex section reads `YandexLibrary` |
 | Radio | `modules/radio/` | component `radio` (+ `mpd`); a music section `radio` | shares `MpdService` |
 | Files (local music) | `scripts/music_files.py`, `music.sh --files-play` | component `mpd`; a music section `files` (`MpdService.needed`) | `MpdService.playFolder`; the folders are `music.folders` |
 | Capture | `apps/capture/`, `modules/capture/` | `grim`, `gpu-screen-recorder`, `wl-copy`, `notify-send` | the only "camera" in the repo: screen capture |
@@ -124,4 +124,4 @@ still loads, so it must tolerate missing binaries.
 ## Update rule
 
 A phase that changes a flow or a boundary above updates this file in the same
-commit; a new boundary or store gets a decision record first.
+commit; a new boundary or store is agreed with the owner first.

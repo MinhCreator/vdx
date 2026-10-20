@@ -74,8 +74,6 @@ Singleton {
     run(playlistProc, ["--playlist", p.kind]);
   }
 
-  function closePlaylist() { playlist = null; }
-
   // ---- management ----
   // One action at a time; `done(reply)` runs when it answers (ok or not).
   function act(args, done) {

@@ -178,7 +178,7 @@ KitColumn {
         height: 64
         radius: Theme.radiusCard
         color: area.containsMouse && !picked ? Theme.background2 : Theme.background1
-        border.width: picked ? 2 : 1
+        border.width: picked ? Theme.ring : Theme.hairline
         border.color: picked ? Theme.foreground0 : Theme.background2
         Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 

@@ -148,7 +148,7 @@ Singleton {
   }
 
   function openNotifications() {
-    Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "notifications", "toggle"]);
+    ShellIpc.call("notifications", "toggle");
   }
 
   // ---- power ----
@@ -161,7 +161,7 @@ Singleton {
   ]
 
   function power(action) {
-    if (action === "lock") Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "lock", "lock"]);
+    if (action === "lock") ShellIpc.call("lock", "lock");
     else if (action === "suspend") Quickshell.execDetached(["sh", "-c", "qs -c shell ipc call lock lock; sleep 0.5; systemctl suspend"]);
     else Quickshell.execDetached(["systemctl", action]);
   }

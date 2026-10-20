@@ -44,14 +44,6 @@ PopupWindow {
     if (Date.now() - closedAt > 300) visible = !visible;
   }
 
-  // Takes the corner under the module again while open, for a change the module
-  // makes on purpose (Radio on / off), not for every title change.
-  function reanchor() {
-    if (!visible) return;
-    root.anchorX = -1;
-    anchor.updateAnchor();
-  }
-
   // the island style takes the content into an island: the island, or the
   // child bar's the module sits in (Bar.popupHost). Set on every show (the
   // module may have moved between bars) and kept until the popup is hidden.

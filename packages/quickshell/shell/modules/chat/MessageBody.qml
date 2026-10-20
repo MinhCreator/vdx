@@ -1,5 +1,4 @@
 import QtQuick
-import Quickshell
 import qs.config
 import qs.kit
 
@@ -90,7 +89,7 @@ Column {
                 anchors.right: parent.right
                 icon: "clipboard"
                 text: "Copy"
-                onClicked: Quickshell.execDetached(["wl-copy", "--", part.modelData.text])
+                onClicked: ChatService.copy(part.modelData.text)
               }
             }
 

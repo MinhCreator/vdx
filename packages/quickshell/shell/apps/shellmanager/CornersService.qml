@@ -20,7 +20,7 @@ Singleton {
   function apply() {
     const lua = "return { rounding = " + rounding + " }";
     Hypr.writeState(stateFile, lua + "\n");
-    Quickshell.execDetached(["hyprctl", "eval", "hl.config({decoration = {rounding = " + rounding + "}})"]);
+    Hypr.call("hl.config({decoration = {rounding = " + rounding + "}})");
     Quickshell.execDetached(["makoctl", "mode", rounding > 0 ? "-a" : "-r", "round"]);
   }
 }

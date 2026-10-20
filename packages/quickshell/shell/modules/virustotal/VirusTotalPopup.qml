@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import qs.components
 import qs.apps.virustotal
 import qs.config
 import qs.kit
@@ -27,7 +28,7 @@ KitFrame {
       icon: "external"
       onClicked: {
         root.openWindow();
-        Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "virustotal", "open"]);
+        ShellIpc.call("virustotal", "open");
       }
     }
   }

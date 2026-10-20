@@ -41,11 +41,6 @@ Singleton {
   // the Music window refreshes the queue as it opens (see MpdService.refreshQueue)
   function setWindowOpen(on) { if (on) MpdService.refreshQueue(); }
 
-  // the Music app's window on the likes (its IPC: `music go likes`)
-  function openApp() {
-    Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "music", "go", "likes"]);
-  }
-
   // the playing track's cover from Yandex Music (cached by yandex.py)
   function refreshCover() {
     cover = "";

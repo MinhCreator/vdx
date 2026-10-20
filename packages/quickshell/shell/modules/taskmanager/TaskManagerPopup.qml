@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import qs.components
 import qs.apps.taskmanager
 import qs.config
 import qs.kit
@@ -36,7 +37,7 @@ KitFrame {
       icon: "external"
       onClicked: {
         root.openWindow();
-        Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "taskmanager", "open"]);
+        ShellIpc.call("taskmanager", "open");
       }
     }
   }

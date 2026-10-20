@@ -19,7 +19,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | Display | — | `display toggle` |
 | VirusTotal | — | `virustotal toggle` |
 | Clipboard | — | `clipboard toggle` |
-| Music | — | `music toggle\|open\|close`, `music go <yandex\|files\|radio>` (the old likes, search, playlist open the Yandex tab; playing keeps the tab): the window is tabbed by source: Yandex Music (LIKES: Likes, Search; PLAYLISTS with New playlist), Files (the folders of `music.folders`: enter a folder, Up, a track plays the folder from it; ⋮ Play, Play next, Add to queue) and Radio (the stations); each tab only while its component is installed. The list is a table in a raised box, the player at the foot of every tab. Bar module `music`: the track that plays (any source), its popup has a switch (the music service on or off), Now playing (a select of the players when several run), Queue (MPD's) and Library (tiles: the likes, the folders, the favourite stations). Radio: a star marks a favourite station. Options: Shell Manager › Music (one page: Shows, Max length, Time left, Players shown, Opens on, Close when a track plays, the folders) |
+| Music | — | `music toggle\|open\|close`, `music go <yandex\|files\|radio>` (the old likes, search, playlist open the Yandex tab; playing keeps the tab): the window is tabbed by source: Yandex Music (LIKES: Likes, Search; PLAYLISTS with New playlist), Files (the folders of `music.folders`: enter a folder, Up, a track plays the folder from it; ⋮ Play, Play next, Add to queue) and Radio (the stations); each tab only while its component is installed. The list is a table in a raised box, the player at the foot of every tab. Bar module `music`: the track that plays (any source), its popup has a switch (the music service on or off), Now playing (a select of the players when several run), Queue (MPD's) and Library (tiles: the likes, the folders, the favourite stations). Radio: a star marks a favourite station. Options: Shell Manager › Bar modules › Music (one page: Shows, Max length, Time left, Players shown, Opens on, Close when a track plays, the folders) |
 | Backups | — | `backup toggle\|open\|close` (bar module `backup`: last backup, Back up, the restore guide); the terminal: `backup status\|run\|snapshots\|restore\|guide …` (`scripts/backup.py`, restic) |
 | Files | Super+E | `files toggle\|open\|close`, `files go\|reveal\|inspect\|duplicates <path>`, `files choose <json>` (the portal's picker; a setting's Choose… opens the same picker); F1 lists the keys; Ctrl+G list, grid, columns; Ctrl+T terminal here; F2 on several files renames them by a pattern; the sidebar's "This computer" shows the storage (used / free, unmounted drives mount on a click); the sidebar is in sections: PLACES (drag to reorder within it; right click to hide, Settings › SIDEBAR), PINNED (your folders; drag to reorder; right click › Unpin; a folder's right click › Pin to sidebar), USB (plugged-in removable drives, mounted or not, with a mount / eject button at the row's end), DEVICES (other drives mounted for you); Recent (recently-used.xbel) and Starred (Ctrl+S) in the sidebar; the list shows folders as tiles above a table of files (checkboxes, ⋮ menu, Type / Size / Modified columns), the path as crumbs (Ctrl+L types one); typing a letter jumps to a name; the look and columns in Settings › Apps › Files |
 | Keybinds | Super+B | `keybinds toggle\|open\|close` |
@@ -37,7 +37,9 @@ process and opens its crash report window. When the process ends instead
 (killed by the OOM killer, a crash right after start), `scripts/supervise.sh`,
 which Hyprland starts the shell through, starts it again in a second (five
 in a minute: it stops with a toast); a kill or Restart (About, the system
-menu) is not a crash. Locked when it crashed, the new one locks again. No bar and no way to a terminal: switch to
+menu) is not a crash. Nor is a config that does not load: one toast names the
+error, and the shell starts again once a `.qml` / `.js` file changes (or after
+a minute). Locked when it crashed, the new one locks again. No bar and no way to a terminal: switch to
 a tty (Ctrl+Alt+F2), log in, then
 `HYPRLAND_INSTANCE_SIGNATURE=$(ls /run/user/$UID/hypr | tail -1) hyprctl eval 'hl.exec_cmd("~/.config/quickshell/shell/scripts/supervise.sh")'`.
 
@@ -45,7 +47,7 @@ a tty (Ctrl+Alt+F2), log in, then
 
 Bar modules live in `modules/<id>/`; each popup opens with
 `qs -c shell ipc call <id> toggle` (except clipboard `clip`, taskmanager
-`tasks`, cleaner `clean`, virustotal `scan`, packages `updates`). Order, zones and visibility: Shell Manager
+`tasks`, cleaner `clean`, virustotal `scan`, packages `updates`, music `player`: `music` is its window). Order, zones and visibility: Shell Manager
 › Bar. Options: Shell Manager › Bar modules (an app's module too; Notifications: its own page).
 Every page has Reset in its header; About › Settings exports every option to one file, imports it
 (the shell restarts) and resets everything (the old set kept as `settings-before-reset.json`).
@@ -55,9 +57,9 @@ Bluetooth, battery, notifications, Shell and the Folder; the rest start in the F
 that don't fit beside the centre fold into the Folder, nearest the centre first, and
 come back when there is room (not saved; no Folder on the bar, no folding).
 
-Workspaces, Music, Equalizer, Clock, Themes, Wallpapers, Brightness, Audio, Wi-Fi, Bluetooth, Mihomo, Battery,
-Language, AI, Shell, Notifications, Capture, Clipboard, System, Task Manager,
-Cleaner, Backups, VirusTotal, Packages, Display, Windows, Chat, Folder.
+Workspaces, Music, Themes, Tray, Mode, Wallpapers, Equalizer, Clock, Brightness, Audio, Wi-Fi,
+Bluetooth, Mihomo, Battery, Language, AI, Shell, Notifications, Capture, Clipboard, System,
+Task Manager, Cleaner, Backups, VirusTotal, Packages, Display, Windows, Chat, Folder.
 
 ## Controls
 

@@ -28,7 +28,7 @@ Rectangle {
   // set once: whether it sits in a Settings box (a walk up, not a binding)
   property bool boxed: false
   Component.onCompleted: boxed = Theme.boxed(parent)
-  color: Theme.material ? (textInput.activeFocus || hover.hovered ? Theme.hoverOn(boxed) : Theme.fillOn(boxed)) : "transparent"
+  color: Theme.material ? (textInput.activeFocus || hover.hovered ? Theme.hoverOn(boxed) : Theme.fillOn(boxed)) : Theme.clear
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
   border.width: Theme.frameWidth
   border.color: textInput.activeFocus || hover.hovered ? Theme.foreground2 : Theme.gray

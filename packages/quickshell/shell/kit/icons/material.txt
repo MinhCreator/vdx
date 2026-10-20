@@ -43,7 +43,6 @@ info info
 keyboard keyboard
 laptop laptop
 layout dashboard
-leaf eco
 list format_list_bulleted
 lock lock
 log-out logout

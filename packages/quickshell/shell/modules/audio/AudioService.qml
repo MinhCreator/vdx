@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Pipewire
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // Audio devices, application streams and volumes over Pipewire. The bar module
 // and the popup only read these properties and call these functions.
@@ -133,7 +134,8 @@ Singleton {
     running: true
     stdout: StdioCollector {
       onStreamFinished: {
-        try { root.ports = JSON.parse(text); } catch (e) {}
+        const ports = Reply.parse(text, "audio.sh", null);
+        if (ports) root.ports = ports;
       }
     }
   }

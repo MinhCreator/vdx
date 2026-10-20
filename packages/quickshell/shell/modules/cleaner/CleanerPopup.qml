@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import qs.components
 import qs.apps.cleaner
 import qs.config
 import qs.kit
@@ -32,7 +33,7 @@ KitFrame {
       icon: "external"
       onClicked: {
         root.openWindow();
-        Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "cleaner", "open"]);
+        ShellIpc.call("cleaner", "open");
       }
     }
   }

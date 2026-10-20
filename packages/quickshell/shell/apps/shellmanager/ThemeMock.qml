@@ -39,7 +39,7 @@ ClippingRectangle {
     height: parent.height
     radius: Math.round(Theme.radiusCard * 0.4)
     color: root.col("background0")
-    border.width: 1
+    border.width: Theme.hairline
     border.color: root.col("background3")
 
     Row {
@@ -60,16 +60,16 @@ ClippingRectangle {
       Column {
         x: 8 * root.k; y: 8 * root.k
         spacing: 6 * root.k
-        Rectangle { width: 22 * root.k; height: 3 * root.k; radius: height / 2; color: root.col("foreground0") }
-        Rectangle { width: 16 * root.k; height: 3 * root.k; radius: height / 2; color: root.col("gray") }
-        Rectangle { width: 19 * root.k; height: 3 * root.k; radius: height / 2; color: root.col("gray") }
+        Rectangle { width: 22 * root.k; height: 3 * root.k; radius: Theme.pill(height); color: root.col("foreground0") }
+        Rectangle { width: 16 * root.k; height: 3 * root.k; radius: Theme.pill(height); color: root.col("gray") }
+        Rectangle { width: 19 * root.k; height: 3 * root.k; radius: Theme.pill(height); color: root.col("gray") }
       }
     }
 
     Column {
       x: win.width * 0.24 + 10 * root.k; y: 26 * root.k
       spacing: 8 * root.k
-      Rectangle { width: 32 * root.k; height: 3 * root.k; radius: height / 2; color: root.col("foreground2") }
+      Rectangle { width: 32 * root.k; height: 3 * root.k; radius: Theme.pill(height); color: root.col("foreground2") }
       Row {
         spacing: 5 * root.k
         Repeater {
@@ -79,11 +79,11 @@ ClippingRectangle {
             width: 24 * root.k; height: 16 * root.k
             radius: Theme.radiusFor(height)
             color: root.col("background2")
-            Rectangle { anchors.centerIn: parent; width: 9 * root.k; height: 3 * root.k; radius: height / 2; color: root.col(parent.modelData) }
+            Rectangle { anchors.centerIn: parent; width: 9 * root.k; height: 3 * root.k; radius: Theme.pill(height); color: root.col(parent.modelData) }
           }
         }
       }
-      Rectangle { width: 42 * root.k; height: 3 * root.k; radius: height / 2; color: root.col("background3") }
+      Rectangle { width: 42 * root.k; height: 3 * root.k; radius: Theme.pill(height); color: root.col("background3") }
     }
   }
 }

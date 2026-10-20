@@ -28,26 +28,10 @@ and agents. A rule that is in the way is changed in its file.
 | Checks, manual scenarios, regressions | [shell/testing.md](shell/testing.md) |
 | What exists, for users | [packages/quickshell/shell/README.md](../packages/quickshell/shell/README.md) |
 
-## Project work
-
-| Need | File |
-|---|---|
-| What is open, in what order; owner checks; open questions | [roadmap.md](roadmap.md) |
-| How to run a task; checklists; report format | [tasks/README.md](tasks/README.md) |
-| One open task | `tasks/NN_*.md` |
-| Why something is the way it is | [decisions/](decisions/README.md) |
-| The original requirements (cited as §) | [spec.md](spec.md) |
-
 ## Asking an agent
 
 Rules load by themselves (`CLAUDE.md` → this index), so a request says only
 what to do, where, and when to stop. Templates (any language):
-
-A task that has a plan:
-
-```
-Run docs/tasks/NN_NAME.md (part X).
-```
 
 A bug or a small change without a plan:
 
@@ -60,8 +44,7 @@ Tell me the cause and the plan in a few lines before changing anything.
 Something big or new:
 
 ```
-I want <X>. Write a plan in docs/tasks/ (shape: docs/tasks/README.md),
-add it to the roadmap and stop for my approval. No code yet.
+I want <X>. Write the plan in chat and stop for my approval. No code yet.
 ```
 
 Useful endings: "commit when done" · "don't commit" · "stop after the
@@ -72,8 +55,7 @@ research" · "show me one screen first".
 - English, terse, facts only; proposals say "proposed".
 - One authority per rule; other files link to it, never copy.
 - A file stays one topic and short; a long one is split, with a line here.
-- A finished task's plan is deleted (git keeps it): what it built goes into
-  the topic files, what is left goes into the roadmap.
+- What a change built goes into the topic files; plans stay in chat.
 - New rules use MUST / SHOULD / MAY; plain imperative rules count as MUST.
 - A change that makes a doc wrong fixes it in the same commit.
 - No new file without a line in this index.

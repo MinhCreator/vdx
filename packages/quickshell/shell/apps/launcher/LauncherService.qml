@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.components
 import qs.apps.keybinds
 import qs.apps.shellmanager
 import qs.config
@@ -41,10 +42,7 @@ Singleton {
 
   readonly property string home: Quickshell.env("HOME")
 
-  function ipc(target, fn, arg) {
-    const c = ["qs", "-c", "shell", "ipc", "call", target, fn];
-    return arg ? c.concat([arg]) : c;
-  }
+  function ipc(target, fn, arg) { return ShellIpc.command(target, fn, arg ? [arg] : []); }
   function exec(command) { Quickshell.execDetached(command); }
 
   function sh(script) { exec(["bash", "-c", script]); }
@@ -108,7 +106,7 @@ Singleton {
   readonly property var powerItems: [
     { icon: "lock", title: "Lock", hint: "The lock screen", keys: keysOf("Lock the screen"), run: () => exec(ipc("lock", "lock")) },
     { icon: "moon", title: "Suspend", hint: "Sleep, locked", run: () => sh("qs -c shell ipc call lock lock; sleep 0.5; systemctl suspend") },
-    { icon: "log-out", title: "Log out", hint: "End the Hyprland session", run: () => exec(["hyprctl", "eval", "hl.dispatch(hl.dsp.exit())"]) },
+    { icon: "log-out", title: "Log out", hint: "End the Hyprland session", run: () => Hypr.call("hl.dispatch(hl.dsp.exit())") },
     { icon: "refresh", title: "Reboot", hint: "Restart the computer", run: () => exec(["systemctl", "reboot"]) },
     { icon: "cpu", title: "Reboot to firmware", hint: "UEFI setup", run: () => exec(["systemctl", "reboot", "--firmware-setup"]) },
     { icon: "power", title: "Shut down", hint: "Power off", run: () => exec(["systemctl", "poweroff"]) }

@@ -38,7 +38,7 @@ Row {
       width: 18
       height: 18
       radius: Theme.pill(height)
-      border.width: picked ? 2 : hollow ? 1 : 0
+      border.width: picked ? Theme.ring : hollow ? Theme.hairline : 0
       border.color: picked ? Theme.foreground0 : Theme.gray
       gradient: Gradient {
         orientation: Gradient.Horizontal

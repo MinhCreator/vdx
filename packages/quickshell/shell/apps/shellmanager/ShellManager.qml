@@ -9,7 +9,7 @@ import qs.kit
 // on the left, the chosen page on the right under its fixed header, scrolling
 // on its own. Under the open section its groups (`jumps` of the page) jump
 // there on a click.
-// The sections come in four groups, by what the user is after (decision 0002):
+// The sections come in four groups, by what the user is after:
 //   LOOK     — how it looks and moves
 //     APPEARANCE — theme, accent, wallpaper, text, cursor, shape and controls;
 //     ANIMATIONS — how the shell moves: all on / off, speed, each part on its own.

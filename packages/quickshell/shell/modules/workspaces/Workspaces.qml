@@ -70,7 +70,7 @@ Row {
         height: root.style === "dashes" ? 2 : 8
         radius: root.style === "dots" ? 4 : 0
         color: root.style === "dashes" || workspace.highlighted ? workspace.tone : Qt.rgba(workspace.tone.r, workspace.tone.g, workspace.tone.b, 0)
-        border.width: root.style === "dashes" || workspace.highlighted ? 0 : 1
+        border.width: root.style === "dashes" || workspace.highlighted ? 0 : Theme.hairline
         border.color: workspace.tone
 
         Behavior on color { enabled: Motion.bar; ColorAnimation { duration: Motion.slow; easing.type: Motion.tint } }

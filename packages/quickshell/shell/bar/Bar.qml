@@ -30,7 +30,7 @@ PanelWindow {
   function openSettings(id) {
     const app = ShellAppsService.entries.find(a => a.module === id) ?? null;
     const has = app ? !!app.moduleSettings : !!BarLayout.modules.find(p => p.id === id)?.settings;
-    if (has) Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "shell", "open", "modules:" + id]);
+    if (has) ShellIpc.call("shell", "open", ["modules:" + id]);
   }
 
   component Zone: Row {

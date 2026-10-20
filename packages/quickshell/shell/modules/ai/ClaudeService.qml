@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // Claude Code usage on top of scripts/claude.sh: plan limits (the `/usage`
 // numbers, polled from the API), today's tokens from the local session logs,
@@ -54,9 +55,7 @@ Singleton {
     proc.running = true;
   }
 
-  function parse(text, fallback) {
-    try { return JSON.parse(text); } catch (e) { return fallback; }
-  }
+  function parse(text, fallback) { return Reply.parse(text, "claude.sh", fallback); }
 
   // the last good usage survives shell restarts: a rate-limited first ask
   // after a restart still has something to show

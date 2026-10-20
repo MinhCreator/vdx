@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import qs.components
 import qs.bar
 import qs.config
 import qs.kit
@@ -64,7 +65,7 @@ KitFrame {
       icon: "external"
       onClicked: {
         root.openWindow();
-        Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "music", "open"]);
+        ShellIpc.call("music", "open");
       }
     }
 
@@ -118,7 +119,7 @@ KitFrame {
     visible: root.on && root.shownTab === "library"
     onOpenWindow: {
       root.openWindow();
-      Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "music", "open"]);
+      ShellIpc.call("music", "open");
     }
   }
 

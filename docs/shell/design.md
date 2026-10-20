@@ -3,9 +3,7 @@
 The shell's UI rules: tokens, controls, wording, colour, motion. Binding for
 every face, popup, window and Settings page of `packages/quickshell/shell/`
 (paths below are relative to it). Code rules: `packages/quickshell/shell/CLAUDE.md`.
-Split out of it by [decision 0001](../decisions/0001-documentation-system.md) option 3
-(2026-10-20, with task 05). Rules without a keyword are MUST (0001); new rules say
-MUST / SHOULD / MAY.
+Rules without a keyword are MUST; new rules say MUST / SHOULD / MAY.
 
 ## Basics
 
@@ -24,7 +22,9 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   An image in a rounded tile sits in a `ClippingRectangle`.
 - Controls: Appearance › Style (Terminal | Material). A control's frame is
   `Theme.frameWidth` (0 in material), its fill `Theme.controlFill` /
-  `controlHover`, a popup's frame `Theme.popupFrame`; never a literal 1.
+  `controlHover`, a popup's frame `Theme.popupFrame`; never a literal 1. An
+  outline drawn in either style (a well, a preview, a card at rest) is
+  `Theme.hairline`, a picked card's or tile's `Theme.ring`.
   Material follows Material 3 (primary = `foreground0`, or the accent where it
   applies): a button is tonal; `KitSegments` an outlined track split by
   hairlines, the picked segment filled with a check; `KitSwitch` an outlined
@@ -40,7 +40,8 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 - Window: the frame is `Theme.windowPadding` (24) on every side and nothing else:
   the header sits at `windowPadding - Theme.headerInset`, a footer at
   `bottomMargin: Theme.windowPadding`. A `KitFrame` window sets `headerInset`
-  and `bottomInset` (`Theme.textDescent`) instead of offsets. Popups keep 16.
+  (and `bottomInset: Theme.textDescent` when it ends on a line of text) instead
+  of offsets. Popups keep 16.
 - Header: icon, title in normal case, subtitle in caps joined by ` · `. Tabs are `KitChoices` on its right; a Shell Manager page lists them as `tabs` + `tab`.
 - Group: `KitLabel` in caps (a noun, current value on the right), then rows.
 - Row: `KitRow` — label (capitalised) and hint (sentence case, no full stop)
@@ -85,7 +86,8 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 - Text: secondary text (hints, captions, times) is `Theme.muted`, lifted to
   4.5:1 on `background0` in every theme; `gray` is for frames, ticks, icons and
   inactive text only. Sizes are `Theme.fontSize ± n` (Appearance › Font › Text
-  size, 12–15), never a literal.
+  size, 12–15), never a literal. Display figures are fixed sizes: the lock's
+  clock, Overview's workspace numbers, the Fonts page's specimen.
 - Bar: one colour per item; a missing value shows `--`.
 - Key hints: `Super + S`; footers `key action · key action`, lowercase.
 - Icons: Material Symbols SVG in `kit/icons`, `fill="#ffffff"`; every icon
@@ -104,8 +106,7 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 
 ## Settings pages
 
-Added by task 05 ([decision 0002](../decisions/0002-settings-ia.md)); the look
-(2026-10-20) follows macOS System Settings.
+Pages by the user's area; the look follows macOS System Settings.
 
 - MUST — groups: every settings Column (page, section, `<Name>Settings.qml`) ends
   with `KitGrouper {}`. A `KitLabel` starts a group, a `KitLine` ends it; the rows

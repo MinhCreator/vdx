@@ -117,7 +117,7 @@ QtObject {
   // outlined: framed controls on the surface (the terminal look). material:
   // no frames — controls are filled one step up, a popup has a quiet hairline
   readonly property bool material: ShellSettings.material
-  readonly property color controlFill: material ? background1 : "transparent"
+  readonly property color controlFill: material ? background1 : clear
   readonly property color controlHover: material ? background2 : background1
   // a control in a Settings box (KitGrouper) sits on background1: its fills go one step up
   function boxed(item) {
@@ -185,6 +185,8 @@ QtObject {
   readonly property int popupGap: 6
   readonly property int frameWidth: material ? 0 : 1          // controls: buttons, selects, fields
   readonly property int windowFrameWidth: material ? 1 : 2    // popup frames, like hypr windows, mako
+  readonly property int hairline: 1                           // an outline in either style: wells, previews, cards at rest
+  readonly property int ring: 2                               // the picked card's or tile's outline
   readonly property int visibleRows: 8
   readonly property int popupStatusMs: 2500       // how long ok / error marks stay
   readonly property string ellipsis: "\u2026"

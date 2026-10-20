@@ -224,7 +224,7 @@ Row {
       height: parent.height - y
       radius: Theme.radiusCard
       color: root.col("background0")
-      border.width: 1
+      border.width: Theme.hairline
       border.color: root.col("background2")
       clip: true
       Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.normal } }
@@ -390,7 +390,7 @@ Row {
                 height: 22
                 radius: Theme.pill(height)
                 color: root.col(parent.modelData[0])
-                border.width: 1
+                border.width: Theme.hairline
                 border.color: root.col("background2")
               }
               Text {

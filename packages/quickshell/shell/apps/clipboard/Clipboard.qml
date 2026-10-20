@@ -122,7 +122,7 @@ KitFrame {
             Rectangle {
               radius: Theme.radiusControl
               anchors { fill: parent; margins: -4 }
-              color: item.hot ? Theme.background1 : "transparent"
+              color: item.hot ? Theme.background1 : Theme.clear
             }
 
             Column {

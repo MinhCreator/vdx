@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.components
 import qs.config
 import qs.kit
 
@@ -382,7 +383,7 @@ Item {
       width: parent.width
       icon: "folder"
       text: "Show in folder"
-      onClicked: Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "files", "reveal", root.selected.path])
+      onClicked: ShellIpc.call("files", "reveal", [root.selected.path])
     }
 
     KitButton {

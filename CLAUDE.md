@@ -30,8 +30,6 @@ files your change touches, not all of them. In short:
   then `./install.py link`.
 - The shell (Quickshell): `packages/quickshell/shell/CLAUDE.md`; its UI rules
   (tokens, controls, wording, Settings pages): `docs/shell/design.md`.
-- Shell project work: `docs/roadmap.md`; a task runs from its file in
-  `docs/tasks/` (how: that folder's README).
 - Don't commit or revert someone else's uncommitted changes without asking.
 - Docs upkeep (same commit as the change): fix what the change made wrong;
   a rule or fact you had to find out that is written nowhere goes into its

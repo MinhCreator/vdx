@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import qs.components
 import qs.config
 import qs.kit
 
@@ -87,7 +88,7 @@ KitColumn {
       width: Theme.buttonWidth
       icon: "lock"
       text: "Lock"
-      onClicked: Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "lock", "lock"])
+      onClicked: ShellIpc.call("lock", "lock")
     }
   }
 

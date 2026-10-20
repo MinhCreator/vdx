@@ -4,12 +4,18 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // System metrics from scripts/sysmon.sh: the bar reads only the CPU load (a
 // cheap sample every few seconds); the open popup gets a full snapshot every
 // 1.5 s. Percentages and rates come from the difference of two snapshots.
 Singleton {
   id: root
+
+  // ---- tuning ----
+  readonly property string script: Paths.scriptsDir + "/sysmon.sh"
+  readonly property int fullMs: 1500           // a sample while the popup or a holder is open
+  readonly property int barMs: 3000            // the bar's cpu-only sample
 
   // ---- cpu ----
   property int cpu: 0                 // all cores, %
@@ -51,7 +57,7 @@ Singleton {
 
   function sample() {
     if (proc.running) return;
-    proc.command = ["bash", Paths.scriptsDir + "/sysmon.sh"].concat(full ? [] : ["cpu"]);
+    proc.command = ["bash", root.script].concat(full ? [] : ["cpu"]);
     proc.running = true;
   }
 
@@ -95,7 +101,7 @@ Singleton {
   }
 
   Timer {
-    interval: root.full ? 1500 : 3000
+    interval: root.full ? root.fullMs : root.barMs
     running: true
     repeat: true
     triggeredOnStart: true
@@ -106,7 +112,8 @@ Singleton {
     id: proc
     stdout: StdioCollector {
       onStreamFinished: {
-        try { root.take(JSON.parse(text)); } catch (e) {}
+        const s = Reply.parse(text, "sysmon.sh", null);
+        if (s) root.take(s);
       }
     }
   }

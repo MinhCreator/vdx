@@ -5,6 +5,7 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import qs.components
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // Notification history on top of mako (scripts/notifications.sh). mako keeps
 // only a short, untimed history, so this service records every notification it
@@ -118,7 +119,8 @@ Singleton {
     command: ["bash", root.script, "--list"]
     stdout: StdioCollector {
       onStreamFinished: {
-        try { root.ingest(JSON.parse(text)); } catch (e) {}
+        const o = Reply.parse(text, "notifications.sh", null);
+        if (o) root.ingest(o);
       }
     }
   }

@@ -22,8 +22,7 @@ FloatingWindow {
   // a picker is more compact than the browser: Hyprland's rule sets the size at every
   // show, so the picker's size is set once the window is up
   function resizeTo(w, h) {
-    Quickshell.execDetached(["hyprctl", "eval",
-      'hl.dispatch(hl.dsp.window.resize({ x = ' + w + ', y = ' + h + ', window = "title:^(Files)$" }))']);
+    Hypr.call('hl.dispatch(hl.dsp.window.resize({ x = ' + w + ', y = ' + h + ', window = "title:^(Files)$" }))');
   }
 
   onVisibleChanged: {
