@@ -6,11 +6,10 @@ import qs.kit
 
 // The saved screenshots and recordings: a searchable, sortable file list on the
 // left; the selected file on the right with a preview and what to do with it.
-// A row's click selects it; the buttons of the preview act on it.
+// A row's click selects it; the buttons of the preview act on it. It fills
+// the window: the label, the search and the heads stay, only the rows scroll.
 Item {
   id: root
-
-  implicitHeight: listColumn.implicitHeight
 
   property var items: []
   property bool loading: false
@@ -28,20 +27,36 @@ Item {
   // the columns after the name: the heads and the rows share them
   readonly property var colWidths: ({ type: 96, date: 150, size: 72 })
   readonly property var colOrder: ["type", "date", "size"]
+  readonly property int nameMin: 140
+  // a narrow list (the preview open, a small window) drops columns, type first
+  readonly property var dropOrder: ["type", "size", "date"]
 
-  // where a column starts and how wide it is in a row `total` wide
+  // the columns after the name that fit in a row `total` wide, left to right
+  function cols(total) {
+    const out = colOrder.slice();
+    for (const k of dropOrder) {
+      if (total - out.reduce((sum, c) => sum + colWidths[c], 0) >= nameMin) break;
+      out.splice(out.indexOf(k), 1);
+    }
+    return out;
+  }
+
+  // where a column starts and how wide it is in a row `total` wide; a dropped one is 0 wide
   function colLeft(key, total) {
     if (key === "name") return 0;
+    const shownCols = cols(total);
     let x = total;
-    for (const k of colOrder) {
-      x -= colWidths[k];
-      if (k === key) return x;
+    for (let i = shownCols.length - 1; i >= 0; i--) {
+      x -= colWidths[shownCols[i]];
+      if (shownCols[i] === key) return x;
     }
-    return x;
+    return total;
   }
 
   function colWidth(key, total) {
-    return key === "name" ? total - colOrder.reduce((sum, k) => sum + colWidths[k], 0) : colWidths[key];
+    const shownCols = cols(total);
+    if (key === "name") return total - shownCols.reduce((sum, k) => sum + colWidths[k], 0);
+    return shownCols.includes(key) ? colWidths[key] : 0;
   }
 
   // the rows on show: filtered by the search, sorted by the column
@@ -130,7 +145,7 @@ Item {
   Column {
     id: listColumn
 
-    anchors { left: parent.left; top: parent.top; bottom: parent.bottom; right: parent.right; rightMargin: root.selected ? root.previewWidth + Theme.gapWide : 0 }
+    anchors { left: parent.left; top: parent.top; right: parent.right; rightMargin: root.selected ? root.previewWidth + Theme.gapWide : 0 }
     spacing: Theme.gapMedium
 
     KitLabel {
@@ -152,7 +167,7 @@ Item {
       height: Theme.fontSize + 10
 
       Repeater {
-        model: ["name", "type", "date", "size"]
+        model: ["name"].concat(root.cols(heads.width))
 
         Item {
           required property string modelData
@@ -182,10 +197,24 @@ Item {
     }
 
     KitLine {}
+  }
 
-    // the rows: icon and name, then type, date and size; a click selects the file
+  // the rows: icon and name, then type, date and size; a click selects the
+  // file. The only part that scrolls, and only up and down.
+  Flickable {
+    id: rows
+
+    anchors { left: listColumn.left; right: listColumn.right; top: listColumn.bottom; topMargin: Theme.gapMedium; bottom: parent.bottom }
+    contentWidth: width
+    contentHeight: rowsColumn.implicitHeight
+    flickableDirection: Flickable.VerticalFlick
+    boundsBehavior: Flickable.StopAtBounds
+    interactive: contentHeight > height
+    clip: true
+
     Column {
-      width: parent.width
+      id: rowsColumn
+      width: rows.width
 
       Repeater {
         model: root.shown
@@ -222,6 +251,7 @@ Item {
           }
 
           KitText {
+            visible: width > 0
             x: root.colLeft("type", parent.width) + Theme.gapSmall
             width: root.colWidth("type", parent.width) - Theme.gapSmall
             anchors.verticalCenter: parent.verticalCenter
@@ -231,6 +261,7 @@ Item {
           }
 
           KitText {
+            visible: width > 0
             x: root.colLeft("date", parent.width) + Theme.gapSmall
             width: root.colWidth("date", parent.width) - Theme.gapSmall
             anchors.verticalCenter: parent.verticalCenter
@@ -240,6 +271,7 @@ Item {
           }
 
           KitText {
+            visible: root.colWidth("size", parent.width) > 0
             x: root.colLeft("size", parent.width)
             width: root.colWidth("size", parent.width) - Theme.gapSmall
             anchors.verticalCenter: parent.verticalCenter
@@ -258,18 +290,18 @@ Item {
           }
         }
       }
-    }
 
-    KitText {
-      visible: !root.loading && root.items.length === 0
-      color: Theme.muted
-      text: "Nothing saved yet"
-    }
+      KitText {
+        visible: !root.loading && root.items.length === 0
+        color: Theme.muted
+        text: "Nothing saved yet"
+      }
 
-    KitText {
-      visible: !root.loading && root.items.length > 0 && root.shown.length === 0
-      color: Theme.muted
-      text: "No file matches " + root.query.trim()
+      KitText {
+        visible: !root.loading && root.items.length > 0 && root.shown.length === 0
+        color: Theme.muted
+        text: "No file matches " + root.query.trim()
+      }
     }
   }
 
@@ -278,7 +310,7 @@ Item {
     id: preview
 
     visible: root.selected !== null
-    anchors { top: parent.top; right: parent.right; bottom: parent.bottom }
+    anchors { top: parent.top; right: parent.right }
     width: root.previewWidth
     spacing: Theme.gapMedium
 
@@ -366,12 +398,33 @@ Item {
   Process {
     id: thumbs
 
-    readonly property string target: root.selected ? root.thumbDir + "/" + root.selected.name.replace(/\.mp4$/, "") + ".png" : ""
+    // the frame on show and the one being made; set together with the command
+    // (a binding would still hold the last file when the selection starts it)
+    property string target: ""
+    property string next: ""
+    property string nextVideo: ""
     property bool ready: false
 
-    command: ["sh", "-c", 'mkdir -p "$1" && { [ -s "$2" ] || ffmpegthumbnailer -i "$3" -o "$2" -s 512 -t 10; }',
-              "sh", root.thumbDir, target, root.selected ? root.selected.path : ""]
-    onExited: ready = true
+    function make(video, png) {
+      ready = false;
+      next = png;
+      nextVideo = video;
+      if (!running) start();
+    }
+
+    function start() {
+      target = next;
+      command = ["sh", "-c", 'mkdir -p "$1" && { [ -s "$2" ] || ffmpegthumbnailer -i "$3" -o "$2" -s 512 -t 10; }',
+                 "sh", root.thumbDir, next, nextVideo];
+      running = true;
+    }
+
+    // the selection moved on while it ran: make the new one; else it is in
+    // when the file is there
+    onExited: code => {
+      if (next !== target) { start(); return; }
+      ready = code === 0;
+    }
   }
 
   // a recording's length
@@ -381,17 +434,24 @@ Item {
     property string path: ""
     property real seconds: 0
 
-    command: ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path]
     stdout: StdioCollector {
       onStreamFinished: probe.seconds = Number(text.trim()) || 0
     }
-    onPathChanged: if (path !== "") { seconds = 0; running = true; }
+    // the command is set here, not bound: the binding would still hold the last path
+    onPathChanged: {
+      seconds = 0;
+      if (path === "") return;
+      command = ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path];
+      running = true;
+    }
   }
 
   // the picture follows the selection: a recording's frame is made when it is picked
   onSelectedChanged: {
-    thumbs.ready = false;
-    if (selected && selected.video) thumbs.running = true;
+    if (!selected || !selected.video) { thumbs.ready = false; return; }
+    const png = thumbDir + "/" + selected.name.replace(/\.mp4$/, "") + ".png";
+    if (png === thumbs.target && thumbs.ready) return;     // the list was read again
+    thumbs.make(selected.path, png);
   }
 
   Process {

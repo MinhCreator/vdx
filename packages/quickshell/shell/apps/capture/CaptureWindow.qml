@@ -48,8 +48,9 @@ FloatingWindow {
     }
   }
 
-  Flickable {
-    id: page
+  // fills the room between the header and the foot; only its rows scroll
+  CaptureLibrary {
+    id: library
 
     anchors {
       left: parent.left; right: parent.right
@@ -57,14 +58,6 @@ FloatingWindow {
       bottom: foot.visible ? foot.top : parent.bottom
       leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding
       bottomMargin: foot.visible ? Theme.gapGroup : Theme.windowPadding
-    }
-    contentHeight: library.implicitHeight
-    clip: true
-
-    CaptureLibrary {
-      id: library
-
-      width: page.width
     }
   }
 
