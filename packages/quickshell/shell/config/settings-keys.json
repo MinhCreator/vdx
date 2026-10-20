@@ -80,12 +80,12 @@
  "apps/capture/CaptureBarSettings.qml": [
   "text"
  ],
- "apps/yandex/YandexAppSettings.qml": [
+ "apps/music/MusicSettings.qml": [
   "closeOnPlay",
-  "defaultTab",
+  "opensOn",
   "showRemaining"
  ],
- "modules/yandex/YandexSettings.qml": [
+ "modules/player/PlayerSettings.qml": [
   "show",
   "text",
   "titleLength"

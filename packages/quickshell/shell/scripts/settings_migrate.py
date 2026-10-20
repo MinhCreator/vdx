@@ -14,7 +14,7 @@ QML keeps reading the old shapes too (a live reload runs without this)."""
 import hashlib, json, os, sys
 from pathlib import Path
 
-VERSION = 5
+VERSION = 6
 FILES = ("settings.json", "modules.json", "layout.json")
 RENAMED = {"claude": "ai", "plugins": "shell"}       # module ids that changed (BarLayout.renamed)
 
@@ -113,7 +113,25 @@ def to_5(name: str, data: dict) -> None:
                 capture.pop(key, None)
 
 
-MIGRATIONS = {0: to_1, 1: to_2, 2: to_3, 3: to_4, 4: to_5}          # n -> the step from version n to n + 1
+def to_6(name: str, data: dict) -> None:
+    """Version 6: the Yandex Music window is the Music app (id "music"): its options leave
+    "yandex" (the bar module's stay); the tab it opened on becomes the page, likes or Now playing."""
+    if name == "modules.json":
+        values = data.get("values")
+        yandex = values.get("yandex") if isinstance(values, dict) else None
+        if isinstance(yandex, dict):
+            music = values.setdefault("music", {})
+            tab = yandex.pop("defaultTab", None)
+            if tab is not None:
+                music.setdefault("opensOn", "likes" if tab == "likes" else "playing")
+            for key in ("showRemaining", "closeOnPlay"):
+                if key in yandex:
+                    music.setdefault(key, yandex.pop(key))
+            if not music:
+                values.pop("music")
+
+
+MIGRATIONS = {0: to_1, 1: to_2, 2: to_3, 3: to_4, 4: to_5, 5: to_6}          # n -> the step from version n to n + 1
 
 
 def migrate(name: str, data: dict) -> dict:

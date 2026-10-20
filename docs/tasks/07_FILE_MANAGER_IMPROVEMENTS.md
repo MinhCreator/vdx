@@ -7,7 +7,7 @@ Three parts, run in order A → B → C or independently (they touch different f
 ## Read first (all parts)
 
 `apps/files/*.qml` (start with `FilesService.qml`, `FilesWindow.qml`,
-`FilesSidebar.qml`, `FilesPlace.qml`, `FilesSettings.qml`), `scripts/files.py`
+`FilesSidebar.qml`, `kit/KitSideRow.qml` (was `FilesPlace.qml`), `FilesSettings.qml`), `scripts/files.py`
 (`places`, `devices`, `stat`), `tests/test_files.py`, `docs/shell/design.md`.
 
 ---
@@ -38,7 +38,7 @@ appears/disappears; unmounted partition mounts on click; no pseudo fs.
 
 Category: B · Gate: proposal approved (2026-10-20).
 
-Done: sections (PLACES, PINNED, USB, DEVICES; `FilesSidebar.qml`): each keeps the stored order (`FilesService.sidebarItems`, stored as `sidebar` in `modules.json`); a drag stays inside its section; USB lists removable drives plugged in, mounted or not, with a mount / eject button (`FilesPlace` `action`); `files.py devices` gives `removable`. Earlier: drag a row to reorder, right click to hide or unpin (a default is hidden, a folder unpinned), a folder's right click › Pin to sidebar, Settings › SIDEBAR with a switch per item and Restore defaults; devices stay automatic; the empty state. Bookmarks migrated by `settings_migrate.py` version 2 (tested).
+Done: sections (PLACES, PINNED, USB, DEVICES; `FilesSidebar.qml`): each keeps the stored order (`FilesService.sidebarItems`, stored as `sidebar` in `modules.json`); a drag stays inside its section; USB lists removable drives plugged in, mounted or not, with a mount / eject button (`KitSideRow` `action`); `files.py devices` gives `removable`. Earlier: drag a row to reorder, right click to hide or unpin (a default is hidden, a folder unpinned), a folder's right click › Pin to sidebar, Settings › SIDEBAR with a switch per item and Restore defaults; devices stay automatic; the empty state. Bookmarks migrated by `settings_migrate.py` version 2 (tested).
 
 - Audit current sections (places from backend, bookmarks, devices) and actions (bookmark/unbookmark).
 - Proposal: one ordered list of pinned entries (places + bookmarks), show/hide per default place, drag to reorder, add current folder, remove, "Restore defaults"; devices section stays automatic.

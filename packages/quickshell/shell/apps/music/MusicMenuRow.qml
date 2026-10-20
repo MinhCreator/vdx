@@ -2,7 +2,7 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// A full-width row of a list or an action pane: the label on the left, a muted
+// A row of MusicMenu: the label on the left, a muted
 // note on the right, a hover fill. `danger` reds the label (a removal),
 // `disabled` greys it and ignores the click.
 Item {
@@ -21,7 +21,7 @@ Item {
   Rectangle {
     anchors.fill: parent
     radius: Theme.radiusControl
-    color: !root.disabled && area.containsMouse ? Theme.background1 : Theme.clear
+    color: !root.disabled && area.containsMouse ? Theme.controlHover : Theme.clear
     Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
   }
 

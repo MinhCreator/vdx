@@ -107,6 +107,19 @@ class Migrate(unittest.TestCase):
         v = self.read("modules.json")["values"]
         self.assertEqual(v, {"yandex": {"show": "title"}, "radio": {"titleLength": 45}})
 
+    def test_yandex_window_options_become_music(self):
+        self.write("modules.json", {"version": 5, "values": {"yandex": {
+            "show": "title", "defaultTab": "search", "showRemaining": True, "closeOnPlay": False}}})
+        self.run_it()
+        v = self.read("modules.json")["values"]
+        self.assertEqual(v["yandex"], {"show": "title"})
+        self.assertEqual(v["music"], {"opensOn": "playing", "showRemaining": True, "closeOnPlay": False})
+
+    def test_yandex_likes_tab_opens_likes_and_bar_options_alone(self):
+        self.write("modules.json", {"version": 5, "values": {"yandex": {"defaultTab": "likes"}, "radio": {"show": "icon"}}})
+        self.run_it()
+        self.assertEqual(self.read("modules.json")["values"], {"yandex": {}, "music": {"opensOn": "likes"}, "radio": {"show": "icon"}})
+
     def test_capture_popup_options_go(self):
         self.write("modules.json", {"version": 4, "values": {"capture": {
             "shortcut": "popup", "detached": True, "popupFps": True, "quality": "high", "text": "icon"}}})
@@ -141,8 +154,11 @@ class Migrate(unittest.TestCase):
                     if k != "version":
                         self.assertEqual(new[k], val, k)
             if n == "modules.json":
-                # the music options were renamed to yandex (version 3)
-                self.assertEqual(set(new["values"]), {"yandex" if k == "music" else k for k in old["values"]})
+                # the music options were renamed to yandex (version 3); the window's went to music (6)
+                window = {"defaultTab", "showRemaining", "closeOnPlay"}
+                moved = {"music"} if window & set(old["values"].get("yandex", {})) else set()
+                v3 = old.get("version", 0) < 3
+                self.assertEqual(set(new["values"]), {"yandex" if v3 and k == "music" else k for k in old["values"]} | moved)
             self.assertGreaterEqual(new["version"], sm.VERSION)
 
 

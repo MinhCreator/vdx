@@ -7,7 +7,7 @@ import qs.modules.mpd
 
 // Yandex Music likes on top of MpdService: the queue, covers, library sync
 // (yandex-music-cli) and likes (scripts/yandex.py). The bar module, its popup and
-// the Yandex Music app read MpdService for playback and this service for the rest.
+// the Music app read MpdService for playback and this service for the rest.
 Singleton {
   id: root
 
@@ -34,7 +34,7 @@ Singleton {
   }
 
   property bool popupOpen: false
-  property bool windowOpen: false              // the Yandex Music window shows the queue too
+  property bool windowOpen: false              // the Music window shows the queue too
   property bool updating: false
 
   function popupShown() {
@@ -46,15 +46,15 @@ Singleton {
 
   function popupHidden() { popupOpen = false; }
 
-  // the window keeps the queue fresh while it is open (its full mode shows it)
+  // the Music window keeps the queue fresh while it is open (Now playing shows it)
   function setWindowOpen(on) {
     windowOpen = on;
     if (on) refreshQueue();
   }
 
-  // the Yandex Music app's window (its IPC: `yandex-music open`)
+  // the Music app's window on the likes (its IPC: `music go likes`)
   function openApp() {
-    Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "yandex-music", "open"]);
+    Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "music", "go", "likes"]);
   }
 
   // the playing track's cover from Yandex Music (cached by yandex.py)

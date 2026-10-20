@@ -61,6 +61,7 @@ Item {
     PlayerPopup {
       id: content
       anchors.fill: parent
+      onOpenWindow: popup.visible = false
     }
   }
 }

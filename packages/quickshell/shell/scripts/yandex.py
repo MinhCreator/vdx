@@ -3,7 +3,7 @@
 # dependencies = ["yandex-music"]
 # ///
 """yandex.py — Yandex Music online: likes, search, playlists and covers, for the
-music module (modules/yandex) and the Yandex Music app (apps/yandex).
+music module (modules/yandex) and the Music app's Yandex section (apps/music).
 
     --likes                     {ok, liked: [id], files: {file: id}}   the module's state
     --likes-list                {ok, tracks: [track]}                  every liked track

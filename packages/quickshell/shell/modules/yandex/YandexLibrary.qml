@@ -4,10 +4,9 @@ import Quickshell
 import Quickshell.Io
 import qs.config
 import qs.modules.mpd
-import qs.modules.yandex
 import "../../kit/reply.js" as Reply
 
-// The Yandex Music app's data: the liked tracks, search, playlists and their
+// Yandex Music online for the Music app: the liked tracks, search, playlists and their
 // management (scripts/yandex.py). Likes, the downloaded files and the update are
 // YandexService's; playback is MpdService's (a downloaded track only).
 Singleton {

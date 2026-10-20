@@ -10,7 +10,7 @@ import qs.apps.files
 import qs.apps.cleaner
 import qs.apps.packages
 import qs.apps.virustotal
-import qs.apps.yandex
+import qs.apps.music
 import qs.apps.keybinds
 import qs.apps.taskbar
 import qs.apps.launcher
@@ -42,7 +42,7 @@ Scope {
   FilesWindow {}
   BackupWindow {}
   CaptureWindow {}
-  YandexWindow {}
+  MusicWindow {}
   Keybinds {}
   Taskbar {}
   Launcher {}

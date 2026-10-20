@@ -1146,8 +1146,8 @@
   "target": "modules:yandex"
  },
  {
-  "label": "Yandex Music",
-  "hint": "The player, playlists and the full mode",
+  "label": "Music",
+  "hint": "Likes, search and playlists",
   "where": "Bar modules › Yandex Music › WINDOW",
   "target": "modules:yandex"
  },
@@ -2772,39 +2772,57 @@
   "target": "modules:capture"
  },
  {
-  "label": "Yandex Music",
-  "hint": "A player: likes, search, playlists; plays what the update downloaded",
+  "label": "Music",
+  "hint": "The player: now playing, the queue; Yandex Music and radio when installed",
   "where": "Apps",
-  "target": "apps:yandex"
+  "target": "apps:music"
  },
  {
-  "label": "Start",
+  "label": "Opening",
   "hint": "",
-  "where": "Apps › Yandex Music",
-  "target": "apps:yandex"
+  "where": "Apps › Music",
+  "target": "apps:music"
  },
  {
   "label": "Player",
   "hint": "",
-  "where": "Apps › Yandex Music",
-  "target": "apps:yandex"
+  "where": "Apps › Music",
+  "target": "apps:music"
  },
  {
   "label": "Opens on",
-  "hint": "Each time the window opens",
-  "where": "Apps › Yandex Music › START",
-  "target": "apps:yandex"
+  "hint": "Likes needs Yandex Music",
+  "where": "Apps › Music › OPENING",
+  "target": "apps:music"
+ },
+ {
+  "label": "Close when a track plays",
+  "hint": "After a click in a list",
+  "where": "Apps › Music › OPENING",
+  "target": "apps:music"
  },
  {
   "label": "Time left",
   "hint": "The timeline counts down",
-  "where": "Apps › Yandex Music › PLAYER",
-  "target": "apps:yandex"
+  "where": "Apps › Music › PLAYER",
+  "target": "apps:music"
  },
  {
-  "label": "Close when a track plays",
-  "hint": "The window hides after a click",
-  "where": "Apps › Yandex Music › PLAYER",
-  "target": "apps:yandex"
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Music",
+  "target": "modules:player"
+ },
+ {
+  "label": "Shows",
+  "hint": "What the bar names while something plays",
+  "where": "Bar modules › Music › BAR",
+  "target": "modules:player"
+ },
+ {
+  "label": "Max length",
+  "hint": "Longer ones end with …",
+  "where": "Bar modules › Music › BAR",
+  "target": "modules:player"
  }
 ]

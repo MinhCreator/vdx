@@ -16,7 +16,7 @@ KitFrame {
   KitHeader {
     icon: "music"
     iconColor: YandexService.active ? Theme.foreground0 : Theme.muted
-    title: "Music"
+    title: "Yandex Music"
     subtitle: !YandexService.active ? (MpdService.busy === "likes" ? "LOADING LIKES…" : "OFF")
       : (MpdService.playing ? "PLAYING" : "PAUSED") + " · " + MpdService.player.pos + " / " + MpdService.player.length
 

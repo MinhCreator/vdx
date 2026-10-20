@@ -7,16 +7,16 @@ import qs.modules.mpd
 // The playing track: cover, title, artist and album, its like, the timeline and
 // the transport. Stacked (the default: the cover on top, the timeline and the
 // transport under it) or `side` (the full mode: the cover on the left, the text,
-// the timeline and the transport on its right). Shared by the bar popup and the
-// Yandex Music app; the caller decides when it shows.
+// the timeline and the transport on its right). The bar popup's; the caller decides
+// when it shows.
 Item {
   id: root
 
   property int coverSize: YandexService.coverSize
   property bool side: false
   readonly property var player: MpdService.player
-  // the timeline's right end: the total, or the time left (the app's setting)
-  readonly property bool showRemaining: ModuleSettings.get("yandex", "showRemaining", false)
+  // the timeline's right end: the total, or the time left (Apps › Music)
+  readonly property bool showRemaining: ModuleSettings.get("music", "showRemaining", false)
   readonly property int gap: Theme.gapWide
 
   function clock(seconds) {

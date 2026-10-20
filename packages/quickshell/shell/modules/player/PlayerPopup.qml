@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Widgets
 import qs.config
 import qs.kit
@@ -8,6 +9,8 @@ import qs.kit
 // Controls only where the player supports them.
 KitFrame {
   id: root
+
+  signal openWindow()
 
   function clock(seconds) {
     const s = Math.max(0, Math.floor(seconds));
@@ -21,6 +24,16 @@ KitFrame {
     title: "Player"
     subtitle: !PlayerService.hasMedia ? "NOTHING RUNNING"
       : PlayerService.name.toUpperCase() + " · " + (PlayerService.playing ? "PLAYING" : "PAUSED")
+
+    // the Music window: the player large, the queue and the libraries
+    KitButton {
+      anchors.verticalCenter: parent.verticalCenter
+      icon: "external"
+      onClicked: {
+        root.openWindow();
+        Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "music", "open"]);
+      }
+    }
   }
 
   KitChoices {

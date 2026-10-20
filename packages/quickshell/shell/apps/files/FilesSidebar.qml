@@ -82,13 +82,13 @@ Item {
       width: sidebar.width
       spacing: Theme.gapTight
 
-      FilesSideCaption { text: "PLACES"; visible: root.visiblePlaces > 0 }
+      KitSideCaption { text: "PLACES"; visible: root.visiblePlaces > 0 }
 
       Repeater {
         id: placeRows
         model: root.placeItems
 
-        FilesPlace {
+        KitSideRow {
           required property var modelData
           visible: !modelData.hidden
           draggable: true
@@ -104,13 +104,13 @@ Item {
         }
       }
 
-      FilesSideCaption { text: "PINNED"; lead: root.visiblePlaces > 0 ? Theme.gapMedium : 0 }
+      KitSideCaption { text: "PINNED"; lead: root.visiblePlaces > 0 ? Theme.gapMedium : 0 }
 
       Repeater {
         id: pinnedRows
         model: root.pinnedItems
 
-        FilesPlace {
+        KitSideRow {
           required property var modelData
           visible: !modelData.hidden
           draggable: true
@@ -134,12 +134,12 @@ Item {
       }
 
       // removable drives: plugged in, mounted or not; the button at the end mounts or unmounts
-      FilesSideCaption { text: "USB"; lead: Theme.gapMedium; visible: root.usbDevices.length > 0 }
+      KitSideCaption { text: "USB"; lead: Theme.gapMedium; visible: root.usbDevices.length > 0 }
 
       Repeater {
         model: root.usbDevices
 
-        FilesPlace {
+        KitSideRow {
           required property var modelData
           icon: "usb"
           text: modelData.name
@@ -153,12 +153,12 @@ Item {
       }
 
       // the other drives udisks mounted for the user
-      FilesSideCaption { text: "DEVICES"; lead: Theme.gapMedium; visible: root.otherDevices.length > 0 }
+      KitSideCaption { text: "DEVICES"; lead: Theme.gapMedium; visible: root.otherDevices.length > 0 }
 
       Repeater {
         model: root.otherDevices
 
-        FilesPlace {
+        KitSideRow {
           required property var modelData
           icon: "hard-drive"
           text: modelData.name

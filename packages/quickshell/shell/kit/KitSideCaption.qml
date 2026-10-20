@@ -2,7 +2,7 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// A caption over a group of the sidebar's rows, as Shell Manager's: small, muted, in caps.
+// A caption over a group of an app's sidebar rows (Files, Music), as Shell Manager's: small, muted, in caps.
 Item {
   id: root
 

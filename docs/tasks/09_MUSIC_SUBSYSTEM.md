@@ -1,7 +1,7 @@
-# 09 — Music: optional Yandex Music, generic player module, Yandex Music app
+# 09 — Music: optional Yandex Music, generic player module, Music app
 
-Spec: §10. Shell paths are under `packages/quickshell/shell/`. Three parts,
-in order A → B → C. The submodule `packages/scripts/yandex-music` is changed
+Spec: §10. Shell paths are under `packages/quickshell/shell/`. Four parts,
+in order A → B → C → D. The submodule `packages/scripts/yandex-music` is changed
 in its own repository only (CLAUDE.md).
 
 ## Read first (all)
@@ -88,6 +88,32 @@ approval and the search / playlist clicks are still open.
 - Settings and journeys; app registry entry (`apps/apps.json`), its own window.
 
 Acceptance: defined by the approved proposal.
+
+## Part D — Music app (the Yandex window redesigned)
+
+Status: Implemented, partially verified · Category: C · Depends on: C · Gate:
+[decision 0006](../decisions/0006-music-app.md) proposed 2026-10-20 (the owner asked in chat);
+the owner's look approval of the window is the gate before more work on it.
+
+Audit of the Yandex window (2026-10-20):
+- Look: its own (tabs, "full mode", a bottom box), not the apps' (Files, Shell Manager:
+  sidebar pane, a table in a raised box); 640 px wide; the README spoke of an equalizer it never had.
+- Scope: MPD only; Spotify, a browser, the radio had no window; "not installed" without Yandex.
+- Duplicates: three players (YandexNowPlaying, PlayerPopup, the window's box) each with their own transport.
+- Menu: the track menu's hover was `background1` on a `background1` panel (invisible).
+- Kept limits (decision 0004): a search or playlist track plays only after the update;
+  each window open reads likes, playlists and the likes map from the network.
+- `RadioService` asks MPD for stations when first read, installed or not: the window reads it only when installed.
+
+Done: `apps/music/` (MusicWindow, Music, MusicSidebar, MusicNowPlaying, MusicTracks,
+MusicPlayerBar, MusicMenu, MusicMenuRow, MusicSettings); `apps/yandex/` removed,
+`YandexLibrary` → `modules/yandex/`; `kit/KitSideRow`, `kit/KitSideCaption` (were Files');
+apps.json entry `music` (module `player`); IPC `music`; the Player popup's button opens
+the window; options moved (`settings_migrate.py` 6, tests).
+
+Open: the owner's look check (prototype = the window); clicks through Likes, Search,
+a playlist, Stations and the menus; the Yandex popup onto `PlayerService`; a local
+library (needs MPD's music dir decided).
 
 ---
 

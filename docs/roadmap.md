@@ -27,7 +27,7 @@ approves before code.
 | [06](tasks/06_LOCKSCREEN_CUSTOMIZATION.md) Lock screen customisation | B/C | — | proposal | Not started |
 | [07](tasks/07_FILE_MANAGER_IMPROVEMENTS.md) Files: A storage home · B custom sidebar · C fewer frames | A/B | A before B | proposal / prototype | Implemented (A, B, C); sidebar sections and USB section added; owner's look pending |
 | [08](tasks/08_BAR_ISLAND_AND_NOTCH_MODE.md) A Launcher + Keybinds in the island · B notch bar style | B / C | A before B | concept; B research + decision | A implemented (clicks not run here); B not started |
-| [09](tasks/09_MUSIC_SUBSYSTEM.md) A Yandex Music optional · B generic player · C Yandex Music app | A–C | A → B → C | per part | A and B implemented (fresh-machine test skipped by owner); C implemented, look and search/playlist clicks not run; [decision 0004](decisions/0004-yandex-music-app.md) |
+| [09](tasks/09_MUSIC_SUBSYSTEM.md) A Yandex Music optional · B generic player · C Yandex Music app · D Music app | A–D | A → B → C → D | per part | A and B implemented (fresh-machine test skipped by owner); C superseded by D; D implemented, the owner's look approval open ([decision 0006](decisions/0006-music-app.md), proposed) |
 | [12](tasks/12_KEYBOARD_ACCESS.md) Keyboard and assistive access | B/C | — | prototype popup | Not started |
 | [10](tasks/10_TORRENT_CLIENT.md) Torrent client | C | 07-A optional | design + engine decision | Not started |
 | [13](tasks/13_FINAL_INTEGRATION_AND_REVIEW.md) Integration, regressions, docs | B | each milestone | — | Not started |

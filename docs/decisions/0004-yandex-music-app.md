@@ -2,6 +2,7 @@
 
 Status: Accepted (2026-10-20, owner, chat: "делаем все кроме теста на free machine, приступай к приложению")
 Phase: tasks/09_MUSIC_SUBSYSTEM.md › Part C
+The window, its id and IPC: replaced by the Music app ([0006](0006-music-app.md), proposed).
 
 ## Context
 

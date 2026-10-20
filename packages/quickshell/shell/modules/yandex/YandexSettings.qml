@@ -3,7 +3,7 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Music options in the Shell Manager.
+// Yandex Music module options in the Shell Manager.
 KitColumn {
   spacing: Theme.gapGroup
 
@@ -29,11 +29,11 @@ KitColumn {
 
   KitLabel { text: "WINDOW" }
 
-  // the player window: its own options are under Apps › Yandex Music
+  // the player window: its own options are under Apps › Music
   KitLinkRow {
-    label: "Yandex Music"
-    hint: "The player, playlists and the full mode"
-    app: "yandex-music"
+    label: "Music"
+    hint: "Likes, search and playlists"
+    app: "music"
   }
 
   KitGrouper {}

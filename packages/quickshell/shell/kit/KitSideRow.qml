@@ -2,12 +2,12 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// A row of the file manager's sidebar: an icon, a name and a hint at the
+// A row of an app's sidebar (Files, Music): an icon, a name and a hint at the
 // right; the current place is filled. A left click opens it, a right click
-// reports where it was (scene coordinates) so Files can open its menu. With
+// reports where it was (scene coordinates) so the app can open its menu. With
 // `draggable`, a left drag reports the pointer (dragged while it moves, dropped
 // on release) so the sidebar can reorder its rows. `action`: an icon button at the end of the row
-// (a device's mount or unmount); its click is `actioned`, not `clicked`.
+// (Files: a device's mount or unmount); its click is `actioned`, not `clicked`.
 Rectangle {
   id: root
 
