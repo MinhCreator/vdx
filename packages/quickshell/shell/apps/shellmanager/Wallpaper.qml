@@ -21,7 +21,22 @@ Scope {
   readonly property var outputs: image !== "" ? WallpaperService.outputsFor(ThemeService.current) : ({})
   readonly property string key: image !== "" ? image + JSON.stringify(outputs) : hex
 
+  // the picker's pick (WallpaperService.previewRel) on every monitor; leaving the
+  // picker with no pick set puts the chosen picture back (apply)
+  property bool previewing: false
+  readonly property string previewPath: WallpaperService.previewRel === "" ? ""
+    : WallpaperService.pathOf(WallpaperService.previewRel)
+  onPreviewPathChanged: {
+    if (previewPath !== "") {
+      previewing = true;
+      previewProc.running = false;
+      previewProc.command = ["awww", "img", "--transition-type", "fade", "--transition-duration", "0.3", previewPath];
+      previewProc.running = true;
+    } else if (previewing) apply();
+  }
+
   function apply() {
+    previewing = false;
     // $1 is the picture ("" for the colour), $2 the colour; a picture that is gone
     // falls back to it. Then pairs of monitor and its own picture. A file name
     // never reaches the shell as code.
@@ -56,4 +71,5 @@ Scope {
   Timer { id: addedTimer; interval: 500; onTriggered: root.apply() }
 
   Process { id: proc }
+  Process { id: previewProc }
 }

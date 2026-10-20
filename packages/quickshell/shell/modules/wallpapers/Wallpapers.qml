@@ -54,6 +54,7 @@ Item {
     WallpapersPopup {
       id: content
       anchors.fill: parent
+      live: popup.visible
     }
   }
 }

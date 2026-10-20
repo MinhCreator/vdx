@@ -10,6 +10,12 @@ Column {
   KitLabel { text: "BAR" }
   BarTextRow { module: "folder" }
 
+  KitOptionRow {
+    module: "folder"; key: "icon"; fallback: "folder"
+    label: "Symbol"; hint: ""
+    model: [{ label: "Folder", value: "folder" }, { label: "Dots", value: "dots" }]
+  }
+
   KitLine {}
 
   KitLinkRow {

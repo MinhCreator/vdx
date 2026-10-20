@@ -79,6 +79,12 @@ Singleton {
     onStatusChanged: root.collect()
   }
 
+  // the picture the picker has picked, shown on the desktop before it is set (Wallpaper.qml);
+  // "" when no preview is on. Enter sets it (choose), leaving the picker reverts it.
+  property string previewRel: ""
+  function preview(rel) { previewRel = rel; }
+  function endPreview() { previewRel = ""; }
+
   // the picture `rel` for `theme` on `output` ("" or absent: every monitor,
   // which drops the theme's per-monitor ones), and pictures on
   function choose(theme, rel, output) {

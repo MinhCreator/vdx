@@ -28,6 +28,11 @@ KitFrame {
   property int current: 0
   readonly property var picked: matches[current] ?? null
 
+  // the popup is open: the pick shows on the desktop (WallpaperService.preview); Enter sets it
+  property bool live: false
+  onPickedChanged: if (live && picked) WallpaperService.preview(picked.rel)
+  onLiveChanged: if (!live) WallpaperService.endPreview(); else if (picked) WallpaperService.preview(picked.rel)
+
   function move(step) {
     if (matches.length === 0) return;
     current = Math.max(0, Math.min(matches.length - 1, current + step));
