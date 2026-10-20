@@ -16,7 +16,7 @@ CAT = catalog(
     quickshell={"group": "desktop", "modules": ["clock", "audio"]},
     ollama={"group": "ai", "modules": ["ai"]},
     claude={"group": "ai", "modules": ["ai"]},
-    music={"group": "music", "modules": ["music"]},
+    yandex={"group": "music", "modules": ["yandex"]},
 )
 
 
@@ -28,8 +28,8 @@ class Render(unittest.TestCase):
         self.assertEqual(self.off(set(CAT)), {})
 
     def test_a_module_stays_while_one_of_its_components_is_on(self):
-        self.assertEqual(self.off({"quickshell", "claude"}), {"music": ["music"]})
-        self.assertEqual(self.off({"quickshell"}), {"ai": ["ollama", "claude"], "music": ["music"]})
+        self.assertEqual(self.off({"quickshell", "claude"}), {"yandex": ["yandex"]})
+        self.assertEqual(self.off({"quickshell"}), {"ai": ["ollama", "claude"], "yandex": ["yandex"]})
 
 
 class Apply(unittest.TestCase):
@@ -40,7 +40,7 @@ class Apply(unittest.TestCase):
             f = Path(tmp) / "dotfiles" / "components.json"
             self.assertTrue(shell.apply(f))
             self.assertFalse(shell.apply(f))
-            self.assertIn("music", json.loads(f.read_text())["off"])
+            self.assertIn("yandex", json.loads(f.read_text())["off"])
 
 
 class ShellProblems(unittest.TestCase):

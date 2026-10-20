@@ -4,7 +4,9 @@ import qs.kit
 
 // A row of the file manager's sidebar: an icon, a name and a hint at the
 // right; the current place is filled. A left click opens it, a right click
-// reports where it was (scene coordinates) so Files can open its menu.
+// reports where it was (scene coordinates) so Files can open its menu. With
+// `draggable`, a left drag reports the pointer (dragged while it moves, dropped
+// on release) so the sidebar can reorder its rows.
 Rectangle {
   id: root
 
@@ -12,14 +14,19 @@ Rectangle {
   property string text: ""
   property string hint: ""
   property bool current: false
+  property bool draggable: false
+  property bool moved: false           // the press became a drag: no click
+  property real pressY: 0
 
   signal clicked()
   signal rightClicked(point at)
+  signal dragged(real sceneY)
+  signal dropped(real sceneY)
 
   width: parent ? parent.width : 0
   height: 28
   radius: Theme.radiusControl
-  color: current ? Theme.background3 : area.containsMouse ? Theme.controlHover : Theme.clear
+  color: current ? Theme.background3 : area.containsMouse ? Theme.background2 : Theme.clear
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
   KitIcon {
@@ -27,13 +34,15 @@ Rectangle {
     anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
     name: root.icon
     size: Theme.iconSmall
+    tint: root.current ? Theme.foreground0 : Theme.foreground2
   }
 
   KitText {
     anchors { left: glyph.right; leftMargin: Theme.gapMedium; right: hintText.left; rightMargin: Theme.gapSmall; verticalCenter: parent.verticalCenter }
     text: root.text
     elide: Text.ElideRight
-    font.weight: root.current ? Font.ExtraBold : Theme.fontWeight
+    color: root.current ? Theme.foreground0 : Theme.foreground2
+    font.weight: root.current ? Font.ExtraBold : Font.DemiBold
   }
 
   KitText {
@@ -51,7 +60,15 @@ Rectangle {
     hoverEnabled: true
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     cursorShape: Qt.PointingHandCursor
+    onPressed: mouse => { root.moved = false; root.pressY = mouse.y; }
+    onPositionChanged: mouse => {
+      if (!pressed || !root.draggable || mouse.buttons !== Qt.LeftButton) return;
+      if (!root.moved && Math.abs(mouse.y - root.pressY) > 6) root.moved = true;
+      if (root.moved) root.dragged(root.mapToItem(null, mouse.x, mouse.y).y);
+    }
+    onReleased: mouse => { if (root.moved) root.dropped(root.mapToItem(null, mouse.x, mouse.y).y); }
     onClicked: mouse => {
+      if (root.moved) return;
       if (mouse.button === Qt.RightButton) root.rightClicked(root.mapToItem(null, mouse.x, mouse.y));
       else root.clicked();
     }

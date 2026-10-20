@@ -3,13 +3,11 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
-import Quickshell.Services.Mpris
 import qs.components
 import qs.config
 import qs.modules.audio
 import qs.modules.brightness
-import qs.modules.mpd
-import qs.modules.music
+import qs.modules.player
 import qs.modules.notifications
 
 // What the island shows, for every bar's island (Bar › Style island): the
@@ -18,7 +16,7 @@ import qs.modules.notifications
 // the Equalizer module's.
 // Each island keeps its own view; this only tells them what happened.
 //
-// IPC: `qs -c shell ipc call island hub|media|power|collapse` (the focused
+// IPC: `qs -c shell ipc call island hub|media|power|launcher|keybinds|collapse` (the focused
 // monitor's island answers).
 Singleton {
   id: root
@@ -37,44 +35,20 @@ Singleton {
   property bool ready: false
   Timer { running: true; interval: root.quietStartMs; onTriggered: root.ready = true }
 
-  // ---- media ----
-  readonly property bool mpd: !MpdService.stopped
-  readonly property var mpris: {
-    const list = Mpris.players.values;
-    return list.find(p => p.isPlaying) ?? list[0] ?? null;
-  }
-  readonly property bool hasMedia: mpd || mpris !== null
-  readonly property bool playing: mpd ? MpdService.playing : (mpris?.isPlaying ?? false)
-  readonly property bool radio: mpd && MpdService.source === "radio"
-  readonly property string title: mpd ? (MpdService.player.title || MpdService.player.station
-                                         || MpdService.file.split("/").pop())
-                                      : (mpris?.trackTitle ?? "")
-  readonly property string artist: mpd ? (radio ? MpdService.player.station : MpdService.player.artist)
-                                       : (mpris?.trackArtist ?? "")
-  readonly property string cover: mpd ? MusicService.cover : (mpris?.trackArtUrl ?? "")
-  readonly property real position: mpd ? MpdService.elapsed : (mpris?.position ?? 0)
-  readonly property real length: mpd ? MpdService.duration : (mpris?.length ?? 0)
+  // ---- media: the player the Player module shows (modules/player/PlayerService) ----
+  readonly property bool hasMedia: PlayerService.hasMedia
+  readonly property bool playing: PlayerService.playing
+  readonly property bool radio: PlayerService.radio
+  readonly property string title: PlayerService.title
+  readonly property string artist: PlayerService.artist
+  readonly property string cover: PlayerService.cover
+  readonly property real position: PlayerService.position
+  readonly property real length: PlayerService.length
 
-  function togglePlay() {
-    if (mpd) MpdService.toggle();
-    else if (mpris?.canTogglePlaying) mpris.togglePlaying();
-    else MusicService.setActive(true);          // nothing queued: the likes
-  }
-  function next() { if (mpd) MpdService.next(); else if (mpris?.canGoNext) mpris.next(); }
-  function prev() { if (mpd) MpdService.prev(); else if (mpris?.canGoPrevious) mpris.previous(); }
-  function seek(fraction) {
-    if (length <= 0) return;
-    if (mpd) MpdService.seek(fraction);
-    else if (mpris?.canSeek) mpris.position = fraction * length;
-  }
-
-  // an MPRIS position is read, not pushed: ask for it while playing
-  Timer {
-    running: !root.mpd && root.playing
-    interval: 1000
-    repeat: true
-    onTriggered: root.mpris?.positionChanged()
-  }
+  function togglePlay() { PlayerService.togglePlay(); }
+  function next() { PlayerService.next(); }
+  function prev() { PlayerService.prev(); }
+  function seek(fraction) { PlayerService.seek(fraction); }
 
   // ---- osd ----
   property string osdKind: ""                  // volume | brightness
@@ -198,6 +172,8 @@ Singleton {
     function hub(): void { root.requested("hub", Hyprland.focusedMonitor?.name ?? ""); }
     function media(): void { root.requested("media", Hyprland.focusedMonitor?.name ?? ""); }
     function power(): void { root.requested("power", Hyprland.focusedMonitor?.name ?? ""); }
+    function launcher(): void { root.requested("launcher", Hyprland.focusedMonitor?.name ?? ""); }
+    function keybinds(): void { root.requested("keybinds", Hyprland.focusedMonitor?.name ?? ""); }
     function collapse(): void { root.requested("compact", ""); }
   }
 }

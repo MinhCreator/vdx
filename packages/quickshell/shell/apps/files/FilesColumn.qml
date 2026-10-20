@@ -21,8 +21,6 @@ Rectangle {
   clip: true
   radius: Theme.radiusCard
   color: "transparent"
-  border.width: FilesService.frames ? Theme.windowFrameWidth : 0
-  border.color: Theme.popupFrame
 
   onFolderChanged: {
     if (proc.running) proc.running = false;
@@ -47,7 +45,7 @@ Rectangle {
     id: caption
     // the caption starts where the names start
     x: Theme.gapLoose + Theme.iconSmall + Theme.gapMedium
-    y: Theme.gapSmall
+    y: 0   // the same line as the list's caption row
     width: root.width - x - Theme.gapSmall
     text: root.title
     color: Theme.muted
@@ -78,7 +76,7 @@ Rectangle {
       width: list.width
       height: 28
       radius: Theme.radiusControl
-      color: current ? Theme.background3 : area.containsMouse ? Theme.controlHover : Theme.clear
+      color: current ? Theme.background3 : area.containsMouse ? Theme.background2 : Theme.clear
       Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
       KitIcon {

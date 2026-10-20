@@ -10,16 +10,16 @@ Rectangle {
   property alias listView: list
   property alias gridView: grid
   radius: Theme.radiusCard
-  color: "transparent"
-  border.width: FilesService.frames ? Theme.windowFrameWidth : 0
-  border.color: Theme.popupFrame
+  color: Theme.background1
+  border.width: Theme.frameWidth
+  border.color: Theme.background2
   clip: true
 
   // the Columns view: the parent folder on the left, the selected folder on the right
   FilesColumn {
     id: parentCol
     visible: files.columnsView && FilesService.canUp
-    anchors { left: parent.left; top: parent.top; bottom: parent.bottom; margins: Theme.gapSmall }
+    anchors { left: parent.left; top: parent.top; bottom: parent.bottom; margins: Theme.gapWide }
     width: files.parentW
     folder: visible ? FilesService.parentOf(FilesService.path) : ""
     highlight: FilesService.path
@@ -30,7 +30,7 @@ Rectangle {
   FilesColumn {
     id: childCol
     visible: files.columnsView && files.selectedDir
-    anchors { right: parent.right; top: parent.top; bottom: parent.bottom; margins: Theme.gapSmall }
+    anchors { right: parent.right; top: parent.top; bottom: parent.bottom; margins: Theme.gapWide }
     width: files.childW
     folder: visible ? FilesService.selected[0].path : ""
     title: visible ? FilesService.selected[0].name.toUpperCase() : ""
@@ -66,9 +66,7 @@ Rectangle {
       top: parent.top; bottom: parent.bottom
       left: parentCol.visible ? parentCol.right : parent.left
       right: childCol.visible ? childCol.left : parent.right
-      margins: Theme.gapSmall
-      leftMargin: parentCol.visible ? Theme.gapWide : Theme.gapSmall
-      rightMargin: childCol.visible ? Theme.gapWide : Theme.gapSmall
+      margins: Theme.gapWide
     }
 
     Item {
@@ -224,7 +222,7 @@ Rectangle {
         width: list.width
         height: 28
         radius: Theme.radiusControl
-        color: picked ? Theme.background3 : hover.containsMouse ? Theme.controlHover : Theme.clear
+        color: picked ? Theme.background3 : hover.containsMouse ? Theme.background2 : Theme.clear
         Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
         // a drag takes the selection (or this row) out to another app
@@ -373,7 +371,7 @@ Rectangle {
         width: grid.cellWidth - Theme.gapTight * 2
         height: grid.cellHeight - Theme.gapTight * 2
         radius: Theme.radiusCard
-        color: picked ? Theme.background3 : cellArea.containsMouse ? Theme.controlHover : Theme.clear
+        color: picked ? Theme.background3 : cellArea.containsMouse ? Theme.background2 : Theme.clear
         Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
         Item {

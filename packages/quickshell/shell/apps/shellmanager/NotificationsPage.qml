@@ -25,4 +25,6 @@ Column {
   }
 
   NotificationsSettings { width: parent.width }
+
+  KitGrouper {}
 }

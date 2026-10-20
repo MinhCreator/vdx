@@ -10,4 +10,6 @@ Column {
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "capture" }
+
+  KitGrouper {}
 }

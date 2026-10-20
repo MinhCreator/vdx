@@ -114,22 +114,42 @@ PanelWindow {
     right: true
   }
   // island style: tall enough for a module's popup opened in the island
-  implicitHeight: Theme.island ? Math.round(modelData.height * 0.92) : Theme.barHeight
+  // while the island's launcher or keybinds are dimming the screen, the window is the whole screen
+  implicitHeight: Theme.island ? Math.round(modelData.height * (islandItem?.dimming ? 1 : 0.92)) : Theme.barHeight
   // a hidden island (no clock, nothing beside it) with no child bar showing
   // leaves the edge to windows
   readonly property bool childrenShown: edgeLeft.width + edgeRight.width + besideLeft.width + besideRight.width > 0
   exclusiveZone: islandItem?.hidden && !childrenShown ? 0 : Theme.barEdge
   // while a popup is open, a click into it (a text field) takes the keyboard;
   // otherwise the bar never does
-  WlrLayershell.keyboardFocus: PopupManager.current || (islandItem?.grabbing ?? false)
+  WlrLayershell.keyboardFocus: PopupManager.current || (islandItem?.takesKeys ?? false)
     ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
   color: Theme.island ? "transparent" : Theme.background0
 
   mask: Theme.island ? islandMask : null
 
+  // the dimmed screen behind the island (its launcher / keybinds): a click on it closes the island's view
+  Rectangle {
+    id: dimLayer
+    anchors.fill: parent
+    z: -1
+    color: Theme.scrim
+    opacity: root.islandItem?.dimming ? 1 : 0
+    visible: opacity > 0
+    Behavior on opacity { enabled: Motion.panels; NumberAnimation { duration: Motion.ms(160); easing.type: Motion.easing } }
+
+    MouseArea {
+      anchors.fill: parent
+      enabled: root.islandItem?.dimming ?? false
+      onClicked: root.islandItem?.collapse()
+    }
+  }
+
   Region {
     id: islandMask
     item: root.islandItem && !root.islandItem.hidden ? root.islandItem.shape : null
+
+    Region { item: root.islandItem?.dimming ? dimLayer : null }
 
     Region { item: root.islandItem?.bubble ?? null }
     Region { item: edgeLeft }

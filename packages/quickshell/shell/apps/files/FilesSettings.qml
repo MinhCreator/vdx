@@ -16,8 +16,7 @@ KitColumn {
     label: "Show as"
     hint: "Ctrl + G in the window"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "List", value: "list" }, { label: "Grid", value: "grid" }, { label: "Columns", value: "columns" }]
       current: FilesService.view
       onPicked: value => FilesService.setOption("view", value)
@@ -32,15 +31,12 @@ KitColumn {
     label: "Preview lines"
     hint: "Of a text file"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "20", value: 20 }, { label: "40", value: 40 }, { label: "80", value: 80 }]
       current: FilesService.previewLines
       onPicked: value => FilesService.setOption("previewLines", value)
     }
   }
-
-  KitToggleRow { module: "files"; key: "frames"; fallback: true; label: "Show frames"; hint: "Off: no lines" }
 
   KitToggleRow { module: "files"; key: "hints"; fallback: true; label: "Show key hints"; hint: "Off: no line under the list" }
 
@@ -57,8 +53,7 @@ KitColumn {
     label: "Dates"
     hint: "Today shows the time only"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "Short", value: "short" }, { label: "ISO", value: "iso" }]
       current: FilesService.dateFormat
       onPicked: value => FilesService.setOption("dateFormat", value)
@@ -71,8 +66,7 @@ KitColumn {
     label: "Sort by"
     hint: "Trash: the newest first"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "Name", value: "name" }, { label: "Size", value: "size" }, { label: "Modified", value: "mtime" }]
       current: FilesService.sortBy
       onPicked: value => FilesService.setOption("sortBy", value)
@@ -88,8 +82,7 @@ KitColumn {
     label: "Group by"
     hint: "Type: the kinds one after another"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "None", value: "none" }, { label: "Type", value: "type" }]
       current: FilesService.groupBy
       onPicked: value => FilesService.setOption("groupBy", value)
@@ -105,8 +98,7 @@ KitColumn {
     label: "Results kept"
     hint: "Then the search stops"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "100", value: 100 }, { label: "300", value: 300 }, { label: "1000", value: 1000 }]
       current: FilesService.searchLimit
       onPicked: value => FilesService.setOption("searchLimit", value)
@@ -118,8 +110,7 @@ KitColumn {
     label: "Time limit"
     hint: "Then the results so far"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "3 s", value: 3 }, { label: "5 s", value: 5 }, { label: "15 s", value: 15 }]
       current: FilesService.searchSeconds
       onPicked: value => FilesService.setOption("searchSeconds", value)
@@ -137,8 +128,7 @@ KitColumn {
     label: "Open at"
     hint: "Last folder, or a fixed one"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "Last folder", value: "last" }, { label: "Fixed", value: "fixed" }]
       current: FilesService.startMode
       onPicked: value => FilesService.setOption("startMode", value)
@@ -190,8 +180,7 @@ KitColumn {
     label: "Size"
     hint: "Custom: sizes below"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "Small", value: "small" }, { label: "Medium", value: "medium" },
               { label: "Large", value: "large" }, { label: "Custom", value: "custom" }]
       current: FilesService.pickerSize
@@ -243,6 +232,33 @@ KitColumn {
 
   KitLine {}
 
+  // the sidebar's items in their order: shown or hidden; the sidebar itself is reordered by dragging
+  KitLabel { text: "SIDEBAR"; value: FilesService.sidebarItems.filter(i => !i.hidden).length + " SHOWN" }
+
+  Repeater {
+    model: FilesService.sidebarItems
+
+    KitRow {
+      required property var modelData
+      wide: true
+      label: modelData.name
+      hint: ({ computer: "This computer", place: "Place", trash: "Trash", folder: "Pinned folder" })[modelData.kind] ?? ""
+
+      KitSwitch {
+        checked: !modelData.hidden
+        onToggled: FilesService.setHidden(modelData.path, checked)
+      }
+    }
+  }
+
+  KitButton {
+    text: "Restore defaults"
+    icon: "rotate-ccw"
+    onClicked: FilesService.restoreSidebar()
+  }
+
+  KitLine {}
+
   KitLabel { text: "ACTIONS"; value: FilesService.actions.length + " IN THE MENU" }
 
   // a command for the right click's menu: %f is replaced by the selected paths
@@ -280,4 +296,6 @@ KitColumn {
     icon: "plus"
     onClicked: { FilesService.addAction(actionLabel.text, actionCommand.text); actionLabel.text = ""; actionCommand.text = ""; }
   }
+
+  KitGrouper {}
 }

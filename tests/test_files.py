@@ -4,6 +4,7 @@ listing, a paste, a trash, a restore and a search do to a folder — run in a sa
 from __future__ import annotations
 
 import json
+import sys
 import os
 import subprocess
 import tempfile
@@ -145,3 +146,61 @@ class Files(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class VolumesFrom(unittest.TestCase):
+    """The "This computer" rows from fake findmnt and lsblk data (no disk is read)."""
+
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(SCRIPT.parent))
+        import files
+        cls.files = files
+
+    def rows(self, mounts, blocks):
+        nodes = list(self.files.block_nodes(blocks))
+        return self.files.volumes_from(mounts, nodes, lambda p: (100, 40))
+
+    def test_one_row_per_filesystem_and_pseudo_ones_are_left_out(self):
+        mounts = [
+            {"target": "/", "source": "/dev/nvme0n1p2", "fstype": "btrfs"},
+            {"target": "/home", "source": "/dev/nvme0n1p2", "fstype": "btrfs"},
+            {"target": "/proc", "source": "proc", "fstype": "proc"},
+            {"target": "/tmp", "source": "tmpfs", "fstype": "tmpfs"},
+            {"target": "/snap/core/1", "source": "/dev/loop0", "fstype": "squashfs"},
+            {"target": "/mnt/bind", "source": "/dev/nvme0n1p2", "fstype": "btrfs"},
+        ]
+        blocks = [{"name": "nvme0n1p2", "path": "/dev/nvme0n1p2", "type": "part", "fstype": "btrfs",
+                   "mountpoint": "/", "rm": "0", "hotplug": "0", "label": "", "size": "900G"}]
+        rows = self.rows(mounts, blocks)
+        self.assertEqual([r["mount"] for r in rows], ["/"])
+        self.assertEqual(rows[0]["name"], "Root")
+        self.assertEqual(sorted(rows[0]["mounts"]), ["/", "/home", "/mnt/bind"])
+        self.assertEqual((rows[0]["total"], rows[0]["free"]), (100, 40))
+
+    def test_network_and_removable_kinds_and_unmounted_drives_last(self):
+        mounts = [
+            {"target": "/mnt/nas", "source": "nas:/share", "fstype": "nfs4"},
+            {"target": "/run/media/u/STICK", "source": "/dev/sdb1", "fstype": "vfat"},
+        ]
+        blocks = [
+            {"name": "sdb", "path": "/dev/sdb", "type": "disk", "rm": "1", "hotplug": "1", "children": [
+                {"name": "sdb1", "path": "/dev/sdb1", "type": "part", "fstype": "vfat", "label": "USB",
+                 "mountpoint": "/run/media/u/STICK", "size": "8G"}]},
+            {"name": "sdc1", "path": "/dev/sdc1", "type": "part", "fstype": "exfat", "label": "",
+             "mountpoint": None, "rm": "1", "size": "16G"},
+        ]
+        rows = self.rows(mounts, blocks)
+        self.assertEqual([(r["name"], r["kind"]) for r in rows],
+                         [("nas", "network"), ("USB", "removable"), ("sdc1", "removable")])
+        self.assertEqual(rows[2]["mount"], "")
+        self.assertEqual(rows[2]["size"], "16G")
+
+    def test_a_bind_mount_of_the_same_source_is_not_a_second_row(self):
+        mounts = [
+            {"target": "/home", "source": "/dev/sda2", "fstype": "ext4"},
+            {"target": "/srv/home", "source": "/dev/sda2", "fstype": "ext4"},
+        ]
+        rows = self.rows(mounts, [])
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["mount"], "/home")

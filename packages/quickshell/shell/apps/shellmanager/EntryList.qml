@@ -50,7 +50,7 @@ Column {
     radius: Theme.radiusControl
     width: parent.width
     height: Math.min(root.height - y, rows.implicitHeight + 2 * Theme.frameWidth)
-    color: Theme.controlFill
+    color: Theme.background0
     border.width: Theme.frameWidth
     border.color: Theme.gray
 

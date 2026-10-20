@@ -12,8 +12,7 @@ Column {
     label: "Icons"
     hint: "Bar, popups and windows"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [
         { label: "Outline", value: false },
         { label: "Solid",   value: true }
@@ -22,4 +21,6 @@ Column {
       onPicked: value => ShellSettings.set("solidIcons", value)
     }
   }
+
+  KitGrouper {}
 }

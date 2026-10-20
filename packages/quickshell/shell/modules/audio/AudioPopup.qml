@@ -50,14 +50,15 @@ KitFrame {
   // ---- output ----
   Column {
     width: parent.width
-    spacing: Theme.gapLoose
+    spacing: Theme.gapGroup
 
-    KitLabel { text: "OUTPUT" }
+    KitLabel {
+      text: "OUTPUT"
+      value: (AudioService.outputs.length === 0 ? "none found" : AudioService.outputNote).toUpperCase()
+    }
 
     AudioDeviceDropdown {
       id: output
-      label: "Device"
-      hint: AudioService.outputs.length === 0 ? "None found" : AudioService.outputNote || "Default output"
       entries: AudioService.outputs
       current: AudioService.outputKey
       onExpandedChanged: if (expanded) input.expanded = false
@@ -74,14 +75,15 @@ KitFrame {
   // ---- input ----
   Column {
     width: parent.width
-    spacing: Theme.gapLoose
+    spacing: Theme.gapGroup
 
-    KitLabel { text: "INPUT" }
+    KitLabel {
+      text: "INPUT"
+      value: (AudioService.inputs.length === 0 ? "none found" : AudioService.inputNote).toUpperCase()
+    }
 
     AudioDeviceDropdown {
       id: input
-      label: "Device"
-      hint: AudioService.inputs.length === 0 ? "None found" : AudioService.inputNote || "Default input"
       entries: AudioService.inputs
       current: AudioService.inputKey
       onExpandedChanged: if (expanded) output.expanded = false

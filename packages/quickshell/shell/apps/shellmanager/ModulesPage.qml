@@ -16,7 +16,7 @@ Column {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "puzzle"
   readonly property string title: "Bar modules"
-  readonly property string subtitle: BarLayout.modules.length + " MODULES · " + BarLayout.modules.filter(p => !!optionsOf(p)).length + " WITH OPTIONS"
+  readonly property string subtitle: listed.length + " MODULES · " + listed.filter(p => !!optionsOf(p)).length + " WITH OPTIONS"
 
   // its own list does the job of the sidebar's group links
   readonly property var jumps: []
@@ -29,8 +29,9 @@ Column {
     else if (BarLayout.modules.some(p => p.id === id)) selected = id;
   }
 
-  // modules whose options live on a page of their own: the list links there
+  // modules whose options live on a page of their own (no row here: a right click goes there)
   readonly property var pages: ({ notifications: "notifications" })
+  readonly property var listed: BarLayout.modules.filter(p => !pages[p.id])
 
   // the app a module belongs to (apps/apps.json), if any: its options page is the app's `moduleSettings`
   function appOf(id) { return ShellAppsService.entries.find(a => a.module === id) ?? null; }
@@ -42,7 +43,7 @@ Column {
     return p.settings.includes("/") ? p.settings : "modules/" + p.id + "/" + p.settings;
   }
 
-  property string selected: BarLayout.modules[0]?.id ?? ""
+  property string selected: listed[0]?.id ?? ""
   readonly property var module: BarLayout.modules.find(p => p.id === selected) ?? null
   readonly property string options: module ? optionsOf(module) : ""
 
@@ -57,9 +58,9 @@ Column {
     EntryList {
       id: list
       width: Theme.sideWidth
-      height: parent.height
+      height: parent.height - Theme.windowPadding
       title: "MODULES"
-      model: BarLayout.modules.map(p => Object.assign({ link: !!root.pages[p.id], off: !BarLayout.installed(p.id) }, p))
+      model: root.listed.map(p => Object.assign({ off: !BarLayout.installed(p.id) }, p))
       selected: root.selected
       onPicked: id => root.jump(id)
     }
@@ -70,7 +71,8 @@ Column {
       width: parent.width - list.width - parent.spacing
       height: parent.height
       contentHeight: details.implicitHeight
-      interactive: contentHeight > height
+      bottomMargin: Theme.windowPadding  // the window's edge clips, not a line above it
+      interactive: contentHeight + bottomMargin > height   // the margin scrolls too
       clip: true
       boundsBehavior: Flickable.StopAtBounds
 
@@ -128,14 +130,6 @@ Column {
         }
 
         KitLine {}
-
-        // an app's module: the app's own options are with the app
-        KitLinkRow {
-          visible: root.module !== null && !!root.appOf(root.selected) && BarLayout.installed(root.selected)
-          label: "The app"
-          hint: "In Apps › " + (root.appOf(root.selected)?.label ?? "")
-          target: "apps:" + (root.appOf(root.selected)?.id ?? "")
-        }
 
         // its components are off on this machine: nothing to set until installed
         KitRow {

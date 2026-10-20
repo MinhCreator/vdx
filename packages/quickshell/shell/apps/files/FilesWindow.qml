@@ -63,6 +63,10 @@ FloatingWindow {
       root.visible = true;
     }
     function close(): void { root.visible = false; }
+    // the view of the folder shown: list | grid | columns; This computer: list | grid (its own)
+    function view(name: string): void {
+      FilesService.setOption(FilesService.atComputer ? "computerView" : "view", name);
+    }
     // the duplicates of a folder, in the list
     function duplicates(where: string): void {
       FilesService.go(where.replace(/^~(?=\/|$)/, FilesService.home));

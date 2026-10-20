@@ -16,9 +16,15 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   `radiusCard` (tiles, previews, cards), `radiusControl` (buttons, fields,
   rows, checkboxes), `Theme.pill(h)` (tracks, knobs, dots); all 0 when sharp.
   An image in a rounded tile sits in a `ClippingRectangle`.
-- Controls: Appearance › Controls (outlined | material). A control's frame is
+- Controls: Appearance › Style (Terminal | Material). A control's frame is
   `Theme.frameWidth` (0 in material), its fill `Theme.controlFill` /
   `controlHover`, a popup's frame `Theme.popupFrame`; never a literal 1.
+  Material follows Material 3 (primary = `foreground0`, or the accent where it
+  applies): a button is tonal; `KitSegments` an outlined track split by
+  hairlines, the picked segment filled with a check; `KitSwitch` an outlined
+  track with a small handle, on: filled with a large handle and a check; a field
+  or select is filled with square lower corners and a bottom line, thick while
+  focused (`KitFieldLine`); the slider below.
 
 - Spacing: the gaps and edge insets are `Theme.gapHair` (4), `gapTight` (2),
   `gapSmall` (6), `gapMedium` (8), `gapLoose` (10), `gapWide` (12) and `gapGroup`
@@ -44,6 +50,8 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   exact number or text → `KitInput` (Enter); a folder or file → `KitInput` + a
   `Choose…` button (`FilesService.pickFolder` / `pick`, the Files window's
   picker); a long list to preview → `PickList` + Apply. A slider of 3–4 stops is chips.
+  On a Settings page the choices are `KitSegments` (one track, the picked segment
+  raised); `KitChoices` stays for popups and header tabs.
 - Wording: visibility toggles `Show …` (hint `Off: icon only`); `Close after …`
   / `Close when its window opens`; `Opens on`; `<Things> shown`. Off / None is
   the first chip; time units in each chip (`5 s`, `30 min`). British spelling.
@@ -90,14 +98,47 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 
 ## Settings pages
 
-Added by task 05 ([decision 0002](../decisions/0002-settings-ia.md)).
+Added by task 05 ([decision 0002](../decisions/0002-settings-ia.md)); the look
+(2026-10-20) follows macOS System Settings.
+
+- MUST — groups: every settings Column (page, section, `<Name>Settings.qml`) ends
+  with `KitGrouper {}`. A `KitLabel` starts a group, a `KitLine` ends it; the rows
+  between sit inset in one raised box (`background1`, `radiusCard`) with a
+  hairline between rows. A title that is not a KitLabel declares
+  `readonly property bool isKitLabel: true`; a visual that stands on the page
+  (a preview, a board of chips, theme cards) declares `property bool kitUnboxed: true`.
+  No page width cap: the box links a label to its control.
+- MUST — controls in a box take their fill one step up (`Theme.fillOn(boxed)`,
+  `hoverOn`); a well inside a box (list, preview, sample) is `background0`.
+- MUST — Themes, Fonts and Cursor are pages of their own in the sidebar (no links
+  to them from Appearance). Themes: a theme picker as in a terminal — the list on
+  the left (a small desktop in its colours — `ThemeMock`, name, light or dark and
+  its cast, a check on the active one), a large
+  preview in the picked theme's colours on the right (code, a prompt, controls, the
+  colours and tones as named pills); a search over the list, one mode (Appearance ›
+  Mode) at a time; ↑/↓ previews, Enter / Apply switches, Esc goes back. Apps, Bar
+  modules and Themes fill the window and scroll their panes, not the page. Fonts: a card per font
+  written in itself, its state (in use, installed, not installed: a second click
+  downloads). Cursor: its shapes large, colour and size, a card per cursor theme;
+  a pick waits for Apply.
+- A pick list longer than a few rows is a page of cards, not a long select; a
+  `KitSelect` shows `maxRows` and scrolls, a choice's `note` says its state.
+- MUST — colour: `KitColourPicker` is one low panel in a row: a saturation ×
+  brightness square, a vertical hue strip, palette tiles in two rows filling its
+  height (the picked one has a ring; a tile that is not a plain colour — the theme's,
+  your own — has an icon, `icons`). Window frames (off | theme | accent) are in
+  Appearance › Shape; Controls radius (Shape) rounds every control.
+- Sliders in a box use the row layout (label left, value right). A snapped slider
+  always shows its stops, at most 11 (every n-th of a long run). Controls ›
+  Material draws Material 3's slider (thick track split by a bar handle, stops as
+  dots); Terminal the thin one.
 
 - MUST: where a setting lives follows the user's area, not the code: every bar
   module's options in Bar modules (an app's module too), an app's own options in
   Apps, Lock screen and Notifications on their own pages.
 - MUST — link row: a setting kept on another page shows a row where it is also
-  looked for: `KitLinkRow` — label = the setting, hint `In <Page> › <Group>`,
-  an `Open` button that goes there.
+  looked for: `KitLinkRow` — label = the setting, hint `In <Page> › <Group>`;
+  the whole row is the button, a chevron on the right.
 - MUST — overridden: a row another setting overrides stays visible and
   `disabled`, hint `Set by <Page> › <Row>`; a row meaningless without its parent
   hides with it (above).

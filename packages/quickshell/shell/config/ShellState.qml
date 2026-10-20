@@ -31,6 +31,7 @@ JsonAdapter {
   property var accentWhere: ({})
   property bool passwordDots: false
   property int cornerRadius: 12
+  property int controlRadius: 6
   property bool motion: true
   property string motionSpeed: "normal"
   property string motionPopups: "slide"

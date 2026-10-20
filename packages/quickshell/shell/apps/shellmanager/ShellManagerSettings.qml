@@ -13,8 +13,7 @@ Column {
     label: "Opens on"
     hint: "The first page, or the last one"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [
         { label: "Main page", value: "main" },
         { label: "Last page", value: "last" }
@@ -23,4 +22,6 @@ Column {
       onPicked: value => ShellSettings.set("managerStart", value)
     }
   }
+
+  KitGrouper {}
 }

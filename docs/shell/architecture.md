@@ -20,7 +20,7 @@ Hyprland ── autostart.lua (hyprland.start)
    │   └─ qs -c shell        ONE process: bars, island, popups, apps, lock, polkit agent
    ├─ mako                   the notification server (toasts in Solid style, history)
    ├─ cursors.py restore
-   └─ display.py restore     monitor scales/positions saved by the Display app
+   └─ display.py restore     monitor scales/positions saved in Shell Manager › Displays
 ```
 
 Everything in the shell is one Quickshell process: a QML error in a shared
@@ -77,7 +77,7 @@ links, secrets, `/etc`, units, services). `link` also writes
 | Dotfiles state | `~/.local/state/dotfiles/` | installer + shell | `components.json` (modules not installed), `accent.lua`, `window-mode`, `shell-apps.json` |
 
 Settings UI = **Shell Manager** (`apps/shellmanager/`, Super+S). Pages:
-Appearance, Animations · Bar, Bar modules, Windows, Lock screen, Notifications · Network, Bluetooth · Apps, About (decision 0002).
+Appearance, Themes, Fonts, Cursor, Animations · Bar, Bar modules, Windows, Lock screen, Notifications · Network, Bluetooth, Displays · Apps, About (decision 0002).
 An app's or module's options are its `<Name>Settings.qml`, shown under Apps
 or Bar modules (Lock screen, Notifications: own pages). Applied at once (pickers with preview: Apply; fields: Enter).
 A page with its own options has Reset in the header (two steps: Reset, Sure?); Appearance,
@@ -89,16 +89,17 @@ Animations and Bar reset their `ShellSettings` keys (`ShellSettings.reset(keys)`
 |---|---|---|---|
 | Notifications | `modules/notifications/`, `scripts/notifications.sh`, `bar/island/IslandNotice.qml`, `IslandService` › notice | mako (server), `dbus-monitor`, `makoctl` | Solid: mako toasts; Island: island toasts, mako `island` mode invisible |
 | Wallpaper | `apps/shellmanager/Wallpaper.qml` (in `shell.qml`), `WallpaperService.qml` | `awww`, `wallpapers/` in the repo | modes theme / custom / image (`ShellSettings.wallpaperMode`) |
-| Displays | `apps/display/`, `scripts/display.py` | `hyprctl` | restore at login |
+| Displays | Shell Manager › Displays (`DisplaysPage`), `apps/display/` (service, layout), `scripts/display.py` | `hyprctl` | restore at login |
 | Audio | `modules/audio/`, `scripts/audio.sh` | Quickshell Pipewire, `pactl` (ports) | one list entry per port |
 | Bluetooth | `modules/bluetooth/`, `apps/shellmanager/BluetoothPage.qml`, `scripts/bluetooth.sh` | BlueZ | — |
 | Files + picker | `apps/files/`, `scripts/files.py`, `scripts/files_portal.py`, `packages/xdg-portal/` | `xdg-desktop-portal`, `python-gobject`, `udisks2` | the shell's FileChooser portal and `FileManager1` |
 | Lock | `apps/lock/` | Quickshell `WlSessionLock`, PAM | options in `modules.json` › `lock` |
-| Island / hub | `bar/island/` | `ShellSettings.barStyle` | hub = island view from the clock; media merges MPD + MPRIS |
-| Music (Yandex) | `modules/music/`, `modules/mpd/`, `scripts/music.sh`, `scripts/yandex_likes.py` | component `yandex-music` (+ `mpd`, submodule) | `MusicService` is imported by the island and `AudioPause` |
+| Island / hub | `bar/island/` | `ShellSettings.barStyle` | hub = island view from the clock; the Launcher and Keys chips open the launcher and the keybinds (their panels `apps/launcher/LauncherPanel.qml`, `apps/keybinds/KeybindsPanel.qml`) as island views |
+| Player | `modules/player/` (`PlayerService` = MPD + every MPRIS player, one list) | MPRIS players; the island's media reads `PlayerService` | `AudioPause` reads MPRIS too |
+| Music (Yandex) | `modules/yandex/`, `modules/mpd/`, `scripts/music.sh`, `scripts/yandex_likes.py` | component `yandex-music` (+ `mpd`, submodule); module id `yandex` (was `music`) | `YandexService` feeds `PlayerService` (the MPD source) and `AudioPause` |
 | Radio | `modules/radio/` | component `radio` (+ `mpd`) | shares `MpdService` |
 | Capture | `apps/capture/`, `modules/capture/` | `grim`, `gpu-screen-recorder`, `wl-copy`, `notify-send` | the only "camera" in the repo: screen capture |
-| Launcher, Keybinds | `apps/launcher/`, `apps/keybinds/` | Hyprland binds | no island entry |
+| Launcher, Keybinds | `apps/launcher/`, `apps/keybinds/` | Hyprland binds | a window (Alt+Space, Super+B) and the island's Launcher / Keys chips: the same panels |
 
 *Not inspected:* Task Manager, Cleaner, Packages, Backups, VirusTotal,
 Clipboard, Windows, Sysmon, Wi-Fi, Mihomo, AI, Chat, Overview, Switcher, Taskbar.

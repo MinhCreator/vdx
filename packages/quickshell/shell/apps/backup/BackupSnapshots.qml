@@ -31,7 +31,7 @@ Item {
     contentHeight: column.implicitHeight
     clip: true
     boundsBehavior: Flickable.StopAtBounds
-    interactive: contentHeight > height
+    interactive: contentHeight + bottomMargin > height
 
     KitColumn {
       id: column

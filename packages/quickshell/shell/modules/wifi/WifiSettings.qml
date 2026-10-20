@@ -17,4 +17,6 @@ Column {
     hint: "Networks, DNS, the speed test: Network"
     target: "network"
   }
+
+  KitGrouper {}
 }

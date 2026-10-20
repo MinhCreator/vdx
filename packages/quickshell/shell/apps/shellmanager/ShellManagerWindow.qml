@@ -6,7 +6,7 @@ import qs.config
 // The Shell Manager as a window of its own (its window rule comes from scripts/shellapps.py (Shell Manager › Shell apps)). Opened
 // from the bar's Shell button, Super+S, `qs -c shell ipc call shell toggle` or
 // `… shell open <page>[:<group or app>]` (appearance, animations, bar, modules,
-// windows, lockscreen, notifications, network, bluetooth, apps, about; launcher and
+// windows, lockscreen, notifications, network, bluetooth, displays, apps, about; launcher and
 // keybinds open their app in apps, lock the lock screen, media the audio in
 // modules); Escape closes it.
 FloatingWindow {
@@ -42,7 +42,7 @@ FloatingWindow {
     function open(page: string): void {
       const [p, target] = page.split(":");
       ShellSettings.managerOpen = true;
-      manager.navigate(({ themes: "appearance", wallpaper: "appearance", layout: "bar" })[p] ?? p, target ?? "");
+      manager.navigate(({ wallpaper: "appearance", layout: "bar" })[p] ?? p, target ?? "");
     }
     // the sidebar's search, `search <words>` typed in
     function search(words: string): void {

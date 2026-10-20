@@ -143,4 +143,6 @@ Column {
       }
     }
   }
+
+  KitGrouper {}
 }

@@ -33,4 +33,6 @@ Column {
   KitToggleRow { module: "sysmon"; key: "disks";   label: "Show disks";      hint: "Read / write, each partition" }
   KitToggleRow { module: "sysmon"; key: "network"; label: "Show network";    hint: "Down / up speed" }
   KitToggleRow { module: "sysmon"; key: "sensors"; label: "Show sensors";    hint: "NVMe and Wi-Fi heat, fans" }
+
+  KitGrouper {}
 }

@@ -152,7 +152,13 @@ Scope {
     }
     onCompleted: result => {
       root.busy = false;
-      if (result === PamResult.Success) { sessionLock.locked = false; root.error = ""; }
+      // the marker goes before the unlock, detached: a shell that dies right after
+      // unlocking must not leave one behind (the next start would lock again)
+      if (result === PamResult.Success) {
+        Quickshell.execDetached(["rm", "-rf", root.snapshotDir]);
+        sessionLock.locked = false;
+        root.error = "";
+      }
       else root.error = "Wrong password";
     }
     onError: e => { root.busy = false; root.error = "PAM error"; }

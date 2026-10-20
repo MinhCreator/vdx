@@ -11,6 +11,8 @@ PanelWindow {
   id: root
 
   property bool open: false
+  // the dim of the screen behind the content (the launcher's and keybinds' "Dim the background")
+  property bool dim: true
   property string namespace: "shell"
   default property alias content: stage.data
   signal dismissed()
@@ -27,7 +29,7 @@ PanelWindow {
   Rectangle {
     id: scrim
     anchors.fill: parent
-    color: Theme.scrim
+    color: root.dim ? Theme.scrim : "transparent"
     opacity: root.open ? 1 : 0
     Behavior on opacity {
       enabled: Motion.panels

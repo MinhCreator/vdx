@@ -3,7 +3,7 @@ import qs.config
 
 // Outlined button: an optional icon and a label. `selected` fills it in the
 // raised tone with a lighter frame and bold text (one of a group of choices).
-// `busy` swaps the icon for a spinner.
+// `busy` swaps the icon for a spinner. Material: a tonal pill, no frame.
 Rectangle {
   id: root
 
@@ -19,10 +19,13 @@ Rectangle {
   signal clicked()
 
   // an icon alone is a square of the control height
-  implicitWidth: text !== "" ? content.implicitWidth + 24 : Theme.controlHeight
+  implicitWidth: text !== "" ? content.implicitWidth + (Theme.material ? 32 : 24) : Theme.controlHeight
   implicitHeight: Theme.controlHeight
   radius: Theme.radiusControl
-  color: selected ? Theme.background3 : hovered ? Theme.controlHover : Theme.controlFill
+  // set once: whether it sits in a Settings box (a walk up, not a binding)
+  property bool boxed: false
+  Component.onCompleted: boxed = Theme.boxed(parent)
+  color: selected ? Theme.background3 : hovered ? Theme.hoverOn(boxed) : Theme.fillOn(boxed)
   border.width: Theme.frameWidth
   border.color: selected || hovered ? Theme.foreground2 : Theme.gray
   opacity: disabled ? 0.4 : 1

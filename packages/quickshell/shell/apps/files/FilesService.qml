@@ -17,6 +17,7 @@ Singleton {
   readonly property string script: Paths.scriptsDir + "/files.py"
   readonly property string portalScript: Paths.scriptsDir + "/files_portal.py"
   readonly property string trashPath: "trash:"
+  readonly property string computerPath: "computer:"             // This computer: the storage (volumes)
   readonly property string home: Quickshell.env("HOME")
 
   // ---- options ----
@@ -28,8 +29,11 @@ Singleton {
   readonly property var sortKeys: ["name", "size", "mtime"]
   readonly property bool confirmDelete: opt("confirmDelete", true)
   readonly property string view: opt("view", "list")              // list | grid
+  // This computer has its own look, apart from the folders' (list | grid)
+  readonly property string computerView: opt("computerView", "grid")
+  readonly property string shownView: atComputer ? computerView : view
   readonly property bool showPreview: opt("preview", true)
-  readonly property var bookmarks: opt("bookmarks", [])           // [{name, path}]
+  readonly property var sidebarStored: opt("sidebar", [])         // [{path, name, kind, hidden}]: see sidebarItems
   readonly property var actions: opt("actions", [])               // [{label, command}]: %f is the selection
   readonly property bool thumbnails: opt("thumbnails", true)
   readonly property bool singleClick: opt("singleClick", false)
@@ -41,7 +45,6 @@ Singleton {
   readonly property int searchSeconds: opt("searchSeconds", 5)
   readonly property int previewLines: opt("previewLines", 40)
   readonly property bool confirmTrash: opt("confirmTrash", false)
-  readonly property bool frames: opt("frames", true)
   readonly property int parentWidth: opt("parentWidth", 170)
   // the file chooser's size: a preset, or the custom width and height (Settings › Picker)
   readonly property var pickerPresets: ({ small: [640, 440], medium: [760, 540], large: [920, 660] })
@@ -62,10 +65,11 @@ Singleton {
   property var history: []
   property int historyIndex: -1
   readonly property bool inTrash: path === trashPath
+  readonly property bool atComputer: path === computerPath
   readonly property bool canBack: historyIndex > 0
   readonly property bool canForward: historyIndex < history.length - 1
-  readonly property bool canUp: path !== "" && !inTrash && path !== "/"
-  readonly property string title: inTrash ? "Trash" : path === "/" ? "Root" : path.split("/").pop()
+  readonly property bool canUp: path !== "" && !inTrash && !atComputer && path !== "/"
+  readonly property string title: atComputer ? "This computer" : inTrash ? "Trash" : path === "/" ? "Root" : path.split("/").pop()
 
   // Settings › Behaviour › Open at: the last folder (remembered), or a folder fixed in the settings
   readonly property string startMode: opt("startMode", "last")          // last | fixed
@@ -95,7 +99,7 @@ Singleton {
     historyIndex = index;
     path = history[index];
     // the last folder browsed is the one opened next time (not the trash, not a picker's folder)
-    if (path !== trashPath && !picker) setOption("lastPath", path);
+    if (path !== trashPath && path !== computerPath && !picker) setOption("lastPath", path);
     query = "";
     everywhere = false;
     dupes = false;
@@ -221,12 +225,26 @@ Singleton {
 
   // Ctrl + G and the header: list, grid, columns, and round again
   readonly property var viewKeys: ["list", "grid", "columns"]
-  function cycleView() { setOption("view", viewKeys[(viewKeys.indexOf(view) + 1) % viewKeys.length]); }
+  // the view button: a folder cycles list, grid, columns; This computer only list and grid, its own
+  function cycleView() {
+    if (atComputer) { setOption("computerView", computerView === "grid" ? "list" : "grid"); return; }
+    setOption("view", viewKeys[(viewKeys.indexOf(view) + 1) % viewKeys.length]);
+  }
 
-  function sortNext() { sortOn(sortKeys[(sortKeys.indexOf(sortBy) + 1) % sortKeys.length]); }
+  // This computer sorts its storage by name or size, on its own setting
+  readonly property string computerSort: opt("computerSort", "name")        // name | size
+  readonly property string sortLabel: atComputer
+      ? ({ name: "Name", size: "Size" })[computerSort]
+      : ({ name: "Name", size: "Size", mtime: "Modified" })[sortBy]
+
+  function sortNext() {
+    if (atComputer) { setOption("computerSort", computerSort === "name" ? "size" : "name"); return; }
+    sortOn(sortKeys[(sortKeys.indexOf(sortBy) + 1) % sortKeys.length]);
+  }
 
   function refresh() {
     if (dupes) { run(dupProc, ["duplicates", dupKey], dupKey); return; }
+    if (atComputer) { refreshVolumes(); return; }
     if (inTrash) run(listProc, ["trash-list"], path);
     else run(listProc, ["list", path], path);
     if (searching) searchTimer.restart();
@@ -531,35 +549,77 @@ Singleton {
     Quickshell.execDetached(["sh", "-c", a.command.split("%f").join(paths.map(shq).join(" "))]);
   }
 
-  // ---- bookmarks: folders the user keeps in the sidebar ----
-  function bookmark(p) {
-    if (bookmarks.some(b => b.path === p)) return;
-    setOption("bookmarks", bookmarks.concat([{ name: p === "/" ? "Root" : p.split("/").pop(), path: p }]));
+  // ---- the sidebar: one ordered list of its items (This computer, the places, the trash, folders pinned) ----
+  // Stored as "sidebar" (modules.json): [{path, name, kind, hidden}]. A default that is not stored yet
+  // comes first in its default order, so a new place shows up; [] is the defaults.
+  function defaultEntries() {
+    return [{ name: "This computer", path: computerPath, kind: "computer" }]
+      .concat(places.map(p => ({ name: p.name, path: p.path, kind: "place" })))
+      .concat([{ name: "Trash", path: trashPath, kind: "trash" }]);
   }
-  function unbookmark(p) { setOption("bookmarks", bookmarks.filter(b => b.path !== p)); }
+  readonly property var sidebarItems: {
+    const known = sidebarStored.map(i => i.path);
+    const missing = defaultEntries().filter(d => !known.includes(d.path)).map(d => Object.assign({ hidden: false }, d));
+    return missing.concat(sidebarStored);
+  }
+  function setSidebar(list) {
+    setOption("sidebar", list.map(i => ({ path: i.path, name: i.name, kind: i.kind, hidden: i.hidden === true })));
+  }
+  function moveSidebar(from, to) {
+    const list = sidebarItems.slice();
+    list.splice(to, 0, list.splice(from, 1)[0]);
+    setSidebar(list);
+  }
+  function setHidden(p, hidden) {
+    setSidebar(sidebarItems.map(i => i.path === p ? Object.assign({}, i, { hidden: hidden }) : i));
+  }
+  function isPinned(p) { return sidebarItems.some(i => i.path === p && !i.hidden); }
+  // a folder joins the sidebar at its end (a default that was hidden comes back)
+  function pin(p) {
+    if (isPinned(p)) return;
+    if (sidebarItems.some(i => i.path === p)) { setHidden(p, false); return; }
+    setSidebar(sidebarItems.concat([{ path: p, name: p === "/" ? "Root" : p.split("/").pop(), kind: "folder", hidden: false }]));
+  }
+  // a folder is removed; a default is only hidden (Settings › SIDEBAR brings it back)
+  function unpin(p) {
+    const item = sidebarItems.find(i => i.path === p);
+    if (item && item.kind === "folder") setSidebar(sidebarItems.filter(i => i.path !== p));
+    else setHidden(p, true);
+  }
+  function restoreSidebar() { setSidebar([]); }
+
 
   // ---- places (the backend's: Home, the user folders, Root) and devices (udisks2) ----
   property var places: []
   property var devices: []
   function refreshDevices() { run(devicesProc, ["devices"], ""); }
+  // This computer: the storage, mounted or not (scripts/files.py volumes)
+  property var volumes: []
+  function refreshVolumes() { run(volumesProc, ["volumes"], ""); }
   function mountDevice(d, goThere) { run(mountProc, ["mount", d.path], { open: goThere, mount: "" }); }
   function unmountDevice(d) { run(mountProc, ["unmount", d.path], { open: false, mount: d.mount }); }
 
+  // udisks2 says what changed (a drive plugged, mounted, unmounted): devices and the computer page are read
+  // again, at once, and at each window opening; no fast poll
   Timer {
-    id: deviceTimer
-    interval: 3000
-    repeat: true
-    running: root.active
-    triggeredOnStart: true
-    onTriggered: root.refreshDevices()
+    id: udisksDebounce
+    interval: 400
+    onTriggered: { root.refreshDevices(); if (root.atComputer) root.refreshVolumes(); }
   }
+  Process {
+    id: udisksMonitor
+    command: ["udisksctl", "monitor"]
+    running: root.active
+    stdout: SplitParser { onRead: udisksDebounce.restart() }
+  }
+  onActiveChanged: if (active) { refreshDevices(); if (atComputer) refreshVolumes(); }
 
   // the folder shown is read again while it is open (a search has its own reading)
   Timer {
     id: watchTimer
     interval: root.pollMs
     repeat: true
-    running: root.active && root.path !== "" && !root.searching
+    running: root.active && root.path !== "" && !root.searching && !root.atComputer
     onTriggered: root.refresh()
   }
 
@@ -733,6 +793,19 @@ Singleton {
   }
 
   Process {
+    id: volumesProc
+    property var next: null
+    property var asked: null
+    onRunningChanged: root.resume(volumesProc)
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const o = root.parse(text);
+        if (o.ok) root.volumes = o.volumes;
+      }
+    }
+  }
+
+  Process {
     id: mountProc
     property var next: null
     property var asked: null
@@ -744,6 +817,7 @@ Singleton {
         if (o.ok && mountProc.asked.open && o.mount) root.go(o.mount);
         if (o.ok && mountProc.asked.mount && root.path.startsWith(mountProc.asked.mount)) root.go(root.home);
         root.refreshDevices();
+        root.refreshVolumes();
       }
     }
   }

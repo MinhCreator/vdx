@@ -11,4 +11,6 @@ Column {
   BarTextRow { module: "brightness" }
 
   KitToggleRow { visible: ModuleSettings.get("brightness", "text", "content") === "content"; module: "brightness"; key: "percent"; label: "Show brightness"; hint: "Off: icon only" }
+
+  KitGrouper {}
 }

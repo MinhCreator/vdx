@@ -1,12 +1,14 @@
 import QtQuick
 import qs.kit
 
-// Device row: the kind on the left, the default device and port in a select
-// box. `entries` come from AudioService.outputs / inputs.
+// The device: a select box across the popup (device names are long; its note is
+// the group's caption). `entries` come from AudioService.outputs / inputs.
 KitSelect {
   id: root
 
   property var entries: []
+
+  boxWidth: width
 
   model: entries.map(e => ({ label: e.label, value: e.key }))
   disabled: entries.length === 0

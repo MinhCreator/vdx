@@ -34,4 +34,6 @@ KitColumn {
     module: "equalizer"; key: "showPaused"; fallback: true
     label: "Show when paused"; hint: "Off: shown only while it plays"
   }
+
+  KitGrouper {}
 }

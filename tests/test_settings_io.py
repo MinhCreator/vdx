@@ -55,7 +55,11 @@ class SettingsIO(unittest.TestCase):
         for n, d in WINDOWS.items():
             self.assertEqual(self.read(n), d)
         for n, d in FILES.items():
-            self.assertEqual(self.read(n), d)
+            # the import migrates them: to the current version, the music options under "yandex"
+            want = dict(d, version=io.sm.VERSION)
+            if n == "modules.json":
+                want = {"version": io.sm.VERSION, "values": {"yandex": {"show": "icon"}}}
+            self.assertEqual(self.read(n), want)
             self.assertEqual(json.loads((self.dir / (n + ".bak")).read_text()), {"version": 1})
 
     def test_import_migrates(self):

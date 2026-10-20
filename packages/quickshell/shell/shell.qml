@@ -37,7 +37,6 @@ Scope {
   CleanerWindow {}
   VirusTotalWindow {}
   PackagesWindow {}
-  DisplayWindow {}
   ClipboardWindow {}
   FilesWindow {}
   BackupWindow {}

@@ -15,4 +15,6 @@ Column {
   }
   KitToggleRow { module: "clock"; key: "seconds";    fallback: false; label: "Show seconds"; hint: "14:05:32" }
   KitToggleRow { module: "clock"; key: "date";       fallback: false; label: "Show date";    hint: "Wed 15 · 14:05" }
+
+  KitGrouper {}
 }

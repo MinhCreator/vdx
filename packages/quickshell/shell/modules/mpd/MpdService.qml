@@ -2,18 +2,32 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.bar
 import qs.config
 import "../../kit/reply.js" as Reply
 
 // MPD player shared by the music and radio modules (scripts/music.sh): one
 // state stream and the playback commands. Each module adds its own data on top
-// (MusicService, RadioService).
+// (YandexService, RadioService).
 Singleton {
   id: root
 
   // ---- tuning ----
   readonly property int restartMs: 5000
   readonly property string script: Paths.scriptsDir + "/music.sh"
+
+  // MPD is used by the music (yandex-music) and radio modules only: with both
+  // components off (`./install.py components`) nothing polls it
+  readonly property bool needed: BarLayout.installed("yandex") || BarLayout.installed("radio")
+  onNeededChanged: {
+    if (needed) listenProc.running = true;
+    else {
+      listenRestart.stop();
+      listenProc.running = false;
+      player = ({});
+    }
+  }
+  Component.onCompleted: if (needed) listenProc.running = true;
 
   property var player: ({})                    // see `music.sh --status`
 
@@ -77,13 +91,12 @@ Singleton {
   Timer {
     id: listenRestart
     interval: root.restartMs
-    onTriggered: listenProc.running = true
+    onTriggered: listenProc.running = root.needed
   }
 
   Process {
     id: listenProc
     command: ["bash", root.script, "--listen"]
-    running: true
     stdout: SplitParser {
       onRead: line => {
         const o = root.parse(line);
@@ -94,7 +107,7 @@ Singleton {
         if (changed) root.queueChanged();
       }
     }
-    onExited: listenRestart.start()
+    onExited: if (root.needed) listenRestart.start()
   }
 
   Process {

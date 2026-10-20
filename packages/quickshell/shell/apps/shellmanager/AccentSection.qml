@@ -18,7 +18,6 @@ KitColumn {
     { value: "choices",    label: "Choices",       hint: "The picked one" },
     { value: "workspaces", label: "Workspaces",    hint: "The focused one" },
     { value: "selects",    label: "Dropdowns",     hint: "The open one's frame" },
-    { value: "window",     label: "Window border", hint: "The focused window's frame" },
     { value: "modules",    label: "Bar modules",   hint: "Active states, the equalizer; not warnings" }
   ]
   readonly property var onKeys: targets.map(t => t.value).filter(k => ShellSettings.accentWhere[k] === true)
@@ -110,8 +109,7 @@ KitColumn {
     wide: true
     label: "Fill"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [
         { label: "Solid", value: false },
         { label: "Gradient", value: true }
@@ -172,6 +170,7 @@ KitColumn {
     width: parent.width
     colour: root.active >= 0 ? root.hexOf(root.active) : ""
     palette: root.names
+    icons: name => name === "theme" ? "palette" : name === "custom" ? "brush" : ""
     picked: root.active >= 0 ? root.stops[root.active] ?? "" : ""
     colours: name => [root.colourOf(name, root.active), root.colourOf(name, root.active)]
     onMoved: hex => root.setCustom(root.active, hex)
@@ -204,10 +203,5 @@ KitColumn {
     }
   }
 
-  KitLinkRow {
-    visible: ShellSettings.accent && ShellSettings.accentWhere.window === true
-    label: "Window frames"
-    hint: "On or off: in Windows › Decoration"
-    target: "windows:gaps"
-  }
+  KitGrouper {}
 }

@@ -119,6 +119,14 @@ QtObject {
   readonly property bool material: ShellSettings.material
   readonly property color controlFill: material ? background1 : "transparent"
   readonly property color controlHover: material ? background2 : background1
+  // a control in a Settings box (KitGrouper) sits on background1: its fills go one step up
+  function boxed(item) {
+    for (let p = item; p; p = p.parent)
+      for (const k of p.data ?? []) if (k.isKitGrouper) return true;
+    return false;
+  }
+  function fillOn(boxed) { return boxed && material ? background2 : controlFill; }
+  function hoverOn(boxed) { return boxed ? (material ? background3 : background2) : controlHover; }
   readonly property color popupFrame: material ? background2 : frame
 
   // ---- corners (Appearance › Corners) ----
@@ -128,7 +136,7 @@ QtObject {
   readonly property var cornerStops: [4, 8, 12, 16, 20, 24]    // the slider's ticks, px
   readonly property int radiusSurface: round ? ShellSettings.cornerRadius : 0   // popups, windows, the open island
   readonly property int radiusCard: Math.round(radiusSurface * 0.6)              // tiles, chips, picked rows
-  readonly property int radiusControl: Math.round(radiusSurface * 0.4)           // buttons, fields, selects
+  readonly property int radiusControl: round ? ShellSettings.controlRadius : 0   // buttons, fields, selects, switches (its own slider)
   // a pill of height h (tracks, knobs, the resting island): fully round or square
   function pill(h) { return round ? h / 2 : 0; }
 

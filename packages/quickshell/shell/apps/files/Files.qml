@@ -31,8 +31,8 @@ Item {
   function sepSizeX(w) { return w - Theme.gapLoose - dateWidth - Theme.gapMedium - sizeWidth - Theme.gapMedium / 2; }
   readonly property int cellWidth: 112
   readonly property int cellHeight: 112
-  readonly property bool grid: FilesService.view === "grid"
-  readonly property bool columnsView: FilesService.view === "columns"
+  readonly property bool grid: FilesService.shownView === "grid"
+  readonly property bool columnsView: FilesService.shownView === "columns"
   readonly property bool selectedDir: FilesService.selected.length === 1 && FilesService.selected[0].kind === "dir"
   readonly property var picker: FilesService.picker
 
@@ -59,7 +59,7 @@ Item {
     target: FilesService
     // a new folder starts at its top, not where the last one was scrolled to
     function onPathChanged() {
-      pathField.text = FilesService.path; root.sure = false; root.emptySure = false;
+      pathField.text = FilesService.atComputer ? "" : FilesService.path; root.sure = false; root.emptySure = false;
       listFrame.listView.positionViewAtBeginning();
       listFrame.gridView.positionViewAtBeginning();
     }
@@ -75,7 +75,7 @@ Item {
     }
   }
 
-  Component.onCompleted: pathField.text = FilesService.path
+  Component.onCompleted: pathField.text = FilesService.atComputer ? "" : FilesService.path
 
   function handleKey(event) {
     const ctrl = (event.modifiers & Qt.ControlModifier) !== 0;
@@ -102,8 +102,8 @@ Item {
         case Qt.Key_V: if (picker) return; if (FilesService.canPaste) FilesService.paste(); else FilesService.pasteFromSystem(); return;
         case Qt.Key_T: FilesService.openTerminal(root.folderForTerminal()); return;
         case Qt.Key_R: if (FilesService.inTrash) FilesService.restoreSelection(); return;
-        case Qt.Key_N: if (!FilesService.inTrash && !picker) startCreate("folder"); return;
-        case Qt.Key_D: if (!FilesService.inTrash) FilesService.bookmark(FilesService.path); return;
+        case Qt.Key_N: if (!FilesService.inTrash && !FilesService.atComputer && !picker) startCreate("folder"); return;
+        case Qt.Key_D: if (!FilesService.inTrash && !FilesService.atComputer) FilesService.pin(FilesService.path); return;
         case Qt.Key_H: FilesService.setOption("hidden", !FilesService.hidden); return;
         case Qt.Key_G: FilesService.cycleView(); return;
         case Qt.Key_Z: if (picker) return; if (shift) FilesService.redo(); else FilesService.undo(); return;
@@ -289,6 +289,7 @@ Item {
       { label: "Properties", run: () => FilesService.inspect(entry.path) },
       { label: "Terminal here", disabled: entry.kind !== "dir", run: () => FilesService.openTerminal(entry.path) },
       { label: "Find duplicates here", disabled: entry.kind !== "dir", run: () => FilesService.findDuplicates(entry.path) },
+      { label: "Pin to sidebar", disabled: entry.kind !== "dir" || FilesService.isPinned(entry.path), run: () => FilesService.pin(entry.path) },
       { label: "Copy path", run: () => Quickshell.execDetached(["wl-copy", entry.path]) },
       { label: "Move to trash", hint: "del", disabled: picker !== null, run: () => root.remove(false) },
       { label: "Delete for good", hint: "shift + del", disabled: picker !== null, run: () => root.remove(true) },
@@ -307,6 +308,7 @@ Item {
     subtitle: FilesService.dupes ? "DUPLICATES · " + FilesService.rows.length + " FILES IN " + FilesService.dupGroups + " GROUPS"
             : root.picker ? (root.picker.mode === "save" ? "SAVE" : root.picker.directory ? "CHOOSE A FOLDER" : "CHOOSE")
                             + (FilesService.selection.length > 0 ? " · " + FilesService.selection.length + " SELECTED" : "")
+            : FilesService.atComputer ? FilesService.volumes.length + " STORAGE"
             : FilesService.inTrash ? "TRASH · " + FilesService.entries.length + " ITEMS"
             : FilesService.searching ? "SEARCH · " + FilesService.shown.length + " FOUND"
             : FilesService.shown.length + " ITEMS" + (FilesService.selection.length > 0 ? " · " + FilesService.selection.length + " SELECTED" : "")
@@ -332,14 +334,14 @@ Item {
     }
     KitButton {
       icon: "sliders"
-      text: ({ name: "Name", size: "Size", mtime: "Modified" })[FilesService.sortBy] + (FilesService.sortDesc ? " ↓" : " ↑")
+      text: FilesService.sortLabel + (FilesService.atComputer ? " ↑" : FilesService.sortDesc ? " ↓" : " ↑")
       visible: !root.picker
       onClicked: FilesService.sortNext()
     }
     KitButton {
       icon: "plus"
       text: "New"
-      visible: !FilesService.inTrash && !root.picker
+      visible: !FilesService.inTrash && !FilesService.atComputer && !root.picker
       onClicked: root.startCreate("folder")
     }
     KitButton {
@@ -387,7 +389,7 @@ Item {
   Item {
     id: body
     anchors { top: fields.bottom; bottom: footer.top; left: parent.left; right: parent.right
-              topMargin: Theme.gapGroup; bottomMargin: Theme.gapGroup; leftMargin: root.padding; rightMargin: root.padding }
+              topMargin: Theme.gapGroup; bottomMargin: Theme.gapTight; leftMargin: root.padding; rightMargin: root.padding }
 
     FilesSidebar {
       id: sideFrame
@@ -415,9 +417,20 @@ Item {
     FilesList {
       id: listFrame
       files: root
+      visible: !FilesService.atComputer
       x: root.picker ? 0 : root.sideW + sideSplit.width
       y: 0
       width: body.width - x - (root.previewing ? previewSplit.width + root.previewW : 0)
+      height: body.height
+    }
+
+    // This computer: the storage, in the list's place
+    FilesComputer {
+      visible: FilesService.atComputer
+      files: root
+      x: listFrame.x
+      y: 0
+      width: body.width - x
       height: body.height
     }
 

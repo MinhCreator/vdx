@@ -16,8 +16,8 @@ Two parts; A is smaller and goes first; B is Category C.
 
 ## Part A — Open Launcher and Keybinds from the island
 
-Status: Not started · Category: B · Depends on: 01-A (island toast fix, same file `IslandService.qml`) ·
-Gate: interaction concept approved.
+Status: Implemented, partially verified (the views render over IPC; a click on a chip, Escape and the outside click were not run here: they need a real pointer and keyboard focus) · Category: B · Depends on: 01-A (island toast fix, same file `IslandService.qml`) ·
+Gate: interaction concept approved (owner approved 2026-10-20: hub chips, inside the island, back on Escape).
 
 Concept to submit (no code):
 
@@ -33,6 +33,8 @@ Concept to submit (no code):
 
 Acceptance (after approval): open, close, switch, Esc, outside click, focus
 return, two monitors, Solid style unaffected.
+
+Done (part A): the hub's Launcher and Keys chips; `apps/launcher/LauncherPanel.qml` and `apps/keybinds/KeybindsPanel.qml` are the panels of both the windows (Alt+Space, Super+B) and the island views (`launcher`, `keybinds` in `Island.qml`); the bar takes the keyboard for them (`Island.takesKeys`); IPC `island launcher|keybinds`. Repeat click: the bubble's arrow goes back to the hub; a second click on the chip is not possible while the hub is hidden.
 
 ## Part B — Notch bar style
 

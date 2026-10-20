@@ -14,7 +14,7 @@ Rectangle {
   height: active ? 28 : 0
   opacity: active ? 1 : 0
   radius: Theme.radiusControl
-  color: area.containsMouse ? Theme.controlHover : Theme.clear
+  color: area.containsMouse ? Theme.background2 : Theme.clear
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
   // the '..' sits in the icon column, the hint in the name column

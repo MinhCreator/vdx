@@ -16,4 +16,6 @@ Column {
     label: "Shows"
     model: [{ label: "Icon and charge", value: "both" }, { label: "Charge only", value: "charge" }]
   }
+
+  KitGrouper {}
 }

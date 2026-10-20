@@ -30,7 +30,7 @@ Item {
     cursorShape: Qt.PointingHandCursor
     onClicked: popup.toggle()
     onWheel: wheel => {
-      const list = ThemeService.themes;
+      const list = ThemeService.inMode;
       if (!ModuleSettings.get("themes", "barWheel", true) || ThemeService.busy || list.length === 0
           || wheel.angleDelta.y === 0) return;
       const i = list.indexOf(ThemeService.current);

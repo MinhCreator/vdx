@@ -122,8 +122,7 @@ KitColumn {
     label: "Shape"
     hint: "Strip, or a morphing pill"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [
         { label: "Solid",  value: "solid" },
         { label: "Island", value: "island" }
@@ -138,8 +137,7 @@ KitColumn {
     label: "Icon size"
     hint: "Bar icons; kept for each shape"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [
         { label: "Small",  value: 0 },
         { label: "Normal", value: 2 },
@@ -155,8 +153,7 @@ KitColumn {
     label: "Module gap"
     hint: "Kept for each shape"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [
         { label: "Tight",  value: 2 },
         { label: "Normal", value: 5 },
@@ -189,8 +186,7 @@ KitColumn {
     label: "Open the hub"
     hint: "Hover or click the clock"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [
         { label: "Hover", value: "hover" },
         { label: "Click", value: "click" }
@@ -210,6 +206,7 @@ KitColumn {
       onToggled: ShellSettings.setLook("hubPlayer", !checked)
     }
   }
+
 
   KitRow {
     label: "Right click opens options"
@@ -289,6 +286,7 @@ KitColumn {
   // ---- layout ----
   Item {
     id: layoutGroup
+    readonly property bool isKitLabel: true   // KitGrouper: the group's title
     visible: root.barOn
     width: parent.width
     height: layoutActions.height
@@ -330,6 +328,7 @@ KitColumn {
     visible: root.barOn
     width: parent.width
     height: preview.height + 2 * Theme.gapLoose
+    property bool kitUnboxed: true
     radius: Theme.radiusControl
     color: Theme.controlFill
     border.width: Theme.frameWidth
@@ -345,6 +344,7 @@ KitColumn {
   // a band per zone, the folder and HIDDEN: chips in bar order, dragged between bands
   KitChipBands {
     id: chips
+    property bool kitUnboxed: true
     visible: root.barOn
     scope: root.screenName
     width: parent.width
@@ -369,4 +369,6 @@ KitColumn {
     onRemoved: id => BarLayout.removeSeparator(id, root.screenName)
     onPicked: id => BarLayout.addSeparator(root.screenName)
   }
+
+  KitGrouper {}
 }

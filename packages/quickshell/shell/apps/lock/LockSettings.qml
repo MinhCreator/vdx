@@ -90,4 +90,6 @@ KitColumn {
       onClicked: Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "lock", "lock"])
     }
   }
+
+  KitGrouper {}
 }

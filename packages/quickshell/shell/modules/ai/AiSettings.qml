@@ -16,4 +16,6 @@ KitColumn {
     label: "Limit"; hint: "Its percent is shown in the bar"
     model: [{ label: "5 h", value: "session" }, { label: "Week", value: "weekly_all" }]
   }
+
+  KitGrouper {}
 }

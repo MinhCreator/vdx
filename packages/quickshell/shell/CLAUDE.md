@@ -103,6 +103,8 @@ Read it before any visual work.
 - Reserved names: `eval` (method), `state`, `signal`, `status`, `padding`.
 - `Column` / `Row` skip zero-size children; no anchors along their axis.
 - A `Grid`'s own `columns` / `spacing` in its bindings give NaN.
+- A Flickable with `bottomMargin`: `interactive: contentHeight + bottomMargin > height`,
+  or a page just taller than the pane does not scroll.
 - No `parent: parent.parent` rebinding — it loops and has frozen the session.
 - `Behavior` on a readonly property is not allowed.
 - A config error drops the whole bar — restart and read the log at once.

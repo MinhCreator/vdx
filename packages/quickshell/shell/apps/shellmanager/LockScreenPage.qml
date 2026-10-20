@@ -17,8 +17,25 @@ Column {
   readonly property var jumps: []
 
   // the header's Reset
-  readonly property bool changed: ModuleSettings.changed("lock")
-  function reset() { ModuleSettings.reset("lock"); }
+  readonly property bool changed: ModuleSettings.changed("lock") || ShellSettings.changed(["passwordDots"])
+  function reset() { ModuleSettings.reset("lock"); ShellSettings.reset(["passwordDots"]); }
 
   LockSettings { width: parent.width }
+
+  // how a typed password shows: here and in every password field of the shell
+  KitLabel { text: "PASSWORD" }
+
+  KitRow {
+    wide: true
+    label: "Typed characters"
+    hint: "Also in Wi-Fi and other fields"
+
+    KitSegments {
+      model: [{ label: "Dots", value: true }, { label: "Squares", value: false }]
+      current: ShellSettings.passwordDots
+      onPicked: value => ShellSettings.set("passwordDots", value)
+    }
+  }
+
+  KitGrouper {}
 }

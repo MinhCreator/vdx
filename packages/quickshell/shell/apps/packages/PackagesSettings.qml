@@ -51,4 +51,6 @@ Column {
   KitLabel { text: "SAFETY" }
 
   KitToggleRow { module: "packages"; key: "confirm"; label: "Ask before uninstalling"; hint: "Uninstall asks “Sure?” once" }
+
+  KitGrouper {}
 }

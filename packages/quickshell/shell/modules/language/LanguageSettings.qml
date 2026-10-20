@@ -9,4 +9,6 @@ Column {
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "language" }
+
+  KitGrouper {}
 }

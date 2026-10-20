@@ -25,11 +25,16 @@ Rectangle {
   width: parent ? parent.width : 0
   implicitHeight: Theme.controlHeight
   radius: Theme.radiusControl
-  color: Theme.material ? (textInput.activeFocus || hover.hovered ? Theme.controlHover : Theme.controlFill) : "transparent"
+  // set once: whether it sits in a Settings box (a walk up, not a binding)
+  property bool boxed: false
+  Component.onCompleted: boxed = Theme.boxed(parent)
+  color: Theme.material ? (textInput.activeFocus || hover.hovered ? Theme.hoverOn(boxed) : Theme.fillOn(boxed)) : "transparent"
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
   border.width: Theme.frameWidth
   border.color: textInput.activeFocus || hover.hovered ? Theme.foreground2 : Theme.gray
   Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+
+  KitFieldLine { active: textInput.activeFocus }
 
   HoverHandler { id: hover; cursorShape: Qt.IBeamCursor }
 

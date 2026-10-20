@@ -56,9 +56,9 @@ pacman = ["quickshell", "python-gobject", "xdg-desktop-portal", "udisks2", "ffmp
           "glib2", "fd", "xdg-utils", "ttf-jetbrains-mono-nerd", "cava",
           "dnsmasq", "iw"]
 links = ["quickshell", "xdg-portal"]
-modules = ["workspaces", "clock", "equalizer", "themes", "wallpapers", "brightness", "audio", "wifi", "bluetooth", "battery", "language", "shell",
+modules = ["workspaces", "clock", "equalizer", "themes", "mode", "wallpapers", "brightness", "audio", "wifi", "bluetooth", "battery", "language", "shell",
            "notifications", "capture", "clipboard", "sysmon", "taskmanager",
-           "display", "windows", "folder"]
+           "display", "windows", "folder", "player"]
 system = ["etc/polkit-1/rules.d/50-pkexec-keep.rules"]
 services = ["NetworkManager.service", "bluetooth.service"]
 
@@ -196,12 +196,12 @@ user_services = ["mpd.service"]
 
 [yandex-music]
 group = "music"
-about = "Yandex Music likes in MPD: the `music` command and the bar module"
+about = "Yandex Music likes in MPD: the `music` command and the Yandex Music bar module"
 default = false
 requires = ["mpd"]
 submodules = ["packages/scripts/yandex-music"]
 links = ["scripts/yandex-music", "zsh/functions/music"]
-modules = ["music"]
+modules = ["yandex"]
 secrets = ["yandex-music/token"]
 
 [radio]

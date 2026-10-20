@@ -17,8 +17,10 @@ import qs.modules.display
 import qs.modules.equalizer
 import qs.modules.folder
 import qs.modules.language
+import qs.modules.mode
 import qs.modules.mihomo
-import qs.modules.music
+import qs.modules.player
+import qs.modules.yandex
 import qs.modules.notifications
 import qs.modules.packages
 import qs.modules.radio
@@ -43,14 +45,15 @@ Item {
   visible: false
 
   readonly property var map: ({
-    workspaces: workspaces, music: music, equalizer: equalizer, themes: themes, wallpapers: wallpapers, radio: radio, clock: clock,
+    workspaces: workspaces, player: player, yandex: yandex, equalizer: equalizer, themes: themes, mode: mode, wallpapers: wallpapers, radio: radio, clock: clock,
     brightness: brightness, audio: audio, wifi: wifi, bluetooth: bluetooth, mihomo: mihomo,
     battery: battery, language: language, ai: ai, notifications: notifications,
     shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, backup: backup, virustotal: virustotal, packages: packages, display: display, windows: windows, chat: chat, folder: folder
   })
 
   Component { id: workspaces; Workspaces {} }
-  Component { id: music; Music { bar: root.bar } }
+  Component { id: player; Player { bar: root.bar } }
+  Component { id: yandex; Yandex { bar: root.bar } }
   Component { id: radio; Radio { bar: root.bar } }
   Component { id: clock; Clock {} }
   Component { id: equalizer; Equalizer { bar: root.bar } }
@@ -63,6 +66,7 @@ Item {
   Component { id: mihomo; Mihomo { bar: root.bar } }
   Component { id: battery; Battery { bar: root.bar } }
   Component { id: language; Language {} }
+  Component { id: mode; Mode {} }
   Component { id: ai; Ai { bar: root.bar } }
   Component { id: notifications; Notifications { bar: root.bar } }
   Component { id: capture; Capture { bar: root.bar } }

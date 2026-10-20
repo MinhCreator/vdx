@@ -14,8 +14,7 @@ Column {
     label: "Entries kept"
     hint: "Older ones drop off"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: ClipboardService.limits.map(n => ({ label: String(n), value: n }))
       current: ClipboardService.limit
       onPicked: value => ClipboardService.setLimit(value)
@@ -27,4 +26,6 @@ Column {
   KitLabel { text: "SAFETY" }
 
   KitToggleRow { module: "clipboard"; key: "confirm"; label: "Ask before clearing"; hint: "Clear asks “Sure?” once" }
+
+  KitGrouper {}
 }

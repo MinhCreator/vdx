@@ -22,4 +22,6 @@ Column {
   }
 
   KitToggleRow { module: "cleaner"; key: "closeOnOpen"; label: "Close when its window opens"; hint: "" }
+
+  KitGrouper {}
 }

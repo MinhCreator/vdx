@@ -23,6 +23,8 @@ not show in the trash list.
     preview <path> [lines]           {"text"}: the first lines of a text file ("" when binary)
     rename-all <json>                [[path, new name], ...] in one go, {"done", "errors"}
     devices                          {"devices": [{name, path, mount, size, fstype}, ...]}
+    volumes                          {"volumes": [{name, path, mount, mounts, fstype, kind, total, free, size}]}
+                                     the "This computer" page: real filesystems once each, unmounted drives last
     mount <device> / unmount <device>   udisks2 (/dev/…); mount: {"mount": where it went}
     answer <id> <json>               the portal's answer, read by files_portal.py
 
@@ -384,40 +386,113 @@ def cmd_preview(path, lines=PREVIEW_LINES):
     out({"ok": True, "text": "\n".join(text)})
 
 
-def cmd_devices():
-    r = run(["lsblk", "-J", "-o", "NAME,PATH,LABEL,MOUNTPOINT,RM,HOTPLUG,SIZE,TYPE,FSTYPE"])
+LSBLK = ["lsblk", "-J", "-o", "NAME,PATH,LABEL,MOUNTPOINT,RM,HOTPLUG,SIZE,TYPE,FSTYPE"]
+# filesystems that are not storage: never a row of the "This computer" page
+PSEUDO_FS = {"autofs", "binfmt_misc", "bpf", "cgroup", "cgroup2", "configfs", "debugfs", "devpts",
+             "devtmpfs", "efivarfs", "fusectl", "hugetlbfs", "mqueue", "nsfs", "overlay", "proc",
+             "pstore", "ramfs", "rpc_pipefs", "securityfs", "squashfs", "sysfs", "tmpfs", "tracefs",
+             "fuse.gvfsd-fuse", "fuse.portal", "fuse.snapfuse"}
+NETWORK_FS = {"nfs", "nfs4", "cifs", "smb3", "fuse.sshfs"}
+
+
+def flag(v):
+    return str(v).lower() in ("1", "true")
+
+
+def block_nodes(nodes, removable=False):
+    """lsblk's partitions and crypt devices with a fstype, each as (node, removable): a removable
+    drive's flag reaches its partitions"""
+    for d in nodes:
+        removable_here = removable or flag(d.get("rm")) or flag(d.get("hotplug"))
+        if d.get("type") in ("part", "crypt") and d.get("fstype") and d.get("fstype") != "swap":
+            yield d, removable_here
+        yield from block_nodes(d.get("children") or [], removable_here)
+
+
+def read_lsblk():
+    r = run(LSBLK)
     if r is None or r.returncode != 0:
         fail("lsblk failed")
-    devices = []
-
-    def flag(v):
-        return str(v).lower() in ("1", "true")
-
-    def walk(nodes, removable):
-        for d in nodes:
-            removable_here = removable or flag(d.get("rm")) or flag(d.get("hotplug"))
-            if d.get("type") in ("part", "crypt") and d.get("fstype") and d.get("fstype") != "swap":
-                mount = d.get("mountpoint") or ""
-                # removable drives, and anything udisks mounted for the user
-                if removable_here or mount.startswith(("/run/media/", "/media/")):
-                    total = free = 0
-                    if mount:
-                        try:
-                            usage = shutil.disk_usage(mount)
-                            total, free = usage.total, usage.free
-                        except OSError:
-                            pass
-                    devices.append({"name": d.get("label") or os.path.basename(d.get("path") or ""),
-                                    "path": d.get("path") or "", "mount": mount,
-                                    "size": d.get("size") or "", "fstype": d.get("fstype"),
-                                    "total": total, "free": free})
-            walk(d.get("children") or [], removable_here)
-
     try:
-        walk(json.loads(r.stdout).get("blockdevices", []), False)
-    except (ValueError, AttributeError):
+        return json.loads(r.stdout).get("blockdevices", [])
+    except ValueError:
         fail("could not read lsblk")
+
+
+def cmd_devices():
+    devices = []
+    for d, removable in block_nodes(read_lsblk()):
+        mount = d.get("mountpoint") or ""
+        # removable drives, and anything udisks mounted for the user
+        if removable or mount.startswith(("/run/media/", "/media/")):
+            total = free = 0
+            if mount:
+                try:
+                    usage = shutil.disk_usage(mount)
+                    total, free = usage.total, usage.free
+                except OSError:
+                    pass
+            devices.append({"name": d.get("label") or os.path.basename(d.get("path") or ""),
+                            "path": d.get("path") or "", "mount": mount,
+                            "size": d.get("size") or "", "fstype": d.get("fstype"),
+                            "total": total, "free": free})
     out({"ok": True, "devices": devices})
+
+
+def volumes_from(mounts, nodes, usage):
+    """The "This computer" rows. mounts: findmnt's list [{target, source, fstype}]; nodes: block_nodes();
+    usage(path) -> (total, free). A source mounted several times (btrfs subvolumes, bind mounts) is one
+    row whose mount is its shortest target; the others are listed in "mounts". Removable drives that are
+    not mounted yet come last, with mount "" (a click mounts them)."""
+    info = {d.get("path"): (d, removable) for d, removable in nodes}
+    rows, by_source = [], {}
+    for m in mounts:
+        fs, source, target = m.get("fstype") or "", m.get("source") or "", m.get("target") or ""
+        if fs in PSEUDO_FS or (fs.startswith("fuse.") and fs not in NETWORK_FS):
+            continue
+        if source in by_source:
+            by_source[source]["mounts"].append(target)
+            continue
+        node, removable = info.get(source, ({}, False))
+        kind = "network" if fs in NETWORK_FS else "removable" if removable else "disk"
+        label = node.get("label") or ""
+        by_source[source] = {"path": source, "fstype": fs, "kind": kind, "label": label, "mounts": [target]}
+        rows.append(by_source[source])
+    result = []
+    for r in rows:
+        r["mounts"].sort(key=lambda p: (len(p), p))
+        mount = r["mounts"][0]
+        total, free = usage(mount)
+        name = r["label"] or ("Root" if mount == "/" else os.path.basename(mount.rstrip("/")) or r["path"])
+        result.append({"name": name, "path": r["path"], "mount": mount, "mounts": r["mounts"],
+                       "fstype": r["fstype"], "kind": r["kind"], "total": total, "free": free, "size": ""})
+    mounted = {r["path"] for r in rows}
+    for node, removable in nodes:
+        if removable and not node.get("mountpoint") and node.get("path") not in mounted:
+            result.append({"name": node.get("label") or os.path.basename(node.get("path") or ""),
+                           "path": node.get("path") or "", "mount": "", "mounts": [],
+                           "fstype": node.get("fstype"), "kind": "removable", "total": 0, "free": 0,
+                           "size": node.get("size") or ""})
+    return result
+
+
+def disk_space(path):
+    try:
+        usage = shutil.disk_usage(path)
+        return usage.total, usage.free
+    except OSError:
+        return 0, 0
+
+
+def cmd_volumes():
+    r = run(["findmnt", "-Jl", "-o", "TARGET,SOURCE,FSTYPE"])
+    if r is None or r.returncode != 0:
+        fail("findmnt failed")
+    try:
+        mounts = json.loads(r.stdout).get("filesystems", [])
+    except ValueError:
+        fail("could not read findmnt")
+    out({"ok": True, "volumes": volumes_from(mounts, block_nodes(read_lsblk()), disk_space)})
 
 
 def udisks(action, dev):
@@ -614,6 +689,8 @@ def main(argv):
         cmd_rename_all(args[0])
     elif cmd == "devices" and not args:
         cmd_devices()
+    elif cmd == "volumes" and not args:
+        cmd_volumes()
     elif cmd in ("mount", "unmount") and len(args) == 1:
         (cmd_mount if cmd == "mount" else cmd_unmount)(args[0])
     elif cmd == "stat" and len(args) == 1:

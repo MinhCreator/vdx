@@ -1,0 +1,21 @@
+filechooser .view {
+    background-color: #eff1f5;
+    color: #4c4f69;
+}
+
+filechooser .view:selected {
+    background-color: #ccd0da;
+    color: #4c4f69;
+}
+
+placessidebar {
+    background-color: #eff1f5;
+}
+
+filechooser actionbar {
+    background-color: #eff1f5;
+}
+
+filechooser .preview {
+    background-color: #eff1f5;
+}

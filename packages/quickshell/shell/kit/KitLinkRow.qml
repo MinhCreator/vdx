@@ -3,18 +3,49 @@ import Quickshell
 import qs.config
 
 // A setting kept on another Shell Manager page, shown where it is also looked
-// for: the label names it, the hint says where it is (`In <Page> › <Group>`),
-// Open goes there (`shell open <target>`, e.g. "notifications", "appearance:accent"),
-// or into an app's window: `app` is its IPC target ("display" → `display toggle`).
-KitRow {
+// for: the label names it, the hint says where it is (`In <Page> › <Group>`).
+// The whole row is the button (a chevron on the right): `shell open <target>`
+// (e.g. "notifications", "appearance:accent"), or an app's window: `app` is its
+// IPC target ("files" → `files toggle`).
+Item {
   id: root
 
+  property string label: ""
+  property string hint: ""
   property string target: ""
   property string app: ""
 
-  KitButton {
-    icon: "arrow-right"
-    text: "Open"
+  width: parent ? parent.width : 0
+  implicitHeight: row.implicitHeight
+
+  Rectangle {
+    anchors { fill: parent; margins: -Theme.gapWide }   // the whole row of its KitGrouper box
+    radius: Theme.radiusCard
+    color: area.containsMouse ? Theme.background2 : Theme.clear
+
+    Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+  }
+
+  KitRow {
+    id: row
+    anchors.verticalCenter: parent.verticalCenter
+    width: parent.width
+    label: root.label
+    hint: root.hint
+
+    KitIcon {
+      name: "chevron-down"
+      rotation: -90
+      tint: Theme.foreground2
+      size: Theme.fontSize + 1
+    }
+  }
+
+  MouseArea {
+    id: area
+    anchors.fill: parent
+    hoverEnabled: true
+    cursorShape: Qt.PointingHandCursor
     onClicked: Quickshell.execDetached(root.app !== ""
       ? ["qs", "-c", "shell", "ipc", "call", root.app, "toggle"]
       : ["qs", "-c", "shell", "ipc", "call", "shell", "open", root.target])

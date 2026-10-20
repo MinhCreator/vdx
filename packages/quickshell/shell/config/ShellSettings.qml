@@ -38,6 +38,7 @@ Singleton {
   readonly property bool passwordDots: state.passwordDots         // password fields show dots, not squares (Appearance › Controls)
   readonly property string corners: state.corners                 // sharp | round: the whole shell's corners
   readonly property int cornerRadius: state.cornerRadius          // px, a popup's corner while round (Theme scales the rest)
+  readonly property int controlRadius: state.controlRadius        // px, a control's corner while round (buttons, fields, switches)
   readonly property string barStyle: state.barStyle               // solid | island: one strip, or one live island
   // the look of the bar, kept apart for each shape: switching solid <-> island brings its own back
   readonly property var looks: state.looks                        // shape -> { key: value }

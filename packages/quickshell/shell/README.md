@@ -3,49 +3,6 @@
 Quickshell config (`qs -c shell`): the bar, the shell's apps and the Shell
 Manager. Code rules: [CLAUDE.md](CLAUDE.md).
 
-## Overview
-
-![The shell in 55 seconds](../../../docs/shell/shell-demo.webp)
-
-Full quality: [shell-demo.mp4](../../../docs/shell/shell-demo.mp4).
-
-![The bar](../../../docs/shell/bar.png)
-
-<table>
-  <tr>
-    <td colspan="2"><img src="../../../docs/shell/sm-appearance.png" alt="Shell Manager, Appearance"><br><sub>Shell Manager › Appearance: theme, icons, wallpaper, font</sub></td>
-  </tr>
-  <tr>
-    <td colspan="2"><img src="../../../docs/shell/sm-bar.png" alt="Shell Manager, Bar"><br><sub>Shell Manager › Bar: modules dragged between zones and the Folder</sub></td>
-  </tr>
-  <tr>
-    <td><img src="../../../docs/shell/launcher.png" alt="Launcher"><br><sub>System menu (Alt+Space)</sub></td>
-    <td><img src="../../../docs/shell/keybinds.png" alt="Keybinds"><br><sub>Keybinds (Super+B)</sub></td>
-  </tr>
-  <tr>
-    <td><img src="../../../docs/shell/taskmanager.png" alt="Task manager"><br><sub>Task Manager (Ctrl+Shift+Esc)</sub></td>
-    <td><img src="../../../docs/shell/cleaner.png" alt="Cleaner"><br><sub>Cleaner (Super+X)</sub></td>
-  </tr>
-  <tr>
-    <td><img src="../../../docs/shell/packages.png" alt="Packages"><br><sub>Packages</sub></td>
-    <td><img src="../../../docs/shell/ai.png" alt="AI"><br><sub>AI: Claude Code limits, Ollama</sub></td>
-  </tr>
-  <tr>
-    <td><img src="../../../docs/shell/audio.png" alt="Audio"><br><sub>Audio</sub></td>
-    <td><img src="../../../docs/shell/battery.png" alt="Battery"><br><sub>Battery</sub></td>
-  </tr>
-  <tr>
-    <td><img src="../../../docs/shell/brightness.png" alt="Brightness"><br><sub>Brightness</sub></td>
-    <td><img src="../../../docs/shell/windows.png" alt="Windows"><br><sub>Window mode</sub></td>
-  </tr>
-  <tr>
-    <td><img src="../../../docs/shell/music.png" alt="Music"><br><sub>Music</sub></td>
-    <td><img src="../../../docs/shell/radio.png" alt="Radio"><br><sub>Radio</sub></td>
-  </tr>
-</table>
-
-Media: `docs/shell/` in the repo root.
-
 ## Apps
 
 Registry: `apps/apps.json` (the Shell Manager, the system menu,
@@ -64,7 +21,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | VirusTotal | — | `virustotal toggle` |
 | Clipboard | — | `clipboard toggle` |
 | Backups | — | `backup toggle\|open\|close` (bar module `backup`: last backup, Back up, the restore guide); the terminal: `backup status\|run\|snapshots\|restore\|guide …` (`scripts/backup.py`, restic) |
-| Files | Super+E | `files toggle\|open\|close`, `files go\|reveal\|inspect\|duplicates <path>`, `files choose <json>` (the portal's picker; a setting's Choose… opens the same picker); F1 lists the keys; Ctrl+G list, grid, columns; Ctrl+T terminal here; F2 on several files renames them by a pattern |
+| Files | Super+E | `files toggle\|open\|close`, `files go\|reveal\|inspect\|duplicates <path>`, `files choose <json>` (the portal's picker; a setting's Choose… opens the same picker); F1 lists the keys; Ctrl+G list, grid, columns; Ctrl+T terminal here; F2 on several files renames them by a pattern; the sidebar's "This computer" shows the storage (used / free, unmounted drives mount on a click); the sidebar is one list: drag to reorder, right click to hide or unpin, Settings › SIDEBAR; a folder's right click › Pin to sidebar |
 | Keybinds | Super+B | `keybinds toggle\|open\|close` |
 | Window switcher | Super+Tab (floating mode) | `switcher toggle\|open\|close` |
 | Overview | — | `overview toggle` |
@@ -134,7 +91,7 @@ Solid and island keep their own icon size, gap, separators and hub opening (`She
 Shell Manager › Bar › Look › Shape › Island: no strip — one pill at the top centre is
 the whole bar (`bar/island/`). At rest: LEFT · clock · RIGHT (by default the
 workspaces and the equalizer). The clock opens the hub on a hover or a click (Bar › Behaviour › Open the hub):
-the date, the track and the HUB modules as chips; a chip opens its module's
+the date, the track, the Launcher and Keys chips (they open the launcher and the keybinds inside the island: a Launcher / Keys view, Escape goes back to the hub when it came from there, a click outside closes) and the HUB modules as chips; a chip opens its module's
 popup inside the island, with a bubble beside it to the hub (the mouse's
 back button too; Escape when it came from the hub). Shell Manager › Bar › Layout arranges LEFT, RIGHT, HUB
 and HIDDEN; Bar › Monitor › Island clock, per monitor: off with nothing beside it, the
@@ -145,7 +102,7 @@ the equalizer has no clicks (its colour and Show when paused: Bar modules › Eq
 a gradient runs left to right).
 Right click on a chip: its options (the hub closes). Middle click: play / pause. The wheel belongs to the modules.
 
-IPC: `qs -c shell ipc call island hub|media|power|collapse`.
+IPC: `qs -c shell ipc call island hub|media|power|launcher|keybinds|collapse`.
 
 ## Child bars
 
@@ -177,7 +134,8 @@ in the bar. Moving the centre sets the switch; the switch overrides until the ne
 | File scans | `VIRUSTOTAL_API_KEY` (env or `~/.config/secrets/env`) |
 | Music likes | Yandex Music token (`~/.config/scripts/yandex-music/token`) |
 | Island wave | `cava` (without it the wave is made up) |
-| Files: devices | `udisks2` (`udisksctl`), removable drives show in the sidebar |
+| Files: devices | `udisks2` (`udisksctl`), removable drives show in the sidebar; `findmnt` for "This computer" |
+| Player | MPRIS players (Spotify, a browser, mpv: each needs its MPRIS support, e.g. `mpv-mpris` for mpv); the Yandex Music / radio of MPD come through MPD |
 | Files: file chooser and links | `python-gobject`, `xdg-desktop-portal` (portal backend: `scripts/files_portal.py`, config `packages/xdg-portal/`) |
 
 System files: `./install.py system install`.

@@ -37,4 +37,6 @@ Column {
     label: "Background server"
     hint: "Off: starts per message"
   }
+
+  KitGrouper {}
 }

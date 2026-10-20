@@ -46,4 +46,6 @@ KitColumn {
       onToggled: ShellSettings.set("resumeMusic", !checked)
     }
   }
+
+  KitGrouper {}
 }

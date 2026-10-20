@@ -45,7 +45,7 @@ class Migrate(unittest.TestCase):
                                                "radio": {"titleLength": 45}}})
         self.run_it()
         v = self.read("modules.json")["values"]
-        self.assertEqual(v["music"], {"titleLength": 60, "show": "icon"})
+        self.assertEqual(v["yandex"], {"titleLength": 60, "show": "icon"})
         self.assertEqual(v["radio"], {"titleLength": 45})
 
     def test_layout_ids_renamed_and_roles_kept(self):
@@ -82,6 +82,26 @@ class Migrate(unittest.TestCase):
         self.assertEqual((self.dir / "modules.json").read_text(), "[1, 2]")
         self.assertFalse((self.dir / "layout.json").exists())
 
+    def test_bookmarks_become_the_sidebar_and_frames_go(self):
+        self.write("modules.json", {"values": {"files": {"bookmarks": [{"name": "src", "path": "/home/u/src"}],
+                                                         "frames": True, "view": "list"}}})
+        self.run_it()
+        self.assertEqual(self.read("modules.json")["values"]["files"],
+                         {"sidebar": [{"path": "/home/u/src", "name": "src", "kind": "folder", "hidden": False}],
+                          "view": "list"})
+
+    def test_an_existing_sidebar_is_kept(self):
+        kept = [{"path": "trash:", "name": "Trash", "kind": "trash", "hidden": True}]
+        self.write("modules.json", {"values": {"files": {"bookmarks": [{"name": "x", "path": "/x"}], "sidebar": kept}}})
+        self.run_it()
+        self.assertEqual(self.read("modules.json")["values"]["files"]["sidebar"], kept)
+
+    def test_music_options_become_yandex(self):
+        self.write("modules.json", {"values": {"music": {"show": "title"}, "radio": {"titleLength": 45}}})
+        self.run_it()
+        v = self.read("modules.json")["values"]
+        self.assertEqual(v, {"yandex": {"show": "title"}, "radio": {"titleLength": 45}})
+
     def test_twice_is_once(self):
         self.write("modules.json", {"values": {"music": {"titleLength": 0}}})
         self.run_it()
@@ -107,9 +127,11 @@ class Migrate(unittest.TestCase):
             new = self.read(n)
             if n == "settings.json":
                 for k, val in old.items():
-                    self.assertEqual(new[k], val, k)
+                    if k != "version":
+                        self.assertEqual(new[k], val, k)
             if n == "modules.json":
-                self.assertEqual(set(new["values"]), set(old["values"]))
+                # the music options were renamed to yandex (version 3)
+                self.assertEqual(set(new["values"]), {"yandex" if k == "music" else k for k in old["values"]})
             self.assertGreaterEqual(new["version"], sm.VERSION)
 
 

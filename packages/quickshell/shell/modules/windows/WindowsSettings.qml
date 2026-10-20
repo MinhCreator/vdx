@@ -16,4 +16,6 @@ Column {
 
   KitToggleRow { module: "windows"; key: "closeOnMode"; fallback: false; label: "Close after picking a mode"; hint: "Off: popup stays open" }
   KitToggleRow { module: "windows"; key: "closeOnGrid"; fallback: false; label: "Close after the grid"; hint: "Off: popup stays open" }
+
+  KitGrouper {}
 }

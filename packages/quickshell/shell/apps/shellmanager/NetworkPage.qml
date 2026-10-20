@@ -29,6 +29,8 @@ KitColumn {
   property bool disconnectArmed: false
   property bool hotspotArmed: false
   property bool manualPick: false
+  property bool showDetails: false        // the connection's facts, folded
+  property bool showJoin: false           // a network by name, folded
 
   readonly property bool manual: eth?.method === "manual" || manualPick
 
@@ -52,7 +54,7 @@ KitColumn {
     { key: "wifi",       label: "Wi-Fi",      y: wifiGroup.y + wifiTab.y },
     { key: "connection", label: "Connection", y: ws.connected ? connectionGroup.y + wifiTab.y : -2 },
     { key: "saved",      label: "Saved",      y: savedGroup.y + wifiTab.y },
-    { key: "new",        label: "New",        y: newGroup.y + wifiTab.y }
+    { key: "new",        label: "Other",      y: newGroup.y + wifiTab.y }
   ].filter(j => j.y > -2)
 
   // a link from another page (a module's Open) lands on the tab that holds the group
@@ -85,11 +87,11 @@ KitColumn {
     spacing: Theme.gapGroup
 
     // ---- wi-fi ----
-    KitLabel { id: wifiGroup; text: "WI-FI"; value: ws.connected ? "CONNECTED" : ws.radioOn ? "NOT CONNECTED" : "OFF" }
+    KitLabel { id: wifiGroup; text: "WI-FI" }
 
     KitRow {
       label: "Wi-Fi"
-      hint: "Off: nothing connects"
+      hint: !ws.radioOn ? "Off: nothing connects" : ws.connected ? "Connected to " + ws.ssid : "On, not connected"
 
       KitSwitch {
         checked: ws.radioOn
@@ -100,8 +102,28 @@ KitColumn {
 
     KitLine {}
 
-    // ---- the connection in use ----
-    KitLabel { id: connectionGroup; visible: ws.connected; text: "CONNECTION"; value: ws.ssid.toUpperCase() }
+    // ---- the connection in use: its name and state, actions, facts folded ----
+    KitLabel { id: connectionGroup; visible: ws.connected; text: "CONNECTION" }
+
+    KitRow {
+      visible: ws.connected
+      label: ws.ssid
+      hint: "Connected" + (root.ws.details ? " · " + (root.ws.details.freq >= 5000 ? "5 GHz" : "2.4 GHz") + " · " + (root.ws.details.security || "Open") : "")
+
+      KitButton {
+        width: Theme.buttonWidth
+        text: root.disconnectArmed ? "Sure?" : "Disconnect"
+        onClicked: {
+          if (root.disconnectArmed) {
+            root.disconnectArmed = false;
+            ws.disconnectNetwork();
+          } else {
+            root.disconnectArmed = true;
+            disarmDisconnect.restart();
+          }
+        }
+      }
+    }
 
     KitRow {
       visible: ws.connected
@@ -121,47 +143,32 @@ KitColumn {
 
     KitRow {
       visible: ws.connected
-      label: ws.ssid
-      hint: "The network stays saved"
+      label: "Details"
+      hint: ws.ipAddress || "Address, gateway, channel, rate"
 
       KitButton {
         width: Theme.buttonWidth
-        text: root.disconnectArmed ? "Sure?" : "Disconnect"
-        onClicked: {
-          if (root.disconnectArmed) {
-            root.disconnectArmed = false;
-            ws.disconnectNetwork();
-          } else {
-            root.disconnectArmed = true;
-            disarmDisconnect.restart();
-          }
-        }
+        text: root.showDetails ? "Hide" : "Show"
+        onClicked: root.showDetails = !root.showDetails
       }
     }
 
-    // the connection's facts, two columns of label · value lines
-    Row {
-      id: facts
-      visible: ws.connected
-      width: parent.width
-      spacing: Theme.gapGroup
+    Repeater {
+      model: [
+        { label: "Address",  value: ws.ipAddress || "—" },
+        { label: "Gateway",  value: ws.gateway || "—" },
+        { label: "Channel",  value: root.ws.details ? root.ws.details.chan + " · " + root.ws.details.freq + " MHz" : "—" },
+        { label: "Rate",     value: ws.details?.rate ?? "—" },
+        { label: "Security", value: ws.details?.security || "Open" },
+        { label: "BSSID",    value: ws.details?.bssid ?? "—" }
+      ]
 
-      Column {
-        width: (facts.width - facts.spacing) / 2
-        spacing: Theme.gapMedium
-
-        KitInfo { width: parent.width; label: "Address"; value: ws.ipAddress || "—" }
-        KitInfo { width: parent.width; label: "Gateway"; value: ws.gateway || "—" }
-        KitInfo { width: parent.width; label: "Channel"; value: root.ws.details ? root.ws.details.chan + " · " + root.ws.details.freq + " MHz" : "—" }
-      }
-
-      Column {
-        width: (facts.width - facts.spacing) / 2
-        spacing: Theme.gapMedium
-
-        KitInfo { width: parent.width; label: "Rate"; value: ws.details?.rate ?? "—" }
-        KitInfo { width: parent.width; label: "Security"; value: ws.details?.security || "Open" }
-        KitInfo { width: parent.width; label: "BSSID"; value: ws.details?.bssid ?? "—" }
+      KitRow {
+        required property var modelData
+        visible: ws.connected && root.showDetails
+        label: modelData.label
+        labelColor: Theme.foreground2
+        KitText { text: modelData.value; color: Theme.foreground0 }
       }
     }
 
@@ -175,8 +182,7 @@ KitColumn {
       wide: true
       label: "Show"
 
-      KitChoices {
-        stretch: true
+      KitSegments {
         model: [{ label: "In range", value: "range" }, { label: "All", value: "all" }]
         current: root.scope
         onPicked: value => root.scope = value
@@ -233,8 +239,7 @@ KitColumn {
       label: "Priority"
       hint: "Higher joins first"
 
-      KitChoices {
-        stretch: true
+      KitSegments {
         model: [{ label: "Low", value: -10 }, { label: "Normal", value: 0 }, { label: "High", value: 10 }]
         current: root.chosen?.priority ?? 0
         onPicked: value => ws.setSaved(root.chosen.uuid, "priority", String(value))
@@ -256,8 +261,7 @@ KitColumn {
       label: "Metered"
       hint: "Yes: apps save data"
 
-      KitChoices {
-        stretch: true
+      KitSegments {
         model: [{ label: "Auto", value: "unknown" }, { label: "Yes", value: "yes" }, { label: "No", value: "no" }]
         current: root.chosen?.metered ?? "unknown"
         onPicked: value => ws.setSaved(root.chosen.uuid, "metered", value)
@@ -274,10 +278,22 @@ KitColumn {
 
     KitLine {}
 
-    // ---- a new network that does not show ----
-    KitLabel { id: newGroup; text: "NEW" }
+    // ---- a network by name (a hidden one), folded ----
+    KitLabel { id: newGroup; text: "OTHER" }
 
     KitRow {
+      label: "Join by name"
+      hint: "A network that does not show"
+
+      KitButton {
+        width: Theme.buttonWidth
+        text: root.showJoin ? "Hide" : "Join…"
+        onClicked: root.showJoin = !root.showJoin
+      }
+    }
+
+    KitRow {
+      visible: root.showJoin
       wide: true
       label: "Name"
       hint: "A hidden one is typed here"
@@ -289,6 +305,7 @@ KitColumn {
     }
 
     KitRow {
+      visible: root.showJoin
       wide: true
       label: "Password"
       hint: "Empty: an open network"
@@ -301,6 +318,7 @@ KitColumn {
     }
 
     KitRow {
+      visible: root.showJoin
       label: "Join"
       hint: ws.hiddenError !== "" ? ws.hiddenError : "Saved once it joins"
 
@@ -315,6 +333,8 @@ KitColumn {
         }
       }
     }
+
+    KitGrouper {}
   }
 
   // ---- hotspot tab ----
@@ -387,8 +407,7 @@ KitColumn {
       label: "Channel"
       hint: "Auto picks a free one"
 
-      KitChoices {
-        stretch: true
+      KitSegments {
         model: [{ label: "Auto", value: "auto" }, { label: "1", value: "1" }, { label: "6", value: "6" }, { label: "11", value: "11" }]
         current: (root.hs?.channel ?? "0") === "0" ? "auto" : root.hs?.channel
         onPicked: value => ws.setHotspotSetting("channel", value)
@@ -402,6 +421,8 @@ KitColumn {
       color: Theme.red
       wrapMode: Text.WordWrap
     }
+
+    KitGrouper {}
   }
 
   // ---- ethernet tab ----
@@ -449,8 +470,7 @@ KitColumn {
       label: "Addressing"
       hint: "Manual: a fixed address"
 
-      KitChoices {
-        stretch: true
+      KitSegments {
         model: [{ label: "Auto", value: "auto" }, { label: "Manual", value: "manual" }]
         current: root.manual ? "manual" : "auto"
         onPicked: value => {
@@ -519,8 +539,7 @@ KitColumn {
       label: "Metered"
       hint: "Yes: apps save data"
 
-      KitChoices {
-        stretch: true
+      KitSegments {
         model: [{ label: "Auto", value: "unknown" }, { label: "Yes", value: "yes" }, { label: "No", value: "no" }]
         current: root.eth?.metered ?? "unknown"
         onPicked: value => ws.setSaved(root.eth.uuid, "metered", value)
@@ -558,5 +577,9 @@ KitColumn {
       color: Theme.red
       wrapMode: Text.WordWrap
     }
+
+    KitGrouper {}
   }
+
+  KitGrouper {}
 }

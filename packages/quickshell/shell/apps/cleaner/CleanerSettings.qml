@@ -23,4 +23,6 @@ KitColumn {
     label: "Model"; hint: "Haiku quick · Sonnet careful"
     model: [{ label: "Haiku", value: "haiku" }, { label: "Sonnet", value: "sonnet" }]
   }
+
+  KitGrouper {}
 }

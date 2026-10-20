@@ -13,7 +13,6 @@ KitColumn {
 
   required property Item page               // AppearancePage: the wallpaper shown
 
-  property string imageDraft: ""
   // the monitor a picked picture is for: "" every monitor
   property string output: ""
   readonly property var screens: Quickshell.screens.map(s => s.name)
@@ -45,8 +44,7 @@ KitColumn {
     hint: ShellSettings.wallpaperMode === "image" ? "A picture per theme"
         : ShellSettings.wallpaperMode === "custom" ? "One colour for every theme" : "The theme's own colour"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [
         { label: "Theme",  value: "theme" },
         { label: "Image",  value: "image" },
@@ -122,45 +120,19 @@ KitColumn {
     wrapMode: Text.WordWrap
   }
 
-  Connections {
-    target: WallpaperService
-    function onAdded() { root.imageDraft = ""; }
-  }
-
+  // the picker is the way in: the picked picture is added at once
   KitRow {
     visible: page.imageWallpaper
     label: "Add image"
     hint: "Kept outside the repo"
-    wide: true
 
-    Row {
-      spacing: Theme.gapMedium
-
-      KitInput {
-        width: parent.width - chooseImage.width - addImage.width - 2 * parent.spacing
-        placeholder: "~/Pictures/wall.jpg"
-        text: root.imageDraft
-        onTextEdited: root.imageDraft = text
-        onAccepted: WallpaperService.add(root.imageDraft, ThemeService.current, root.output)
-      }
-
-      KitButton {
-        id: chooseImage
-        icon: "folder"
-        text: "Choose…"
-        disabled: WallpaperService.busy
-        onClicked: FilesService.pick("Pick the wallpaper", FilesService.home + "/Pictures", false, ["image/*"],
-                                     p => { if (p !== "") root.imageDraft = p; })
-      }
-
-      KitButton {
-        id: addImage
-        icon: "download"
-        text: "Add"
-        busy: WallpaperService.busy
-        disabled: root.imageDraft.trim() === ""
-        onClicked: WallpaperService.add(root.imageDraft, ThemeService.current, root.output)
-      }
+    KitButton {
+      icon: "download"
+      text: "Choose…"
+      busy: WallpaperService.busy
+      disabled: WallpaperService.busy
+      onClicked: FilesService.pick("Pick the wallpaper", FilesService.home + "/Pictures", false, ["image/*"],
+                                   p => { if (p !== "") WallpaperService.add(p, ThemeService.current, root.output); })
     }
   }
 
@@ -172,4 +144,6 @@ KitColumn {
     wrapMode: Text.WordWrap
     font.pixelSize: Theme.fontSize - 1
   }
+
+  KitGrouper {}
 }

@@ -3,9 +3,9 @@ import qs.config
 import qs.kit
 
 // Appearance: everything that changes how the desktop looks, top to bottom —
-// the theme with a live preview, the accent, the wallpaper, the font and the
-// cursor (ThemeSection … CursorSection), then SHAPE (corners, icons) and
-// CONTROLS. Each group has its caps label here or in its section.
+// the accent, the wallpaper (the theme, the font and the cursor have pages of
+// their own), then SHAPE (corners, icons) and CONTROLS. Each group has its caps
+// label here or in its section.
 KitColumn {
   id: root
 
@@ -29,32 +29,55 @@ KitColumn {
     + (ShellSettings.accent ? " · ACCENT " + ShellSettings.accentStops.map(n => n === "theme" ? "THEME" : n.toUpperCase()).join(" → ") : "")
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
-  // the header's Reset: these ShellSettings keys back to their defaults; the theme and the cursor stay
-  readonly property var resetKeys: ["font", "textSize", "solidIcons", "wallpaperMode", "wallpaperColor", "wallpaperImages", "wallpaperOutputs", "corners", "cornerRadius", "material", "passwordDots", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere"]
+  // the header's Reset: these ShellSettings keys back to their defaults (the theme, the font and the cursor are on their pages)
+  readonly property var resetKeys: ["solidIcons", "wallpaperMode", "wallpaperColor", "wallpaperImages", "wallpaperOutputs", "corners", "cornerRadius", "controlRadius", "material", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere"]
   readonly property bool changed: ShellSettings.changed(resetKeys)
   function reset() { ShellSettings.reset(resetKeys); }
 
   readonly property var jumps: [
-    { key: "themes",    label: "Themes",    y: themeSection.y },
+    { key: "style",     label: "Style",     y: styleLabel.y },
     { key: "accent",    label: "Accent",    y: accentSection.y },
     { key: "wallpaper", label: "Wallpaper", y: wallpaperSection.y },
-    { key: "font",      label: "Text",      y: fontSection.y },
-    { key: "cursor",    label: "Cursor",    y: cursorSection.y },
-    { key: "shape",     label: "Shape",     y: shapeLabel.y },
-    { key: "controls",  label: "Controls",  y: controlsLabel.y }
+    { key: "shape",     label: "Shape",     y: shapeLabel.y }
   ]
 
   spacing: Theme.gapGroup
 
-  ThemeSection { id: themeSection; width: parent.width; page: root }
+  KitLabel { id: styleLabel; text: "STYLE" }
+
+  KitRow {
+    wide: true
+    label: "Style"
+    hint: "Material: filled, no frames"
+
+    KitSegments {
+      model: [
+        { label: "Terminal", value: false },
+        { label: "Material", value: true }
+      ]
+      current: ShellSettings.material
+      onPicked: value => ShellSettings.set("material", value)
+    }
+  }
+
+  // the theme's light or dark twin (themes/mktheme.py); a theme without one stays
+  KitRow {
+    wide: true
+    label: "Mode"
+    hint: "The theme's light or dark twin"
+
+    KitSegments {
+      disabled: ThemeService.busy
+      model: [{ label: "Dark", value: false }, { label: "Light", value: true }]
+      current: ThemeService.light
+      onPicked: value => ThemeService.setLight(value)
+    }
+  }
   KitLine {}
+
   AccentSection { id: accentSection; width: parent.width }
   KitLine {}
   WallpaperSection { id: wallpaperSection; width: parent.width; page: root }
-  KitLine {}
-  FontSection { id: fontSection; width: parent.width }
-  KitLine {}
-  CursorSection { id: cursorSection; width: parent.width }
   KitLine {}
 
   KitLabel {
@@ -67,15 +90,6 @@ KitColumn {
 
   CornersSection { id: cornersSection; width: parent.width }
   IconsSection { id: iconsSection; width: parent.width }
-  KitLine {}
 
-  KitLabel {
-    id: controlsLabel
-    width: parent.width
-    text: "CONTROLS"
-    value: (ShellSettings.material ? "MATERIAL" : "OUTLINED")
-      + " · " + (ShellSettings.passwordDots ? "DOTS" : "SQUARES")
-  }
-
-  ControlsSection { id: controlsSection; width: parent.width }
+  KitGrouper {}
 }

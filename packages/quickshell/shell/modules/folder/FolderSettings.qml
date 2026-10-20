@@ -17,4 +17,6 @@ Column {
     hint: "In Notifications › Bar"
     target: "notifications"
   }
+
+  KitGrouper {}
 }

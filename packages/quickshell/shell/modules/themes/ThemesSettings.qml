@@ -36,7 +36,9 @@ Column {
 
   KitLinkRow {
     label: "Theme"
-    hint: "The popup switches; set it in Appearance"
-    target: "appearance:themes"
+    hint: "The popup switches; all of them in Themes"
+    target: "themes"
   }
+
+  KitGrouper {}
 }

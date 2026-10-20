@@ -5,7 +5,7 @@ import qs.config
 import qs.kit
 import qs.modules.equalizer
 
-// The island opened up: the date and the power button, the track (prev, play,
+// The island opened up: the date, the settings and power buttons, the track (prev, play,
 // next), then the hub's modules (Shell Manager › Bar) as chips.
 // A chip is the module's own face: its click opens the module's popup in the
 // island, a right click its options.
@@ -16,6 +16,7 @@ Item {
   property var modules: ({})
 
   signal power()
+  signal manager()                          // the gear: Shell Manager
   signal settings(string id)
 
   // Shell Manager › Bar › HUB (island style)
@@ -47,6 +48,13 @@ Item {
         anchors { left: parent.left; leftMargin: Theme.gapHair; verticalCenter: parent.verticalCenter }
         text: Qt.formatDateTime(root.now, "dddd, d MMMM")
         font.weight: Font.Bold
+      }
+
+      IslandButton {
+        anchors { right: powerButton.left; rightMargin: Theme.gapSmall }
+        icon: "settings"
+        iconSize: 16
+        onClicked: root.manager()
       }
 
       IslandButton {

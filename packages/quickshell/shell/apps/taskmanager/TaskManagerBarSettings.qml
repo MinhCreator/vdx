@@ -22,4 +22,6 @@ Column {
   }
 
   KitToggleRow { module: "taskmanager"; key: "closeOnOpen"; label: "Close when its window opens"; hint: "" }
+
+  KitGrouper {}
 }

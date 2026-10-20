@@ -3,9 +3,15 @@ import qs.config
 
 // A setting row: a label (and a dim hint under it) on the left, an outlined
 // box with the current value and a chevron on the right. Clicking the box
-// opens the choices in an outlined list under the row. Model: [{label, value}].
+// opens the choices in an outlined list under the row. Model: [{label, value,
+// note?}] — a note ("not installed") shows dim on the right of its choice. A
+// long list shows `maxRows` and scrolls, the current choice in view.
 Column {
   id: root
+
+  // set once: whether it sits in a Settings box (a walk up, not a binding)
+  property bool boxed: false
+  Component.onCompleted: boxed = Theme.boxed(parent)
 
   property string label: ""
   property string hint: ""
@@ -22,6 +28,8 @@ Column {
     Math.min(Theme.controlWidth, (width - Theme.gapWide) / 2)))
   // The open list floats over what follows instead of pushing it down.
   property bool overlay: false
+  property int maxRows: 6
+  readonly property int rowHeight: 28
 
   readonly property var selected: model.find(c => c.value === current) ?? null
 
@@ -90,7 +98,7 @@ Column {
       width: root.boxWidth
       height: Theme.controlHeight
       radius: Theme.radiusControl
-      color: boxArea.containsMouse && !root.disabled ? Theme.controlHover : Theme.controlFill
+      color: boxArea.containsMouse && !root.disabled ? Theme.hoverOn(root.boxed) : Theme.fillOn(root.boxed)
       border.width: Theme.frameWidth
       border.color: root.expanded ? Theme.accentFor("selects", Theme.foreground2)
         : boxArea.containsMouse ? Theme.foreground2 : Theme.gray
@@ -98,6 +106,8 @@ Column {
 
       Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
       Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+
+      KitFieldLine { active: root.expanded }
 
       KitText {
         anchors { left: parent.left; leftMargin: Theme.gapLoose; right: mark.left; rightMargin: Theme.gapSmall; verticalCenter: parent.verticalCenter }
@@ -154,7 +164,7 @@ Column {
       visible: root.expanded
       width: parent.width
       x: 0
-      height: options.implicitHeight + 2 * inset
+      height: Math.min(options.implicitHeight, root.maxRows * root.rowHeight) + 2 * inset
       radius: Theme.radiusControl
       // round corners keep the rows off the frame's curve
       readonly property int inset: Theme.frameWidth + (Theme.round ? 3 : 0)
@@ -163,17 +173,45 @@ Column {
       property real shown: 1
       transform: Translate { y: -6 * (1 - list.shown) }
       opacity: shown
-      onVisibleChanged: if (visible && Motion.controls) dropIn.restart()
+      onVisibleChanged: {
+        if (!visible) return;
+        if (Motion.controls) dropIn.restart();
+        // the current choice in view, a row above it showing
+        const i = root.model.findIndex(c => c.value === root.current);
+        scroller.contentY = Math.max(0, Math.min(scroller.contentHeight - scroller.height, (i - 1) * root.rowHeight));
+      }
       NumberAnimation { id: dropIn; target: list; property: "shown"; from: 0; to: 1; duration: Motion.normal; easing.type: Motion.easing }
       color: Theme.material ? Theme.background1 : root.overlay ? Theme.background0 : Theme.clear
       border.width: Theme.frameWidth
       border.color: Theme.gray
 
-      Column {
-        id: options
+      Flickable {
+        id: scroller
         x: list.inset
         y: list.inset
         width: parent.width - 2 * list.inset
+        height: parent.height - 2 * list.inset
+        contentHeight: options.implicitHeight
+        interactive: contentHeight > height
+        boundsBehavior: Flickable.StopAtBounds
+        clip: true
+
+        // the wheel stays in a list that scrolls (the page under it does not move)
+        MouseArea {
+          z: 1
+          width: scroller.width
+          height: scroller.contentHeight
+          acceptedButtons: Qt.NoButton
+          onWheel: wheel => {
+            if (!scroller.interactive) { wheel.accepted = false; return; }
+            const d = wheel.pixelDelta.y !== 0 ? wheel.pixelDelta.y : wheel.angleDelta.y / 120 * root.rowHeight * 2;
+            scroller.contentY = Math.max(0, Math.min(scroller.contentHeight - scroller.height, scroller.contentY - d));
+          }
+        }
+
+      Column {
+        id: options
+        width: parent.width
 
         Repeater {
           model: root.model
@@ -186,7 +224,7 @@ Column {
             readonly property bool active: modelData.value === root.current
 
             width: options.width
-            height: 28
+            height: root.rowHeight
             radius: Math.max(0, Theme.radiusControl - 2)
             color: active ? Theme.background3 : optionArea.containsMouse ? Theme.controlHover : Theme.clear
             Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
@@ -197,6 +235,14 @@ Column {
               color: option.active || optionArea.containsMouse ? Theme.foreground0 : Theme.foreground2
               Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
               font.weight: option.active ? Font.ExtraBold : Font.DemiBold
+            }
+
+            KitText {
+              anchors { right: parent.right; rightMargin: Theme.gapLoose + Theme.iconSmall + Theme.gapSmall; verticalCenter: parent.verticalCenter }
+              visible: (option.modelData.note ?? "") !== ""
+              text: option.modelData.note ?? ""
+              color: Theme.muted
+              font.pixelSize: Theme.fontSize - 2
             }
 
             KitIcon {
@@ -219,6 +265,7 @@ Column {
             }
           }
         }
+      }
       }
     }
   }

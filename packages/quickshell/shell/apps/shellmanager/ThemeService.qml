@@ -31,6 +31,20 @@ Singleton {
 
   function refresh() { if (!listProc.running) listProc.running = true; }
 
+  // ---- light and dark ----
+  // a theme "<name>-light" is <name>'s light twin (themes/mktheme.py); the mode is the active one's
+  readonly property bool light: current.endsWith("-light")
+  readonly property var bases: themes.filter(n => !n.endsWith("-light"))
+  function baseOf(name) { return name.replace(/-light$/, ""); }
+  // a theme in a mode: its twin when there is one, else itself
+  function variant(name, lightMode) {
+    const n = lightMode ? baseOf(name) + "-light" : baseOf(name);
+    return themes.includes(n) ? n : name;
+  }
+  // the themes to pick from in the active mode
+  readonly property var inMode: bases.map(n => variant(n, light))
+  function setLight(on) { if (on !== light) apply(variant(current, on)); }
+
   function apply(name) {
     if (busy || name === current) return;
     busy = true;

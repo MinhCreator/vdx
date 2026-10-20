@@ -24,7 +24,7 @@ Column {
   readonly property var jumps: []
 
   // an app with a page of its own (Lock screen) is set there, not here
-  readonly property var listed: ShellAppsService.entries.filter(e => !e.page)
+  readonly property var listed: ShellAppsService.entries.filter(e => !e.page && e.listed !== false)
   property string selected: listed[0]?.id ?? ""
   readonly property var entry: listed.find(e => e.id === selected) ?? null
   // its window's settings (shellapps.py), when it has one
@@ -73,7 +73,7 @@ Column {
     EntryList {
       id: list
       width: Theme.sideWidth
-      height: parent.height
+      height: parent.height - Theme.windowPadding
       title: "APPS"
       model: root.listed.map(e => Object.assign({ off: !ShellAppsService.installed(e) }, e))
       selected: root.selected
@@ -86,7 +86,8 @@ Column {
       width: parent.width - list.width - parent.spacing
       height: parent.height
       contentHeight: details.implicitHeight
-      interactive: contentHeight > height
+      bottomMargin: Theme.windowPadding  // the window's edge clips, not a line above it
+      interactive: contentHeight + bottomMargin > height   // the margin scrolls too
       clip: true
       boundsBehavior: Flickable.StopAtBounds
 
@@ -97,6 +98,7 @@ Column {
 
         // heading: icon, name and about; the key that opens it; Reset
         Item {
+          property bool kitUnboxed: true    // KitGrouper: the heading stands on the page
           width: parent.width
           height: Math.max(heading.implicitHeight, trailing.height)
 
@@ -161,8 +163,6 @@ Column {
           }
         }
 
-        KitLine {}
-
         // its components are off on this machine: nothing to set until installed
         KitRow {
           visible: root.entry !== null && !ShellAppsService.installed(root.entry)
@@ -201,9 +201,13 @@ Column {
             active: !!root.entry?.settings
             source: active ? Quickshell.shellPath(root.entry.settings) : ""
           }
+
+          KitGrouper {}
         }
 
-        // its bar module's options are in Bar modules (05)
+        // its bar module's options are in Bar modules (05), a group of its own
+        KitLine {}
+
         KitLinkRow {
           visible: root.hasModule && ShellAppsService.installed(root.entry)
           label: "Bar module"
@@ -218,6 +222,8 @@ Column {
           hint: "Opens with its key or the launcher"
           labelColor: Theme.foreground2
         }
+
+        KitGrouper {}
       }
     }
   }

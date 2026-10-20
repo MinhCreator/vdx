@@ -31,4 +31,6 @@ Column {
   KitLabel { text: "SAFETY" }
 
   KitToggleRow { module: "taskmanager"; key: "confirm"; label: "Ask before ending"; hint: "End / Kill asks “Sure?” once" }
+
+  KitGrouper {}
 }

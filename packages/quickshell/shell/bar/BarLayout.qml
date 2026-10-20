@@ -17,9 +17,11 @@ Singleton {
   // `island` its place in the island while that is not arranged (else the hub).
   readonly property var modules: [
     { id: "workspaces",    label: "Workspaces",    zone: "left",   icon: "layout", settings: "WorkspacesSettings.qml", about: "Hyprland workspaces" },
-    { id: "music",         label: "Music",         zone: "left",   icon: "music", settings: "MusicSettings.qml", about: "Liked tracks from Yandex Music" },
+    { id: "yandex",        label: "Yandex Music",  zone: "left",   icon: "music", settings: "YandexSettings.qml", about: "Liked tracks from Yandex Music (MPD)" },
+    { id: "player",        label: "Player",        zone: "left",   icon: "play", settings: "PlayerSettings.qml", about: "Any media player: Spotify, a browser, mpv (MPRIS)" },
     { id: "radio",         label: "Radio",         zone: "left",   icon: "radio", settings: "RadioSettings.qml", about: "Internet radio stations" },
     { id: "themes",        label: "Themes",        zone: "right",  icon: "palette", settings: "ThemesSettings.qml", about: "Switch the dotfiles theme from a strip of cards" },
+    { id: "mode",          label: "Mode",          zone: "right",  icon: "moon", settings: "ModeSettings.qml", about: "Light or dark: a click switches the theme to its twin" },
     { id: "wallpapers",    label: "Wallpapers",    zone: "right",  icon: "image", settings: "WallpapersSettings.qml", about: "Pick the picture of the theme from a strip of cards" },
     { id: "equalizer",     label: "Equalizer",     zone: "center", island: "end", icon: "activity", settings: "EqualizerSettings.qml", about: "The sound as bars while a track plays" },
     { id: "clock",         label: "Clock",         zone: "center", icon: "clock", settings: "ClockSettings.qml", about: "Time, click for the date" },
@@ -41,7 +43,7 @@ Singleton {
     { id: "backup",        label: "Backups",       zone: "right",  icon: "shield", about: "Last backup, back up now, the restore guide · the full window" },
     { id: "virustotal",    label: "VirusTotal",    zone: "right",  icon: "scan", about: "A hash, URL or file checked against VirusTotal" },
     { id: "packages",      label: "Packages",      zone: "right",  icon: "package", about: "Pending updates, one click to update · the full window" },
-    { id: "display",       label: "Display",       zone: "right",  icon: "monitor", about: "Monitor scale, position and text size · the full window" },
+    { id: "display",       label: "Display",       zone: "right",  icon: "monitor", settings: "DisplaySettings.qml", about: "Monitor scale, refresh rate and text size · Displays in settings" },
     { id: "windows",       label: "Windows",       zone: "right",  icon: "app-window", settings: "WindowsSettings.qml", about: "Window mode: tiling, floating, scrolling" },
     { id: "chat",          label: "Chat",          zone: "right",  icon: "message", settings: "ChatSettings.qml", about: "A chat with a free opencode model" },
     { id: "folder",        label: "Folder",        zone: "right",  icon: "folder", settings: "FolderSettings.qml", about: "Modules tucked away, one click from the bar" }
@@ -55,7 +57,7 @@ Singleton {
   function defaultFolder() { return modules.map(p => p.id).filter(id => !defaultBar.includes(id)); }
 
   // Old ids still found in saved layouts: old -> new.
-  readonly property var renamed: ({ claude: "ai", plugins: "shell" })
+  readonly property var renamed: ({ claude: "ai", plugins: "shell", music: "yandex" })
 
   // Modules whose components are off on this machine (`./install.py
   // components`), id -> the components that would bring it: kept off every

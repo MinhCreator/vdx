@@ -12,8 +12,8 @@ spec = importlib.util.spec_from_file_location("settings_index", SCRIPT)
 si = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(si)
 
-TABS = {"appearance", "animations", "bar", "modules", "windows", "lockscreen", "notifications",
-        "network", "bluetooth", "apps", "about"}
+TABS = {"themes", "fonts", "cursor", "appearance", "animations", "bar", "modules", "windows", "lockscreen", "notifications",
+        "network", "bluetooth", "displays", "apps", "about"}
 
 # a word typed -> where the task is done
 JOURNEYS = {
@@ -23,15 +23,16 @@ JOURNEYS = {
     "clock format": "lockscreen",
     "animations": "animations:general",
     "seconds": "modules:clock",
-    "theme": "appearance:themes",
-    "text size": "appearance:font",
+    "theme": "themes",
+    "text size": "fonts",
     "accent": "appearance:accent",
-    "gap": "windows:gaps",
+    "gap": "windows:look",
     "search field": "modules:clipboard",
     "pause": "modules:audio",
     "dot colour": "notifications",
     "width": "apps:launcher",
     "reset everything": "about:settings",
+    "refresh rate": "displays:monitor",
 }
 
 

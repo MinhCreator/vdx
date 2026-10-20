@@ -47,8 +47,7 @@ Column {
     label: "Speed"
     hint: "How long every move takes"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       disabled: !ShellSettings.motion
       model: [{ label: "Slow", value: "slow" }, { label: "Normal", value: "normal" }, { label: "Fast", value: "fast" }]
       current: ShellSettings.motionSpeed
@@ -107,8 +106,7 @@ Column {
     label: "Bar popups"
     hint: "How a popup comes in under the bar"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       disabled: !ShellSettings.motion
       model: [{ label: "None", value: "none" }, { label: "Fade", value: "fade" },
               { label: "Slide", value: "slide" }, { label: "Grow", value: "grow" }]
@@ -122,8 +120,7 @@ Column {
     label: "Underline"
     hint: "The line under an open module"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       disabled: !ShellSettings.motion || !ShellSettings.motionBar
       model: [{ label: "None", value: "none" }, { label: "Grow", value: "grow" }, { label: "Slide", value: "slide" }]
       current: ShellSettings.underlineAnimation
@@ -155,4 +152,6 @@ Column {
       }
     }
   }
+
+  KitGrouper {}
 }

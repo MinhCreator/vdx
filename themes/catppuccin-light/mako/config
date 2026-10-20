@@ -1,0 +1,49 @@
+font=monospace 11
+background-color=#eff1f5
+text-color=#4c4f69
+border-color=#8839ef
+border-size=2
+border-radius=0
+padding=10,12
+margin=20
+width=320
+height=100
+anchor=top-right
+default-timeout=5000
+ignore-timeout=1
+max-history=100
+
+[urgency=low]
+border-color=#ccd0da
+
+[urgency=normal]
+border-color=#8839ef
+
+[urgency=high]
+border-color=#d20f39
+text-color=#d20f39
+
+# Bar › Style island: the island shows new notifications, mako only keeps them
+[mode=island]
+invisible=1
+
+# Appearance › Corners round: the shell turns this mode on
+[mode=round]
+border-radius=10
+
+# Notifications › Toasts › Toast duration: the shell switches one of these
+[mode=toast-3]
+default-timeout=3000
+
+[mode=toast-5]
+default-timeout=5000
+
+[mode=toast-10]
+default-timeout=10000
+
+[mode=toast-0]
+default-timeout=0
+
+# Critical stays until dismissed; last, so it wins over the modes above
+[urgency=critical]
+default-timeout=0

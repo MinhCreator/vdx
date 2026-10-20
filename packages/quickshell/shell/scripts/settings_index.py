@@ -26,19 +26,22 @@ SM = SHELL / "apps" / "shellmanager"
 # the pages with their own rows: tab, title, files (Appearance's sections each one jump)
 PAGES = [
     ("appearance", "Appearance", ["AppearancePage.qml"]),
+    ("themes", "Themes", ["ThemesPage.qml"]),
+    ("fonts", "Fonts", ["FontsPage.qml"]),
+    ("cursor", "Cursor", ["CursorPage.qml"]),
     ("animations", "Animations", ["AnimationsPage.qml"]),
     ("bar", "Bar", ["BarPage.qml"]),
     ("windows", "Windows", ["WindowsPage.qml"]),
     ("network", "Network", ["NetworkPage.qml"]),
     ("bluetooth", "Bluetooth", ["BluetoothPage.qml"]),
+    ("displays", "Displays", ["DisplaysPage.qml"]),
     ("about", "About", ["AboutPage.qml"]),
 ]
-SECTIONS = {"ThemeSection.qml": "themes", "AccentSection.qml": "accent", "WallpaperSection.qml": "wallpaper",
-            "FontSection.qml": "font", "CursorSection.qml": "cursor", "CornersSection.qml": "shape",
-            "IconsSection.qml": "shape", "ControlsSection.qml": "controls"}
+SECTIONS = {"AccentSection.qml": "accent", "WallpaperSection.qml": "wallpaper", "CornersSection.qml": "shape",
+            "IconsSection.qml": "shape"}
 
 ROW = re.compile(r'\blabel:\s*"([^"]+)"')
-GROUP = re.compile(r'KitLabel\s*\{[^}]*?\btext:\s*"([A-Z][A-Z0-9 -]+)"')
+GROUP = re.compile(r'(?:KitLabel\s*\{[^}]*?\btext|KitGroup\s*\{[^}]*?\btitle):\s*"([A-Z][A-Z0-9 -]+)"')
 
 
 def jumps(text: str) -> dict:
@@ -84,11 +87,13 @@ def entries_of(path: Path, title: str, tab: str, target: str = "") -> list:
 def build() -> list:
     out = []
     for tab, title, files in PAGES:
+        out.append({"label": title, "hint": "", "where": "", "target": tab})   # the page by its name
         for f in files:
             out += entries_of(SM / f, title, tab)
     for f, key in SECTIONS.items():
         out += entries_of(SM / f, "Appearance", "appearance", f"appearance:{key}")
     out += entries_of(SHELL / "apps/lock/LockSettings.qml", "Lock screen", "lockscreen")
+    out += entries_of(SM / "LockScreenPage.qml", "Lock screen", "lockscreen")
     out += entries_of(SHELL / "modules/notifications/NotificationsSettings.qml", "Notifications", "notifications")
     layout = (SHELL / "bar" / "BarLayout.qml").read_text()
     for entry in re.findall(r'\{ id: "\w+",[^}]*\}', layout):
@@ -102,8 +107,9 @@ def build() -> list:
             out += entries_of(SHELL / "modules" / mid / settings.group(1), f"Bar modules › {label}", "modules", target)
     for a in json.loads((SHELL / "apps" / "apps.json").read_text()):
         target = a.get("page") or f"apps:{a['id']}"
-        out.append({"label": a["label"], "hint": a.get("about", ""), "where": "Apps", "target": target})
-        if a.get("settings") and not a.get("page"):
+        if a.get("listed", True):           # "listed": false — not in Apps nor the launcher
+            out.append({"label": a["label"], "hint": a.get("about", ""), "where": "Apps", "target": target})
+        if a.get("settings") and not a.get("page") and a.get("listed", True):
             out += entries_of(SHELL / a["settings"], f"Apps › {a['label']}", "apps", target)
         if a.get("moduleSettings"):
             out += entries_of(SHELL / a["moduleSettings"], f"Bar modules › {a['label']}", "modules", f"modules:{a['module']}")

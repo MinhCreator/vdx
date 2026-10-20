@@ -1,15 +1,117 @@
 [
  {
+  "label": "Appearance",
+  "hint": "",
+  "where": "",
+  "target": "appearance"
+ },
+ {
+  "label": "Style",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:style"
+ },
+ {
   "label": "Shape",
   "hint": "",
   "where": "Appearance",
   "target": "appearance:shape"
  },
  {
-  "label": "Controls",
+  "label": "Style",
+  "hint": "Material: filled, no frames",
+  "where": "Appearance › STYLE",
+  "target": "appearance:style"
+ },
+ {
+  "label": "Mode",
+  "hint": "The theme's light or dark twin",
+  "where": "Appearance › STYLE",
+  "target": "appearance:style"
+ },
+ {
+  "label": "Themes",
   "hint": "",
-  "where": "Appearance",
-  "target": "appearance:controls"
+  "where": "",
+  "target": "themes"
+ },
+ {
+  "label": "Fonts",
+  "hint": "",
+  "where": "",
+  "target": "fonts"
+ },
+ {
+  "label": "Text",
+  "hint": "",
+  "where": "Fonts",
+  "target": "fonts"
+ },
+ {
+  "label": "Font",
+  "hint": "",
+  "where": "Fonts",
+  "target": "fonts"
+ },
+ {
+  "label": "Text size",
+  "hint": "The shell's own text",
+  "where": "Fonts › TEXT",
+  "target": "fonts"
+ },
+ {
+  "label": "GTK apps text",
+  "hint": "Applied at once, GTK only",
+  "where": "Fonts › TEXT",
+  "target": "fonts"
+ },
+ {
+  "label": "Cursor",
+  "hint": "",
+  "where": "",
+  "target": "cursor"
+ },
+ {
+  "label": "Preview",
+  "hint": "",
+  "where": "Cursor",
+  "target": "cursor"
+ },
+ {
+  "label": "Style",
+  "hint": "",
+  "where": "Cursor",
+  "target": "cursor"
+ },
+ {
+  "label": "Cursors",
+  "hint": "",
+  "where": "Cursor",
+  "target": "cursor"
+ },
+ {
+  "label": "Use ",
+  "hint": "",
+  "where": "Cursor › PREVIEW",
+  "target": "cursor"
+ },
+ {
+  "label": "Colour",
+  "hint": "",
+  "where": "Cursor › STYLE",
+  "target": "cursor"
+ },
+ {
+  "label": "Size",
+  "hint": "Pixels at scale 1, applied at once",
+  "where": "Cursor › STYLE",
+  "target": "cursor"
+ },
+ {
+  "label": "Animations",
+  "hint": "",
+  "where": "",
+  "target": "animations"
  },
  {
   "label": "General",
@@ -88,6 +190,12 @@
   "hint": "Comes in, shakes on a wrong password",
   "where": "Animations › PARTS",
   "target": "animations:parts"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "",
+  "target": "bar"
  },
  {
   "label": "Look",
@@ -180,106 +288,106 @@
   "target": "bar:monitor"
  },
  {
-  "label": "Mode",
-  "hint": "",
-  "where": "Windows",
-  "target": "windows:mode"
- },
- {
-  "label": "Floating",
-  "hint": "",
-  "where": "Windows",
-  "target": "windows:floating"
- },
- {
-  "label": "Decoration",
-  "hint": "",
-  "where": "Windows",
-  "target": "windows:gaps"
- },
- {
   "label": "Windows",
   "hint": "",
-  "where": "Windows › MODE",
-  "target": "windows:mode"
+  "where": "",
+  "target": "windows"
  },
  {
-  "label": "Scroll with",
-  "hint": "Arrows: no mouse needed",
-  "where": "Windows › MODE",
-  "target": "windows:mode"
+  "label": "Layout",
+  "hint": "",
+  "where": "Windows",
+  "target": "windows:layout"
+ },
+ {
+  "label": "Look",
+  "hint": "",
+  "where": "Windows",
+  "target": "windows:look"
+ },
+ {
+  "label": "Mode",
+  "hint": "",
+  "where": "Windows › LAYOUT",
+  "target": "windows:layout"
  },
  {
   "label": "Master size",
   "hint": "",
-  "where": "Windows › MODE",
-  "target": "windows:mode"
+  "where": "Windows › LAYOUT",
+  "target": "windows:layout"
  },
  {
   "label": "New window",
   "hint": "Where it opens",
-  "where": "Windows › MODE",
-  "target": "windows:mode"
+  "where": "Windows › LAYOUT",
+  "target": "windows:layout"
  },
  {
-  "label": "Column width",
-  "hint": "A new column's share",
-  "where": "Windows › MODE",
-  "target": "windows:mode"
+  "label": "New column width",
+  "hint": "",
+  "where": "Windows › LAYOUT",
+  "target": "windows:layout"
  },
  {
   "label": "Arrange",
   "hint": "On switching to floating",
-  "where": "Windows › FLOATING",
-  "target": "windows:floating"
+  "where": "Windows › LAYOUT",
+  "target": "windows:layout"
  },
  {
   "label": "Switcher",
   "hint": "Super + Tab: this workspace's windows",
-  "where": "Windows › FLOATING",
-  "target": "windows:floating"
+  "where": "Windows › LAYOUT",
+  "target": "windows:layout"
  },
  {
   "label": "Taskbar",
   "hint": "This workspace's windows, in a bar",
-  "where": "Windows › FLOATING",
-  "target": "windows:floating"
+  "where": "Windows › LAYOUT",
+  "target": "windows:layout"
  },
  {
   "label": "Taskbar shape",
   "hint": "",
-  "where": "Windows › FLOATING",
-  "target": "windows:floating"
+  "where": "Windows › LAYOUT",
+  "target": "windows:layout"
+ },
+ {
+  "label": "Scroll with",
+  "hint": "The modes' wheel binds",
+  "where": "Windows › LAYOUT",
+  "target": "windows:layout"
  },
  {
   "label": "Inner gap",
   "hint": "",
-  "where": "Windows › DECORATION",
-  "target": "windows:gaps"
+  "where": "Windows › LOOK",
+  "target": "windows:look"
  },
  {
   "label": "Outer gap",
   "hint": "",
-  "where": "Windows › DECORATION",
-  "target": "windows:gaps"
+  "where": "Windows › LOOK",
+  "target": "windows:look"
  },
  {
   "label": "Frames",
-  "hint": "A 2px frame round every window",
-  "where": "Windows › DECORATION",
-  "target": "windows:gaps"
- },
- {
-  "label": "Frame colour",
-  "hint": "In Appearance › Accent › Window border",
-  "where": "Windows › DECORATION",
-  "target": "windows:gaps"
+  "hint": "",
+  "where": "Windows › LOOK",
+  "target": "windows:look"
  },
  {
   "label": "Shadows",
   "hint": "",
-  "where": "Windows › DECORATION",
-  "target": "windows:gaps"
+  "where": "Windows › LOOK",
+  "target": "windows:look"
+ },
+ {
+  "label": "Network",
+  "hint": "",
+  "where": "",
+  "target": "network"
  },
  {
   "label": "Wi-fi",
@@ -300,7 +408,7 @@
   "target": "network:saved"
  },
  {
-  "label": "New",
+  "label": "Other",
   "hint": "",
   "where": "Network",
   "target": "network:new"
@@ -336,19 +444,25 @@
   "target": "network"
  },
  {
-  "label": "New",
+  "label": "Other",
   "hint": "",
   "where": "Network",
   "target": "network"
  },
  {
   "label": "Wi-Fi",
-  "hint": "Off: nothing connects",
+  "hint": "",
   "where": "Network › WI-FI",
   "target": "network:wifi"
  },
  {
   "label": "Speed test",
+  "hint": "",
+  "where": "Network › CONNECTION",
+  "target": "network:connection"
+ },
+ {
+  "label": "Details",
   "hint": "",
   "where": "Network › CONNECTION",
   "target": "network:connection"
@@ -396,21 +510,27 @@
   "target": "network:saved"
  },
  {
+  "label": "Join by name",
+  "hint": "A network that does not show",
+  "where": "Network › OTHER",
+  "target": "network:new"
+ },
+ {
   "label": "Name",
   "hint": "A hidden one is typed here",
-  "where": "Network › NEW",
+  "where": "Network › OTHER",
   "target": "network:new"
  },
  {
   "label": "Password",
   "hint": "Empty: an open network",
-  "where": "Network › NEW",
+  "where": "Network › OTHER",
   "target": "network:new"
  },
  {
   "label": "Join",
   "hint": "",
-  "where": "Network › NEW",
+  "where": "Network › OTHER",
   "target": "network:new"
  },
  {
@@ -496,6 +616,12 @@
   "hint": "",
   "where": "Network › ETHERNET",
   "target": "network"
+ },
+ {
+  "label": "Bluetooth",
+  "hint": "",
+  "where": "",
+  "target": "bluetooth"
  },
  {
   "label": "Bluetooth",
@@ -588,6 +714,48 @@
   "target": "bluetooth:nearby"
  },
  {
+  "label": "Displays",
+  "hint": "",
+  "where": "",
+  "target": "displays"
+ },
+ {
+  "label": "Arrange",
+  "hint": "",
+  "where": "Displays",
+  "target": "displays:arrange"
+ },
+ {
+  "label": "Monitor",
+  "hint": "",
+  "where": "Displays",
+  "target": "displays:monitor"
+ },
+ {
+  "label": "Scale",
+  "hint": "",
+  "where": "Displays › MONITOR",
+  "target": "displays:monitor"
+ },
+ {
+  "label": "Refresh rate",
+  "hint": "",
+  "where": "Displays › MONITOR",
+  "target": "displays:monitor"
+ },
+ {
+  "label": "Position",
+  "hint": "Logical pixels, from the top left",
+  "where": "Displays › MONITOR",
+  "target": "displays:monitor"
+ },
+ {
+  "label": "About",
+  "hint": "",
+  "where": "",
+  "target": "about"
+ },
+ {
   "label": "Philosophy",
   "hint": "",
   "where": "About",
@@ -648,12 +816,6 @@
   "target": "about:system"
  },
  {
-  "label": "Theme",
-  "hint": "",
-  "where": "Appearance",
-  "target": "appearance:themes"
- },
- {
   "label": "Accent",
   "hint": "",
   "where": "Appearance",
@@ -696,12 +858,6 @@
   "target": "appearance:accent"
  },
  {
-  "label": "Window border",
-  "hint": "The focused window's frame",
-  "where": "Appearance",
-  "target": "appearance:accent"
- },
- {
   "label": "Bar modules",
   "hint": "Active states, the equalizer; not warnings",
   "where": "Appearance",
@@ -717,12 +873,6 @@
   "label": "Fill",
   "hint": "",
   "where": "Appearance › ACCENT",
-  "target": "appearance:accent"
- },
- {
-  "label": "Window frames",
-  "hint": "On or off: in Windows › Decoration",
-  "where": "Appearance › APPLIES TO",
   "target": "appearance:accent"
  },
  {
@@ -756,49 +906,19 @@
   "target": "appearance:wallpaper"
  },
  {
-  "label": "Text",
-  "hint": "",
-  "where": "Appearance",
-  "target": "appearance:font"
- },
- {
-  "label": "Text size",
-  "hint": "The shell's own text",
-  "where": "Appearance › TEXT",
-  "target": "appearance:font"
- },
- {
-  "label": "GTK apps text",
-  "hint": "In the Display app",
-  "where": "Appearance › TEXT",
-  "target": "appearance:font"
- },
- {
-  "label": "Cursor",
-  "hint": "",
-  "where": "Appearance",
-  "target": "appearance:cursor"
- },
- {
-  "label": "Colour",
-  "hint": "",
-  "where": "Appearance › CURSOR",
-  "target": "appearance:cursor"
- },
- {
-  "label": "Size",
-  "hint": "Pixels at scale 1, applied at once",
-  "where": "Appearance › CURSOR",
-  "target": "appearance:cursor"
- },
- {
   "label": "Corners",
   "hint": "Also windows and toasts; Round rounds the icons",
   "where": "Appearance",
   "target": "appearance:shape"
  },
  {
-  "label": "Radius",
+  "label": "Window radius",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:shape"
+ },
+ {
+  "label": "Controls radius",
   "hint": "",
   "where": "Appearance",
   "target": "appearance:shape"
@@ -808,18 +928,6 @@
   "hint": "Bar, popups and windows",
   "where": "Appearance",
   "target": "appearance:shape"
- },
- {
-  "label": "Style",
-  "hint": "Material: filled, no frames",
-  "where": "Appearance",
-  "target": "appearance:controls"
- },
- {
-  "label": "Password dots",
-  "hint": "Off: squares",
-  "where": "Appearance",
-  "target": "appearance:controls"
  },
  {
   "label": "Look",
@@ -906,6 +1014,18 @@
   "target": "lockscreen"
  },
  {
+  "label": "Password",
+  "hint": "",
+  "where": "Lock screen",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Typed characters",
+  "hint": "Also in Wi-Fi and other fields",
+  "where": "Lock screen › PASSWORD",
+  "target": "lockscreen"
+ },
+ {
   "label": "Bar",
   "hint": "",
   "where": "Notifications",
@@ -960,12 +1080,6 @@
   "target": "notifications"
  },
  {
-  "label": "Capture notifications",
-  "hint": "After a screenshot or a recording: in Capture",
-  "where": "Notifications › HISTORY",
-  "target": "notifications"
- },
- {
   "label": "Workspaces",
   "hint": "Hyprland workspaces",
   "where": "Bar modules",
@@ -984,28 +1098,52 @@
   "target": "modules:workspaces"
  },
  {
-  "label": "Music",
-  "hint": "Liked tracks from Yandex Music",
+  "label": "Yandex Music",
+  "hint": "Liked tracks from Yandex Music (MPD)",
   "where": "Bar modules",
-  "target": "modules:music"
+  "target": "modules:yandex"
  },
  {
   "label": "Bar",
   "hint": "",
-  "where": "Bar modules › Music",
-  "target": "modules:music"
+  "where": "Bar modules › Yandex Music",
+  "target": "modules:yandex"
  },
  {
   "label": "Shows",
   "hint": "",
-  "where": "Bar modules › Music › BAR",
-  "target": "modules:music"
+  "where": "Bar modules › Yandex Music › BAR",
+  "target": "modules:yandex"
  },
  {
   "label": "Max length",
   "hint": "Longer ones end with …",
-  "where": "Bar modules › Music › BAR",
-  "target": "modules:music"
+  "where": "Bar modules › Yandex Music › BAR",
+  "target": "modules:yandex"
+ },
+ {
+  "label": "Player",
+  "hint": "Any media player: Spotify, a browser, mpv (MPRIS)",
+  "where": "Bar modules",
+  "target": "modules:player"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Player",
+  "target": "modules:player"
+ },
+ {
+  "label": "Shows",
+  "hint": "What the bar names while something plays",
+  "where": "Bar modules › Player › BAR",
+  "target": "modules:player"
+ },
+ {
+  "label": "Max length",
+  "hint": "Longer ones end with …",
+  "where": "Bar modules › Player › BAR",
+  "target": "modules:player"
  },
  {
   "label": "Radio",
@@ -1081,9 +1219,21 @@
  },
  {
   "label": "Theme",
-  "hint": "The popup switches; set it in Appearance",
+  "hint": "The popup switches; all of them in Themes",
   "where": "Bar modules › Themes › POPUP",
   "target": "modules:themes"
+ },
+ {
+  "label": "Mode",
+  "hint": "Light or dark: a click switches the theme to its twin",
+  "where": "Bar modules",
+  "target": "modules:mode"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Mode",
+  "target": "modules:mode"
  },
  {
   "label": "Wallpapers",
@@ -1489,8 +1639,14 @@
  },
  {
   "label": "Display",
-  "hint": "Monitor scale, position and text size · the full window",
+  "hint": "Monitor scale, refresh rate and text size · Displays in settings",
   "where": "Bar modules",
+  "target": "modules:display"
+ },
+ {
+  "label": "Bar",
+  "hint": "",
+  "where": "Bar modules › Display",
   "target": "modules:display"
  },
  {
@@ -1602,6 +1758,12 @@
   "target": "apps:launcher"
  },
  {
+  "label": "Island",
+  "hint": "",
+  "where": "Apps › Launcher",
+  "target": "apps:launcher"
+ },
+ {
   "label": "Layout",
   "hint": "",
   "where": "Apps › Launcher",
@@ -1611,6 +1773,18 @@
   "label": "Opening",
   "hint": "",
   "where": "Apps › Launcher",
+  "target": "apps:launcher"
+ },
+ {
+  "label": "Dim the background",
+  "hint": "Off: the screen behind it stays as it is",
+  "where": "Apps › Launcher",
+  "target": "apps:launcher"
+ },
+ {
+  "label": "Open from the island",
+  "hint": "On: it opens inside the island instead of as a window",
+  "where": "Apps › Launcher › ISLAND",
   "target": "apps:launcher"
  },
  {
@@ -1656,6 +1830,12 @@
   "target": "apps:keybinds"
  },
  {
+  "label": "Island",
+  "hint": "",
+  "where": "Apps › Keybinds",
+  "target": "apps:keybinds"
+ },
+ {
   "label": "Layout",
   "hint": "",
   "where": "Apps › Keybinds",
@@ -1665,6 +1845,18 @@
   "label": "Opening",
   "hint": "",
   "where": "Apps › Keybinds",
+  "target": "apps:keybinds"
+ },
+ {
+  "label": "Dim the background",
+  "hint": "Off: the screen behind it stays as it is",
+  "where": "Apps › Keybinds",
+  "target": "apps:keybinds"
+ },
+ {
+  "label": "Open from the island",
+  "hint": "On: it opens inside the island instead of as a window",
+  "where": "Apps › Keybinds › ISLAND",
   "target": "apps:keybinds"
  },
  {
@@ -1702,12 +1894,6 @@
   "hint": "Switches the keyboard when it opens",
   "where": "Apps › Keybinds › OPENING",
   "target": "apps:keybinds"
- },
- {
-  "label": "Lock screen",
-  "hint": "A session lock with a PAM password",
-  "where": "Apps",
-  "target": "lockscreen"
  },
  {
   "label": "Overview",
@@ -1918,18 +2104,6 @@
   "hint": "",
   "where": "Bar modules › Clipboard › POPUP",
   "target": "modules:clipboard"
- },
- {
-  "label": "Display",
-  "hint": "Monitor scale, position and the text size",
-  "where": "Apps",
-  "target": "apps:display"
- },
- {
-  "label": "Bar",
-  "hint": "",
-  "where": "Bar modules › Display",
-  "target": "modules:display"
  },
  {
   "label": "Packages",
@@ -2166,6 +2340,12 @@
   "target": "apps:files"
  },
  {
+  "label": "Sidebar",
+  "hint": "",
+  "where": "Apps › Files",
+  "target": "apps:files"
+ },
+ {
   "label": "Actions",
   "hint": "",
   "where": "Apps › Files",
@@ -2186,12 +2366,6 @@
  {
   "label": "Preview lines",
   "hint": "Of a text file",
-  "where": "Apps › Files › VIEW",
-  "target": "apps:files"
- },
- {
-  "label": "Show frames",
-  "hint": "Off: no lines",
   "where": "Apps › Files › VIEW",
   "target": "apps:files"
  },

@@ -62,11 +62,5 @@ KitColumn {
 
   KitToggleRow { module: "notifications"; key: "closeOnClear"; fallback: false; label: "Close after clear"; hint: "Off: the popup stays open" }
 
-  KitLine {}
-
-  KitLinkRow {
-    label: "Capture notifications"
-    hint: "After a screenshot or a recording: in Capture"
-    target: "apps:capture"
-  }
+  KitGrouper {}
 }

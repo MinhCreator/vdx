@@ -80,8 +80,7 @@ KitColumn {
     label: "Visible for"
     hint: "Then hidden again"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "Forever", value: 0 }, { label: "2 min", value: 120 }, { label: "5 min", value: 300 }]
       current: root.adapter.timeout
       onPicked: value => bt.setAdapter(["--discoverable-timeout", String(value)])
@@ -224,4 +223,6 @@ KitColumn {
       }
     }
   }
+
+  KitGrouper {}
 }

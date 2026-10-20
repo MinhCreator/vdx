@@ -25,7 +25,7 @@ KitFrame {
       icon: "external"
       onClicked: {
         root.openWindow();
-        Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "display", "open"]);
+        Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "shell", "open", "displays"]);
       }
     }
   }

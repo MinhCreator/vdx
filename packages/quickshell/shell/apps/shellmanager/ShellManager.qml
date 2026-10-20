@@ -45,6 +45,9 @@ Rectangle {
   // `caption` opens a group in the sidebar
   readonly property var sections: [
     { value: "appearance", label: "Appearance", icon: "sun",        caption: "LOOK" },
+    { value: "themes",     label: "Themes",     icon: "palette" },
+    { value: "fonts",      label: "Fonts",      icon: "text" },
+    { value: "cursor",     label: "Cursor",     icon: "cursor" },
     { value: "animations", label: "Animations", icon: "zap" },
     { value: "bar",        label: "Bar",        icon: "layout",     caption: "DESKTOP" },
     { value: "modules",    label: "Bar modules", icon: "puzzle" },
@@ -53,6 +56,7 @@ Rectangle {
     { value: "notifications", label: "Notifications", icon: "bell" },
     { value: "network",    label: "Network",    icon: "wifi",       caption: "SYSTEM" },
     { value: "bluetooth",  label: "Bluetooth",  icon: "bluetooth" },
+    { value: "displays",   label: "Displays",   icon: "monitor" },
     { value: "apps",       label: "Apps",       icon: "grid",       caption: "SHELL" },
     { value: "about",      label: "About",      icon: "info" }
   ]
@@ -66,6 +70,10 @@ Rectangle {
     if (value === "lock" || (value === "apps" && target === "lock")) return { tab: "lockscreen", target: "" };
     if (value === "modules" && target === "notifications") return { tab: "notifications", target: "" };
     if (value === "media") return { tab: "modules", target: "audio" };
+    if (value === "display" || (value === "apps" && target === "display")) return { tab: "displays", target: "" };
+    // the theme, the font and the cursor left Appearance for pages of their own
+    if (value === "appearance" && ["themes", "font", "cursor"].includes(target))
+      return { tab: target === "font" ? "fonts" : target, target: "" };
     return { tab: value, target: target ?? "" };
   }
 
@@ -125,7 +133,7 @@ Rectangle {
   }
 
   function pageFor(value) {
-    return ({ bar: bar, animations: animations, windows: windows, network: network, bluetooth: bluetooth,
+    return ({ themes: themes, fonts: fonts, cursor: cursor, bar: bar, animations: animations, windows: windows, network: network, bluetooth: bluetooth, displays: displays,
               modules: modules, apps: apps, about: about, lockscreen: lockscreen,
               notifications: notifications })[value] ?? appearance;
   }
@@ -153,6 +161,23 @@ Rectangle {
     scroll.to = Math.min(max, Math.max(0, j.y));
     scroll.restart();
     pinnedJump = j.key;
+    lastJump = j;
+    rejump.restart();
+  }
+
+  // a page laid out as it shows (Settings boxes, wrapped hints) moves its groups:
+  // aim again once it has settled, unless someone scrolled meanwhile
+  property var lastJump: null
+  Timer {
+    id: rejump
+    interval: Motion.normal + 120
+    onTriggered: {
+      const j = root.currentPage.jumps.find(x => x.key === root.lastJump?.key);
+      if (j && root.pinnedJump === j.key && Math.abs(page.contentY - j.y) > 2) {
+        scroll.to = Math.min(Math.max(0, page.contentHeight - page.height), Math.max(0, j.y));
+        scroll.restart();
+      }
+    }
   }
 
   color: Theme.background0
@@ -461,8 +486,10 @@ Rectangle {
 
   Flickable {
     id: page
-    anchors { left: sidebar.right; leftMargin: 1; right: parent.right; top: header.bottom; bottom: parent.bottom; bottomMargin: Theme.windowPadding }
-    contentHeight: pages.implicitHeight + pages.y + 20
+    anchors { left: sidebar.right; leftMargin: 1; right: parent.right; top: header.bottom; bottom: parent.bottom }
+    // to the window's edge: the rows scroll out of it, not out of a line above it
+    // Apps, Bar modules and Themes fill the window and scroll their panes themselves: the page stays
+    contentHeight: apps.visible || modules.visible || themes.visible ? height : pages.implicitHeight + pages.y + 20 + Theme.windowPadding
     clip: true
     boundsBehavior: Flickable.StopAtBounds
     interactive: contentHeight > height
@@ -492,11 +519,15 @@ Rectangle {
       width: page.width - 48
       implicitHeight: Math.max(appearance.visible ? appearance.implicitHeight : 0,
                                bar.visible ? bar.implicitHeight : 0,
+                               themes.visible ? themes.height : 0,
+                               fonts.visible ? fonts.implicitHeight : 0,
+                               cursor.visible ? cursor.implicitHeight : 0,
                                animations.visible ? animations.implicitHeight : 0,
                                apps.visible ? apps.height : 0,
                                windows.visible ? windows.implicitHeight : 0,
                                network.visible ? network.implicitHeight : 0,
                                bluetooth.visible ? bluetooth.implicitHeight : 0,
+                               displays.visible ? displays.implicitHeight : 0,
                                about.visible ? about.implicitHeight : 0,
                                lockscreen.visible ? lockscreen.implicitHeight : 0,
                                notifications.visible ? notifications.implicitHeight : 0,
@@ -504,16 +535,20 @@ Rectangle {
 
       AppearancePage { id: appearance; width: parent.width; visible: root.tab === "appearance" }
       BarPage     { id: bar;     width: parent.width; visible: root.tab === "bar" }
+      ThemesPage  { id: themes;  width: parent.width; height: page.height - pages.y; visible: root.tab === "themes" }
+      FontsPage   { id: fonts;   width: parent.width; visible: root.tab === "fonts" }
+      CursorPage  { id: cursor;  width: parent.width; visible: root.tab === "cursor" }
       AnimationsPage { id: animations; width: parent.width; visible: root.tab === "animations" }
       // fills the window and scrolls its two panes itself
-      ShellAppsPage { id: apps;  width: parent.width; onNavigate: (t, k) => root.navigate(t, k); onWindowSetup: id => windowDialog.appId = id; height: page.height - pages.y - 20; visible: root.tab === "apps" }
+      ShellAppsPage { id: apps;  width: parent.width; onNavigate: (t, k) => root.navigate(t, k); onWindowSetup: id => windowDialog.appId = id; height: page.height - pages.y; visible: root.tab === "apps" }
       WindowsPage { id: windows; width: parent.width; visible: root.tab === "windows" }
       NetworkPage   { id: network;   width: parent.width; visible: root.tab === "network" }
       BluetoothPage { id: bluetooth; width: parent.width; visible: root.tab === "bluetooth" }
+      DisplaysPage  { id: displays;  width: parent.width; visible: root.tab === "displays" }
       AboutPage   { id: about;   width: parent.width; visible: root.tab === "about" }
       LockScreenPage { id: lockscreen; width: parent.width; visible: root.tab === "lockscreen" }
       NotificationsPage { id: notifications; width: parent.width; visible: root.tab === "notifications" }
-      ModulesPage { id: modules; width: parent.width; onNavigate: (t, k) => root.navigate(t, k); height: page.height - pages.y - 20; visible: root.tab === "modules" }
+      ModulesPage { id: modules; width: parent.width; onNavigate: (t, k) => root.navigate(t, k); height: page.height - pages.y; visible: root.tab === "modules" }
     }
   }
 

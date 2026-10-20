@@ -14,7 +14,7 @@ QML keeps reading the old shapes too (a live reload runs without this)."""
 import hashlib, json, os, sys
 from pathlib import Path
 
-VERSION = 1
+VERSION = 3
 FILES = ("settings.json", "modules.json", "layout.json")
 RENAMED = {"claude": "ai", "plugins": "shell"}       # module ids that changed (BarLayout.renamed)
 
@@ -71,7 +71,29 @@ def to_1(name: str, data: dict) -> None:
                 _layout_entry(e)
 
 
-MIGRATIONS = {0: to_1}          # n -> the step from version n to n + 1
+def to_2(name: str, data: dict) -> None:
+    """Version 2: the file manager's bookmarks are the sidebar's folder entries (its ordered list,
+    defaults added by the shell); the frames option is gone."""
+    if name == "modules.json":
+        values = data.get("values")
+        files = values.get("files") if isinstance(values, dict) else None
+        if isinstance(files, dict):
+            marks = files.pop("bookmarks", None)
+            files.pop("frames", None)
+            if "sidebar" not in files and isinstance(marks, list):
+                files["sidebar"] = [{"path": b["path"], "name": b.get("name") or b["path"], "kind": "folder",
+                                     "hidden": False} for b in marks if isinstance(b, dict) and b.get("path")]
+
+
+def to_3(name: str, data: dict) -> None:
+    """Version 3: the Yandex Music module's id is "yandex" (was "music"); its options move with it."""
+    if name == "modules.json":
+        values = data.get("values")
+        if isinstance(values, dict) and "music" in values:
+            values.setdefault("yandex", values.pop("music"))
+
+
+MIGRATIONS = {0: to_1, 1: to_2, 2: to_3}          # n -> the step from version n to n + 1
 
 
 def migrate(name: str, data: dict) -> dict:

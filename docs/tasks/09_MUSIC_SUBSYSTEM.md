@@ -25,11 +25,22 @@ in its own repository only (CLAUDE.md).
 
 ## Part A — Yandex Music fully optional
 
-Status: Not started · Category: A/B · Depends on: nothing · Gate: none for
-fixes; owner approval for moving files between components.
+Status: Implemented, partially verified (MPD listener idles with both music
+components off; moving `yandex_likes.py` not done, gated) · Category: A/B ·
+Depends on: nothing · Gate: none for fixes; owner approval for moving files
+between components.
 
 - Audit: with `yandex-music` (and `mpd`) off, does `qs` log errors (services
   probing `mpc`, `yandex-music-cli`)? Install, update, `doctor`, uninstall with it off/on.
+  Found: `MpdService` started `music.sh --listen` at shell start even with
+  `yandex-music` and `radio` off (a poll loop every 2 s, restart every 5 s).
+  Fix: `MpdService.needed` = music or radio installed (`BarLayout.installed`);
+  the listener starts and stops with it. Island media already falls back to MPRIS
+  (`MpdService.stopped`), `AudioPause` reads MPRIS too. Checked live: both off →
+  no `music.sh --listen`; back on → it returns. `mpd.service` itself is not
+  stopped by this (the component's link/user service is the owner's call).
+  Not done: a fresh machine without the component (`fresh-machine.sh quickshell`,
+  owner agrees first); the `yandex-music-cli` side with `mpc` missing.
 - Fix: services idle when their component is off (read `components.json`
   through the existing gating), island media falls back to MPRIS only; move
   `yandex_likes.py` under the `yandex-music` component's `links` if the link model allows (it lives in the quickshell tree — check `links` longest-match ownership).
@@ -41,7 +52,9 @@ with a clean log; island media works with an MPRIS player; adding the component 
 
 ## Part B — Provider-independent player module
 
-Status: Not started · Category: B/C · Depends on: A · Gate: naming + UX + data model approved.
+Status: Implemented, partially verified (owner approved 2026-10-20: names `yandex` and `player`, MPRIS plus MPD in one list). Verified live with a test MPRIS player (two players, Next, the popup, the island, the hub chip); mpv has no MPRIS here (`mpv-mpris` not installed), Spotify and Firefox not tried. · Category: B/C · Depends on: A · Gate: naming + UX + data model approved.
+
+Done: the module `music` is `yandex` (folder `modules/yandex/`, `YandexService`, `BarLayout.renamed`, settings `modules.json` version 3); `modules/player/` (`PlayerService`: the MPD source and every MPRIS player, the pick in the popup, else a playing one, MPD first; `Player.qml`, `PlayerPopup.qml` with shuffle, repeat and raise where the player has them); the island's media reads `PlayerService`; the `player` module is in the quickshell component (new modules start in the Folder).
 
 - Rename: the current `music` module → a Yandex-specific id (e.g. `yandex`),
   via `BarLayout.renamed` (layouts keep their place), `components.toml`,

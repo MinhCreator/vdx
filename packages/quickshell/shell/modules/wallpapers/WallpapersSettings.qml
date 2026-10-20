@@ -39,4 +39,6 @@ Column {
     hint: "The popup switches; set it in Appearance"
     target: "appearance:wallpaper"
   }
+
+  KitGrouper {}
 }

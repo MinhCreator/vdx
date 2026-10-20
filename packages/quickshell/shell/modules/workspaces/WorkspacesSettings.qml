@@ -18,4 +18,6 @@ Column {
       { label: "Dashes", value: "dashes" }
     ]
   }
+
+  KitGrouper {}
 }

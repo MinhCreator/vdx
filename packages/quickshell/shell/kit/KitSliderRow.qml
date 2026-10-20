@@ -2,7 +2,8 @@ import QtQuick
 import qs.config
 
 // A slider with its reading. Two layouts:
-//   * `label` set — small-caps "LABEL ......... value" over a full-width slider;
+//   * `label` set — small-caps "LABEL ......... value" over a full-width slider
+//     (`rowStyle`: the label and value as in a KitRow);
 //   * `label` empty — icon, slider and value on one line; with `clickable` the
 //     icon is a button (mute and the like).
 Item {
@@ -18,6 +19,7 @@ Item {
   property color tint: Theme.foreground0
   property var snaps: []
   property var spectrum: []
+  property bool rowStyle: false
 
   readonly property bool captioned: label !== ""
   readonly property bool pressed: slider.pressed
@@ -28,14 +30,27 @@ Item {
   signal iconClicked()
 
   width: parent ? parent.width : 0
-  implicitHeight: captioned ? caption.implicitHeight + 6 + slider.implicitHeight : 26
+  implicitHeight: captioned ? (rowStyle ? rowCaption.implicitHeight + Theme.gapMedium : caption.implicitHeight + 6) + slider.implicitHeight : 26
 
   KitLabel {
     id: caption
-    visible: root.captioned
+    visible: root.captioned && !root.rowStyle
     text: root.label
     value: root.text
     valueColor: root.dimmed ? Theme.gray : Theme.foreground2
+  }
+
+  KitText {
+    id: rowCaption
+    visible: root.captioned && root.rowStyle
+    text: root.label
+  }
+
+  KitText {
+    visible: rowCaption.visible
+    anchors { right: parent.right; baseline: rowCaption.baseline }
+    text: root.text
+    color: root.dimmed ? Theme.gray : Theme.foreground2
   }
 
   // ---- inline layout ----

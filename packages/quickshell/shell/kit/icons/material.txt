@@ -87,3 +87,4 @@ wifi-off wifi_off
 x close
 zap bolt
 plus add
+text text_fields

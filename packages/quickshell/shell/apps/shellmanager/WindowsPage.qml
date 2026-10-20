@@ -3,10 +3,10 @@ import qs.config
 import qs.kit
 import qs.modules.windows
 
-// Windows: how windows behave (hypr/components/windowmode.lua) — the mode
-// (tiling, floating, scrolling), the options of the current one, the gaps,
-// frames and shadows, and FLOATING: the switcher and the taskbar, which only
-// the floating mode has. Applied at once: Hyprland reloads.
+// Windows: how windows behave (hypr/components/windowmode.lua). LAYOUT: the
+// mode (tiling, floating, scrolling) and the options of the current one (the
+// floating mode's switcher and taskbar too); LOOK: gaps, frames, shadows.
+// Applied at once: Hyprland reloads.
 KitColumn {
   id: root
 
@@ -18,55 +18,30 @@ KitColumn {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "app-window"
   readonly property string title: "Windows"
-  readonly property string subtitle: mode.label.toUpperCase() + " · GAPS " + o.gapsIn + " / " + o.gapsOut
-                                     + (floating ? " · TASKBAR " + (o.taskbar ? "ON" : "OFF") : "")
+  readonly property string subtitle: mode.label.toUpperCase()
 
-  // groups for the Shell Manager's sidebar: a click scrolls to `y`; FLOATING
-  // is only there in the floating mode
+  // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [
-    { key: "mode",   label: "Mode",   y: modeGroup.y },
-    { key: "layout", label: root.mode.label, y: layoutGroup.y },
-    { key: "floating", label: "Floating", y: floating ? floatingGroup.y : -2 },
-    { key: "gaps",   label: "Decoration", y: gapsGroup.y }
-  ].filter(j => j.y > -2)
+    { key: "layout", label: "Layout", y: layoutGroup.y },
+    { key: "look",   label: "Look",   y: lookGroup.y }
+  ]
 
   function pct(v) { return Math.round(v * 100) + "%"; }
 
-  spacing: Theme.gapGroup
-
-  // ---- mode ----
-  KitLabel { id: modeGroup; text: "MODE"; value: root.mode.label.toUpperCase() }
+  // ---- layout: the mode, then its own options ----
+  KitLabel { id: layoutGroup; text: "LAYOUT" }
 
   KitRow {
     wide: true
-    label: "Windows"
+    label: "Mode"
     hint: root.mode.about
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: root.ws.choices
       current: root.ws.mode
       onPicked: value => root.ws.setMode(value)
     }
   }
-
-  KitRow {
-    wide: true
-    label: "Scroll with"
-    hint: "Arrows: no mouse needed"
-
-    KitChoices {
-      stretch: true
-      model: [{ label: "Wheel", value: "wheel" }, { label: "Arrows", value: "arrows" }, { label: "Both", value: "both" }]
-      current: root.o.scrollKeys
-      onPicked: value => root.ws.setOption("scrollKeys", value)
-    }
-  }
-
-  KitLine {}
-
-  // ---- the current mode's own options ----
-  KitLabel { id: layoutGroup; text: root.mode.label.toUpperCase() }
 
   // 0.30–0.80 in steps of 0.05; setOption reloads Hyprland, so it runs on release
   KitSliderRow {
@@ -85,8 +60,7 @@ KitColumn {
     label: "New window"
     hint: "Where it opens"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "Master", value: "master" }, { label: "Stack", value: "slave" }]
       current: root.o.newStatus
       onPicked: value => root.ws.setOption("newStatus", value)
@@ -96,30 +70,24 @@ KitColumn {
   KitRow {
     wide: true
     visible: root.ws.mode === "scrolling"
-    label: "Column width"
-    hint: "A new column's share"
+    label: "New column width"
+    hint: ""
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "1/3", value: 0.333 }, { label: "1/2", value: 0.5 }, { label: "2/3", value: 0.667 }, { label: "Full", value: 1 }]
       current: root.o.columnWidth
       onPicked: value => root.ws.setOption("columnWidth", value)
     }
   }
 
-  KitLine {}
-
-  // ---- floating only: the switcher and the taskbar ----
-  KitLabel { id: floatingGroup; visible: root.floating; text: "FLOATING" }
-
+  // floating only: the switcher and the taskbar
   KitRow {
     wide: true
     visible: root.floating
     label: "Arrange"
     hint: "On switching to floating"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "Cascade", value: "cascade" }, { label: "Grid", value: "grid" }, { label: "Centre", value: "center" }]
       current: root.o.arrange
       onPicked: value => root.ws.setOption("arrange", value)
@@ -154,18 +122,29 @@ KitColumn {
     label: "Taskbar shape"
     hint: root.o.taskbarShape === "island" ? "A pill over the windows" : "A strip along the bottom"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "Strip", value: "strip" }, { label: "Island", value: "island" }]
       current: root.o.taskbarShape
       onPicked: value => root.o.taskbarShape = value
     }
   }
 
-  KitLine { visible: root.floating }
+  KitRow {
+    wide: true
+    label: "Scroll with"
+    hint: "The modes' wheel binds"
 
-  // ---- gaps ----
-  KitLabel { id: gapsGroup; text: "DECORATION"; value: root.o.gapsIn + " / " + root.o.gapsOut + " PX" }
+    KitSegments {
+      model: [{ label: "Wheel", value: "wheel" }, { label: "Arrows", value: "arrows" }, { label: "Both", value: "both" }]
+      current: root.o.scrollKeys
+      onPicked: value => root.ws.setOption("scrollKeys", value)
+    }
+  }
+
+  // ---- look ----
+  KitLine {}
+
+  KitLabel { id: lookGroup; text: "LOOK" }
 
   // inner 0–20 px in steps of 1, outer 0–40 px in steps of 2; released, as above
   KitSliderRow {
@@ -186,21 +165,26 @@ KitColumn {
     onReleased: value => root.ws.setOption("gapsOut", Math.round(value * 20) * 2)
   }
 
+  // the windows' frame: none, the theme's colour, or the accent (its place "window")
   KitRow {
+    id: frameRow
+    readonly property string frame: !root.o.borders ? "off"
+      : ShellSettings.accent && ShellSettings.accentWhere.window === true ? "accent" : "theme"
+    wide: true
     label: "Frames"
-    hint: "A 2px frame round every window"
+    hint: frame === "off" ? "No frame round windows" : frame === "accent" ? "The focused one in the accent"
+        : ShellSettings.accent ? "The focused one in the theme's colour" : "Accent can colour them"
 
-    KitSwitch {
-      checked: root.o.borders
-      onToggled: root.ws.setOption("borders", !root.o.borders)
+    KitSegments {
+      model: [{ label: "Off", value: "off" }, { label: "Theme", value: "theme" }]
+        .concat(ShellSettings.accent ? [{ label: "Accent", value: "accent" }] : [])
+      current: frameRow.frame
+      onPicked: value => {
+        if ((value === "off") === root.o.borders) root.ws.setOption("borders", value !== "off");
+        if (value !== "off" && ShellSettings.accent)
+          ShellSettings.set("accentWhere", Object.assign({}, ShellSettings.accentWhere, { window: value === "accent" }));
+      }
     }
-  }
-
-  KitLinkRow {
-    visible: root.o.borders
-    label: "Frame colour"
-    hint: "In Appearance › Accent › Window border"
-    target: "appearance:accent"
   }
 
   KitRow {
@@ -213,4 +197,5 @@ KitColumn {
     }
   }
 
+  KitGrouper {}
 }

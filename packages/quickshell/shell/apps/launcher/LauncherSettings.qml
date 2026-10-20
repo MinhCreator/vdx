@@ -15,6 +15,22 @@ Column {
 
   spacing: Theme.gapGroup
 
+  // the screen behind the panel: in the window, and behind the island's view
+  KitToggleRow {
+    module: "launcher"; key: "dim"; fallback: true
+    label: "Dim the background"
+    hint: "Off: the screen behind it stays as it is"
+  }
+
+  // Island style: the window opens from the island, inside it, like a module's popup
+  KitLabel { text: "ISLAND"; visible: ShellSettings.barStyle === "island" }
+  KitToggleRow {
+    visible: ShellSettings.barStyle === "island"
+    module: "launcher"; key: "island"; fallback: true
+    label: "Open from the island"
+    hint: "On: it opens inside the island instead of as a window"
+  }
+
   // ---- tabs: what each band holds ----
   readonly property string focusId: chips.dragId !== "" ? chips.dragId : chips.hoverId
 
@@ -123,4 +139,6 @@ Column {
   KitToggleRow { module: "launcher"; key: "clear"; fallback: true; label: "Clear search on close"; hint: "Off: the search stays as it was" }
 
   KitToggleRow { module: "launcher"; key: "english"; fallback: true; label: "English layout on open"; hint: "Switches the keyboard when it opens" }
+
+  KitGrouper {}
 }

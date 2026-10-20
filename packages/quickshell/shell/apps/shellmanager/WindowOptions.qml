@@ -73,8 +73,7 @@ KitColumn {
     label: "Window"
     hint: root.floating ? "Over others, where you put it" : "Takes its place in the layout"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "Floating", value: "floating" }, { label: "Tiled", value: "tiled" }]
       current: root.s.mode
       onPicked: value => root.set({ mode: value })
@@ -88,8 +87,7 @@ KitColumn {
     hint: root.s.size === "preset" ? "A share of the screen"
         : root.s.size === "custom" ? "Your own, in pixels" : root.app.width + " × " + root.app.height + ", the app's own"
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "Default", value: "default" }, { label: "Preset", value: "preset" }, { label: "Custom", value: "custom" }]
       current: root.s.size
       onPicked: value => root.set({ size: value })
@@ -105,8 +103,7 @@ KitColumn {
       return Math.round(p[0] * 100) + " × " + Math.round(p[1] * 100) + "% of the screen";
     }
 
-    KitChoices {
-      stretch: true
+    KitSegments {
       model: [{ label: "Small", value: "small" }, { label: "Medium", value: "medium" }, { label: "Large", value: "large" }]
       current: root.s.preset
       onPicked: value => root.set({ preset: value })
@@ -170,4 +167,6 @@ KitColumn {
     wrapMode: Text.WordWrap
     font.pixelSize: Theme.fontSize - 1
   }
+
+  KitGrouper {}
 }

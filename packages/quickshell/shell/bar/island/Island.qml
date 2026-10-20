@@ -1,6 +1,8 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import qs.apps.keybinds
+import qs.apps.launcher
 import qs.components
 import qs.config
 import qs.kit
@@ -12,8 +14,9 @@ import qs.modules.audio
 // media (the player) from the equalizer; osd (volume, brightness) and notice
 // (a new notification) pass over it for a moment. A module's popup opens
 // inside the island (module): its content moves in from the BarPopup and back
-// once the island has folded. A clicked view stays until a click outside,
-// Escape or a second click.
+// once the island has folded. The launcher and the keybinds (the hub's Launcher and Keys chips)
+// open as views of their own, the same panels as their windows. A clicked view stays until a click
+// outside, Escape or a second click; Escape in an app view goes back to the hub when it came from there.
 //
 // Compact: middle — play / pause; a click on the bare island does nothing (the
 // hub opens on a hover over the clock). The wheel is a module's own (the
@@ -31,16 +34,22 @@ Item {
   property string flash: ""                    // osd | notice: passes over compact and media
   // an osd under the pointer would take the view away from it (and the wheel
   // with it): the module under the pointer already shows the new level
-  readonly property string shown: flash !== "" && view !== "power" && view !== "module"
+  readonly property string shown: flash !== "" && view !== "power" && view !== "module" && !appView
     && !(flash === "osd" && hover.hovered) ? flash : view
   readonly property bool open: shown !== "compact"
   // resting with nothing to show (no clock, no modules): gone until it has
   readonly property bool hidden: shown === "compact" && compact.empty
   // the shape, for the bar's input mask
   readonly property Item shape: shape
+  // the launcher and the keybinds: a text field takes the keyboard
+  readonly property bool appView: view === "launcher" || view === "keybinds"
   // a pinned view takes the keyboard (Escape, the power menu's arrows)
-  // (a module's popup has its own grab)
-  readonly property bool grabbing: pinned && view !== "compact" && view !== "module"
+  // (a module's popup has its own grab; an app view its field)
+  readonly property bool grabbing: pinned && view !== "compact" && view !== "module" && !appView
+  readonly property bool takesKeys: grabbing || (pinned && appView)
+  // the launcher or the keybinds dim the screen behind the island (their "Dim the background" option)
+  readonly property bool dimming: appView && (view === "launcher"
+    ? ModuleSettings.get("launcher", "dim", true) : ModuleSettings.get("keybinds", "dim", true))
 
   function openView(v) {
     if (PopupManager.current) PopupManager.current.visible = false;
@@ -113,9 +122,13 @@ Item {
   }
 
   function toggleView(v) {
-    if (view === v && pinned) collapse();
-    else openView(v);
+    if (view === v && pinned) { collapse(); return; }
+    if (v === "launcher" || v === "keybinds") fromHub = view === "hub";
+    openView(v);
   }
+
+  // an app view's Escape: back to the hub it came from, else closed
+  function appBack() { if (fromHub) backToHub(); else collapse(); }
 
   // ---- size ----
   readonly property int noticeRow: 68          // one notice in the stack
@@ -128,6 +141,8 @@ Item {
   readonly property var sizes: ({
     compact: [compact.implicitWidth, Theme.islandHeight],
     hub:     [520, hub.implicitHeight],
+    launcher: [520, islandLauncher.implicitHeight],
+    keybinds: [520, islandKeybinds.implicitHeight],
     media:   [420, 148],
     osd:     [290, Theme.islandHeight],
     notice:  [400, noticeHeight()],
@@ -196,6 +211,7 @@ Item {
       opacity: root.shown === "hub" ? 1 : 0
       Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
       onPower: root.openView("power")
+      onManager: { root.collapse(); ShellSettings.managerOpen = true; }
       onSettings: id => {
         root.collapse();
         root.settings(id);
@@ -286,6 +302,29 @@ Item {
       }
     }
 
+    LauncherPanel {
+      id: islandLauncher
+      inIsland: true
+      anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+      width: root.sizes.launcher[0]
+      visible: opacity > 0
+      opacity: root.shown === "launcher" ? 1 : 0
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
+      onBack: root.appBack()
+      onFinished: root.collapse()
+    }
+
+    KeybindsPanel {
+      id: islandKeybinds
+      inIsland: true
+      anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+      width: root.sizes.keybinds[0]
+      visible: opacity > 0
+      opacity: root.shown === "keybinds" ? 1 : 0
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
+      onBack: root.appBack()
+    }
+
     IslandPower {
       id: power
       anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
@@ -304,7 +343,7 @@ Item {
   readonly property Item bubble: bubble
   Rectangle {
     id: bubble
-    readonly property bool on: root.shown === "module" && root.fromHub
+    readonly property bool on: (root.shown === "module" || root.appView) && root.fromHub
     anchors { right: shape.left; rightMargin: Theme.gapMedium * bubble.reveal - Theme.islandHeight * (1 - bubble.reveal) }
     y: 0
     width: Theme.islandHeight
@@ -399,6 +438,8 @@ Item {
   // ---- keys ----
   onViewChanged: {
     if (view === "power") power.reset();
+    if (view === "launcher") islandLauncher.reset();
+    if (view === "keybinds") islandKeybinds.reset();
     // the screen whose hub is open: a capture starts at once, the hub stays in the still
     const mine = bar.screen?.name ?? "";
     if (view === "hub") PopupManager.hubScreen = mine;
@@ -423,7 +464,7 @@ Item {
 
   HyprlandFocusGrab {
     windows: [root.bar]
-    active: root.grabbing && !PopupManager.holding
+    active: root.takesKeys && !PopupManager.holding
     onCleared: root.collapse()
   }
 }

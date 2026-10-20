@@ -1,0 +1,92 @@
+import QtQuick
+import qs.apps.display
+import qs.config
+import qs.kit
+
+// Displays: the arrangement of the monitors (drag or arrow keys), then the
+// picked monitor's scale (a slider whose stops are the scales it offers),
+// refresh rate and position. Choices apply at once; a failure shows at the end.
+// The GTK apps' text size is in Fonts.
+KitColumn {
+  id: root
+
+  readonly property var ds: DisplayService
+  // the monitor the arrangement and the MONITOR group are about
+  property string selected: ""
+  readonly property var current: ds.monitors.find(m => m.name === selected) ?? ds.monitors[0] ?? null
+
+  property real scaleTo: 0
+  Timer { id: scaleLater; interval: Motion.quick + 80; onTriggered: if (root.current) root.ds.setScale(root.current.name, root.scaleTo) }
+
+  function pct(f) { return Math.round(f * 100) + "%"; }
+
+  // the window's fixed header shows these; the page under it scrolls
+  readonly property string icon: "monitor"
+  readonly property string title: "Displays"
+  readonly property string subtitle: ds.monitors.length + (ds.monitors.length === 1 ? " MONITOR" : " MONITORS")
+  readonly property var jumps: [
+    { key: "arrange", label: "Arrange", y: arrangeLabel.y },
+    { key: "monitor", label: "Monitor", y: monitorLabel.y }
+  ]
+
+  // shown: the monitors as they are now
+  onVisibleChanged: if (visible) ds.refresh()
+
+  KitLabel { id: arrangeLabel; text: "ARRANGE"; value: "DRAG OR ARROWS" }
+
+  MonitorLayout {
+    property bool kitUnboxed: true          // KitGrouper: the board stands on the page
+    width: parent.width
+    height: 170
+    selected: root.current ? root.current.name : ""
+    onPicked: name => root.selected = name
+  }
+
+  KitLabel { id: monitorLabel; text: "MONITOR"; value: root.current ? root.current.name : "" }
+
+  KitSliderRow {
+    id: scaleSlider
+    visible: root.current !== null
+    enabled: !root.ds.busy
+    label: "Scale"
+    snaps: root.current ? root.ds.stops(root.current) : []
+    value: root.current ? root.ds.scalePos(root.current) : 0
+    text: root.current ? root.pct(root.ds.stopAt(root.current, scaleSlider.pressed ? scaleSlider.dragValue : scaleSlider.value)) : ""
+    // the monitor rescales a moment later: the handle reaches the stop first (a
+    // rescale mid-move left it standing where it was)
+    onReleased: value => { root.scaleTo = root.ds.stopAt(root.current, value); scaleLater.restart(); }
+  }
+
+  KitSelect {
+    visible: root.current !== null
+    overlay: true
+    disabled: root.ds.busy
+    label: "Refresh rate"
+    hint: root.current ? root.current.width + "x" + root.current.height : ""
+    model: root.current ? root.current.refreshes.map(r => ({ label: r + " Hz", value: r })) : []
+    current: root.current ? root.current.refresh : null
+    busy: root.current !== null && root.ds.working === "rate:" + root.current.name
+    onPicked: value => root.ds.setRate(root.current.name, value)
+  }
+
+  KitRow {
+    visible: root.current !== null
+    label: "Position"
+    hint: "Logical pixels, from the top left"
+
+    KitText {
+      text: root.current ? root.current.x + ", " + root.current.y : ""
+      color: Theme.muted
+    }
+  }
+
+  KitText {
+    visible: root.ds.error !== ""
+    width: parent.width
+    text: root.ds.error
+    color: Theme.red
+    wrapMode: Text.WordWrap
+  }
+
+  KitGrouper {}
+}

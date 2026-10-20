@@ -6,6 +6,7 @@ import qs.config
 Item {
   id: root
 
+  readonly property bool isKitLabel: true   // KitGrouper: starts a group
   property string text: ""
   property string value: ""
   property color valueColor: Theme.muted

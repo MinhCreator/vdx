@@ -17,7 +17,7 @@ KitFrame {
 
   readonly property var dots: ["red", "orange", "yellow", "green", "aqua", "blue", "purple"]
   readonly property string query: search.text.trim().toLowerCase()
-  readonly property var matches: ThemeService.themes.filter(t => query === "" || t.toLowerCase().includes(query))
+  readonly property var matches: ThemeService.inMode.filter(t => query === "" || t.toLowerCase().includes(query))
 
   readonly property string viewOption: ModuleSettings.get("themes", "view", "auto")
   readonly property bool cards: viewOption === "cards" || (viewOption === "auto" && inIsland)
@@ -75,7 +75,7 @@ KitFrame {
     visible: !root.bare
     icon: "palette"
     title: "Themes"
-    subtitle: (ThemeService.current || "—").toUpperCase() + " · " + ThemeService.themes.length + " THEMES"
+    subtitle: (ThemeService.current || "—").toUpperCase() + " · " + ThemeService.inMode.length + " THEMES"
 
     // the view, switched here and kept (Modules › Themes too)
     Row {

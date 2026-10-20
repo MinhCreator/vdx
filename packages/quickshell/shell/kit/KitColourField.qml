@@ -23,10 +23,14 @@ Rectangle {
 
   implicitHeight: Theme.controlHeight
   radius: Theme.radiusControl
-  color: input.activeFocus || hover.hovered ? Theme.controlHover : Theme.controlFill
+  // set once: whether it sits in a Settings box (a walk up, not a binding)
+  property bool boxed: false
+  color: input.activeFocus || hover.hovered ? Theme.hoverOn(boxed) : Theme.fillOn(boxed)
   border.width: Theme.frameWidth
   border.color: input.activeFocus || hover.hovered ? Theme.foreground2 : Theme.gray
   Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+
+  KitFieldLine { active: input.activeFocus }
 
   HoverHandler { id: hover; cursorShape: Qt.IBeamCursor }
 
@@ -34,7 +38,7 @@ Rectangle {
     if (!input.activeFocus) input.text = value;
     if (valid) saved = colour;
   }
-  Component.onCompleted: input.text = value
+  Component.onCompleted: { boxed = Theme.boxed(parent); input.text = value; }
 
   Rectangle {
     id: chip

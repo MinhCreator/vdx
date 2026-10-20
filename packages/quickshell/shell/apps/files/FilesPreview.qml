@@ -9,14 +9,14 @@ Rectangle {
   required property var files   // the Files window
 
   radius: Theme.radiusCard
-  color: "transparent"
-  border.width: FilesService.frames ? Theme.windowFrameWidth : 0
-  border.color: Theme.popupFrame
+  color: Theme.background1
+  border.width: Theme.frameWidth
+  border.color: Theme.background2
   clip: true
 
   Item {
     id: previewBox
-    anchors { fill: parent; margins: Theme.gapSmall }
+    anchors { fill: parent; margins: Theme.gapWide }
 
     Column {
       id: facts

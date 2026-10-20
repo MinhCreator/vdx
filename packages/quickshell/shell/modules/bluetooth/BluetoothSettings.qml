@@ -17,4 +17,6 @@ Column {
     hint: "Devices and pairing: Bluetooth"
     target: "bluetooth"
   }
+
+  KitGrouper {}
 }

@@ -32,9 +32,6 @@
   "search",
   "text"
  ],
- "apps/display/DisplayBarSettings.qml": [
-  "text"
- ],
  "apps/packages/PackagesSettings.qml": [
   "aur",
   "cacheView",

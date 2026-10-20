@@ -1,6 +1,6 @@
 # 07 — File manager: storage home page, custom sidebar, fewer frames
 
-Status: Not started · Depends on: 02-A (listing fixes land first, same files) ·
+Status: Implemented, partially verified (A and B and C in code; the owner approved all three on 2026-10-20; drag, pin and hide not clicked through here; C's screenshot check is the owner's) · Depends on: 02-A (listing fixes land first, same files) ·
 Spec: §8. Shell paths are under `packages/quickshell/shell/`.
 Three parts, run in order A → B → C or independently (they touch different files mostly; A and B both touch `FilesSidebar.qml` — not in parallel).
 
@@ -14,7 +14,9 @@ Three parts, run in order A → B → C or independently (they touch different f
 
 ## Part A — Home page with storage overview
 
-Category: B · Gate: proposal (what is shown, data source) approved.
+Category: B · Gate: proposal approved (2026-10-20).
+
+Done: `files.py volumes` (`volumes_from` tested with fake findmnt and lsblk data in `tests/test_files.py`); "This computer" in the sidebar (`apps/files/FilesComputer.qml`): a card per filesystem with used / free bars, unmounted removable drives mount on a click; checked against `df` on this machine; udisks2 events (`udisksctl monitor`) read the devices again instead of a 3 s poll.
 
 - Proposal: a "This computer" view (sidebar entry + start-folder option?) listing
   filesystems the user can open: mounted local filesystems (from
@@ -34,7 +36,9 @@ appears/disappears; unmounted partition mounts on click; no pseudo fs.
 
 ## Part B — Customisable sidebar
 
-Category: B · Gate: proposal approved.
+Category: B · Gate: proposal approved (2026-10-20).
+
+Done: one ordered list (`FilesService.sidebarItems`, stored as `sidebar` in `modules.json`): drag a row to reorder, right click to hide or unpin (a default is hidden, a folder unpinned), a folder's right click › Pin to sidebar, Settings › SIDEBAR with a switch per item and Restore defaults; devices stay automatic; the empty state. Bookmarks migrated by `settings_migrate.py` version 2 (tested).
 
 - Audit current sections (places from backend, bookmarks, devices) and actions (bookmark/unbookmark).
 - Proposal: one ordered list of pinned entries (places + bookmarks), show/hide per default place, drag to reorder, add current folder, remove, "Restore defaults"; devices section stays automatic.
@@ -45,7 +49,9 @@ Acceptance: order survives restart; hide/show default places; restore defaults; 
 
 ## Part C — Remove redundant frames
 
-Category: A (visual, needs owner look) · Gate: one screen prototype approved (`shell/CLAUDE.md`: new look on one surface first).
+Category: A (visual, needs owner look) · Gate: one screen prototype approved (owner approved removing the frames option, 2026-10-20).
+
+Done: the `frames` option and its migration are gone; the pane frames of the sidebar, the list, the columns and the preview are removed. The column dividers, the caption line and the drag strips stay (they separate data or resize panes); popups keep theirs.
 
 - Inventory frames in `apps/files/` (KitFrame, borders, `frames` setting from 2026-10-18).
 - Keep frames that separate panes the user resizes; replace decorative ones with spacing / `KitLine` per the popup rule "no backgrounds under groups".

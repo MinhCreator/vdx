@@ -37,4 +37,6 @@ KitColumn {
     label: "Report button"; hint: "Opens the page or copies link"
     model: [{ label: "Browser", value: "browser" }, { label: "Copy link", value: "copy" }]
   }
+
+  KitGrouper {}
 }
