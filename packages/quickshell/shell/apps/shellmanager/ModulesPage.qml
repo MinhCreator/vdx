@@ -52,14 +52,13 @@ Column {
   Row {
     width: parent.width
     height: root.height
-    spacing: 18
+    spacing: Theme.gapGroup
 
     // ---- list: like the theme list — title, search, a framed list ----
     EntryList {
       id: list
       width: Theme.sideWidth
       height: parent.height - Theme.windowPadding
-      title: "MODULES"
       model: root.listed.map(p => Object.assign({ off: !BarLayout.installed(p.id) }, p))
       selected: root.selected
       onPicked: id => root.jump(id)

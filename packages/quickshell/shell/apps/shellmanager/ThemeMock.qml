@@ -16,7 +16,8 @@ ClippingRectangle {
 
   function col(role) { return c[role] ?? Theme[role]; }
 
-  radius: Theme.radiusControl
+  // a card's share of the radius, not its height's: a small card stays a card, not a pill
+  radius: Math.round(Theme.radiusCard * 0.6)
   color: col("background1")
 
   // the theme's own picture (Appearance › Wallpaper › Image)
@@ -36,7 +37,7 @@ ClippingRectangle {
     y: parent.height * 0.16
     width: parent.width
     height: parent.height
-    radius: Theme.radiusControl
+    radius: Math.round(Theme.radiusCard * 0.4)
     color: root.col("background0")
     border.width: 1
     border.color: root.col("background3")
@@ -76,7 +77,7 @@ ClippingRectangle {
           Rectangle {
             required property string modelData
             width: 24 * root.k; height: 16 * root.k
-            radius: Math.min(4 * root.k, Theme.radiusControl)
+            radius: Theme.radiusFor(height)
             color: root.col("background2")
             Rectangle { anchors.centerIn: parent; width: 9 * root.k; height: 3 * root.k; radius: height / 2; color: root.col(parent.modelData) }
           }

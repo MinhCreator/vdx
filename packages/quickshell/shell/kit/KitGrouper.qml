@@ -147,12 +147,10 @@ Item {
     Rectangle {
       required property real modelData
       x: root.padX - root.x
-      y: modelData - root.y
+      y: Math.round(modelData - root.y)    // on a whole pixel: a sharp hairline
       width: root.column ? root.column.width - 2 * root.padX : 0
       height: 1
       color: Theme.background2
-      layer.enabled: true
-      layer.smooth: false
     }
   }
 }

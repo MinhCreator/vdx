@@ -19,7 +19,10 @@ Row {
   // the theme in the preview; Apply makes it the active one
   property string selected: ThemeService.current
   readonly property bool changed: selected !== ThemeService.current
-  readonly property var c: ThemeService.colors[selected] ?? ({})
+  // the preview's own mode (only the preview: the desktop and Apply keep the active one's)
+  property bool previewLight: ThemeService.light
+  readonly property string previewed: ThemeService.variant(selected, previewLight)
+  readonly property var c: ThemeService.colors[previewed] ?? ({})
   readonly property var accents: ["red", "orange", "yellow", "green", "aqua", "blue", "purple"]
 
   function col(role) { return c[role] ?? Theme[role]; }
@@ -49,7 +52,7 @@ Row {
   spacing: Theme.gapGroup
 
   // shown: the keys go to the list, the preview starts at the active theme
-  onVisibleChanged: if (visible) { selected = ThemeService.current; search.input.forceActiveFocus(); }
+  onVisibleChanged: if (visible) { selected = ThemeService.current; previewLight = ThemeService.light; search.input.forceActiveFocus(); }
 
   // ---- the search and the list ----
   Column {
@@ -185,20 +188,32 @@ Row {
         spacing: Theme.gapTight
         KitText { text: ThemeService.baseOf(root.selected); font.weight: Font.ExtraBold; font.pixelSize: Theme.fontSize + 2 }
         KitText {
-          text: (root.isLight(root.selected) ? "Light" : "Dark")
+          text: (root.isLight(root.previewed) ? "Light" : "Dark")
                 + (root.changed ? " · enter applies, esc goes back" : " · in use")
           color: Theme.muted
           font.pixelSize: Theme.fontSize - 2
         }
       }
 
-      KitButton {
+      Row {
         anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+        spacing: Theme.gapSmall
+
+      // the preview in the theme's dark or light twin
+      KitSegments {
+        width: 150
+        model: [{ label: "Dark", value: false }, { label: "Light", value: true }]
+        current: root.previewLight
+        onPicked: value => root.previewLight = value
+      }
+
+      KitButton {
         visible: root.changed
         icon: "check"
         text: "Apply"
         busy: ThemeService.busy
         onClicked: root.apply()
+      }
       }
     }
 
@@ -297,7 +312,7 @@ Row {
                 required property var modelData
                 width: chipText.implicitWidth + 20
                 height: 24
-                radius: Theme.radiusControl
+                radius: Theme.radiusFor(height)
                 color: root.col(modelData[1])
                 Text {
                   id: chipText
@@ -316,13 +331,13 @@ Row {
             anchors { right: parent.right; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
             width: 34
             height: 18
-            radius: Math.min(Theme.radiusControl, height / 2)
+            radius: Theme.pill(height)
             color: root.col("foreground0")
             Rectangle {
               anchors { right: parent.right; rightMargin: 3; verticalCenter: parent.verticalCenter }
               width: 12
               height: 12
-              radius: Math.min(Theme.radiusControl, height / 2)
+              radius: Theme.pill(height)
               color: root.col("background0")
             }
           }

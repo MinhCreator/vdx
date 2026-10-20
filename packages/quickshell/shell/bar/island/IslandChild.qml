@@ -69,7 +69,7 @@ Rectangle {
 
   width: popupShown ? Math.max(Theme.popupWidth, popupContent?.implicitWidth ?? 0) : kids.width + 2 * pad
   height: popupShown ? (popupContent?.implicitHeight ?? band) : band
-  radius: Theme.island ? Math.min(height / 2, Theme.islandRadius) : Theme.radiusControl
+  radius: Theme.island ? Math.min(Theme.barRadiusFor(height), Theme.islandRadius) : Theme.radiusControl
   color: Theme.island ? Theme.background0 : Theme.background1
   border.width: Theme.island ? Theme.islandFrameWidth : 0
   border.color: Theme.background2

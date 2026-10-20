@@ -912,13 +912,37 @@
   "target": "appearance:shape"
  },
  {
-  "label": "Window radius",
+  "label": "Radius",
   "hint": "",
   "where": "Appearance",
   "target": "appearance:shape"
  },
  {
-  "label": "Controls radius",
+  "label": "Separately",
+  "hint": "A slider per part, in one proportion",
+  "where": "Appearance",
+  "target": "appearance:shape"
+ },
+ {
+  "label": "Windows and popups",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:shape"
+ },
+ {
+  "label": "Cards and boxes",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:shape"
+ },
+ {
+  "label": "Controls",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:shape"
+ },
+ {
+  "label": "Bar",
   "hint": "",
   "where": "Appearance",
   "target": "appearance:shape"
@@ -1466,6 +1490,12 @@
  {
   "label": "Shows",
   "hint": "",
+  "where": "Bar modules › Battery › BAR",
+  "target": "modules:battery"
+ },
+ {
+  "label": "Plus while charging",
+  "hint": "56+",
   "where": "Bar modules › Battery › BAR",
   "target": "modules:battery"
  },

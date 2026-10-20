@@ -30,7 +30,7 @@ KitColumn {
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   // the header's Reset: these ShellSettings keys back to their defaults (the theme, the font and the cursor are on their pages)
-  readonly property var resetKeys: ["solidIcons", "wallpaperMode", "wallpaperColor", "wallpaperImages", "wallpaperOutputs", "corners", "cornerRadius", "controlRadius", "material", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere"]
+  readonly property var resetKeys: ["solidIcons", "wallpaperMode", "wallpaperColor", "wallpaperImages", "wallpaperOutputs", "corners", "cornerRadius", "cornerSplit", "cornerRadii", "material", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere"]
   readonly property bool changed: ShellSettings.changed(resetKeys)
   function reset() { ShellSettings.reset(resetKeys); }
 

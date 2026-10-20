@@ -2,15 +2,15 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// The list on the left of Modules and Shell apps: a caps title with the
-// count, a search (typing jumps to the first match, arrows move through the
-// matches) and a framed list of entries {id, label, icon, link?, off?}; the
-// chosen one filled and bold, a link (set elsewhere) muted with an arrow, an
-// entry that is off (not installed) muted. A click or an arrow emits picked(id).
+// The list on the left of Bar modules and Apps, drawn as the Themes page's: a
+// search (typing jumps to the first match, arrows move through the matches),
+// then the entries {id, label, icon, link?, off?} in one raised box down to the
+// pane's foot; the chosen one filled and bold, a link (set elsewhere) muted with
+// an arrow, an entry that is off (not installed) muted. A click or an arrow
+// emits picked(id).
 Column {
   id: root
 
-  property string title: ""
   property var model: []
   property string selected: ""
   signal picked(string id)
@@ -25,12 +25,6 @@ Column {
   width: Theme.sideWidth
   height: parent.height
   spacing: Theme.gapMedium
-
-  KitLabel {
-    width: parent.width
-    text: root.title
-    value: String(root.model.length)
-  }
 
   // typing jumps to the first match, arrows move through the matches
   KitInput {
@@ -47,15 +41,15 @@ Column {
   }
 
   Rectangle {
-    radius: Theme.radiusControl
+    radius: Theme.radiusCard
     width: parent.width
-    height: Math.min(root.height - y, rows.implicitHeight + 2 * Theme.frameWidth)
-    color: Theme.background0
+    height: root.height - y
+    color: Theme.background1
     border.width: Theme.frameWidth
-    border.color: Theme.gray
+    border.color: Theme.background2
 
     Flickable {
-      anchors { fill: parent; margins: Theme.frameWidth }
+      anchors { fill: parent; margins: Theme.gapSmall }
       contentHeight: rows.implicitHeight
       interactive: contentHeight > height
       clip: true
@@ -64,6 +58,7 @@ Column {
       Column {
         id: rows
         width: parent.width
+        spacing: Theme.gapTight
 
         Repeater {
           model: root.matches
@@ -77,13 +72,13 @@ Column {
             readonly property bool active: modelData.id === root.selected
 
             width: rows.width
-            height: 32
-            color: active ? Theme.background3 : rowArea.containsMouse ? Theme.controlHover : Theme.clear
+            height: 34
+            color: active ? Theme.background3 : rowArea.containsMouse ? Theme.background2 : Theme.clear
             Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
             KitIcon {
               id: rowIcon
-              anchors { left: parent.left; leftMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
+              anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               name: row.modelData.icon
               tint: row.active ? Theme.foreground0 : row.modelData.link || row.modelData.off ? Theme.muted : Theme.foreground2
               size: Theme.iconSmall

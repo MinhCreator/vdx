@@ -159,7 +159,7 @@ Item {
     anchors.horizontalCenter: parent.horizontalCenter
     width: root.size[0]
     height: root.size[1]
-    radius: Math.min(height / 2, Theme.islandRadius)
+    radius: Math.min(Theme.barRadiusFor(height), Theme.islandRadius)
     color: Theme.background0
     border.width: Theme.islandFrameWidth
     border.color: Theme.background2
@@ -348,7 +348,7 @@ Item {
     y: 0
     width: Theme.islandHeight
     height: Theme.islandHeight
-    radius: Math.min(height / 2, Theme.islandRadius)
+    radius: Math.min(Theme.barRadiusFor(height), Theme.islandRadius)
     color: backArea.containsMouse ? Theme.background1 : Theme.background0
     Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
     border.width: Theme.islandFrameWidth

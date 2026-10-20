@@ -115,7 +115,7 @@ Item {
         y: last ? controls.y + last.y : 0
         width: last ? last.width : 0
         height: last ? last.height : 0
-        radius: Theme.round ? height / 2 : 0
+        radius: Theme.pill(height)
         color: Theme.background2
         opacity: target ? 1 : 0
 

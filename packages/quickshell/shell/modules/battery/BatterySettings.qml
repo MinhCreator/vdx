@@ -17,5 +17,13 @@ Column {
     model: [{ label: "Icon and charge", value: "both" }, { label: "Charge only", value: "charge" }]
   }
 
+  // with the icon gone, a plus says it is charging
+  KitToggleRow {
+    visible: ModuleSettings.get("battery", "text", "content") === "content" && ModuleSettings.get("battery", "shows", "both") === "charge"
+    module: "battery"; key: "plus"; fallback: true
+    label: "Plus while charging"
+    hint: "56+"
+  }
+
   KitGrouper {}
 }

@@ -5,13 +5,13 @@ import qs.kit
 // Appearance › SHAPE (with IconsSection): sharp or round, for
 // the whole shell — popups, windows, controls, rows, the island, the icons (the
 // Rounded set). Round sets one radius on a ticked slider; smaller things take a
-// share of it (Theme). The group's label lives in AppearancePage.
+// share of it (Theme). Separately: a slider per part (windows, cards, controls,
+// the bar), each read in the same proportion. The group's label lives in AppearancePage.
 KitColumn {
   id: root
 
   readonly property var stops: Theme.cornerStops
   readonly property bool round: ShellSettings.corners === "round"
-  readonly property var controlStops: [0, 2, 4, 6, 8, 10, 12, 14, 16]
 
   spacing: Theme.gapGroup
 
@@ -30,31 +30,57 @@ KitColumn {
     }
   }
 
-  // the stops are evenly spaced ticks; a drag snaps from one to the next
+  // a radius on the ticks: index <-> px
+  function pos(px) { return Math.max(0, stops.indexOf(px)) / (stops.length - 1); }
+  function px(p) { return stops[Math.round(p * (stops.length - 1))]; }
+
+  // the one slider: every part; hidden with Separately (turning it off brings this one back)
   KitSliderRow {
     id: radius
-    visible: root.round
-    label: "Window radius"
+    visible: root.round && !ShellSettings.cornerSplit
+    label: "Radius"
     snaps: root.stops.map((s, i) => i / (root.stops.length - 1))
-    value: Math.max(0, root.stops.indexOf(ShellSettings.cornerRadius)) / (root.stops.length - 1)
-    text: root.stops[Math.round((radius.pressed ? radius.dragValue : radius.value) * (root.stops.length - 1))] + " px"
+    value: root.pos(ShellSettings.cornerRadius)
+    text: root.px(radius.pressed ? radius.dragValue : radius.value) + " px"
     onMoved: value => {
-      const px = root.stops[Math.round(value * (root.stops.length - 1))];
+      const px = root.px(value);
       if (px !== ShellSettings.cornerRadius) ShellSettings.set("cornerRadius", px);
     }
   }
 
-  // controls (buttons, fields, switches) take their own radius, 0-16 px
-  KitSliderRow {
-    id: controlRadius
+  KitRow {
     visible: root.round
-    label: "Controls radius"
-    snaps: root.controlStops.map((s, i) => i / (root.controlStops.length - 1))
-    value: Math.max(0, root.controlStops.indexOf(ShellSettings.controlRadius)) / (root.controlStops.length - 1)
-    text: root.controlStops[Math.round((controlRadius.pressed ? controlRadius.dragValue : controlRadius.value) * (root.controlStops.length - 1))] + " px"
-    onMoved: value => {
-      const px = root.controlStops[Math.round(value * (root.controlStops.length - 1))];
-      if (px !== ShellSettings.controlRadius) ShellSettings.set("controlRadius", px);
+    label: "Separately"
+    hint: "A slider per part, in one proportion"
+
+    KitSwitch {
+      checked: ShellSettings.cornerSplit
+      onToggled: ShellSettings.set("cornerSplit", !ShellSettings.cornerSplit)
+    }
+  }
+
+  // a part on its own: the same tick looks the same on every part (the px differ)
+  Repeater {
+    model: [
+      { part: "windows",  label: "Windows and popups", px: r => r },
+      { part: "cards",    label: "Cards and boxes",    px: r => Math.round(r * 0.6) },
+      { part: "controls", label: "Controls",           px: r => Theme.scaled(Theme.controlHeight, r) },
+      { part: "bar",      label: "Bar",                px: r => Theme.scaled(Theme.islandHeight, r) }
+    ]
+
+    KitSliderRow {
+      id: part
+      required property var modelData
+      readonly property int r: ShellSettings.cornerRadii[modelData.part] ?? ShellSettings.cornerRadius
+      visible: root.round && ShellSettings.cornerSplit
+      label: modelData.label
+      snaps: root.stops.map((s, i) => i / (root.stops.length - 1))
+      value: root.pos(r)
+      text: modelData.px(root.px(part.pressed ? part.dragValue : part.value)) + " px"
+      onMoved: value => {
+        const px = root.px(value);
+        if (px !== r) ShellSettings.set("cornerRadii", Object.assign({}, ShellSettings.cornerRadii, { [modelData.part]: px }));
+      }
     }
   }
 

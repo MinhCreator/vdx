@@ -68,13 +68,12 @@ Column {
   Row {
     width: parent.width
     height: root.height
-    spacing: 18
+    spacing: Theme.gapGroup
 
     EntryList {
       id: list
       width: Theme.sideWidth
       height: parent.height - Theme.windowPadding
-      title: "APPS"
       model: root.listed.map(e => Object.assign({ off: !ShellAppsService.installed(e) }, e))
       selected: root.selected
       onPicked: id => root.selected = id

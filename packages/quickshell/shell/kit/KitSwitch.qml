@@ -22,7 +22,7 @@ Rectangle {
 
   implicitWidth: m3 ? 44 : 36
   implicitHeight: m3 ? 24 : 20
-  radius: Math.min(Theme.radiusControl, height / 2)   // Appearance › Corners › Controls
+  radius: Theme.pill(height)
   border.width: m3 ? (checked ? 0 : 2) : hovered ? Theme.frameWidth : 0
   border.color: m3 ? Theme.gray : Theme.foreground2
   opacity: disabled ? 0.4 : 1
@@ -63,7 +63,7 @@ Rectangle {
 
     width: size
     height: size
-    radius: Math.min(Theme.radiusControl, height / 2)
+    radius: Theme.pill(height)
     anchors.verticalCenter: parent.verticalCenter
     x: root.m3 ? (root.checked ? root.width - root.height / 2 : root.height / 2) - size / 2
                : root.checked ? root.width - width - edge : edge

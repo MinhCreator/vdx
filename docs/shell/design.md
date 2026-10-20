@@ -14,7 +14,13 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 - Corners: Appearance › Shape › Corners (sharp | round + one radius). A radius is
   always a token: `Theme.radiusSurface` (popups, windows, panels),
   `radiusCard` (tiles, previews, cards), `radiusControl` (buttons, fields,
-  rows, checkboxes), `Theme.pill(h)` (tracks, knobs, dots); all 0 when sharp.
+  rows, checkboxes), `Theme.pill(h)` / `radiusFor(h)` (tracks, knobs, switches, the
+  resting island); all 0 when sharp. One slider (R) sets them all in proportion:
+  surface R, card 0.6 R, a thing h high h × R / 48 (pills only at the top stop).
+  Separately: a slider per part (windows, cards, controls, the bar), each R read the
+  same way (`Theme.cornerOf(part)`), so one tick looks alike on every part; the
+  one slider hides while they show.
+  No literal `height / 2` for a corner.
   An image in a rounded tile sits in a `ClippingRectangle`.
 - Controls: Appearance › Style (Terminal | Material). A control's frame is
   `Theme.frameWidth` (0 in material), its fill `Theme.controlFill` /
@@ -121,13 +127,19 @@ Added by task 05 ([decision 0002](../decisions/0002-settings-ia.md)); the look
   written in itself, its state (in use, installed, not installed: a second click
   downloads). Cursor: its shapes large, colour and size, a card per cursor theme;
   a pick waits for Apply.
+- MUST — a page's side list (Apps, Bar modules, Themes) is one look: a search
+  field, then the entries in one raised box (`background1`, `radiusCard`) to the
+  pane's foot; rows `radiusControl`, picked `background3` + ExtraBold, hover
+  `background2`. Apps and Bar modules use `EntryList`; a new list copies it.
 - A pick list longer than a few rows is a page of cards, not a long select; a
   `KitSelect` shows `maxRows` and scrolls, a choice's `note` says its state.
 - MUST — colour: `KitColourPicker` is one low panel in a row: a saturation ×
   brightness square, a vertical hue strip, palette tiles in two rows filling its
   height (the picked one has a ring; a tile that is not a plain colour — the theme's,
-  your own — has an icon, `icons`). Window frames (off | theme | accent) are in
-  Appearance › Shape; Controls radius (Shape) rounds every control.
+  your own — has an icon, `icons`). Window frames (off | theme | accent) are
+  in Windows › Look.
+- A caption over a slider (an app's name, a device) sits `gapMedium` above it;
+  never `gapTight`.
 - Sliders in a box use the row layout (label left, value right). A snapped slider
   always shows its stops, at most 11 (every n-th of a long run). Controls ›
   Material draws Material 3's slider (thick track split by a bar handle, stops as

@@ -150,7 +150,7 @@ KitFrame {
         KitAppear { target: stream; seen: root.seen; key: String(stream.modelData.id) }
 
         width: parent.width
-        spacing: Theme.gapTight
+        spacing: Theme.gapMedium          // a caption over its slider
 
         KitText {
           width: parent.width

@@ -108,9 +108,9 @@ QtObject {
   readonly property int islandTop: 6
   readonly property int islandHeight: 32
   readonly property int islandFrameWidth: 1      // either control style: it floats over windows
-  // the island's corners: half again a popup's, so it follows the slider; the
-  // resting pill no rounder than a half circle (sharp: 0)
-  readonly property int islandRadius: Math.round(radiusSurface * 1.5)
+  // the island's corners: in proportion while small (radiusFor), no more than
+  // half again a popup's when open (sharp: 0)
+  readonly property int islandRadius: round ? Math.round(cornerOf("bar") * 1.5) : 0
   readonly property int barEdge: island ? islandTop + islandHeight : barHeight
 
   // ---- controls (Appearance › Controls) ----
@@ -130,15 +130,27 @@ QtObject {
   readonly property color popupFrame: material ? background2 : frame
 
   // ---- corners (Appearance › Corners) ----
-  // sharp: all 0. round: a surface takes the chosen radius, smaller things a
-  // share of it, so one slider moves the whole shell in proportion
+  // sharp: all 0. round: one slider (Corners › Radius, R) sets every corner in
+  // proportion: a surface takes R, a card 0.6 R, and anything of height h
+  // (controls, tracks, knobs, the resting island) h × R / 48 — at the largest
+  // stop (24) all of them are pills, at the smallest a hint of a curve
   readonly property bool round: ShellSettings.corners === "round"
   readonly property var cornerStops: [4, 8, 12, 16, 20, 24]    // the slider's ticks, px
-  readonly property int radiusSurface: round ? ShellSettings.cornerRadius : 0   // popups, windows, the open island
-  readonly property int radiusCard: Math.round(radiusSurface * 0.6)              // tiles, chips, picked rows
-  readonly property int radiusControl: round ? ShellSettings.controlRadius : 0   // buttons, fields, selects, switches (its own slider)
-  // a pill of height h (tracks, knobs, the resting island): fully round or square
-  function pill(h) { return round ? h / 2 : 0; }
+  // a part's R: the one slider's, or the part's own (Corners › Separately). The
+  // parts read one R the same way, so the same R looks the same on each
+  function cornerOf(part) {
+    return ShellSettings.cornerSplit ? (ShellSettings.cornerRadii[part] ?? ShellSettings.cornerRadius) : ShellSettings.cornerRadius;
+  }
+  function scaled(h, r) { return round ? Math.round(Math.min(h / 2, h * r / 48)) : 0; }
+  readonly property int radiusSurface: round ? cornerOf("windows") : 0             // popups, windows, panels
+  readonly property int radiusCard: round ? Math.round(cornerOf("cards") * 0.6) : 0 // tiles, boxes, picked rows
+  readonly property int radiusControl: radiusFor(controlHeight)                    // buttons, fields, selects, segments
+  // the corner of a control h px high, in proportion to its R; never past a half circle
+  function radiusFor(h) { return scaled(h, cornerOf("controls")); }
+  // the bar's: the island and its child bars
+  function barRadiusFor(h) { return scaled(h, cornerOf("bar")); }
+  // tracks, knobs, switches: the same proportion (a pill only at the largest radius)
+  function pill(h) { return radiusFor(h); }
 
   // ---- popups (kit) ----
   // the dimmed screen under the launcher, the keybinds and the overview

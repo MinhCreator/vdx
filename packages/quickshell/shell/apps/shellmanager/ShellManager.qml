@@ -182,6 +182,9 @@ Rectangle {
 
   color: Theme.background0
 
+  // the gap under the header line, the sidebar's and the page's alike
+  readonly property int contentGap: Theme.gapGroup
+
   // ---- navigation ----
   Rectangle {
     id: sidebar
@@ -209,7 +212,8 @@ Rectangle {
     KitInput {
       id: searchField
       x: Theme.windowPadding
-      y: brand.y + brand.height + Theme.gapMedium
+      // level with the page's first row (pages.y under the header): one top for both columns
+      y: brand.y + brand.height + root.contentGap
       width: nav.width
       placeholder: "search"
       passKeys: [Qt.Key_Up, Qt.Key_Down]
@@ -489,7 +493,7 @@ Rectangle {
     anchors { left: sidebar.right; leftMargin: 1; right: parent.right; top: header.bottom; bottom: parent.bottom }
     // to the window's edge: the rows scroll out of it, not out of a line above it
     // Apps, Bar modules and Themes fill the window and scroll their panes themselves: the page stays
-    contentHeight: apps.visible || modules.visible || themes.visible ? height : pages.implicitHeight + pages.y + 20 + Theme.windowPadding
+    contentHeight: apps.visible || modules.visible || themes.visible ? height : pages.implicitHeight + pages.y + Theme.windowPadding
     clip: true
     boundsBehavior: Flickable.StopAtBounds
     interactive: contentHeight > height
@@ -515,7 +519,7 @@ Rectangle {
       id: pages
       x: 24 + 16 * (1 - pageIn.shown)
       opacity: pageIn.shown
-      y: Theme.gapGroup
+      y: root.contentGap
       width: page.width - 48
       implicitHeight: Math.max(appearance.visible ? appearance.implicitHeight : 0,
                                bar.visible ? bar.implicitHeight : 0,
