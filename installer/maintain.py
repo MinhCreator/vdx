@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import shutil
@@ -92,6 +93,22 @@ def getcap(path: str) -> str:
     return subprocess.run(["getcap", path], capture_output=True, text=True).stdout
 
 
+def hypr_config_errors() -> str:
+    """hyprctl configerrors of the running Hyprland. A terminal opened before Hyprland
+    restarted keeps the old HYPRLAND_INSTANCE_SIGNATURE: then the one live instance is asked."""
+    r = subprocess.run(["hyprctl", "configerrors"], capture_output=True, text=True)
+    if r.returncode == 0:
+        return r.stdout.strip()
+    try:
+        live = json.loads(subprocess.run(["hyprctl", "instances", "-j"], capture_output=True, text=True).stdout)
+    except ValueError:
+        live = []
+    if len(live) != 1:
+        return ""
+    r = subprocess.run(["hyprctl", "-i", live[0]["instance"], "configerrors"], capture_output=True, text=True)
+    return r.stdout.strip() if r.returncode == 0 else ""
+
+
 def health(ctx: steps.Ctx) -> list[tuple[str, str, str]]:
     """(level, what, fix) for what setup's plan can't see; level is err or warn."""
     out = []
@@ -109,9 +126,10 @@ def health(ctx: steps.Ctx) -> list[tuple[str, str, str]]:
     for unit in ctx.each("services") if running else []:
         if steps.enabled(unit) == "enabled" and not steps.active(unit):
             out.append(("err", f"{unit} is enabled but not running", f"systemctl status {unit}"))
+    # a user unit may be stopped on purpose (the shell's music switch stops mpd): only a failed one is wrong
     for unit in ctx.each("user_services") if steps.systemd_running(user=True) else []:
-        if steps.enabled(unit, True) == "enabled" and not steps.active(unit, True):
-            out.append(("err", f"{unit} (--user) is enabled but not running", f"systemctl --user status {unit}"))
+        if steps.enabled(unit, True) == "enabled" and steps.failed(unit, True):
+            out.append(("err", f"{unit} (--user) has failed", f"systemctl --user status {unit}"))
     if ctx.has("vpn") and Path("/usr/bin/mihomo").exists() and "cap_net_admin" not in getcap("/usr/bin/mihomo"):
         out.append(("err", "mihomo lacks its capabilities (TUN, port 53)",
                     "sudo setcap cap_net_admin,cap_net_bind_service=ep /usr/bin/mihomo"))
@@ -123,12 +141,14 @@ def health(ctx: steps.Ctx) -> list[tuple[str, str, str]]:
             out.append(("err", f"the session still has another GPU environment ({', '.join(stale)}): apps it starts "
                                "may fail to show video", "log out of Hyprland and back in"))
         if os.environ.get("HYPRLAND_INSTANCE_SIGNATURE") and shutil.which("hyprctl"):
-            errors = subprocess.run(["hyprctl", "configerrors"], capture_output=True, text=True).stdout.strip()
+            errors = hypr_config_errors()
             if errors and errors != "no errors":
                 out.append(("err", f"Hyprland reports: {errors.splitlines()[0]}", "hyprctl configerrors"))
     if ctx.has("quickshell") and os.environ.get("WAYLAND_DISPLAY") and shutil.which("qs") \
             and "Process ID" not in subprocess.run(["qs", "list", "--all"], capture_output=True, text=True).stdout:
-        out.append(("warn", "the shell is not running", "setsid -f ~/.config/quickshell/shell/scripts/supervise.sh"))
+        # started by Hyprland, the shell gets its environment (a terminal's may be from an older session)
+        out.append(("warn", "the shell is not running",
+                    "hyprctl eval 'hl.exec_cmd(\"~/.config/quickshell/shell/scripts/supervise.sh\")'"))
     if BACKUPS.is_dir() and any(BACKUPS.iterdir()):
         n = sum(1 for _ in BACKUPS.iterdir())
         out.append(("warn", f"{n} backup folder(s) of replaced files", f"look in {short(BACKUPS)}; ./install.py rollback puts them back"))

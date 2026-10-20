@@ -118,6 +118,39 @@ class NoSystemd(unittest.TestCase):
             self.assertEqual(maintain.health(ctx), [])
 
 
+class UserUnits(unittest.TestCase):
+    def health(self, failed):
+        cat = {"music": {"services": [], "user_services": ["mpd.service"]}}
+        ctx = steps.Ctx(None, cat, {"music"}, {"hardware": {}})
+        with mock.patch.object(steps, "systemd_running", return_value=True), \
+             mock.patch.object(steps, "enabled", return_value="enabled"), \
+             mock.patch.object(steps, "active", return_value=False), \
+             mock.patch.object(steps, "failed", return_value=failed), \
+             mock.patch.object(maintain.detect, "hardware", return_value={}), \
+             mock.patch.object(maintain.detect, "environment", return_value={"hyprland": ""}), \
+             mock.patch.object(maintain, "BACKUPS", Path("/nonexistent")):
+            return maintain.health(ctx)
+
+    def test_a_unit_stopped_on_purpose_is_fine(self):
+        self.assertEqual(self.health(failed=False), [])
+
+    def test_a_failed_unit_is_an_error(self):
+        self.assertEqual([what for _, what, _ in self.health(failed=True)], ["mpd.service (--user) has failed"])
+
+
+class HyprErrors(unittest.TestCase):
+    def test_an_old_signature_asks_the_live_instance(self):
+        def run(cmd, **_):
+            if cmd == ["hyprctl", "configerrors"]:
+                return subprocess.CompletedProcess(cmd, 4, "Couldn't connect to ...", "")
+            if cmd[1:] == ["instances", "-j"]:
+                return subprocess.CompletedProcess(cmd, 0, '[{"instance": "live"}]', "")
+            self.assertEqual(cmd, ["hyprctl", "-i", "live", "configerrors"])
+            return subprocess.CompletedProcess(cmd, 0, "no errors\n", "")
+        with mock.patch.object(maintain.subprocess, "run", side_effect=run):
+            self.assertEqual(maintain.hypr_config_errors(), "no errors")
+
+
 class Update(unittest.TestCase):
     def test_setup_runs_in_a_new_process_with_the_same_flags(self):
         def git(*cmd):

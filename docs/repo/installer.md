@@ -36,8 +36,10 @@ environment (Arch, not root, pacman / git / sudo), `check components`,
   changed (only a clean checkout that is behind it), and runs `setup` in a new
   process, so the pulled installer is the one that runs.
 - `doctor` is `check` for the machine: the plan's pending work plus what it
-  can't see — services enabled but not running, mihomo's capabilities,
-  Hyprland's config errors, `machine/` out of step, a session on another
+  can't see — system services enabled but not running, user services that
+  failed (one stopped on purpose, as the shell's music switch stops mpd, is
+  fine), mihomo's capabilities, Hyprland's config errors (a terminal with an
+  older `HYPRLAND_INSTANCE_SIGNATURE` asks the live instance), `machine/` out of step, a session on another
   GPU environment, changed hardware — each with its fix.
 - `uninstall [--system]` removes links, generated files (they carry
   `hypr.MARK`) and, with `--system`, our `/etc` files nobody changed;

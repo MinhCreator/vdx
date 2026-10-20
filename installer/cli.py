@@ -43,7 +43,7 @@ def main() -> None:
     sub.add_parser("cleanup", help="remove stale symlinks only")
     sub.add_parser("status", help="per-package link status")
     sub.add_parser("verify", help="check for broken/missing/stale links")
-    sub.add_parser("check", help="check the repo: links, syntax, themes, components, tests, shell, repo").add_argument(
+    sub.add_parser("check", help="check the repo: links, syntax, themes, components, tests, hypr, shell, repo").add_argument(
         "groups", nargs="*", metavar="group", help=", ".join(CHECKS) + " (default: all)")
     sub.add_parser("bootstrap", help="copy seed templates to ~/.config").add_argument(
         "-f", "--force", action="store_true", help="overwrite existing files")

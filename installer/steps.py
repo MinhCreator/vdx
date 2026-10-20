@@ -293,6 +293,10 @@ def active(unit: str, user: bool = False) -> bool:
     return quiet(["systemctl", *(["--user"] if user else []), "is-active", unit]).stdout.strip() == "active"
 
 
+def failed(unit: str, user: bool = False) -> bool:
+    return quiet(["systemctl", *(["--user"] if user else []), "is-failed", unit]).stdout.strip() == "failed"
+
+
 class Services(Step):
     name, title = "services", "Services"
 
