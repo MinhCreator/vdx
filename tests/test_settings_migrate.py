@@ -45,8 +45,7 @@ class Migrate(unittest.TestCase):
                                                "radio": {"titleLength": 45}}})
         self.run_it()
         v = self.read("modules.json")["values"]
-        self.assertEqual(v["yandex"], {"titleLength": 60, "show": "icon"})
-        self.assertEqual(v["radio"], {"titleLength": 45})
+        self.assertEqual(v, {"music": {"show": "icon", "titleLength": 60}})
 
     def test_layout_ids_renamed_and_roles_kept(self):
         self.write("layout.json", {"hidden": ["claude"], "screens": {
@@ -101,24 +100,34 @@ class Migrate(unittest.TestCase):
         self.run_it()
         self.assertEqual(self.read("modules.json")["values"]["files"]["sidebar"], kept)
 
-    def test_music_options_become_yandex(self):
+    def test_face_options_of_the_three_sources_become_music(self):
         self.write("modules.json", {"values": {"music": {"show": "title"}, "radio": {"titleLength": 45}}})
         self.run_it()
         v = self.read("modules.json")["values"]
-        self.assertEqual(v, {"yandex": {"show": "title"}, "radio": {"titleLength": 45}})
+        self.assertEqual(v, {"music": {"show": "title", "titleLength": 45}})
+
+    def test_one_music_module_takes_the_first_source_face(self):
+        self.write("modules.json", {"values": {"player": {"show": "artist", "text": "icon"},
+                                               "yandex": {"show": "title"}}})
+        self.run_it()
+        self.assertEqual(self.read("modules.json")["values"], {"music": {"show": "title", "text": "icon"}})
+
+    def test_layout_sources_are_one_module(self):
+        self.write("layout.json", {"zones": {"left": ["yandex", "clock", "radio"], "right": ["player", "music"]}})
+        self.run_it()
+        self.assertEqual(self.read("layout.json")["zones"], {"left": ["music", "clock"], "right": ["music"]})
 
     def test_yandex_window_options_become_music(self):
         self.write("modules.json", {"version": 5, "values": {"yandex": {
             "show": "title", "defaultTab": "search", "showRemaining": True, "closeOnPlay": False}}})
         self.run_it()
         v = self.read("modules.json")["values"]
-        self.assertEqual(v["yandex"], {"show": "title"})
-        self.assertEqual(v["music"], {"opensOn": "playing", "showRemaining": True, "closeOnPlay": False})
+        self.assertEqual(v, {"music": {"opensOn": "last", "show": "title", "showRemaining": True, "closeOnPlay": False}})
 
-    def test_yandex_likes_tab_opens_likes_and_bar_options_alone(self):
+    def test_yandex_likes_tab_opens_yandex_and_radio_face_joins_music(self):
         self.write("modules.json", {"version": 5, "values": {"yandex": {"defaultTab": "likes"}, "radio": {"show": "icon"}}})
         self.run_it()
-        self.assertEqual(self.read("modules.json")["values"], {"yandex": {}, "music": {"opensOn": "likes"}, "radio": {"show": "icon"}})
+        self.assertEqual(self.read("modules.json")["values"], {"music": {"opensOn": "yandex", "show": "icon"}})
 
     def test_capture_popup_options_go(self):
         self.write("modules.json", {"version": 4, "values": {"capture": {
@@ -154,11 +163,11 @@ class Migrate(unittest.TestCase):
                     if k != "version":
                         self.assertEqual(new[k], val, k)
             if n == "modules.json":
-                # the music options were renamed to yandex (version 3); the window's went to music (6)
-                window = {"defaultTab", "showRemaining", "closeOnPlay"}
-                moved = {"music"} if window & set(old["values"].get("yandex", {})) else set()
-                v3 = old.get("version", 0) < 3
-                self.assertEqual(set(new["values"]), {"yandex" if v3 and k == "music" else k for k in old["values"]} | moved)
+                # yandex, player and radio are one "music" module (version 7); the window's options are music's
+                sources = {"yandex", "player", "radio"}
+                old_keys = set(old["values"])
+                expect = (old_keys - sources) | ({"music"} if old_keys & (sources | {"music"}) else set())
+                self.assertEqual(set(new["values"]), expect)
             self.assertGreaterEqual(new["version"], sm.VERSION)
 
 

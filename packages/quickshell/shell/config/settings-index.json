@@ -1116,88 +1116,88 @@
   "target": "modules:workspaces"
  },
  {
-  "label": "Yandex Music",
-  "hint": "Liked tracks from Yandex Music (MPD)",
+  "label": "Music",
+  "hint": "What plays now: Yandex Music, your files, radio, any player",
   "where": "Bar modules",
-  "target": "modules:yandex"
+  "target": "modules:music"
  },
  {
   "label": "Bar",
   "hint": "",
-  "where": "Bar modules › Yandex Music",
-  "target": "modules:yandex"
+  "where": "Bar modules › Music",
+  "target": "modules:music"
+ },
+ {
+  "label": "Player",
+  "hint": "",
+  "where": "Bar modules › Music",
+  "target": "modules:music"
+ },
+ {
+  "label": "Players",
+  "hint": "",
+  "where": "Bar modules › Music",
+  "target": "modules:music"
  },
  {
   "label": "Window",
   "hint": "",
-  "where": "Bar modules › Yandex Music",
-  "target": "modules:yandex"
+  "where": "Bar modules › Music",
+  "target": "modules:music"
  },
  {
-  "label": "Shows",
+  "label": "Files",
   "hint": "",
-  "where": "Bar modules › Yandex Music › BAR",
-  "target": "modules:yandex"
- },
- {
-  "label": "Max length",
-  "hint": "Longer ones end with …",
-  "where": "Bar modules › Yandex Music › BAR",
-  "target": "modules:yandex"
- },
- {
-  "label": "Music",
-  "hint": "Likes, search and playlists",
-  "where": "Bar modules › Yandex Music › WINDOW",
-  "target": "modules:yandex"
- },
- {
-  "label": "Player",
-  "hint": "Any media player: Spotify, a browser, mpv (MPRIS)",
-  "where": "Bar modules",
-  "target": "modules:player"
- },
- {
-  "label": "Bar",
-  "hint": "",
-  "where": "Bar modules › Player",
-  "target": "modules:player"
+  "where": "Bar modules › Music",
+  "target": "modules:music"
  },
  {
   "label": "Shows",
   "hint": "What the bar names while something plays",
-  "where": "Bar modules › Player › BAR",
-  "target": "modules:player"
+  "where": "Bar modules › Music › BAR",
+  "target": "modules:music"
  },
  {
   "label": "Max length",
   "hint": "Longer ones end with …",
-  "where": "Bar modules › Player › BAR",
-  "target": "modules:player"
+  "where": "Bar modules › Music › BAR",
+  "target": "modules:music"
  },
  {
-  "label": "Radio",
-  "hint": "Internet radio stations",
-  "where": "Bar modules",
-  "target": "modules:radio"
+  "label": "Time left",
+  "hint": "The timeline counts down",
+  "where": "Bar modules › Music › PLAYER",
+  "target": "modules:music"
  },
  {
-  "label": "Bar",
-  "hint": "",
-  "where": "Bar modules › Radio",
-  "target": "modules:radio"
+  "label": "Show",
+  "hint": "Hidden ones stay in their own app",
+  "where": "Bar modules › Music › PLAYERS",
+  "target": "modules:music"
  },
  {
-  "label": "Shows",
-  "hint": "",
-  "where": "Bar modules › Radio › BAR",
-  "target": "modules:radio"
+  "label": "No players",
+  "hint": "Start one to pick it",
+  "where": "Bar modules › Music › PLAYERS",
+  "target": "modules:music"
  },
  {
-  "label": "Max length",
-  "hint": "Longer ones end with …",
-  "where": "Bar modules › Radio › BAR",
-  "target": "modules:radio"
+  "label": "Opens on",
+  "hint": "The page it shows first",
+  "where": "Bar modules › Music › WINDOW",
+  "target": "modules:music"
+ },
+ {
+  "label": "Close when a track plays",
+  "hint": "After a click in a list",
+  "where": "Bar modules › Music › WINDOW",
+  "target": "modules:music"
+ },
+ {
+  "label": "No folders",
+  "hint": "Files is not listed",
+  "where": "Bar modules › Music › FILES",
+  "target": "modules:music"
  },
  {
   "label": "Themes",
@@ -2773,56 +2773,8 @@
  },
  {
   "label": "Music",
-  "hint": "The player: now playing, the queue; Yandex Music and radio when installed",
+  "hint": "The player: now playing, the queue; Yandex Music, your files and radio when installed",
   "where": "Apps",
   "target": "apps:music"
- },
- {
-  "label": "Opening",
-  "hint": "",
-  "where": "Apps › Music",
-  "target": "apps:music"
- },
- {
-  "label": "Player",
-  "hint": "",
-  "where": "Apps › Music",
-  "target": "apps:music"
- },
- {
-  "label": "Opens on",
-  "hint": "Likes needs Yandex Music",
-  "where": "Apps › Music › OPENING",
-  "target": "apps:music"
- },
- {
-  "label": "Close when a track plays",
-  "hint": "After a click in a list",
-  "where": "Apps › Music › OPENING",
-  "target": "apps:music"
- },
- {
-  "label": "Time left",
-  "hint": "The timeline counts down",
-  "where": "Apps › Music › PLAYER",
-  "target": "apps:music"
- },
- {
-  "label": "Bar",
-  "hint": "",
-  "where": "Bar modules › Music",
-  "target": "modules:player"
- },
- {
-  "label": "Shows",
-  "hint": "What the bar names while something plays",
-  "where": "Bar modules › Music › BAR",
-  "target": "modules:player"
- },
- {
-  "label": "Max length",
-  "hint": "Longer ones end with …",
-  "where": "Bar modules › Music › BAR",
-  "target": "modules:player"
  }
 ]

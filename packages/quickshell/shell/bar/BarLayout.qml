@@ -17,9 +17,7 @@ Singleton {
   // `island` its place in the island while that is not arranged (else the hub).
   readonly property var modules: [
     { id: "workspaces",    label: "Workspaces",    zone: "left",   icon: "layout", settings: "WorkspacesSettings.qml", about: "Hyprland workspaces" },
-    { id: "yandex",        label: "Yandex Music",  zone: "left",   icon: "music", settings: "YandexSettings.qml", about: "Liked tracks from Yandex Music (MPD)" },
-    { id: "player",        label: "Player",        zone: "left",   icon: "play", settings: "PlayerSettings.qml", about: "Any media player: Spotify, a browser, mpv (MPRIS)" },
-    { id: "radio",         label: "Radio",         zone: "left",   icon: "radio", settings: "RadioSettings.qml", about: "Internet radio stations" },
+    { id: "music",         label: "Music",         zone: "left",   icon: "music", settings: "MusicSettings.qml", about: "What plays now: Yandex Music, your files, radio, any player" },
     { id: "themes",        label: "Themes",        zone: "right",  icon: "palette", settings: "ThemesSettings.qml", about: "Switch the dotfiles theme from a strip of cards" },
     { id: "tray",          label: "Tray",          zone: "right",  icon: "grid", settings: "TraySettings.qml", about: "Status icons of running apps · right click: their menu" },
     { id: "mode",          label: "Mode",          zone: "right",  icon: "moon", settings: "ModeSettings.qml", about: "Light or dark: a click switches the theme to its twin" },
@@ -51,6 +49,11 @@ Singleton {
   ]
   readonly property var zones: ["left", "center", "right"]
 
+  // Music sources a component can bring (`modules` of components.toml) that are not
+  // bar modules: Yandex Music, the local files (MPD's `mpd`) and the radio. Their
+  // `installed(id)` says whether the source is there; the Music module lists them.
+  readonly property var sections: ["files", "yandex", "radio"]
+
   // A layout never arranged (and one Reset) shows these on the strip; every
   // other module starts in the Folder, one drag from the bar.
   readonly property var defaultBar: ["workspaces", "clock", "audio", "wifi", "bluetooth", "battery",
@@ -58,7 +61,7 @@ Singleton {
   function defaultFolder() { return modules.map(p => p.id).filter(id => !defaultBar.includes(id)); }
 
   // Old ids still found in saved layouts: old -> new.
-  readonly property var renamed: ({ claude: "ai", plugins: "shell", music: "yandex" })
+  readonly property var renamed: ({ claude: "ai", plugins: "shell", player: "music", yandex: "music", radio: "music" })
 
   // Modules whose components are off on this machine (`./install.py
   // components`), id -> the components that would bring it: kept off every

@@ -5,8 +5,9 @@ import qs.components
 import qs.config
 
 // Music as a window of its own (how it opens: Shell Manager › Shell apps).
-// `qs -c shell ipc call music <toggle|open|close>`, `music go <page>` (playing,
-// likes, search, radio) or the launcher; Escape closes.
+// `qs -c shell ipc call music <toggle|open|close>`, `music go <tab>` (yandex, files,
+// radio; the old pages likes, search, playlist open the Yandex tab; playing keeps the
+// tab) or the launcher; Escape closes.
 FloatingWindow {
   id: root
 
@@ -20,7 +21,7 @@ FloatingWindow {
   // set, so the next `visible = true` would do nothing: reset it.
   onVisibleChanged: if (visible) {
     app.shown();
-    Qt.callLater(() => { PopupManager.closeModule("player"); PopupManager.closeModule("yandex"); });
+    Qt.callLater(() => PopupManager.closeModule("music"));
   } else {
     visible = false;
     app.hidden();

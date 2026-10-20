@@ -1,12 +1,14 @@
 """dotfiles installer — what the shell needs to know about the components.
 
-`link` writes $XDG_STATE_HOME/dotfiles/components.json: the bar modules whose
-components are off, each with the components that would bring it
+`link` writes $XDG_STATE_HOME/dotfiles/components.json: the bar modules and the
+music sections (BarLayout.sections: files, yandex, radio) whose components are
+off, each with the components that would bring it
 
   {"off": {"yandex": ["yandex-music"], "ai": ["ollama", "claude-code"]}}
 
 The shell (bar/BarLayout.qml) keeps them off the bars and shows them as not
-installed in the Shell Manager; a missing file means every module is there.
+installed in the Shell Manager (a music section: not offered in the Music
+module); a missing file means every module is there.
 """
 
 from __future__ import annotations

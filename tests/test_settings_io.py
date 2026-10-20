@@ -55,10 +55,8 @@ class SettingsIO(unittest.TestCase):
         for n, d in WINDOWS.items():
             self.assertEqual(self.read(n), d)
         for n, d in FILES.items():
-            # the import migrates them: to the current version, the music options under "yandex"
+            # the import migrates them to the current version (the music module's options stay under "music")
             want = dict(d, version=io.sm.VERSION)
-            if n == "modules.json":
-                want = {"version": io.sm.VERSION, "values": {"yandex": {"show": "icon"}}}
             self.assertEqual(self.read(n), want)
             self.assertEqual(json.loads((self.dir / (n + ".bak")).read_text()), {"version": 1})
 
@@ -67,7 +65,7 @@ class SettingsIO(unittest.TestCase):
         out.write_text(json.dumps({"kind": io.KIND, "files": {
             "modules.json": {"values": {"radio": {"titleLength": 0}}}}}))
         self.assertEqual(self.run_io("import", str(out)), 0)
-        self.assertEqual(self.read("modules.json")["values"]["radio"], {"show": "icon", "titleLength": 60})
+        self.assertEqual(self.read("modules.json")["values"]["music"], {"show": "icon", "titleLength": 60})
         self.assertEqual(self.read("settings.json"), FILES["settings.json"])   # not in the bundle: kept
 
     def test_bad_bundle_changes_nothing(self):

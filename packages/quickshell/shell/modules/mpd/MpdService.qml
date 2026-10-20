@@ -6,9 +6,10 @@ import qs.bar
 import qs.config
 import "../../kit/reply.js" as Reply
 
-// MPD player shared by the music and radio modules (scripts/music.sh): one
-// state stream and the playback commands. Each module adds its own data on top
-// (YandexService, RadioService).
+// MPD player shared by the music module's sources (scripts/music.sh): the local
+// files, the Yandex Music likes and the radio. One state stream, the playback
+// commands and the queue. Each source adds its own data on top (YandexService,
+// RadioService).
 Singleton {
   id: root
 
@@ -16,9 +17,10 @@ Singleton {
   readonly property int restartMs: 5000
   readonly property string script: Paths.scriptsDir + "/music.sh"
 
-  // MPD is used by the music (yandex-music) and radio modules only: with both
-  // components off (`./install.py components`) nothing polls it
-  readonly property bool needed: BarLayout.installed("yandex") || BarLayout.installed("radio")
+  // MPD is the music module's source for files, likes and radio (its components
+  // `mpd`, `yandex-music`, `radio`: each requires mpd): with them off (`./install.py
+  // components`) nothing polls it
+  readonly property bool needed: BarLayout.installed("files")
   onNeededChanged: {
     if (needed) listenProc.running = true;
     else {
@@ -30,12 +32,13 @@ Singleton {
   Component.onCompleted: if (needed) listenProc.running = true;
 
   property var player: ({})                    // see `music.sh --status`
+  property var queue: []                       // [{pos, artist, title}]: MPD's queue (`music.sh --queue`)
 
   readonly property bool service: player.service ?? false
   readonly property bool playing: player.state === "playing"
   readonly property bool paused: player.state === "paused"
   readonly property bool stopped: !service || player.state === "stop" || source === ""
-  readonly property string source: player.source ?? ""     // likes | radio | ""
+  readonly property string source: player.source ?? ""     // likes | radio | files | ""
   readonly property string file: player.file ?? ""
   readonly property real duration: player.duration ?? 0
   property real elapsed: 0                     // ticks locally between MPD events
@@ -43,14 +46,17 @@ Singleton {
   property var busy: null                      // what is being started, for its spinner
   property string error: ""
 
-  signal queueChanged()
-
   // ---- playback ----
   function control(args) {
     Quickshell.execDetached(["bash", root.script].concat(args));
   }
 
   function toggle() { control(["--toggle"]); }
+  // the popup's switch: MPD itself on (playing what it kept, else the likes) or off
+  function setOn(on) {
+    if (on) load("on", ["--on"]);
+    else control(["--off"]);
+  }
   function pause() { control(["--pause"]); }
   function stop() { control(["--stop"]); }
   function next() { control(["--next"]); }
@@ -64,11 +70,23 @@ Singleton {
     control(["--seek", String(elapsed)]);
   }
 
-  // Replaces the queue (likes or a station); errors land in `error`.
+  // Replaces the queue (likes, a station or a folder); errors land in `error`.
   function load(value, args) {
     busy = value;
     error = "";
     run(loadProc, args);
+  }
+
+  // a folder of the local files, played from `file` (else its first track)
+  function playFolder(dir, file) {
+    load(dir, ["--files-play", dir].concat(file ? [file] : []));
+  }
+
+  function addFile(file, next) { control([next ? "--files-next" : "--files-add", file]); }
+
+  // the queue as MPD has it now (the popups and the window ask when they show)
+  function refreshQueue() {
+    if (!queueProc.running) run(queueProc, ["--queue"]);
   }
 
   // ---- internals ----
@@ -104,10 +122,17 @@ Singleton {
         const changed = o.length !== root.player.length;
         root.player = o;
         root.elapsed = o.elapsed ?? 0;
-        if (changed) root.queueChanged();
+        if (changed) root.refreshQueue();
       }
     }
     onExited: if (root.needed) listenRestart.start()
+  }
+
+  Process {
+    id: queueProc
+    stdout: StdioCollector {
+      onStreamFinished: root.queue = root.parse(text) ?? []
+    }
   }
 
   Process {
@@ -117,7 +142,7 @@ Singleton {
         const o = root.parse(text);
         root.busy = null;
         if (!o?.ok) root.error = o?.error ?? "could not start playback";
-        root.queueChanged();
+        root.refreshQueue();
       }
     }
   }

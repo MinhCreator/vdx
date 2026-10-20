@@ -6,9 +6,9 @@ import qs.config
 import qs.modules.mpd
 import qs.modules.yandex
 
-// Every media player in one list: MPD (the Yandex likes and the radio, through
-// MpdService) and each MPRIS player (Spotify, a browser, mpv). The island and the
-// Player module show one of them, and the controls go to it. Which one: the pick
+// Every media player in one list: MPD (the Yandex likes, the local files and the
+// radio, through MpdService) and each MPRIS player (Spotify, a browser, mpv). The
+// island and the music module show one of them, and the controls go to it. Which one: the pick
 // of the Player popup while it runs, else a playing one (MPD first), else MPD when
 // it has something queued, else the first player there is.
 Singleton {
@@ -19,13 +19,35 @@ Singleton {
 
   property string picked: ""                 // a source's key, chosen in the popup
 
+  // Music › Players: all (every MPRIS player), music (none: MPD only), pick (the ones not in
+  // hiddenPlayers, by name). MPD is always a source.
+  readonly property string playersShown: ModuleSettings.get("music", "players", "all")
+  readonly property var hiddenPlayers: ModuleSettings.get("music", "hiddenPlayers", [])
+
+  // a player's name as the lists show it (Music › Players lists the same names)
+  function nameOf(p) { return p.identity || p.desktopEntry || p.dbusName; }
+
+  // the names of the MPRIS players running now
+  readonly property var mprisNames: {
+    const names = [];
+    for (const p of Mpris.players.values) names.push(nameOf(p));
+    return names;
+  }
+
+  function shownPlayer(p) {
+    if (playersShown === "music") return false;
+    if (playersShown === "pick") return !hiddenPlayers.includes(nameOf(p));
+    return true;
+  }
+
   // {key, name, mpd, mpris, playing}: MPRIS players by their unique id
   readonly property var sources: {
     const list = [];
     if (!MpdService.stopped)
-      list.push({ key: "mpd", name: MpdService.source === "radio" ? "Radio" : "Yandex Music", mpd: true, playing: MpdService.playing });
+      list.push({ key: "mpd", name: MpdService.source === "radio" ? "Radio" : MpdService.source === "files" ? "Files" : "Yandex Music",
+                  mpd: true, playing: MpdService.playing });
     for (const p of Mpris.players.values)
-      list.push({ key: p.uniqueId || p.dbusName, name: p.identity || p.desktopEntry || p.dbusName, mpris: p, playing: p.isPlaying });
+      if (shownPlayer(p)) list.push({ key: p.uniqueId || p.dbusName, name: nameOf(p), mpris: p, playing: p.isPlaying });
     return list;
   }
 

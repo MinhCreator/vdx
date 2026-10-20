@@ -2,11 +2,13 @@ import QtQuick
 import qs.components
 import qs.config
 import qs.modules.mpd
+import qs.modules.player
 import qs.kit
 
-// The whole queue, two lines per track, YandexService.upNext rows visible. It
-// scrolls itself so the current track sits on top (earlier tracks above,
-// upcoming below). The search button swaps it for matches across the queue.
+// MPD's queue, whatever plays it (the likes, the files, a playlist): two lines per
+// track, nine rows visible, then it scrolls. It scrolls itself so the current track
+// sits on top. A click plays a track, a right click takes it out; the search button
+// swaps the list for matches. Radio and an MPRIS player have no queue here: a line says so.
 Column {
   id: root
 
@@ -14,10 +16,12 @@ Column {
   property string query: ""
 
   readonly property int rowHeight: 38
-  property real room: 0              // the height the list may take (the full mode); 0: upNext rows
+  readonly property int upNext: 9
   readonly property int currentPos: MpdService.player.pos ?? 0
+  readonly property string notice: PlayerService.radio ? "Radio is on air — there is no queue"
+    : PlayerService.hasMedia && !PlayerService.mpd ? PlayerService.name + " keeps its own queue" : ""
   readonly property var tracks: {
-    const queue = YandexService.queue;
+    const queue = MpdService.queue;
     if (!searching) return queue;
     const q = query.trim().toLowerCase();
     return q === "" ? [] : queue.filter(t => (t.artist + " " + t.title).toLowerCase().includes(q));
@@ -35,7 +39,17 @@ Column {
 
   spacing: Theme.gapMedium
 
+  KitText {
+    visible: root.notice !== ""
+    width: parent.width
+    text: root.notice
+    color: Theme.muted
+    wrapMode: Text.WordWrap
+    font.pixelSize: Theme.fontSize - 1
+  }
+
   Item {
+    visible: root.notice === ""
     width: parent.width
     height: searchButton.height
 
@@ -44,12 +58,11 @@ Column {
       text: root.searching ? "SEARCH" : "UP NEXT FROM #" + root.currentPos
     }
 
-    // re-fetch the likes from Yandex Music
+    // re-read MPD's queue
     KitButton {
       anchors { right: searchButton.left; rightMargin: Theme.gapMedium }
       icon: "refresh"
-      busy: YandexService.updating
-      onClicked: YandexService.runUpdate()
+      onClicked: MpdService.refreshQueue()
     }
 
     KitButton {
@@ -66,7 +79,7 @@ Column {
 
   KitInput {
     id: search
-    visible: root.searching
+    visible: root.searching && root.notice === ""
     placeholder: "artist or title"
     text: root.query
     onTextEdited: root.query = text
@@ -74,8 +87,9 @@ Column {
 
   Flickable {
     id: list
+    visible: root.notice === ""
     width: parent.width
-    height: Math.min(contentHeight, root.room > 0 ? root.room : YandexService.upNext * root.rowHeight)
+    height: Math.min(contentHeight, root.upNext * root.rowHeight)
     contentHeight: rows.implicitHeight
     clip: true
     boundsBehavior: Flickable.StopAtBounds
@@ -158,7 +172,7 @@ Column {
   }
 
   KitText {
-    visible: root.tracks.length === 0
+    visible: root.notice === "" && root.tracks.length === 0
     text: root.searching ? (root.query.trim() === "" ? "Type to search." : "Nothing found.") : "The queue is empty."
     color: Theme.muted
     font.pixelSize: Theme.fontSize - 1

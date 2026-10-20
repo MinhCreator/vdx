@@ -14,9 +14,9 @@ QML keeps reading the old shapes too (a live reload runs without this)."""
 import hashlib, json, os, sys
 from pathlib import Path
 
-VERSION = 6
+VERSION = 7
 FILES = ("settings.json", "modules.json", "layout.json")
-RENAMED = {"claude": "ai", "plugins": "shell"}       # module ids that changed (BarLayout.renamed)
+RENAMED = {"claude": "ai", "plugins": "shell", "player": "music", "yandex": "music", "radio": "music"}   # module ids that changed (BarLayout.renamed)
 
 
 def state_dir() -> Path:
@@ -131,7 +131,37 @@ def to_6(name: str, data: dict) -> None:
                 values.pop("music")
 
 
-MIGRATIONS = {0: to_1, 1: to_2, 2: to_3, 3: to_4, 4: to_5, 5: to_6}          # n -> the step from version n to n + 1
+def to_7(name: str, data: dict) -> None:
+    """Version 7: the bar's music module is one, "music" (was yandex, player and radio: their
+    layout ids are renamed, RENAMED). Its face options (text, show, titleLength) come from
+    yandex, else player, else radio; the Music window's "opensOn" moves to the new pages."""
+    if name == "layout.json":
+        _layout_entry(data)
+        screens = data.get("screens")
+        for e in screens.values() if isinstance(screens, dict) else []:
+            if isinstance(e, dict):
+                _layout_entry(e)
+    elif name == "modules.json":
+        values = data.get("values")
+        if not isinstance(values, dict):
+            return
+        music = values.get("music") if isinstance(values.get("music"), dict) else {}
+        for old in ("yandex", "player", "radio"):
+            m = values.pop(old, None)
+            if isinstance(m, dict):
+                for key in ("text", "show", "titleLength"):
+                    if key in m:
+                        music.setdefault(key, m[key])
+        opens = {"likes": "yandex", "playing": "last"}
+        if music.get("opensOn") in opens:
+            music["opensOn"] = opens[music["opensOn"]]
+        if music:
+            values["music"] = music
+        else:
+            values.pop("music", None)
+
+
+MIGRATIONS = {0: to_1, 1: to_2, 2: to_3, 3: to_4, 4: to_5, 5: to_6, 6: to_7}          # n -> the step from version n to n + 1
 
 
 def migrate(name: str, data: dict) -> dict:

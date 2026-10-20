@@ -19,7 +19,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | Display | — | `display toggle` |
 | VirusTotal | — | `virustotal toggle` |
 | Clipboard | — | `clipboard toggle` |
-| Music | — | `music toggle\|open\|close`, `music go <playing\|likes\|search\|radio>`: the player of any app (PlayerService: MPRIS and MPD). Laid out as Files: a sidebar (LISTEN › Now playing; YANDEX MUSIC › Likes, Search and PLAYLISTS with New playlist; RADIO › Stations — each section only while its component is installed), the page's list as a table in a raised box (#, title and artist, album, time, like, ⋮), the player at the foot. Now playing: the cover large, a choice of players when several run, the queue (UP NEXT) while the Yandex likes play. A track's ⋮ (or right click): play, like, add to or remove from a playlist. Update runs the Yandex sync. Options: Apps › Music; its bar module is Player |
+| Music | — | `music toggle\|open\|close`, `music go <yandex\|files\|radio>` (the old likes, search, playlist open the Yandex tab; playing keeps the tab): the window is tabbed by source: Yandex Music (LIKES: Likes, Search; PLAYLISTS with New playlist), Files (the folders of `music.folders`: enter a folder, Up, a track plays the folder from it; ⋮ Play, Play next, Add to queue) and Radio (the stations); each tab only while its component is installed. The list is a table in a raised box, the player at the foot of every tab. Bar module `music`: the track that plays (any source), its popup has a switch (the music service on or off), Now playing (a select of the players when several run), Queue (MPD's) and Library (tiles: the likes, the folders, the favourite stations). Radio: a star marks a favourite station. Options: Shell Manager › Music (one page: Shows, Max length, Time left, Players shown, Opens on, Close when a track plays, the folders) |
 | Backups | — | `backup toggle\|open\|close` (bar module `backup`: last backup, Back up, the restore guide); the terminal: `backup status\|run\|snapshots\|restore\|guide …` (`scripts/backup.py`, restic) |
 | Files | Super+E | `files toggle\|open\|close`, `files go\|reveal\|inspect\|duplicates <path>`, `files choose <json>` (the portal's picker; a setting's Choose… opens the same picker); F1 lists the keys; Ctrl+G list, grid, columns; Ctrl+T terminal here; F2 on several files renames them by a pattern; the sidebar's "This computer" shows the storage (used / free, unmounted drives mount on a click); the sidebar is in sections: PLACES (drag to reorder within it; right click to hide, Settings › SIDEBAR), PINNED (your folders; drag to reorder; right click › Unpin; a folder's right click › Pin to sidebar), USB (plugged-in removable drives, mounted or not, with a mount / eject button at the row's end), DEVICES (other drives mounted for you); Recent (recently-used.xbel) and Starred (Ctrl+S) in the sidebar; the list shows folders as tiles above a table of files (checkboxes, ⋮ menu, Type / Size / Modified columns), the path as crumbs (Ctrl+L types one); typing a letter jumps to a name; the look and columns in Settings › Apps › Files |
 | Keybinds | Super+B | `keybinds toggle\|open\|close` |
@@ -55,7 +55,7 @@ Bluetooth, battery, notifications, Shell and the Folder; the rest start in the F
 that don't fit beside the centre fold into the Folder, nearest the centre first, and
 come back when there is room (not saved; no Folder on the bar, no folding).
 
-Workspaces, Music, Radio, Equalizer, Clock, Themes, Wallpapers, Brightness, Audio, Wi-Fi, Bluetooth, Mihomo, Battery,
+Workspaces, Music, Equalizer, Clock, Themes, Wallpapers, Brightness, Audio, Wi-Fi, Bluetooth, Mihomo, Battery,
 Language, AI, Shell, Notifications, Capture, Clipboard, System, Task Manager,
 Cleaner, Backups, VirusTotal, Packages, Display, Windows, Chat, Folder.
 
@@ -135,7 +135,7 @@ in the bar. Moving the centre sets the switch; the switch overrides until the ne
 | Music likes | Yandex Music token (`~/.config/scripts/yandex-music/token`) |
 | Island wave | `cava` (without it the wave is made up) |
 | Files: devices | `udisks2` (`udisksctl`): the sidebar's USB and DEVICES sections (`files.py devices`, `removable` tells them apart); `findmnt` for "This computer" |
-| Player | MPRIS players (Spotify, a browser, mpv: each needs its MPRIS support, e.g. `mpv-mpris` for mpv); the Yandex Music / radio of MPD come through MPD |
+| Music | MPRIS players (Spotify, a browser, mpv: each needs its MPRIS support, e.g. `mpv-mpris` for mpv); Yandex Music, the local folders (`~/Music`, Shell Manager › Music) and the radio come through MPD (components `yandex-music`, `mpd`, `radio`) |
 | Files: file chooser and links | `python-gobject`, `xdg-desktop-portal` (portal backend: `scripts/files_portal.py`, config `packages/xdg-portal/`) |
 
 System files: `./install.py system install`.

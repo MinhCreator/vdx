@@ -89,31 +89,48 @@ approval and the search / playlist clicks are still open.
 
 Acceptance: defined by the approved proposal.
 
-## Part D — Music app (the Yandex window redesigned)
+## Part D — Music: one bar module, the window by source
 
 Status: Implemented, partially verified · Category: C · Depends on: C · Gate:
-[decision 0006](../decisions/0006-music-app.md) proposed 2026-10-20 (the owner asked in chat);
-the owner's look approval of the window is the gate before more work on it.
+[decision 0006](../decisions/0006-music-app.md) accepted 2026-10-20 (owner, chat); the
+owner's look approval of the popup and the window is still open.
 
-Audit of the Yandex window (2026-10-20):
-- Look: its own (tabs, "full mode", a bottom box), not the apps' (Files, Shell Manager:
-  sidebar pane, a table in a raised box); 640 px wide; the README spoke of an equalizer it never had.
-- Scope: MPD only; Spotify, a browser, the radio had no window; "not installed" without Yandex.
-- Duplicates: three players (YandexNowPlaying, PlayerPopup, the window's box) each with their own transport.
-- Menu: the track menu's hover was `background1` on a `background1` panel (invisible).
-- Kept limits (decision 0004): a search or playlist track plays only after the update;
-  each window open reads likes, playlists and the likes map from the network.
-- `RadioService` asks MPD for stations when first read, installed or not: the window reads it only when installed.
+Audit of the Yandex window (2026-10-20): its own look (tabs, "full mode", a bottom
+box), not the apps' (Files, Shell Manager: sidebar pane, a table in a raised box); MPD
+only; the Spotify, browser and radio sources had no window; three players (Yandex
+popup, PlayerPopup, the window's box) each with its own transport; the track menu's
+hover was invisible on its panel. Kept limits (decision 0004): a search or playlist
+track plays only after the update; each window open reads likes, playlists and the
+likes map from the network. `RadioService` asks MPD for stations when first read: the
+window reads it only when installed.
 
-Done: `apps/music/` (MusicWindow, Music, MusicSidebar, MusicNowPlaying, MusicTracks,
-MusicPlayerBar, MusicMenu, MusicMenuRow, MusicSettings); `apps/yandex/` removed,
-`YandexLibrary` → `modules/yandex/`; `kit/KitSideRow`, `kit/KitSideCaption` (were Files');
-apps.json entry `music` (module `player`); IPC `music`; the Player popup's button opens
-the window; options moved (`settings_migrate.py` 6, tests).
+Phase A (done): one bar module `music` (`modules/music/`: Music, MusicPopup,
+MusicNowPlaying, MusicQueue, MusicLibrary, MusicTile, MusicSettings); the Player, Yandex
+and Radio bar modules and their popups and settings removed; `BarLayout.sections`
+(files, yandex, radio) read by `installer/check.py`; `MpdService.queue / playFolder /
+addFile`; `scripts/music_files.py`; `music.sh --files-play / --files-add / --files-next`;
+migration version 7 with tests.
 
-Open: the owner's look check (prototype = the window); clicks through Likes, Search,
-a playlist, Stations and the menus; the Yandex popup onto `PlayerService`; a local
-library (needs MPD's music dir decided).
+Phase B (done): the window is tabbed by source (`apps/music/`): sidebar header, KitChoices
+Yandex | Files | Radio of the installed sources, the tab's rows (Yandex: Likes, Search,
+Playlists; Files: the folders of `music.folders`); Files lists a folder through
+`music_files.py` (subfolders first, enter, Up in the header, tracks in `MusicTracks`
+kind `files`, a click plays the folder from the track, ⋮ Play / Play next / Add to
+queue); Radio: the stations. The Now playing page and `MusicNowPlaying.qml` of the
+window are gone; the player bar stays at the foot. IPC `music go` takes yandex, files,
+radio (likes, search, playlist open the Yandex tab; playing keeps the tab). Empty state
+with no source installed. Options `opensOn` and `closeOnPlay` honoured.
+
+Owner's checks (done): stations with genre and about (radio-cli), the table's columns;
+the popup's switch turns MPD off and on (`music.sh --on / --off`), off shows only that;
+Queue tab only for MPD; a full-width select of the players at the foot of Now playing;
+Library as tiles (likes, folders, favourite stations, Open Music); favourite stations
+(`music.favoriteStations`, a star, All stations / Favourites); players shown
+(`music.players`, `music.hiddenPlayers`).
+
+Open: clicks through the Files tab (enter,
+Up, play, the ⋮ menu), Yandex search and playlists on screen; the empty state with no
+source installed; the fresh-machine test (`tests/fresh-machine.sh`).
 
 ---
 

@@ -36,7 +36,7 @@ pacman = ["pkg"]
 aur = ["pkg-bin"]
 links = ["pkg"]                # paths under packages/, or "home/<file>"
 submodules = ["packages/scripts/x"]
-modules = ["x"]                # bar modules it brings
+modules = ["x"]                # bar modules it brings, or music sections (BarLayout.sections)
 system = ["etc/…"]             # files under system/
 services = ["x.service"]       # system units to enable; user_services for --user
 user_units = ["packages/…/x.service"]   # unit files copied into ~/.config/systemd/user
@@ -46,7 +46,7 @@ hint = "a manual step, printed, never done"
 ```
 
 Hardware is `group = "hardware"` with `auto = [...]` instead of `default`.
-Unknown fields, missing paths, loops in `requires` and bar modules that no
+Unknown fields, missing paths, loops in `requires` and bar modules (or sections) that no
 component brings all fail `check components`.
 
 ## Add a file in /etc

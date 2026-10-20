@@ -32,6 +32,17 @@ class Render(unittest.TestCase):
         self.assertEqual(self.off({"quickshell"}), {"ai": ["ollama", "claude"], "yandex": ["yandex"]})
 
 
+class Sections(unittest.TestCase):
+    """A music section is off with its component, as a bar module is."""
+
+    def test_files_is_off_without_mpd(self):
+        cat = catalog(quickshell={"group": "desktop", "modules": ["music"]},
+                      mpd={"group": "music", "modules": ["files"]},
+                      ytm={"group": "music", "modules": ["yandex"], "requires": ["mpd"]})
+        self.assertEqual(json.loads(shell.render({"quickshell"}, cat))["off"], {"files": ["mpd"], "yandex": ["ytm"]})
+        self.assertEqual(json.loads(shell.render({"quickshell", "mpd", "ytm"}, cat))["off"], {})
+
+
 class Apply(unittest.TestCase):
     def test_written_only_when_changed(self):
         with tempfile.TemporaryDirectory() as tmp, \

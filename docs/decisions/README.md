@@ -10,7 +10,7 @@ One file per significant architecture or design decision:
 | [0003](0003-docs-layout.md) | Docs layout: index + one topic per file | Accepted |
 | [0004](0004-yandex-music-app.md) | Yandex Music app: scope, playback and backend | Accepted |
 | [0005](0005-capture-freeze-first.md) | Capture: freeze first, a toolbar on the overlay | Accepted |
-| [0006](0006-music-app.md) | Music app: one player, Yandex Music and radio as sections | Proposed |
+| [0006](0006-music-app.md) | Music: one bar module, a window tabbed by source (Yandex Music, Files, Radio) | Accepted (look awaits the owner) |
 
 Open questions that will become records are listed in the roadmap
 ([roadmap.md › Open questions](../roadmap.md#open-questions)).

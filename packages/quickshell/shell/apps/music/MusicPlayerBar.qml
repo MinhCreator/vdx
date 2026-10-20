@@ -7,7 +7,7 @@ import qs.modules.player
 import qs.modules.yandex
 
 // The player at the foot of the Music window, in one raised box: the cover and the
-// track on the left (a click opens Now playing), the transport over the timeline in
+// track on the left, the transport over the timeline in
 // the middle, the like and the player's own window on the right. It drives the
 // current player of PlayerService: MPD (Yandex likes, radio) or any MPRIS one.
 Rectangle {
@@ -20,8 +20,6 @@ Rectangle {
                                       && YandexService.trackId !== ""
   readonly property bool showRemaining: ModuleSettings.get("music", "showRemaining", false)
   readonly property real at: timeline.pressed ? timeline.dragValue * PlayerService.length : PlayerService.position
-
-  signal opened()
 
   function clock(seconds) {
     const s = Math.max(0, Math.floor(seconds));
@@ -83,12 +81,6 @@ Rectangle {
         color: Theme.muted
         font.pixelSize: Theme.fontSize - 2
       }
-    }
-
-    MouseArea {
-      anchors.fill: parent
-      cursorShape: Qt.PointingHandCursor
-      onClicked: root.opened()
     }
   }
 

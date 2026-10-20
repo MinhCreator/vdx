@@ -51,9 +51,8 @@
     "window": { "id": "capture", "title": "Capture", "width": 760, "height": 600 },
     "settings": "apps/capture/CaptureSettings.qml",
     "module": "capture", "moduleSettings": "apps/capture/CaptureBarSettings.qml" },
-  { "id": "music", "label": "Music", "icon": "music", "about": "The player: now playing, the queue; Yandex Music and radio when installed",
+  { "id": "music", "label": "Music", "icon": "music", "about": "The player: now playing, the queue; Yandex Music, your files and radio when installed",
     "ipc": "music", "open": "toggle",
     "window": { "id": "music", "title": "Music", "width": 1000, "height": 660 },
-    "settings": "apps/music/MusicSettings.qml",
-    "module": "player", "moduleSettings": "modules/player/PlayerSettings.qml" }
+    "module": "music", "moduleSettings": "modules/music/MusicSettings.qml" }
 ]

@@ -1,19 +1,18 @@
 import QtQuick
 import qs.config
 import qs.kit
-import qs.modules.player
 import qs.modules.radio
 import qs.modules.yandex
 
-// The Music window's sidebar, in sections as Files': LISTEN (Now playing), YANDEX
-// MUSIC (Likes, Search) and its PLAYLISTS with a row to make one, RADIO (Stations).
-// A section shows only while its component is installed (`yandexOn`, `radioOn`).
+// The Music window's sidebar: the tabs of the sources installed (KitChoices, stretched),
+// then the tab's own rows. Yandex Music: LIKES (Likes, Search) and PLAYLISTS with a row
+// to make one. Files: FOLDERS, the folders of music.folders. Radio: ALL STATIONS and
+// FAVOURITES (the starred ones).
 Item {
   id: root
 
   required property var music   // the Music window's layout
-  property bool yandexOn: false
-  property bool radioOn: false
+
   property bool creating: false   // the New playlist row is a field
 
   Flickable {
@@ -29,40 +28,37 @@ Item {
       width: side.width
       spacing: Theme.gapTight
 
-      KitSideCaption { text: "LISTEN" }
-
-      KitSideRow {
-        icon: "play"
-        text: "Now playing"
-        hint: PlayerService.hasMedia ? PlayerService.name : ""
-        current: root.music.page === "playing"
-        onClicked: root.music.go("playing")
+      KitChoices {
+        width: column.width
+        stretch: true
+        model: root.music.tabs
+        current: root.music.tab
+        onPicked: value => root.music.go(value)
       }
 
-      // ---- Yandex Music ----
-      KitSideCaption { text: "YANDEX MUSIC"; lead: Theme.gapMedium; visible: root.yandexOn }
+      KitSideCaption { text: "YANDEX MUSIC"; lead: Theme.gapMedium; visible: root.music.tab === "yandex" }
 
       KitSideRow {
-        visible: root.yandexOn
+        visible: root.music.tab === "yandex"
         icon: "heart"
         text: "Likes"
-        hint: root.yandexOn ? YandexService.liked.length + "" : ""
+        hint: root.music.yandexOn ? YandexService.liked.length + "" : ""
         current: root.music.page === "likes"
         onClicked: root.music.go("likes")
       }
 
       KitSideRow {
-        visible: root.yandexOn
+        visible: root.music.tab === "yandex"
         icon: "search"
         text: "Search"
         current: root.music.page === "search"
         onClicked: root.music.go("search")
       }
 
-      KitSideCaption { text: "PLAYLISTS"; lead: Theme.gapMedium; visible: root.yandexOn }
+      KitSideCaption { text: "PLAYLISTS"; lead: Theme.gapMedium; visible: root.music.tab === "yandex" }
 
       Repeater {
-        model: root.yandexOn ? YandexLibrary.playlists : []
+        model: root.music.tab === "yandex" && root.music.yandexOn ? YandexLibrary.playlists : []
 
         KitSideRow {
           required property var modelData
@@ -75,7 +71,7 @@ Item {
       }
 
       KitSideRow {
-        visible: root.yandexOn && !root.creating
+        visible: root.music.tab === "yandex" && root.music.yandexOn && !root.creating
         icon: "plus"
         text: "New playlist"
         onClicked: {
@@ -87,7 +83,7 @@ Item {
       // the new playlist's name: Enter makes it, Escape gives up
       KitInput {
         id: field
-        visible: root.yandexOn && root.creating
+        visible: root.music.tab === "yandex" && root.music.yandexOn && root.creating
         width: parent.width
         placeholder: "name, Enter"
         passKeys: [Qt.Key_Escape]
@@ -103,15 +99,42 @@ Item {
       }
 
       // ---- radio ----
-      KitSideCaption { text: "RADIO"; lead: Theme.gapMedium; visible: root.radioOn }
+      KitSideCaption { text: "STATIONS"; lead: Theme.gapMedium; visible: root.music.tab === "radio" }
 
       KitSideRow {
-        visible: root.radioOn
+        visible: root.music.tab === "radio" && root.music.radioOn
         icon: "radio"
-        text: "Stations"
-        hint: root.radioOn && RadioService.active ? "playing" : ""
-        current: root.music.page === "radio"
-        onClicked: root.music.go("radio")
+        text: "All stations"
+        hint: RadioService.stations.length + ""
+        current: root.music.radioPage === "all"
+        onClicked: root.music.radioPage = "all"
+      }
+
+      KitSideRow {
+        visible: root.music.tab === "radio" && root.music.radioOn
+        icon: "star"
+        text: "Favourites"
+        hint: RadioService.favoriteStations.length + ""
+        current: root.music.radioPage === "favorites"
+        onClicked: root.music.radioPage = "favorites"
+      }
+
+      // ---- files ----
+      KitSideCaption { text: "FOLDERS"; lead: Theme.gapMedium; visible: root.music.tab === "files" }
+
+      Repeater {
+        model: root.music.tab === "files" ? root.music.folders : []
+
+        KitSideRow {
+          required property var modelData
+          icon: "folder"
+          text: root.music.nameOf(modelData)
+          current: root.music.dir === modelData || root.music.dir.startsWith(modelData + "/")
+          onClicked: {
+            root.music.folder = modelData;
+            root.music.go("files");
+          }
+        }
       }
     }
   }

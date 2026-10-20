@@ -13,9 +13,20 @@ Singleton {
 
   readonly property bool active: MpdService.source === "radio" && !MpdService.stopped
 
-  property var stations: []                    // [{key, name}]
+  property var stations: []                    // [{key, name, genre, about}]
   readonly property string stationKey: stations.find(s => s.name === MpdService.player.station)?.key ?? ""
   property string lastKey: ""                  // station the switch resumes
+
+  // ---- favourites: the station keys starred in the Music window (music.favoriteStations) ----
+  readonly property var favorites: ModuleSettings.get("music", "favoriteStations", [])
+  readonly property var favoriteStations: stations.filter(s => favorites.includes(s.key))
+
+  function isFavorite(key) { return favorites.includes(key); }
+
+  function setFavorite(key, on) {
+    const rest = favorites.filter(k => k !== key);
+    ModuleSettings.set("music", "favoriteStations", on ? rest.concat([key]) : rest);
+  }
 
   function popupShown() {
     MpdService.error = "";

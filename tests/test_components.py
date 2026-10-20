@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from installer import components
+from installer import check, components
 
 
 def catalog(**entries) -> dict:
@@ -126,6 +126,33 @@ class Problems(unittest.TestCase):
                        "links 'a/b' is in both [g] and [h]",
                        "[i]: split_from 'h' must be a component it requires"):
             self.assertIn(needle, text)
+
+
+class BarProblems(unittest.TestCase):
+    """The bar's registry against the catalog: a module or a music section (BarLayout.sections)."""
+
+    LAYOUT = '{ id: "clock", label: "Clock" }\n{ id: "music", label: "Music" }\n' \
+             'readonly property var sections: ["files", "yandex"]\n'
+
+    def test_modules_and_sections_are_brought(self):
+        cat = catalog(quickshell={"group": "desktop", "modules": ["clock", "music"]},
+                      mpd={"group": "music", "modules": ["files"]},
+                      ytm={"group": "music", "modules": ["yandex"]})
+        self.assertEqual(check.bar_problems(cat, self.LAYOUT), [])
+
+    def test_a_section_nobody_brings_is_named(self):
+        cat = catalog(quickshell={"group": "desktop", "modules": ["clock", "music"]}, mpd={"group": "music", "modules": ["files"]})
+        self.assertEqual(check.bar_problems(cat, self.LAYOUT), ["bar section 'yandex': no component brings it"])
+
+    def test_a_name_that_is_neither_is_named(self):
+        cat = catalog(quickshell={"group": "desktop", "modules": ["clock", "music", "ghost"]},
+                      mpd={"group": "music", "modules": ["files"]}, ytm={"group": "music", "modules": ["yandex"]})
+        self.assertEqual(check.bar_problems(cat, self.LAYOUT), ["components.toml: module 'ghost': not in bar/BarLayout.qml"])
+
+    def test_a_module_nobody_brings_is_named(self):
+        cat = catalog(quickshell={"group": "desktop", "modules": ["clock"]}, mpd={"group": "music", "modules": ["files"]},
+                      ytm={"group": "music", "modules": ["yandex"]})
+        self.assertEqual(check.bar_problems(cat, self.LAYOUT), ["bar module 'music': no component brings it"])
 
 
 class RealCatalog(unittest.TestCase):

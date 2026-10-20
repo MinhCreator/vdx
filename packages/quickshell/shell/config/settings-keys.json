@@ -80,13 +80,14 @@
  "apps/capture/CaptureBarSettings.qml": [
   "text"
  ],
- "apps/music/MusicSettings.qml": [
+ "modules/music/MusicSettings.qml": [
   "closeOnPlay",
+  "folders",
+  "hiddenPlayers",
   "opensOn",
-  "showRemaining"
- ],
- "modules/player/PlayerSettings.qml": [
+  "players",
   "show",
+  "showRemaining",
   "text",
   "titleLength"
  ]

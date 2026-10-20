@@ -196,13 +196,9 @@ def components_problems() -> list[str]:
         for m in set(PLACEHOLDER.findall(f.read_bytes())):
             if m.decode() not in keys:
                 out.append(f"{rel(f)}: @{m.decode()}@: no such machine value (have {', '.join(sorted(keys))})")
-    # the bar: every module comes with a component, every module named exists
     layout = PKG / "quickshell" / "shell" / "bar" / "BarLayout.qml"
     if layout.is_file():
-        ids = set(re.findall(r'\{ id: "(\w+)",', layout.read_text()))
-        named = {m for c in cat.values() for m in c["modules"]}
-        out += [f"bar module {m!r}: no component brings it" for m in sorted(ids - named)]
-        out += [f"{where}: module {m!r}: not in bar/BarLayout.qml" for m in sorted(named - ids)]
+        out += bar_problems(cat, layout.read_text())
     # packages are real, and in the right list
     repo = components.unique(set(cat), cat, "pacman")
     aur = components.unique(set(cat), cat, "aur")
@@ -213,6 +209,21 @@ def components_problems() -> list[str]:
                 for p in re.findall(r"package '([^']+)' was not found", r.stderr)]
         known = set(subprocess.run(["pacman", "-Slq"], capture_output=True, text=True).stdout.split())
         out += [f"{where}: aur {p}: is in a repository — move it to pacman" for p in aur if p in known]
+    return out
+
+
+def bar_problems(cat: dict, layout_text: str) -> list[str]:
+    """The bar's registry against the catalog: every bar module comes with a component, every
+    module a component names is a bar module or a music section (BarLayout.sections: files,
+    yandex, radio), and every section is brought by one."""
+    where = "components.toml"
+    ids = set(re.findall(r'\{ id: "(\w+)",', layout_text))
+    found = re.search(r"readonly property var sections: \[([^\]]*)\]", layout_text)
+    sections = set(re.findall(r'"(\w+)"', found.group(1))) if found else set()
+    named = {m for c in cat.values() for m in c["modules"]}
+    out = [f"bar module {m!r}: no component brings it" for m in sorted(ids - named)]
+    out += [f"{where}: module {m!r}: not in bar/BarLayout.qml" for m in sorted(named - ids - sections)]
+    out += [f"bar section {s!r}: no component brings it" for s in sorted(sections - named)]
     return out
 
 
