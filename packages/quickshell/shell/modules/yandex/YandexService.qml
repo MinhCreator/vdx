@@ -6,15 +6,15 @@ import qs.config
 import qs.modules.mpd
 
 // Yandex Music likes on top of MpdService: the queue, covers, library sync
-// (yandex-music-cli) and likes (yandex_likes.py). The bar module and the popup
-// read MpdService for playback and this service for the rest.
+// (yandex-music-cli) and likes (scripts/yandex.py). The bar module, its popup and
+// the Yandex Music app read MpdService for playback and this service for the rest.
 Singleton {
   id: root
 
   // ---- tuning ----
   readonly property int coverSize: 64
   readonly property int upNext: 9  // queue rows visible before scrolling
-  readonly property string likesScript: Paths.scriptsDir + "/yandex_likes.py"
+  readonly property string script: Paths.scriptsDir + "/yandex.py"
 
   readonly property bool active: MpdService.source === "likes" && !MpdService.stopped
 
@@ -25,8 +25,16 @@ Singleton {
   property var fileIds: ({})                   // file -> Yandex id (state.json)
   readonly property string trackId: fileIds[MpdService.file] ?? ""
   readonly property bool isLiked: liked.includes(trackId)
+  onTrackIdChanged: refreshCover()          // also when the library map arrives after the file
+  // Yandex id -> file, for the tracks the library has downloaded (playable)
+  readonly property var localIds: {
+    const map = {};
+    for (const file in fileIds) map[fileIds[file]] = file;
+    return map;
+  }
 
   property bool popupOpen: false
+  property bool windowOpen: false              // the Yandex Music window shows the queue too
   property bool updating: false
 
   function popupShown() {
@@ -37,6 +45,29 @@ Singleton {
   }
 
   function popupHidden() { popupOpen = false; }
+
+  // the window keeps the queue fresh while it is open (its full mode shows it)
+  function setWindowOpen(on) {
+    windowOpen = on;
+    if (on) refreshQueue();
+  }
+
+  // the Yandex Music app's window (its IPC: `yandex-music open`)
+  function openApp() {
+    Quickshell.execDetached(["qs", "-c", "shell", "ipc", "call", "yandex-music", "open"]);
+  }
+
+  // the playing track's cover from Yandex Music (cached by yandex.py)
+  function refreshCover() {
+    cover = "";
+    if (MpdService.source !== "likes" || trackId === "") return;
+    coverProc.command = ["uv", "run", "--script", root.script, "--cover", trackId];
+    coverProc.running = true;
+  }
+
+  function refreshLikes() {
+    if (!likesProc.running) likesProc.running = true;
+  }
 
   // Header switch: resume the likes queue, load it, or stop.
   function setActive(on) {
@@ -52,26 +83,23 @@ Singleton {
     MpdService.run(updateProc, ["--update"]);
   }
 
-  function toggleLike() {
-    if (trackId === "" || likeProc.running) return;
-    const id = trackId;
-    const like = !isLiked;
-    liked = like ? liked.concat(id) : liked.filter(i => i !== id);   // optimistic
-    likeProc.command = ["uv", "run", "--script", root.likesScript, like ? "--like" : "--unlike", id];
+  // The like of track `id` (the playing one when none is given). One at a time.
+  function toggleLike(id) {
+    const target = id || trackId;
+    if (target === "" || likeProc.running) return;
+    const like = !liked.includes(target);
+    liked = like ? liked.concat(target) : liked.filter(i => i !== target);   // optimistic
+    likeProc.command = ["uv", "run", "--script", root.script, like ? "--like" : "--unlike", target];
     likeProc.running = true;
   }
 
   function refreshQueue() {
-    if (popupOpen && !queueProc.running) MpdService.run(queueProc, ["--queue"]);
+    if ((popupOpen || windowOpen) && !queueProc.running) MpdService.run(queueProc, ["--queue"]);
   }
 
   Connections {
     target: MpdService
     function onQueueChanged() { root.refreshQueue(); }
-    function onFileChanged() {
-      root.cover = "";
-      if (MpdService.source === "likes") MpdService.run(coverProc, ["--cover", MpdService.file]);
-    }
   }
 
   Process {
@@ -98,8 +126,20 @@ Singleton {
         const o = MpdService.parse(text);
         root.updating = false;
         if (!o?.ok) MpdService.error = o?.error || "update failed";
-        root.refreshQueue();
+        // the queue is MPD's, built once: the new tracks join it here
+        if (o?.ok && !rebuildProc.running) MpdService.run(rebuildProc, ["--likes-refresh"]);
         likesProc.running = true;
+      }
+    }
+  }
+
+  Process {
+    id: rebuildProc
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const o = MpdService.parse(text);
+        if (!o?.ok) MpdService.error = o?.error || "could not refresh the queue";
+        root.refreshQueue();
       }
     }
   }
@@ -136,7 +176,7 @@ Singleton {
 
   Process {
     id: likesProc
-    command: ["uv", "run", "--script", root.likesScript, "--likes"]
+    command: ["uv", "run", "--script", root.script, "--likes"]
     stdout: StdioCollector {
       onStreamFinished: {
         const o = MpdService.parse(text);

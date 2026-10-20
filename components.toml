@@ -200,7 +200,7 @@ about = "Yandex Music likes in MPD: the `music` command and the Yandex Music bar
 default = false
 requires = ["mpd"]
 submodules = ["packages/scripts/yandex-music"]
-links = ["scripts/yandex-music", "zsh/functions/music"]
+links = ["scripts/yandex-music", "zsh/functions/music", "quickshell/shell/scripts/yandex.py"]
 modules = ["yandex"]
 secrets = ["yandex-music/token"]
 

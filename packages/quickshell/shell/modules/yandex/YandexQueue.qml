@@ -14,6 +14,7 @@ Column {
   property string query: ""
 
   readonly property int rowHeight: 38
+  property real room: 0              // the height the list may take (the full mode); 0: upNext rows
   readonly property int currentPos: MpdService.player.pos ?? 0
   readonly property var tracks: {
     const queue = YandexService.queue;
@@ -74,7 +75,7 @@ Column {
   Flickable {
     id: list
     width: parent.width
-    height: Math.min(contentHeight, YandexService.upNext * root.rowHeight)
+    height: Math.min(contentHeight, root.room > 0 ? root.room : YandexService.upNext * root.rowHeight)
     contentHeight: rows.implicitHeight
     clip: true
     boundsBehavior: Flickable.StopAtBounds
@@ -138,12 +139,17 @@ Column {
             }
           }
 
+          // click plays it; right click takes it out of the queue
           MouseArea {
             anchors.fill: parent
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
             cursorShape: Qt.PointingHandCursor
-            onClicked: {
-              MpdService.play(row.modelData.pos);
-              root.searching = false;
+            onClicked: mouse => {
+              if (mouse.button === Qt.RightButton) MpdService.control(["--queue-del", String(row.modelData.pos)]);
+              else {
+                MpdService.play(row.modelData.pos);
+                root.searching = false;
+              }
             }
           }
         }

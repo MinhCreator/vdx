@@ -66,6 +66,7 @@ Item {
     YandexPopup {
       id: content
       anchors.fill: parent
+      onOpenWindow: popup.visible = false
     }
   }
 }

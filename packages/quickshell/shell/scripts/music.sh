@@ -8,11 +8,13 @@
 #   --listen            --status once per MPD event (polls while MPD is down)
 #   --queue             [{pos, artist, title}]
 #   --stations          [{key, name}]
-#   --cover FILE        {ok, path}       embedded cover, cached under ~/.cache
 #   --play [POS] | --pause | --stop | --toggle | --next | --prev | --seek SECONDS | --random
+#   --queue-del POS     take a track out of the queue
 #   --repeat            cycle repeat: off -> all -> one -> off
 #   --radio KEY         play a station
 #   --likes             rebuild the likes queue (manager.py --init)
+#   --likes-at FILE     play a liked track by its file; the likes queue loads first when it is not in
+#   --likes-refresh     rebuild the likes queue after an update, the playing track kept
 #   --update            sync likes from Yandex (manager.py --update) -> {ok, message}
 #
 # Commands that start playback launch mpd.service first when it is down.
@@ -72,17 +74,6 @@ cmd_listen() {
     done
 }
 
-cmd_cover() {
-    local file=$1 path
-    path="$COVERS/$(printf '%s' "$file" | md5sum | cut -c1-16).jpg"
-    if [[ ! -s "$path" ]]; then
-        mkdir -p "$COVERS"
-        mpc readpicture "$file" > "$path" 2>/dev/null
-        [[ -s "$path" ]] || { rm -f "$path"; error "no cover"; return; }
-    fi
-    jq -cn --arg p "$path" '{ok:true, path:$p}'
-}
-
 cmd_repeat() {
     case "$(mpc status $'%repeat%\t%single%')" in
         off*)        mpc -q repeat on;  mpc -q single off ;;
@@ -98,6 +89,49 @@ cmd_radio() {
     [[ -z "$url" ]] && { error "unknown station"; return; }
     mpd_up
     mpc -q clear && mpc -q add "$url" && mpc -q play && ok || error "could not start the station"
+}
+
+# position of FILE in the current queue, empty when it is not there
+queue_pos() {
+    mpc playlist -f $'%position%\t%file%' 2>/dev/null | awk -F'\t' -v f="$1" '$2 == f { print $1; exit }'
+}
+
+cmd_likes_at() {
+    local file=$1 pos
+    pos=$(queue_pos "$file")
+    if [[ -z "$pos" ]]; then
+        mpd_up
+        uv run --script "$MANAGER" --init >/dev/null 2>&1 || { error "could not load likes"; return; }
+        pos=$(queue_pos "$file")
+    fi
+    [[ -z "$pos" ]] && { error "not in the likes"; return; }
+    mpc -q play "$pos" && ok || error "could not play the track"
+}
+
+# the likes queue rebuilt after an update (manager --init would start it from the
+# first track): the same tracks in the same order, the playing one kept at its
+# place. A radio station playing is left alone.
+cmd_likes_refresh() {
+    local file elapsed status music="$HOME/Music/yandex"
+    mpc status >/dev/null 2>&1 || { ok; return; }
+    file=$(mpc current -f '%file%')
+    [[ "$file" == http* ]] && { ok; return; }
+    status=$(mpc status '%state%')
+    elapsed=$(mpc status '%currenttime%' | awk -F: '{ s = 0; for (i = 1; i <= NF; i++) s = s * 60 + $i; print s }')
+    local -a tracks
+    mapfile -t tracks < <(
+        { jq -r '.ids | to_entries | sort_by(.value.index) | .[].value.file' "$HOME/.config/scripts/yandex-music/state.json" 2>/dev/null
+          find "$music" -maxdepth 1 -name '*.mp3' -printf '%f\n'; } | awk '!seen[$0]++' |
+        while IFS= read -r f; do [[ -f "$music/$f" ]] && printf '%s\n' "$f"; done)
+    mpc -q clear
+    (( ${#tracks[@]} )) && mpc -q add "${tracks[@]}"
+    [[ "$status" == stop || -z "$file" ]] && { ok; return; }
+    local pos; pos=$(queue_pos "$file")
+    [[ -z "$pos" ]] && { ok; return; }
+    mpc -q play "$pos"
+    mpc -q seek "$elapsed"
+    [[ "$status" == pause ]] && mpc -q pause
+    ok
 }
 
 cmd_update() {
@@ -116,7 +150,7 @@ case "${1:-}" in
                     jq -Rcs 'split("\n") | map(select(length > 0) | split("\t")
                              | {pos: (.[0] | tonumber), artist: .[1], title: .[2]})' ;;
     --stations) jq -c 'to_entries | map({key, name: .value.name})' "$STATIONS" ;;
-    --cover)    cmd_cover "${2:-}" ;;
+    --queue-del) mpc -q del "${2:-}" && ok || error "could not remove it" ;;
     --play)     mpd_up; mpc -q play ${2:+"$2"} && ok ;;
     --pause)    mpc -q pause && ok ;;
     --stop)     mpc -q stop && ok ;;
@@ -128,6 +162,8 @@ case "${1:-}" in
     --repeat)   cmd_repeat ;;
     --radio)    cmd_radio "${2:-}" ;;
     --likes)    mpd_up; uv run --script "$MANAGER" --init >/dev/null 2>&1 && ok || error "could not load likes" ;;
+    --likes-at) cmd_likes_at "${2:-}" ;;
+    --likes-refresh) cmd_likes_refresh ;;
     --update)   cmd_update ;;
     *)          error "unknown command: ${1:-}" ;;
 esac

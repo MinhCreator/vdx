@@ -26,7 +26,7 @@ in its own repository only (CLAUDE.md).
 ## Part A — Yandex Music fully optional
 
 Status: Implemented, partially verified (MPD listener idles with both music
-components off; moving `yandex_likes.py` not done, gated) · Category: A/B ·
+components off; `yandex_likes.py` moved to the component's ownership (now `scripts/yandex.py`); the fresh-machine test skipped by the owner 2026-10-20) · Category: A/B ·
 Depends on: nothing · Gate: none for fixes; owner approval for moving files
 between components.
 
@@ -74,8 +74,9 @@ Acceptance: Spotify/Firefox/mpv each controllable; two players switch; none → 
 
 ## Part C — Yandex Music application
 
-Status: Not started · Category: C · Depends on: B · Gate: architecture, UX,
-features, dependencies, settings approved; decision record.
+Status: Implemented, partially verified · Category: C · Depends on: B · Gate:
+[decision 0004](../decisions/0004-yandex-music-app.md) accepted 2026-10-20 (owner, chat); the owner's look
+approval and the search / playlist clicks are still open.
 
 - Audit the submodule (`yandex-music-cli`, `manager.py`), `yandex_likes.py`,
   token handling (`private/`, secrets), what works today (likes queue, sync, likes toggle).
@@ -112,3 +113,24 @@ Editing the submodule here; a second audio engine; storing tokens in the repo.
 ## Report
 
 Per part, README formats.
+
+## Report — Part C (2026-10-20)
+
+1. Problem: the module plays only the liked tracks; search, playlists and a
+   library window were missing. Root cause: none; a new feature (task C).
+2. Changes: `scripts/yandex.py` (was `yandex_likes.py`, the git rename) with
+   `--likes-list`, `--search`, `--playlists`, `--playlist`; `scripts/music.sh
+   --likes-at FILE`; `modules/yandex/YandexService.qml` (`toggleLike(id)`,
+   `localIds`, `refreshLikes()`); `apps/yandex/` (YandexWindow, YandexApp,
+   YandexLibrary, YandexTrack, YandexTrackList); `apps/apps.json`, `shell.qml`,
+   `components.toml` (`yandex.py` owned by `yandex-music`); `tests/test_components.py`;
+   the shell README row, `architecture.md`, `roadmap.md`, decision 0004.
+3. Why: decision 0004 (playback in MPD; search and playlist tracks play after the update).
+4. Validation: `./install.py check` green; 175 unit tests OK; backend commands
+   run against the owner's account; the window opens and draws the likes (screenshot);
+   shell log clean for yandex after restart.
+5. Regressions: the module's popup and bar face read the same `YandexService`
+   (its `toggleLike()` without an id still likes the playing track).
+6. Open: the owner's look check of the window (design.md, prototype); clicking
+   through Search, Playlists and a play from the app; the fresh-machine test (skipped by the owner).
+

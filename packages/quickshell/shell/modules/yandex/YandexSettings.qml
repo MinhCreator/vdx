@@ -25,5 +25,16 @@ KitColumn {
     model: [{ label: "30", value: 30 }, { label: "45", value: 45 }, { label: "60", value: 60 }, { label: "Full", value: -1 }]
   }
 
+  KitLine {}
+
+  KitLabel { text: "WINDOW" }
+
+  // the player window: its own options are under Apps › Yandex Music
+  KitLinkRow {
+    label: "Yandex Music"
+    hint: "The player, playlists and the full mode"
+    app: "yandex-music"
+  }
+
   KitGrouper {}
 }

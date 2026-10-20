@@ -50,5 +50,10 @@
     "ipc": "captures", "open": "toggle",
     "window": { "id": "capture", "title": "Capture", "width": 760, "height": 600 },
     "settings": "apps/capture/CaptureSettings.qml",
-    "module": "capture", "moduleSettings": "apps/capture/CaptureBarSettings.qml" }
+    "module": "capture", "moduleSettings": "apps/capture/CaptureBarSettings.qml" },
+  { "id": "yandex", "label": "Yandex Music", "icon": "music", "about": "A player: likes, search, playlists; plays what the update downloaded",
+    "ipc": "yandex-music", "open": "toggle",
+    "window": { "id": "yandex", "title": "Yandex Music", "width": 640, "height": 640 },
+    "settings": "apps/yandex/YandexAppSettings.qml",
+    "module": "yandex", "moduleSettings": "modules/yandex/YandexSettings.qml" }
 ]

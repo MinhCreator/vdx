@@ -2,21 +2,15 @@ import QtQuick
 import qs.config
 import qs.kit
 import qs.modules.mpd
-import Quickshell.Widgets
 
-// Music (Yandex likes over MPD): the track with cover, timeline and controls,
-// then the queue.
+// Music (Yandex likes over MPD): the playing track or the queue. The app's
+// button opens the same player as a window (Yandex Music).
 KitFrame {
   id: root
 
-  readonly property var player: MpdService.player
-
   property string tab: "playing"
 
-  function clock(seconds) {
-    const s = Math.max(0, Math.floor(seconds));
-    return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
-  }
+  signal openWindow()
 
   // ---- header ----
   KitHeader {
@@ -24,7 +18,16 @@ KitFrame {
     iconColor: YandexService.active ? Theme.foreground0 : Theme.muted
     title: "Music"
     subtitle: !YandexService.active ? (MpdService.busy === "likes" ? "LOADING LIKES…" : "OFF")
-      : (MpdService.playing ? "PLAYING" : "PAUSED") + " · " + root.player.pos + " / " + root.player.length
+      : (MpdService.playing ? "PLAYING" : "PAUSED") + " · " + MpdService.player.pos + " / " + MpdService.player.length
+
+    KitButton {
+      anchors.verticalCenter: parent.verticalCenter
+      icon: "external"
+      onClicked: {
+        root.openWindow();
+        YandexService.openApp();
+      }
+    }
 
     KitSwitch {
       anchors.verticalCenter: parent.verticalCenter
@@ -53,153 +56,8 @@ KitFrame {
     font.pixelSize: Theme.fontSize - 1
   }
 
-  // ---- now playing ----
-  Column {
-    width: parent.width
+  YandexNowPlaying {
     visible: YandexService.active && root.tab === "playing"
-    spacing: Theme.gapWide
-
-    Item {
-      width: parent.width
-      height: YandexService.coverSize
-
-      ClippingRectangle {
-        radius: Theme.radiusCard
-        id: cover
-        width: YandexService.coverSize
-        height: width
-        color: Theme.background1
-        border.width: Theme.frameWidth
-        border.color: Theme.background3
-
-        Image {
-          anchors { fill: parent; margins: 1 }
-          source: YandexService.cover
-          fillMode: Image.PreserveAspectCrop
-          asynchronous: true
-          sourceSize { width: YandexService.coverSize * 2; height: YandexService.coverSize * 2 }
-        }
-
-        KitIcon {
-          anchors.centerIn: parent
-          visible: YandexService.cover === ""
-          name: "music"
-          tint: Theme.gray
-          size: Theme.iconLarge
-        }
-      }
-
-      Column {
-        anchors {
-          left: cover.right; leftMargin: Theme.gapWide
-          right: like.left; rightMargin: Theme.gapMedium
-          verticalCenter: parent.verticalCenter
-        }
-        spacing: Theme.gapHair
-
-        KitText {
-          width: parent.width
-          text: root.player.title || root.player.file || ""
-          elide: Text.ElideRight
-          font.weight: Font.ExtraBold
-        }
-
-        KitText {
-          width: parent.width
-          text: root.player.artist || "—"
-          elide: Text.ElideRight
-          color: Theme.foreground2
-          font.pixelSize: Theme.fontSize - 1
-        }
-
-        KitText {
-          width: parent.width
-          text: [root.player.album, root.player.year].filter(s => s).join(" · ")
-          elide: Text.ElideRight
-          color: Theme.muted
-          font.pixelSize: Theme.fontSize - 2
-        }
-      }
-
-      KitButton {
-        id: like
-        anchors { right: parent.right; top: parent.top }
-        visible: YandexService.trackId !== ""
-        icon: YandexService.isLiked ? "heart-filled" : "heart"
-        iconTint: YandexService.isLiked ? Theme.red : Theme.foreground0
-        onClicked: YandexService.toggleLike()
-      }
-    }
-
-    // ---- timeline ----
-    Column {
-      width: parent.width
-      spacing: Theme.gapTight
-
-      KitSlider {
-        id: timeline
-        width: parent.width
-        value: MpdService.duration > 0 ? MpdService.elapsed / MpdService.duration : 0
-        onReleased: value => MpdService.seek(value)
-      }
-
-      Item {
-        width: parent.width
-        height: elapsed.implicitHeight
-
-        KitText {
-          id: elapsed
-          text: root.clock(timeline.pressed ? timeline.dragValue * MpdService.duration : MpdService.elapsed)
-          color: Theme.muted
-          font.pixelSize: Theme.fontSize - 2
-        }
-
-        KitText {
-          anchors.right: parent.right
-          text: root.clock(MpdService.duration)
-          color: Theme.muted
-          font.pixelSize: Theme.fontSize - 2
-        }
-      }
-    }
-
-    // ---- controls ----
-    Item {
-      width: parent.width
-      height: 30
-
-      KitButton {
-        anchors.left: parent.left
-        icon: "shuffle"
-        selected: !!root.player.random
-        iconTint: !!root.player.random ? Theme.foreground0 : Theme.gray
-        onClicked: MpdService.toggleRandom()
-      }
-
-      Row {
-        anchors.centerIn: parent
-        spacing: Theme.gapMedium
-
-        KitButton { icon: "skip-back"; onClicked: MpdService.prev() }
-
-        KitButton {
-          width: 52
-          icon: MpdService.playing ? "pause" : "play"
-          selected: true
-          onClicked: MpdService.toggle()
-        }
-
-        KitButton { icon: "skip-forward"; onClicked: MpdService.next() }
-      }
-
-      KitButton {
-        anchors.right: parent.right
-        icon: root.player.repeat === "one" ? "repeat-1" : "repeat"
-        selected: root.player.repeat !== "off"
-        iconTint: root.player.repeat !== "off" ? Theme.foreground0 : Theme.gray
-        onClicked: MpdService.cycleRepeat()
-      }
-    }
   }
 
   YandexQueue {
