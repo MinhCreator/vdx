@@ -440,10 +440,6 @@ Item {
     if (view === "power") power.reset();
     if (view === "launcher") islandLauncher.reset();
     if (view === "keybinds") islandKeybinds.reset();
-    // the screen whose hub is open: a capture starts at once, the hub stays in the still
-    const mine = bar.screen?.name ?? "";
-    if (view === "hub") PopupManager.hubScreen = mine;
-    else if (PopupManager.hubScreen === mine) PopupManager.hubScreen = "";
   }
   onGrabbingChanged: if (grabbing) keys.forceActiveFocus()
 

@@ -13,8 +13,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | Shell Manager | Super+S | `shell toggle`, `shell open <page>[:<group or app>]`, `shell search <words>` (the sidebar's search) |
 | Task Manager | Ctrl+Shift+Esc | `taskmanager toggle` |
 | Cleaner | Super+X | `cleaner toggle` |
-| Capture | Super+Shift+S | `capture open\|stop\|close` |
-| Capture (window) | — | `captures toggle` |
+| Capture | Super+Shift+S · Super+P | `capture open\|stop\|close\|library\|shot <region\|window\|screen>`: the screens freeze as they are (popups, the island), a toolbar at the bottom picks what (R W S: region, window or popup, screen), as (Tab: shot, recording), the sound, the pointer (C), a Delay (Settings › Apps › Capture); again: cancel, or stop the recording. Super+P (`shot screen`): the focused screen at once. The bar module is a button for the same and shows a recording; `library` toggles the window of saved captures |
 | System menu | Alt+Space | `launcher toggle` |
 | Packages | — | `packages toggle` |
 | Display | — | `display toggle` |

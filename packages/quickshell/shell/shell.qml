@@ -91,6 +91,8 @@ Scope {
 
   CaptureRecording {}
 
+  CaptureCountdown {}
+
   CaptureSave {}
 
   // `install.py theme set` (here or from a terminal) writes .theme; reread the

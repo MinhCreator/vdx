@@ -107,6 +107,12 @@ class Migrate(unittest.TestCase):
         v = self.read("modules.json")["values"]
         self.assertEqual(v, {"yandex": {"show": "title"}, "radio": {"titleLength": 45}})
 
+    def test_capture_popup_options_go(self):
+        self.write("modules.json", {"version": 4, "values": {"capture": {
+            "shortcut": "popup", "detached": True, "popupFps": True, "quality": "high", "text": "icon"}}})
+        self.run_it()
+        self.assertEqual(self.read("modules.json")["values"]["capture"], {"quality": "high", "text": "icon"})
+
     def test_twice_is_once(self):
         self.write("modules.json", {"values": {"music": {"titleLength": 0}}})
         self.run_it()

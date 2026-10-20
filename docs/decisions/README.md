@@ -9,6 +9,7 @@ One file per significant architecture or design decision:
 | [0002](0002-settings-ia.md) | Settings information architecture | Accepted |
 | [0003](0003-docs-layout.md) | Docs layout: index + one topic per file | Accepted |
 | [0004](0004-yandex-music-app.md) | Yandex Music app: scope, playback and backend | Accepted |
+| [0005](0005-capture-freeze-first.md) | Capture: freeze first, a toolbar on the overlay | Accepted |
 
 Open questions that will become records are listed in the roadmap
 ([roadmap.md › Open questions](../roadmap.md#open-questions)).

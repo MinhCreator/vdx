@@ -1,13 +1,12 @@
 import QtQuick
 import Quickshell
-import Quickshell.Io
 import qs.components
 import qs.config
 import qs.kit
 
-// Capture as a window of its own (how it opens: Shell apps): the library of the
-// saved screenshots and recordings. Taking one is the bar popup's job.
-// `qs -c shell ipc call captures <toggle|open|library|close>`; Escape closes.
+// Capture's window: the library of the saved screenshots and recordings.
+// Taking one is the overlay's job (Super+Shift+S). `qs -c shell ipc call
+// capture library` toggles it, the toolbar's Library opens it; Escape closes.
 FloatingWindow {
   id: root
 
@@ -74,11 +73,11 @@ FloatingWindow {
     onActivated: root.visible = false
   }
 
-  IpcHandler {
-    target: "captures"
-    function toggle(): void { Hypr.toggleWindow(root); }
-    function open(): void { root.visible = true; }
-    function library(): void { root.visible = true; }
-    function close(): void { root.visible = false; }
+  Connections {
+    target: CaptureService
+    function onLibraryRequested(toggle) {
+      if (toggle) Hypr.toggleWindow(root);
+      else root.visible = true;
+    }
   }
 }

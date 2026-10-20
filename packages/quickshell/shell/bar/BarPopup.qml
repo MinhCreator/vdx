@@ -57,9 +57,7 @@ PopupWindow {
   // module may have moved between bars) and kept until the popup is hidden.
   property Item host: null
   readonly property bool inIsland: !!host
-  // `detached`: its own window under the bar even in the island style, not out of the island
-  property bool detached: false
-  function place() { host = Theme.island && !root.detached ? root.bar.popupHost(root.anchorItem) : null; }
+  function place() { host = Theme.island ? root.bar.popupHost(root.anchorItem) : null; }
 
   anchor.window: root.bar
   anchor.edges: Edges.Bottom | (alignLeft ? Edges.Left : Edges.Right)
@@ -72,16 +70,10 @@ PopupWindow {
   // the popup is open (track titles, values) and the popup must not follow.
   anchor.onAnchoring: {
     if (root.anchorX < 0) {
-      if (root.detached) {
-        // its own window: the bar's right edge, growing left (the Capture module is on the right)
-        root.alignLeft = false;
-        root.anchorX = root.bar.width - 1;
-      } else {
-        root.alignLeft = root.anchorItem.mapToItem(root.bar.contentItem, root.anchorItem.width / 2, 0).x
-                         < root.bar.width / 2;
-        const p = root.anchorItem.mapToItem(root.bar.contentItem, root.alignLeft ? 0 : root.anchorItem.width, 0);
-        root.anchorX = Math.round(p.x) - 1;
-      }
+      root.alignLeft = root.anchorItem.mapToItem(root.bar.contentItem, root.anchorItem.width / 2, 0).x
+                       < root.bar.width / 2;
+      const p = root.anchorItem.mapToItem(root.bar.contentItem, root.alignLeft ? 0 : root.anchorItem.width, 0);
+      root.anchorX = Math.round(p.x) - 1;
     }
     anchor.rect.x = root.anchorX;
     anchor.rect.y = Theme.barEdge - 1;
@@ -104,8 +96,7 @@ PopupWindow {
   onVisibleChanged: {
     if (visible) {
       root.place();
-      // a detached popup is no part of the one-open rule: it opens beside the others
-      if (!root.detached) PopupManager.open(root);       // closes the previous popup: its line is the slide's start
+      PopupManager.open(root);       // closes the previous popup: its line is the slide's start
       if (root.inIsland) root.host.showPopup(root);
       underline.start();
       root.comeIn();
@@ -291,10 +282,9 @@ PopupWindow {
     onTriggered: if (underline.waitFrames === 0) underline.follow(underline.target())
   }
 
-  // a detached popup takes no focus: taking it would clear the other popups' grabs
   HyprlandFocusGrab {
     windows: [root.inIsland ? root.bar : root]
-    active: root.visible && !PopupManager.holding && !root.detached
+    active: root.visible && !PopupManager.holding
     onCleared: if (!PopupManager.holding) root.visible = false
   }
 }

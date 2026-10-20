@@ -14,7 +14,7 @@ QML keeps reading the old shapes too (a live reload runs without this)."""
 import hashlib, json, os, sys
 from pathlib import Path
 
-VERSION = 4
+VERSION = 5
 FILES = ("settings.json", "modules.json", "layout.json")
 RENAMED = {"claude": "ai", "plugins": "shell"}       # module ids that changed (BarLayout.renamed)
 
@@ -102,7 +102,18 @@ def to_4(name: str, data: dict) -> None:
             files.pop("hints", None)
 
 
-MIGRATIONS = {0: to_1, 1: to_2, 2: to_3, 3: to_4}          # n -> the step from version n to n + 1
+def to_5(name: str, data: dict) -> None:
+    """Version 5: Capture has no popup: the shortcut freezes the screens and the overlay's
+    toolbar holds the choices, so how the shortcut opens and the popup's own window are gone."""
+    if name == "modules.json":
+        values = data.get("values")
+        capture = values.get("capture") if isinstance(values, dict) else None
+        if isinstance(capture, dict):
+            for key in ("shortcut", "detached", "detachedSide", "popupFps", "popupSound"):
+                capture.pop(key, None)
+
+
+MIGRATIONS = {0: to_1, 1: to_2, 2: to_3, 3: to_4, 4: to_5}          # n -> the step from version n to n + 1
 
 
 def migrate(name: str, data: dict) -> dict:

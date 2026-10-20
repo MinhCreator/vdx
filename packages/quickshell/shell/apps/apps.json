@@ -47,7 +47,7 @@
     "ipc": "backup", "open": "toggle",
     "window": { "id": "backup", "title": "Backups", "width": 900, "height": 640 }, "module": "backup", "moduleSettings": "apps/backup/BackupBarSettings.qml" },
   { "id": "capture", "label": "Capture", "icon": "camera", "about": "Screenshots and recordings, a library",
-    "ipc": "captures", "open": "toggle",
+    "ipc": "capture", "open": "library",
     "window": { "id": "capture", "title": "Capture", "width": 760, "height": 600 },
     "settings": "apps/capture/CaptureSettings.qml",
     "module": "capture", "moduleSettings": "apps/capture/CaptureBarSettings.qml" },

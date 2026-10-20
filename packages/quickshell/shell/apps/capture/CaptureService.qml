@@ -9,8 +9,10 @@ import qs.config
 import qs.modules.battery
 
 // Screen capture: the state of the overlay (CaptureOverlay) and the recording
-// (CaptureRecording). Super+Shift+S calls `qs -c shell ipc call capture open`;
-// while recording the same call stops it.
+// (CaptureRecording). Super+Shift+S calls `qs -c shell ipc call capture open`:
+// the screens freeze at once, as they are (open popups, the island, menus), and
+// the choices are the overlay's toolbar. While recording the same call stops it.
+// The bar module is a button for the same; it shows the recording.
 //
 // Opening is staged so nothing flickers: `armed` creates the overlays, which
 // grab a still of every screen with the pointer while still transparent. A
@@ -38,29 +40,35 @@ Singleton {
   // [{x, y, width, height}]
   property var windows: []
   property point pointerAt: Qt.point(-1, -1)   // layout coordinates at open
+  // the shell's own surfaces (the island, child bars, an open popup) as targets of
+  // Window: each bar adds its own on targetsAsked, topmost first, layout coordinates
+  property var shellTargets: []
+  signal targetsAsked()
+  function addTargets(rects) { shellTargets = shellTargets.concat(rects); }
+  // Screen on the focused monitor, straight away: no toolbar, no dim (`capture shot screen`)
+  property bool instant: false
 
   // ---- this capture ----
   readonly property bool cursor: settings.cursor      // the pointer in the shot / recording
 
-  // ---- saved choices ----
-  // the last picked, kept across restarts: a bar click can start it at once
+  // ---- the toolbar's choices ----
+  // the last picked, kept across restarts (capture.json): the next capture starts with them
   readonly property string mode: settings.mode          // region | window | screen
   readonly property string kind: settings.kind          // shot | record
   readonly property string audio: settings.audio        // off | system | mic
-  // the one-time options live in modules.json (Shell Manager › Apps › Capture); capture.json
-  // only keeps the last pick. An option never set there falls back to its old capture.json value.
-  readonly property int fps: ModuleSettings.get("capture", "fps", settings.fps)
-  readonly property string quality: ModuleSettings.get("capture", "quality", settings.quality)    // low | medium | high
+  // ---- options (modules.json: Shell Manager › Apps › Capture) ----
+  readonly property int fps: ModuleSettings.get("capture", "fps", 60)
+  readonly property string quality: ModuleSettings.get("capture", "quality", "medium")    // low | medium | high
   // auto | igpu | gpu | cpu. Auto keeps the discrete GPU asleep on battery:
   // the recorder then sees only Mesa (the integrated GPU) and never loads NVIDIA.
-  readonly property string encoder: ModuleSettings.get("capture", "encoder", settings.encoder)
+  readonly property string encoder: ModuleSettings.get("capture", "encoder", "auto")
   readonly property string encoderInUse: encoder !== "auto" ? encoder : BatteryService.plugged ? "gpu" : "igpu"
   // auto | h264 | hevc. Auto is HEVC on the GPU and H.264 on the CPU (x264 has no HEVC here).
   // H.264 on the GPU tints the faint greys of a flat wallpaper; HEVC keeps them.
-  readonly property string codec: ModuleSettings.get("capture", "codec", settings.codec)
+  readonly property string codec: ModuleSettings.get("capture", "codec", "auto")
   readonly property string codecInUse: encoderInUse === "cpu" ? "h264" : codec !== "auto" ? codec : "hevc"
   // the problems the codec and quality can cause here, most important first:
-  // {title, text, warn}; Shell Manager lists them all, the panel shows codecNote
+  // {title, text, warn}; Shell Manager lists them all, the toolbar shows codecNote
   readonly property var codecIssues: {
     const issues = [];
     if (codec === "hevc" && encoderInUse === "cpu")
@@ -76,11 +84,25 @@ Singleton {
   // the first warning, else the first note; null when there is nothing to say
   readonly property var codecNote: codecIssues.find(i => i.warn) ?? codecIssues[0] ?? null
 
+  // ---- delay ----
+  // seconds; 0: no Delay button in the toolbar. The button lets the screen go,
+  // counts down (CaptureCountdown) and freezes it again
+  readonly property int delay: ModuleSettings.get("capture", "delay", 0)
+  property int countdown: 0             // seconds left; 0: none running
+
   // ---- recording ----
   readonly property bool recording: recorder.running
   property string recordFile: ""
   property real recordStarted: 0
-  // gpu-screen-recorder presets behind the panel's Low / Medium / High
+  property rect recordRect: Qt.rect(0, 0, 0, 0)     // layout coordinates
+  property int elapsed: 0               // seconds, while recording
+  // "05:42", for the faces that show it
+  readonly property string elapsedText: String(Math.floor(elapsed / 60)).padStart(2, "0") + ":" + String(elapsed % 60).padStart(2, "0")
+  // the screens whose bar shows the Capture module (they show the recording;
+  // the others get CaptureRecording's panel): asked when a recording starts
+  property var faceScreens: []
+  signal facesAsked()
+  // gpu-screen-recorder presets behind the options' Low / Medium / High
   readonly property var presets: ({ low: "medium", medium: "high", high: "very_high" })
   readonly property string mesaOnly: "/usr/share/glvnd/egl_vendor.d/50_mesa.json"
 
@@ -88,7 +110,7 @@ Singleton {
   // folders from Shell Manager › Apps › Capture; empty: the defaults
   readonly property string shotDir: ModuleSettings.get("capture", "shotDir", "") || Quickshell.env("HOME") + "/Pictures/Screenshots"
   // after a shot: folder | ask (a Save as window) | clipboard (nothing on disk);
-  // after a recording: folder | ask. Shell Manager › Apps › Capture, and the panel.
+  // after a recording: folder | ask. Shell Manager › Apps › Capture.
   readonly property string shotTarget: ModuleSettings.get("capture", "shotTarget", "folder")
   readonly property string videoTarget: ModuleSettings.get("capture", "videoTarget", "folder")
   readonly property bool notifyShot: ModuleSettings.get("capture", "notifyShot", true)     // off: no toast; errors still show
@@ -101,31 +123,27 @@ Singleton {
 
   function stamp() { return Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss"); }
 
-  // Super+Shift+S, as Apps › Capture › Shortcut opens says:
-  //   popup     — the panel from the focused bar's Capture module; with no module
-  //               there, from the centre of that bar (CaptureFallback);
-  //   else-last — the panel from the module; with no module there, the selection
-  //               at once with the last picked mode;
-  //   last      — the selection at once with the last picked mode, no panel.
+  // Super+Shift+S and the bar module: stops a recording, cancels a countdown,
+  // closes an open overlay, else freezes the screens and shows the toolbar
   function open() {
     if (recording) { stopRecording(); return; }
-    if (armed) return;
-    const how = ModuleSettings.get("capture", "shortcut", "popup");
-    if (how === "last") { startSelection(); return; }
-    // the hub is open on the focused screen: the panel would replace it, so the
-    // selection starts at once with the last mode and the hub stays in the still
-    if (PopupManager.hubScreen !== "" && PopupManager.hubScreen === Hyprland.focusedMonitor?.name) { startSelection(); return; }
-    panelHandled = false;
-    panelRequested();
-    if (panelHandled) return;
-    if (how === "else-last") startSelection();
-    else panelFallbackRequested();
+    if (countdown > 0) { cancelDelay(); return; }
+    if (armed) { close(); return; }
+    startSelection();
   }
 
-  // no bar's module answered: the focused bar's CaptureFallback shows the panel
-  signal panelFallbackRequested();
+  // `capture shot <region|window|screen>`: screen is taken on the focused
+  // monitor at once; region and window open the overlay on that choice
+  function shot(target) {
+    if (recording || armed || countdown > 0) return;
+    if (!["region", "window", "screen"].includes(target)) return;
+    if (target === "screen") { instant = true; startSelection(); return; }
+    setMode(target);
+    setKind("shot");
+    startSelection();
+  }
 
-  // the selection on screen, with the choices the panel holds
+  // freezes the screens: the stills, then the overlay with its toolbar
   function startSelection() {
     if (recording || armed) return;
     closing = false;
@@ -135,14 +153,26 @@ Singleton {
     plainCapture = false;
     run(["sh", "-c", 'mkdir -p "$1" "$2"; find "$2" -name "Screenshot_*" -mmin +60 -delete', "sh", shotDir, cacheDir]);
     pointerAt = Qt.point(-1, -1);
+    shellTargets = [];
+    targetsAsked();
     windowsProc.running = true;
     PopupManager.holding = true;
     armed = true;
   }
 
-  // the focused bar's capture module answers by showing its panel
-  property bool panelHandled: false
-  signal panelRequested()
+  // the toolbar's Delay: the overlay goes, the countdown runs, the screens freeze again
+  function startDelay() {
+    if (delay <= 0 || !armed) return;
+    close();
+    countdown = delay;
+    countdownTimer.restart();
+  }
+
+  function cancelDelay() {
+    countdown = 0;
+    countdownTimer.stop();
+    countdownEnd.stop();
+  }
 
   function setPointerHidden(hidden) {
     pointerHidden = hidden;
@@ -173,6 +203,7 @@ Singleton {
 
   function close() {
     if (!armed || closing) return;
+    instant = false;
     closing = true;
     freezeTimer.stop();
     if (pointerHidden) setPointerHidden(false);
@@ -184,6 +215,7 @@ Singleton {
   function setKind(value) { settings.kind = value; }
   function setAudio(value) { settings.audio = value; }
   function setCursor(value) { settings.cursor = value; }
+  function cycleKind() { setKind(kind === "shot" ? "record" : "shot"); }
 
   // where a new shot is written first: its folder, or the cache until Save as / never
   function shotPath() {
@@ -244,6 +276,7 @@ Singleton {
     if (encoderInUse === "cpu") args.push("-encoder", "cpu");
     if (encoderInUse === "igpu") args.unshift("env", "__EGL_VENDOR_LIBRARY_FILENAMES=" + mesaOnly);
     recordFile = file;
+    recordRect = rect;
     // start after the overlay is gone, so it is not in the first frames
     recordStart.args = ["sh", "-c", 'mkdir -p "$1" && shift && exec "$@"', "sh", folder].concat(args);
     recordStart.restart();
@@ -255,8 +288,9 @@ Singleton {
 
   function run(command) { Quickshell.execDetached(command); }
 
-  // the app's window, on its Library tab (CaptureWindow's IpcHandler)
-  function openLibrary() { run(["qs", "-c", "shell", "ipc", "call", "captures", "library"]); }
+  // the library's window (CaptureWindow)
+  signal libraryRequested(bool toggle)
+  function openLibrary() { libraryRequested(false); }
   function fail(title, message) {
     run(["notify-send", "-a", "Capture", "-u", "critical", title, message]);
   }
@@ -292,10 +326,40 @@ Singleton {
     property var args: []
     interval: closeTimer.interval + 60   // after the overlay is gone, not while it fades
     onTriggered: {
+      // the bars showing the module first, so the panel never flashes on them
+      root.faceScreens = [];
+      root.facesAsked();
+      root.elapsed = 0;
+      root.recordStarted = Date.now();
       recorder.command = args;
       recorder.running = true;
-      root.recordStarted = Date.now();
     }
+  }
+
+  Timer {
+    interval: 500
+    running: root.recording
+    repeat: true
+    onTriggered: root.elapsed = Math.floor((Date.now() - root.recordStarted) / 1000)
+  }
+
+  // ---- countdown ----
+  Timer {
+    id: countdownTimer
+    interval: 1000
+    repeat: true
+    onTriggered: {
+      if (root.countdown > 1) { root.countdown -= 1; return; }
+      stop();
+      root.countdown = 0;
+      countdownEnd.restart();
+    }
+  }
+
+  Timer {
+    id: countdownEnd
+    interval: 150       // the countdown's panel is gone before the stills are taken
+    onTriggered: root.startSelection()
   }
 
   // ---- hyprland windows ----
@@ -310,12 +374,12 @@ Singleton {
           root.pointerAt = Qt.point(pos.x, pos.y);
           const monitors = JSON.parse(m);
           const shownWs = monitors.reduce((ids, x) => ids.concat([x.activeWorkspace?.id, x.specialWorkspace?.id]), []).filter(id => id);
-          root.windows = JSON.parse(c)
+          root.windows = root.shellTargets.concat(JSON.parse(c)
             .filter(w => w.mapped && !w.hidden && shownWs.includes(w.workspace?.id))
             .sort((a, b) => a.focusHistoryID - b.focusHistoryID)
-            .map(w => ({ x: w.at[0], y: w.at[1], width: w.size[0], height: w.size[1] }));
+            .map(w => ({ x: w.at[0], y: w.at[1], width: w.size[0], height: w.size[1] })));
         } catch (e) {
-          root.windows = [];
+          root.windows = root.shellTargets;
         }
       }
     }
@@ -325,16 +389,34 @@ Singleton {
   Process {
     id: recorder
     stderr: StdioCollector { id: recorderErr }
+    // whatever the exit code (a stop is 0, 2 or 130; an error is 1 or 2 too),
+    // the recording is there when its file is: recordCheck decides
     onExited: code => {
       if (root.recordFile === "") return;
-      if (code === 0 || code === 130 || code === 2) {
-        if (root.recordAsk)
-          root.pending = { kind: "video", tmp: root.recordFile, path: root.videoDir + "/" + root.recordFile.split("/").pop() };
-        else if (root.notifyRecord)
-          root.run(["notify-send", "-a", "Capture", "Recording saved", root.recordFile]);
-      } else
-        root.fail("Recording failed", recorderErr.text.trim().split("\n").pop() || "gpu-screen-recorder exited with " + code);
+      recordCheck.file = root.recordFile;
+      recordCheck.code = code;
+      recordCheck.running = true;
       root.recordFile = "";
+    }
+  }
+
+  Process {
+    id: recordCheck
+    property string file: ""
+    property int code: 0
+    command: ["test", "-s", file]
+    onExited: status => {
+      if (status === 0) {
+        if (root.recordAsk)
+          root.pending = { kind: "video", tmp: file, path: root.videoDir + "/" + file.split("/").pop() };
+        else if (root.notifyRecord)
+          root.run(["notify-send", "-a", "Capture", "Recording saved", file]);
+        return;
+      }
+      // the recorder's own reason: its last "gsr error" line, else its last line
+      const lines = recorderErr.text.trim().split("\n");
+      const error = lines.filter(l => l.includes("gsr error")).pop()?.replace(/^gsr error:\s*/, "");
+      root.fail("Recording failed", error || lines.pop() || "gpu-screen-recorder exited with " + code);
     }
   }
 
@@ -350,10 +432,6 @@ Singleton {
       property string mode: "region"
       property string kind: "shot"
       property string audio: "off"
-      property int fps: 60
-      property string quality: "medium"
-      property string encoder: "auto"
-      property string codec: "auto"
       property bool cursor: false
     }
   }
@@ -362,6 +440,8 @@ Singleton {
     target: "capture"
     function open(): void { root.open(); }
     function stop(): void { root.stopRecording(); }
-    function close(): void { root.close(); }
+    function close(): void { root.cancelDelay(); root.close(); }
+    function shot(target: string): void { root.shot(target); }
+    function library(): void { root.libraryRequested(true); }
   }
 }

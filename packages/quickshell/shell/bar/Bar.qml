@@ -1,12 +1,12 @@
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
+import qs.apps.capture
 import qs.apps.shellmanager
 import qs.bar.island
 import qs.components
 import qs.config
 import qs.kit
-import qs.modules.capture
 
 // Top bar for one screen. Modules come from BarLayout (three zones, order,
 // switched-off ones); separators sit between neighbours of a zone only. The
@@ -328,8 +328,42 @@ PanelWindow {
     onImplicitWidthChanged: root.scheduleFold()
   }
 
-  // Super+Shift+S with no Capture module on this bar: the panel from the centre
-  CaptureFallback { bar: root; anchorItem: centerZone }
+  // ---- capture ----
+  // Window in the capture overlay picks the shell's own surfaces too: an open
+  // popup, the island, the child bars' islands, the strip. Layout coordinates;
+  // the window sits at the screen's top left.
+  Connections {
+    target: CaptureService
+    function onTargetsAsked() { CaptureService.addTargets(root.captureTargets()); }
+  }
+
+  function captureTargets() {
+    const sx = root.modelData.x, sy = root.modelData.y;
+    const rectOf = item => {
+      const p = item.mapToItem(root.contentItem, 0, 0);
+      return { x: sx + p.x, y: sy + p.y, width: item.width, height: item.height };
+    };
+    const out = [];
+    const pop = PopupManager.current;
+    if (pop?.visible && pop.bar === root && !pop.inIsland && pop.anchorX >= 0)
+      out.push({ x: sx + (pop.alignLeft ? pop.anchorX : pop.anchorX + 1 - pop.width), y: sy + Theme.barEdge + Theme.popupGap,
+                 width: pop.width, height: pop.height });
+    if (!Theme.island) {
+      out.push({ x: sx, y: sy, width: root.width, height: Theme.barHeight });
+      return out;
+    }
+    if (root.islandItem && !root.islandItem.hidden) out.push(rectOf(root.islandItem.shape));
+    const walk = item => {
+      for (let i = 0; i < item.children.length; i++) {
+        const c = item.children[i];
+        if (!c.visible) continue;
+        if (c.hostsPopups === true) { if (c.width > 0 && c.opacity > 0.5) out.push(rectOf(c)); }
+        else walk(c);
+      }
+    };
+    walk(root.contentItem);
+    return out;
+  }
 
   // island style: the Island; BarPopup opens a module's popup in it
   readonly property Item islandItem: islandLoader.item

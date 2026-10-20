@@ -5,12 +5,13 @@ import Quickshell.Wayland
 import qs.config
 import qs.kit
 
-// The capture overlay, one per screen: a still copy of the screen (open bar
-// popups included; with or without the pointer), dimmed except for the
-// target — a dragged region, the window or the screen under the pointer. A hint
-// sits on the focused monitor; the choices are in the bar's capture panel. A
-// shot is cropped from the still at full resolution; a recording starts on the
-// target. Esc or a right click cancels.
+// The capture overlay, one per screen: a still copy of the screen (open
+// popups, the island and menus included; with or without the pointer), dimmed
+// except for the target — a dragged region, the window (or the shell's popup,
+// island) or the screen under the pointer. The focused monitor holds the
+// toolbar (CaptureToolbar) with the choices and their keys. A shot is cropped
+// from the still at full resolution; a recording starts on the target. Esc or
+// a right click cancels.
 Variants {
   model: CaptureService.armed ? Quickshell.screens : []
 
@@ -62,7 +63,9 @@ Variants {
     Behavior on fy { enabled: root.glide && Motion.panels; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
     Behavior on fw { enabled: root.glide && Motion.panels; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
     Behavior on fh { enabled: root.glide && Motion.panels; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
-    readonly property bool live: CaptureService.shown && !CaptureService.closing
+    readonly property bool live: CaptureService.shown && !CaptureService.closing && !CaptureService.instant
+    // where the pointer last was: a new mode picks its target from there at once
+    property point hoverAt: Qt.point(-1, -1)
 
     function setTarget(r) {
       glide = hasTarget && CaptureService.mode !== "region";
@@ -89,7 +92,7 @@ Variants {
     function finish() {
       if (!hasTarget) return;
       finishing = true;
-      if (CaptureService.kind === "record") {
+      if (CaptureService.kind === "record" && !CaptureService.instant) {
         CaptureService.startRecording(Qt.rect(target.x + modelData.x, target.y + modelData.y, target.width, target.height));
         return;
       }
@@ -112,7 +115,23 @@ Variants {
     Connections {
       target: CaptureService
       function onPlainCaptureChanged() { if (CaptureService.plainCapture) root.plainOn = true; }
-      function onModeChanged() { root.setTarget(Qt.rect(0, 0, 0, 0)); }
+      function onModeChanged() {
+        root.dragging = false;
+        root.setTarget(CaptureService.mode !== "region" && root.hoverAt.x >= 0 ? root.pick(root.hoverAt.x, root.hoverAt.y) : Qt.rect(0, 0, 0, 0));
+      }
+      // the target under the pointer at once; `capture shot screen`: the
+      // focused monitor's still, as soon as it is in
+      function onShownChanged() {
+        if (!CaptureService.shown) return;
+        if (root.pointerHere && root.hoverAt.x < 0) root.hoverAt = root.pointer;
+        if (CaptureService.instant) {
+          if (!root.focusedHere) return;
+          root.setTarget(Qt.rect(0, 0, root.width, root.height));
+          root.finish();
+        } else if (CaptureService.mode !== "region" && root.hoverAt.x >= 0) {
+          root.setTarget(root.pick(root.hoverAt.x, root.hoverAt.y));
+        }
+      }
     }
 
     Item {
@@ -121,6 +140,17 @@ Variants {
       focus: true
 
       Keys.onEscapePressed: CaptureService.close()
+      // the toolbar's keys: r w s what, tab shot / recording, c the pointer
+      Keys.onPressed: event => {
+        if (!root.live || root.finishing) return;
+        if (event.key === Qt.Key_R) CaptureService.setMode("region");
+        else if (event.key === Qt.Key_W) CaptureService.setMode("window");
+        else if (event.key === Qt.Key_S) CaptureService.setMode("screen");
+        else if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) CaptureService.cycleKind();
+        else if (event.key === Qt.Key_C) CaptureService.setCursor(!CaptureService.cursor);
+        else return;
+        event.accepted = true;
+      }
 
       // Two stills: with the pointer, then without it once CaptureService has
       // hidden it. Hide cursor picks which one is shown and saved, live.
@@ -317,6 +347,7 @@ Variants {
           root.setTarget(Qt.rect(mouse.x, mouse.y, 0, 0));
         }
         onPositionChanged: mouse => {
+          root.hoverAt = Qt.point(mouse.x, mouse.y);
           if (CaptureService.mode !== "region") { root.setTarget(root.pick(mouse.x, mouse.y)); return; }
           if (!root.dragging) return;
           root.setTarget(Qt.rect(Math.min(mouse.x, root.pressAt.x), Math.min(mouse.y, root.pressAt.y),
@@ -334,29 +365,13 @@ Variants {
         }
       }
 
-      // ---- hint: the choices are in the panel ----
-      Rectangle {
-        id: hint
-        visible: root.focusedHere && !root.dragging && !root.finishing
-        anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; topMargin: Theme.barEdge + (root.live ? Theme.popupGap : 0) }
-        width: hintText.implicitWidth + 2 * Theme.gapWide
-        height: hintText.implicitHeight + 2 * Theme.gapMedium
-        radius: Theme.radiusSurface
-        color: Theme.background0
-        border.width: Theme.windowFrameWidth
-        border.color: Theme.frame
+      // ---- toolbar: the choices ----
+      CaptureToolbar {
+        anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 32 }
+        visible: root.focusedHere && !root.dragging && !root.finishing && !CaptureService.instant
         opacity: root.live ? 1 : 0
 
         Behavior on opacity { enabled: Motion.panels; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
-
-        KitText {
-          id: hintText
-          anchors.centerIn: parent
-          text: (CaptureService.mode === "region" ? "Drag to select" : CaptureService.mode === "window" ? "Click a window" : "Click a screen")
-            + (CaptureService.kind === "record" ? " to record" : " to capture") + " · Esc to cancel"
-          color: Theme.muted
-          font.pixelSize: Theme.fontSize - 2
-        }
       }
     }
   }

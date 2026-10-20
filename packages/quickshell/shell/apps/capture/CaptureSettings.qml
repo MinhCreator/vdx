@@ -3,19 +3,20 @@ import qs.apps.files
 import qs.config
 import qs.kit
 
-// Capture's app options in the Shell Manager: how the shortcut opens it, where
-// screenshots and recordings go, the codec and what it can cost. The popup and
-// the bar face are the module's (Apps › Bar module).
+// Capture's options in the Shell Manager: the toolbar's delay, where
+// screenshots and recordings go, the codec and what it can cost. What, as and
+// the sound are the overlay's toolbar (kept as last picked); the bar face is
+// the module's (Bar modules › Capture).
 Column {
   spacing: Theme.gapGroup
 
-  KitLabel { text: "SHORTCUT" }
+  KitLabel { text: "TOOLBAR" }
 
   KitOptionRow {
-    module: "capture"; key: "shortcut"; fallback: "popup"
-    label: "Shortcut opens"
-    hint: "No module: the bar's centre"
-    model: [{ label: "Popup", value: "popup" }, { label: "Else last", value: "else-last" }, { label: "Last mode", value: "last" }]
+    module: "capture"; key: "delay"; fallback: 0
+    label: "Delay button"
+    hint: "Off: no button in the toolbar"
+    model: [{ label: "Off", value: 0 }, { label: "3 s", value: 3 }, { label: "5 s", value: 5 }, { label: "10 s", value: 10 }]
   }
 
   KitLine {}

@@ -5,35 +5,44 @@ import Quickshell.Wayland
 import qs.config
 import qs.kit
 
-// While recording: a small panel in the bottom-right corner of the focused
-// monitor with the elapsed time and a stop button (Super+Shift+S stops too).
+// While recording, when the focused monitor's bar has no Capture module to
+// show it: a small panel with the elapsed time and Stop (Super+Shift+S stops
+// too), in the first corner the recorded area leaves free — it is not in the video.
 Variants {
-  model: CaptureService.recording ? Quickshell.screens.filter(s => s.name === (Hyprland.focusedMonitor?.name ?? s.name)).slice(0, 1) : []
+  model: CaptureService.recording && CaptureService.recordStarted > 0
+    ? Quickshell.screens.filter(s => s.name === (Hyprland.focusedMonitor?.name ?? s.name)
+                                     && !CaptureService.faceScreens.includes(s.name)).slice(0, 1)
+    : []
 
   PanelWindow {
     id: root
 
     required property var modelData
 
-    property int elapsed: 0
+    readonly property int gap: 16
+    // the corner, picked once: bottom right, bottom left, top right, top left
+    readonly property var corner: {
+      const r = CaptureService.recordRect, s = modelData;
+      const w = Theme.popupWidth, h = panel.implicitHeight, top = Theme.barEdge + gap;
+      const spots = [
+        { right: true,  bottom: true, x: s.x + s.width - gap - w, y: s.y + s.height - gap - h },
+        { right: false, bottom: true, x: s.x + gap,               y: s.y + s.height - gap - h },
+        { right: true,  bottom: false, x: s.x + s.width - gap - w, y: s.y + top },
+        { right: false, bottom: false, x: s.x + gap,               y: s.y + top }
+      ];
+      const clear = c => c.x + w <= r.x || c.x >= r.x + r.width || c.y + h <= r.y || c.y >= r.y + r.height;
+      return spots.find(clear) ?? spots[0];
+    }
 
     screen: modelData
-    anchors { right: true; bottom: true }
-    margins { right: 16; bottom: 16 }
+    anchors { right: corner.right; left: !corner.right; bottom: corner.bottom; top: !corner.bottom }
+    margins { right: gap; left: gap; bottom: gap; top: Theme.barEdge + gap }
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "quickshell-recording"
     implicitWidth: Theme.popupWidth
     implicitHeight: panel.implicitHeight
     color: "transparent"
-
-    Timer {
-      interval: 500
-      running: true
-      repeat: true
-      triggeredOnStart: true
-      onTriggered: root.elapsed = Math.floor((Date.now() - CaptureService.recordStarted) / 1000)
-    }
 
     // the popups' frame: a header with the time and Stop, then where it goes
     KitFrame {
@@ -45,8 +54,8 @@ Variants {
         icon: "circle"
         iconColor: Theme.red
         title: "Recording"
-        subtitle: String(Math.floor(root.elapsed / 60)).padStart(2, "0") + ":" + String(root.elapsed % 60).padStart(2, "0")
-          + " · " + CaptureService.fps + " FPS" + (CaptureService.audio !== "off" ? " · " + CaptureService.audio.toUpperCase() : "")
+        subtitle: CaptureService.elapsedText + " · " + CaptureService.fps + " FPS"
+          + (CaptureService.audio !== "off" ? " · " + CaptureService.audio.toUpperCase() : "")
 
         KitButton {
           icon: "square"
@@ -59,7 +68,7 @@ Variants {
 
       KitInfo {
         label: "Saves to"
-        value: CaptureService.recordAsk ? "asks when you stop" : CaptureService.recordFile.replace(CaptureService.videoDir.split("/").slice(0, 3).join("/"), "~")
+        value: CaptureService.recordAsk ? "asks when you stop" : CaptureService.recordFile.replace(Quickshell.env("HOME"), "~")
       }
     }
   }

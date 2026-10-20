@@ -1,33 +1,35 @@
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import qs.apps.capture
 import qs.bar
 import qs.config
 import qs.kit
 
-// Screen capture in the bar: a camera; while recording, a red dot with the
-// elapsed time. A click or Super+Shift+S opens its panel, which comes out of
-// the island like the other modules' popups; the selection starts from there.
+// Screen capture in the bar: a camera; a click is Super+Shift+S (the screens
+// freeze, the overlay's toolbar holds the choices). While recording: a red
+// dot with the elapsed time, and a click stops it.
 Item {
   id: root
 
   required property PanelWindow bar
 
-  // the Folder opens capture's popup when its tile is clicked
-  function openPopup() { popup.toggle(); }
+  // the Folder's tile: the same as a click
+  function openPopup() { CaptureService.open(); }
 
-  // the focused monitor's bar shows the panel
-  Connections {
-    target: CaptureService
-    function onPanelRequested() {
-      if ((Hyprland.focusedMonitor?.name ?? "") !== (root.bar.screen?.name ?? "")) return;
-      CaptureService.panelHandled = true;
-      popup.toggle();
-    }
+  // shown on this bar's screen: the recording shows here, CaptureRecording's
+  // panel stays away (a module hidden in a folder or a closed hub does not count)
+  function seen() {
+    for (let p = root; p; p = p.parent)
+      if (!p.visible || p.opacity < 0.5) return false;
+    return root.width > 0;
   }
 
-  property int elapsed: 0
+  Connections {
+    target: CaptureService
+    function onFacesAsked() {
+      if (root.seen()) CaptureService.faceScreens = CaptureService.faceScreens.concat([root.bar.screen?.name ?? ""]);
+    }
+  }
 
   implicitWidth: face.implicitWidth
   implicitHeight: face.implicitHeight
@@ -35,61 +37,13 @@ Item {
   KitBarItem {
     id: face
     icon: CaptureService.recording ? "circle" : "camera"
-    text: BarLayout.faceText("capture", CaptureService.recording
-      ? String(Math.floor(root.elapsed / 60)).padStart(2, "0") + ":" + String(root.elapsed % 60).padStart(2, "0")
-      : "")
+    text: BarLayout.faceText("capture", CaptureService.recording ? CaptureService.elapsedText : "")
     tint: CaptureService.recording ? Theme.red : Theme.foreground0
-  }
-
-  Timer {
-    interval: 500
-    running: CaptureService.recording
-    repeat: true
-    triggeredOnStart: true
-    onTriggered: root.elapsed = Math.floor((Date.now() - CaptureService.recordStarted) / 1000)
   }
 
   MouseArea {
     anchors.fill: parent
     cursorShape: Qt.PointingHandCursor
-    onClicked: popup.toggle()
-  }
-
-  // Start closes the panel; the selection waits until the island has folded
-  // back to the bar, so the still shows the bar and not the panel
-  property bool startPending: false
-
-  Timer {
-    id: settle
-    interval: Motion.slow + 60
-    onTriggered: {
-      root.startPending = false;
-      CaptureService.startSelection();
-    }
-  }
-
-  BarPopup {
-    id: popup
-    anchorItem: root
-    moduleId: "capture"
-    bar: root.bar
-    detached: ModuleSettings.get("capture", "detached", false)
-    implicitWidth: content.implicitWidth
-    implicitHeight: content.implicitHeight
-    onHidden: if (root.startPending) settle.restart()
-
-    CapturePopup {
-      id: content
-      anchors.fill: parent
-      elapsed: root.elapsed
-      onStarted: {
-        root.startPending = true;
-        popup.visible = false;
-      }
-      onLibraryRequested: {
-        popup.visible = false;
-        CaptureService.openLibrary();
-      }
-    }
+    onClicked: CaptureService.open()
   }
 }

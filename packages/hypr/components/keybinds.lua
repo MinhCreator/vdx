@@ -29,9 +29,10 @@ bind("Shell", mainMod .. " + X", hl.dsp.exec_cmd("qs -c shell ipc call cleaner t
 -- Super + Tab (the window switcher) is the floating mode's: modes/floating.lua
 
 -- screenshots (both copy to the clipboard)
--- capture tool: region / window / screen, shot or recording (again: stop recording)
+-- capture tool: freezes the screens, the toolbar picks region / window / screen,
+-- shot or recording (again: cancel, or stop the recording)
 bind("Capture", mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("qs -c shell ipc call capture open"), "Capture tool")
-bind("Capture", mainMod .. " + P", hl.dsp.exec_cmd("grim - | wl-copy"), "Screenshot to the clipboard")
+bind("Capture", mainMod .. " + P", hl.dsp.exec_cmd("qs -c shell ipc call capture shot screen"), "Screenshot of the screen")
 
 -- windows
 bind("Windows", mainMod .. " + C", hl.dsp.window.close(), "Close")
