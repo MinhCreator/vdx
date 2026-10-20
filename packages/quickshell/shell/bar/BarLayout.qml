@@ -92,12 +92,14 @@ Singleton {
   function layout(screen) { return normalize(entry(screen)?.zones ?? state.zones); }
   // Not on this bar: what was put away, and — on the Extra bar — what the
   // saved layout has never seen (a new module joins the Main bar only).
+  // The Folder is never off: it holds what is off the strip, so a saved "folder" in
+  // HIDDEN (an old drag) would make it, and everything in it, vanish.
   function hidden(screen) {
     const e = entry(screen);
-    const off = (e?.hidden ?? state.hidden).map(id => renamed[id] ?? id);
+    const off = (e?.hidden ?? state.hidden).map(id => renamed[id] ?? id).filter(id => id !== "folder");
     if (roleOf(screen) !== "extra" || !e?.zones) return off;
     const known = zones.reduce((all, z) => all.concat(e.zones[z] ?? []), e.folder ?? []).map(id => renamed[id] ?? id);
-    return off.concat(modules.map(p => p.id).filter(id => !known.includes(id) && !off.includes(id)));
+    return off.concat(modules.map(p => p.id).filter(id => id !== "folder" && !known.includes(id) && !off.includes(id)));
   }
   function barOn(screen) { return !(entry(screen)?.off ?? false); }
 
@@ -194,6 +196,7 @@ Singleton {
 
   // place on / take off one monitor's bar
   function setEnabled(id, on, screen) {
+    if (id === "folder") return;
     const off = hidden(screen);
     update(screen, { hidden: on ? off.filter(x => x !== id) : off.concat(id),
                      folder: inFolder(screen).filter(x => x !== id) });

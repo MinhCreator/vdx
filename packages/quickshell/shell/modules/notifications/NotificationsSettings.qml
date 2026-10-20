@@ -3,17 +3,32 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// Notifications options in the Shell Manager: the bar's unseen dot (BAR: on the
-// Folder, or the island's pill) and the history popup (HISTORY).
+// Notifications options in the Shell Manager: the bar (BAR: the module's text; BELL:
+// the bell's own badge; UNSEEN DOT: the dot on the Folder or the island's pill) and
+// the history popup (HISTORY).
 KitColumn {
   spacing: Theme.gapGroup
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "notifications" }
 
+  KitLine {}
+
+  KitLabel { text: "BELL" }
+
+  KitOptionRow {
+    module: "notifications"; key: "badge"; fallback: "off"
+    label: "Bell badge"; hint: "Off: the bell only tints"
+    model: [{ label: "Off", value: "off" }, { label: "Dot", value: "dot" }, { label: "Count", value: "count" }]
+  }
+
+  KitLine {}
+
+  KitLabel { text: "UNSEEN DOT" }
+
   KitRow {
-    label: "Unseen dot"
-    hint: "Marks unseen notifications"
+    label: "Show the dot"
+    hint: "On the Folder, or the island's pill, while the centre is tucked away"
 
     KitSwitch {
       checked: ShellSettings.barFolderDot
@@ -32,12 +47,6 @@ KitColumn {
       colours: name => [Theme.notifyDot(name), Theme.notifyDot(name)]
       onChosen: name => ShellSettings.set("barDotColor", name)
     }
-  }
-
-  KitOptionRow {
-    module: "notifications"; key: "badge"; fallback: "off"
-    label: "Bell badge"; hint: "Off: the tint only"
-    model: [{ label: "Off", value: "off" }, { label: "Dot", value: "dot" }, { label: "Count", value: "count" }]
   }
 
   KitLine {}

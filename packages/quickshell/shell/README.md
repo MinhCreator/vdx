@@ -115,11 +115,14 @@ the others. A module is in one bar only. In the island style each is
 an island of its own: its modules' popups open inside it as in the island
 (`bar/island/IslandChild.qml`); with no centre showing they meet in the
 middle. Bar › Look › Module gap and Separators: the room between modules and
-the "|" in it, in every bar. Bar › Layout › ADD › Separator: a custom "|",
-dragged into a band (a click puts it at the end of RIGHT); its chip's cross removes it. Notifications › Unseen dot: the dot shows
-while the notifications centre is tucked away — on the Folder in the strip, on
-the island's resting pill when the centre is in the hub, never beside the bell
-in the bar. Moving the centre sets the switch; the switch overrides until the next move. Notifications › Bell badge: the bell's own dot or count, off by default.
+the "|" in it, in every bar. The Folder is never off the bar: a saved
+"folder" in HIDDEN is ignored. Bar › Layout › ADD › Separator: a custom "|",
+dragged into a band (a click puts it at the end of RIGHT); its chip's cross removes it.
+Notifications › BELL › Bell badge: the bell's own dot or count, off by default.
+Notifications › UNSEEN DOT › Show the dot: the dot shows while the notifications
+centre is tucked away — on the Folder in the strip, on the island's resting pill
+when the centre is in the hub, never beside the bell. Moving the centre sets the
+switch; the switch overrides until the next move. Dot colour shows with it.
 
 ## Requirements
 

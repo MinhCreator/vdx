@@ -1050,6 +1050,18 @@
   "target": "notifications"
  },
  {
+  "label": "Bell",
+  "hint": "",
+  "where": "Notifications",
+  "target": "notifications"
+ },
+ {
+  "label": "Unseen dot",
+  "hint": "",
+  "where": "Notifications",
+  "target": "notifications"
+ },
+ {
   "label": "Toasts",
   "hint": "",
   "where": "Notifications",
@@ -1062,21 +1074,21 @@
   "target": "notifications"
  },
  {
-  "label": "Unseen dot",
-  "hint": "Marks unseen notifications",
-  "where": "Notifications › BAR",
+  "label": "Bell badge",
+  "hint": "Off: the bell only tints",
+  "where": "Notifications › BELL",
+  "target": "notifications"
+ },
+ {
+  "label": "Show the dot",
+  "hint": "On the Folder, or the island's pill, while the centre is tucked away",
+  "where": "Notifications › UNSEEN DOT",
   "target": "notifications"
  },
  {
   "label": "Dot colour",
   "hint": "Theme: the text colour",
-  "where": "Notifications › BAR",
-  "target": "notifications"
- },
- {
-  "label": "Bell badge",
-  "hint": "Off: the tint only",
-  "where": "Notifications › BAR",
+  "where": "Notifications › UNSEEN DOT",
   "target": "notifications"
  },
  {
@@ -1789,7 +1801,7 @@
  },
  {
   "label": "Unseen dot",
-  "hint": "In Notifications › Bar",
+  "hint": "In Notifications › Unseen dot",
   "where": "Bar modules › Folder › BAR",
   "target": "modules:folder"
  },
