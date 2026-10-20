@@ -14,7 +14,7 @@ A FileChooser request opens the Files window as a picker:
 `files.py answer <id> <json>` into $XDG_RUNTIME_DIR/files-portal/<id>.json,
 which this script polls for. Started and kept by the shell (FilesService).
 """
-import json, os, subprocess, sys, time, uuid
+import json, mimetypes, os, subprocess, sys, time, uuid
 from urllib.parse import quote, unquote
 
 import gi
@@ -69,9 +69,26 @@ def folder_of(raw):
     return HOME
 
 
-def filters_of(raw):
-    """a(sa(us)) → [{name, patterns}]: the glob and mime patterns of each filter"""
-    return [{"name": label, "patterns": [pattern for _, pattern in items]} for label, items in raw or []]
+def patterns_of(items):
+    """a filter's (type, pattern) pairs as the shell matches them: a glob (type 0) and a
+    "major/*" mime type as they are, any other mime type ("application/pdf") as the globs of
+    its extensions (the shell knows a file's kind, not its mime type); one with no known
+    extension adds nothing"""
+    out = []
+    for kind, pattern in items:
+        if kind == 0 or pattern.endswith("/*"):
+            out.append(pattern)
+        else:
+            out += ["*" + ext for ext in mimetypes.guess_all_extensions(pattern)]
+    return out
+
+
+def filters_of(raw, current=None):
+    """a(sa(us)) → [{name, patterns}], the app's current filter (sa(us)) first"""
+    filters = list(raw or [])
+    if current:
+        filters = [tuple(current)] + [f for f in filters if f[0] != current[0]]
+    return [{"name": label, "patterns": patterns_of(items)} for label, items in filters]
 
 
 def answer(invocation, response, paths):
@@ -86,7 +103,7 @@ def choose(invocation, method, title, options):
         "title": title,
         "multiple": bool(options.get("multiple", False)),
         "directory": bool(options.get("directory", False)),
-        "filters": filters_of(options.get("filters")),
+        "filters": filters_of(options.get("filters"), options.get("current_filter")),
         "folder": folder_of(options.get("current_folder")),
         "name": str(options.get("current_name", "")),
     }

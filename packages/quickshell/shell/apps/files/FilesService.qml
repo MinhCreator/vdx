@@ -225,9 +225,10 @@ Singleton {
   readonly property var kindOrder: ["dir", "image", "video", "audio", "text", "archive", "file"]
   function kindRank(kind) { const i = kindOrder.indexOf(kind); return i < 0 ? kindOrder.length : i; }
 
-  // a picker shows folders for going on, and the files its filter allows
+  // a picker shows folders for going on, and the files its filter allows; a save shows every
+  // file (what is there already, a name to take or not to overwrite)
   function fitsPicker(e) {
-    if (!picker || e.kind === "dir") return true;
+    if (!picker || e.kind === "dir" || picker.mode === "save") return true;
     if (picker.directory) return false;
     return picker.filter.length === 0 || picker.filter.some(p => matchPattern(e, p));
   }
@@ -236,7 +237,8 @@ Singleton {
   function matchPattern(e, p) {
     if (p.includes("/")) {
       const major = p.split("/")[0];
-      return e.kind === { image: "image", video: "video", audio: "audio", text: "text" }[major];
+      const kinds = ["image", "video", "audio", "text"];
+      return !kinds.includes(major) || e.kind === major;     // "*/*", "application/*": every file
     }
     const re = p.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*").replace(/\?/g, ".");
     return new RegExp("^" + re + "$", "i").test(e.name);
