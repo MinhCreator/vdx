@@ -1,5 +1,6 @@
 """supervise.sh: a kill ends it, a config that does not load is one toast and a
-wait for a fix (not a crash loop), five crashes in a minute stop it."""
+wait for a fix (not a crash loop), five crashes in a minute stop it, and its
+toasts go once the shell has been up for a few seconds."""
 
 from __future__ import annotations
 
@@ -8,6 +9,7 @@ import shutil
 import subprocess
 import tempfile
 import textwrap
+import time
 import unittest
 from pathlib import Path
 
@@ -20,6 +22,8 @@ FAKE_QS = textwrap.dedent("""\
     #!/usr/bin/env bash
     echo "$*" >> "$SANDBOX/qs.calls"
     code=$(head -1 "$SANDBOX/codes.txt"); sed -i 1d "$SANDBOX/codes.txt"
+    # "up": runs past the supervisor's settle time, then is killed
+    [[ $code == up ]] && { sleep 4; exit 143; }
     if [[ $code == 255 ]]; then
       mkdir -p "$XDG_RUNTIME_DIR/quickshell/by-pid/$$"
       printf 'ERROR: Failed to load configuration\\nERROR:   caused by @shell.qml[2:3]: Nope is not a type\\n' \\
@@ -42,8 +46,9 @@ class Supervise(unittest.TestCase):
         bin_ = tmp / "bin"
         bin_.mkdir()
         (bin_ / "qs").write_text(FAKE_QS)
-        (bin_ / "notify-send").write_text('#!/usr/bin/env bash\necho "$*" >> "$SANDBOX/toasts"\n')
-        (bin_ / "makoctl").write_text("#!/usr/bin/env bash\n")
+        (bin_ / "notify-send").write_text('#!/usr/bin/env bash\necho "$*" >> "$SANDBOX/toasts"\n'
+                                          '[[ $1 == -p ]] && wc -l < "$SANDBOX/toasts"\n')
+        (bin_ / "makoctl").write_text('#!/usr/bin/env bash\n[[ $1 == dismiss ]] && echo "$3" >> "$SANDBOX/dismissed"\n')
         for f in bin_.iterdir():
             f.chmod(0o755)
         (tmp / "run").mkdir()
@@ -52,6 +57,8 @@ class Supervise(unittest.TestCase):
         r = subprocess.run(["bash", str(scripts / "supervise.sh")], env=env, timeout=30)
         calls = (tmp / "qs.calls").read_text().splitlines()
         toasts = (tmp / "toasts").read_text().splitlines() if (tmp / "toasts").exists() else []
+        time.sleep(0.2)   # the settle check of the last start may still be writing
+        self.dismissed = (tmp / "dismissed").read_text().split() if (tmp / "dismissed").exists() else []
         return r.returncode, len(calls), toasts
 
     def test_a_kill_ends_it(self):
@@ -64,6 +71,15 @@ class Supervise(unittest.TestCase):
         self.assertIn("config has an error", toasts[0])
         self.assertIn("Nope is not a type", toasts[0])
         self.assertNotIn("crashing", toasts[0])
+
+    def test_its_toasts_go_once_the_shell_stays_up(self):
+        code, starts, toasts = self.run_with([255, "up"])
+        self.assertEqual((code, starts, len(toasts)), (0, 2, 1))
+        self.assertEqual(self.dismissed, ["1"])
+
+    def test_a_config_error_toast_stays_while_it_fails(self):
+        self.run_with([255, 255, 0])
+        self.assertEqual(self.dismissed, [])
 
     def test_five_crashes_stop_it(self):
         code, starts, toasts = self.run_with([139] * 6)
