@@ -150,7 +150,9 @@ Item {
           height: visible ? 34 : 0
           readonly property var c: files.cols(width)
 
+          // over the NAME caption (it starts at 0 and would take the click: a sort, not a select)
           FilesCheck {
+            z: 1
             visible: FilesService.checkboxes && !files.picker
             x: Theme.gapWide
             anchors.verticalCenter: parent.verticalCenter
