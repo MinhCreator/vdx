@@ -22,15 +22,15 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   An image in a rounded tile sits in a `ClippingRectangle`.
 - Controls: Appearance › Style (Terminal | Material). A control's frame is
   `Theme.frameWidth` (0 in material), its fill `Theme.controlFill` /
-  `controlHover`, a popup's frame `Theme.popupFrame`; never a literal 1. An
-  outline drawn in either style (a well, a preview, a card at rest) is
+  `controlHover`, a popup's frame `Theme.popupFrame`. Never a literal 1.
+  An outline drawn in either style (a well, a preview, a card at rest) is
   `Theme.hairline`, a picked card's or tile's `Theme.ring`.
   Material follows Material 3 (primary = `foreground0`, or the accent where it
-  applies): a button is tonal; `KitSegments` an outlined track split by
-  hairlines, the picked segment filled with a check; `KitSwitch` an outlined
-  track with a small handle, on: filled with a large handle and a check; a field
-  or select is filled with square lower corners and a bottom line, thick while
-  focused (`KitFieldLine`); the slider below.
+  applies). A button is tonal. `KitSegments` is an outlined track split by
+  hairlines, the picked segment filled with a check. `KitSwitch` is an outlined
+  track with a small handle; on: filled with a large handle and a check.
+  A field or select is filled with square lower corners and a bottom line, thick
+  while focused (`KitFieldLine`). The slider is below.
 
 - Spacing: the gaps and edge insets are `Theme.gapHair` (4), `gapTight` (2),
   `gapSmall` (6), `gapMedium` (8), `gapLoose` (10), `gapWide` (12) and `gapGroup`
@@ -48,14 +48,15 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   leaves ~32); elsewhere ≤ ~40. A hint adds something (effect, caveat,
   off-state) or is left out; it never repeats the label.
 - Control by the job: a feature on/off → `KitSwitch` (one row per item of a
-  set, under a caps label with the count: `APPLIES TO` `3 OF 7`); 2–5 named equal
+  set, under a caps label with the count: `APPLIES TO` `3 OF 7`). 2–5 named equal
   alternatives (24h | 12h too) → `KitChoices { stretch: true }` in `KitRow
-  { wide: true }`; a size judged by eye with a live result (gaps, radius,
-  shares, blur) → `KitSliderRow`, value on the right, snapped to its step; a
-  list over 5 or one that changes (monitors, models, tabs) → `KitSelect`; an
-  exact number or text → `KitInput` (Enter); a folder or file → `KitInput` + a
+  { wide: true }`. A size judged by eye with a live result (gaps, radius,
+  shares, blur) → `KitSliderRow`, value on the right, snapped to its step.
+  A list over 5 or one that changes (monitors, models, tabs) → `KitSelect`.
+  An exact number or text → `KitInput` (Enter). A folder or file → `KitInput` + a
   `Choose…` button (`FilesService.pickFolder` / `pick`, the Files window's
-  picker); a long list to preview → `PickList` + Apply. A slider of 3–4 stops is chips.
+  picker). A long list to preview + Apply → a searchable list and a preview, as
+  on Themes. A slider of 3–4 stops is chips.
   On a Settings page the choices are `KitSegments` (one track, the picked segment
   raised); `KitChoices` stays for popups and header tabs.
 - Wording: visibility toggles `Show …` (hint `Off: icon only`); `Close after …`
@@ -83,8 +84,8 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   kept in settings). Dimmed screens use `Theme.scrim`.
 - Text: secondary text (hints, captions, times) is `Theme.muted`, lifted to
   4.5:1 on `background0` in every theme; `gray` is for frames, ticks, icons and
-  inactive text only. Sizes are `Theme.fontSize ± n` (Appearance › Font › Text
-  size, 12–15), never a literal. Display figures are fixed sizes: the lock's
+  inactive text only. Sizes are `Theme.fontSize ± n` (Fonts › Text size,
+  12–15), never a literal. Display figures are fixed sizes: the lock's
   clock, Overview's workspace numbers, the Fonts page's specimen.
 - Bar: one colour per item; a missing value shows `--`.
 - Key hints: `Super + S`; footers `key action · key action`, lowercase.
@@ -115,17 +116,19 @@ Pages by the user's area; the look follows macOS System Settings.
   No page width cap: the box links a label to its control.
 - MUST — controls in a box take their fill one step up (`Theme.fillOn(boxed)`,
   `hoverOn`); a well inside a box (list, preview, sample) is `background0`.
-- MUST — Themes, Fonts and Cursor are pages of their own in the sidebar (no links
-  to them from Appearance). Themes: a theme picker as in a terminal — the list on
-  the left (a small desktop in its colours — `ThemeMock`, name, light or dark and
-  its cast, a check on the active one), a large
-  preview in the picked theme's colours on the right (code, a prompt, controls, the
-  colours and tones as named pills); a search over the list, one mode (Appearance ›
-  Mode) at a time; ↑/↓ previews, Enter / Apply switches, Esc goes back. Apps, Bar
-  modules and Themes fill the window and scroll their panes, not the page. Fonts: a card per font
-  written in itself, its state (in use, installed, not installed: a second click
-  downloads). Cursor: its shapes large, colour and size, a card per cursor theme;
-  a pick waits for Apply.
+- MUST — Themes, Fonts and Cursor are pages of their own in the sidebar. There
+  are no links to them from Appearance.
+  Themes: a theme picker as in a terminal. The list on the left shows a small
+  desktop in its colours (`ThemeMock`), name, light or dark and its cast, and a
+  check on the active one. A large preview in the picked theme's colours sits on
+  the right (code, a prompt, controls, the colours and tones as named pills).
+  A search over the list works on one mode (Appearance › Mode) at a time. ↑/↓
+  previews, Enter / Apply switches, Esc goes back.
+  Apps, Bar modules and Themes fill the window and scroll their panes, not the page.
+  Fonts: a card per font written in itself, with its state (in use, installed,
+  not installed: a second click downloads).
+  Cursor: its shapes large, colour and size, a card per cursor theme; a pick waits
+  for Apply.
 - MUST — a page's side list (Apps, Bar modules, Themes) is one look: a search
   field, then the entries in one raised box (`background1`, `radiusCard`) to the
   pane's foot; rows `radiusControl`, picked `background3` + ExtraBold, hover
@@ -162,7 +165,7 @@ Pages by the user's area; the look follows macOS System Settings.
   wrapped, `Theme.fontSize - 1`; it clears on the next success.
 - MUST — pending: an apply that runs (install, reload) shows `busy` on its
   button or a `KitSpinner`; the rest of the page stays usable.
-- SHOULD — focus: one token `Theme.focusRing`, a 2 px `foreground2`
+- SHOULD (not built yet) — focus: one token `Theme.focusRing`, a 2 px `foreground2`
   outline at `radiusControl`, on keyboard focus only; Space toggles a switch,
   arrows move Choices, Enter activates; `Accessible.name` = the row's label.
 - SHOULD — no "Advanced" fold: rarely used groups go last on their page.

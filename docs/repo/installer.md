@@ -35,12 +35,13 @@ environment (Arch, not root, pacman / git / sudo), `check components`,
 - `update` pulls (fast-forward only), moves the submodules whose recorded commit
   changed (only a clean checkout that is behind it), and runs `setup` in a new
   process, so the pulled installer is the one that runs.
-- `doctor` is `check` for the machine: the plan's pending work plus what it
-  can't see — system services enabled but not running, user services that
-  failed (one stopped on purpose, as the shell's music switch stops mpd, is
+- `doctor` is `check` for the machine. It reports the plan's pending work and
+  what `check` can't see: system services enabled but not running, user services
+  that failed (one stopped on purpose, as the shell's music switch stops mpd, is
   fine), mihomo's capabilities, Hyprland's config errors (a terminal with an
-  older `HYPRLAND_INSTANCE_SIGNATURE` asks the live instance), `machine/` out of step, a session on another
-  GPU environment, changed hardware — each with its fix.
+  older `HYPRLAND_INSTANCE_SIGNATURE` asks the live instance), `machine/` out of
+  step, a session on another GPU environment, changed hardware. Each finding
+  comes with its fix.
 - `uninstall [--system]` removes links, generated files (they carry
   `hypr.MARK`) and, with `--system`, our `/etc` files nobody changed;
   `rollback` puts backed-up files back. Packages, services and anything

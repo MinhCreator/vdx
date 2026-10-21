@@ -1,130 +1,176 @@
-# shell
+# vdx shell
 
-Quickshell config (`qs -c shell`): the bar, the shell's apps and the Shell
-Manager. Code rules: [CLAUDE.md](CLAUDE.md).
+The Quickshell config of vdx (`qs -c shell`): the bar or island, the shell's
+apps and the Shell Manager, in one process. Code rules: [CLAUDE.md](CLAUDE.md).
+
+Every app and popup answers IPC: `qs -c shell ipc call <target> <function>`.
 
 ## Apps
 
-Registry: `apps/apps.json` (the Shell Manager, the system menu,
-`scripts/shellapps.py` and the window rules read it).
+Registry: `apps/apps.json` (read by the Shell Manager, the launcher,
+`scripts/shellapps.py` and the window rules).
 
 | App | Key | IPC |
 |---|---|---|
-| Shell Manager | Super+S | `shell toggle`, `shell open <page>[:<group or app>]`, `shell search <words>` (the sidebar's search) |
+| Shell Manager | Super+S | `shell toggle`, `shell open <page>[:<group or app>]`, `shell search <words>` |
+| Launcher (system menu) | Alt+Space | `launcher toggle` |
+| Keybinds | Super+B | `keybinds toggle\|open\|close` |
+| Files | Super+E | `files toggle\|open\|close`, `files go\|reveal\|inspect\|duplicates <path>`, `files choose <json>` |
+| Capture | Super+Shift+S · Super+P | `capture open\|stop\|close\|library\|shot <region\|window\|screen>` |
+| Overview | Super+O | `overview toggle` |
 | Task Manager | Ctrl+Shift+Esc | `taskmanager toggle` |
 | Cleaner | Super+X | `cleaner toggle` |
-| Capture | Super+Shift+S · Super+P | `capture open\|stop\|close\|library\|shot <region\|window\|screen>`: the screens freeze as they are (popups, the island), a toolbar at the bottom picks what (R W S: region, window or popup, screen), as (Tab: shot, recording), the sound, the pointer (C), a Delay (Settings › Apps › Capture); again: cancel, or stop the recording. Super+P (`shot screen`): the focused screen at once. The bar module is a button for the same and shows a recording; `library` toggles the window of saved captures |
-| System menu | Alt+Space | `launcher toggle` |
-| Packages | — | `packages toggle` |
-| Display | — | `display toggle` |
-| VirusTotal | — | `virustotal toggle` |
-| Clipboard | — | `clipboard toggle` |
-| Music | — | `music toggle\|open\|close`, `music go <yandex\|files\|radio>` (the old likes, search, playlist open the Yandex tab; playing keeps the tab): the window is tabbed by source: Yandex Music (LIKES: Likes, Search; PLAYLISTS with New playlist), Files (the folders of `music.folders`: enter a folder, Up, a track plays the folder from it; ⋮ Play, Play next, Add to queue) and Radio (the stations); each tab only while its component is installed. The list is a table in a raised box, the player at the foot of every tab. Bar module `music`: the track that plays (any source), its popup has a switch (the music service on or off), Now playing (a select of the players when several run), Queue (MPD's) and Library (tiles: the likes, the folders, the favourite stations). Radio: a star marks a favourite station. Options: Shell Manager › Bar modules › Music (one page: Shows, Max length, Time left, Players shown, Opens on, Close when a track plays, the folders) |
-| Backups | — | `backup toggle\|open\|close` (bar module `backup`: last backup, Back up, the restore guide); the terminal: `backup status\|run\|snapshots\|restore\|guide …` (`scripts/backup.py`, restic) |
-| Files | Super+E | `files toggle\|open\|close`, `files go\|reveal\|inspect\|duplicates <path>`, `files choose <json>` (the portal's picker: Save lists every file of the folder, Open the files of the app's filter, a mime type matched by its extensions; a setting's Choose… opens the same picker); F1 lists the keys; Ctrl+G list, grid, columns; Ctrl+T terminal here; F2 on several files renames them by a pattern; the sidebar's "This computer" shows the storage (used / free, unmounted drives mount on a click); the sidebar is in sections: PLACES (drag to reorder within it; right click to hide, Settings › SIDEBAR), PINNED (your folders; drag to reorder; right click › Unpin; a folder's right click › Pin to sidebar), USB (plugged-in removable drives, mounted or not, with a mount / eject button at the row's end), DEVICES (other drives mounted for you); Recent (recently-used.xbel) and Starred (Ctrl+S) in the sidebar; the list shows folders as tiles above a table of files (checkboxes, ⋮ menu, Type / Size / Modified columns), the path as crumbs (Ctrl+L types one); typing a letter jumps to a name; the look and columns in Settings › Apps › Files |
-| Keybinds | Super+B | `keybinds toggle\|open\|close` |
+| Lock screen | Super+Z | `lock lock` |
 | Window switcher | Super+Tab (floating mode) | `switcher toggle\|open\|close` |
-| Overview | Super+O | `overview toggle` |
-| Lock screen | Super+Z | `lock lock` (options: Shell Manager › Lock screen) |
+| Music | — | `music toggle\|open\|close`, `music go <yandex\|files\|radio>` |
+| Backups | — | `backup toggle\|open\|close` |
+| Clipboard | — | `clipboard toggle` |
+| Packages | — | `packages toggle` |
+| VirusTotal | — | `virustotal toggle` |
+| Display | — | `display toggle` |
 | Taskbar | — | floating mode only |
-| Root prompt | — | polkit agent; asks before every root action |
+| Root prompt | — | the polkit agent: asks before every root action |
 
-IPC: `qs -c shell ipc call <target> <function>`. Window mode:
-`windowmode set tiling|floating|scrolling`.
+Window mode: `windowmode set tiling|floating|scrolling`.
 
-After a crash Quickshell itself usually starts the shell again in the same
-process and opens its crash report window. When the process ends instead
-(killed by the OOM killer, a crash right after start), `scripts/supervise.sh`,
-which Hyprland starts the shell through, starts it again in a second (five
-in a minute: it stops with a toast); a kill or Restart (About, the system
-menu) is not a crash. Nor is a config that does not load: one toast names the
-error, and the shell starts again once a `.qml` / `.js` file changes (or after
-a minute). The supervisor's toasts go once the shell has run for a few seconds. Locked when it crashed, the new one locks again. No bar and no way to a terminal: switch to
-a tty (Ctrl+Alt+F2), log in, then
-`HYPRLAND_INSTANCE_SIGNATURE=$(ls /run/user/$UID/hypr | tail -1) hyprctl eval 'hl.exec_cmd("~/.config/quickshell/shell/scripts/supervise.sh")'`.
+### Files
 
-## Modules
+- Sidebar sections: PLACES (drag to reorder, right click to hide), PINNED
+  (your folders: a folder's right click › Pin to sidebar), USB (removable
+  drives with a mount / eject button), DEVICES (other drives mounted for you),
+  Recent and Starred (Ctrl+S). "This computer" shows the storage; an
+  unmounted drive mounts on a click.
+- The list: folders as tiles above a table of files (checkboxes, ⋮ menu,
+  Type / Size / Modified), the path as crumbs (Ctrl+L types one); typing a
+  letter jumps to a name.
+- Keys: F1 lists them; Ctrl+G list, grid, columns; Ctrl+T terminal here; F2
+  on several files renames them by a pattern.
+- The file chooser of every app (`xdg-desktop-portal`): Save lists the
+  folder's files, Open the files of the app's filter. A setting's Choose…
+  opens the same picker.
+- Look and columns: Shell Manager › Apps › Files.
 
-Bar modules live in `modules/<id>/`; each popup opens with
+### Capture
+
+The screens freeze as they are (popups and the island included); a toolbar at
+the bottom picks what (R region, W window or popup, S screen), how (Tab: shot
+or recording), the sound, the pointer (C) and a delay. The same key again
+cancels or stops a recording. Super+P shoots the focused screen at once. The
+bar module is a button for the same and shows a recording; `capture library`
+opens the saved captures.
+
+### Music
+
+A window tabbed by source, each tab only while its component is installed:
+Yandex Music (likes, search, playlists), Files (the folders of
+`music.folders`: a track plays its folder from there; ⋮ Play, Play next, Add
+to queue) and Radio (a star marks a favourite). The player sits at the foot
+of every tab.
+
+The bar module `music` shows what plays from any source. Its popup: the music
+service on or off, Now playing (a choice of players when several run), the
+Queue (MPD) and the Library (likes, folders, favourite stations). Options:
+Shell Manager › Bar modules › Music.
+
+### Backups
+
+Encrypted restic snapshots of home, `/etc` and the package list. The bar module
+`backup` shows the last backup, Back up and the restore guide; in a terminal:
+`backup status|run|snapshots|restore|guide …` (`scripts/backup.py`).
+
+## Bar modules
+
+Each lives in `modules/<id>/`; its popup opens with
 `qs -c shell ipc call <id> toggle` (except clipboard `clip`, taskmanager
-`tasks`, cleaner `clean`, virustotal `scan`, packages `updates`, music `player`: `music` is its window). Order, zones and visibility: Shell Manager
-› Bar. Options: Shell Manager › Bar modules (an app's module too; Notifications: its own page).
-Every page has Reset in its header; About › Settings exports every option to one file, imports it
-(the shell restarts) and resets everything (the old set kept as `settings-before-reset.json`).
-A new layout (and Bar › Layout › Reset) shows workspaces, the clock, audio, Wi-Fi,
-Bluetooth, battery, notifications, Shell and the Folder; the rest start in the Folder
-(`BarLayout.defaultBar`), one drag from the bar. In the strip, modules of LEFT / RIGHT
-that don't fit beside the centre fold into the Folder, nearest the centre first, and
-come back when there is room (not saved; no Folder on the bar, no folding).
+`tasks`, cleaner `clean`, virustotal `scan`, packages `updates`, music
+`player`: `music` is its window).
 
-Workspaces, Music, Themes, Tray, Mode, Wallpapers, Equalizer, Clock, Brightness, Audio, Wi-Fi,
-Bluetooth, Mihomo, Battery, Language, AI, Shell, Notifications, Capture, Clipboard, System,
-Task Manager, Cleaner, Backups, VirusTotal, Packages, Display, Windows, Chat, Folder.
+Workspaces, Music, Themes, Tray, Mode, Wallpapers, Equalizer, Clock,
+Brightness, Audio, Wi-Fi, Bluetooth, Mihomo, Battery, Language, AI, Shell,
+Notifications, Capture, Clipboard, System, Task Manager, Cleaner, Backups,
+VirusTotal, Packages, Display, Windows, Chat, Folder.
 
-## Controls
-
-Shell Manager › Appearance › Controls: Outlined (framed controls, the
-terminal look) or Material (filled controls, no frames or prompt arrows,
-a quiet hairline round popups). The island keeps its frame either way.
-## Accent
-
-Shell Manager › Appearance › Accent: a switch (Off: monochrome). On: Fill (Solid or Gradient),
-then the colours in one row: a colour field per stop (Gradient: From and To, with a swap between
-them). A field takes a hex typed in (applied as you go; left invalid, it goes back to the last
-valid colour), and its chip or chevron opens the picker under the row (palette dots, then Hue,
-Saturation and Brightness sliders), for that stop only. Applies to: Switches, Sliders, Choices,
-Workspaces, Dropdowns, Window border, all off until switched on. A gradient runs across fills
-(switch, slider, window border); text and outlines take the first colour. Window border is
-Hyprland's focused frame: `hypr/components/appearance.lua` reads
-`~/.local/state/dotfiles/accent.lua`, written by `AccentService.qml`. APPLIES TO › Bar modules
-paints the active state of every bar module with the accent (off: each module's own colour, and
-its colour options show a note instead). The wallpaper's custom colour is the same field and picker, with the
-same palette dots (Appearance › Wallpaper › Colour); the cursor's is a plain colour row.
-
-## Corners
-
-Shell Manager › Appearance › Shape › Corners: Sharp, or Round with one radius on a
-ticked slider. Everything follows — popups, controls, rows, the island,
-Hyprland's windows, mako — and the icons switch to Material Symbols Rounded.
+- Order, zones and visibility: Shell Manager › Bar › Layout. Options:
+  Shell Manager › Bar modules (an app's module too; Notifications has its own
+  page). A right click on a module opens its options.
+- A new layout shows workspaces, the clock, audio, Wi-Fi, Bluetooth, battery,
+  notifications, Shell and the Folder; the rest start in the Folder, one drag
+  from the bar.
+- In the strip, modules of LEFT / RIGHT that don't fit beside the centre fold
+  into the Folder, nearest the centre first, and come back when there is room.
 
 ## Island
 
-Solid and island keep their own icon size, gap, separators and hub opening (`ShellSettings.looks`).
-Shell Manager › Bar › Look › Shape › Island: no strip — one pill at the top centre is
-the whole bar (`bar/island/`). At rest: LEFT · clock · RIGHT (by default the
-workspaces and the equalizer). The clock opens the hub on a hover or a click (Bar › Behaviour › Open the hub):
-the date, the track, the Launcher and Keys chips (they open the launcher and the keybinds inside the island: a Launcher / Keys view, Escape goes back to the hub when it came from there, a click outside closes) and the HUB modules as chips; a chip opens its module's
-popup inside the island, with a bubble beside it to the hub (the mouse's
-back button too; Escape when it came from the hub). Shell Manager › Bar › Layout arranges LEFT, RIGHT, HUB
-and HIDDEN; Bar › Monitor › Island clock, per monitor: off with nothing beside it, the
-island hides there until it has something to show. Volume / brightness changes pass over it as a flash, but not
-when made from the island itself (its chips, the open volume popup) or while the pointer rests on it; new
-notifications pass over it too (mako only keeps them: its `island` mode); a click on one focuses its app's window, else opens the centre. A new OSD or the end of the flash clears them from the island (the centre keeps them). Modules › Notifications › Toasts › Toast duration sets how long (Until dismissed: critical always stays so); the centre opening closes them. The track in the hub is the player (Bar › Behaviour › Show the player: off leaves the chips);
-the equalizer has no clicks (its colour and Show when paused: Bar modules › Equalizer;
-a gradient runs left to right).
-Right click on a chip: its options (the hub closes). Middle click: play / pause. The wheel belongs to the modules.
+Shell Manager › Bar › Look › Shape › Island: no strip, one pill at the top
+centre is the whole bar (`bar/island/`). Solid and island keep their own icon
+size, gap, separators and hub opening.
+
+- At rest: LEFT · clock · RIGHT (by default the workspaces and the
+  equalizer).
+- **The hub** opens from the clock on a hover or a click (Bar › Behaviour ›
+  Open the hub): the date, settings and power, the track, the **Launcher** and
+  **Keys** chips, then the HUB modules as chips. A chip opens its module's
+  popup inside the island, with a bubble back to the hub (the mouse's back
+  button too). Right click on a chip: its options. Middle click: play / pause.
+  The wheel belongs to the modules.
+- The launcher and the keybinds open inside the island (their own option
+  "Open from the island"); Escape goes back to the hub when they came from it.
+- Volume and brightness pass over the island as a flash (not when changed
+  from the island itself or while the pointer rests on it); new notifications
+  too — a click on one focuses its app's window, else opens the centre.
+  Toast duration: Notifications › Toasts.
+- Bar › Monitor › Island clock, per monitor: off with nothing beside it, the
+  island hides there until it has something to show.
 
 IPC: `qs -c shell ipc call island hub|media|power|launcher|keybinds|collapse`.
 
 ## Child bars
 
-Shell Manager › Bar › Layout: the empty framed bar on the preview (right of
-the centre) adds a child bar — a small bar of the monitor's main bar, in its
-row; one empty child bar at a time. Drag it on the preview to one of four
-spots (either edge, either side of the centre); its corner cross (or a drop
-off the preview) removes it. Its band under the preview takes modules like
-the others. A module is in one bar only. In the island style each is
-an island of its own: its modules' popups open inside it as in the island
-(`bar/island/IslandChild.qml`); with no centre showing they meet in the
-middle. Bar › Look › Module gap and Separators: the room between modules and
-the "|" in it, in every bar. The Folder is never off the bar: a saved
-"folder" in HIDDEN is ignored. Bar › Layout › ADD › Separator: a custom "|",
-dragged into a band (a click puts it at the end of RIGHT); its chip's cross removes it.
-Notifications › BELL › Bell badge: the bell's own dot or count, off by default.
-Notifications › UNSEEN DOT › Show the dot: the dot shows while the notifications
-centre is tucked away — on the Folder in the strip, on the island's resting pill
-when the centre is in the hub, never beside the bell. Moving the centre sets the
-switch; the switch overrides until the next move. Dot colour shows with it.
+Shell Manager › Bar › Layout: the empty framed bar on the preview adds a
+child bar — a small bar beside the monitor's main one, one empty child bar at
+a time. Drag it to one of four spots (either edge, either side of the
+centre); its corner cross removes it. In the island style each child is an
+island of its own, with its modules' popups inside it.
+
+- A module is in one bar only; the Folder is never off the bar.
+- Bar › Look › Module gap and Separators apply to every bar; Bar › Layout ›
+  ADD › Separator adds a custom "|".
+- The unseen-notifications dot shows while the notifications centre is tucked
+  away (in the Folder, or in the hub); Notifications › UNSEEN DOT.
+
+## Look
+
+All in Shell Manager › Appearance.
+
+- **Style**: Terminal (framed controls) or Material (filled controls, no
+  frames, a hairline round popups).
+- **Accent**: off (monochrome), one colour or a gradient, typed as hex or
+  picked. It applies only where switched on: switches, sliders, choices,
+  workspaces, dropdowns, bar modules, the window border (Hyprland's focused
+  frame, via `~/.local/state/dotfiles/accent.lua`). A gradient runs across
+  fills; text and outlines take the first colour.
+- **Shape › Corners**: sharp, or round with one radius — popups, controls,
+  the island, Hyprland's windows and mako follow, and the icons switch to
+  Material Symbols Rounded.
+- **Typed characters**: dots or squares in every password field.
+
+## Settings
+
+Every page has Reset in its header. About › Settings exports every option to
+one file, imports it (the shell restarts) and resets everything (the old set
+kept as `settings-before-reset.json`).
+
+State: `~/.local/state/quickshell/by-shell/<id>/` (`settings.json`,
+`modules.json`, `layout.json`, …) and `~/.local/state/dotfiles/`
+(`window-mode`, `windows.json`, `shell-apps.json`).
+
+Files you may edit by hand:
+
+| File | What |
+|---|---|
+| `modules/brightness/night_light.json` | night light presets and schedule |
+| `modules/wifi/dns_providers.json` | DNS providers: `{label, servers}` |
+| `~/.config/scripts/radio/stations.json` | radio stations: `"key": {name, url}` |
 
 ## Requirements
 
@@ -138,21 +184,26 @@ switch; the switch overrides until the next move. Dot colour shows with it.
 | AI limits | Claude Code login (`~/.claude/.credentials.json`) |
 | File scans | `VIRUSTOTAL_API_KEY` (env or `~/.config/secrets/env`) |
 | Music likes | Yandex Music token (`~/.config/scripts/yandex-music/token`) |
+| Music | MPRIS players (Spotify, a browser, mpv with `mpv-mpris`); Yandex Music, local folders and radio through MPD (components `yandex-music`, `mpd`, `radio`) |
 | Island wave | `cava` (without it the wave is made up) |
-| Files: devices | `udisks2` (`udisksctl`): the sidebar's USB and DEVICES sections (`files.py devices`, `removable` tells them apart); `findmnt` for "This computer" |
-| Music | MPRIS players (Spotify, a browser, mpv: each needs its MPRIS support, e.g. `mpv-mpris` for mpv); Yandex Music, the local folders (`~/Music`, Shell Manager › Music) and the radio come through MPD (components `yandex-music`, `mpd`, `radio`) |
-| Files: file chooser and links | `python-gobject`, `xdg-desktop-portal` (portal backend: `scripts/files_portal.py`, config `packages/xdg-portal/`) |
+| Files: devices | `udisks2`; `findmnt` for "This computer" |
+| Files: file chooser and links | `python-gobject`, `xdg-desktop-portal` (backend `scripts/files_portal.py`, config `packages/xdg-portal/`) |
 
 System files: `./install.py system install`.
 
-## Files you edit
+## When the shell is gone
 
-| File | What |
-|---|---|
-| `modules/brightness/night_light.json` | night light presets and schedule |
-| `modules/wifi/dns_providers.json` | DNS providers: `{label, servers}` |
-| `~/.config/scripts/radio/stations.json` | radio stations: `"key": {name, url}` |
+After a crash Quickshell usually restarts the shell in place and opens its
+crash report. When the process ends instead, `scripts/supervise.sh` (Hyprland
+starts the shell through it) starts it again in a second; five crashes in a
+minute and it stops with a toast. A kill or Restart (About, the launcher) is
+not a crash. A config that does not load gets one toast with the error, and
+the shell starts again once a `.qml` / `.js` file changes. Locked when it
+crashed, the new shell locks again.
 
-State: `~/.local/state/quickshell/by-shell/<id>/` (`settings.json`,
-`modules.json`, `layout.json`, …) and `~/.local/state/dotfiles/`
-(`window-mode`, `windows.json`, `shell-apps.json`).
+No bar and no terminal: switch to a tty (Ctrl+Alt+F2), log in, then
+
+```bash
+HYPRLAND_INSTANCE_SIGNATURE=$(ls /run/user/$UID/hypr | tail -1) \
+  hyprctl eval 'hl.exec_cmd("~/.config/quickshell/shell/scripts/supervise.sh")'
+```

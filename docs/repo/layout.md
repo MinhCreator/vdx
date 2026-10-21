@@ -16,7 +16,7 @@ Arch Linux + Hyprland. `install.py` (Python ≥ 3.11, stdlib only, code in
 | Active theme | `.theme` (local) | gruvbox when absent |
 | Secrets | `private/` (private repo, gitignored) | copied to `$HOME` by `private/secrets.py` |
 | Secret templates | `templates/secrets/*.example` | seeded by `setup` (`bootstrap`) |
-| Wallpapers | `wallpapers/<theme>/`, `wallpapers/common/`; the user's own in `~/.local/share/dotfiles/wallpapers/` | read by the Shell Manager |
+| Wallpapers | `wallpapers/<theme>/`, `wallpapers/common/` (optional, not shipped); the user's own in `~/.local/share/dotfiles/wallpapers/` | read by the Shell Manager |
 | Installer state | `~/.local/state/dotfiles/` | logs, the setup journal, backups, what the shell reads |
 | Installer tests | `tests/` | `./install.py check tests`; run before every install |
 | Docs: one topic per file | `docs/` | index: `docs/README.md` |

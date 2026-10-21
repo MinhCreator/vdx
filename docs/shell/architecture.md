@@ -6,8 +6,6 @@ repo and installer: [docs/](../README.md); what exists for a
 user: [shell/README.md](../../packages/quickshell/shell/README.md). Paths below are under
 `packages/quickshell/shell/` unless they start with the repo root.
 
-Status: written from the repository audit of 2026-10-19. Parts marked *not inspected* are names and roles only.
-
 ## Runtime
 
 ```
@@ -50,7 +48,7 @@ package (`hypr` colours, `kitty`, `mako/config`, `quickshell` colours …),
 linked over the package files by `./install.py link`; `.theme` names the
 active one. The shell reads colours through `config/Colors.qml` → `Theme`.
 Runtime-written theme-ish state goes to `~/.local/state/dotfiles/`
-(`accent.lua`, read by `hypr/components/appearance.lua`). mako modes
+(`accent.lua`, read by `packages/hypr/components/appearance.lua`). mako modes
 (`island`, `round`) are switched by the shell with `makoctl mode`.
 
 ## Install flow
@@ -59,9 +57,6 @@ Runtime-written theme-ish state goes to `~/.local/state/dotfiles/`
 links, secrets, `/etc`, units, services). `link` also writes
 `~/.local/state/dotfiles/components.json` (modules not installed) and
 `hypr/machine/*.lua`. `doctor` checks the machine. Details: [repo/installer.md](../repo/installer.md).
-
-*Not inspected (lifecycle):* restart behaviour of every `Process` beyond
-`NotificationsService.monitorProc` (restarts after 2 s) and the wallpaper wait loop (25 × 0.4 s).
 
 ## Settings and state
 
@@ -102,9 +97,6 @@ Animations and Bar reset their `ShellSettings` keys (`ShellSettings.reset(keys)`
 | Capture | `apps/capture/`, `modules/capture/` | `grim`, `gpu-screen-recorder`, `wl-copy`, `notify-send` | the only "camera" in the repo: screen capture |
 | Launcher, Keybinds | `apps/launcher/`, `apps/keybinds/` | Hyprland binds | a window (Alt+Space, Super+B) and the island's Launcher / Keys chips: the same panels |
 
-*Not inspected:* Task Manager, Cleaner, Packages, Backups, VirusTotal,
-Clipboard, Windows, Sysmon, Wi-Fi, Mihomo, AI, Chat, Overview, Switcher, Taskbar.
-
 ## Optional parts
 
 `components.toml` decides what is installed; a bar module whose components
@@ -123,5 +115,5 @@ still loads, so it must tolerate missing binaries.
 
 ## Update rule
 
-A phase that changes a flow or a boundary above updates this file in the same
+A change to a flow or a boundary above updates this file in the same
 commit; a new boundary or store is agreed with the owner first.

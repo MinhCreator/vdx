@@ -3,7 +3,7 @@
 What can be checked, how, and what stays manual. Commit rules ("Before a
 commit", "Before a push"): [repo/commits.md](../repo/commits.md) — not repeated here.
 
-## Automated (verified 2026-10-20, all green)
+## Automated
 
 | Command | Covers |
 |---|---|
@@ -15,7 +15,7 @@ commit", "Before a push"): [repo/commits.md](../repo/commits.md) — not repeate
 | `./install.py check components` | the catalog against the repo and pacman |
 | `ruff check` | Python lint (`ruff.toml`) |
 | `git ls-files '*.sh' \| grep -v ^packages/nvim \| xargs shellcheck -S warning` | shell scripts |
-| `tests/fresh-machine.sh [defaults \| component…]` | clean Arch in podman: setup, doctor, verify, second setup, uninstall (slow; not run in the 2026-10-19 pass) |
+| `tests/fresh-machine.sh [defaults \| component…]` | clean Arch in podman: setup, doctor, verify, second setup, uninstall (slow) |
 
 No QML behaviour tests exist. Logic that can live in a backend script (or a
 pure JS file) SHOULD go there so a `tests/test_*.py` can cover it.
@@ -23,7 +23,7 @@ pure JS file) SHOULD go there so a `tests/test_*.py` can cover it.
 ## Shell runtime checks (manual)
 
 - Log: `qs log -c shell | grep -E 'ERROR|WARN'` — empty after the change.
-- Restart (new files, IPC changes): see `shell/CLAUDE.md` › Work. From a terminal
+- Restart (new files, IPC changes): see `packages/quickshell/shell/CLAUDE.md` › Work. From a terminal
   opened before Hyprland restarted, `HYPRLAND_INSTANCE_SIGNATURE` is stale: a shell
   started from it has no Hyprland (start it through `hyprctl -i <instance> eval …`,
   the instance from `hyprctl instances -j`).
@@ -36,7 +36,7 @@ pure JS file) SHOULD go there so a `tests/test_*.py` can cover it.
 
 ## Regression scenarios by area
 
-Each phase lists the ones it touches; these are the shared base.
+Each area lists the scenarios it touches; these are the shared base.
 
 | Area | Scenarios |
 |---|---|
