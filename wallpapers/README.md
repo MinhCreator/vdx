@@ -5,6 +5,17 @@ Manager › Appearance lists the active theme's folder, then the user's folder
 (`~/.local/share/dotfiles/wallpapers/`), then `common/`; the choice is per theme. Formats:
 whatever `awww` reads (jpg, png, webp, gif).
 
+## Adding one
+
+PRs with wallpapers are welcome — the light themes have none yet.
+
+- The file goes to `wallpapers/<theme>/` (a light theme: `<theme>-light/`),
+  named short in kebab-case: `misty-forest.jpg`.
+- jpg, png or webp, at least 1920×1080, up to ~5 MB.
+- It fits the theme's palette (colours: `themes/<theme>/`).
+- The PR adds its row to Sources below: where it is from and its licence (at
+  least a link to the author).
+
 ## Sources
 
 | Theme | Files | From | Licence |

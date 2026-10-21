@@ -156,6 +156,12 @@ config folders, ignored by git.
   [the shell's README](packages/quickshell/shell/README.md#when-the-shell-is-gone).
 - Logs of each setup: `~/.local/state/dotfiles/setup-<time>.log`.
 
+## Wallpapers wanted
+
+Every theme has a light twin, and none of them has a wallpaper yet; most dark
+themes have one or two. A PR with a picture is very welcome:
+[wallpapers/README.md › Adding one](wallpapers/README.md#adding-one).
+
 ## Changing it
 
 How it is built and the rules for changes: [docs/README.md](docs/README.md).
