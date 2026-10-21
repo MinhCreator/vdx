@@ -240,8 +240,24 @@ Singleton {
       const kinds = ["image", "video", "audio", "text"];
       return !kinds.includes(major) || e.kind === major;     // "*/*", "application/*": every file
     }
-    const re = p.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*").replace(/\?/g, ".");
-    return new RegExp("^" + re + "$", "i").test(e.name);
+    return new RegExp("^" + globToRegex(p) + "$", "i").test(e.name);
+  }
+
+  // a glob as a regex body: * ? and classes ("*.[jJ][pP][gG]", what Chromium sends; [!x] negates)
+  function globToRegex(p) {
+    let re = "";
+    for (let i = 0; i < p.length; i++) {
+      const c = p[i];
+      const close = c === "[" ? p.indexOf("]", i + 2) : -1;
+      if (c === "*") re += ".*";
+      else if (c === "?") re += ".";
+      else if (close > 0) {
+        const body = p.slice(i + 1, close).replace(/\\/g, "\\\\");
+        re += "[" + (body[0] === "!" ? "^" + body.slice(1) : body) + "]";
+        i = close;
+      } else re += c.replace(/[.+^${}()|[\]\\]/g, "\\$&");
+    }
+    return re;
   }
 
   // a column caption or the header's button: the same key flips the order, a new key starts ascending
