@@ -15,10 +15,7 @@
   <img alt="MIT" src="https://img.shields.io/badge/license-MIT-98971a?style=flat-square">
 </p>
 
-<!-- promo video: the GitHub user-attachments URL of vdx-promo-1080p.mp4 goes on its own line here -->
-<p align="center">
-  <img src="docs/media/promo-poster.webp" alt="vdx promo" width="100%">
-</p>
+https://github.com/user-attachments/assets/4a7dac16-6943-4acf-9627-7ff15657b959
 
 ## What it is
 
