@@ -238,7 +238,7 @@ Rectangle {
           font.pixelSize: Theme.fontSize - 2
           color: root.cs.status === "error" ? Theme.red : root.cs.status === "ok" ? Theme.green : Theme.muted
           text: root.cs.message !== "" ? root.cs.message
-              : root.tab === "ai" ? "picked items go to the Trash"
+              : root.tab === "ai" ? "picked items go to trash"
               : root.cs.pickedRoot.length > 0 ? "the system part asks for your password" : "your files are emptied at once"
         }
       }
@@ -247,7 +247,7 @@ Rectangle {
         id: action
         anchors { right: parent.right; verticalCenter: parent.verticalCenter }
         icon: root.armed ? "check" : root.tab === "ai" ? "trash" : "brush"
-        text: root.armed ? "Sure?" : root.tab === "ai" ? "Move to Trash" : "Clean"
+        text: root.armed ? "Sure?" : root.tab === "ai" ? "Move to trash" : "Clean"
         selected: root.armed
         busy: root.cs.busy
         disabled: root.tab === "ai" ? root.cs.aiChosen.length === 0 : root.cs.pickedSize <= 0

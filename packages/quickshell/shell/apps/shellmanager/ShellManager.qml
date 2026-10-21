@@ -215,7 +215,7 @@ Rectangle {
       // level with the page's first row (pages.y under the header): one top for both columns
       y: brand.y + brand.height + root.contentGap
       width: nav.width
-      placeholder: "search"
+      placeholder: "Search…"
       passKeys: [Qt.Key_Up, Qt.Key_Down]
       onAccepted: root.openResult(root.results[root.picked])
       onKeyPassed: key => root.picked = Math.max(0, Math.min(root.results.length - 1, root.picked + (key === Qt.Key_Down ? 1 : -1)))
@@ -445,7 +445,7 @@ Rectangle {
     KitText {
       visible: root.results.length === 0
       x: Theme.gapLoose
-      text: "Nothing found"
+      text: "Nothing matches"
       color: Theme.muted
     }
   }

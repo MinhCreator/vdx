@@ -48,7 +48,7 @@ Column {
 
   KitOptionRow {
     module: "capture"; key: "fps"; fallback: 60
-    label: "Frame rate"
+    label: "Frame rate"; hint: "Smoother, bigger files"
     model: [{ label: "30 fps", value: 30 }, { label: "60 fps", value: 60 }]
   }
 

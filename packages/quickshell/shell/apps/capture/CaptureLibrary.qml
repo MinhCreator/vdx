@@ -108,7 +108,7 @@ Item {
     confirming = false;
     const paths = items.map(i => i.path);
     if (paths.length === 0) return;
-    Quickshell.execDetached(["sh", "-c", 'for f in "$@"; do gio trash -- "$f"; done; notify-send -a Capture "Library cleared" "$# files moved to the trash"', "sh"].concat(paths));
+    Quickshell.execDetached(["sh", "-c", 'for f in "$@"; do gio trash -- "$f"; done; notify-send -a Capture "Library cleared" "$# files moved to trash"', "sh"].concat(paths));
     selectedPath = "";
     reloadTimer.restart();
   }
@@ -156,7 +156,7 @@ Item {
     }
 
     KitInput {
-      placeholder: "Search by name"
+      placeholder: "Search by name…"
       onTextEdited: root.query = text
     }
 

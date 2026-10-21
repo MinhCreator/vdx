@@ -64,7 +64,7 @@ Row {
     KitInput {
       id: search
       width: parent.width
-      placeholder: "search"
+      placeholder: "Search…"
       text: root.query
       onTextEdited: {
         root.query = text;
@@ -189,7 +189,7 @@ Row {
         KitText { text: ThemeService.baseOf(root.selected); font.weight: Font.ExtraBold; font.pixelSize: Theme.fontSize + 2 }
         KitText {
           text: (root.isLight(root.previewed) ? "Light" : "Dark")
-                + (root.changed ? " · enter applies, esc goes back" : " · in use")
+                + (root.changed ? " · enter applies, esc back" : " · in use")
           color: Theme.muted
           font.pixelSize: Theme.fontSize - 2
         }

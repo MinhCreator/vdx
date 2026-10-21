@@ -87,7 +87,7 @@ Rectangle {
       KitInput {
         id: search
         width: 240
-        placeholder: root.tm.tab === "programs" ? "search" : "search name, pid or command"
+        placeholder: root.tm.tab === "programs" ? "Search…" : "Search name, pid or command…"
         text: root.tm.query
         onTextEdited: root.tm.query = text
       }
@@ -253,7 +253,7 @@ Rectangle {
   KitText {
     anchors.centerIn: list
     visible: root.tm.rows.length === 0
-    text: root.tm.procs.length === 0 ? "Reading processes…" : "Nothing matches."
+    text: root.tm.procs.length === 0 ? "Reading processes…" : "Nothing matches"
     color: Theme.muted
   }
 
@@ -288,7 +288,7 @@ Rectangle {
           text: root.tm.error !== "" && root.tm.status === "error" ? root.tm.error
               : root.tm.notice !== "" ? root.tm.notice
               : root.tm.selectedRow ? root.detail(root.tm.selectedRow)
-              : "↑ ↓ to select · Delete ends · Shift+Delete kills"
+              : "↑ ↓ to select · Delete ends · Shift + Delete kills"
           color: root.tm.status === "error" ? Theme.red : Theme.muted
           font.pixelSize: Theme.fontSize - 2
         }

@@ -25,7 +25,7 @@ Column {
 
   KitToggleRow { module: "clipboard"; key: "closeOnCopy"; label: "Close after copying"; hint: "Off: popup stays open" }
 
-  KitToggleRow { module: "clipboard"; key: "closeOnOpen"; label: "Close when its window opens"; hint: "" }
+  KitToggleRow { module: "clipboard"; key: "closeOnOpen"; label: "Close when its window opens"; hint: "Off: popup stays open" }
 
   KitGrouper {}
 }

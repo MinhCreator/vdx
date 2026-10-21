@@ -240,7 +240,7 @@ Rectangle {
         elide: Text.ElideRight
         font.pixelSize: Theme.fontSize - 2
         color: Theme.muted
-        text: root.r?.sha256 ? "SHA-256 " + root.r.sha256.slice(0, 16) + "…" : "Enter scans · Esc closes"
+        text: root.r?.sha256 ? "SHA-256 " + root.r.sha256.slice(0, 16) + "…" : "enter scans · esc close"
       }
 
       KitButton {

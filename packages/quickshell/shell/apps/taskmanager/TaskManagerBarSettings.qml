@@ -21,7 +21,7 @@ Column {
     model: [{ label: "3", value: 3 }, { label: "5", value: 5 }, { label: "10", value: 10 }]
   }
 
-  KitToggleRow { module: "taskmanager"; key: "closeOnOpen"; label: "Close when its window opens"; hint: "" }
+  KitToggleRow { module: "taskmanager"; key: "closeOnOpen"; label: "Close when its window opens"; hint: "Off: popup stays open" }
 
   KitGrouper {}
 }

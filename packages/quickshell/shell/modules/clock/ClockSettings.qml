@@ -10,7 +10,7 @@ Column {
 
   KitOptionRow {
     module: "clock"; key: "twelveHour"; fallback: false
-    label: "Format"; hint: ""
+    label: "Clock format"; hint: "14:05 or 2:05 PM"
     model: [{ label: "24h", value: false }, { label: "12h", value: true }]
   }
   KitToggleRow { module: "clock"; key: "seconds";    fallback: false; label: "Show seconds"; hint: "14:05:32" }

@@ -13,7 +13,7 @@
     "bind": "Lock the screen", "ipc": "lock", "open": "lock", "listed": false,
     "settings": "apps/lock/LockSettings.qml", "page": "lockscreen" },
   { "id": "overview", "label": "Overview", "icon": "columns", "about": "Workspaces as one scrolling strip",
-    "ipc": "overview", "open": "toggle" },
+    "bind": "Overview", "ipc": "overview", "open": "toggle" },
   { "id": "taskmanager", "label": "Task Manager", "icon": "activity", "about": "Processes, CPU and memory, End / Kill",
     "bind": "Task manager", "ipc": "taskmanager", "open": "toggle",
     "window": { "id": "task-manager", "title": "Task Manager", "width": 780, "height": 640 },

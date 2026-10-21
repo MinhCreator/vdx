@@ -14,9 +14,8 @@ KitColumn {
   readonly property var themeColors: ThemeService.colors[selected] ?? ({})
   readonly property bool customWallpaper: ShellSettings.wallpaperMode === "custom"
   readonly property bool imageWallpaper: ShellSettings.wallpaperMode === "image"
-  // the picture of the active theme, and the one the previewed theme would show
+  // the picture of the active theme
   readonly property string currentImage: imageWallpaper ? WallpaperService.imageFor(ThemeService.current) : ""
-  readonly property string previewImage: imageWallpaper ? WallpaperService.imageFor(selected) : ""
   readonly property color wallpaper: customWallpaper ? ShellSettings.wallpaperColor : p("background1")
 
   function p(role) { return themeColors[role] ?? Theme[role]; }
@@ -30,7 +29,7 @@ KitColumn {
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   // the header's Reset: these ShellSettings keys back to their defaults (the theme, the font and the cursor are on their pages)
-  readonly property var resetKeys: ["solidIcons", "wallpaperMode", "wallpaperColor", "wallpaperImages", "wallpaperOutputs", "corners", "cornerRadius", "cornerSplit", "cornerRadii", "material", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere"]
+  readonly property var resetKeys: ["solidIcons", "wallpaperMode", "wallpaperColor", "wallpaperImages", "wallpaperOutputs", "corners", "cornerRadius", "cornerSplit", "cornerRadii", "material", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere", "passwordDots"]
   readonly property bool changed: ShellSettings.changed(resetKeys)
   function reset() { ShellSettings.reset(resetKeys); }
 
@@ -71,6 +70,19 @@ KitColumn {
       model: [{ label: "Dark", value: false }, { label: "Light", value: true }]
       current: ThemeService.light
       onPicked: value => ThemeService.setLight(value)
+    }
+  }
+
+  // how a typed password shows: the lock and every password field of the shell
+  KitRow {
+    wide: true
+    label: "Typed characters"
+    hint: "In every password field"
+
+    KitSegments {
+      model: [{ label: "Dots", value: true }, { label: "Squares", value: false }]
+      current: ShellSettings.passwordDots
+      onPicked: value => ShellSettings.set("passwordDots", value)
     }
   }
   KitLine {}

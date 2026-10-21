@@ -80,7 +80,7 @@ Column {
   KitInput {
     id: search
     visible: root.searching && root.notice === ""
-    placeholder: "artist or title"
+    placeholder: "Search artist or title…"
     text: root.query
     onTextEdited: root.query = text
   }
@@ -173,7 +173,7 @@ Column {
 
   KitText {
     visible: root.notice === "" && root.tracks.length === 0
-    text: root.searching ? (root.query.trim() === "" ? "Type to search." : "Nothing found.") : "The queue is empty."
+    text: root.searching ? (root.query.trim() === "" ? "Type to search." : "Nothing matches") : "The queue is empty."
     color: Theme.muted
     font.pixelSize: Theme.fontSize - 1
   }

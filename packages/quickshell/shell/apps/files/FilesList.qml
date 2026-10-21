@@ -80,7 +80,7 @@ Item {
       visible: FilesService.shown.length === 0 && !FilesService.loading
       text: FilesService.error !== "" ? FilesService.error
           : FilesService.dupes ? "No file here has a copy."
-          : FilesService.searching || FilesService.query.trim() !== "" ? "Nothing matches \"" + FilesService.query.trim() + "\"."
+          : FilesService.searching || FilesService.query.trim() !== "" ? "Nothing matches \"" + FilesService.query.trim() + "\""
           : FilesService.inTrash ? "The trash is empty."
           : FilesService.atRecent ? "No file opened lately."
           : FilesService.atStarred ? "Nothing starred: right click › Star."

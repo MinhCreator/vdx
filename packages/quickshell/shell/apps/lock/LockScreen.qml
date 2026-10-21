@@ -183,23 +183,16 @@ Rectangle {
       }
       KitButton {
         id: reboot
-        icon: "refresh"; text: "Reboot"
+        icon: "refresh"; text: root.armed === "reboot" ? "Sure?" : "Reboot"
         selected: root.armed === "reboot"
         onClicked: root.press("reboot")
       }
       KitButton {
         id: shutdown
-        icon: "power"; text: "Shut down"
+        icon: "power"; text: root.armed === "poweroff" ? "Sure?" : "Shut down"
         selected: root.armed === "poweroff"
         onClicked: root.press("poweroff")
       }
-    }
-
-    KitText {
-      anchors.horizontalCenter: parent.horizontalCenter
-      text: root.armed !== "" ? "Click again to confirm" : " "
-      color: Theme.muted
-      font.pixelSize: Theme.fontSize - 2
     }
   }
 

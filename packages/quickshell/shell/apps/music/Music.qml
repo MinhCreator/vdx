@@ -312,7 +312,7 @@ Item {
       visible: root.anyOn && root.fieldOn
       anchors { top: headerLine.bottom; topMargin: Theme.gapGroup }
       width: parent.width
-      placeholder: root.tab === "yandex" && root.page === "search" ? "artist, track or album, Enter" : "filter"
+      placeholder: root.tab === "yandex" && root.page === "search" ? "Search artist, track or album…" : "filter"
       text: root.tab === "yandex" && root.page === "search" ? YandexLibrary.query : root.filter
       onTextEdited: if (!(root.tab === "yandex" && root.page === "search")) root.filter = text
       onAccepted: if (root.tab === "yandex" && root.page === "search") YandexLibrary.search(text)
@@ -360,7 +360,7 @@ Item {
         empty: !root.yandexOn ? "" : root.page === "likes" ? (YandexLibrary.likesLoading ? "Loading…" : root.filter !== "" ? "Nothing matches" : "No liked tracks")
              : root.page === "search" ? (YandexLibrary.searching ? "Searching…"
                  : YandexLibrary.query === "" ? "Type and press Enter to search Yandex Music"
-                 : "Nothing found for “" + YandexLibrary.query + "”")
+                 : "Nothing matches “" + YandexLibrary.query + "”")
              : root.page === "playlist" && !YandexLibrary.playlist ? "Pick a playlist on the left"
              : YandexLibrary.playlistLoading ? "Loading…" : root.filter !== "" ? "Nothing matches"
              : "No tracks yet. Add some from a track's ⋮ menu"

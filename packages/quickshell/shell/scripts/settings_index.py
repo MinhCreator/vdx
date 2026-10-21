@@ -41,7 +41,16 @@ SECTIONS = {"AccentSection.qml": "accent", "WallpaperSection.qml": "wallpaper", 
             "IconsSection.qml": "shape"}
 
 ROW = re.compile(r'\blabel:\s*"([^"]+)"')
-GROUP = re.compile(r'(?:KitLabel\s*\{[^}]*?\btext|KitGroup\s*\{[^}]*?\btitle):\s*"([A-Z][A-Z0-9 -]+)"')
+GROUP = re.compile(r'(?:KitLabel\s*\{(?:[^{}]|\{[^{}]*\})*?\btext|KitGroup\s*\{(?:[^{}]|\{[^{}]*\})*?\btitle)'
+                   r':\s*"([A-Z][A-Z0-9 -]+)"')
+ACRONYMS = {"Ai": "AI", "Wi-fi": "Wi-Fi", "Dns": "DNS", "Vpn": "VPN", "Usb": "USB", "Gpu": "GPU", "Cpu": "CPU",
+            "Osd": "OSD", "Mpd": "MPD", "Ip": "IP"}
+
+
+def caption(group: str) -> str:
+    """A caps group title as a label: "WI-FI NETWORKS" -> "Wi-Fi networks"."""
+    words = group.capitalize().split(" ")
+    return " ".join(ACRONYMS.get(w.capitalize(), w) for w in words)
 
 
 def jumps(text: str) -> dict:
@@ -77,7 +86,7 @@ def entries_of(path: Path, title: str, tab: str, target: str = "") -> list:
     # each group is found by its title too
     for group in dict.fromkeys(GROUP.findall(text)):
         t = target or (f"{tab}:{own[group]}" if group in own else tab)
-        out.append({"label": group.capitalize(), "hint": "", "where": title, "target": t})
+        out.append({"label": caption(group), "hint": "", "where": title, "target": t})
     for group, label, hint in rows(text):
         t = target or (f"{tab}:{own[group]}" if group in own else tab)
         out.append({"label": label, "hint": hint, "where": " › ".join(x for x in (title, group) if x), "target": t})

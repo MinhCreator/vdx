@@ -63,7 +63,7 @@ KitFrame {
   KitInput {
     id: field
     width: parent.width
-    placeholder: "Search keys, actions, sections"
+    placeholder: "Search keys, actions, sections…"
     text: root.query
     onTextEdited: root.query = text
 
@@ -151,7 +151,7 @@ KitFrame {
       KitText {
         width: parent.width
         visible: root.sections.length === 0
-        text: root.kb.error !== "" ? root.kb.error : "Nothing matches."
+        text: root.kb.error !== "" ? root.kb.error : "Nothing matches"
         color: root.kb.error !== "" ? Theme.red : Theme.muted
       }
     }

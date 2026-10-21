@@ -29,7 +29,7 @@ Column {
   // typing jumps to the first match, arrows move through the matches
   KitInput {
     width: parent.width
-    placeholder: "search"
+    placeholder: "Search…"
     text: root.query
     onTextEdited: {
       root.query = text;

@@ -3,7 +3,7 @@ import qs.config
 import qs.kit
 
 // Power off, reboot, lock, hibernate, suspend as tiles. Lock and suspend act
-// at once; the rest ask once — the tile turns to "Confirm" for 3 s.
+// at once; the rest ask once — the tile turns to "Sure?" for 3 s.
 // Keys: Left / Right, Enter.
 Item {
   id: root
@@ -70,7 +70,7 @@ Item {
           }
           KitText {
             anchors.horizontalCenter: parent.horizontalCenter
-            text: tile.armed ? "Confirm" : tile.modelData.label
+            text: tile.armed ? "Sure?" : tile.modelData.label
             font.pixelSize: Theme.fontSize - 2
             font.weight: tile.armed ? Font.ExtraBold : Theme.fontWeight
             color: tile.lit ? Theme.foreground0 : Theme.foreground2

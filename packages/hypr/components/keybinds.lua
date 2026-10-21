@@ -26,6 +26,7 @@ bind("Shell", mainMod .. " + S", hl.dsp.exec_cmd("qs -c shell ipc call shell tog
 bind("Shell", mainMod .. " + B", hl.dsp.exec_cmd("qs -c shell ipc call keybinds toggle"), "Keybinds")
 bind("Shell", "CTRL + SHIFT + Escape", hl.dsp.exec_cmd("qs -c shell ipc call taskmanager toggle"), "Task manager")
 bind("Shell", mainMod .. " + X", hl.dsp.exec_cmd("qs -c shell ipc call cleaner toggle"), "Cleaner")
+bind("Shell", mainMod .. " + O", hl.dsp.exec_cmd("qs -c shell ipc call overview toggle"), "Overview")
 -- Super + Tab (the window switcher) is the floating mode's: modes/floating.lua
 
 -- screenshots (both copy to the clipboard)

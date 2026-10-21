@@ -217,7 +217,7 @@ ScrimWindow {
       horizontalAlignment: Text.AlignRight
       color: Theme.muted
       font.pixelSize: Theme.fontSize - 2
-      text: "Tab Next · Shift+Tab Back · Release Super Switch · Esc Cancel"
+      text: "tab next · Shift + Tab back · release Super switch · esc cancel"
     }
   }
 }

@@ -342,24 +342,24 @@ Item {
     const one = FilesService.selection.length === 1;
     if (FilesService.inTrash) return [
       { label: "Open", run: () => root.open(entry) },
-      { label: "Restore", hint: "ctrl + r", run: () => FilesService.restoreSelection() },
-      { label: "Delete for good", hint: "del", run: () => root.remove(true) },
+      { label: "Restore", hint: "Ctrl + R", run: () => FilesService.restoreSelection() },
+      { label: "Delete for good", hint: "Delete", run: () => root.remove(true) },
     ];
     return [
       { label: "Open", run: () => root.open(entry) },
       { label: "Rename", hint: "F2", disabled: !one || picker !== null, run: () => root.renaming = entry.path },
-      { label: "Copy", hint: "ctrl + c", run: () => FilesService.copySelection() },
-      { label: "Cut", hint: "ctrl + x", disabled: picker !== null, run: () => FilesService.cutSelection() },
-      { label: "Paste", hint: "ctrl + v", disabled: !FilesService.canPaste || picker !== null, run: () => FilesService.paste() },
-      { label: FilesService.isStarred(entry.path) ? "Unstar" : "Star", hint: "ctrl + s", run: () => FilesService.toggleStar(FilesService.selection) },
+      { label: "Copy", hint: "Ctrl + C", run: () => FilesService.copySelection() },
+      { label: "Cut", hint: "Ctrl + X", disabled: picker !== null, run: () => FilesService.cutSelection() },
+      { label: "Paste", hint: "Ctrl + V", disabled: !FilesService.canPaste || picker !== null, run: () => FilesService.paste() },
+      { label: FilesService.isStarred(entry.path) ? "Unstar" : "Star", hint: "Ctrl + S", run: () => FilesService.toggleStar(FilesService.selection) },
       { label: "Open the folder it is in", disabled: !FilesService.virtual && !FilesService.searching, run: () => FilesService.reveal(entry.path) },
       { label: "Properties", run: () => FilesService.inspect(entry.path) },
       { label: "Terminal here", disabled: entry.kind !== "dir", run: () => FilesService.openTerminal(entry.path) },
       { label: "Find duplicates here", disabled: entry.kind !== "dir", run: () => FilesService.findDuplicates(entry.path) },
       { label: "Pin to sidebar", disabled: entry.kind !== "dir" || FilesService.isPinned(entry.path), run: () => FilesService.pin(entry.path) },
       { label: "Copy path", run: () => Quickshell.execDetached(["wl-copy", entry.path]) },
-      { label: "Move to trash", hint: "del", disabled: picker !== null, run: () => root.remove(false) },
-      { label: "Delete for good", hint: "shift + del", disabled: picker !== null, run: () => root.remove(true) },
+      { label: "Move to trash", hint: "Delete", disabled: picker !== null, run: () => root.remove(false) },
+      { label: "Delete for good", hint: "Shift + Delete", disabled: picker !== null, run: () => root.remove(true) },
     ].concat(picker !== null ? [] : FilesService.actions.map(a => ({
       label: a.label, run: () => FilesService.runAction(a, FilesService.selection),
     })));
@@ -502,7 +502,7 @@ Item {
       KitInput {
         id: searchField
         width: Math.min(260, parent.width * 0.32)
-        placeholder: FilesService.everywhere ? "search all of Home" : FilesService.virtual ? "filter" : "search here and below"
+        placeholder: FilesService.everywhere ? "Search all of Home…" : FilesService.virtual ? "filter" : "Search here and below…"
         passKeys: [Qt.Key_Escape]
         text: FilesService.query
         onTextEdited: FilesService.setQuery(text)
@@ -588,7 +588,7 @@ Item {
           visible: root.picker !== null && root.picker.mode !== "save"
           verticalAlignment: Text.AlignVCenter
           elide: Text.ElideRight
-          text: FilesService.error !== "" ? FilesService.error : "enter " + (root.picker && root.picker.directory ? "selects the folder" : "opens") + " · esc cancels"
+          text: FilesService.error !== "" ? FilesService.error : "enter " + (root.picker && root.picker.directory ? "selects the folder" : "opens") + " · esc cancel"
           color: FilesService.error !== "" ? Theme.red : Theme.muted
           font.pixelSize: Theme.fontSize - 1
         }
@@ -623,8 +623,8 @@ Item {
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
         text: FilesService.error !== "" ? FilesService.error
-            : FilesService.job !== null ? FilesService.job.label + " " + FilesService.job.name + (FilesService.job.of > 0 ? " · " + FilesService.job.progress + " of " + FilesService.job.of : "") + " · esc cancels"
-            : root.trashSure ? "Move to the trash? Press delete again"
+            : FilesService.job !== null ? FilesService.job.label + " " + FilesService.job.name + (FilesService.job.of > 0 ? " · " + FilesService.job.progress + " of " + FilesService.job.of : "") + " · esc cancel"
+            : root.trashSure ? "Move to trash? Press delete again"
             : root.sure ? "Delete for good? Press delete again"
             : root.emptySure ? "Empty the trash? Press Empty again"
             : FilesService.clip.length > 0 && !FilesService.inTrash
@@ -654,18 +654,18 @@ Item {
     { key: "backspace", action: "the folder above" },
     { key: "alt + ← →", action: "back and forward" },
     { key: "↑ ↓ (grid: ← →)", action: "move; with shift, extend" },
-    { key: "ctrl + a c x v", action: "select all, copy, cut, paste" },
-    { key: "ctrl + z / shift + z", action: "undo, redo" },
-    { key: "del", action: "move to the trash" },
-    { key: "shift + del", action: "delete for good" },
-    { key: "f2", action: "rename" },
-    { key: "ctrl + n / d", action: "new folder, pin this folder" },
-    { key: "ctrl + s", action: "star or unstar" },
+    { key: "Ctrl + A, C, X, V", action: "select all, copy, cut, paste" },
+    { key: "Ctrl + Z / Shift + Z", action: "undo, redo" },
+    { key: "Delete", action: "move to trash" },
+    { key: "Shift + Delete", action: "delete for good" },
+    { key: "F2", action: "rename" },
+    { key: "Ctrl + N / D", action: "new folder, pin this folder" },
+    { key: "Ctrl + S", action: "star or unstar" },
     { key: "a letter", action: "jump to a name" },
-    { key: "ctrl + f", action: "focus the search" },
-    { key: "ctrl + k", action: "search all of Home, or this folder" },
-    { key: "ctrl + h / g", action: "hidden files, grid view" },
-    { key: "ctrl + l", action: "type a path" },
+    { key: "Ctrl + F", action: "focus the search" },
+    { key: "Ctrl + K", action: "search all of Home, or this folder" },
+    { key: "Ctrl + H / G", action: "hidden files, grid view" },
+    { key: "Ctrl + L", action: "type a path" },
     { key: "space", action: "show or hide the preview" },
     { key: "f5", action: "read the folder again" },
     { key: "esc", action: "clear, close" },

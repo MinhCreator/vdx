@@ -61,7 +61,7 @@ KitFrame {
   KitInput {
     width: parent.width
     visible: root.search && ClipboardService.entries.length > 0
-    placeholder: "search text"
+    placeholder: "Search clips…"
     text: root.query
     onTextEdited: root.query = text
   }

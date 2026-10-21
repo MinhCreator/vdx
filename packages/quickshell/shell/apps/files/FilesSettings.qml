@@ -108,7 +108,7 @@ KitColumn {
 
   KitToggleRow { module: "files"; key: "showKind"; fallback: false; label: "Type"; hint: "Folder, or the extension" }
 
-  KitToggleRow { module: "files"; key: "showSize"; fallback: true; label: "Size" }
+  KitToggleRow { module: "files"; key: "showSize"; fallback: true; label: "Size"; hint: "Folders show their item count" }
 
   KitToggleRow { module: "files"; key: "showDate"; fallback: true; label: "Modified"; hint: "Trash: when it was deleted" }
 
@@ -132,7 +132,7 @@ KitColumn {
 
   KitToggleRow { module: "files"; key: "sortDesc"; fallback: false; label: "Descending"; hint: "Click a caption to flip it" }
 
-  KitToggleRow { module: "files"; key: "foldersFirst"; label: "Folders first" }
+  KitToggleRow { module: "files"; key: "foldersFirst"; label: "Folders first"; hint: "Sorted above the files" }
 
   KitRow {
     wide: true

@@ -18,7 +18,7 @@ KitFrame {
     title: "Mihomo"
     subtitle: MihomoService.serviceOn
       ? "CONNECTED · " + (MihomoService.mode || "—").toUpperCase()
-      : "DISCONNECTED"
+      : "OFF"
 
     KitBadge {
       anchors.verticalCenter: parent.verticalCenter

@@ -201,7 +201,7 @@ Singleton {
         if (!r.ok) root.done(false, r.error);
         else if (what === "clean") root.done(true, "Freed " + Format.shortSize(r.freed));
         else if (what === "trash") {
-          root.done(true, "Moved " + Format.shortSize(r.freed) + " to the Trash");
+          root.done(true, "Moved " + Format.shortSize(r.freed) + " to trash");
           root.suggestions = root.suggestions.filter(s => !root.aiPicked[s.path]);
           root.aiPicked = ({});
         }

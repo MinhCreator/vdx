@@ -6,7 +6,7 @@ import qs.kit
 import qs.modules.equalizer
 
 // The island opened up: the date, the settings and power buttons, the track (prev, play,
-// next), then the hub's modules (Shell Manager › Bar) as chips.
+// next), then the Launcher and Keys chips and the hub's modules (Shell Manager › Bar) as chips.
 // A chip is the module's own face: its click opens the module's popup in the
 // island, a right click its options.
 Item {
@@ -17,6 +17,7 @@ Item {
 
   signal power()
   signal manager()                          // the gear: Shell Manager
+  signal app(string view)                   // the Launcher / Keys chip: "launcher" or "keybinds"
   signal settings(string id)
 
   // Shell Manager › Bar › HUB (island style)
@@ -142,6 +143,35 @@ Item {
     Flow {
       width: parent.width
       spacing: Theme.gapSmall
+
+      // the launcher and the keybinds, opened inside the island
+      Repeater {
+        model: [{ view: "launcher", icon: "search", label: "Launcher" },
+                { view: "keybinds", icon: "keyboard", label: "Keys" }]
+
+        Rectangle {
+          id: appChip
+          required property var modelData
+
+          width: appRow.width + 2 * Theme.gapWide
+          height: 32
+          radius: Theme.radiusCard
+          color: appHover.hovered ? Theme.background2 : Theme.background1
+          Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+
+          HoverHandler { id: appHover; cursorShape: Qt.PointingHandCursor }
+          TapHandler { onTapped: root.app(appChip.modelData.view) }
+
+          Row {
+            id: appRow
+            anchors.centerIn: parent
+            spacing: Theme.gapSmall
+
+            KitIcon { anchors.verticalCenter: parent.verticalCenter; name: appChip.modelData.icon; size: 16 }
+            KitText { anchors.verticalCenter: parent.verticalCenter; text: appChip.modelData.label }
+          }
+        }
+      }
 
       Repeater {
         model: root.ids

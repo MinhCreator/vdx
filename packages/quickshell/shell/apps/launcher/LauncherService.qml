@@ -45,7 +45,6 @@ Singleton {
   function ipc(target, fn, arg) { return ShellIpc.command(target, fn, arg ? [arg] : []); }
   function exec(command) { Quickshell.execDetached(command); }
 
-  function sh(script) { exec(["bash", "-c", script]); }
 
   // ---- apps ----
   // a Terminal=true entry (nvim, elio…) runs in kitty, the terminal Super + Q opens
@@ -105,7 +104,7 @@ Singleton {
   // ---- power ----
   readonly property var powerItems: [
     { icon: "lock", title: "Lock", hint: "The lock screen", keys: keysOf("Lock the screen"), run: () => exec(ipc("lock", "lock")) },
-    { icon: "moon", title: "Suspend", hint: "Sleep, locked", run: () => sh("qs -c shell ipc call lock lock; sleep 0.5; systemctl suspend") },
+    { icon: "moon", title: "Suspend", hint: "Sleep, locked", run: () => { ShellIpc.call("lock", "lock"); exec(["bash", "-c", "sleep 0.5; systemctl suspend"]); } },
     { icon: "log-out", title: "Log out", hint: "End the Hyprland session", run: () => Hypr.call("hl.dispatch(hl.dsp.exit())") },
     { icon: "refresh", title: "Reboot", hint: "Restart the computer", run: () => exec(["systemctl", "reboot"]) },
     { icon: "cpu", title: "Reboot to firmware", hint: "UEFI setup", run: () => exec(["systemctl", "reboot", "--firmware-setup"]) },

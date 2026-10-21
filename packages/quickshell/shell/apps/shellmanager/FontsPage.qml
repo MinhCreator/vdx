@@ -125,7 +125,7 @@ KitColumn {
             width: parent.width
             elide: Text.ElideRight
             text: card.working ? "Installing…" : card.active ? "In use" : card.modelData.installed ? "Installed"
-                : root.armed === card.modelData.family ? "Click again to download" : "Not installed"
+                : root.armed === card.modelData.family ? "Sure?" : "Not installed"
             color: card.active ? Theme.green : root.armed === card.modelData.family ? Theme.yellow : Theme.muted
             font.pixelSize: Theme.fontSize - 2
           }

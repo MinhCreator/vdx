@@ -211,6 +211,7 @@ Item {
       opacity: root.shown === "hub" ? 1 : 0
       Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
       onPower: root.openView("power")
+      onApp: v => root.toggleView(v)
       onManager: { root.collapse(); ShellSettings.managerOpen = true; }
       onSettings: id => {
         root.collapse();

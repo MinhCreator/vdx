@@ -40,8 +40,7 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 - Window: the frame is `Theme.windowPadding` (24) on every side and nothing else:
   the header sits at `windowPadding - Theme.headerInset`, a footer at
   `bottomMargin: Theme.windowPadding`. A `KitFrame` window sets `headerInset`
-  (and `bottomInset: Theme.textDescent` when it ends on a line of text) instead
-  of offsets. Popups keep 16.
+  instead of offsets. Popups keep 16.
 - Header: icon, title in normal case, subtitle in caps joined by ` · `. Tabs are `KitChoices` on its right; a Shell Manager page lists them as `tabs` + `tab`.
 - Group: `KitLabel` in caps (a noun, current value on the right), then rows.
 - Row: `KitRow` — label (capitalised) and hint (sentence case, no full stop)
@@ -73,8 +72,7 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
      Everything else is shades of the theme (`Theme.foreground*`, `background*`, `gray`).
   2. Accent: the user's own colour (Appearance › Accent: one colour or a
      gradient, `Theme.accent` / `Theme.accentEnd`). Off by default. It takes only the
-     places of APPLIES TO (`Theme.accentOn(key)` / `accentFor(key, fallback)` /
-     `accentEndFor`); a new place gets a key there, never a literal colour.
+     places of APPLIES TO (`Theme.accentOn(key)` / `accentFor(key, fallback)`); a new place gets a key there, never a literal colour.
   3. A warning colour is never replaced by the accent: a load, a low battery, an error, a mute keep theirs.
      The active state of a module (on, playing, charging, connected) is the accent's place
      `modules` (APPLIES TO › Bar modules): `Theme.accentFor("modules", <its colour>)`. Its colour
@@ -164,7 +162,7 @@ Pages by the user's area; the look follows macOS System Settings.
   wrapped, `Theme.fontSize - 1`; it clears on the next success.
 - MUST — pending: an apply that runs (install, reload) shows `busy` on its
   button or a `KitSpinner`; the rest of the page stays usable.
-- SHOULD — focus (for 12-C): one token `Theme.focusRing`, a 2 px `foreground2`
+- SHOULD — focus: one token `Theme.focusRing`, a 2 px `foreground2`
   outline at `radiusControl`, on keyboard focus only; Space toggles a switch,
   arrows move Choices, Enter activates; `Accessible.name` = the row's label.
 - SHOULD — no "Advanced" fold: rarely used groups go last on their page.

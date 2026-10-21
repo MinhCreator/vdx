@@ -19,7 +19,7 @@ Column {
 
   KitToggleRow { module: "virustotal"; key: "clipboard"; fallback: false; label: "Read the clipboard"; hint: "Fills the field with a hash or URL" }
 
-  KitToggleRow { module: "virustotal"; key: "closeOnOpen"; label: "Close when its window opens"; hint: "" }
+  KitToggleRow { module: "virustotal"; key: "closeOnOpen"; label: "Close when its window opens"; hint: "Off: popup stays open" }
 
   KitGrouper {}
 }

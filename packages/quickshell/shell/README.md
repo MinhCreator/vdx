@@ -24,7 +24,7 @@ Registry: `apps/apps.json` (the Shell Manager, the system menu,
 | Files | Super+E | `files toggle\|open\|close`, `files go\|reveal\|inspect\|duplicates <path>`, `files choose <json>` (the portal's picker: Save lists every file of the folder, Open the files of the app's filter, a mime type matched by its extensions; a setting's Choose… opens the same picker); F1 lists the keys; Ctrl+G list, grid, columns; Ctrl+T terminal here; F2 on several files renames them by a pattern; the sidebar's "This computer" shows the storage (used / free, unmounted drives mount on a click); the sidebar is in sections: PLACES (drag to reorder within it; right click to hide, Settings › SIDEBAR), PINNED (your folders; drag to reorder; right click › Unpin; a folder's right click › Pin to sidebar), USB (plugged-in removable drives, mounted or not, with a mount / eject button at the row's end), DEVICES (other drives mounted for you); Recent (recently-used.xbel) and Starred (Ctrl+S) in the sidebar; the list shows folders as tiles above a table of files (checkboxes, ⋮ menu, Type / Size / Modified columns), the path as crumbs (Ctrl+L types one); typing a letter jumps to a name; the look and columns in Settings › Apps › Files |
 | Keybinds | Super+B | `keybinds toggle\|open\|close` |
 | Window switcher | Super+Tab (floating mode) | `switcher toggle\|open\|close` |
-| Overview | — | `overview toggle` |
+| Overview | Super+O | `overview toggle` |
 | Lock screen | Super+Z | `lock lock` (options: Shell Manager › Lock screen) |
 | Taskbar | — | floating mode only |
 | Root prompt | — | polkit agent; asks before every root action |

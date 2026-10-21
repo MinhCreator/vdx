@@ -63,7 +63,7 @@ KitFrame {
   KitInput {
     id: field
     width: parent.width
-    placeholder: root.tab === "files" ? "File name in ~" : "Search " + root.tabs.find(t => t.value === root.tab).label.toLowerCase()
+    placeholder: root.tab === "files" ? "File name in ~" : "Search " + root.tabs.find(t => t.value === root.tab).label.toLowerCase() + "…"
 
     input.Keys.onPressed: event => {
       const k = event.key;
@@ -96,8 +96,8 @@ KitFrame {
       anchors.centerIn: parent
       visible: root.items.length === 0
       color: Theme.muted
-      text: root.tab === "files" ? (root.ls.searching ? "Searching…" : root.query.length < 2 ? "Type two letters or more." : "Nothing found.")
-                                 : "Nothing found."
+      text: root.tab === "files" ? (root.ls.searching ? "Searching…" : root.query.length < 2 ? "Type two letters or more." : "Nothing matches")
+                                 : "Nothing matches"
     }
 
     ListView {

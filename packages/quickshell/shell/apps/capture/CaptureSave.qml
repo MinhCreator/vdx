@@ -38,7 +38,7 @@ Variants {
       KitHeader {
         icon: root.video ? "video" : "camera"
         title: root.video ? "Save recording" : "Save screenshot"
-        subtitle: root.video ? "ESC · SAVE TO THE DEFAULT FOLDER" : "ESC · KEEP IT ON THE CLIPBOARD ONLY"
+        subtitle: root.video ? "esc · save to the default folder" : "esc · keep it on the clipboard only"
       }
 
       KitLine {}

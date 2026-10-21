@@ -30,6 +30,12 @@
   "target": "appearance:style"
  },
  {
+  "label": "Typed characters",
+  "hint": "In every password field",
+  "where": "Appearance › STYLE",
+  "target": "appearance:style"
+ },
+ {
   "label": "Themes",
   "hint": "",
   "where": "",
@@ -216,6 +222,12 @@
   "target": "bar:monitor"
  },
  {
+  "label": "Layout",
+  "hint": "",
+  "where": "Bar",
+  "target": "bar:layout"
+ },
+ {
   "label": "Shape",
   "hint": "Strip, or a morphing pill",
   "where": "Bar › LOOK",
@@ -284,8 +296,8 @@
  {
   "label": "Separator",
   "hint": "",
-  "where": "Bar › MONITOR",
-  "target": "bar:monitor"
+  "where": "Bar › LAYOUT",
+  "target": "bar:layout"
  },
  {
   "label": "Windows",
@@ -390,7 +402,7 @@
   "target": "network"
  },
  {
-  "label": "Wi-fi",
+  "label": "Wi-Fi",
   "hint": "",
   "where": "Network",
   "target": "network:wifi"
@@ -985,13 +997,13 @@
  },
  {
   "label": "Show date",
-  "hint": "",
+  "hint": "Under the clock",
   "where": "Lock screen › LOOK",
   "target": "lockscreen"
  },
  {
   "label": "Show user name",
-  "hint": "",
+  "hint": "Above the password",
   "where": "Lock screen › LOOK",
   "target": "lockscreen"
  },
@@ -1039,7 +1051,7 @@
  },
  {
   "label": "Typed characters",
-  "hint": "Also in Wi-Fi and other fields",
+  "hint": "In Appearance › Style",
   "where": "Lock screen › PASSWORD",
   "target": "lockscreen"
  },
@@ -1392,8 +1404,8 @@
   "target": "modules:clock"
  },
  {
-  "label": "Format",
-  "hint": "",
+  "label": "Clock format",
+  "hint": "14:05 or 2:05 PM",
   "where": "Bar modules › Clock › BAR",
   "target": "modules:clock"
  },
@@ -1842,6 +1854,12 @@
   "target": "apps:launcher"
  },
  {
+  "label": "Tabs",
+  "hint": "",
+  "where": "Apps › Launcher",
+  "target": "apps:launcher"
+ },
+ {
   "label": "Opening",
   "hint": "",
   "where": "Apps › Launcher",
@@ -2047,7 +2065,7 @@
  },
  {
   "label": "Close when its window opens",
-  "hint": "",
+  "hint": "Off: popup stays open",
   "where": "Bar modules › Task Manager › POPUP",
   "target": "modules:taskmanager"
  },
@@ -2064,7 +2082,7 @@
   "target": "apps:cleaner"
  },
  {
-  "label": "Ai",
+  "label": "AI",
   "hint": "",
   "where": "Apps › Cleaner",
   "target": "apps:cleaner"
@@ -2107,7 +2125,7 @@
  },
  {
   "label": "Close when its window opens",
-  "hint": "",
+  "hint": "Off: popup stays open",
   "where": "Bar modules › Cleaner › POPUP",
   "target": "modules:cleaner"
  },
@@ -2173,7 +2191,7 @@
  },
  {
   "label": "Close when its window opens",
-  "hint": "",
+  "hint": "Off: popup stays open",
   "where": "Bar modules › Clipboard › POPUP",
   "target": "modules:clipboard"
  },
@@ -2287,7 +2305,7 @@
  },
  {
   "label": "Close when its window opens",
-  "hint": "",
+  "hint": "Off: popup stays open",
   "where": "Bar modules › Packages › POPUP",
   "target": "modules:packages"
  },
@@ -2359,7 +2377,7 @@
  },
  {
   "label": "Close when its window opens",
-  "hint": "",
+  "hint": "Off: popup stays open",
   "where": "Bar modules › VirusTotal › POPUP",
   "target": "modules:virustotal"
  },
@@ -2539,7 +2557,7 @@
  },
  {
   "label": "Size",
-  "hint": "",
+  "hint": "Folders show their item count",
   "where": "Apps › Files › COLUMNS",
   "target": "apps:files"
  },
@@ -2569,7 +2587,7 @@
  },
  {
   "label": "Folders first",
-  "hint": "",
+  "hint": "Sorted above the files",
   "where": "Apps › Files › ORDER",
   "target": "apps:files"
  },
@@ -2743,7 +2761,7 @@
  },
  {
   "label": "Frame rate",
-  "hint": "",
+  "hint": "Smoother, bigger files",
   "where": "Apps › Capture › RECORDING",
   "target": "apps:capture"
  },

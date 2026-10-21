@@ -41,9 +41,9 @@ KitColumn {
     model: [{ label: "24h", value: "24h" }, { label: "12h", value: "12h" }]
   }
 
-  KitToggleRow { module: "lock"; key: "date"; fallback: true; label: "Show date"; hint: "" }
+  KitToggleRow { module: "lock"; key: "date"; fallback: true; label: "Show date"; hint: "Under the clock" }
 
-  KitToggleRow { module: "lock"; key: "user"; fallback: true; label: "Show user name"; hint: "" }
+  KitToggleRow { module: "lock"; key: "user"; fallback: true; label: "Show user name"; hint: "Above the password" }
 
   KitLine {}
 

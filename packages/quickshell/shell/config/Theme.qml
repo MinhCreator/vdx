@@ -91,7 +91,6 @@ QtObject {
   // what takes the accent: a target key of Appearance › Accent (off by default)
   function accentOn(key) { return ShellSettings.accent && ShellSettings.accentWhere[key] === true; }
   function accentFor(key, fallback) { return accentOn(key) ? accent : fallback; }
-  function accentEndFor(key, fallback) { return accentOn(key) ? accentEnd : fallback; }
 
   // ---- type and bar metrics ----
   readonly property string fontFamily: ShellSettings.font     // the system monospace, Shell Manager › Appearance
@@ -177,7 +176,6 @@ QtObject {
   // title's line keeps above its capitals (the header draws that far into its box)
   readonly property int windowPadding: 24
   readonly property int headerInset: 3
-  readonly property int textDescent: 2          // the line box under a text's baseline, past its ink
   readonly property int controlHeight: 30       // buttons, selects, fields: one height side by side
   readonly property int controlWidth: 300        // a setting's choices / field (KitRow wide)
   readonly property int buttonWidth: 120         // a setting's action button (text only, right aligned)
