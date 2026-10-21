@@ -1,21 +1,41 @@
-# wallpapers
+# Wallpapers
 
-`<theme>/` per theme, `common/` for all (optional, not shipped). The Shell
-Manager › Appearance lists the active theme's folder, then the user's folder
-(`~/.local/share/dotfiles/wallpapers/`), then `common/`; the choice is per theme. Formats:
-whatever `awww` reads (jpg, png, webp, gif).
+The pictures the themes ship with. Shell Manager › Appearance › Wallpaper
+picks one per theme, from the theme's folder here, then your own
+(`~/.local/share/dotfiles/wallpapers/`), then an optional `common/`.
+
+**Wanted:** more for every theme, dark or light. Each has one or two, the
+light twins none — a PR with a picture is very welcome.
+
+## What is here
+
+| Theme | Dark | Light |
+|---|---|---|
+| **catppuccin** | <img src="catppuccin/bridge.jpg" alt="bridge.jpg" width="200"> <img src="catppuccin/waves.png" alt="waves.png" width="200"> | wanted |
+| **dracula** | <img src="dracula/moon-bats.png" alt="moon-bats.png" width="200"> <img src="dracula/waves.png" alt="waves.png" width="200"> | wanted |
+| **ember** | <img src="ember/waves.png" alt="waves.png" width="200"> | wanted |
+| **everforest** | <img src="everforest/waves.png" alt="waves.png" width="200"> | wanted |
+| **graphite** | <img src="graphite/waves.png" alt="waves.png" width="200"> | wanted |
+| **gruvbox** | <img src="gruvbox/arch.jpg" alt="arch.jpg" width="200"> | wanted |
+| **kanagawa** | <img src="kanagawa/great-wave.jpg" alt="great-wave.jpg" width="200"> | wanted |
+| **khaki** | <img src="khaki/waves.png" alt="waves.png" width="200"> | wanted |
+| **mono** | <img src="mono/waves.png" alt="waves.png" width="200"> | wanted |
+| **nord** | <img src="nord/abstract.png" alt="abstract.png" width="200"> <img src="nord/arctic.png" alt="arctic.png" width="200"> | wanted |
+| **onedark** | <img src="onedark/abstract.png" alt="abstract.png" width="200"> <img src="onedark/hills.png" alt="hills.png" width="200"> | wanted |
+| **rosepine** | <img src="rosepine/waves.png" alt="waves.png" width="200"> | wanted |
+| **tokyonight** | <img src="tokyonight/street.jpg" alt="street.jpg" width="200"> | wanted |
 
 ## Adding one
 
-PRs with wallpapers are welcome, for any theme: most have one or two, the light
-twins none.
+1. Put the file in `wallpapers/<theme>/`, or `wallpapers/<theme>-light/` for
+   the light twin. A short kebab-case name: `misty-forest.jpg`.
+2. jpg, png or webp, at least 1920×1080, up to ~5 MB.
+3. It fits the theme's palette: the colours are in
+   `themes/<theme>/kitty/colors.conf` (light: `themes/<theme>-light/…`).
+4. In the same PR, add a row to Sources below: where it is from and its
+   licence, at least a link to the author.
 
-- The file goes to `wallpapers/<theme>/` (a light theme: `<theme>-light/`),
-  named short in kebab-case: `misty-forest.jpg`.
-- jpg, png or webp, at least 1920×1080, up to ~5 MB.
-- It fits the theme's palette (colours: `themes/<theme>/`).
-- The PR adds its row to Sources below: where it is from and its licence (at
-  least a link to the author).
+Several pictures, several themes — one PR is fine.
 
 ## Sources
 
