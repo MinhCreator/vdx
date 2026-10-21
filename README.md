@@ -158,8 +158,8 @@ config folders, ignored by git.
 
 ## Wallpapers wanted
 
-Every theme has a light twin, and none of them has a wallpaper yet; most dark
-themes have one or two. A PR with a picture is very welcome:
+Each theme ships with one or two wallpapers, and its light twin with none.
+More are very welcome, for any theme, dark or light — a PR with a picture:
 [wallpapers/README.md › Adding one](wallpapers/README.md#adding-one).
 
 ## Changing it

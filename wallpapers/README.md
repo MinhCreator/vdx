@@ -7,7 +7,8 @@ whatever `awww` reads (jpg, png, webp, gif).
 
 ## Adding one
 
-PRs with wallpapers are welcome — the light themes have none yet.
+PRs with wallpapers are welcome, for any theme: most have one or two, the light
+twins none.
 
 - The file goes to `wallpapers/<theme>/` (a light theme: `<theme>-light/`),
   named short in kebab-case: `misty-forest.jpg`.
