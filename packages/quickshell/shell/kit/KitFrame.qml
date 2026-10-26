@@ -1,8 +1,8 @@
 import QtQuick
 import qs.config
 
-// Popup body: flat dark surface, a thin light frame, sharp corners, a padded
-// column. Round corners: Theme.radiusSurface. A bar popup opened inside the
+// Popup body: the language's popup fill (Material a surface container, Strict the
+// surface) in a hairline (Theme.popupFrame), Theme.radiusSurface, a padded column. A bar popup opened inside the
 // island (`inIsland`, set by the Island) takes the island as its surface and
 // frame and draws neither. Children stack vertically and take
 // `width: parent.width`. A window showing the same content sets
@@ -25,7 +25,7 @@ Rectangle {
   implicitWidth: Theme.popupWidth
   implicitHeight: column.implicitHeight + 2 * padding - headerInset - bottomInset
   radius: framed ? Theme.radiusSurface : 0
-  color: inIsland ? "transparent" : Theme.background0
+  color: inIsland ? "transparent" : Theme.popupFill
   border.width: framed && !inIsland ? Theme.windowFrameWidth : 0
   border.color: Theme.popupFrame
 

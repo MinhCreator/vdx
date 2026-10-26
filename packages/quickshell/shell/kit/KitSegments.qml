@@ -2,11 +2,12 @@ import QtQuick
 import Quickshell.Widgets
 import qs.config
 
-// A segmented control: one track, a segment per choice; the one matching
-// `current` is raised (filled, bold), the rest are plain text. Model:
-// [{label, value}]. Takes the width it is given (KitRow wide) and splits it evenly.
-// Material (Appearance › Controls): the Material 3 segmented button — an
-// outlined pill split by hairlines, the picked segment filled with a check.
+// A segmented control: a segment per choice, the one matching `current` picked.
+// Model: [{label, value}]. Takes the width it is given (KitRow wide), split evenly.
+// Material: the Material 3 segmented button — 40 px, full corners, an outline round
+// it and between segments, the picked segment in the secondary container with a check
+// (outlined in Filled too: M3 has no filled segmented button). Strict (the boards): a 3 px
+// well, the picked segment a raised pill of its own, no check (Outlined: the well framed).
 Rectangle {
   id: root
 
@@ -17,20 +18,20 @@ Rectangle {
   signal picked(var value)
 
   readonly property bool m3: Theme.m3
-  readonly property int inset: m3 ? 0 : 2
+  readonly property int inset: Theme.segmentInset
 
   implicitWidth: Theme.controlWidth
-  implicitHeight: Theme.controlHeight
-  radius: Theme.radiusControl
-  color: m3 ? Theme.clear : Theme.background0
-  border.width: m3 ? 1 : Theme.frameWidth
+  implicitHeight: Theme.segmentHeight
+  radius: Theme.radiusFor(height)
+  color: !m3 && Theme.filled ? Theme.wellFill : Theme.clear
+  border.width: m3 || !Theme.filled ? 1 : 0
   border.color: Theme.outline
-  opacity: disabled ? 0.4 : 1
+  opacity: disabled ? Theme.disabledOpacity : 1
 
-  // the segments are cut to the outline's inside: material the pill, terminal the rounded frame
+  // material: the segments cut to the outline's inside; strict: each segment rounds itself
   ClippingRectangle {
-    anchors { fill: parent; margins: root.m3 ? 1 : root.inset }
-    radius: Math.max(0, root.radius - (root.m3 ? 1 : root.inset))
+    anchors { fill: parent; margins: root.m3 ? root.border.width : root.inset }
+    radius: Math.max(0, root.radius - (root.m3 ? root.border.width : root.inset))
     color: Theme.clear
 
     Row {
@@ -51,17 +52,18 @@ Rectangle {
 
           width: segments.width / root.model.length
           height: segments.height
-          radius: 0      // the outer corners come from the clip; each segment's own corners would notch the joint
-          color: selected ? (root.m3 ? Theme.selectedFill : Theme.background3) : hovered ? Theme.background2 : Theme.clear
+          // material: the clip gives the outer corners (a segment's own would notch the joint)
+          radius: root.m3 ? 0 : Theme.radiusFor(height)
+          color: selected ? Theme.selectedFill : hovered ? Theme.hover(Theme.clear) : Theme.clear
 
           Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
-          // material: a hairline between two segments
+          // material: a divider between two segments
           Rectangle {
             visible: root.m3 && segment.index > 0
             width: 1
             height: parent.height
-            color: Theme.gray
+            color: Theme.outline
           }
 
           Row {
@@ -75,7 +77,7 @@ Rectangle {
               visible: root.m3 && segment.selected && segment.width >= label.implicitWidth + 40
               name: "check"
               tint: label.color
-              size: Theme.iconSmall
+              size: Theme.iconControl
             }
 
             KitText {
@@ -84,8 +86,9 @@ Rectangle {
               width: Math.min(implicitWidth, segment.width - Theme.gapMedium - (tick.visible ? tick.width + parent.spacing : 0))
               elide: Text.ElideRight
               text: segment.modelData.label
-              color: segment.selected ? (root.m3 ? Theme.selectedText : Theme.accentFor("choices", Theme.foreground0)) : Theme.foreground2
-              font.weight: segment.selected ? Theme.fontStrong : Font.Normal
+              color: segment.selected ? Theme.accentFor("choices", Theme.selectedText) : Theme.restText
+              font.pixelSize: Theme.textControl
+              font.weight: segment.selected ? Theme.controlWeight : Theme.restWeight
             }
           }
 

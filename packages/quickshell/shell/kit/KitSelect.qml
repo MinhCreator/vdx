@@ -29,7 +29,7 @@ Column {
   // The open list floats over what follows instead of pushing it down.
   property bool overlay: false
   property int maxRows: 6
-  readonly property int rowHeight: 28
+  readonly property int rowHeight: Theme.listRowHeight
 
   readonly property var selected: model.find(c => c.value === current) ?? null
 
@@ -51,8 +51,8 @@ Column {
       TextMetrics {
         required property var modelData
         font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSize
-        font.weight: Theme.fontWeight
+        font.pixelSize: Theme.textField
+        font.weight: Font.Normal
         text: modelData.label
       }
     }
@@ -96,13 +96,13 @@ Column {
       id: box
       anchors.right: parent.right
       width: root.boxWidth
-      height: Theme.controlHeight
-      radius: Theme.radiusControl
-      color: boxArea.containsMouse && !root.disabled ? Theme.hoverOn(root.boxed) : Theme.fillOn(root.boxed)
-      border.width: Theme.frameWidth
-      border.color: root.expanded ? Theme.accentFor("selects", Theme.foreground2)
-        : boxArea.containsMouse ? Theme.foreground2 : Theme.gray
-      opacity: root.disabled ? 0.4 : 1
+      height: Theme.fieldHeight
+      radius: Theme.m3 ? Theme.radiusField : Theme.radiusFor(height)
+      color: boxArea.containsMouse && !root.disabled ? Theme.hover(Theme.fieldFill) : Theme.fieldFill
+      border.width: Theme.filled ? 0 : Theme.m3 && root.expanded ? 2 : 1
+      border.color: root.expanded ? Theme.accentFor("selects", Theme.m3 ? Theme.primary : Theme.outlineActive)
+        : boxArea.containsMouse ? Theme.outlineActive : Theme.outline
+      opacity: root.disabled ? Theme.disabledOpacity : 1
 
       Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
       Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
@@ -113,13 +113,15 @@ Column {
         anchors { left: parent.left; leftMargin: Theme.gapLoose; right: mark.left; rightMargin: Theme.gapSmall; verticalCenter: parent.verticalCenter }
         text: root.selected?.label ?? "—"
         elide: Text.ElideRight
+        font.pixelSize: Theme.textField
+        font.weight: Font.Normal
       }
 
       Item {
         id: mark
         anchors { right: parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
-        width: 14
-        height: 14
+        width: Theme.iconControl
+        height: Theme.iconControl
 
         KitSpinner {
           anchors.centerIn: parent
@@ -130,8 +132,8 @@ Column {
           anchors.centerIn: parent
           visible: !root.busy
           name: "chevron-down"
-          tint: Theme.foreground2
-          size: Theme.iconSmall
+          tint: Theme.surfaceVariantText
+          size: Theme.iconControl
           rotation: root.expanded ? 180 : 0
 
           Behavior on rotation { enabled: Motion.controls; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
@@ -165,9 +167,9 @@ Column {
       width: parent.width
       x: 0
       height: Math.min(options.implicitHeight, root.maxRows * root.rowHeight) + 2 * inset
-      radius: Theme.radiusControl
-      // round corners keep the rows off the frame's curve
-      readonly property int inset: Theme.frameWidth + (Theme.round ? 3 : 0)
+      radius: Theme.radiusMenu
+      // the menu's padding: material 4 above and below the rows, strict 3 round them
+      readonly property int inset: 1 + (Theme.m3 ? 4 : 3)
 
       // the choices drop in: a fade and a few pixels down
       property real shown: 1
@@ -181,9 +183,9 @@ Column {
         scroller.contentY = Math.max(0, Math.min(scroller.contentHeight - scroller.height, (i - 1) * root.rowHeight));
       }
       NumberAnimation { id: dropIn; target: list; property: "shown"; from: 0; to: 1; duration: Motion.normal; easing.type: Motion.easing }
-      color: Theme.material ? Theme.background1 : root.overlay ? Theme.background0 : Theme.clear
-      border.width: Theme.frameWidth
-      border.color: Theme.gray
+      color: Theme.m3 ? Theme.surfaceContainer : Theme.surfaceLow
+      border.width: 1
+      border.color: Theme.outlineVariant
 
       Flickable {
         id: scroller
@@ -225,16 +227,17 @@ Column {
 
             width: options.width
             height: root.rowHeight
-            radius: Math.max(0, Theme.radiusControl - 2)
-            color: active ? Theme.background3 : optionArea.containsMouse ? Theme.controlHover : Theme.clear
+            radius: Theme.m3 ? 0 : Theme.radiusFor(height)
+            color: active ? Theme.selectedFill : optionArea.containsMouse ? Theme.hover(Theme.clear) : Theme.clear
             Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
             KitText {
               anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               text: option.modelData.label
-              color: option.active || optionArea.containsMouse ? Theme.foreground0 : Theme.foreground2
+              color: option.active ? Theme.selectedText : optionArea.containsMouse ? Theme.surfaceText : Theme.restText
               Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
-              font.weight: option.active ? Theme.fontStrong : Font.DemiBold
+              font.pixelSize: Theme.textControl
+              font.weight: option.active ? Theme.controlWeight : Theme.restWeight
             }
 
             KitText {
@@ -247,9 +250,9 @@ Column {
 
             KitIcon {
               anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
-              visible: option.active
+              visible: option.active && Theme.m3
               name: "check"
-              tint: Theme.green
+              tint: Theme.selectedText
               size: Theme.iconSmall
             }
 

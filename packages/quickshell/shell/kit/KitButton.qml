@@ -1,40 +1,59 @@
 import QtQuick
 import qs.config
 
-// Outlined button: an optional icon and a label. `selected` fills it in the
-// raised tone with a lighter frame and bold text (one of a group of choices).
-// `busy` swaps the icon for a spinner. Material: a tonal pill, no frame.
+// A button: an optional icon and a label; an icon alone is a square (a circle when round).
+// The kind (`variant`): "filled" (the primary action: the primary colour, its text on it),
+// "tonal", "outlined", "text"; empty follows Appearance › Controls (Filled: tonal,
+// Outlined: outlined). `primary` is "filled", `danger` the error container.
+// `selected` (one of a group of choices) takes the language's picked fill.
+// Material: 40 px, labelLarge, the M3 state layers. Strict: 36 px, 13 px, quiet fills.
+// `busy` swaps the icon for a spinner.
 Rectangle {
   id: root
 
   property string icon: ""               // kit/icons name
-  property color iconTint: Theme.foreground0
   property string text: ""
+  property string variant: ""
+  property bool primary: false
+  property bool danger: false
   property bool selected: false
   property bool busy: false
   property bool disabled: false
 
   readonly property bool hovered: area.containsMouse && !disabled
+  readonly property string kind: primary ? "filled" : danger ? "danger" : variant !== "" ? variant
+                                : Theme.filled ? "tonal" : "outlined"
+  readonly property color base: selected ? Theme.selectedFill
+    : kind === "filled" ? Theme.primary
+    : kind === "danger" ? Theme.errorContainer
+    : kind === "tonal" ? (Theme.m3 ? Theme.secondaryContainer : Theme.surfaceHigh)
+    : Theme.clear
+  readonly property color content: selected ? Theme.selectedText
+    : kind === "filled" ? Theme.primaryText
+    : kind === "danger" ? Theme.errorContainerText
+    : kind === "tonal" ? (Theme.m3 ? Theme.secondaryContainerText : Theme.surfaceText)
+    : Theme.m3 ? Theme.primary : Theme.surfaceText
+  property color iconTint: content
 
   signal clicked()
 
-  // an icon alone is a square of the control height
-  implicitWidth: text !== "" ? content.implicitWidth + (Theme.material ? 32 : 24) : Theme.controlHeight
+  implicitWidth: text !== "" ? content_.implicitWidth + 2 * Theme.buttonPad - (icon !== "" ? 8 : 0) : Theme.controlHeight
   implicitHeight: Theme.controlHeight
   radius: Theme.radiusControl
   // set once: whether it sits in a Settings box (a walk up, not a binding)
   property bool boxed: false
   Component.onCompleted: boxed = Theme.boxed(parent)
-  color: selected ? Theme.selectedFill : hovered ? Theme.hoverOn(boxed) : Theme.fillOn(boxed)
-  border.width: Theme.frameWidth
-  border.color: selected || hovered ? Theme.outlineActive : Theme.outline
-  opacity: disabled ? 0.4 : 1
+  color: area.pressed && hovered ? Theme.layer(base, content, Theme.statePressed)
+       : hovered ? Theme.layer(base, content, Theme.stateHover) : base
+  border.width: kind === "outlined" && !selected ? 1 : 0
+  border.color: hovered && Theme.strict ? Theme.outlineActive : Theme.outline
+  opacity: disabled ? Theme.disabledOpacity : 1
 
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
   Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
   Row {
-    id: content
+    id: content_
     anchors.centerIn: parent
     spacing: Theme.gapMedium
 
@@ -43,7 +62,7 @@ Rectangle {
       visible: root.icon !== "" && !root.busy
       name: root.icon
       tint: root.iconTint
-      size: Theme.fontSize + 1
+      size: Theme.iconControl
     }
 
     KitSpinner {
@@ -54,8 +73,9 @@ Rectangle {
     KitText {
       visible: root.text !== ""
       text: root.text
-      color: root.selected ? Theme.selectedText : Theme.foreground0
-      font.weight: root.selected ? Theme.fontStrong : Font.DemiBold
+      color: root.content
+      font.pixelSize: Theme.textControl
+      font.weight: Theme.controlWeight
     }
   }
 

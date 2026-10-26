@@ -12,20 +12,20 @@
   "target": "appearance:style"
  },
  {
-  "label": "Shape",
+  "label": "Icons",
   "hint": "",
   "where": "Appearance",
-  "target": "appearance:shape"
+  "target": "appearance:icons"
  },
  {
   "label": "Style",
-  "hint": "Strict: quieter, denser",
+  "hint": "Material 3, or quiet and dense",
   "where": "Appearance › STYLE",
   "target": "appearance:style"
  },
  {
   "label": "Controls",
-  "hint": "Filled: no frames",
+  "hint": "Outlined: framed, no fills",
   "where": "Appearance › STYLE",
   "target": "appearance:style"
  },
@@ -38,8 +38,8 @@
  {
   "label": "Typed characters",
   "hint": "In every password field",
-  "where": "Appearance › STYLE",
-  "target": "appearance:style"
+  "where": "Appearance › ICONS",
+  "target": "appearance:icons"
  },
  {
   "label": "Themes",
@@ -918,52 +918,46 @@
   "target": "appearance:wallpaper"
  },
  {
-  "label": "Corners",
-  "hint": "Also windows and toasts; Round rounds the icons",
+  "label": "Shape",
+  "hint": "Round rounds the icons too",
   "where": "Appearance",
-  "target": "appearance:shape"
+  "target": "appearance:style"
  },
  {
   "label": "Radius",
   "hint": "",
   "where": "Appearance",
-  "target": "appearance:shape"
+  "target": "appearance:style"
  },
  {
   "label": "Separately",
   "hint": "A slider per part, in one proportion",
   "where": "Appearance",
-  "target": "appearance:shape"
+  "target": "appearance:style"
  },
  {
   "label": "Windows and popups",
   "hint": "",
   "where": "Appearance",
-  "target": "appearance:shape"
+  "target": "appearance:style"
  },
  {
   "label": "Cards and boxes",
   "hint": "",
   "where": "Appearance",
-  "target": "appearance:shape"
+  "target": "appearance:style"
  },
  {
   "label": "Controls",
   "hint": "",
   "where": "Appearance",
-  "target": "appearance:shape"
+  "target": "appearance:style"
  },
  {
   "label": "Bar",
   "hint": "",
   "where": "Appearance",
-  "target": "appearance:shape"
- },
- {
-  "label": "Icons",
-  "hint": "Bar, popups and windows",
-  "where": "Appearance",
-  "target": "appearance:shape"
+  "target": "appearance:style"
  },
  {
   "label": "Look",

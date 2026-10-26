@@ -2,10 +2,10 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// Appearance › SHAPE (with IconsSection): sharp or round, for
+// Appearance › STYLE › Shape: sharp or round, for
 // the whole shell — popups, windows, controls, rows, the island, the icons (the
 // Rounded set). Round sets one radius on a ticked slider; smaller things take a
-// share of it (Theme). Separately: a slider per part (windows, cards, controls,
+// scale of the style (Theme › shape). Separately: a slider per part (windows, cards, controls,
 // the bar), each read in the same proportion. The group's label lives in AppearancePage.
 KitColumn {
   id: root
@@ -17,8 +17,8 @@ KitColumn {
 
   KitRow {
     wide: true
-    label: "Corners"
-    hint: "Also windows and toasts; Round rounds the icons"
+    label: "Shape"
+    hint: "Round rounds the icons too"
 
     KitSegments {
       model: [
@@ -62,10 +62,10 @@ KitColumn {
   // a part on its own: the same tick looks the same on every part (the px differ)
   Repeater {
     model: [
-      { part: "windows",  label: "Windows and popups", px: r => r },
-      { part: "cards",    label: "Cards and boxes",    px: r => Math.round(r * 0.6) },
-      { part: "controls", label: "Controls",           px: r => Theme.scaled(Theme.controlHeight, r) },
-      { part: "bar",      label: "Bar",                px: r => Theme.scaled(Theme.islandHeight, r) }
+      { part: "windows",  label: "Windows and popups", px: r => Theme.shapeAt(Theme.m3 ? 28 : 24, r) },
+      { part: "cards",    label: "Cards and boxes",    px: r => Theme.shapeAt(16, r) },
+      { part: "controls", label: "Controls",           px: r => Theme.fullAt(Theme.controlHeight, r) },
+      { part: "bar",      label: "Bar",                px: r => Theme.fullAt(Theme.islandHeight, r) }
     ]
 
     KitSliderRow {

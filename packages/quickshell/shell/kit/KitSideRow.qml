@@ -3,7 +3,8 @@ import qs.config
 import qs.kit
 
 // A row of an app's sidebar (Files, Music): an icon, a name and a hint at the
-// right; the current place is filled. A left click opens it, a right click
+// right; the current place is filled (Material: the M3 navigation drawer's item, a
+// secondary-container pill; Strict: a quiet raised row, muted icons and labels). A left click opens it, a right click
 // reports where it was (scene coordinates) so the app can open its menu. With
 // `draggable`, a left drag reports the pointer (dragged while it moves, dropped
 // on release) so the sidebar can reorder its rows. `action`: an icon button at the end of the row
@@ -27,25 +28,26 @@ Rectangle {
   signal actioned()
 
   width: parent ? parent.width : 0
-  height: 28
-  radius: Theme.radiusControl
-  color: current ? Theme.background3 : area.containsMouse ? Theme.background2 : Theme.clear
+  readonly property color ink: current ? Theme.selectedText : Theme.m3 ? Theme.surfaceVariantText : Theme.foreground2
+  height: Theme.sideRowHeight
+  radius: Theme.radiusFor(height)
+  color: current ? Theme.selectedFill : area.containsMouse ? Theme.hover(Theme.clear) : Theme.clear
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
   KitIcon {
     id: glyph
-    anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+    anchors { left: parent.left; leftMargin: Theme.gapWide + 4; verticalCenter: parent.verticalCenter }
     name: root.icon
-    size: Theme.iconSmall
-    tint: root.current ? Theme.foreground0 : Theme.foreground2
+    size: Theme.iconSide
+    tint: root.ink
   }
 
   KitText {
-    anchors { left: glyph.right; leftMargin: Theme.gapMedium; right: hintText.left; rightMargin: Theme.gapSmall; verticalCenter: parent.verticalCenter }
+    anchors { left: glyph.right; leftMargin: Theme.gapWide; right: hintText.left; rightMargin: Theme.gapSmall; verticalCenter: parent.verticalCenter }
     text: root.text
     elide: Text.ElideRight
-    color: root.current ? Theme.foreground0 : Theme.foreground2
-    font.weight: root.current ? Theme.fontStrong : Font.DemiBold
+    color: root.ink
+    font.weight: root.current || Theme.m3 ? Theme.controlWeight : Theme.restWeight
   }
 
   KitText {

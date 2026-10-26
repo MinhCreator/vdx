@@ -3,8 +3,8 @@ import qs.config
 import qs.kit
 
 // Appearance: everything that changes how the desktop looks, top to bottom —
-// the accent, the wallpaper (the theme, the font and the cursor have pages of
-// their own), then SHAPE (corners, icons) and CONTROLS. Each group has its caps
+// STYLE (the language, controls, shape, the theme's mode and a sample), the accent,
+// the wallpaper (the theme, the font and the cursor have pages of their own), ICONS. Each group has its caps
 // label here or in its section.
 KitColumn {
   id: root
@@ -37,39 +37,50 @@ KitColumn {
     { key: "style",     label: "Style",     y: styleLabel.y },
     { key: "accent",    label: "Accent",    y: accentSection.y },
     { key: "wallpaper", label: "Wallpaper", y: wallpaperSection.y },
-    { key: "shape",     label: "Shape",     y: shapeLabel.y }
+    { key: "icons",     label: "Icons",     y: shapeLabel.y }
   ]
 
   spacing: Theme.gapGroup
 
-  KitLabel { id: styleLabel; text: "STYLE" }
+  // the three axes of the look (Theme › design language), then the theme's mode, then a
+  // sample of real controls in the result
+  KitLabel {
+    id: styleLabel
+    width: parent.width
+    text: "STYLE"
+    value: (ShellSettings.visualStyle === "strict" ? "STRICT" : "MATERIAL")
+      + " · " + (ShellSettings.material ? "FILLED" : "OUTLINED")
+      + " · " + (ShellSettings.corners === "round" ? "ROUND " + ShellSettings.cornerRadius + " PX" : "SHARP")
+  }
 
   KitRow {
     wide: true
     label: "Style"
-    hint: "Strict: quieter, denser"
+    hint: "Material 3, or quiet and dense"
 
     KitSegments {
       model: [{ label: "Material", value: "material" }, { label: "Strict", value: "strict" }]
       current: ShellSettings.visualStyle
-      onPicked: value => { ShellSettings.set("visualStyle", value); ShellSettings.set("material", true); }
+      onPicked: value => ShellSettings.set("visualStyle", value)
     }
   }
 
   KitRow {
     wide: true
     label: "Controls"
-    hint: "Filled: no frames"
+    hint: "Outlined: framed, no fills"
 
     KitSegments {
       model: [
-        { label: "Outlined", value: false },
-        { label: "Filled", value: true }
+        { label: "Filled", value: true },
+        { label: "Outlined", value: false }
       ]
       current: ShellSettings.material
       onPicked: value => ShellSettings.set("material", value)
     }
   }
+
+  CornersSection { id: cornersSection; width: parent.width }
 
   // the theme's light or dark twin (themes/mktheme.py); a theme without one stays
   KitRow {
@@ -85,6 +96,36 @@ KitColumn {
     }
   }
 
+  // the result in real controls: they follow every choice above at once
+  Flow {
+    id: sample
+    width: parent.width
+    spacing: Theme.gapMedium
+    property bool on: true
+
+    KitButton { primary: true; text: "Apply" }
+    KitButton { text: "Cancel" }
+    KitButton { selected: true; text: "Picked" }
+    KitButton { variant: "text"; text: "More" }
+    KitInput { width: 160; placeholder: "Field" }
+    KitSwitch { checked: sample.on; onToggled: sample.on = !sample.on }
+  }
+  KitLine {}
+
+  AccentSection { id: accentSection; width: parent.width }
+  KitLine {}
+  WallpaperSection { id: wallpaperSection; width: parent.width; page: root }
+  KitLine {}
+
+  KitLabel {
+    id: shapeLabel
+    width: parent.width
+    text: "ICONS"
+    value: ShellSettings.solidIcons ? "SOLID" : "OUTLINE"
+  }
+
+  IconsSection { id: iconsSection; width: parent.width }
+
   // how a typed password shows: the lock and every password field of the shell
   KitRow {
     wide: true
@@ -97,23 +138,6 @@ KitColumn {
       onPicked: value => ShellSettings.set("passwordDots", value)
     }
   }
-  KitLine {}
-
-  AccentSection { id: accentSection; width: parent.width }
-  KitLine {}
-  WallpaperSection { id: wallpaperSection; width: parent.width; page: root }
-  KitLine {}
-
-  KitLabel {
-    id: shapeLabel
-    width: parent.width
-    text: "SHAPE"
-    value: (ShellSettings.corners === "round" ? "ROUND " + ShellSettings.cornerRadius + " PX" : "SHARP")
-      + " · " + (ShellSettings.solidIcons ? "SOLID" : "OUTLINE")
-  }
-
-  CornersSection { id: cornersSection; width: parent.width }
-  IconsSection { id: iconsSection; width: parent.width }
 
   KitGrouper {}
 }

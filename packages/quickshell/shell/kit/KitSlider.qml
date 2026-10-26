@@ -1,9 +1,11 @@
 import QtQuick
 import qs.config
 
-// Thin slider: a 3px track, the filled part in `tint`, a round knob; with
-// Appearance › Controls › Material it is Material 3's: a thick track split by a
-// bar handle, stops as dots inside the track. It never
+// A slider: a track, the part up to the knob filled, a round knob (a functional
+// circle: round in Square too). Material: Material 3's — a 4 px track in outlineVariant,
+// a 20 px handle. Strict (the boards): a 6 px track one step up, a 14 px knob. The fill
+// is the primary colour (the accent's gradient with Accent › Sliders); a `tint` passed
+// in (a load, a battery) keeps its own. Stops are dots in the track. It never
 // writes `value` itself: drag and click emit moved(value) for live
 // changes (volume), and released(value) fires once when a drag ends (seeking).
 // While pressed it shows the pointer position (`shown`).
@@ -21,8 +23,9 @@ Item {
 
   // the default tint takes the accent (Appearance › Accent › Sliders); a
   // state colour passed in (a load, a battery) keeps its own
-  readonly property bool accented: !dimmed && tint === Theme.foreground0 && Theme.accentOn("sliders")
-  readonly property color fill: dimmed ? Theme.gray : accented ? Theme.accent : tint
+  readonly property bool own: tint !== Theme.foreground0
+  readonly property bool accented: !dimmed && !own && Theme.accentOn("sliders")
+  readonly property color fill: dimmed ? Theme.gray : own ? tint : Theme.primary
   readonly property bool pressed: area.pressed
   property real dragValue: 0
   // let go: the released position stays shown until the value follows it (an
@@ -32,10 +35,8 @@ Item {
   onValueChanged: held = -1
   Timer { id: holdTimer; interval: 2000; onTriggered: root.held = -1 }
   function letGo(v) { held = v; holdTimer.restart(); released(v); }
-  readonly property real knobSize: m3 ? 4 : 12
-  readonly property bool m3: Theme.m3 && spectrum.length === 0
-  readonly property real track: 12            // Material: the track's height
-  readonly property real gap: 5               // Material: the space on each side of the handle
+  readonly property real knobSize: Theme.sliderKnob
+  readonly property real track: spectrum.length > 0 ? Math.max(Theme.sliderTrack, 6) : Theme.sliderTrack
   readonly property real handleX: shown * (width - knobSize)
 
   signal moved(real value)
@@ -51,16 +52,16 @@ Item {
   }
 
   implicitWidth: 120
-  implicitHeight: m3 ? 28 : 18
-  opacity: enabled ? 1 : 0.4
+  implicitHeight: knobSize + 8
+  opacity: enabled ? 1 : Theme.disabledOpacity
 
   Rectangle {
-    visible: !root.m3
+    id: rail
     anchors.verticalCenter: parent.verticalCenter
     width: parent.width
-    height: 3
+    height: root.track
     radius: Theme.pill(height)
-    color: Theme.background3
+    color: Theme.m3 ? Theme.outlineVariant : Theme.surfaceHigh
     clip: true
 
     // a spectrum (a colour picker's ramp): the track is its colours, no fill
@@ -82,7 +83,7 @@ Item {
 
     Rectangle {
       visible: root.spectrum.length === 0
-      width: root.shown * parent.width
+      width: root.handleX + root.knobSize / 2
       height: parent.height
       radius: parent.radius
       gradient: Gradient {
@@ -93,10 +94,8 @@ Item {
     }
   }
 
-  // a stop: a tick centred on the knob's position at that value
+  // a stop: a dot in the track at that value (at most 11: a long run shows every n-th and the last)
   Repeater {
-    id: stops
-    // at most 11 marks: a long run of stops shows every n-th (and the last); it still snaps to each
     model: {
       if (!root.ticks) return [];
       const s = root.snaps, step = Math.ceil((s.length - 1) / 10);
@@ -105,82 +104,41 @@ Item {
 
     Rectangle {
       required property real modelData
-      visible: !root.m3
-      x: modelData * (root.width - root.knobSize) + root.knobSize / 2 - 1
-      anchors.verticalCenter: parent.verticalCenter
-      width: 2
-      height: 10
-      radius: Theme.pill(width)
-      color: Theme.gray
-    }
-  }
-
-  // ---- Material 3: active track | gap | handle | gap | inactive track ----
-  Rectangle {
-    visible: root.m3
-    anchors.verticalCenter: parent.verticalCenter
-    width: Math.max(0, root.handleX - root.gap)
-    height: root.track
-    radius: Theme.pill(height)
-    gradient: Gradient {
-      orientation: Gradient.Horizontal
-      GradientStop { position: 0; color: root.fill }
-      GradientStop { position: 1; color: root.accented ? Theme.accentEnd : root.fill }
-    }
-  }
-
-  Rectangle {
-    visible: root.m3
-    anchors.verticalCenter: parent.verticalCenter
-    x: Math.min(root.width, root.handleX + root.knobSize + root.gap)
-    width: Math.max(0, root.width - x)
-    height: root.track
-    radius: Theme.pill(height)
-    color: Theme.background3
-  }
-
-  // stops: a dot per shown stop (none under the handle), and one at the end
-  Repeater {
-    model: !root.m3 ? [] : root.ticks && root.snaps.length > 0 ? stops.model : [1]
-
-    Rectangle {
-      required property real modelData
       readonly property real cx: modelData * (root.width - root.knobSize) + root.knobSize / 2
-      visible: Math.abs(cx - (root.handleX + root.knobSize / 2)) > root.gap + 3 && cx > 4 && cx < root.width - 4 || modelData === 1 && root.shown < 0.97
-      x: Math.max(3, Math.min(root.width - 7, cx - 2))
+      readonly property int size: Math.max(2, root.track - 2)
+      x: cx - size / 2
       anchors.verticalCenter: parent.verticalCenter
-      width: 4
-      height: 4
-      radius: 2
-      color: cx < root.handleX ? Theme.background0 : root.fill
-      opacity: 0.8
+      width: size
+      height: size
+      radius: size / 2
+      color: cx <= root.handleX + root.knobSize / 2 ? Theme.primaryText : Theme.surfaceVariantText
+      opacity: 0.6
     }
   }
 
+  // material: the state layer round the handle
   Rectangle {
-    visible: root.m3
-    anchors.verticalCenter: parent.verticalCenter
-    x: root.handleX
-    width: root.knobSize
-    height: area.containsMouse || root.pressed ? root.track + 16 : root.track + 12
-    radius: Theme.pill(width)
+    visible: Theme.m3
+    anchors.centerIn: knob
+    width: 40
+    height: 40
+    radius: 20
     color: root.fill
-    Behavior on height { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
+    opacity: root.pressed ? Theme.statePressed : area.containsMouse ? Theme.stateHover : 0
+    Behavior on opacity { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
   }
 
   Rectangle {
-    visible: !root.m3
-    readonly property int size: area.containsMouse || root.pressed ? 14 : 12
+    id: knob
+    readonly property int size: Theme.strict && (area.containsMouse || root.pressed) ? root.knobSize + 2 : root.knobSize
     width: size
     height: size
-    radius: Theme.pill(size)
+    radius: size / 2
     Behavior on width { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
     Behavior on height { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
     anchors.verticalCenter: parent.verticalCenter
-    x: root.shown * (root.width - width)
-    color: root.fill
-    border.width: 2
-    border.color: Theme.background0
+    x: root.handleX + (root.knobSize - size) / 2
+    color: root.spectrum.length > 0 ? Theme.surfaceText : root.fill
   }
 
   MouseArea {

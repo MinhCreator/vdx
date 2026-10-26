@@ -9,28 +9,34 @@ Rules without a keyword are MUST; new rules say MUST / SHOULD / MAY.
 
 Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 
-- Corners: Appearance › Shape › Corners (sharp | round + one radius). A radius is
+- Look: three axes, resolved once in `Theme` (`docs/redesign/design-system.md`):
+  Appearance › Style › Style (`Theme.m3` / `strict`: the language — roles per part,
+  sizes, type, shape scale, anatomy), Controls (`Theme.filled`, key `material`:
+  filled or framed) and Shape (`Theme.round` + the radius). Components read the
+  resolved tokens (`popupFill`, `cardFill`, `fieldFill`, `selectedFill`,
+  `activeFill`, `controlHeight`, `fieldHeight`, `textControl`…), never the settings.
+  M3 roles are `Theme.surface…surfaceHighest`, `primary`, `primaryContainer`,
+  `secondaryContainer`, `outline`, `outlineVariant`, `error…`; their "on" colours are
+  `<role>Text` (`primaryText`): QML takes a property named `onX` for a signal handler.
+- Corners: Appearance › Style › Shape (sharp | round + one radius). A radius is
   always a token: `Theme.radiusSurface` (popups, windows, panels),
-  `radiusCard` (tiles, previews, cards), `radiusControl` (buttons, fields,
-  rows, checkboxes), `Theme.pill(h)` / `radiusFor(h)` (tracks, knobs, switches, the
-  resting island); all 0 when sharp. One slider (R) sets them all in proportion:
-  surface R, card 0.6 R, a thing h high h × R / 48 (pills only at the top stop).
+  `radiusCard` (tiles, boxes, cards), `radiusWell`, `radiusControl` (buttons,
+  segments), `radiusField`, `radiusChip`, `radiusMenu`, `Theme.pill(h)` /
+  `radiusFor(h)` (full-rounded things h high: rows, tracks, switches, the resting
+  island); all 0 when sharp. The style's scale is drawn at R = 12 and the slider
+  scales it (× R / 12; a full corner never past h / 2).
   Separately: a slider per part (windows, cards, controls, the bar), each R read the
   same way (`Theme.cornerOf(part)`), so one tick looks alike on every part; the
   one slider hides while they show.
   No literal `height / 2` for a corner.
   An image in a rounded tile sits in a `ClippingRectangle`.
-- Controls: Appearance › Style (Terminal | Material). A control's frame is
-  `Theme.frameWidth` (0 in material), its fill `Theme.controlFill` /
-  `controlHover`, a popup's frame `Theme.popupFrame`. Never a literal 1.
+- Controls: a control's frame is `Theme.frameWidth` (0 when Filled), its fill
+  `Theme.controlFill` / `controlHover` (`Theme.hover(c)` / `pressed(c)`: the state
+  layer), a popup's `Theme.popupFill` / `popupFrame`. Never a literal 1.
   An outline drawn in either style (a well, a preview, a card at rest) is
   `Theme.hairline`, a picked card's or tile's `Theme.ring`.
-  Material follows Material 3 (primary = `foreground0`, or the accent where it
-  applies). A button is tonal. `KitSegments` is an outlined track split by
-  hairlines, the picked segment filled with a check. `KitSwitch` is an outlined
-  track with a small handle; on: filled with a large handle and a check.
-  A field or select is filled with square lower corners and a bottom line, thick
-  while focused (`KitFieldLine`). The slider is below.
+  Primary = `Theme.primary` (the accent: the theme's frame colour, or the user's).
+  Each control's anatomy per language: `docs/redesign/design-system.md`.
 
 - Spacing: the gaps and edge insets are `Theme.gapHair` (4), `gapTight` (2),
   `gapSmall` (6), `gapMedium` (8), `gapLoose` (10), `gapWide` (12) and `gapGroup`
@@ -65,9 +71,9 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 - Group names: `BAR` (the module's face), `POPUP`, `WINDOW` / `LIST`,
   `OPENING`, `SAFETY` (the "Ask before …" toggles); a row shown only with
   another option sits under it and hides with it.
-- Selected = `background3` fill + ExtraBold; its text takes the accent only when
-  Choices is on (rule 2). Hover =
-  `background1` (one step up from the surface).
+- Selected (the picked one of a set) = `Theme.selectedFill` / `selectedText`; on
+  (a switched-on tile) = `activeFill` / `activeText`; its text takes the accent
+  only when Choices is on (rule 2). Hover = `Theme.hover(fill)`.
 - Colour rules (the look has one exception, the accent):
   1. Default: colour is state only. Green ok, yellow / orange attention, red error.
      Everything else is shades of the theme (`Theme.foreground*`, `background*`, `gray`).
@@ -143,9 +149,8 @@ Pages by the user's area; the look follows macOS System Settings.
 - A caption over a slider (an app's name, a device) sits `gapMedium` above it;
   never `gapTight`.
 - Sliders in a box use the row layout (label left, value right). A snapped slider
-  always shows its stops, at most 11 (every n-th of a long run). Controls ›
-  Material draws Material 3's slider (thick track split by a bar handle, stops as
-  dots); Terminal the thin one.
+  always shows its stops, at most 11 (every n-th of a long run), as dots in the
+  track; track and knob sizes come from the style (`sliderTrack`, `sliderKnob`).
 
 - MUST: where a setting lives follows the user's area, not the code: every bar
   module's options in Bar modules (an app's module too), an app's own options in

@@ -41,16 +41,19 @@ Item {
       text: root.label
       color: root.labelColor
       elide: Text.ElideRight
+      font.pixelSize: Theme.textLabel
+      font.weight: Theme.controlWeight
     }
 
     KitText {
       width: parent.width
       visible: root.hint !== ""
       text: root.hint
-      color: Theme.muted
+      color: Theme.m3 ? Theme.surfaceVariantText : Theme.muted
       elide: root.stacked ? Text.ElideNone : Text.ElideRight
       wrapMode: root.stacked ? Text.WordWrap : Text.NoWrap
-      font.pixelSize: Theme.fontSize - 2
+      font.pixelSize: Theme.textHint
+      font.weight: Font.Normal
     }
   }
 

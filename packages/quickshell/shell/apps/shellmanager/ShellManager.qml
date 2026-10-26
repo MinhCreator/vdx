@@ -191,7 +191,7 @@ Rectangle {
     // the list's width plus the window's frame on its left: the labels keep their room
     width: Theme.sideWidth + Theme.windowPadding
     height: parent.height
-    color: Theme.background0
+    color: Theme.sideFill
 
     // the window's own header, level with the page's: its line runs on across
     Column {
@@ -266,35 +266,37 @@ Rectangle {
 
             KitText {
               id: captionText
-              anchors { left: parent.left; leftMargin: Theme.gapLoose; top: parent.top; topMargin: section.lead }
-              text: section.modelData.caption ?? ""
-              color: Theme.muted
-              font.pixelSize: Theme.fontSize - 2
-              font.weight: Font.DemiBold
+              anchors { left: parent.left; leftMargin: Theme.gapWide + 4; top: parent.top; topMargin: section.lead }
+              text: Theme.captionCaps ? (section.modelData.caption ?? "").toUpperCase() : (section.modelData.caption ?? "")
+              color: Theme.m3 ? Theme.surfaceVariantText : Theme.muted
+              font.pixelSize: Theme.textCaption
+              font.weight: Font.Medium
+              font.letterSpacing: Theme.captionCaps ? 1 : 0
             }
           }
 
           Rectangle {
-            radius: Theme.radiusControl
             id: item
+            readonly property color ink: section.active ? Theme.selectedText : Theme.m3 ? Theme.surfaceVariantText : Theme.foreground2
             width: parent.width
-            height: 28
-            color: section.active ? Theme.background3 : itemArea.containsMouse ? Theme.background1 : Theme.clear
+            height: Theme.sideRowHeight
+            radius: Theme.radiusFor(height)
+            color: section.active ? Theme.selectedFill : itemArea.containsMouse ? Theme.hover(Theme.clear) : Theme.clear
             Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.quick } }
 
             KitIcon {
               id: itemIcon
-              anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+              anchors { left: parent.left; leftMargin: Theme.gapWide + 4; verticalCenter: parent.verticalCenter }
               name: section.modelData.icon
-              tint: section.active ? Theme.foreground0 : Theme.foreground2
-              size: 16
+              tint: item.ink
+              size: Theme.iconSide
             }
 
             KitText {
-              anchors { left: itemIcon.right; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+              anchors { left: itemIcon.right; leftMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
               text: section.modelData.label
-              color: section.active ? Theme.foreground0 : Theme.foreground2
-              font.weight: section.active ? Font.ExtraBold : Font.DemiBold
+              color: item.ink
+              font.weight: section.active || Theme.m3 ? Theme.controlWeight : Theme.restWeight
             }
 
             // the open section with groups: a second click unfolds them

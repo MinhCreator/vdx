@@ -37,8 +37,8 @@ PAGES = [
     ("displays", "Displays", ["DisplaysPage.qml"]),
     ("about", "About", ["AboutPage.qml"]),
 ]
-SECTIONS = {"AccentSection.qml": "accent", "WallpaperSection.qml": "wallpaper", "CornersSection.qml": "shape",
-            "IconsSection.qml": "shape"}
+SECTIONS = {"AccentSection.qml": "accent", "WallpaperSection.qml": "wallpaper", "CornersSection.qml": "style",
+            "IconsSection.qml": "icons"}
 
 ROW = re.compile(r'\blabel:\s*"([^"]+)"')
 GROUP = re.compile(r'(?:KitLabel\s*\{(?:[^{}]|\{[^{}]*\})*?\btext|KitGroup\s*\{(?:[^{}]|\{[^{}]*\})*?\btitle)'

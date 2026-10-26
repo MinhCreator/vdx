@@ -18,8 +18,8 @@ Item {
   id: root
 
   readonly property bool isKitGrouper: true
-  readonly property int padX: Theme.gapWide
-  readonly property int padY: Theme.gapWide
+  readonly property int padX: Theme.cardPadX
+  readonly property int padY: Theme.cardPadY
   readonly property Item column: parent
 
   property Item outer: null                 // the grouper of an enclosing settings column
@@ -138,9 +138,9 @@ Item {
       width: root.column ? root.column.width : 0
       height: modelData.h
       radius: Theme.radiusCard
-      color: Theme.background1
-      border.width: Theme.frameWidth
-      border.color: Theme.background2
+      color: Theme.cardFill
+      border.width: Theme.filled ? 0 : 1
+      border.color: Theme.cardFrame
     }
   }
 
@@ -153,7 +153,7 @@ Item {
       y: Math.round(modelData - root.y)    // on a whole pixel: a sharp hairline
       width: root.column ? root.column.width - 2 * root.padX : 0
       height: 1
-      color: Theme.background2
+      color: Theme.divider
     }
   }
 }

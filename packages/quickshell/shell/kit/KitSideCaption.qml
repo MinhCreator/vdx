@@ -14,10 +14,11 @@ Item {
 
   KitText {
     id: caption
-    anchors { left: parent.left; leftMargin: Theme.gapLoose; top: parent.top; topMargin: root.lead }
-    text: root.text
-    color: Theme.muted
-    font.pixelSize: Theme.fontSize - 2
-    font.weight: Font.DemiBold
+    anchors { left: parent.left; leftMargin: Theme.gapWide + 4; top: parent.top; topMargin: root.lead }
+    text: Theme.captionCaps ? root.text.toUpperCase() : root.text
+    color: Theme.m3 ? Theme.surfaceVariantText : Theme.muted
+    font.pixelSize: Theme.textCaption
+    font.weight: Font.Medium
+    font.letterSpacing: Theme.captionCaps ? 1 : 0
   }
 }
