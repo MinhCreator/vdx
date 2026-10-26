@@ -25,7 +25,7 @@ Rectangle {
   // set once: whether it sits in a Settings box (a walk up, not a binding)
   property bool boxed: false
   Component.onCompleted: boxed = Theme.boxed(parent)
-  color: selected ? Theme.background3 : hovered ? Theme.hoverOn(boxed) : Theme.fillOn(boxed)
+  color: selected ? Theme.selectedFill : hovered ? Theme.hoverOn(boxed) : Theme.fillOn(boxed)
   border.width: Theme.frameWidth
   border.color: selected || hovered ? Theme.outlineActive : Theme.outline
   opacity: disabled ? 0.4 : 1
@@ -54,7 +54,7 @@ Rectangle {
     KitText {
       visible: root.text !== ""
       text: root.text
-      color: root.selected ? Theme.accentFor("choices", Theme.foreground0) : Theme.foreground0
+      color: root.selected ? Theme.selectedText : Theme.foreground0
       font.weight: root.selected ? Theme.fontStrong : Font.DemiBold
     }
   }

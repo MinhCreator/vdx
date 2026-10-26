@@ -33,7 +33,7 @@ Item {
   Timer { id: holdTimer; interval: 2000; onTriggered: root.held = -1 }
   function letGo(v) { held = v; holdTimer.restart(); released(v); }
   readonly property real knobSize: m3 ? 4 : 12
-  readonly property bool m3: Theme.material && spectrum.length === 0
+  readonly property bool m3: Theme.m3 && spectrum.length === 0
   readonly property real track: 12            // Material: the track's height
   readonly property real gap: 5               // Material: the space on each side of the handle
   readonly property real handleX: shown * (width - knobSize)

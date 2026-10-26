@@ -15,7 +15,7 @@ Rectangle {
   property bool disabled: false
   property color trackColor: Theme.background3   // darker on a filled (selected) row
   readonly property bool accented: checked && Theme.accentOn("switches")
-  readonly property bool m3: Theme.material
+  readonly property bool m3: Theme.m3
   readonly property bool hovered: area.containsMouse && !disabled
 
   signal toggled()

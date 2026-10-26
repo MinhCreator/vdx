@@ -100,8 +100,8 @@ QtObject {
   // ---- type and bar metrics ----
   readonly property string fontFamily: ShellSettings.font     // the system monospace, Shell Manager › Appearance
   readonly property int fontSize: ShellSettings.textSize      // Appearance › Font › Text size
-  readonly property int fontWeight: strict ? Font.Medium : Font.DemiBold
-  readonly property int fontStrong: strict ? Font.DemiBold : Font.ExtraBold   // a picked item, a title
+  readonly property int fontWeight: Font.Medium
+  readonly property int fontStrong: Font.DemiBold   // a picked item, a title
   readonly property int barHeight: 34
   readonly property int moduleSpacing: 2
   readonly property int edgeMargin: 20
@@ -119,10 +119,15 @@ QtObject {
   readonly property int barEdge: island ? islandTop + islandHeight : barHeight
 
   // ---- visual style (Appearance › Style) ----
-  // material: today's look, tonal and expressive. strict: the same tokens, quieter
-  // and denser (a control 26 px, hairline borders one step off the surface, lighter
-  // weights); no second set of components
+  // material: Material Design 3 — 36 px controls, M3 switch / segments / slider,
+  // a picked item in the primary container. strict: the same tokens, flat and
+  // denser — 32 px controls, a well with a raised pick, no checks or halos.
+  // Both are independent of Controls (filled / outlined) and Shape (sharp / round).
   readonly property bool strict: ShellSettings.visualStyle === "strict"
+  readonly property bool m3: !strict
+  // a picked button / segment / row: the accent's container and the text on it
+  readonly property color selectedFill: accentContainer
+  readonly property color selectedText: onAccentContainer
   readonly property color outline: strict ? background3 : gray          // a control's border at rest
   readonly property color outlineActive: strict ? gray : foreground2    // ...hovered or picked
 
@@ -190,7 +195,7 @@ QtObject {
   // title's line keeps above its capitals (the header draws that far into its box)
   readonly property int windowPadding: 24
   readonly property int headerInset: 3
-  readonly property int controlHeight: strict ? 26 : 30       // buttons, selects, fields: one height side by side
+  readonly property int controlHeight: strict ? 32 : 36       // buttons, selects, fields: one height side by side
   readonly property int controlWidth: 300        // a setting's choices / field (KitRow wide)
   readonly property int buttonWidth: 120         // a setting's action button (text only, right aligned)
   readonly property int rowStackBelow: 480       // a wide KitRow narrower than this puts its control under the label

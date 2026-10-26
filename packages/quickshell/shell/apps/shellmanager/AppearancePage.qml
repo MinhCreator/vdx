@@ -52,7 +52,7 @@ KitColumn {
     KitSegments {
       model: [{ label: "Material", value: "material" }, { label: "Strict", value: "strict" }]
       current: ShellSettings.visualStyle
-      onPicked: value => ShellSettings.set("visualStyle", value)
+      onPicked: value => { ShellSettings.set("visualStyle", value); ShellSettings.set("material", true); }
     }
   }
 

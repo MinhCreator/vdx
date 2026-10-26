@@ -16,7 +16,7 @@ Rectangle {
 
   signal picked(var value)
 
-  readonly property bool m3: Theme.material
+  readonly property bool m3: Theme.m3
   readonly property int inset: m3 ? 0 : 2
 
   implicitWidth: Theme.controlWidth
@@ -52,7 +52,7 @@ Rectangle {
           width: segments.width / root.model.length
           height: segments.height
           radius: 0      // the outer corners come from the clip; each segment's own corners would notch the joint
-          color: selected ? Theme.background3 : hovered ? Theme.background2 : Theme.clear
+          color: selected ? (root.m3 ? Theme.selectedFill : Theme.background3) : hovered ? Theme.background2 : Theme.clear
 
           Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
@@ -84,7 +84,7 @@ Rectangle {
               width: Math.min(implicitWidth, segment.width - Theme.gapMedium - (tick.visible ? tick.width + parent.spacing : 0))
               elide: Text.ElideRight
               text: segment.modelData.label
-              color: segment.selected ? Theme.accentFor("choices", Theme.foreground0) : Theme.foreground2
+              color: segment.selected ? (root.m3 ? Theme.selectedText : Theme.accentFor("choices", Theme.foreground0)) : Theme.foreground2
               font.weight: segment.selected ? Theme.fontStrong : Font.Normal
             }
           }
