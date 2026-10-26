@@ -25,6 +25,7 @@ Singleton {
   readonly property bool barRightSettings: state.barRightSettings // a right click on a bar module opens its options
   readonly property bool barFolderDot: state.barFolderDot         // a dot on the Folder for unseen notices
   readonly property string barDotColor: state.barDotColor         // theme | red | yellow | green | blue: that dot's colour
+  readonly property string visualStyle: state.visualStyle         // material | strict: tonal and expressive, or quiet and dense (Appearance › Style)
   readonly property bool material: state.material                 // controls filled, no frames (Appearance › Controls)
   // the accent (Appearance › Accent): two stops, the first the colour, the second
   // the gradient's end when accentGradient is on. A stop is a colour name (theme =

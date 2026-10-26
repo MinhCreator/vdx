@@ -234,7 +234,7 @@ Column {
               text: option.modelData.label
               color: option.active || optionArea.containsMouse ? Theme.foreground0 : Theme.foreground2
               Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
-              font.weight: option.active ? Font.ExtraBold : Font.DemiBold
+              font.weight: option.active ? Theme.fontStrong : Font.DemiBold
             }
 
             KitText {

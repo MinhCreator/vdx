@@ -19,7 +19,13 @@
  },
  {
   "label": "Style",
-  "hint": "Material: filled, no frames",
+  "hint": "Strict: quieter, denser",
+  "where": "Appearance › STYLE",
+  "target": "appearance:style"
+ },
+ {
+  "label": "Controls",
+  "hint": "Filled: no frames",
   "where": "Appearance › STYLE",
   "target": "appearance:style"
  },

@@ -31,7 +31,7 @@ Rectangle {
   color: Theme.material ? (textInput.activeFocus || hover.hovered ? Theme.hoverOn(boxed) : Theme.fillOn(boxed)) : Theme.clear
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
   border.width: Theme.frameWidth
-  border.color: textInput.activeFocus || hover.hovered ? Theme.foreground2 : Theme.gray
+  border.color: textInput.activeFocus || hover.hovered ? Theme.outlineActive : Theme.outline
   Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
   KitFieldLine { active: textInput.activeFocus }

@@ -24,7 +24,7 @@ Rectangle {
   radius: Theme.radiusControl
   color: m3 ? Theme.clear : Theme.background0
   border.width: m3 ? 1 : Theme.frameWidth
-  border.color: Theme.gray
+  border.color: Theme.outline
   opacity: disabled ? 0.4 : 1
 
   // the segments are cut to the outline's inside: material the pill, terminal the rounded frame
@@ -85,7 +85,7 @@ Rectangle {
               elide: Text.ElideRight
               text: segment.modelData.label
               color: segment.selected ? Theme.accentFor("choices", Theme.foreground0) : Theme.foreground2
-              font.weight: segment.selected ? Font.ExtraBold : Font.Normal
+              font.weight: segment.selected ? Theme.fontStrong : Font.Normal
             }
           }
 

@@ -29,7 +29,7 @@ KitColumn {
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   // the header's Reset: these ShellSettings keys back to their defaults (the theme, the font and the cursor are on their pages)
-  readonly property var resetKeys: ["solidIcons", "wallpaperMode", "wallpaperColor", "wallpaperImages", "wallpaperOutputs", "corners", "cornerRadius", "cornerSplit", "cornerRadii", "material", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere", "passwordDots"]
+  readonly property var resetKeys: ["solidIcons", "wallpaperMode", "wallpaperColor", "wallpaperImages", "wallpaperOutputs", "corners", "cornerRadius", "cornerSplit", "cornerRadii", "material", "visualStyle", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere", "passwordDots"]
   readonly property bool changed: ShellSettings.changed(resetKeys)
   function reset() { ShellSettings.reset(resetKeys); }
 
@@ -47,12 +47,24 @@ KitColumn {
   KitRow {
     wide: true
     label: "Style"
-    hint: "Material: filled, no frames"
+    hint: "Strict: quieter, denser"
+
+    KitSegments {
+      model: [{ label: "Material", value: "material" }, { label: "Strict", value: "strict" }]
+      current: ShellSettings.visualStyle
+      onPicked: value => ShellSettings.set("visualStyle", value)
+    }
+  }
+
+  KitRow {
+    wide: true
+    label: "Controls"
+    hint: "Filled: no frames"
 
     KitSegments {
       model: [
-        { label: "Terminal", value: false },
-        { label: "Material", value: true }
+        { label: "Outlined", value: false },
+        { label: "Filled", value: true }
       ]
       current: ShellSettings.material
       onPicked: value => ShellSettings.set("material", value)

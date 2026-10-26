@@ -45,7 +45,7 @@ Rectangle {
     text: root.text
     elide: Text.ElideRight
     color: root.current ? Theme.foreground0 : Theme.foreground2
-    font.weight: root.current ? Font.ExtraBold : Font.DemiBold
+    font.weight: root.current ? Theme.fontStrong : Font.DemiBold
   }
 
   KitText {

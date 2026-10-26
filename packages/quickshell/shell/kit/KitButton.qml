@@ -27,7 +27,7 @@ Rectangle {
   Component.onCompleted: boxed = Theme.boxed(parent)
   color: selected ? Theme.background3 : hovered ? Theme.hoverOn(boxed) : Theme.fillOn(boxed)
   border.width: Theme.frameWidth
-  border.color: selected || hovered ? Theme.foreground2 : Theme.gray
+  border.color: selected || hovered ? Theme.outlineActive : Theme.outline
   opacity: disabled ? 0.4 : 1
 
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
@@ -55,7 +55,7 @@ Rectangle {
       visible: root.text !== ""
       text: root.text
       color: root.selected ? Theme.accentFor("choices", Theme.foreground0) : Theme.foreground0
-      font.weight: root.selected ? Font.ExtraBold : Font.DemiBold
+      font.weight: root.selected ? Theme.fontStrong : Font.DemiBold
     }
   }
 

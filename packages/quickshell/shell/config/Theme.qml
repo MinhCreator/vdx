@@ -88,6 +88,11 @@ QtObject {
   // always be a Gradient from `accent` to `accentEnd`
   readonly property color accent: accentColour(ShellSettings.accentStops[0] ?? "theme", 0)
   readonly property color accentEnd: accentGradient ? accentColour(ShellSettings.accentStops[1] ?? "theme", 1) : accent
+  // roles derived from the accent, so a custom colour still reads: text on it,
+  // a quiet container tinted by it, and text on that container
+  readonly property color onAccent: contrast(background0, accent) >= contrast(foreground0, accent) ? background0 : foreground0
+  readonly property color accentContainer: Qt.tint(background1, Qt.rgba(accent.r, accent.g, accent.b, 0.2))
+  readonly property color onAccentContainer: legible(accent, accentContainer)
   // what takes the accent: a target key of Appearance › Accent (off by default)
   function accentOn(key) { return ShellSettings.accent && ShellSettings.accentWhere[key] === true; }
   function accentFor(key, fallback) { return accentOn(key) ? accent : fallback; }
@@ -95,7 +100,8 @@ QtObject {
   // ---- type and bar metrics ----
   readonly property string fontFamily: ShellSettings.font     // the system monospace, Shell Manager › Appearance
   readonly property int fontSize: ShellSettings.textSize      // Appearance › Font › Text size
-  readonly property int fontWeight: Font.DemiBold
+  readonly property int fontWeight: strict ? Font.Medium : Font.DemiBold
+  readonly property int fontStrong: strict ? Font.DemiBold : Font.ExtraBold   // a picked item, a title
   readonly property int barHeight: 34
   readonly property int moduleSpacing: 2
   readonly property int edgeMargin: 20
@@ -111,6 +117,14 @@ QtObject {
   // half again a popup's when open (sharp: 0)
   readonly property int islandRadius: round ? Math.round(cornerOf("bar") * 1.5) : 0
   readonly property int barEdge: island ? islandTop + islandHeight : barHeight
+
+  // ---- visual style (Appearance › Style) ----
+  // material: today's look, tonal and expressive. strict: the same tokens, quieter
+  // and denser (a control 26 px, hairline borders one step off the surface, lighter
+  // weights); no second set of components
+  readonly property bool strict: ShellSettings.visualStyle === "strict"
+  readonly property color outline: strict ? background3 : gray          // a control's border at rest
+  readonly property color outlineActive: strict ? gray : foreground2    // ...hovered or picked
 
   // ---- controls (Appearance › Controls) ----
   // outlined: framed controls on the surface (the terminal look). material:
@@ -176,13 +190,13 @@ QtObject {
   // title's line keeps above its capitals (the header draws that far into its box)
   readonly property int windowPadding: 24
   readonly property int headerInset: 3
-  readonly property int controlHeight: 30       // buttons, selects, fields: one height side by side
+  readonly property int controlHeight: strict ? 26 : 30       // buttons, selects, fields: one height side by side
   readonly property int controlWidth: 300        // a setting's choices / field (KitRow wide)
   readonly property int buttonWidth: 120         // a setting's action button (text only, right aligned)
   readonly property int rowStackBelow: 480       // a wide KitRow narrower than this puts its control under the label
   readonly property int popupGap: 6
   readonly property int frameWidth: material ? 0 : 1          // controls: buttons, selects, fields
-  readonly property int windowFrameWidth: material ? 1 : 2    // popup frames, like hypr windows, mako
+  readonly property int windowFrameWidth: material || strict ? 1 : 2    // popup frames, like hypr windows, mako
   readonly property int hairline: 1                           // an outline in either style: wells, previews, cards at rest
   readonly property int ring: 2                               // the picked card's or tile's outline
   readonly property int visibleRows: 8
