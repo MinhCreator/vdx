@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
-import qs.apps.shellmanager
+import qs.config
 
 // A solid layer over one screen while a theme is applied: the switch repaints
 // every window, and this hides it. Shown at once, gone once the new colours are

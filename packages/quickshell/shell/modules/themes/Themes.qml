@@ -1,6 +1,5 @@
 import QtQuick
 import Quickshell
-import qs.apps.shellmanager
 import qs.bar
 import qs.config
 import qs.kit
