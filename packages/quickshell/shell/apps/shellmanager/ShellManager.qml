@@ -253,7 +253,8 @@ Rectangle {
           required property int index
 
           readonly property bool active: modelData.value === root.tab
-          readonly property bool hasJumps: root.pageFor(modelData.value).jumps.length > 0
+          // the chevron (and the unfolding) only where the page has tabs to choose from
+          readonly property bool hasJumps: root.pageFor(modelData.value).jumps.length > 0 && (root.pageFor(modelData.value).tabs ?? []).length > 1
           readonly property bool unfolded: active && root.navOpen
           // a group after the first starts a gap of gapMedium between the groups' captions
           readonly property int lead: index > 0 ? Theme.gapMedium : 0
