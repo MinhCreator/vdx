@@ -336,25 +336,31 @@
   "target": "bar:sliders"
  },
  {
-  "label": "Volume slider",
+  "label": "Sliders",
+  "hint": "Pick the ones the hub shows",
+  "where": "Bar › CONTENT",
+  "target": "bar:sliders"
+ },
+ {
+  "label": "Volume",
   "hint": "",
   "where": "Bar › CONTENT",
   "target": "bar:sliders"
  },
  {
-  "label": "Microphone slider",
+  "label": "Microphone",
   "hint": "",
   "where": "Bar › CONTENT",
   "target": "bar:sliders"
  },
  {
-  "label": "Brightness slider",
+  "label": "Brightness",
   "hint": "",
   "where": "Bar › CONTENT",
   "target": "bar:sliders"
  },
  {
-  "label": "Dimming slider",
+  "label": "Dimming",
   "hint": "",
   "where": "Bar › CONTENT",
   "target": "bar:sliders"

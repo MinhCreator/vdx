@@ -372,29 +372,33 @@ Item {
     // the list's width plus the window's frame on each side, as Shell Manager's
     width: visible ? root.sideW + root.padding : 0
     height: parent.height
-    color: Theme.background0
+    color: Theme.sideFill
 
-    Column {
-      id: brand
-      anchors { left: parent.left; leftMargin: root.padding; right: parent.right; top: parent.top; topMargin: root.padding - Theme.headerInset }
-      spacing: Theme.sectionGap
+    // the header sits centred between the window's top and its line, which is level with the page's
+    KitLine {
+      id: brandLine
+      x: root.padding
+      y: headerLine.y
+      width: parent.width - root.padding
+    }
 
-      KitHeader {
-        icon: "folder"
-        title: "Files"
-        subtitle: FilesService.selection.length > 0 ? FilesService.selection.length + " SELECTED"
-                : FilesService.clip.length > 0 ? FilesService.clip.length + (FilesService.clipMode === "move" ? " TO MOVE" : " TO COPY")
-                : "SUPER + E"
-      }
-
-      KitLine {}
+    KitHeader {
+      id: brandHead
+      x: root.padding
+      y: (brandLine.y - height) / 2
+      width: brandLine.width
+      icon: "folder"
+      title: "Files"
+      subtitle: FilesService.selection.length > 0 ? FilesService.selection.length + " SELECTED"
+              : FilesService.clip.length > 0 ? FilesService.clip.length + (FilesService.clipMode === "move" ? " TO MOVE" : " TO COPY")
+              : "SUPER + E"
     }
 
     FilesSidebar {
       id: sideFrame
       files: root
       x: root.padding
-      y: brand.y + brand.height + Theme.gapGroup
+      y: brandLine.y + brandLine.height + Theme.gapGroup
       width: root.sideW - root.padding
       height: parent.height - root.padding - y
     }

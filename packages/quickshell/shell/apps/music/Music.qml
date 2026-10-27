@@ -211,26 +211,29 @@ Item {
     id: sidePane
     width: root.sideW + root.padding
     height: parent.height
-    color: Theme.background0
+    color: Theme.sideFill
 
-    Column {
-      id: brand
-      anchors { left: parent.left; leftMargin: root.padding; right: parent.right; top: parent.top; topMargin: root.padding - Theme.headerInset }
-      spacing: Theme.sectionGap
+    // the header sits centred between the window's top and its line, which is level with the page's
+    KitLine {
+      id: brandLine
+      x: root.padding
+      y: headerLine.y
+      width: parent.width - root.padding
+    }
 
-      KitHeader {
-        icon: "music"
-        title: "Music"
-        subtitle: !PlayerService.hasMedia ? "NOTHING PLAYING" : PlayerService.playing ? "PLAYING" : "PAUSED"
-      }
-
-      KitLine {}
+    KitHeader {
+      x: root.padding
+      y: (brandLine.y - height) / 2
+      width: brandLine.width
+      icon: "music"
+      title: "Music"
+      subtitle: !PlayerService.hasMedia ? "NOTHING PLAYING" : PlayerService.playing ? "PLAYING" : "PAUSED"
     }
 
     MusicSidebar {
       music: root
       x: root.padding
-      y: brand.y + brand.height + Theme.gapGroup
+      y: brandLine.y + brandLine.height + Theme.gapGroup
       width: root.sideW - root.padding
       height: parent.height - root.padding - y
     }

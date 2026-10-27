@@ -194,11 +194,28 @@ Rectangle {
     height: parent.height
     color: Theme.sideFill
 
+    // the window's header, centred between the window's top and its line, which is level with the page's
+    KitLine {
+      id: brandLine
+      x: Theme.windowPadding
+      y: header.y + pageLine.y
+      width: parent.width - Theme.windowPadding
+    }
+
+    KitHeader {
+      x: Theme.windowPadding
+      y: (brandLine.y - height) / 2
+      width: brandLine.width
+      icon: "settings"
+      title: "Shell Manager"
+      subtitle: "SUPER + S"
+    }
+
     // the search, first in the list: typing swaps the sections for results
     KitInput {
       id: searchField
       x: Theme.windowPadding
-      y: Theme.windowPadding
+      y: brandLine.y + brandLine.height + Theme.gapGroup
       width: nav.width
       icon: "search"
       placeholder: "Search settings"
@@ -484,7 +501,7 @@ Rectangle {
       }
     }
 
-    KitLine {}
+    KitLine { id: pageLine }
   }
 
   // The controls scroll independently of the specimen on the right.

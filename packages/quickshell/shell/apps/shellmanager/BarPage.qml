@@ -351,18 +351,27 @@ KitSettingsWorkspace {
           hint: "Shown when media is available"
           KitSwitch { checked: ShellSettings.look("hubPlayer", "island"); onToggled: ShellSettings.setLook("hubPlayer", !checked, "island") }
         }
-        Repeater {
-          model: [
-            {key: "volume", label: "Volume slider", fallback: true},
-            {key: "microphone", label: "Microphone slider", fallback: false},
-            {key: "brightness", label: "Brightness slider", fallback: true},
-            {key: "dimming", label: "Dimming slider", fallback: false}
-          ]
-          KitRow {
-            id: sliderSetting
-            required property var modelData
-            label: modelData.label
-            KitSwitch { checked: ModuleSettings.get("hub", sliderSetting.modelData.key, sliderSetting.modelData.fallback); onToggled: ModuleSettings.set("hub", sliderSetting.modelData.key, !checked) }
+        // the four quick sliders in one row: a picked one shows in the hub
+        KitRow {
+          label: "Sliders"
+          hint: "Pick the ones the hub shows"
+          Repeater {
+            model: [
+              {key: "volume", label: "Volume", fallback: true},
+              {key: "microphone", label: "Microphone", fallback: false},
+              {key: "brightness", label: "Brightness", fallback: true},
+              {key: "dimming", label: "Dimming", fallback: false}
+            ]
+            KitButton {
+              id: sliderChip
+              required property var modelData
+              readonly property bool on: ModuleSettings.get("hub", modelData.key, modelData.fallback)
+              text: modelData.label
+              selected: on
+              Accessible.role: Accessible.CheckBox
+              Accessible.checked: on
+              onClicked: ModuleSettings.set("hub", modelData.key, !on)
+            }
           }
         }
         KitRow {
