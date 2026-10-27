@@ -10,7 +10,7 @@ import qs.config
 // outer one to look again. A child with `property bool kitUnboxed: true` (a
 // preview, a board of chips) stands on the page; a title that is not a
 // KitLabel says `readonly property bool isKitLabel: true`. Sliders take the
-// row layout (`rowStyle`).
+// row layout (`rowStyle`). Strict frames the box in a quiet line.
 // Put it last: it is 1×1 (a Column hides a zero-size child, and its drawing
 // with it), placed at the end and taken back with a negative bottom padding;
 // it draws behind the rows in the column's coordinates.
@@ -18,8 +18,8 @@ Item {
   id: root
 
   readonly property bool isKitGrouper: true
-  readonly property int padX: Theme.gapWide
-  readonly property int padY: Theme.gapWide
+  readonly property int padX: Theme.groupInset
+  property int padY: Theme.settingsRowInset
   readonly property Item column: parent
 
   property Item outer: null                 // the grouper of an enclosing settings column
@@ -29,6 +29,21 @@ Item {
   width: 1
   height: 1
   z: -1
+
+  FontMetrics { id: inkMetrics }
+
+  // A header caption exposes its rendered edge independently of taller
+  // trailing buttons. Font line boxes include descender space with no ink.
+  function captionBottom(item, host) {
+    if (item.text !== undefined && item.font !== undefined && item.baselineOffset !== undefined) {
+      inkMetrics.font = item.font;
+      const rect = inkMetrics.tightBoundingRect(item.text);
+      return item.mapToItem(host, 0, item.baselineOffset + rect.y + rect.height).y;
+    }
+    const children = Array.from(item.children).filter(c => c.visible && c.width > 0 && c.height > 0);
+    return children.length ? Math.max(...children.map(c => captionBottom(c, host)))
+      : item.mapToItem(host, 0, item.height).y;
+  }
 
   function grouperOf(c) {
     for (const k of c?.data ?? []) if (k.isKitGrouper) return k;
@@ -50,6 +65,7 @@ Item {
 
   function findOuter() {
     for (let p = column ? column.parent : null; p; p = p.parent) {
+      if (p.kitUnboxed) return null; // independent panes own their groups
       const g = grouperOf(p);
       if (g) return g;
     }
@@ -77,7 +93,7 @@ Item {
     // the outermost column keeps room for its last box's lower padding (a pane's scroll reaches it)
     col.bottomPadding = -(col.spacing + root.height) + root.padY;
     if (!col.visible) return;   // hidden, every child reads invisible: done when it shows
-    const out = [], hair = [];
+    const out = [], hair = [], surfaces = [], dividers = [];
     let run = null;
     const close = () => { if (run) out.push({ y: run.top - root.padY, h: run.bottom - run.top + 2 * root.padY }); run = null; };
 
@@ -88,18 +104,31 @@ Item {
       items.forEach((c, i) => {
         // a line ends the group; before a title it goes (the title parts the boxes),
         // before rows it stays, unseen, as the gap between two boxes
-        if (c.isKitLine) {
-          const next = items.slice(i + 1).find(n => !n.isKitLine && n.visible && n.height > 0);
-          c.opacity = 0;
-          c.visible = next !== undefined && !next.isKitLabel && !(sectionOf(next) && startsTitled(sectionOf(next)));
-          close();
+        if (c.isKitLine && c.sectionBreak) {
+          const next = items.slice(i + 1).find(n => n.visible && !n.isKitLine && n.height > 0);
+          c.groupManaged = true;
+          // No leading/trailing gap, nor an extra interval before a heading.
+          c.groupCollapsed = !run || !next || next.isKitLabel === true
+            || (sectionOf(next) !== null && startsTitled(sectionOf(next)));
+          if (c.visible) close();
           return;
         }
         if (!c.visible || c.height <= 0 || c.width <= 0 && !c.isKitLabel) return;
-        if (c.isKitLabel) { close(); c.x = root.padX; c.width = parent.width - 2 * root.padX; return; }
+        if (c.isKitLabel) {
+          surfaces.push({ top: dy + c.y, bottom: dy + c.y + c.height });
+          close();
+          c.x = root.padX;
+          c.width = parent.width - 2 * root.padX;
+          return;
+        }
         const inner = sectionOf(c);
         if (inner) { c.x = 0; c.width = parent.width; walk(inner, dy + c.y + (inner === c ? 0 : inner.y)); return; }
-        if (c.kitUnboxed) { close(); c.x = 0; c.width = parent.width; return; }
+        if (c.kitUnboxed) {
+          close(); c.x = 0; c.width = parent.width;
+          if (c.isKitLine) dividers.push({ item: c, y: dy + c.y });
+          else surfaces.push({ top: dy + c.y, bottom: c.kitCaption ? captionBottom(c.kitCaption, col) : dy + c.y + c.height });
+          return;
+        }
         c.x = root.padX;
         c.width = parent.width - 2 * root.padX;
         if (c.rowStyle !== undefined) c.rowStyle = true;
@@ -110,21 +139,34 @@ Item {
     };
     walk(col, 0);
     close();
+    // A card extends padY beyond its rows. Centre physical dividers in the
+    // remaining space so header→stroke and stroke→card are exactly equal.
+    const edges = surfaces.concat(out.map(b => ({ top: b.y, bottom: b.y + b.h })));
+    for (const d of dividers) {
+      const above = edges.filter(b => b.bottom <= d.y).map(b => b.bottom);
+      const below = edges.filter(b => b.top >= d.y + d.item.height).map(b => b.top);
+      d.item.strokeOffset = above.length && below.length
+        ? (Math.max(...above) + Math.min(...below) - d.item.height) / 2 - d.y : 0;
+    }
     root.boxes = out;
     root.lines = hair;
   }
 
-  function relayout() { soon.restart(); settle.restart(); }
+  function relayout() { soon.restart(); }
 
   Connections {
     target: root.column
-    // and again once a KitColumn's rows have glided to their place
-    function onPositioningComplete() { root.layout(); settle.restart(); }
+    // Measure after the positioner has settled, not during its layout pass.
+    function onPositioningComplete() { soon.restart(); }
     function onWidthChanged() { soon.restart(); }
     function onVisibleChanged() { soon.restart(); }
   }
+  // the style moves the rows in or out of their boxes
+  Connections {
+    target: Theme
+    function onMaterialChanged() { root.relayout(); }
+  }
   Timer { id: soon; interval: 0; onTriggered: root.layout() }
-  Timer { id: settle; interval: Motion.normal + 40; onTriggered: root.layout() }
   Component.onCompleted: soon.restart()
 
   Repeater {
@@ -138,9 +180,9 @@ Item {
       width: root.column ? root.column.width : 0
       height: modelData.h
       radius: Theme.radiusCard
-      color: Theme.background1
-      border.width: Theme.frameWidth
-      border.color: Theme.background2
+      color: Theme.groupFill
+      border.width: Theme.material ? 0 : Theme.hairline
+      border.color: Theme.controlLine
     }
   }
 
@@ -152,8 +194,8 @@ Item {
       x: root.padX - root.x
       y: Math.round(modelData - root.y)    // on a whole pixel: a sharp hairline
       width: root.column ? root.column.width - 2 * root.padX : 0
-      height: 1
-      color: Theme.background2
+      height: Theme.dividerThickness
+      color: Theme.dividerColor
     }
   }
 }

@@ -34,6 +34,6 @@ Rectangle {
     x: root.padding
     y: root.padding - root.headerInset
     width: root.width - 2 * root.padding
-    spacing: Theme.gapGroup
+    spacing: Theme.sectionGap
   }
 }

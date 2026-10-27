@@ -38,6 +38,36 @@ Item {
   readonly property real gap: 5               // Material: the space on each side of the handle
   readonly property real handleX: shown * (width - knobSize)
 
+  property string accessibleName: "Level"
+  property real keyboardStep: 0.05
+  activeFocusOnTab: true
+  Accessible.role: Accessible.Slider
+  Accessible.name: accessibleName
+  Accessible.description: Math.round(shown * 100) + "%"
+  function adjust(step) {
+    if (!enabled || dimmed) return;
+    let next;
+    if (snaps.length) {
+      const choices = snaps.filter(s => step > 0 ? s > shown + 0.001 : s < shown - 0.001);
+      next = choices.length ? (step > 0 ? choices[0] : choices[choices.length - 1]) : shown;
+    } else next = Math.max(0, Math.min(1, shown + step * keyboardStep));
+    send(next);
+    letGo(next);
+  }
+  Keys.onLeftPressed: adjust(-1)
+  Keys.onRightPressed: adjust(1)
+  Accessible.onIncreaseAction: adjust(1)
+  Accessible.onDecreaseAction: adjust(-1)
+
+  Rectangle {
+    anchors { fill: parent; margins: -3 }
+    radius: Theme.radiusControl
+    visible: root.activeFocus
+    color: Theme.clear
+    border.width: Theme.focusWidth
+    border.color: Theme.focusRing
+  }
+
   signal moved(real value)
   signal released(real value)
 

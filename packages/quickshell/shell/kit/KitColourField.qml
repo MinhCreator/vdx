@@ -1,5 +1,6 @@
 import QtQuick
 import qs.config
+import "colour.js" as Colour
 
 // A colour in one box: a chip (click it for the picker), the hex (typed), and a
 // chevron that opens the picker too. Typed text is handed over as `edited`; a
@@ -13,8 +14,12 @@ Rectangle {
   property string placeholder: "#32302f"
   property bool live: false
   property bool open: false
-  readonly property bool valid: /^#?[0-9a-fA-F]{6}$/.test(value.trim())
-  readonly property string colour: valid ? "#" + value.trim().replace(/^#/, "").toLowerCase() : ""
+  property bool showPickerButton: true
+  property bool dirty: false
+  property bool invalid: false
+  readonly property bool typedValid: Colour.normalize(input.text) !== ""
+  readonly property bool valid: Colour.normalize(value) !== ""
+  readonly property string colour: Colour.normalize(value)
   property string saved: colour      // the last valid colour
 
   signal edited(string text)
@@ -26,8 +31,8 @@ Rectangle {
   // set once: whether it sits in a Settings box (a walk up, not a binding)
   property bool boxed: false
   color: input.activeFocus || hover.hovered ? Theme.hoverOn(boxed) : Theme.fillOn(boxed)
-  border.width: Theme.frameWidth
-  border.color: input.activeFocus || hover.hovered ? Theme.foreground2 : Theme.gray
+  border.width: input.activeFocus && !Theme.material ? Theme.focusWidth : Theme.frameWidth
+  border.color: invalid ? Theme.red : input.activeFocus ? Theme.focusRing : hover.hovered ? Theme.controlLineHover : Theme.controlLine
   Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
   KitFieldLine { active: input.activeFocus }
@@ -35,7 +40,7 @@ Rectangle {
   HoverHandler { id: hover; cursorShape: Qt.IBeamCursor }
 
   onValueChanged: {
-    if (!input.activeFocus) input.text = value;
+    if (!input.activeFocus || !dirty) { input.text = value; invalid = false; }
     if (valid) saved = colour;
   }
   Component.onCompleted: { boxed = Theme.boxed(parent); input.text = value; }
@@ -43,26 +48,35 @@ Rectangle {
   Rectangle {
     id: chip
     anchors { left: parent.left; leftMargin: 5; verticalCenter: parent.verticalCenter }
-    width: 18
-    height: 18
+    width: Theme.controlHeight - 12
+    height: width
+    activeFocusOnTab: root.showPickerButton
+    Accessible.role: Accessible.Button
+    Accessible.name: "Choose colour"
+    Accessible.onPressAction: root.chipClicked()
+    Keys.onSpacePressed: root.chipClicked()
+    Keys.onReturnPressed: root.chipClicked()
     radius: Theme.radiusControl
     color: root.valid ? root.colour : "transparent"
     border.width: Theme.frameWidth
-    border.color: Theme.gray
+    border.color: activeFocus ? Theme.focusRing : Theme.controlLine
 
     MouseArea {
       anchors.fill: parent
       cursorShape: Qt.PointingHandCursor
+      enabled: root.showPickerButton
       onClicked: root.chipClicked()
     }
   }
 
   TextInput {
     id: input
-    anchors { left: chip.right; leftMargin: Theme.gapMedium; right: chevron.left; rightMargin: Theme.gapSmall; verticalCenter: parent.verticalCenter }
+    anchors { left: chip.right; leftMargin: Theme.gapMedium; right: root.showPickerButton ? chevron.left : parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
     color: Theme.foreground0
     clip: true
     selectByMouse: true
+    activeFocusOnTab: true
+    Accessible.name: "Hex colour"
     selectionColor: Theme.background3
     selectedTextColor: Theme.foreground0
     font.family: Theme.fontFamily
@@ -76,24 +90,37 @@ Rectangle {
       font: input.font
     }
 
+    function commit() {
+      root.invalid = !root.typedValid;
+      if (root.invalid) return;
+      root.saved = Colour.normalize(text);
+      root.dirty = false;
+      text = root.saved;
+      root.accepted(root.saved);
+    }
     onTextEdited: {
+      root.dirty = true;
+      root.invalid = false;
       root.edited(text);
-      const t = text.trim();
-      if (root.live && /^#?[0-9a-fA-F]{6}$/.test(t)) {
-        root.saved = "#" + t.replace(/^#/, "").toLowerCase();
-        root.accepted(root.saved);
-      }
+      // Shorthand is expanded only on commit, never midway through six digits.
+      if (root.live && /^#?[0-9a-fA-F]{6}$/.test(text.trim())) commit();
     }
-    onAccepted: if (root.valid) { root.saved = root.colour; root.accepted(root.colour); }
+    onAccepted: commit()
+    Keys.onEscapePressed: {
+      text = root.colour || root.saved;
+      root.dirty = false;
+      root.invalid = false;
+      root.edited(text);
+    }
     onActiveFocusChanged: {
-      if (activeFocus || root.valid || root.saved === "") return;
-      input.text = root.saved;
-      root.edited(root.saved);
+      if (!activeFocus && root.dirty) commit();
     }
+
   }
 
   KitIcon {
     id: chevron
+    visible: root.showPickerButton
     anchors { right: parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
     name: "chevron-down"
     tint: Theme.foreground2

@@ -27,9 +27,9 @@ Rectangle {
   signal actioned()
 
   width: parent ? parent.width : 0
-  height: 28
+  height: Theme.navigationHeight
   radius: Theme.radiusControl
-  color: current ? Theme.background3 : area.containsMouse ? Theme.background2 : Theme.clear
+  color: current ? Theme.pickFill : area.containsMouse ? Theme.controlHover : Theme.clear
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
   KitIcon {
@@ -45,7 +45,7 @@ Rectangle {
     text: root.text
     elide: Text.ElideRight
     color: root.current ? Theme.foreground0 : Theme.foreground2
-    font.weight: root.current ? Font.ExtraBold : Font.DemiBold
+    font.weight: root.current ? Theme.pickWeight : Font.Normal
   }
 
   KitText {

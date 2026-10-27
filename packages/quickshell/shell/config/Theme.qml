@@ -32,7 +32,7 @@ QtObject {
   readonly property color gray:   live.gray ?? Colors.gray
   // hints and captions: the theme's muted, lifted toward foreground0 until it
   // reads (WCAG 4.5:1 on background0); the theme file keeps its own (kitty's color8)
-  readonly property color muted:  legible(live.muted ?? Colors.muted, background0)
+  readonly property color muted:  legible(live.muted ?? Colors.muted, material ? surfaceHighest : background2)
   readonly property color frame:  live.frame ?? Colors.frame
   readonly property color dim:    live.dim ?? Colors.dim
 
@@ -76,14 +76,11 @@ QtObject {
   // the theme), "custom" the typed one. slot: the stop it is for (0 the colour,
   // 1 the gradient's end): a custom colour has one per stop
   function accentColour(name, slot) {
-    if (name === "custom") {
-      const hex = ShellSettings.accentCustom[slot ?? 0];
-      return hex ? Qt.color(hex) : frame;
-    }
+    if (name === "custom") return frame; // Legacy imported colours fall back to the theme.
     if (name === "theme") return frame;
     return { red: red, orange: orange, yellow: yellow, green: green, aqua: aqua, blue: blue, purple: purple }[name] ?? foreground0;
   }
-  readonly property bool accentGradient: ShellSettings.accentGradient
+  readonly property bool accentGradient: false
   // the gradient's two ends; with one, both are the same colour, so a fill can
   // always be a Gradient from `accent` to `accentEnd`
   readonly property color accent: accentColour(ShellSettings.accentStops[0] ?? "theme", 0)
@@ -95,8 +92,8 @@ QtObject {
   // ---- type and bar metrics ----
   readonly property string fontFamily: ShellSettings.font     // the system monospace, Shell Manager › Appearance
   readonly property int fontSize: ShellSettings.textSize      // Appearance › Font › Text size
-  readonly property int fontWeight: Font.DemiBold
-  readonly property int barHeight: 34
+  readonly property int fontWeight: Font.Normal
+  readonly property int barHeight: material ? 38 : 36
   readonly property int moduleSpacing: 2
   readonly property int edgeMargin: 20
   readonly property int separatorMargin: ShellSettings.barGap   // Bar › Style › Spacing, each side of a separator
@@ -104,8 +101,8 @@ QtObject {
   // Bar › Style island: the island floats this far from the screen's top.
   // barEdge: where the bar ends for windows and popups, either style.
   readonly property bool island: ShellSettings.barStyle === "island"
-  readonly property int islandTop: 6
-  readonly property int islandHeight: 32
+  readonly property int islandTop: 8
+  readonly property int islandHeight: material ? 36 : 32
   readonly property int islandFrameWidth: 1      // either control style: it floats over windows
   // the island's corners: in proportion while small (radiusFor), no more than
   // half again a popup's when open (sharp: 0)
@@ -113,20 +110,56 @@ QtObject {
   readonly property int barEdge: island ? islandTop + islandHeight : barHeight
 
   // ---- controls (Appearance › Controls) ----
-  // outlined: framed controls on the surface (the terminal look). material:
+  // Strict: framed controls on the surface. material:
   // no frames — controls are filled one step up, a popup has a quiet hairline
   readonly property bool material: ShellSettings.material
-  readonly property color controlFill: material ? background1 : clear
-  readonly property color controlHover: material ? background2 : background1
+  readonly property color controlFill: material ? surfaceContainer : clear
+  readonly property color controlHover: material ? surfaceHigh : mix(background0, foreground0, 0.045)
   // a control in a Settings box (KitGrouper) sits on background1: its fills go one step up
   function boxed(item) {
     for (let p = item; p; p = p.parent)
       for (const k of p.data ?? []) if (k.isKitGrouper) return true;
     return false;
   }
-  function fillOn(boxed) { return boxed && material ? background2 : controlFill; }
-  function hoverOn(boxed) { return boxed ? (material ? background3 : background2) : controlHover; }
-  readonly property color popupFrame: material ? background2 : frame
+  function fillOn(boxed) { return boxed && material ? surfaceHigh : controlFill; }
+  function hoverOn(boxed) { return boxed && material ? surfaceHighest : controlHover; }
+  readonly property color popupFrame: material ? outlineVariant : controlLineHover
+  // Strict: a control's frame is a quiet line, lighter under the pointer or
+  // while open; the picked one is filled one step up in a bold weight.
+  // Material keeps gray / foreground2, background3 and ExtraBold
+  function mix(a: color, b: color, t: real): color {
+    return Qt.rgba(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t, 1);
+  }
+  readonly property color controlLine: material ? outline : mix(background0, foreground0, 0.14)
+  readonly property color controlLineHover: material ? onSurfaceVariant : mix(background0, foreground0, 0.28)
+  readonly property color pickFill: material ? secondaryContainer : mix(background0, foreground0, 0.075)
+  readonly property int pickWeight: Font.DemiBold
+  // a window's side pane (Shell Manager's sidebar): Strict sets it a shade under the page
+  readonly property color sideFill: material ? surfaceContainer : mix(background0, foreground0, 0.025)
+
+  // Semantic roles: theme palettes remain the source, components use roles.
+  // Neutral containers preserve monochrome; the accent is opt-in per target.
+  readonly property color surfaceContainer: mix(background0, foreground0, 0.045)
+  readonly property color surfaceHigh: mix(background0, foreground0, 0.08)
+  readonly property color surfaceHighest: mix(background0, foreground0, 0.12)
+  readonly property color onSurfaceVariant: legible(foreground2, surfaceHighest)
+  readonly property color outline: mix(background0, foreground0, 0.42)
+  readonly property color outlineVariant: mix(background0, foreground0, 0.12)
+  readonly property color secondaryContainer: mix(background0, accentFor("choices", foreground0), 0.16)
+  readonly property color focusRing: legible(accentFor("choices", foreground0), background0)
+  readonly property int focusWidth: 2
+  readonly property int navigationHeight: material ? 36 : 34
+  readonly property int rowHeight: 40
+  readonly property int groupInset: 12
+  readonly property color groupFill: material ? surfaceContainer : background0
+  // Choose the best of the theme's foreground/background on any custom fill.
+  function inkOn(fill: color): color {
+    return contrast(foreground0, fill) >= contrast(background0, fill) ? foreground0 : background0;
+  }
+  function inkOnGradient(first: color, last: color): color {
+    return Math.min(contrast(foreground0, first), contrast(foreground0, last))
+      >= Math.min(contrast(background0, first), contrast(background0, last)) ? foreground0 : background0;
+  }
 
   // ---- corners (Appearance › Corners) ----
   // sharp: all 0. round: one slider (Corners › Radius, R) sets every corner in
@@ -165,24 +198,30 @@ QtObject {
   readonly property int gapMedium: 8
   readonly property int gapLoose: 10          // also an edge inset of a row
   readonly property int gapWide: 12
+  readonly property int settingsGap: sectionGap       // header separator to settings; shared by all settings panes
+  // Dividers own only their stroke. Containers supply the same gap on both sides.
+  readonly property int sectionGap: gapMedium
+  readonly property int settingsRowInset: gapSmall
+  readonly property int dividerThickness: hairline
+  readonly property color dividerColor: outlineVariant
   readonly property int gapGroup: 14
   // icons and the widths of a side column (Shell Manager's pages, the sidebar)
   readonly property int iconSmall: 14
   readonly property int iconLarge: 24
-  readonly property int sideWidth: 190
+  readonly property int sideWidth: 216
   readonly property int popupPadding: 16       // a popup's frame, every side (KitFrame)
-  readonly property int popupWidth: 370
+  readonly property int popupWidth: 380
   // a window's frame: the gap to its edges on every side, and the space the
   // title's line keeps above its capitals (the header draws that far into its box)
   readonly property int windowPadding: 24
   readonly property int headerInset: 3
-  readonly property int controlHeight: 30       // buttons, selects, fields: one height side by side
+  readonly property int controlHeight: material ? 36 : 34       // buttons, selects, fields: one height side by side
   readonly property int controlWidth: 300        // a setting's choices / field (KitRow wide)
   readonly property int buttonWidth: 120         // a setting's action button (text only, right aligned)
-  readonly property int rowStackBelow: 480       // a wide KitRow narrower than this puts its control under the label
+  readonly property int rowStackBelow: 560       // a wide KitRow narrower than this puts its control under the label
   readonly property int popupGap: 6
   readonly property int frameWidth: material ? 0 : 1          // controls: buttons, selects, fields
-  readonly property int windowFrameWidth: material ? 1 : 2    // popup frames, like hypr windows, mako
+  readonly property int windowFrameWidth: 1                   // popup frames, like hypr windows, mako
   readonly property int hairline: 1                           // an outline in either style: wells, previews, cards at rest
   readonly property int ring: 2                               // the picked card's or tile's outline
   readonly property int visibleRows: 8

@@ -35,7 +35,7 @@ Singleton {
   readonly property var accentStops: state.accentStops
   readonly property var accentCustom: Array.isArray(state.accentCustom) ? state.accentCustom : ["", ""]
   readonly property var accentWhere: state.accentWhere            // target key -> true: what takes the accent
-  readonly property bool passwordDots: state.passwordDots         // password fields show dots, not squares (Appearance › Controls)
+  readonly property bool passwordDots: state.passwordDots         // legacy import compatibility; password fields always use dots
   readonly property string corners: state.corners                 // sharp | round: the whole shell's corners
   readonly property int cornerRadius: state.cornerRadius          // px, a popup's corner while round (Theme scales the rest)
   readonly property bool cornerSplit: state.cornerSplit            // each part on its own slider (cornerRadii)
@@ -73,14 +73,15 @@ Singleton {
   ShellState { id: defaults }
 
   // the current shape's value of a look option, else its default
-  function look(key) {
-    const v = (looks[barStyle] ?? {})[key];
+  function look(key, shape) {
+    const v = (looks[shape ?? barStyle] ?? {})[key];
     return v === undefined ? lookDefaults[key] : v;
   }
 
-  function setLook(key, value) {
+  function setLook(key, value, shape) {
+    const target = shape ?? barStyle;
     const all = Object.assign({}, looks);
-    all[barStyle] = Object.assign({}, all[barStyle] ?? {}, { [key]: value });
+    all[target] = Object.assign({}, all[target] ?? {}, { [key]: value });
     state.looks = all;
   }
 

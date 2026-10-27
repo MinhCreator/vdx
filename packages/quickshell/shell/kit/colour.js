@@ -2,6 +2,24 @@
 
 // Colours for the pickers: a hex string (#rrggbb) and its hue (0..1).
 
+// Persist colours in one canonical format; shorthand is accepted at entry.
+function normalize(text) {
+  const value = String(text || "").trim().replace(/^#/, "");
+  if (/^[0-9a-fA-F]{3}$/.test(value)) return "#" + value.toLowerCase().split("").map(c => c + c).join("");
+  return /^[0-9a-fA-F]{6}$/.test(value) ? "#" + value.toLowerCase() : "";
+}
+function rgbOf(text) {
+  const value = normalize(text);
+  if (!value) return null;
+  const n = parseInt(value.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function hexOfRgb(r, g, b) {
+  const channels = [r, g, b].map(n => String(n).trim());
+  if (channels.some(n => !/^\d{1,3}$/.test(n) || Number(n) > 255)) return "";
+  return "#" + channels.map(n => Number(n).toString(16).padStart(2, "0")).join("");
+}
+
 // the hue of a hex colour, 0..1; -1 for a grey (no hue) or a text that is no colour
 function hueOf(hex) {
   const m = /^#?([0-9a-fA-F]{6})$/.exec((hex || "").trim());

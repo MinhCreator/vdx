@@ -140,7 +140,7 @@ Item {
   }
   readonly property var sizes: ({
     compact: [compact.implicitWidth, Theme.islandHeight],
-    hub:     [520, hub.implicitHeight],
+    hub:     [Math.max(280, Math.min(hub.preferredWidth, ModuleSettings.get("hub", "width", 400), (bar.screen?.width ?? 1920) - 24)), hub.implicitHeight],
     launcher: [520, islandLauncher.implicitHeight],
     keybinds: [520, islandKeybinds.implicitHeight],
     media:   [420, 148],
@@ -166,10 +166,10 @@ Item {
     clip: true
     opacity: root.hidden ? 0 : 1
     visible: opacity > 0
-    Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
+    Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick } }
 
-    Behavior on width { enabled: Motion.island; NumberAnimation { duration: Motion.slow; easing.type: Motion.morph } }
-    Behavior on height { enabled: Motion.island; NumberAnimation { duration: Motion.slow; easing.type: Motion.morph } }
+    Behavior on width { enabled: Motion.island; NumberAnimation { duration: Motion.normal; easing.type: Motion.morph } }
+    Behavior on height { enabled: Motion.island; NumberAnimation { duration: Motion.normal; easing.type: Motion.morph } }
     Behavior on radius { enabled: Motion.island; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
 
     HoverHandler { id: hover }
@@ -193,9 +193,9 @@ Item {
       anchors.centerIn: parent
       modules: root.modules
       screen: root.bar.screen?.name ?? ""
-      visible: opacity > 0
+      visible: root.shown === "compact" && opacity > 0
       opacity: root.shown === "compact" ? 1 : 0
-      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick } }
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
       onSettings: id => root.settings(id)
       onClockClicked: root.openView("hub")
     }
@@ -203,15 +203,14 @@ Item {
     IslandHub {
       id: hub
       anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
-      width: root.sizes.hub[0]
+      width: root.sizes.hub[0] - 2 * Theme.islandFrameWidth
       bar: root.bar
       modules: root.modules
       // a module's popup takes its place at once: the hub does not fade under it
-      visible: opacity > 0 && root.shown !== "module"
+      visible: root.shown === "hub" && opacity > 0
       opacity: root.shown === "hub" ? 1 : 0
-      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
       onPower: root.openView("power")
-      onApp: v => root.toggleView(v)
       onManager: { root.collapse(); ShellSettings.managerOpen = true; }
       onSettings: id => {
         root.collapse();
@@ -223,18 +222,18 @@ Item {
       anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
       width: root.sizes.media[0]
       height: root.sizes.media[1]
-      visible: opacity > 0
+      visible: root.shown === "media" && opacity > 0
       opacity: root.shown === "media" ? 1 : 0
-      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
     }
 
     IslandOsd {
       anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
       width: root.sizes.osd[0]
       height: root.sizes.osd[1]
-      visible: opacity > 0
+      visible: root.shown === "osd" && opacity > 0
       opacity: root.shown === "osd" ? 1 : 0
-      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick } }
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
     }
 
     // the notices, a column of rows, newest on top
@@ -242,9 +241,9 @@ Item {
       anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
       width: root.sizes.notice[0]
       spacing: Theme.gapTight
-      visible: opacity > 0
+      visible: root.shown === "notice" && opacity > 0
       opacity: root.shown === "notice" ? 1 : 0
-      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
 
       Repeater {
         model: IslandService.notices
@@ -284,9 +283,9 @@ Item {
       anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
       width: root.sizes.module[0]
       height: root.sizes.module[1]
-      visible: opacity > 0
+      visible: root.shown === "module" && opacity > 0
       opacity: root.shown === "module" ? 1 : 0
-      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
       Keys.onEscapePressed: root.fromHub ? root.backToHub() : root.collapse()
       // the content's children land here (showPopup)
 
@@ -308,9 +307,9 @@ Item {
       inIsland: true
       anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
       width: root.sizes.launcher[0]
-      visible: opacity > 0
+      visible: root.shown === "launcher" && opacity > 0
       opacity: root.shown === "launcher" ? 1 : 0
-      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
       onBack: root.appBack()
       onFinished: root.collapse()
     }
@@ -320,9 +319,9 @@ Item {
       inIsland: true
       anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
       width: root.sizes.keybinds[0]
-      visible: opacity > 0
+      visible: root.shown === "keybinds" && opacity > 0
       opacity: root.shown === "keybinds" ? 1 : 0
-      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
       onBack: root.appBack()
     }
 
@@ -331,9 +330,9 @@ Item {
       anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
       width: root.sizes.power[0]
       height: root.sizes.power[1]
-      visible: opacity > 0
+      visible: root.shown === "power" && opacity > 0
       opacity: root.shown === "power" ? 1 : 0
-      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
       onDone: root.collapse()
     }
   }
@@ -359,7 +358,7 @@ Item {
     scale: 0.6 + 0.4 * reveal
 
     property real reveal: on ? 1 : 0
-    Behavior on reveal { enabled: Motion.island; NumberAnimation { duration: Motion.slow; easing.type: Motion.morph } }
+    Behavior on reveal { enabled: Motion.island; NumberAnimation { duration: Motion.normal; easing.type: Motion.morph } }
 
     KitIcon {
       anchors.centerIn: parent
@@ -417,7 +416,7 @@ Item {
     }
     function onFlashed(kind, ms) {
       // a change made from the island (its wheel, its chips) is shown there: no flash
-      if (kind === "osd" && hover.hovered) return;
+      if (kind === "osd" && (hover.hovered || root.view === "hub")) return;
       // an OSD replaces a notice flash: its plain toasts are over, not waiting;
       // the critical ones wait for its end (flashTimer)
       if (root.flash === "notice" && kind !== "notice") IslandService.clearNotices(true);

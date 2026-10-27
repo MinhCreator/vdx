@@ -10,6 +10,7 @@ Item {
   id: root
 
   property string label: ""
+  property string accessibleName: label || icon
   property string icon: ""
   property color iconTint: Theme.foreground0
   property bool clickable: false
@@ -30,7 +31,7 @@ Item {
   signal iconClicked()
 
   width: parent ? parent.width : 0
-  implicitHeight: captioned ? (rowStyle ? rowCaption.implicitHeight + Theme.gapMedium : caption.implicitHeight + 6) + slider.implicitHeight : 26
+  implicitHeight: captioned ? (rowStyle ? rowCaption.implicitHeight + Theme.gapMedium : caption.implicitHeight + 6) + slider.implicitHeight : Math.max(28, slider.implicitHeight + 4)
 
   KitLabel {
     id: caption
@@ -58,8 +59,8 @@ Item {
     id: iconBox
     visible: !root.captioned
     anchors { left: parent.left; verticalCenter: slider.verticalCenter }
-    width: 26
-    height: 26
+    width: Math.max(28, slider.implicitHeight + 4)
+    height: Math.max(28, slider.implicitHeight + 4)
 
     Rectangle {
       anchors.fill: parent
@@ -108,6 +109,7 @@ Item {
       bottom: parent.bottom
       bottomMargin: root.captioned ? 0 : 4
     }
+    accessibleName: root.accessibleName
     value: root.value
     dimmed: root.dimmed
     tint: root.tint

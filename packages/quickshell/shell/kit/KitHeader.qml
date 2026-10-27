@@ -3,6 +3,7 @@ import qs.config
 
 // Popup header: an icon, a bold title and a small-caps subtitle with " · "
 // between its parts; badges / buttons / a switch on the right (children).
+// `page`: a window page's own header — in Strict a large title, no icon.
 Item {
   id: root
 
@@ -11,16 +12,21 @@ Item {
   property string title: ""
   property string subtitle: ""
   property color subtitleColor: Theme.muted
+  property bool page: false
+  readonly property bool large: page
+  readonly property Item kitCaption: caption
 
+  readonly property bool stackedActions: page && actionRow.implicitWidth + 140 + Theme.gapMedium > width
   default property alias actions: actionRow.data
 
   width: parent ? parent.width : 0
-  implicitHeight: Math.max(caption.implicitHeight, actionRow.height)
+  implicitHeight: stackedActions ? caption.implicitHeight + Theme.gapMedium + actionRow.height : Math.max(caption.implicitHeight, actionRow.height)
 
   Item {
     id: icon
     anchors { left: parent.left; verticalCenter: caption.verticalCenter }
-    width: 30
+    visible: !root.large
+    width: visible ? 30 : 0
     height: 24
 
     KitIcon {
@@ -33,18 +39,20 @@ Item {
 
   Column {
     id: caption
+    // A shared header height must not leave unused space below the caption.
+    y: root.stackedActions ? 0 : Math.max(0, root.height - height)
     anchors {
-      left: icon.right; leftMargin: Theme.gapMedium
-      right: actionRow.left; rightMargin: actionRow.width > 0 ? 10 : 0
+      left: icon.right; leftMargin: icon.visible ? Theme.gapMedium : 0
+      right: root.stackedActions ? parent.right : actionRow.left; rightMargin: !root.stackedActions && actionRow.width > 0 ? 10 : 0
     }
-    spacing: 3
+    spacing: root.large ? Theme.gapHair : 3
 
     KitText {
       width: parent.width
       text: root.title
       elide: Text.ElideRight
-      font.pixelSize: Theme.fontSize + 3
-      font.weight: Font.ExtraBold
+      font.pixelSize: Theme.fontSize + (root.large ? 9 : 3)
+      font.weight: root.large ? Font.Medium : Font.DemiBold
     }
 
     KitText {
@@ -54,13 +62,14 @@ Item {
       color: root.subtitleColor
       elide: Text.ElideRight
       font.pixelSize: Theme.fontSize - 2
-      font.letterSpacing: 1
+      font.letterSpacing: 0.6
     }
   }
 
   Row {
     id: actionRow
-    anchors { right: parent.right; verticalCenter: caption.verticalCenter }
+    anchors.right: parent.right
+    y: root.stackedActions ? caption.implicitHeight + Theme.gapMedium : caption.y + (caption.implicitHeight - height) / 2
     spacing: Theme.gapMedium
   }
 }

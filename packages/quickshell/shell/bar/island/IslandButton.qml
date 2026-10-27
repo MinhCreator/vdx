@@ -12,11 +12,19 @@ Rectangle {
   property var group: null
 
   signal clicked()
+  activeFocusOnTab: true
+  Accessible.role: Accessible.Button
+  Accessible.name: icon
+  Accessible.onPressAction: clicked()
+  Keys.onSpacePressed: clicked()
+  Keys.onReturnPressed: clicked()
 
-  implicitWidth: iconSize + 14
-  implicitHeight: iconSize + 14
+  implicitWidth: Math.max(Theme.controlHeight, iconSize + 14)
+  implicitHeight: implicitWidth
   radius: Theme.pill(width)
-  color: !group && area.containsMouse ? Theme.background1 : Theme.clear
+  color: !group && (area.containsMouse || activeFocus) ? Theme.controlHover : Theme.clear
+  border.width: activeFocus ? Theme.focusWidth : 0
+  border.color: Theme.focusRing
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
   KitIcon {

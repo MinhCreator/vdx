@@ -2,19 +2,16 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// "|" between bar modules. Without the line (`ruled` false, Bar › Style ›
-// Separators off) its room stays: the modules keep their distance.
+// Bar dividers use the same stroke as panels; hiding a stroke preserves the
+// user's chosen module spacing.
 Item {
   property bool ruled: true
-
-  implicitWidth: label.implicitWidth + Theme.separatorMargin * 2
-  implicitHeight: label.implicitHeight
-
-  KitText {
-    id: label
+  implicitWidth: Theme.dividerThickness + Theme.separatorMargin * 2
+  implicitHeight: Theme.iconSmall
+  KitLine {
+    vertical: true
     visible: parent.ruled
     anchors.centerIn: parent
-    text: "|"
-    color: Theme.gray
+    height: Theme.iconSmall
   }
 }

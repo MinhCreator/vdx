@@ -21,15 +21,26 @@ Column {
   property bool busy: false
   property bool disabled: false
   property bool expanded: false
+  property int highlighted: -1
+  function openChoices() {
+    if (disabled || busy) return;
+    highlighted = Math.max(0, model.findIndex(c => c.value === current));
+    expanded = !expanded;
+  }
+  function moveChoice(step) {
+    if (disabled || busy || !model.length) return;
+    if (!expanded) { openChoices(); return; }
+    highlighted = Math.max(0, Math.min(model.length - 1, highlighted + step));
+    scroller.contentY = Math.max(0, Math.min(scroller.contentHeight - scroller.height,
+      highlighted * rowHeight - (scroller.height - rowHeight) / 2));
+  }
   // The box takes the standard width (KitRow's, so the right edges line up) when
   // the row has room for it; a narrower row gives the label half of it (less the
   // gap). It never grows past the standard width: a long choice elides in the box.
   property real boxWidth: Math.min(width, Math.max(Math.min(choiceWidth, Theme.controlWidth),
     Math.min(Theme.controlWidth, (width - Theme.gapWide) / 2)))
-  // The open list floats over what follows instead of pushing it down.
-  property bool overlay: false
   property int maxRows: 6
-  readonly property int rowHeight: 28
+  readonly property int rowHeight: Theme.navigationHeight
 
   readonly property var selected: model.find(c => c.value === current) ?? null
 
@@ -69,7 +80,7 @@ Column {
   Item {
     id: row
     width: parent.width
-    height: Math.max(box.height, text.implicitHeight)
+    height: Math.max(Theme.rowHeight, box.height, text.implicitHeight)
 
     Column {
       id: text
@@ -88,26 +99,44 @@ Column {
         text: root.hint
         elide: Text.ElideRight
         color: root.hintColor
-        font.pixelSize: Theme.fontSize - 2
+        font.pixelSize: Theme.fontSize - 1
       }
     }
 
     Rectangle {
       id: box
+      activeFocusOnTab: true
+      enabled: !root.disabled && !root.busy
+      Accessible.role: Accessible.ComboBox
+      Accessible.name: root.label
+      Accessible.description: root.selected?.label ?? ""
+      Accessible.onPressAction: root.openChoices()
+      Keys.onSpacePressed: root.openChoices()
+      Keys.onDownPressed: root.moveChoice(1)
+      Keys.onUpPressed: root.moveChoice(-1)
+      Keys.onEscapePressed: root.expanded = false
+      Keys.onReturnPressed: {
+        if (!root.expanded) root.openChoices();
+        else if (!root.disabled && !root.busy && root.model[root.highlighted]) {
+          root.picked(root.model[root.highlighted].value);
+          root.expanded = false;
+        }
+      }
+      onActiveFocusChanged: if (!activeFocus) root.expanded = false
       anchors.right: parent.right
       width: root.boxWidth
       height: Theme.controlHeight
       radius: Theme.radiusControl
       color: boxArea.containsMouse && !root.disabled ? Theme.hoverOn(root.boxed) : Theme.fillOn(root.boxed)
-      border.width: Theme.frameWidth
-      border.color: root.expanded ? Theme.accentFor("selects", Theme.foreground2)
-        : boxArea.containsMouse ? Theme.foreground2 : Theme.gray
+      border.width: box.activeFocus && !Theme.material ? Theme.focusWidth : Theme.frameWidth
+      border.color: box.activeFocus ? Theme.focusRing : root.expanded ? Theme.accentFor("selects", Theme.controlLineHover)
+        : boxArea.containsMouse ? Theme.controlLineHover : Theme.controlLine
       opacity: root.disabled ? 0.4 : 1
 
       Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
       Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
-      KitFieldLine { active: root.expanded }
+      KitFieldLine { active: root.expanded || box.activeFocus }
 
       KitText {
         anchors { left: parent.left; leftMargin: Theme.gapLoose; right: mark.left; rightMargin: Theme.gapSmall; verticalCenter: parent.verticalCenter }
@@ -143,24 +172,20 @@ Column {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: root.disabled ? Qt.ArrowCursor : Qt.PointingHandCursor
-        onClicked: if (!root.disabled && !root.busy) root.expanded = !root.expanded
+        onClicked: { box.forceActiveFocus(Qt.MouseFocusReason); root.openChoices(); }
       }
     }
   }
 
-  // Column lays out no zero-height child, so in overlay mode the list hangs
-  // off the row (below it, over the following content) instead of the slot.
-  // The list spans the whole row: the box's width is for the closed control only.
+  // Choices are always inline: opening reserves space in every host.
   Item {
     id: slot
     width: parent.width
     height: list.height
-    visible: root.expanded && !root.overlay
+    visible: root.expanded
 
     Rectangle {
       id: list
-      parent: root.overlay ? row : slot
-      y: root.overlay ? row.height + root.spacing : 0
       visible: root.expanded
       width: parent.width
       x: 0
@@ -169,9 +194,8 @@ Column {
       // round corners keep the rows off the frame's curve
       readonly property int inset: Theme.frameWidth + (Theme.round ? 3 : 0)
 
-      // the choices drop in: a fade and a few pixels down
+      // Fade within the reserved area without crossing neighbouring rows.
       property real shown: 1
-      transform: Translate { y: -6 * (1 - list.shown) }
       opacity: shown
       onVisibleChanged: {
         if (!visible) return;
@@ -181,9 +205,9 @@ Column {
         scroller.contentY = Math.max(0, Math.min(scroller.contentHeight - scroller.height, (i - 1) * root.rowHeight));
       }
       NumberAnimation { id: dropIn; target: list; property: "shown"; from: 0; to: 1; duration: Motion.normal; easing.type: Motion.easing }
-      color: Theme.material ? Theme.background1 : root.overlay ? Theme.background0 : Theme.clear
+      color: Theme.controlFill
       border.width: Theme.frameWidth
-      border.color: Theme.gray
+      border.color: Theme.controlLine
 
       Flickable {
         id: scroller
@@ -220,13 +244,14 @@ Column {
             id: option
 
             required property var modelData
+            required property int index
 
             readonly property bool active: modelData.value === root.current
 
             width: options.width
             height: root.rowHeight
             radius: Math.max(0, Theme.radiusControl - 2)
-            color: active ? Theme.background3 : optionArea.containsMouse ? Theme.controlHover : Theme.clear
+            color: active ? Theme.pickFill : optionArea.containsMouse || (box.activeFocus && index === root.highlighted) ? Theme.controlHover : Theme.clear
             Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
             KitText {
@@ -234,7 +259,7 @@ Column {
               text: option.modelData.label
               color: option.active || optionArea.containsMouse ? Theme.foreground0 : Theme.foreground2
               Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
-              font.weight: option.active ? Font.ExtraBold : Font.DemiBold
+              font.weight: option.active ? Theme.pickWeight : Font.DemiBold
             }
 
             KitText {
@@ -242,14 +267,14 @@ Column {
               visible: (option.modelData.note ?? "") !== ""
               text: option.modelData.note ?? ""
               color: Theme.muted
-              font.pixelSize: Theme.fontSize - 2
+              font.pixelSize: Theme.fontSize - 1
             }
 
             KitIcon {
               anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               visible: option.active
               name: "check"
-              tint: Theme.green
+              tint: Theme.accentFor("selects", Theme.foreground0)
               size: Theme.iconSmall
             }
 

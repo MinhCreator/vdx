@@ -5,6 +5,7 @@ import qs.config
 // A segmented control: one track, a segment per choice; the one matching
 // `current` is raised (filled, bold), the rest are plain text. Model:
 // [{label, value}]. Takes the width it is given (KitRow wide) and splits it evenly.
+// Strict: a quiet outlined track, the picked segment a filled plate inset in it.
 // Material (Appearance › Controls): the Material 3 segmented button — an
 // outlined pill split by hairlines, the picked segment filled with a check.
 Rectangle {
@@ -13,19 +14,46 @@ Rectangle {
   property var model: []
   property var current: null
   property bool disabled: false
+  activeFocusOnTab: true
+  enabled: !disabled && model.length > 0
+  Accessible.role: Accessible.Grouping
+  Accessible.name: "Choices"
+  function move(step) {
+    if (disabled || !model.length) return;
+    const i = model.findIndex(c => c.value === current);
+    picked(model[Math.max(0, Math.min(model.length - 1, i + step))].value);
+  }
+  Keys.onLeftPressed: move(-1)
+  Keys.onRightPressed: move(1)
+  Keys.onPressed: event => {
+    if (disabled || !model.length) return;
+    if (event.key === Qt.Key_Home || event.key === Qt.Key_End) {
+      picked(model[event.key === Qt.Key_Home ? 0 : model.length - 1].value);
+      event.accepted = true;
+    }
+  }
 
   signal picked(var value)
 
   readonly property bool m3: Theme.material
-  readonly property int inset: m3 ? 0 : 2
+  readonly property int inset: m3 ? 0 : 3
 
   implicitWidth: Theme.controlWidth
   implicitHeight: Theme.controlHeight
   radius: Theme.radiusControl
-  color: m3 ? Theme.clear : Theme.background0
+  color: Theme.clear
   border.width: m3 ? 1 : Theme.frameWidth
-  border.color: Theme.gray
+  border.color: Theme.controlLine
   opacity: disabled ? 0.4 : 1
+
+  Rectangle {
+    anchors { fill: parent; margins: -3 }
+    radius: Theme.radiusFor(height)
+    color: Theme.clear
+    visible: root.activeFocus
+    border.width: Theme.focusWidth
+    border.color: Theme.focusRing
+  }
 
   // the segments are cut to the outline's inside: material the pill, terminal the rounded frame
   ClippingRectangle {
@@ -51,17 +79,19 @@ Rectangle {
 
           width: segments.width / root.model.length
           height: segments.height
-          radius: 0      // the outer corners come from the clip; each segment's own corners would notch the joint
-          color: selected ? Theme.background3 : hovered ? Theme.background2 : Theme.clear
+          // Only the enclosing track rounds the outside corners; shared
+          // edges stay straight in selected and hover states in both styles.
+          radius: 0
+          color: selected ? Theme.pickFill : hovered ? Theme.controlHover : Theme.clear
 
           Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
           // material: a hairline between two segments
           Rectangle {
             visible: root.m3 && segment.index > 0
-            width: 1
+            width: Theme.dividerThickness
             height: parent.height
-            color: Theme.gray
+            color: Theme.dividerColor
           }
 
           Row {
@@ -85,7 +115,7 @@ Rectangle {
               elide: Text.ElideRight
               text: segment.modelData.label
               color: segment.selected ? Theme.accentFor("choices", Theme.foreground0) : Theme.foreground2
-              font.weight: segment.selected ? Font.ExtraBold : Font.Normal
+              font.weight: segment.selected ? Theme.pickWeight : Font.Normal
             }
           }
 
@@ -94,7 +124,11 @@ Rectangle {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: root.disabled ? Qt.ArrowCursor : Qt.PointingHandCursor
-            onClicked: if (!root.disabled && !segment.selected) root.picked(segment.modelData.value)
+            onClicked: {
+              if (root.disabled) return;
+              root.forceActiveFocus(Qt.MouseFocusReason);
+              if (!segment.selected) root.picked(segment.modelData.value);
+            }
           }
         }
       }

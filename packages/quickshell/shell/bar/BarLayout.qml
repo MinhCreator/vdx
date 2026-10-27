@@ -17,36 +17,48 @@ Singleton {
   // `island` its place in the island while that is not arranged (else the hub).
   readonly property var modules: [
     { id: "workspaces",    label: "Workspaces",    zone: "left",   icon: "layout", settings: "WorkspacesSettings.qml", about: "Hyprland workspaces" },
-    { id: "music",         label: "Music",         zone: "left",   icon: "music", settings: "MusicSettings.qml", about: "What plays now: Yandex Music, your files, radio, any player" },
-    { id: "themes",        label: "Themes",        zone: "right",  icon: "palette", settings: "ThemesSettings.qml", about: "Switch the dotfiles theme from a strip of cards" },
-    { id: "tray",          label: "Tray",          zone: "right",  icon: "grid", settings: "TraySettings.qml", about: "Status icons of running apps · right click: their menu" },
-    { id: "mode",          label: "Mode",          zone: "right",  icon: "moon", settings: "ModeSettings.qml", about: "Light or dark: a click switches the theme to its twin" },
-    { id: "wallpapers",    label: "Wallpapers",    zone: "right",  icon: "image", settings: "WallpapersSettings.qml", about: "Pick the picture of the theme from a strip of cards" },
-    { id: "equalizer",     label: "Equalizer",     zone: "center", island: "end", icon: "activity", settings: "EqualizerSettings.qml", about: "The sound as bars while a track plays" },
+    { id: "music",         label: "Music",         zone: "left",   icon: "music", settings: "MusicSettings.qml", about: "Players, local music and radio" },
+    { id: "themes",        label: "Themes",        zone: "right",  icon: "palette", settings: "ThemesSettings.qml", about: "Switch theme" },
+    { id: "tray",          label: "Tray",          zone: "right",  icon: "grid", settings: "TraySettings.qml", about: "App status icons" },
+    { id: "mode",          label: "Mode",          zone: "right",  icon: "moon", settings: "ModeSettings.qml", about: "Switch light or dark mode" },
+    { id: "wallpapers",    label: "Wallpapers",    zone: "right",  icon: "image", settings: "WallpapersSettings.qml", about: "Choose a wallpaper" },
+    { id: "equalizer",     label: "Equalizer",     zone: "center", island: "end", icon: "activity", settings: "EqualizerSettings.qml", about: "Audio visualizer" },
     { id: "clock",         label: "Clock",         zone: "center", icon: "clock", settings: "ClockSettings.qml", about: "Time, click for the date" },
     { id: "brightness",    label: "Brightness",    zone: "right",  icon: "sun", settings: "BrightnessSettings.qml", about: "Backlight, dimming, night light" },
     { id: "audio",         label: "Audio",         zone: "right",  icon: "volume", settings: "AudioSettings.qml", about: "Devices, volumes, app streams" },
     { id: "wifi",          label: "Wi-Fi",         zone: "right",  icon: "wifi", settings: "WifiSettings.qml", about: "Networks, DNS, speed test" },
-    { id: "bluetooth",     label: "Bluetooth",     zone: "right",  icon: "bluetooth", settings: "BluetoothSettings.qml", about: "Devices: connect, pair, forget · battery" },
+    { id: "bluetooth",     label: "Bluetooth",     zone: "right",  icon: "bluetooth", settings: "BluetoothSettings.qml", about: "Pair and manage devices" },
     { id: "mihomo",        label: "Mihomo",        zone: "right",  icon: "public", settings: "MihomoSettings.qml", about: "Proxy service and servers" },
     { id: "battery",       label: "Battery",       zone: "right",  icon: "battery-full", settings: "BatterySettings.qml", about: "Charge, limit, power profile, GPU" },
     { id: "language",      label: "Language",      zone: "right",  icon: "keyboard", settings: "LanguageSettings.qml", about: "Keyboard layout" },
-    { id: "ai",            label: "AI",            zone: "right",  icon: "bot", settings: "AiSettings.qml", about: "Claude Code limits, local Ollama models" },
-    { id: "shell",         label: "Shell",         zone: "right",  icon: "sliders", about: "Shell Manager: options, modules, layout" },
+    { id: "ai",            label: "AI",            zone: "right",  icon: "bot", settings: "AiSettings.qml", about: "AI limits and local models" },
+    { id: "shell",         label: "Shell",         zone: "right",  icon: "sliders", about: "Shell settings and layout" },
     { id: "notifications", label: "Notifications", zone: "right",  icon: "bell", settings: "NotificationsSettings.qml", about: "History of notifications" },
-    { id: "capture",       label: "Capture",       zone: "right",  icon: "camera", about: "Screenshots and screen recording · the app" },
-    { id: "clipboard",     label: "Clipboard",     zone: "right",  icon: "clipboard", about: "Copy history, images to drag out" },
+    { id: "capture",       label: "Capture",       zone: "right",  icon: "camera", about: "Screenshots and recordings" },
+    { id: "clipboard",     label: "Clipboard",     zone: "right",  icon: "clipboard", about: "Clipboard history and images" },
     { id: "sysmon",        label: "System",        zone: "right",  icon: "cpu", settings: "SysmonSettings.qml", about: "CPU, memory, GPU, disks, network, sensors" },
-    { id: "taskmanager",   label: "Task Manager",  zone: "right",  icon: "activity", about: "Load and the busiest programs · Ctrl + Shift + Esc: the full window" },
-    { id: "cleaner",       label: "Cleaner",       zone: "right",  icon: "brush", about: "What can go, the safe part in one click · Super + X: the full window" },
-    { id: "backup",        label: "Backups",       zone: "right",  icon: "shield", about: "Last backup, back up now, the restore guide · the full window" },
-    { id: "virustotal",    label: "VirusTotal",    zone: "right",  icon: "scan", about: "A hash, URL or file checked against VirusTotal" },
-    { id: "packages",      label: "Packages",      zone: "right",  icon: "package", about: "Pending updates, one click to update · the full window" },
-    { id: "display",       label: "Display",       zone: "right",  icon: "monitor", settings: "DisplaySettings.qml", about: "Monitor scale, refresh rate and text size · Displays in settings" },
+    { id: "taskmanager",   label: "Task Manager",  zone: "right",  icon: "activity", about: "Processes and resource usage" },
+    { id: "cleaner",       label: "Cleaner",       zone: "right",  icon: "brush", about: "Free up disk space" },
+    { id: "backup",        label: "Backups",       zone: "right",  icon: "shield", about: "Back up and restore files" },
+    { id: "virustotal",    label: "VirusTotal",    zone: "right",  icon: "scan", about: "Scan files, links and hashes" },
+    { id: "packages",      label: "Packages",      zone: "right",  icon: "package", about: "Check and install updates" },
+    { id: "display",       label: "Display",       zone: "right",  icon: "monitor", settings: "DisplaySettings.qml", about: "Scale and refresh rate" },
     { id: "windows",       label: "Windows",       zone: "right",  icon: "app-window", settings: "WindowsSettings.qml", about: "Window mode: tiling, floating, scrolling" },
     { id: "chat",          label: "Chat",          zone: "right",  icon: "message", settings: "ChatSettings.qml", about: "A chat with a free opencode model" },
-    { id: "folder",        label: "Folder",        zone: "right",  icon: "folder", settings: "FolderSettings.qml", about: "Modules tucked away, one click from the bar" }
+    { id: "folder",        label: "Folder",        zone: "right",  icon: "folder", settings: "FolderSettings.qml", about: "Grouped bar modules" }
   ]
+  // Stable semantic groups for the hub; custom ordering is retained within each.
+  function hubGroups(ids, layout) {
+    if (layout !== "grouped") return [{ label: "", ids: ids }];
+    const controls = ["language", "windows", "brightness", "audio", "battery", "wifi", "bluetooth"];
+    const appearance = ["wallpapers", "themes", "mode"];
+    return [
+      { label: "Controls", ids: ids.filter(id => controls.includes(id)) },
+      { label: "Appearance", ids: ids.filter(id => appearance.includes(id)) },
+      { label: "Tools", ids: ids.filter(id => !controls.includes(id) && !appearance.includes(id)) }
+    ].filter(group => group.ids.length > 0);
+  }
+
   readonly property var zones: ["left", "center", "right"]
 
   // Music sources a component can bring (`modules` of components.toml) that are not
@@ -173,6 +185,16 @@ Singleton {
 
   // Writes the monitor's entry, starting from what it shows now. Only the
   // two roles are kept.
+  // Capture effective fallbacks too: undo must also work before the first edit.
+  function snapshot(screen) {
+    return JSON.parse(JSON.stringify({
+      zones: entry(screen)?.zones ?? state.zones, hidden: hidden(screen),
+      folder: savedFolder(screen), off: !barOn(screen),
+      island: entry(screen)?.island ?? null, islandClock: islandClock(screen),
+      bars: entry(screen)?.bars ?? []
+    }));
+  }
+
   function update(screen, change) {
     const e = Object.assign({ zones: entry(screen)?.zones ?? state.zones, hidden: hidden(screen),
                               folder: inFolder(screen), off: !barOn(screen),
@@ -298,7 +320,11 @@ Singleton {
 
   function islandCustomized(screen) { return !!entry(screen)?.island; }
   function islandReset(screen) { update(screen, { island: null }); }
-  function islandCopy(from, to) { update(to, { island: islandLayout(from) }); }
+  function islandCopy(from, to) {
+    const layout = islandLayout(from);
+    // Copy the hidden bank too: missing hidden ids are treated as new modules.
+    update(to, { island: Object.assign({}, layout, { hidden: islandHidden(from) }) });
+  }
 
   // ---- child bars ----
   // Small bars that belong to a monitor's main bar (Shell Manager › Bar: the
@@ -315,8 +341,12 @@ Singleton {
   }
 
   function addBar(screen) {
-    const id = "bar" + Date.now().toString(36);
-    update(screen, { bars: barsOn(screen).concat([{ id: id, side: "right", place: "island", modules: [] }]) });
+    const existing = barsOn(screen);
+    const base = "bar" + Date.now().toString(36);
+    let id = base;
+    let suffix = 1;
+    while (existing.some(b => b.id === id)) id = base + "-" + suffix++;
+    update(screen, { bars: existing.concat([{ id: id, side: "right", place: "island", modules: [] }]) });
     return id;
   }
   function updateBar(screen, id, change) {

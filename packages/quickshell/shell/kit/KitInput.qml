@@ -1,13 +1,14 @@
 import QtQuick
 import qs.config
 
-// Outlined text field as a prompt: "❯", the text, a blinking block cursor. The
-// frame brightens on hover and while focused. The inner TextInput is exposed
+// Outlined text field: an optional icon (`icon`: search), the text, a thin
+// blinking cursor. The frame brightens on hover and while focused. The inner TextInput is exposed
 // as `input` for focus handling; `passKeys` go to keyPassed (list arrows).
 Rectangle {
   id: root
 
   property string placeholder: ""
+  property string icon: ""             // kit/icons name, before the text
   property alias text: textInput.text
   property alias input: textInput
   property alias echoMode: textInput.echoMode
@@ -30,28 +31,29 @@ Rectangle {
   Component.onCompleted: boxed = Theme.boxed(parent)
   color: Theme.material ? (textInput.activeFocus || hover.hovered ? Theme.hoverOn(boxed) : Theme.fillOn(boxed)) : Theme.clear
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
-  border.width: Theme.frameWidth
-  border.color: textInput.activeFocus || hover.hovered ? Theme.foreground2 : Theme.gray
+  border.width: textInput.activeFocus && !Theme.material ? Theme.focusWidth : Theme.frameWidth
+  border.color: textInput.activeFocus ? Theme.focusRing : hover.hovered ? Theme.controlLineHover : Theme.controlLine
   Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
   KitFieldLine { active: textInput.activeFocus }
 
   HoverHandler { id: hover; cursorShape: Qt.IBeamCursor }
 
-  KitText {
-    id: prompt
+  KitIcon {
+    id: lead
     anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
-    visible: !Theme.material
-    text: "❯"
-    color: textInput.activeFocus ? Theme.yellow : Theme.gray
+    visible: root.icon !== ""
+    name: root.icon
+    size: Theme.iconSmall
+    tint: textInput.activeFocus ? Theme.foreground0 : Theme.muted
   }
 
   TextInput {
     id: textInput
-    // a password stands in the middle of the field: the right margin matches the prompt's side
+    // a password stands in the middle of the field: the right margin matches the icon's side
     readonly property bool masked: echoMode === TextInput.Password
     readonly property bool centred: masked && root.centerMasked
-    anchors { left: Theme.material ? parent.left : prompt.right; leftMargin: Theme.material ? Theme.gapWide : Theme.gapMedium; right: parent.right; rightMargin: centred ? prompt.width + 18 : 10; top: parent.top; bottom: parent.bottom }
+    anchors { left: lead.visible ? lead.right : parent.left; leftMargin: lead.visible ? Theme.gapMedium : Theme.gapWide; right: parent.right; rightMargin: centred ? (lead.visible ? lead.width + 18 : Theme.gapWide) : 10; top: parent.top; bottom: parent.bottom }
     verticalAlignment: TextInput.AlignVCenter
     horizontalAlignment: centred ? TextInput.AlignHCenter : TextInput.AlignLeft
     leftPadding: centred ? font.letterSpacing : 0   // the spacing trails every square, the last one too
@@ -59,13 +61,14 @@ Rectangle {
     clip: true
     selectByMouse: true
     activeFocusOnTab: true
+    Accessible.name: root.placeholder || "Text input"
     selectionColor: Theme.background3
     selectedTextColor: Theme.foreground0
     font.family: Theme.fontFamily
     font.pixelSize: Theme.fontSize
-    font.weight: Font.DemiBold
+    font.weight: Font.Normal
     // a password: squares (or dots, Appearance) with air between them (lock screen, root prompt)
-    passwordCharacter: ShellSettings.passwordDots ? "•" : "■"
+    passwordCharacter: "•"
     font.letterSpacing: masked ? 4 : 0
     onTextEdited: root.textEdited()
     onAccepted: root.accepted()
@@ -76,8 +79,8 @@ Rectangle {
     }
 
     cursorDelegate: Rectangle {
-      // the terminal's block, or a thin bar in front of the placeholder (material)
-      width: Theme.material ? 2 : Math.round(Theme.fontSize * 0.6)
+      // a thin bar, in front of the placeholder
+      width: 2
       color: Theme.foreground0
       visible: textInput.activeFocus
 
@@ -93,7 +96,7 @@ Rectangle {
 
     KitText {
       anchors.fill: parent
-      visible: textInput.text === "" && (Theme.material || !textInput.activeFocus)
+      visible: textInput.text === ""
       text: root.placeholder
       elide: Text.ElideRight
       color: Theme.muted

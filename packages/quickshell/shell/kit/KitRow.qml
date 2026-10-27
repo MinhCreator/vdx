@@ -23,8 +23,8 @@ Item {
 
   width: parent ? parent.width : 0
   opacity: dimmed ? 0.4 : 1
-  implicitHeight: stacked ? text.implicitHeight + 8 + slot.height
-                          : Math.max(text.implicitHeight, slot.height)
+  implicitHeight: stacked ? text.implicitHeight + Theme.gapWide + slot.height
+                          : Math.max(Theme.rowHeight, text.implicitHeight, slot.height)
 
   Column {
     id: text
@@ -50,14 +50,14 @@ Item {
       color: Theme.muted
       elide: root.stacked ? Text.ElideNone : Text.ElideRight
       wrapMode: root.stacked ? Text.WordWrap : Text.NoWrap
-      font.pixelSize: Theme.fontSize - 2
+      font.pixelSize: Theme.fontSize - 1
     }
   }
 
   Row {
     id: slot
     anchors.right: parent.right
-    y: root.stacked ? text.height + 8 : (root.height - height) / 2
+    y: root.stacked ? text.height + Theme.gapWide : (root.height - height) / 2
     spacing: Theme.gapMedium
   }
 
