@@ -12,3 +12,5 @@ packages/opencode/node_modules
 # local machine state
 .theme
 .machine.toml
+# Claude Code's local project settings and hooks
+.claude/
