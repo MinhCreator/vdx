@@ -314,6 +314,11 @@ def shell_problems() -> list[str]:
     for sub in ("round", "round/solid"):
         have = {p.stem for p in (icons / sub).glob("*.svg")}
         out += [f"kit/icons/{n}.svg: no {sub}/ twin" for n in sorted(outline - have)]
+    # ...and its twins in the other sets (Appearance › Icons)
+    for sub in ("phosphor", "phosphor/solid", "lucide"):
+        have = {p.stem for p in (icons / sub).glob("*.svg")}
+        out += [f"kit/icons/{n}.svg: no {sub}/ twin" for n in sorted(outline - have)]
+        out += [f"kit/icons/{sub}/{n}.svg: no Material twin" for n in sorted(have - outline)]
     registry = SHELL / "apps" / "apps.json"
     apps = json.loads(registry.read_text()) if registry.is_file() else []
     uses = [(srel(p), n, no) for p, text in qml.items() for n, no in icon_uses(p, text)]

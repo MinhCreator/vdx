@@ -930,6 +930,12 @@
   "target": "appearance:shape"
  },
  {
+  "label": "Icon style",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:shape"
+ },
+ {
   "label": "Look",
   "hint": "",
   "where": "Lock screen",

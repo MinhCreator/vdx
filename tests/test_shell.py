@@ -70,6 +70,8 @@ class ShellProblems(unittest.TestCase):
     TREE = {
         "kit/icons/clock.svg": SVG, "kit/icons/solid/clock.svg": SVG,
         "kit/icons/round/clock.svg": SVG, "kit/icons/round/solid/clock.svg": SVG,
+        "kit/icons/lucide/clock.svg": SVG,
+        "kit/icons/phosphor/clock.svg": SVG, "kit/icons/phosphor/solid/clock.svg": SVG,
         "bar/BarLayout.qml": '{ id: "clock", label: "Clock" }\n',
         "bar/ModuleFaces.qml": "Component { id: clock; Clock {} }\n",
     }
@@ -80,6 +82,18 @@ class ShellProblems(unittest.TestCase):
     def test_an_icon_needs_its_rounded_twins(self):
         tree = {k: v for k, v in self.TREE.items() if k != "kit/icons/round/solid/clock.svg"}
         self.assertEqual(self.problems(tree), ["kit/icons/clock.svg: no round/solid/ twin"])
+
+    def test_an_icon_needs_its_lucide_twin(self):
+        tree = {k: v for k, v in self.TREE.items() if k != "kit/icons/lucide/clock.svg"}
+        self.assertEqual(self.problems(tree), ["kit/icons/clock.svg: no lucide/ twin"])
+
+    def test_an_icon_needs_its_phosphor_solid_twin(self):
+        tree = {k: v for k, v in self.TREE.items() if k != "kit/icons/phosphor/solid/clock.svg"}
+        self.assertEqual(self.problems(tree), ["kit/icons/clock.svg: no phosphor/solid/ twin"])
+
+    def test_a_set_has_no_icon_material_lacks(self):
+        tree = dict(self.TREE, **{"kit/icons/lucide/alarm.svg": self.SVG})
+        self.assertEqual(self.problems(tree), ["kit/icons/lucide/alarm.svg: no Material twin"])
 
     def test_a_module_needs_its_component_in_module_faces(self):
         tree = dict(self.TREE, **{"bar/ModuleFaces.qml": ""})

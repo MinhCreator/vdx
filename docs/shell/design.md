@@ -119,7 +119,12 @@ uses tonal layers and more spacious controls.
 - Key hints: `Super + S`; footers `key action · key action`, lowercase.
 - Icons: Material Symbols SVG in `kit/icons`, `fill="#ffffff"`; every icon
   has a filled twin of the same name in `solid/` and Rounded twins in
-  `round/` and `round/solid/` (Material names: `icons/material.txt`).
+  `round/` and `round/solid/` (Material names: `icons/material.txt`), Phosphor
+  twins in `phosphor/` and `phosphor/solid/` (`icons/phosphor.txt`, one set for
+  both corners), and a Lucide twin in `lucide/`, outline only,
+  `stroke="#ffffff"` (`icons/lucide.txt`).
+  Appearance › Icons picks the set; Lucide has no solid, so a state an icon shows
+  by `solid` also needs a tint.
 - Refactors keep the look; a new look is prototyped on one popup first.
 - Motion: every animation goes through `config/Motion.qml` — a Behavior takes
   `enabled: Motion.<part>` (popups, panels, controls, bar, pages, lock, island) and a

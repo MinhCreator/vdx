@@ -12,8 +12,8 @@ bar/           Bar (zones, child bars), ModuleFaces (the modules' Components), B
                island/ — Bar › Look › Shape island: the bar as one morphing pill, popups inside;
                IslandChild — a child bar's own island (Bar.popupHost picks one)
 modules/<id>/  bar modules: <Name>.qml, <Name>Popup.qml, <Name>Service.qml
-kit/           UI components, icons/ (outline, solid/), reply.js (a backend's JSON reply),
-               markup.js (an app's markup as plain text), colour.js (hex / HSV)
+kit/           UI components, icons/ (Material outline, solid/, round/; phosphor/,
+               lucide/), reply.js (a backend's JSON reply), markup.js (an app's markup as plain text), colour.js (hex / HSV)
 components/    Hypr (helpers), ShellIpc (the shell's own IPC from inside it), ScrimWindow,
                PopupManager, PopupCatcher, Separator, ThemeCurtain
 config/        Theme (the look only), Colors (from the active theme), Format (text of

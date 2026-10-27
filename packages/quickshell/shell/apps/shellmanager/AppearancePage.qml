@@ -21,7 +21,7 @@ KitSettingsWorkspace {
   function jump(key) {
     tab = key === "shape" ? "style" : ["style", "accent", "wallpaper"].includes(key) ? key : "style";
   }
-  readonly property var resetKeys: ["solidIcons", "wallpaperMode", "wallpaperColor", "wallpaperImages", "wallpaperOutputs", "corners", "cornerRadius", "cornerSplit", "cornerRadii", "material", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere"]
+  readonly property var resetKeys: ["iconSet", "solidIcons", "wallpaperMode", "wallpaperColor", "wallpaperImages", "wallpaperOutputs", "corners", "cornerRadius", "cornerSplit", "cornerRadii", "material", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere"]
   readonly property bool changed: ShellSettings.changed(resetKeys)
   function reset() { ShellSettings.reset(resetKeys); }
   readonly property bool customWallpaper: ShellSettings.wallpaperMode === "custom"

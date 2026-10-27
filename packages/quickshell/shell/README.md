@@ -153,6 +153,8 @@ All in Shell Manager › Appearance.
 - **Shape › Corners**: sharp, or round with one radius — popups, controls,
   the island, Hyprland's windows and mako follow, and the icons switch to
   Material Symbols Rounded.
+- **Shape › Icons**: Material Symbols or Phosphor (outline or solid), or Lucide
+  (outline only).
 - Password fields use dots; there is no separate appearance option.
 
 ## Settings

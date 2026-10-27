@@ -5,6 +5,7 @@ import Quickshell.Io
 // into one; a second, never written, gives the defaults (ShellSettings.reset).
 JsonAdapter {
   property int version: 0         // schema (scripts/settings_migrate.py stamps it)
+  property string iconSet: "material"
   property bool solidIcons: false
   property string managerStart: "main"
   property string managerTab: "appearance"

@@ -2,15 +2,32 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// Appearance › SHAPE, under the corners: outline or solid icons, for the whole
-// shell. The group's label lives in AppearancePage.
-Column {
+// Appearance › SHAPE, under the corners: the icon set for the whole shell —
+// Material or Phosphor (outline or solid), or Lucide (outline only). The group's label lives
+// in AppearancePage.
+KitColumn {
   spacing: Theme.gapGroup
 
   KitRow {
     wide: true
     label: "Icons"
     hint: "Bar, popups and windows"
+
+    KitSegments {
+      model: [
+        { label: "Material", value: "material" },
+        { label: "Phosphor", value: "phosphor" },
+        { label: "Lucide",   value: "lucide" }
+      ]
+      current: ShellSettings.iconSet
+      onPicked: value => ShellSettings.set("iconSet", value)
+    }
+  }
+
+  KitRow {
+    wide: true
+    visible: ShellSettings.iconSet !== "lucide"
+    label: "Icon style"
 
     KitSegments {
       model: [

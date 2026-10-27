@@ -2,11 +2,14 @@ import QtQuick
 import QtQuick.Effects
 import qs.config
 
-// An SVG icon from kit/icons (Material Symbols), recoloured to `tint`. The
-// files are drawn in white, so colorization maps them to any theme colour.
-// `solid` (the user's icon style, Shell Manager › Appearance, unless set) picks
-// the filled variant from icons/solid; round corners (Appearance › Corners) the
-// Rounded set in icons/round (names: icons/material.txt).
+// An SVG icon from kit/icons, recoloured to `tint`. The files are drawn in
+// white, so colorization maps them to any theme colour. The set is the user's
+// (Shell Manager › Appearance › Icons): Material Symbols, where `solid` (the
+// user's style unless set) picks the filled variant from icons/solid and round
+// corners (Appearance › Corners) the Rounded set in icons/round (names:
+// icons/material.txt); Phosphor in icons/phosphor, `solid` from phosphor/solid,
+// one set for both corners (icons/phosphor.txt); or Lucide in icons/lucide,
+// outline only (icons/lucide.txt).
 Item {
   id: root
 
@@ -26,6 +29,8 @@ Item {
     id: image
     anchors.fill: parent
     source: root.name === "" ? ""
+      : ShellSettings.iconSet === "lucide" ? Qt.resolvedUrl("icons/lucide/" + root.name + ".svg")
+      : ShellSettings.iconSet === "phosphor" ? Qt.resolvedUrl("icons/phosphor/" + (root.solid ? "solid/" : "") + root.name + ".svg")
       : Qt.resolvedUrl("icons/" + (Theme.round ? "round/" : "") + (root.solid ? "solid/" : "") + root.name + ".svg")
     sourceSize { width: root.implicitWidth * 2; height: root.implicitHeight * 2 }
     smooth: true

@@ -10,7 +10,8 @@ import Quickshell.Io
 Singleton {
   id: root
 
-  readonly property bool solidIcons: state.solidIcons
+  readonly property string iconSet: state.iconSet                 // material | phosphor | lucide (Appearance › Shape)
+  readonly property bool solidIcons: state.solidIcons             // Material and Phosphor: the filled twins
   readonly property string managerStart: state.managerStart        // main | last: the page the Shell Manager opens on
   readonly property string managerTab: state.managerTab            // the page it was left on
   readonly property string font: state.font                       // family, kept in step with fontconfig
