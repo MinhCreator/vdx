@@ -9,8 +9,7 @@ Rules without a keyword are MUST; new rules say MUST / SHOULD / MAY.
 
 Minimal, monospace, near-monochrome. Two visual languages share the same
 components and settings: Strict uses outlines and quiet surfaces; Material 3
-uses tonal layers and more spacious controls. Audit and validation:
-[redesign.md](redesign.md).
+uses tonal layers and more spacious controls.
 
 - Corners: Appearance › Shape › Corners (sharp | round + one radius). A radius is
   always a token: `Theme.radiusSurface` (popups, windows, panels),
@@ -191,7 +190,7 @@ Pages by the user's area; the look follows macOS System Settings.
   back), right of the page's or item's header; disabled while nothing differs
   from the defaults.
 - MUST — colour choice: named colours → `KitSwatches`; a free colour →
-  `KitColourField` + `KitColourPicker`.
+  `KitColourPicker`.
 - MUST — error: a failed apply shows red `KitText` under the group that failed,
   wrapped, `Theme.fontSize - 1`; it clears on the next success.
 - MUST — pending: an apply that runs (install, reload) shows `busy` on its

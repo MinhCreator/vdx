@@ -213,7 +213,7 @@ HYPRLAND_INSTANCE_SIGNATURE=$(ls /run/user/$UID/hypr | tail -1) \
 UI validation: `python tests/check_shell_ui.py` from the repo root runs the
 kit's keyboard, disabled-state, contrast and responsive-row checks offscreen.
 Its Quickshell clipping substitute does not verify GPU rendering; check the
-live shell too. Design audit: [redesign.md](../../../docs/shell/redesign.md).
+live shell too.
 
 Bar settings separate General, Modules and Hub. General combines visual
 Solid / Island mode cards with appearance and monitor settings. Click a module to choose its destination and order, or
