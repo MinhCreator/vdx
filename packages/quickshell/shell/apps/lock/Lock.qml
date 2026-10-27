@@ -52,6 +52,7 @@ Scope {
   function snapshot(name) { return name !== "" ? "file://" + snapshotDir + "/" + name + ".jpg" : ""; }
 
   function lock() {
+    console.warn("lock: asked for (ipc call lock lock)" + (sessionLock.locked || shot.running ? ", already locking" : ""));
     if (sessionLock.locked || shot.running) return;
     if (ModuleSettings.get("lock", "background", "solid") !== "blur") { sessionLock.locked = true; return; }
     shot.command = ["bash", "-c", "umask 077; d=$1; shift; mkdir -p \"$d\"; for m; do grim -t jpeg -q 85 -o \"$m\" \"$d/$m.jpg\" & done; wait",
@@ -87,7 +88,11 @@ Scope {
   Process {
     id: readMark
     command: ["bash", "-c", "[ -n \"$2\" ] && [ \"$(cat \"$1\" 2>/dev/null)\" = \"$2\" ]", "lock", root.marker, root.session]
-    onExited: code => { if (code === 0) sessionLock.locked = true; else cleanup.running = true; }
+    onExited: code => {
+      console.warn("lock: marker of this session " + (code === 0 ? "found, locking again after a restart" : "not found"));
+      if (code === 0) sessionLock.locked = true;
+      else { persist.locked = false; cleanup.running = true; }
+    }
   }
 
   PersistentProperties {
@@ -98,7 +103,9 @@ Scope {
 
     onLoaded: {
       if (!started) { started = true; readMark.running = true; }
-      else if (locked) sessionLock.locked = true;
+      // the flag can outlive an unlock: only the marker (kept while locked) says the screen was
+      // really locked, else every reload would lock a free screen again
+      else if (locked) readMark.running = true;
       // not locked before, not now (WlSessionLock is Reloadable: whatever
       // it carried over is put right)
       else { sessionLock.locked = false; cleanup.running = true; }
@@ -168,6 +175,7 @@ Scope {
     id: sessionLock
 
     onLockedChanged: {
+      console.warn("lock: sessionLock.locked -> " + locked);
       persist.locked = locked;
       if (!locked) { cleanup.running = true; return; }
       mark.running = true;
