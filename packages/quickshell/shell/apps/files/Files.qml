@@ -377,7 +377,7 @@ Item {
     Column {
       id: brand
       anchors { left: parent.left; leftMargin: root.padding; right: parent.right; top: parent.top; topMargin: root.padding - Theme.headerInset }
-      spacing: Theme.gapGroup
+      spacing: Theme.sectionGap
 
       KitHeader {
         icon: "folder"
@@ -401,11 +401,10 @@ Item {
   }
 
   // the line between the panes, and the strip on it: drag it to resize the sidebar
-  Rectangle {
+  KitLine {
     visible: sidePane.visible
     anchors { left: sidePane.right; top: parent.top; bottom: parent.bottom }
-    width: 1
-    color: Theme.background3
+    vertical: true
   }
   FilesSplit {
     visible: sidePane.visible
@@ -647,30 +646,6 @@ Item {
     ];
   }
 
-  // ---- properties of a file: the panel (Menu › Properties) ----
-  // the keys, for F1
-  readonly property var keyRows: [
-    { key: "enter", action: "open, or pick in a picker" },
-    { key: "backspace", action: "the folder above" },
-    { key: "alt + ← →", action: "back and forward" },
-    { key: "↑ ↓ (grid: ← →)", action: "move; with shift, extend" },
-    { key: "Ctrl + A, C, X, V", action: "select all, copy, cut, paste" },
-    { key: "Ctrl + Z / Shift + Z", action: "undo, redo" },
-    { key: "Delete", action: "move to trash" },
-    { key: "Shift + Delete", action: "delete for good" },
-    { key: "F2", action: "rename" },
-    { key: "Ctrl + N / D", action: "new folder, pin this folder" },
-    { key: "Ctrl + S", action: "star or unstar" },
-    { key: "a letter", action: "jump to a name" },
-    { key: "Ctrl + F", action: "focus the search" },
-    { key: "Ctrl + K", action: "search all of Home, or this folder" },
-    { key: "Ctrl + H / G", action: "hidden files, grid view" },
-    { key: "Ctrl + L", action: "type a path" },
-    { key: "space", action: "show or hide the preview" },
-    { key: "f5", action: "read the folder again" },
-    { key: "esc", action: "clear, close" },
-  ]
-
   // a click off the panels closes them
   MouseArea {
     anchors.fill: parent
@@ -680,80 +655,18 @@ Item {
     onPressed: { FilesService.closeInfo(); root.helpOpen = false; }
   }
 
-  KitFrame {
-    id: infoCard
+  FilesInfoCard {
     z: 28
     width: 380
     anchors.centerIn: parent
     visible: FilesService.panel !== null
-
-    KitHeader {
-      icon: "info"
-      title: FilesService.panel ? FilesService.panel.title : ""
-      subtitle: FilesService.panel ? FilesService.panel.subtitle : ""
-    }
-
-    KitLine {}
-
-    Repeater {
-      model: FilesService.panel ? FilesService.panel.rows : []
-
-      Row {
-        required property var modelData
-        width: infoCard.width - 2 * infoCard.padding
-        spacing: Theme.gapMedium
-
-        KitText {
-          width: 96
-          text: modelData.label
-          color: Theme.muted
-          font.pixelSize: Theme.fontSize - 1
-        }
-
-        KitText {
-          width: parent.width - 96 - parent.spacing
-          text: modelData.value
-          wrapMode: Text.WrapAnywhere
-          font.pixelSize: Theme.fontSize - 1
-        }
-      }
-    }
   }
 
-  // ---- the keys (F1) ----
-  KitFrame {
-    id: helpCard
+  FilesKeysCard {
     z: 28
     width: 400
     anchors.centerIn: parent
     visible: root.helpOpen
-
-    KitHeader { icon: "keyboard"; title: "Keys" }
-
-    KitLine {}
-
-    Repeater {
-      model: root.keyRows
-
-      Row {
-        required property var modelData
-        width: helpCard.width - 2 * helpCard.padding
-        spacing: Theme.gapMedium
-
-        KitText {
-          width: 150
-          text: modelData.key
-          font.pixelSize: Theme.fontSize - 1
-        }
-
-        KitText {
-          width: parent.width - 150 - parent.spacing
-          text: modelData.action
-          color: Theme.muted
-          font.pixelSize: Theme.fontSize - 1
-        }
-      }
-    }
   }
 
   // a click off the menu closes it

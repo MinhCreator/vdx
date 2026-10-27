@@ -58,7 +58,7 @@ Item {
     Column {
       id: list
       anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.gapTight }
-      spacing: Theme.gapHair
+      spacing: Theme.sectionGap
 
       KitText {
         visible: root.title !== ""

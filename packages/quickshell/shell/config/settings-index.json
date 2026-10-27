@@ -6,10 +6,10 @@
   "target": "appearance"
  },
  {
-  "label": "Style",
+  "label": "Appearance",
   "hint": "",
   "where": "Appearance",
-  "target": "appearance:style"
+  "target": "appearance"
  },
  {
   "label": "Shape",
@@ -18,22 +18,16 @@
   "target": "appearance:shape"
  },
  {
-  "label": "Style",
-  "hint": "Material: filled, no frames",
-  "where": "Appearance › STYLE",
-  "target": "appearance:style"
+  "label": "Colour mode",
+  "hint": "",
+  "where": "Appearance › APPEARANCE",
+  "target": "appearance"
  },
  {
-  "label": "Mode",
-  "hint": "The theme's light or dark twin",
-  "where": "Appearance › STYLE",
-  "target": "appearance:style"
- },
- {
-  "label": "Typed characters",
-  "hint": "In every password field",
-  "where": "Appearance › STYLE",
-  "target": "appearance:style"
+  "label": "Interface style",
+  "hint": "",
+  "where": "Appearance › APPEARANCE",
+  "target": "appearance"
  },
  {
   "label": "Themes",
@@ -48,28 +42,34 @@
   "target": "fonts"
  },
  {
-  "label": "Text",
+  "label": "Preview",
   "hint": "",
   "where": "Fonts",
-  "target": "fonts"
+  "target": "fonts:preview"
  },
  {
-  "label": "Font",
+  "label": "Families",
   "hint": "",
   "where": "Fonts",
-  "target": "fonts"
+  "target": "fonts:families"
  },
  {
   "label": "Text size",
-  "hint": "The shell's own text",
-  "where": "Fonts › TEXT",
-  "target": "fonts"
+  "hint": "",
+  "where": "Fonts",
+  "target": "fonts:size"
+ },
+ {
+  "label": "Text size",
+  "hint": "Shell text and controls",
+  "where": "Fonts › TEXT SIZE",
+  "target": "fonts:size"
  },
  {
   "label": "GTK apps text",
   "hint": "Applied at once, GTK only",
-  "where": "Fonts › TEXT",
-  "target": "fonts"
+  "where": "Fonts › TEXT SIZE",
+  "target": "fonts:size"
  },
  {
   "label": "Cursor",
@@ -81,37 +81,37 @@
   "label": "Preview",
   "hint": "",
   "where": "Cursor",
-  "target": "cursor"
+  "target": "cursor:preview"
  },
  {
   "label": "Style",
   "hint": "",
   "where": "Cursor",
-  "target": "cursor"
+  "target": "cursor:style"
  },
  {
-  "label": "Cursors",
+  "label": "Cursor themes",
   "hint": "",
   "where": "Cursor",
-  "target": "cursor"
+  "target": "cursor:themes"
  },
  {
   "label": "Use ",
   "hint": "",
   "where": "Cursor › PREVIEW",
-  "target": "cursor"
+  "target": "cursor:preview"
  },
  {
   "label": "Colour",
   "hint": "",
   "where": "Cursor › STYLE",
-  "target": "cursor"
+  "target": "cursor:style"
  },
  {
   "label": "Size",
-  "hint": "Pixels at scale 1, applied at once",
+  "hint": "Pixels at scale 1; Apply to use",
   "where": "Cursor › STYLE",
-  "target": "cursor"
+  "target": "cursor:style"
  },
  {
   "label": "Animations",
@@ -222,82 +222,148 @@
   "target": "bar:monitor"
  },
  {
-  "label": "Layout",
+  "label": "Hub",
   "hint": "",
   "where": "Bar",
-  "target": "bar:layout"
+  "target": "bar:hub"
  },
  {
-  "label": "Shape",
-  "hint": "Strip, or a morphing pill",
+  "label": "Content",
+  "hint": "",
+  "where": "Bar",
+  "target": "bar:sliders"
+ },
+ {
+  "label": "Editing monitor",
+  "hint": "Off and nothing beside it: hidden",
+  "where": "Bar",
+  "target": "bar"
+ },
+ {
+  "label": "Clock",
+  "hint": "Off and nothing beside it: hidden",
+  "where": "Bar",
+  "target": "bar"
+ },
+ {
+  "label": "Bar style",
+  "hint": "Each style remembers its own layout",
   "where": "Bar › LOOK",
   "target": "bar:look"
  },
  {
   "label": "Icon size",
-  "hint": "Bar icons; kept for each shape",
+  "hint": "Lines between neighbouring modules",
   "where": "Bar › LOOK",
   "target": "bar:look"
  },
  {
   "label": "Module gap",
-  "hint": "Kept for each shape",
+  "hint": "Lines between neighbouring modules",
   "where": "Bar › LOOK",
   "target": "bar:look"
  },
  {
   "label": "Separators",
-  "hint": "Automatic line between modules",
+  "hint": "Lines between neighbouring modules",
   "where": "Bar › LOOK",
   "target": "bar:look"
  },
  {
-  "label": "Open the hub",
-  "hint": "Hover or click the clock",
-  "where": "Bar › BEHAVIOUR",
-  "target": "bar:behaviour"
- },
- {
-  "label": "Show the player",
-  "hint": "Off: chips only",
-  "where": "Bar › BEHAVIOUR",
-  "target": "bar:behaviour"
- },
- {
   "label": "Right click opens options",
-  "hint": "On any bar module",
+  "hint": "Open a bar module's settings",
   "where": "Bar › BEHAVIOUR",
   "target": "bar:behaviour"
  },
  {
-  "label": "Main monitor",
-  "hint": "Automatic: the external one",
+  "label": "Island clock",
+  "hint": "Keep the clock visible in the resting bar",
+  "where": "Bar › BEHAVIOUR",
+  "target": "bar:behaviour"
+ },
+ {
+  "label": "Show bar",
+  "hint": "Share the main monitor's layout",
   "where": "Bar › MONITOR",
   "target": "bar:monitor"
  },
  {
   "label": "Same bar everywhere",
+  "hint": "Share the main monitor's layout",
+  "where": "Bar › MONITOR",
+  "target": "bar:monitor"
+ },
+ {
+  "label": "Main monitor",
+  "hint": "Automatic prefers an external monitor",
+  "where": "Bar › MONITOR",
+  "target": "bar:monitor"
+ },
+ {
+  "label": "Copy layout",
   "hint": "",
   "where": "Bar › MONITOR",
   "target": "bar:monitor"
  },
  {
-  "label": "Show bar",
-  "hint": "",
-  "where": "Bar › MONITOR",
-  "target": "bar:monitor"
+  "label": "Enable Island",
+  "hint": "The hub opens from the island clock",
+  "where": "Bar › HUB",
+  "target": "bar:hub"
  },
  {
-  "label": "Island clock",
-  "hint": "Off: island hides when empty",
-  "where": "Bar › MONITOR",
-  "target": "bar:monitor"
+  "label": "Open the hub",
+  "hint": "Shown when media is available",
+  "where": "Bar › HUB",
+  "target": "bar:hub"
  },
  {
-  "label": "Separator",
+  "label": "Hub width",
+  "hint": "Shown when media is available",
+  "where": "Bar › HUB",
+  "target": "bar:hub"
+ },
+ {
+  "label": "Avatar",
+  "hint": "Shown when media is available",
+  "where": "Bar › HUB",
+  "target": "bar:hub"
+ },
+ {
+  "label": "Media player",
+  "hint": "Shown when media is available",
+  "where": "Bar › CONTENT",
+  "target": "bar:sliders"
+ },
+ {
+  "label": "Volume slider",
   "hint": "",
-  "where": "Bar › LAYOUT",
-  "target": "bar:layout"
+  "where": "Bar › CONTENT",
+  "target": "bar:sliders"
+ },
+ {
+  "label": "Microphone slider",
+  "hint": "",
+  "where": "Bar › CONTENT",
+  "target": "bar:sliders"
+ },
+ {
+  "label": "Brightness slider",
+  "hint": "",
+  "where": "Bar › CONTENT",
+  "target": "bar:sliders"
+ },
+ {
+  "label": "Dimming slider",
+  "hint": "",
+  "where": "Bar › CONTENT",
+  "target": "bar:sliders"
+ },
+ {
+  "label": "Hub modules",
+  "hint": "",
+  "where": "Bar › CONTENT",
+  "target": "bar:sliders"
  },
  {
   "label": "Windows",
@@ -396,6 +462,12 @@
   "target": "windows:look"
  },
  {
+  "label": "Window corners",
+  "hint": "In Appearance › Shape",
+  "where": "Windows › LOOK",
+  "target": "windows:look"
+ },
+ {
   "label": "Network",
   "hint": "",
   "where": "",
@@ -424,18 +496,6 @@
   "hint": "",
   "where": "Network",
   "target": "network:new"
- },
- {
-  "label": "Hotspot",
-  "hint": "",
-  "where": "Network",
-  "target": "network"
- },
- {
-  "label": "Ethernet",
-  "hint": "",
-  "where": "Network",
-  "target": "network"
  },
  {
   "label": "Wi-Fi",
@@ -544,90 +604,6 @@
   "hint": "",
   "where": "Network › OTHER",
   "target": "network:new"
- },
- {
-  "label": "Hotspot",
-  "hint": "",
-  "where": "Network › HOTSPOT",
-  "target": "network"
- },
- {
-  "label": "Name",
-  "hint": "The network the phones see",
-  "where": "Network › HOTSPOT",
-  "target": "network"
- },
- {
-  "label": "Password",
-  "hint": "8 characters or more",
-  "where": "Network › HOTSPOT",
-  "target": "network"
- },
- {
-  "label": "Channel",
-  "hint": "Auto picks a free one",
-  "where": "Network › HOTSPOT",
-  "target": "network"
- },
- {
-  "label": "Wired",
-  "hint": "Off until you connect again",
-  "where": "Network › ETHERNET",
-  "target": "network"
- },
- {
-  "label": "Connect automatically",
-  "hint": "Joins when the cable is in",
-  "where": "Network › ETHERNET",
-  "target": "network"
- },
- {
-  "label": "Addressing",
-  "hint": "Manual: a fixed address",
-  "where": "Network › ETHERNET",
-  "target": "network"
- },
- {
-  "label": "Address",
-  "hint": "Address and prefix",
-  "where": "Network › ETHERNET",
-  "target": "network"
- },
- {
-  "label": "Gateway",
-  "hint": "Press Enter to apply",
-  "where": "Network › ETHERNET",
-  "target": "network"
- },
- {
-  "label": "DNS",
-  "hint": "Applies now while connected",
-  "where": "Network › ETHERNET",
-  "target": "network"
- },
- {
-  "label": "IPv6",
-  "hint": "Off: IPv4 only",
-  "where": "Network › ETHERNET",
-  "target": "network"
- },
- {
-  "label": "Metered",
-  "hint": "Yes: apps save data",
-  "where": "Network › ETHERNET",
-  "target": "network"
- },
- {
-  "label": "Speed",
-  "hint": "",
-  "where": "Network › ETHERNET",
-  "target": "network"
- },
- {
-  "label": "MAC",
-  "hint": "",
-  "where": "Network › ETHERNET",
-  "target": "network"
  },
  {
   "label": "Bluetooth",
@@ -828,13 +804,13 @@
   "target": "about:system"
  },
  {
-  "label": "Accent",
+  "label": "Accent colour",
   "hint": "",
   "where": "Appearance",
   "target": "appearance:accent"
  },
  {
-  "label": "Applies to",
+  "label": "Use accent on",
   "hint": "",
   "where": "Appearance",
   "target": "appearance:accent"
@@ -871,14 +847,8 @@
  },
  {
   "label": "Accent",
-  "hint": "Off: monochrome",
-  "where": "Appearance › ACCENT",
-  "target": "appearance:accent"
- },
- {
-  "label": "Fill",
-  "hint": "",
-  "where": "Appearance › ACCENT",
+  "hint": "Highlight active controls across the shell",
+  "where": "Appearance › ACCENT COLOUR",
   "target": "appearance:accent"
  },
  {
@@ -889,12 +859,6 @@
  },
  {
   "label": "Source",
-  "hint": "",
-  "where": "Appearance › WALLPAPER",
-  "target": "appearance:wallpaper"
- },
- {
-  "label": "Colour",
   "hint": "",
   "where": "Appearance › WALLPAPER",
   "target": "appearance:wallpaper"
@@ -1044,37 +1008,7 @@
   "target": "lockscreen"
  },
  {
-  "label": "Password",
-  "hint": "",
-  "where": "Lock screen",
-  "target": "lockscreen"
- },
- {
-  "label": "Typed characters",
-  "hint": "In Appearance › Style",
-  "where": "Lock screen › PASSWORD",
-  "target": "lockscreen"
- },
- {
-  "label": "Bar",
-  "hint": "",
-  "where": "Notifications",
-  "target": "notifications"
- },
- {
-  "label": "Bell",
-  "hint": "",
-  "where": "Notifications",
-  "target": "notifications"
- },
- {
-  "label": "Unseen dot",
-  "hint": "",
-  "where": "Notifications",
-  "target": "notifications"
- },
- {
-  "label": "Toasts",
+  "label": "Delivery",
   "hint": "",
   "where": "Notifications",
   "target": "notifications"
@@ -1086,27 +1020,15 @@
   "target": "notifications"
  },
  {
-  "label": "Bell badge",
-  "hint": "Off: the bell only tints",
-  "where": "Notifications › BELL",
-  "target": "notifications"
- },
- {
-  "label": "Show the dot",
-  "hint": "On the Folder, or the island's pill, while the centre is tucked away",
-  "where": "Notifications › UNSEEN DOT",
-  "target": "notifications"
- },
- {
-  "label": "Dot colour",
-  "hint": "Theme: the text colour",
-  "where": "Notifications › UNSEEN DOT",
+  "label": "Bar indicators",
+  "hint": "",
+  "where": "Notifications",
   "target": "notifications"
  },
  {
   "label": "Toast duration",
   "hint": "Stay: until dismissed. Critical always stays",
-  "where": "Notifications › TOASTS",
+  "where": "Notifications › DELIVERY",
   "target": "notifications"
  },
  {
@@ -1119,6 +1041,24 @@
   "label": "Close after clear",
   "hint": "Off: the popup stays open",
   "where": "Notifications › HISTORY",
+  "target": "notifications"
+ },
+ {
+  "label": "Bell badge",
+  "hint": "Off: the bell only tints",
+  "where": "Notifications › BAR INDICATORS",
+  "target": "notifications"
+ },
+ {
+  "label": "Show the dot",
+  "hint": "On the Folder, or the island's pill, while the centre is tucked away",
+  "where": "Notifications › BAR INDICATORS",
+  "target": "notifications"
+ },
+ {
+  "label": "Dot colour",
+  "hint": "Theme: the text colour",
+  "where": "Notifications › BAR INDICATORS",
   "target": "notifications"
  },
  {
@@ -1141,7 +1081,7 @@
  },
  {
   "label": "Music",
-  "hint": "What plays now: Yandex Music, your files, radio, any player",
+  "hint": "Players, local music and radio",
   "where": "Bar modules",
   "target": "modules:music"
  },
@@ -1225,7 +1165,7 @@
  },
  {
   "label": "Themes",
-  "hint": "Switch the dotfiles theme from a strip of cards",
+  "hint": "Switch theme",
   "where": "Bar modules",
   "target": "modules:themes"
  },
@@ -1279,7 +1219,7 @@
  },
  {
   "label": "Tray",
-  "hint": "Status icons of running apps · right click: their menu",
+  "hint": "App status icons",
   "where": "Bar modules",
   "target": "modules:tray"
  },
@@ -1297,7 +1237,7 @@
  },
  {
   "label": "Mode",
-  "hint": "Light or dark: a click switches the theme to its twin",
+  "hint": "Switch light or dark mode",
   "where": "Bar modules",
   "target": "modules:mode"
  },
@@ -1309,7 +1249,7 @@
  },
  {
   "label": "Wallpapers",
-  "hint": "Pick the picture of the theme from a strip of cards",
+  "hint": "Choose a wallpaper",
   "where": "Bar modules",
   "target": "modules:wallpapers"
  },
@@ -1363,7 +1303,7 @@
  },
  {
   "label": "Equalizer",
-  "hint": "The sound as bars while a track plays",
+  "hint": "Audio visualizer",
   "where": "Bar modules",
   "target": "modules:equalizer"
  },
@@ -1495,7 +1435,7 @@
  },
  {
   "label": "Bluetooth",
-  "hint": "Devices: connect, pair, forget · battery",
+  "hint": "Pair and manage devices",
   "where": "Bar modules",
   "target": "modules:bluetooth"
  },
@@ -1561,7 +1501,7 @@
  },
  {
   "label": "AI",
-  "hint": "Claude Code limits, local Ollama models",
+  "hint": "AI limits and local models",
   "where": "Bar modules",
   "target": "modules:ai"
  },
@@ -1579,7 +1519,7 @@
  },
  {
   "label": "Shell",
-  "hint": "Shell Manager: options, modules, layout",
+  "hint": "Shell settings and layout",
   "where": "Bar modules",
   "target": "modules:shell"
  },
@@ -1591,13 +1531,13 @@
  },
  {
   "label": "Capture",
-  "hint": "Screenshots and screen recording · the app",
+  "hint": "Screenshots and recordings",
   "where": "Bar modules",
   "target": "modules:capture"
  },
  {
   "label": "Clipboard",
-  "hint": "Copy history, images to drag out",
+  "hint": "Clipboard history and images",
   "where": "Bar modules",
   "target": "modules:clipboard"
  },
@@ -1687,37 +1627,37 @@
  },
  {
   "label": "Task Manager",
-  "hint": "Load and the busiest programs · Ctrl + Shift + Esc: the full window",
+  "hint": "Processes and resource usage",
   "where": "Bar modules",
   "target": "modules:taskmanager"
  },
  {
   "label": "Cleaner",
-  "hint": "What can go, the safe part in one click · Super + X: the full window",
+  "hint": "Free up disk space",
   "where": "Bar modules",
   "target": "modules:cleaner"
  },
  {
   "label": "Backups",
-  "hint": "Last backup, back up now, the restore guide · the full window",
+  "hint": "Back up and restore files",
   "where": "Bar modules",
   "target": "modules:backup"
  },
  {
   "label": "VirusTotal",
-  "hint": "A hash, URL or file checked against VirusTotal",
+  "hint": "Scan files, links and hashes",
   "where": "Bar modules",
   "target": "modules:virustotal"
  },
  {
   "label": "Packages",
-  "hint": "Pending updates, one click to update · the full window",
+  "hint": "Check and install updates",
   "where": "Bar modules",
   "target": "modules:packages"
  },
  {
   "label": "Display",
-  "hint": "Monitor scale, refresh rate and text size · Displays in settings",
+  "hint": "Scale and refresh rate",
   "where": "Bar modules",
   "target": "modules:display"
  },
@@ -1795,7 +1735,7 @@
  },
  {
   "label": "Folder",
-  "hint": "Modules tucked away, one click from the bar",
+  "hint": "Grouped bar modules",
   "where": "Bar modules",
   "target": "modules:folder"
  },
@@ -1819,7 +1759,7 @@
  },
  {
   "label": "Shell Manager",
-  "hint": "The shell's settings: this window",
+  "hint": "Shell settings",
   "where": "Apps",
   "target": "apps:shell-manager"
  },
@@ -1837,7 +1777,7 @@
  },
  {
   "label": "Launcher",
-  "hint": "The system menu: its tabs, apps, windows and more",
+  "hint": "Find apps and windows",
   "where": "Apps",
   "target": "apps:launcher"
  },
@@ -2131,7 +2071,7 @@
  },
  {
   "label": "Clipboard",
-  "hint": "Copy history, images to drag out",
+  "hint": "Clipboard history and images",
   "where": "Apps",
   "target": "apps:clipboard"
  },
@@ -2197,7 +2137,7 @@
  },
  {
   "label": "Packages",
-  "hint": "Updates, installed packages, cache and rollback",
+  "hint": "Packages, updates and rollback",
   "where": "Apps",
   "target": "apps:packages"
  },
@@ -2311,7 +2251,7 @@
  },
  {
   "label": "VirusTotal",
-  "hint": "A hash, URL or file checked against VirusTotal",
+  "hint": "Scan files, links and hashes",
   "where": "Apps",
   "target": "apps:virustotal"
  },
@@ -2383,7 +2323,7 @@
  },
  {
   "label": "Files",
-  "hint": "Browse, copy, move, search and the trash",
+  "hint": "Browse and manage files",
   "where": "Apps",
   "target": "apps:files"
  },
@@ -2683,7 +2623,7 @@
  },
  {
   "label": "Backups",
-  "hint": "Encrypted snapshots of home, /etc and the package list; restore",
+  "hint": "Encrypted backups and restore",
   "where": "Apps",
   "target": "apps:backup"
  },
@@ -2695,7 +2635,7 @@
  },
  {
   "label": "Capture",
-  "hint": "Screenshots and recordings, a library",
+  "hint": "Screenshots and recordings",
   "where": "Apps",
   "target": "apps:capture"
  },
@@ -2803,7 +2743,7 @@
  },
  {
   "label": "Music",
-  "hint": "The player: now playing, the queue; Yandex Music, your files and radio when installed",
+  "hint": "Music player and queue",
   "where": "Apps",
   "target": "apps:music"
  }

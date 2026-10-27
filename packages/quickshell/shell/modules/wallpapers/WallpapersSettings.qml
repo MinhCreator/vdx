@@ -6,7 +6,7 @@ import qs.kit
 // Wallpapers options in the Shell Manager: what the bar shows, how the popup
 // looks and how it is driven.
 Column {
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "wallpapers" }

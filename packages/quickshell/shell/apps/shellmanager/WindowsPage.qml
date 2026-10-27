@@ -9,6 +9,9 @@ import qs.modules.windows
 // Applied at once: Hyprland reloads.
 KitColumn {
   id: root
+  property string tab: "layout"
+  readonly property var tabs: [{ label: "Layout", value: "layout" }, { label: "Appearance", value: "look" }]
+  function jump(key) { tab = key === "look" ? "look" : "layout"; }
 
   readonly property var ws: WindowsService
   readonly property var o: WindowsService.opts
@@ -24,10 +27,13 @@ KitColumn {
   readonly property var jumps: [
     { key: "layout", label: "Layout", y: layoutGroup.y },
     { key: "look",   label: "Look",   y: lookGroup.y }
-  ]
+  ].filter(j => j.key === tab)
 
   function pct(v) { return Math.round(v * 100) + "%"; }
 
+  Column {
+    width: parent.width
+    visible: root.tab === "layout"
   // ---- layout: the mode, then its own options ----
   KitLabel { id: layoutGroup; text: "LAYOUT" }
 
@@ -141,6 +147,13 @@ KitColumn {
     }
   }
 
+    KitGrouper {}
+  }
+  Column {
+  spacing: Theme.sectionGap
+
+    width: parent.width
+    visible: root.tab !== "layout"
   // ---- look ----
   KitLine {}
 
@@ -197,5 +210,13 @@ KitColumn {
     }
   }
 
+  KitLinkRow {
+    label: "Window corners"
+    hint: "In Appearance › Shape"
+    target: "appearance:shape"
+  }
+
+    KitGrouper {}
+  }
   KitGrouper {}
 }

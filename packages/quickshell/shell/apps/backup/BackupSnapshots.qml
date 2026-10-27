@@ -36,7 +36,7 @@ Item {
     KitColumn {
       id: column
       width: parent.width
-      spacing: Theme.gapGroup
+      spacing: Theme.sectionGap
 
       BackupNote {
         visible: !bs.configured

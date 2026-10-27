@@ -10,6 +10,9 @@ import qs.kit
 // scripts/settings_io.py) and a forced restart of the shell.
 Column {
   id: root
+  property string tab: "system"
+  readonly property var tabs: [{ label: "System", value: "system" }, { label: "Settings", value: "settings" }, { label: "About", value: "about" }]
+  function jump(key) { tab = key === "settings" || key === "system" ? key : "about"; }
 
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "info"
@@ -23,7 +26,7 @@ Column {
     { key: "author",     label: "Author",     y: author.y },
     { key: "settings",   label: "Settings",   y: settings.y },
     { key: "system",     label: "System",     y: system.y }
-  ]
+  ].filter(j => tab === "about" ? !["settings", "system"].includes(j.key) : j.key === tab)
 
   property var versions: ({})
   property string ioStatus: ""                 // the last export, on the group's label
@@ -77,6 +80,10 @@ Column {
     lineHeight: 1.15
   }
 
+  Column {
+  spacing: Theme.sectionGap
+
+    width: parent.width; visible: root.tab === "about"
   // ---- philosophy ----
   KitLabel { id: philosophy; text: "PHILOSOPHY" }
 
@@ -131,6 +138,12 @@ Column {
 
   KitLine {}
 
+    KitGrouper {}
+  }
+  Column {
+  spacing: Theme.sectionGap
+
+    width: parent.width; visible: root.tab === "settings"
   // ---- system ----
   KitLabel { id: settings; text: "SETTINGS"; value: root.ioStatus.toUpperCase() }
 
@@ -142,6 +155,7 @@ Column {
       width: Theme.buttonWidth
       icon: "arrow-up"
       text: "Export…"
+      busy: ioProc.running
       onClicked: FilesService.pickFolder("Export the settings to", FilesService.home,
                                          p => { if (p !== "") root.exportTo(["export", p + "/shell-settings.json"]); })
     }
@@ -170,8 +184,21 @@ Column {
     }
   }
 
+  KitText {
+    visible: root.ioStatus !== ""
+    width: parent.width
+    text: root.ioStatus
+    color: root.ioStatus === "Exported" ? Theme.green : Theme.red
+    wrapMode: Text.WordWrap
+    font.pixelSize: Theme.fontSize - 1
+  }
+
   KitLine {}
 
+    KitGrouper {}
+  }
+  Column {
+    width: parent.width; visible: root.tab === "system"
   KitLabel { id: system; text: "SYSTEM"; value: (root.versions.commit ?? "").toUpperCase() }
 
   KitInfo { width: parent.width; label: "Theme"; value: root.versions.theme ?? "--" }
@@ -193,5 +220,7 @@ Column {
     }
   }
 
+    KitGrouper {}
+  }
   KitGrouper {}
 }

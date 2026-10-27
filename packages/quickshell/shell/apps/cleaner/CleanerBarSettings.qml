@@ -6,7 +6,7 @@ import qs.config
 // The cleaner's bar popup options (Shell apps › Bar module): how many of the
 // biggest categories it lists.
 Column {
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "cleaner"; hasContent: false }

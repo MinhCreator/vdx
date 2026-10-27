@@ -6,7 +6,7 @@ import qs.config
 // the window remembers, how long a lookup waits, and what Report does. The
 // bar module's own row is VirusTotalBarSettings (Shell apps › BAR).
 KitColumn {
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLabel { text: "HISTORY" }
 

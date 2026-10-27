@@ -14,8 +14,8 @@ FloatingWindow {
 
   title: "Shell Manager"
   visible: ShellSettings.managerOpen
-  implicitWidth: 820
-  implicitHeight: 600
+  implicitWidth: 1240
+  implicitHeight: 720
   color: Theme.background0
 
   onVisibleChanged: {
@@ -30,7 +30,7 @@ FloatingWindow {
 
   Shortcut {
     sequences: [StandardKey.Cancel]
-    enabled: !manager.dialogOpen && !manager.searching   // Escape closes the dialog or the search first
+    enabled: !manager.dialogOpen && !manager.searching && !(manager.currentPage.arranging ?? false)   // Escape closes the dialog or the search first
     onActivated: ShellSettings.managerOpen = false
   }
 

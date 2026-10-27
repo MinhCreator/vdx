@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls as Controls
 import Quickshell
 import qs.bar
 import qs.config
@@ -67,6 +68,8 @@ Column {
     // ---- the chosen module: its name and options, scrolling on their own ----
     Flickable {
       id: pane
+      visible: list.matches.length > 0
+      Controls.ScrollBar.vertical: KitScrollBar {}
       width: parent.width - list.width - parent.spacing
       height: parent.height
       contentHeight: details.implicitHeight
@@ -77,11 +80,13 @@ Column {
 
       Column {
         id: details
-        width: pane.width
-        spacing: Theme.gapGroup
+        width: pane.width - Theme.gapMedium
+        spacing: Theme.sectionGap
 
         // heading: icon, name and about; Reset brings the options' defaults back
         Item {
+          readonly property Item kitCaption: heading
+          readonly property bool kitUnboxed: true
           width: parent.width
           height: Math.max(heading.implicitHeight, resetButton.height)
 
@@ -103,16 +108,19 @@ Column {
               spacing: Theme.gapTight
 
               KitText {
+                width: parent.width
+                elide: Text.ElideRight
                 text: root.module?.label ?? ""
-                font.weight: Font.ExtraBold
+                font.weight: Font.DemiBold
               }
 
               KitText {
                 width: parent.width
                 text: root.module?.about ?? ""
                 elide: Text.ElideRight
+                maximumLineCount: 1
                 color: Theme.muted
-                font.pixelSize: Theme.fontSize - 2
+                font.pixelSize: Theme.fontSize - 1
               }
             }
           }
@@ -128,7 +136,7 @@ Column {
           }
         }
 
-        KitLine {}
+        KitLine { sectionBreak: false }
 
         // its components are off on this machine: nothing to set until installed
         KitRow {
@@ -153,7 +161,16 @@ Column {
           hint: "Nothing to set here"
           labelColor: Theme.foreground2
         }
+
+        KitGrouper {}
       }
+    }
+    KitEmptyState {
+      visible: list.matches.length === 0
+      width: parent.width - list.width - parent.spacing
+      icon: "search"
+      title: "No matching items"
+      hint: "Try a shorter search"
     }
   }
 

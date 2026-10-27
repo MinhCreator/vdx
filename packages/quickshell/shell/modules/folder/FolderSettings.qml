@@ -5,7 +5,7 @@ import qs.kit
 
 // Folder options in the Shell Manager: the bar face's text.
 Column {
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "folder" }

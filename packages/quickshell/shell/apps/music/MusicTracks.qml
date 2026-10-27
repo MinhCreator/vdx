@@ -97,7 +97,7 @@ Item {
         }
       }
 
-      Rectangle { anchors.bottom: parent.bottom; x: Theme.gapWide; width: parent.width - 2 * Theme.gapWide; height: 1; color: Theme.background3 }
+      KitLine { anchors.bottom: parent.bottom; x: Theme.gapWide; width: parent.width - 2 * Theme.gapWide; sectionBreak: false;  }
     }
 
     ListView {
@@ -136,12 +136,12 @@ Item {
         }
 
         // the hairline between rows
-        Rectangle {
+        KitLine {
           visible: row.index > 0 && !row.current
           x: Theme.gapWide
           width: parent.width - 2 * Theme.gapWide
-          height: 1
-          color: Theme.background2
+          sectionBreak: false
+
         }
 
         MouseArea {

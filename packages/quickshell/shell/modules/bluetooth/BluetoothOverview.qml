@@ -12,7 +12,7 @@ Column {
   readonly property var main: BluetoothService.mainDevice
   readonly property var battery: main ? main.battery : null
 
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   // ---- header ----
   KitHeader {

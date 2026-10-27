@@ -7,7 +7,7 @@ import qs.kit
 // AudioPause.qml pauses while another app plays sound (the shell's own
 // options, kept in ShellSettings).
 KitColumn {
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "audio" }

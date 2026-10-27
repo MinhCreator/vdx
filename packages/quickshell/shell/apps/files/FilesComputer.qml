@@ -180,10 +180,10 @@ Rectangle {
 
           Repeater {
             model: box.seps
-            Rectangle { required property real modelData; x: modelData; y: Theme.gapMedium; width: 1; height: captions.height - 2 * Theme.gapMedium; color: Theme.background3 }
+            KitLine { required property real modelData; x: modelData; y: Theme.gapMedium; vertical: true; height: captions.height - 2 * Theme.gapMedium;  }
           }
 
-          Rectangle { anchors.bottom: parent.bottom; x: Theme.gapWide; width: parent.width - 2 * Theme.gapWide; height: 1; color: Theme.background3 }
+          KitLine { anchors.bottom: parent.bottom; x: Theme.gapWide; width: parent.width - 2 * Theme.gapWide; sectionBreak: false;  }
         }
 
         Repeater {
@@ -206,17 +206,17 @@ Rectangle {
             }
 
             // the hairline between rows
-            Rectangle {
+            KitLine {
               visible: row.index > 0
               x: Theme.gapWide
               width: parent.width - 2 * Theme.gapWide
-              height: 1
-              color: Theme.background2
+              sectionBreak: false
+
             }
 
             Repeater {
               model: box.seps
-              Rectangle { required property real modelData; x: modelData; y: Theme.gapSmall; width: 1; height: row.height - 2 * Theme.gapSmall; color: Theme.background2 }
+              KitLine { required property real modelData; x: modelData; y: Theme.gapSmall; vertical: true; height: row.height - 2 * Theme.gapSmall;  }
             }
 
             KitIcon {

@@ -15,6 +15,7 @@ KitColumn {
 
   required property var app                 // ShellAppsService.windows entry
   required property string ipc              // its IPC target: Open it
+  property bool showPreview: true
   property bool labelled: true              // its WINDOW label (a dialog has a header)
 
   readonly property var s: app.settings
@@ -38,18 +39,20 @@ KitColumn {
   }
 
   // the window as it will open
-  Row {
+  Flow {
+    visible: root.showPreview
+    property bool kitUnboxed: true
     width: parent.width
     spacing: 18
 
     WindowPreview {
-      width: 220
+      width: Math.min(220, parent.width)
       app: root.app
       settings: root.s
     }
 
     Column {
-      width: parent.width - 220 - parent.spacing
+      width: parent.width < 400 ? parent.width : parent.width - 220 - parent.spacing
       spacing: Theme.gapMedium
 
       KitText {
@@ -129,8 +132,10 @@ KitColumn {
         : root.s.position === "custom" ? "From the screen's top-left" : root.s.position.charAt(0).toUpperCase() + root.s.position.slice(1).replace("-", " ") + " of the screen"
 
     // a spot of the screen, or the pointer, or your own
-    Row {
-      spacing: Theme.gapLoose
+    Item {
+      implicitWidth: 240
+      implicitHeight: Math.max(grid.implicitHeight, positionChoices.implicitHeight)
+      readonly property int spacing: Theme.gapLoose
 
       PositionGrid {
         id: grid
@@ -140,7 +145,8 @@ KitColumn {
       }
 
       KitChoices {
-        width: parent.width - grid.width - parent.spacing
+        id: positionChoices
+        anchors { left: grid.right; leftMargin: Theme.gapLoose; right: parent.right; verticalCenter: parent.verticalCenter }
         stretch: true
         model: [{ label: "Cursor", value: "cursor" }, { label: "Custom", value: "custom" }]
         current: root.s.position

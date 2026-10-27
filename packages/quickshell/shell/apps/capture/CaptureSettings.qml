@@ -8,7 +8,7 @@ import qs.kit
 // the sound are the overlay's toolbar (kept as last picked); the bar face is
 // the module's (Bar modules › Capture).
 Column {
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLabel { text: "TOOLBAR" }
 

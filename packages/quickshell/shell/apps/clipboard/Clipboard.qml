@@ -109,10 +109,9 @@ KitFrame {
           readonly property bool hot: area.containsMouse || remove.containsMouse
 
           width: rows.width
-          spacing: 3
+          spacing: Theme.sectionGap
 
           KitLine { visible: item.index > 0 }
-          Item { width: 1; height: item.index > 0 ? 6 : 0 }
 
           Item {
             width: parent.width

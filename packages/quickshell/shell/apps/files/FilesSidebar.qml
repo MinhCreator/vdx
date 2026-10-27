@@ -125,12 +125,12 @@ Item {
       }
 
       // nothing pinned: the hairline that the section has no rows
-      Rectangle {
+      KitLine {
         visible: root.pinnedItems.length === 0
         x: Theme.gapLoose
         width: sidebar.width - 2 * Theme.gapLoose
-        height: 1
-        color: Theme.background3
+        sectionBreak: false
+
       }
 
       // removable drives: plugged in, mounted or not; the button at the end mounts or unmounts

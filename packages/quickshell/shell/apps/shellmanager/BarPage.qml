@@ -1,79 +1,124 @@
 import QtQuick
+import QtQuick.Controls as Controls
 import Quickshell
+import qs.apps.files
 import qs.bar
 import qs.config
 import qs.kit
 
-// Bar: LOOK first (solid or island, icon size, gap: every bar), then BEHAVIOUR
-// (hover, right click), then what is set per monitor — MONITOR (which one, one
-// bar everywhere, show it) and LAYOUT: a
-// small preview of the bar with its child bars, then a row per band in groups —
-// the main bar's (LEFT, CENTER, RIGHT, FOLDER), its child bars', HIDDEN — chips
-// in bar order (KitChipBands). Drag a chip along a band or to another one; this
-// page decides what each drop means. Island style: the main bar's bands are the
-// island's — LEFT and RIGHT beside the clock in the resting pill, HUB for the
-// chips when it opens. A separator (a custom "|") comes from the ADD tray under
-// the bands; its chip's cross removes it.
-KitColumn {
+// Keep the live result, placed modules and the module catalogue distinct.
+KitSettingsWorkspace {
   id: root
-
-  // the window's fixed header shows these; the page under it scrolls
+  readonly property bool fillsViewport: true
+  showScrollBar: false
+  readonly property Item previewItem: null
+  readonly property var tabs: sections
   readonly property string icon: "layout"
   readonly property string title: "Bar"
-  readonly property string subtitle: Quickshell.screens.filter(s => BarLayout.barOn(s.name)).length + " OF "
-    + Quickshell.screens.length + " MONITORS"
-
-  // groups for the Shell Manager's sidebar: a click scrolls to `y`
-  // the header's Reset: these ShellSettings keys back to their defaults; the layout has its own Reset
-  readonly property var resetKeys: ["barStyle", "looks", "barRightSettings"]
-  readonly property bool changed: ShellSettings.changed(resetKeys)
-  function reset() { ShellSettings.reset(resetKeys); }
-
-  readonly property var jumps: [
-    { key: "look",      label: "Look",      y: lookGroup.y },
-    { key: "behaviour", label: "Behaviour", y: behaviourGroup.y },
-    { key: "monitor",   label: "Monitor",   y: monitorGroup.y },
-    { key: "layout",  label: "Layout",  y: root.barOn ? layoutGroup.y : -2 }
-  ].filter(j => j.y > -2)
-
-  readonly property string focusId: chips.dragId !== "" ? chips.dragId : chips.hoverId
-
-  // a monitor in the role being set up (main first)
+  readonly property string subtitle: "Arrange your desktop controls"
+  property string tab: "layout"
   property string screenName: BarLayout.mainScreen()
+  property string selectedModule: ""
+  property string activeZone: island ? "start" : "left"
+  property string availableQuery: ""
+  property bool arranging: false
+  property var undoStack: []
+  function remember() {
+    undoStack = undoStack.concat([{screen: screenName, layout: BarLayout.snapshot(screenName), dot: ShellSettings.barFolderDot}]).slice(-30);
+  }
+  function undo() {
+    if (!undoStack.length) return;
+    const previous = undoStack[undoStack.length - 1];
+    undoStack = undoStack.slice(0, -1);
+    BarLayout.update(previous.screen, previous.layout);
+    ShellSettings.set("barFolderDot", previous.dot);
+    layoutError = "";
+  }
+  readonly property bool island: Theme.island
+  readonly property bool barOn: BarLayout.barOn(screenName)
   readonly property var roles: Quickshell.screens.map(s => s.name)
     .sort((a, b) => (BarLayout.roleOf(a) === "main" ? 0 : 1) - (BarLayout.roleOf(b) === "main" ? 0 : 1))
     .filter((n, i, all) => all.findIndex(o => BarLayout.roleOf(o) === BarLayout.roleOf(n)) === i)
   readonly property string other: roles.find(n => n !== screenName) ?? ""
   readonly property var layout: BarLayout.layout(screenName)
-  readonly property bool barOn: BarLayout.barOn(screenName)
-  readonly property bool island: Theme.island
-  // the main bar's bands, a band per child bar ("bar:<id>"), HIDDEN
   readonly property var children: BarLayout.barsOn(screenName)
   readonly property var columnZones: (island ? ["start", "end", "hub"] : ["left", "center", "right", "folder"])
     .concat(children.map(b => "bar:" + b.id), ["hidden"])
   function childOf(zone) { return zone.startsWith("bar:") ? zone.slice(4) : ""; }
-
+  readonly property string selectedZone: columnZones.find(z => ids(z).includes(selectedModule)) ?? ""
+  readonly property int selectedIndex: selectedZone ? ids(selectedZone).indexOf(selectedModule) : -1
+  readonly property var available: ids("hidden").filter(id => canPlace(id, activeZone)
+    && (module(id)?.label ?? "").toLowerCase().includes(availableQuery.trim().toLowerCase()))
+  onScreenNameChanged: { selectedModule = ""; undoStack = []; }
+  onIslandChanged: { undoStack = []; selectedModule = ""; activeZone = island ? "start" : "left"; }
+  onColumnZonesChanged: if (!columnZones.includes(activeZone)) activeZone = island ? "start" : "left"
+  readonly property var resetKeys: ["barStyle", "looks", "barRightSettings"]
+  readonly property bool changed: ShellSettings.changed(resetKeys) || ModuleSettings.changed("hub")
+  function reset() { ShellSettings.reset(resetKeys); ModuleSettings.reset("hub"); }
+  readonly property var jumps: [
+    { key: "layout", label: "Layout", y: 0 },
+    { key: "look", label: "Look", y: 0 },
+    { key: "behaviour", label: "Behaviour", y: 0 },
+    { key: "hub", label: "Hub", y: 0 },
+    { key: "profile", label: "Profile", y: 0 },
+    { key: "sliders", label: "Content", y: 0 },
+    { key: "monitor", label: "Monitor", y: 0 }
+  ]
+  function jump(key) {
+    tab = ["look", "behaviour", "appearance"].includes(key) ? "appearance"
+      : ["hub", "profile", "sliders"].includes(key) ? "hub" : key === "monitor" ? "monitor" : "layout";
+  }
+  function zoneLabel(zone) {
+    return childOf(zone) ? "Bar " + (children.findIndex(b => b.id === childOf(zone)) + 2)
+      : ({left: "Left", center: "Centre", right: "Right", start: "Left of clock", end: "Right of clock", hub: "Hub", folder: "Folder", hidden: "Not on the bar"})[zone] ?? zone;
+  }
+  function chooseZone(zone) { activeZone = zone; }
+  function selectModule(id) {
+    selectedModule = id;
+    const zone = columnZones.find(z => z !== "hidden" && ids(z).includes(id));
+    if (zone) activeZone = zone;
+  }
+  function nudgeModule(step) {
+    if (selectedIndex < 0) return;
+    drop(selectedModule, selectedZone, selectedIndex + (step > 0 ? 2 : -1));
+  }
+  function addModule(id) { drop(id, activeZone, ids(activeZone).length); selectedModule = id; }
+  function removeModule(id) {
+    remember();
+    if (BarLayout.isSeparator(id)) BarLayout.removeSeparator(id, screenName);
+    else applyDrop(id, "hidden", 0);
+    if (selectedModule === id) selectedModule = "";
+  }
   function module(id) { return BarLayout.modules.find(p => p.id === id) ?? null; }
   function ids(zone) {
+    if (!zone) return [];
+    if (["start", "end", "hub"].includes(zone)) return BarLayout.islandIn(zone, screenName);
     if (childOf(zone) !== "") return BarLayout.barModules(screenName, childOf(zone));
     if (island) return zone === "hidden" ? BarLayout.islandHidden(screenName) : BarLayout.islandIn(zone, screenName);
     return zone === "hidden" ? BarLayout.unplaced(screenName)
          : zone === "folder" ? BarLayout.inFolder(screenName)
-         : BarLayout.visibleIn(zone, screenName);
+         : ["left", "center", "right"].includes(zone) ? BarLayout.visibleIn(zone, screenName) : [];
   }
 
-  // the ADD tray's chip: a separator still to make
+  // A new separator is created only after a valid destination is chosen.
   readonly property string newSeparator: "sep-new"
-  // what the header says of a chip under the pointer
-  function focusText(id) {
-    if (id === newSeparator) return "SEPARATOR — DRAG IT BETWEEN MODULES";
-    if (BarLayout.isSeparator(id)) return "SEPARATOR — A \"|\" OF ITS OWN · ITS CROSS REMOVES IT";
-    return (module(id)?.label ?? "").toUpperCase() + " — " + (module(id)?.about ?? "").toUpperCase();
-  }
-
   // the bands show placed modules only; the stored order holds the rest too,
   // so the slot is translated through its visible neighbours
+  property string layoutError: ""
+  function canPlace(id, zone) {
+    if (id === "folder") return ["left", "center", "right"].includes(zone) || childOf(zone) !== "";
+    if (BarLayout.isSeparator(id)) return !["folder", "hub"].includes(zone) && childOf(zone) === "";
+    return columnZones.includes(zone);
+  }
   function drop(id, zone, index) {
+    if (!canPlace(id, zone)) return;
+    remember();
+    applyDrop(id, zone, index);
+    selectedModule = id === newSeparator ? "" : id;
+  }
+  function applyDrop(id, zone, index) {
+    if (!canPlace(id, zone)) { layoutError = "This module cannot be placed in that zone"; return; }
+    layoutError = "";
     // a separator sits in the main bar's sides only: HIDDEN removes it, the rest
     // refuse it; the tray's chip becomes a new one where it lands
     if (BarLayout.isSeparator(id)) {
@@ -111,264 +156,225 @@ KitColumn {
     }
   }
 
-  spacing: Theme.gapGroup
 
-  // ---- look ----
-  // the look of every bar: one strip, or the island alone with every module in it
-  KitLabel { id: lookGroup; text: "LOOK"; value: (root.island ? "ISLAND" : "SOLID") + " · EVERY MONITOR" }
+  sections: [{label: "Layout", value: "layout"}, {label: "Appearance", value: "appearance"},
+    {label: "Hub", value: "hub"}, {label: "Monitors", value: "monitor"}]
+  current: tab
+  onPicked: value => tab = value
 
-  KitRow {
-    wide: true
-    label: "Shape"
-    hint: "Strip, or a morphing pill"
-
-    KitSegments {
-      model: [
-        { label: "Solid",  value: "solid" },
-        { label: "Island", value: "island" }
-      ]
-      current: ShellSettings.barStyle
-      onPicked: value => ShellSettings.set("barStyle", value)
-    }
-  }
-
-  KitRow {
-    wide: true
-    label: "Icon size"
-    hint: "Bar icons; kept for each shape"
-
-    KitSegments {
-      model: [
-        { label: "Small",  value: 0 },
-        { label: "Normal", value: 2 },
-        { label: "Large",  value: 4 }
-      ]
-      current: ShellSettings.barIconGrow
-      onPicked: value => ShellSettings.setLook("barIconGrow", value)
-    }
-  }
-
-  KitRow {
-    wide: true
-    label: "Module gap"
-    hint: "Kept for each shape"
-
-    KitSegments {
-      model: [
-        { label: "Tight",  value: 2 },
-        { label: "Normal", value: 5 },
-        { label: "Wide",   value: 8 }
-      ]
-      current: ShellSettings.barGap
-      onPicked: value => ShellSettings.setLook("barGap", value)
-    }
-  }
-
-  KitRow {
-    label: "Separators"
-    hint: "Automatic line between modules"
-
-    KitSwitch {
-      checked: ShellSettings.barSeparators
-      onToggled: ShellSettings.setLook("barSeparators", !checked)
-    }
-  }
-
-  KitLine {}
-
-  // ---- behaviour ----
-  // the clock opens the hub on a hover or a click; a right click on a module opens its options (its own page)
-  KitLabel { id: behaviourGroup; text: "BEHAVIOUR" }
-
-  KitRow {
-    visible: root.island
-    wide: true
-    label: "Open the hub"
-    hint: "Hover or click the clock"
-
-    KitSegments {
-      model: [
-        { label: "Hover", value: "hover" },
-        { label: "Click", value: "click" }
-      ]
-      current: ShellSettings.clockOpens
-      onPicked: value => ShellSettings.setLook("clockOpens", value)
-    }
-  }
-
-  KitRow {
-    visible: root.island
-    label: "Show the player"
-    hint: "Off: chips only"
-
-    KitSwitch {
-      checked: ShellSettings.hubPlayer
-      onToggled: ShellSettings.setLook("hubPlayer", !checked)
-    }
-  }
-
-
-  KitRow {
-    label: "Right click opens options"
-    hint: "On any bar module"
-
-    KitSwitch {
-      checked: ShellSettings.barRightSettings
-      onToggled: ShellSettings.set("barRightSettings", !checked)
-    }
-  }
-
-  KitLine {}
-
-  // ---- monitor ----
-  KitLabel { id: monitorGroup; text: "MONITOR" }
-
-  KitChoices {
-    visible: root.roles.length > 1 && !BarLayout.shared
-    width: parent.width
-    stretch: true
-    model: root.roles.map(n => ({ label: (BarLayout.roleOf(n) === "main" ? "Main · " : "Extra · ") + n, value: n,
-                                  icon: BarLayout.isInternal(n) ? "laptop" : "monitor" }))
-    current: root.screenName
-    onPicked: value => root.screenName = value
-  }
-
-  KitSelect {
-    visible: Quickshell.screens.length > 1 && !BarLayout.shared
-    label: "Main monitor"
-    hint: "Automatic: the external one"
-    model: [{ label: "Automatic", value: "" }].concat(Quickshell.screens.map(s => ({ label: s.name, value: s.name })))
-    current: BarLayout.mainPick
-    onPicked: value => {
-      BarLayout.setMainPick(value);
-      root.screenName = BarLayout.mainScreen();
-    }
-  }
-
-  KitRow {
-    visible: Quickshell.screens.length > 1
-    label: "Same bar everywhere"
-    hint: BarLayout.shared ? "Every monitor shows one bar" : "Main and extra differ"
-
-    KitSwitch {
-      checked: BarLayout.shared
-      onToggled: {
-        BarLayout.setShared(!BarLayout.shared);
-        root.screenName = BarLayout.mainScreen();
+  settings: Component {
+    Column {
+      width: parent.width
+      KitSelect {
+        visible: root.roles.length > 1 && !BarLayout.shared
+        label: "Editing monitor"
+        model: root.roles.map(n => ({label: (BarLayout.roleOf(n) === "main" ? "Main · " : "Extra · ") + n, value: n}))
+        current: root.screenName
+        onPicked: value => root.screenName = value
       }
-    }
-  }
-
-  KitRow {
-    label: "Show bar"
-    hint: root.barOn ? "On " + root.screenName : "No bar on " + root.screenName
-
-    KitSwitch {
-      checked: root.barOn
-      onToggled: BarLayout.setBarOn(root.screenName, !root.barOn)
-    }
-  }
-
-  // the island on this monitor: off with nothing beside it, no island at all
-  KitRow {
-    visible: root.island && root.barOn
-    label: "Island clock"
-    hint: "Off: island hides when empty"
-
-    KitSwitch {
-      checked: BarLayout.islandClock(root.screenName)
-      onToggled: BarLayout.setIslandClock(root.screenName, !checked)
-    }
-  }
-
-  KitLine { visible: root.barOn }
-
-  // ---- layout ----
-  Item {
-    id: layoutGroup
-    readonly property bool isKitLabel: true   // KitGrouper: the group's title
-    visible: root.barOn
-    width: parent.width
-    height: layoutActions.height
-
-    KitLabel {
-      anchors { left: parent.left; right: layoutActions.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
-      text: "LAYOUT"
-      // what the pointer is on, or how this works
-      value: root.focusId !== "" ? root.focusText(root.focusId)
-                                 : root.children.length > 0 ? "DRAG A CHILD BAR TO PLACE IT · ITS CROSS REMOVES IT"
-                                 : root.island ? "LEFT AND RIGHT SIT BESIDE THE CLOCK" : "DRAG CHIPS TO ARRANGE"
-      valueColor: root.focusId !== "" ? Theme.foreground2 : Theme.muted
-    }
-
-    Row {
-      id: layoutActions
-      anchors.right: parent.right
-      spacing: Theme.gapSmall
-
-      KitButton {
-        visible: root.other !== "" && !BarLayout.shared
-        icon: BarLayout.isInternal(root.other) ? "laptop" : "monitor"
-        text: "Same as " + root.other
-        onClicked: root.island ? BarLayout.islandCopy(root.other, root.screenName)
-                               : BarLayout.copyLayout(root.other, root.screenName)
+      Column {
+        property bool kitUnboxed: true
+        width: parent.width
+        spacing: 12
+        visible: root.tab === "layout"
+        KitRow {
+          visible: root.island
+          label: "Clock"
+          hint: "Off and nothing beside it: hidden"
+          KitSwitch { checked: BarLayout.islandClock(root.screenName); onToggled: BarLayout.setIslandClock(root.screenName, !checked) }
+        }
+        Item {
+          width: parent.width
+          height: 44
+          Column {
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 2
+            KitText { text: "Layout"; font.weight: Font.Medium }
+            KitText { text: "Drag modules between rows."; color: Theme.muted; font.pixelSize: Theme.fontSize - 2 }
+          }
+          Row {
+            anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+            spacing: 8
+            KitButton { text: "Undo"; visible: root.undoStack.length > 0; onClicked: root.undo() }
+            KitButton { icon: "plus"; text: "Separator"; onClicked: { const zone = root.island ? "end" : "right"; root.drop(root.newSeparator, zone, root.ids(zone).length); } }
+            KitResetButton {
+              changed: root.island ? BarLayout.islandCustomized(root.screenName) : BarLayout.customized(root.screenName)
+              onReset: { root.remember(); root.island ? BarLayout.islandReset(root.screenName) : BarLayout.reset(root.screenName); }
+            }
+          }
+        }
+        BarArrangement {
+          id: editor
+          showOverview: false
+          showAvailable: true
+          width: parent.width
+          scope: root.screenName
+          island: root.island
+          clockVisible: BarLayout.islandClock(root.screenName)
+          extraZones: root.children.map(b => "bar:" + b.id)
+          extraBars: root.children
+          onDraggingChanged: root.arranging = dragging
+          selectedId: root.selectedModule
+          idsOf: zone => root.ids(zone)
+          labelOf: id => BarLayout.isSeparator(id) ? "Separator" : root.module(id)?.label ?? id
+          iconOf: id => BarLayout.isSeparator(id) ? "layout" : BarLayout.icon(id)
+          accepts: (id, zone) => root.canPlace(id, zone)
+          zoneLabel: zone => root.zoneLabel(zone)
+          scrollViewport: root.viewport
+          onSelected: id => root.selectModule(id)
+          onMoved: (id, zone, index) => root.drop(id, zone, index)
+          onRemoved: id => root.removeModule(id)
+        }
       }
+      Column {
+  spacing: Theme.sectionGap
 
-      KitResetButton {
-        changed: root.island ? BarLayout.islandCustomized(root.screenName) : BarLayout.customized(root.screenName)
-        onReset: root.island ? BarLayout.islandReset(root.screenName) : BarLayout.reset(root.screenName)
+        width: parent.width
+        visible: root.tab === "appearance"
+        KitLabel { text: "LOOK" }
+        KitRow {
+          label: "Bar style"
+          hint: "Each style remembers its own layout"
+          wide: true
+          KitSegments {
+            model: [{label: "Solid", value: "solid"}, {label: "Island", value: "island"}]
+            current: ShellSettings.barStyle
+            onPicked: value => ShellSettings.set("barStyle", value)
+          }
+        }
+        KitRow {
+          label: "Icon size"
+          wide: true
+          KitSegments { model: [{label: "Small", value: 0}, {label: "Medium", value: 2}, {label: "Large", value: 4}]; current: ShellSettings.barIconGrow; onPicked: value => ShellSettings.setLook("barIconGrow", value) }
+        }
+        KitRow {
+          label: "Module gap"
+          wide: true
+          KitSegments { model: [{label: "Tight", value: 2}, {label: "Normal", value: 5}, {label: "Wide", value: 8}]; current: ShellSettings.barGap; onPicked: value => ShellSettings.setLook("barGap", value) }
+        }
+        KitRow {
+          label: "Separators"
+          hint: "Lines between neighbouring modules"
+          KitSwitch { checked: ShellSettings.barSeparators; onToggled: ShellSettings.setLook("barSeparators", !checked) }
+        }
+        KitLine {}
+        KitLabel { text: "BEHAVIOUR" }
+        KitRow {
+          label: "Right click opens options"
+          hint: "Open a bar module's settings"
+          KitSwitch { checked: ShellSettings.barRightSettings; onToggled: ShellSettings.set("barRightSettings", !checked) }
+        }
+        KitRow {
+          visible: root.island
+          label: "Island clock"
+          hint: "Keep the clock visible in the resting bar"
+          KitSwitch { checked: BarLayout.islandClock(root.screenName); onToggled: BarLayout.setIslandClock(root.screenName, !checked) }
+        }
+        KitGrouper {}
       }
+      Column {
+        width: parent.width
+        visible: root.tab === "monitor"
+        KitLabel { text: "MONITOR" }
+        KitRow {
+          label: "Show bar"
+          hint: root.screenName
+          KitSwitch { checked: root.barOn; onToggled: BarLayout.setBarOn(root.screenName, !checked) }
+        }
+        KitRow {
+          visible: Quickshell.screens.length > 1
+          label: "Same bar everywhere"
+          hint: "Share the main monitor's layout"
+          KitSwitch { checked: BarLayout.shared; onToggled: { BarLayout.setShared(!checked); root.screenName = BarLayout.mainScreen(); } }
+        }
+        KitSelect {
+          visible: Quickshell.screens.length > 1
+          label: "Main monitor"
+          hint: "Automatic prefers an external monitor"
+          model: [{label: "Automatic", value: ""}].concat(Quickshell.screens.map(s => ({label: s.name, value: s.name})))
+          current: BarLayout.mainPick
+          onPicked: value => { BarLayout.setMainPick(value); root.screenName = BarLayout.mainScreen(); }
+        }
+        KitText {
+          property bool kitUnboxed: true
+          width: parent.width
+          text: Quickshell.screens.length > 1 ? "Choose the monitor above before editing a separate layout." : "Connect another monitor to configure a separate bar."
+          color: Theme.muted
+          wrapMode: Text.WordWrap
+        }
+        KitRow {
+          visible: root.other !== "" && !BarLayout.shared
+          label: "Copy layout"
+          KitButton { text: "From " + root.other; onClicked: { root.remember(); root.island ? BarLayout.islandCopy(root.other, root.screenName) : BarLayout.copyLayout(root.other, root.screenName); } }
+        }
+        KitGrouper {}
+      }
+      Column {
+  spacing: Theme.sectionGap
+
+        width: parent.width
+        visible: root.tab === "hub"
+        KitLabel { text: "HUB" }
+        KitRow {
+          visible: !root.island
+          label: "Enable Island"
+          hint: "The hub opens from the island clock"
+          KitButton { text: "Use Island"; onClicked: ShellSettings.set("barStyle", "island") }
+        }
+        KitRow {
+          label: "Open the hub"
+          wide: true
+          KitSegments {
+            model: [{label: "Hover", value: "hover"}, {label: "Click", value: "click"}]
+            current: ShellSettings.look("clockOpens", "island")
+            onPicked: value => ShellSettings.setLook("clockOpens", value, "island")
+          }
+        }
+        KitSliderRow {
+          id: hubWidth
+          label: "Hub width"
+          snaps: [0, 0.25, 0.5, 0.75, 1]
+          value: (ModuleSettings.get("hub", "width", 400) - 320) / 160
+          text: Math.round(320 + (pressed ? dragValue : value) * 160) + " px"
+          onMoved: value => ModuleSettings.set("hub", "width", Math.round(320 + value * 160))
+        }
+        KitRow {
+          label: "Avatar"
+          hint: ModuleSettings.get("hub", "avatar", "").split("/").pop() || "Your initial"
+          KitButton { text: "Choose…"; onClicked: FilesService.pick("Choose a hub avatar", FilesService.home, false, ["image/*"], path => { if (path) ModuleSettings.set("hub", "avatar", path); }) }
+          KitButton { visible: ModuleSettings.get("hub", "avatar", "") !== ""; icon: "x"; Accessible.name: "Clear avatar"; onClicked: ModuleSettings.set("hub", "avatar", "") }
+        }
+        KitLine {}
+        KitLabel { text: "CONTENT" }
+        KitRow {
+          label: "Media player"
+          hint: "Shown when media is available"
+          KitSwitch { checked: ShellSettings.look("hubPlayer", "island"); onToggled: ShellSettings.setLook("hubPlayer", !checked, "island") }
+        }
+        Repeater {
+          model: [
+            {key: "volume", label: "Volume slider", fallback: true},
+            {key: "microphone", label: "Microphone slider", fallback: false},
+            {key: "brightness", label: "Brightness slider", fallback: true},
+            {key: "dimming", label: "Dimming slider", fallback: false}
+          ]
+          KitRow {
+            id: sliderSetting
+            required property var modelData
+            label: modelData.label
+            KitSwitch { checked: ModuleSettings.get("hub", sliderSetting.modelData.key, sliderSetting.modelData.fallback); onToggled: ModuleSettings.set("hub", sliderSetting.modelData.key, !checked) }
+          }
+        }
+        KitRow {
+          label: "Hub modules"
+          hint: BarLayout.islandIn("hub", root.screenName).length + " modules"
+          KitButton { text: "Arrange…"; onClicked: { root.tab = "layout"; if (root.island) root.chooseZone("hub"); } }
+        }
+        KitGrouper {}
+      }
+      KitText { width: parent.width; visible: root.layoutError !== ""; text: root.layoutError; color: Theme.red; wrapMode: Text.WordWrap }
+      KitGrouper {}
     }
   }
 
-  // a glance at the bar (what does not fit a side shows as +N) with its child
-  // bars, dragged there to place them; the empty framed bar adds one
-  // in a box, as the font's sample: the preview stands out from the bands
-  Rectangle {
-    visible: root.barOn
-    width: parent.width
-    height: preview.height + 2 * Theme.gapLoose
-    property bool kitUnboxed: true
-    radius: Theme.radiusControl
-    color: Theme.controlFill
-    border.width: Theme.frameWidth
-    border.color: Theme.gray
-
-    BarPreview {
-      id: preview
-      anchors { left: parent.left; right: parent.right; margins: Theme.gapLoose; verticalCenter: parent.verticalCenter }
-      screenName: root.screenName
-    }
-  }
-
-  // a band per zone, the folder and HIDDEN: chips in bar order, dragged between bands
-  KitChipBands {
-    id: chips
-    property bool kitUnboxed: true
-    visible: root.barOn
-    scope: root.screenName
-    width: parent.width
-    zones: root.columnZones
-    idsOf: zone => root.ids(zone)
-    labelOf: id => BarLayout.isSeparator(id) ? "Separator" : root.module(id)?.label ?? id
-    iconOf: id => BarLayout.icon(id)
-    lineOf: id => BarLayout.isSeparator(id)
-    removable: id => BarLayout.isSeparator(id)
-    sources: [{ id: root.newSeparator, label: "Separator", icon: "plus" }]
-    sourceHint: "drag into a band · a click adds it on the right"
-    groupOf: zone => zone === "hidden" ? "hidden" : root.childOf(zone) !== "" ? "children" : "main"
-    zoneLabel: zone => root.childOf(zone) !== ""
-      ? "BAR " + (root.children.findIndex(b => b.id === root.childOf(zone)) + 2)
-      : ({ start: "LEFT", end: "RIGHT" })[zone] ?? zone.toUpperCase()
-    emptyText: zone => root.childOf(zone) !== "" ? "empty — drag modules here; the bar shows once it has one"
-                     : zone === "hidden" ? "nothing hidden"
-                     : zone === "start" || zone === "end" ? "empty — beside the clock while it rests"
-                     : zone === "hub" ? "empty — chips when the island opens"
-                     : zone === "folder" ? "empty — modules here open from the Folder icon" : "empty"
-    onDropped: (id, zone, index) => root.drop(id, zone, index)
-    onRemoved: id => BarLayout.removeSeparator(id, root.screenName)
-    onPicked: id => BarLayout.addSeparator(root.screenName)
-  }
-
-  KitGrouper {}
 }

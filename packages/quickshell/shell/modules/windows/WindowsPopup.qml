@@ -53,7 +53,7 @@ KitFrame {
   Column {
     visible: root.ws.mode === "floating"
     width: parent.width
-    spacing: Theme.gapMedium
+    spacing: Theme.sectionGap
 
     KitLine {}
 

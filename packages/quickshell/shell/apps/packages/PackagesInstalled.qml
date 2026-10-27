@@ -25,8 +25,7 @@ Column {
       id: filterBox
       width: 150
       boxWidth: 150
-      overlay: true
-      model: [{ label: "All types", value: "all" }, { label: "Apps", value: "apps" },
+        model: [{ label: "All types", value: "all" }, { label: "Apps", value: "apps" },
               { label: "Pacman", value: "repo" }, { label: "AUR", value: "aur" }]
       current: page.filter
       onPicked: value => page.filter = value
@@ -36,8 +35,7 @@ Column {
       id: sortBox
       width: 150
       boxWidth: 150
-      overlay: true
-      model: [{ label: "By name", value: "name" }, { label: "By size", value: "size" }, { label: "By date", value: "date" }]
+        model: [{ label: "By name", value: "name" }, { label: "By size", value: "size" }, { label: "By date", value: "date" }]
       current: page.sortBy
       onPicked: value => page.sortBy = value
     }

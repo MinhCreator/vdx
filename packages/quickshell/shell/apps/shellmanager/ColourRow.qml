@@ -7,7 +7,7 @@ import qs.kit
 // (palette dots, saturation and brightness, hue). `open` is toggled by the chip
 // or the chevron; `chipClicked` lets the owner close the others.
 // `live`: every valid typed or dragged colour is handed over at once.
-KitRow {
+Column {
   id: root
 
   property string value: ""                 // the colour the field shows
@@ -24,37 +24,15 @@ KitRow {
   signal chosen(string name)
   signal chipClicked()
 
-  label: "Custom colour"
-  hint: note
-  wide: true
+  width: parent ? parent.width : 0
+  spacing: Theme.gapMedium
 
-  Column {
-    spacing: 0
-
-    KitColourField {
-      width: parent.width
-      value: root.value
-      placeholder: root.example
-      live: root.live
-      open: root.open
-      onEdited: text => root.edited(text)
-      onAccepted: colour => root.accepted(colour)
-      onChipClicked: {
-        root.open = !root.open;
-        root.chipClicked();
-      }
-    }
-
-    KitColourPicker {
-      visible: root.open
-      width: parent.width
-      colour: root.value
-      palette: root.palette
-      picked: root.picked
-      colours: root.colours
-      onMoved: hex => { root.edited(hex); if (root.live) root.accepted(hex) }
-      onReleased: hex => { root.edited(hex); root.accepted(hex) }
-      onChosen: name => root.chosen(name)
-    }
+  KitColourPicker {
+    width: parent.width
+    palette: root.palette
+    picked: root.picked
+    colours: root.colours
+    onChosen: name => root.chosen(name)
   }
+  KitGrouper {}
 }

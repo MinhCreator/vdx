@@ -117,7 +117,7 @@ KitFrame {
           required property int index
 
           width: list.width
-          spacing: Theme.gapGroup
+          spacing: Theme.sectionGap
 
           KitLabel {
             text: section.modelData.name.toUpperCase()

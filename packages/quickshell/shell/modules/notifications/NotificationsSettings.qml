@@ -7,14 +7,33 @@ import qs.kit
 // the bell's own badge; UNSEEN DOT: the dot on the Folder or the island's pill) and
 // the history popup (HISTORY).
 KitColumn {
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
-  KitLabel { text: "BAR" }
-  BarTextRow { module: "notifications" }
+  KitLabel { text: "DELIVERY" }
+
+  KitOptionRow {
+    module: "notifications"; key: "toastSeconds"; fallback: 5
+    label: "Toast duration"; hint: "Stay: until dismissed. Critical always stays"
+    model: [{ label: "3 s", value: 3 }, { label: "5 s", value: 5 }, { label: "10 s", value: 10 }, { label: "Stay", value: 0 }]
+  }
 
   KitLine {}
 
-  KitLabel { text: "BELL" }
+  KitLabel { text: "HISTORY" }
+
+  KitOptionRow {
+    module: "notifications"; key: "rows"; fallback: 6
+    label: "Notifications shown"; hint: "Before the list scrolls"
+    model: [{ label: "4", value: 4 }, { label: "6", value: 6 }, { label: "10", value: 10 }]
+  }
+
+  KitToggleRow { module: "notifications"; key: "closeOnClear"; fallback: false; label: "Close after clear"; hint: "Off: the popup stays open" }
+
+  KitLine {}
+
+  KitLabel { text: "BAR INDICATORS" }
+  BarTextRow { module: "notifications" }
+
 
   KitOptionRow {
     module: "notifications"; key: "badge"; fallback: "off"
@@ -22,9 +41,6 @@ KitColumn {
     model: [{ label: "Off", value: "off" }, { label: "Dot", value: "dot" }, { label: "Count", value: "count" }]
   }
 
-  KitLine {}
-
-  KitLabel { text: "UNSEEN DOT" }
 
   KitRow {
     label: "Show the dot"
@@ -50,26 +66,6 @@ KitColumn {
   }
 
   KitLine {}
-
-  KitLabel { text: "TOASTS" }
-
-  KitOptionRow {
-    module: "notifications"; key: "toastSeconds"; fallback: 5
-    label: "Toast duration"; hint: "Stay: until dismissed. Critical always stays"
-    model: [{ label: "3 s", value: 3 }, { label: "5 s", value: 5 }, { label: "10 s", value: 10 }, { label: "Stay", value: 0 }]
-  }
-
-  KitLine {}
-
-  KitLabel { text: "HISTORY" }
-
-  KitOptionRow {
-    module: "notifications"; key: "rows"; fallback: 6
-    label: "Notifications shown"; hint: "Before the list scrolls"
-    model: [{ label: "4", value: 4 }, { label: "6", value: 6 }, { label: "10", value: 10 }]
-  }
-
-  KitToggleRow { module: "notifications"; key: "closeOnClear"; fallback: false; label: "Close after clear"; hint: "Off: the popup stays open" }
 
   KitGrouper {}
 }

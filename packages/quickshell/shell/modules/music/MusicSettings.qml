@@ -10,7 +10,7 @@ import qs.modules.player
 // source lists.
 KitColumn {
   id: root
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "music" }

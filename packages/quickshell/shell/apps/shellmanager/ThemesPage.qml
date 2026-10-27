@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls as Controls
 import qs.config
 import qs.kit
 
@@ -7,8 +8,9 @@ import qs.kit
 // one on the right — code, a prompt, controls and its palette, drawn in its own
 // colours. A search over the list; ↑ / ↓ (or a click) previews, Enter or Apply switches the desktop to
 // it, Esc goes back to the active one. Fills the window: the panes scroll.
-Row {
+Flow {
   id: root
+  readonly property bool stacked: width < 660
 
   // the window's fixed header shows these
   readonly property string icon: "palette"
@@ -18,7 +20,7 @@ Row {
 
   // the theme in the preview; Apply makes it the active one
   property string selected: ThemeService.current
-  readonly property bool changed: selected !== ThemeService.current
+  readonly property bool changed: previewed !== ThemeService.current
   // the preview's own mode (only the preview: the desktop and Apply keep the active one's)
   property bool previewLight: ThemeService.light
   readonly property string previewed: ThemeService.variant(selected, previewLight)
@@ -47,24 +49,30 @@ Row {
     selected = list[Math.max(0, Math.min(list.length - 1, i + d))] ?? selected;
     themeList.positionViewAtIndex(list.indexOf(selected), ListView.Contain);
   }
-  function apply() { if (changed && !ThemeService.busy) ThemeService.apply(selected); }
+  function apply() { if (changed && !ThemeService.busy) ThemeService.apply(previewed); }
 
   spacing: Theme.gapGroup
 
   // shown: the keys go to the list, the preview starts at the active theme
   onVisibleChanged: if (visible) { selected = ThemeService.current; previewLight = ThemeService.light; search.input.forceActiveFocus(); }
 
+  Connections {
+    target: ThemeService
+    function onCurrentChanged() { root.selected = ThemeService.current; root.previewLight = ThemeService.light; }
+  }
+
   // ---- the search and the list ----
   Column {
     id: side
-    width: 270
-    height: parent.height - Theme.windowPadding
+    width: root.stacked ? root.width : Math.min(260, Math.max(220, root.width * 0.34))
+    height: root.stacked ? 180 : root.height - Theme.windowPadding
     spacing: Theme.gapMedium
 
     KitInput {
       id: search
       width: parent.width
-      placeholder: "Search…"
+      placeholder: "Search themes"
+      icon: "search"
       text: root.query
       onTextEdited: {
         root.query = text;
@@ -76,7 +84,7 @@ Row {
       Keys.onEnterPressed: root.apply()
       Keys.onEscapePressed: event => {
         if (root.query !== "") { root.query = ""; search.text = ""; }
-        else if (root.changed) root.selected = ThemeService.current;
+        else if (root.changed) { root.selected = ThemeService.current; root.previewLight = ThemeService.light; }
         else event.accepted = false;
       }
     }
@@ -86,18 +94,19 @@ Row {
       width: parent.width
       height: parent.height - search.height - parent.spacing
       radius: Theme.radiusCard
-      color: Theme.background1
+      color: Theme.groupFill
       border.width: Theme.frameWidth
-      border.color: Theme.background2
+      border.color: Theme.controlLine
 
       ListView {
         id: themeList
+      Controls.ScrollBar.vertical: KitScrollBar {}
         anchors { fill: parent; margins: Theme.gapSmall }
         clip: true
         spacing: Theme.gapTight
         boundsBehavior: Flickable.StopAtBounds
         model: root.shown
-
+        KitEmptyState { visible: root.shown.length === 0; width: parent.width; icon: "palette"; title: "No matching themes"; hint: "Try another name" }
 
         delegate: Rectangle {
           id: item
@@ -105,10 +114,10 @@ Row {
           readonly property bool picked: modelData === root.selected
           readonly property bool active: modelData === ThemeService.current
 
-          width: themeList.width
+          width: themeList.width - Theme.gapMedium
           height: 56
           radius: Theme.radiusControl
-          color: picked ? Theme.background3 : area.containsMouse ? Theme.background2 : Theme.clear
+          color: picked ? Theme.pickFill : area.containsMouse ? Theme.controlHover : Theme.clear
           Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
           // the card: a small desktop in its colours
@@ -130,7 +139,7 @@ Row {
               elide: Text.ElideRight
               text: ThemeService.baseOf(item.modelData)
               color: item.picked || item.active ? Theme.foreground0 : Theme.foreground2
-              font.weight: item.picked ? Font.ExtraBold : Font.DemiBold
+              font.weight: item.picked ? Theme.pickWeight : Font.Normal
             }
 
             // what sets it apart: light or dark, and the cast of its greys
@@ -139,7 +148,7 @@ Row {
               elide: Text.ElideRight
               text: root.character(item.modelData)
               color: Theme.muted
-              font.pixelSize: Theme.fontSize - 2
+              font.pixelSize: Theme.fontSize - 1
             }
           }
 
@@ -174,46 +183,45 @@ Row {
 
   // ---- the preview ----
   Column {
-    width: parent.width - side.width - parent.spacing
-    height: side.height
+    id: previewPane
+    visible: root.shown.length > 0
+    width: root.stacked ? root.width : root.width - side.width - root.spacing
+    height: root.stacked ? Math.max(120, root.height - side.height - root.spacing) : side.height
     spacing: Theme.gapWide
 
-    // its name, and Apply while it is not the active one
-    Item {
+    Column {
       width: parent.width
-      height: Theme.controlHeight
-
-      Column {
-        anchors.verticalCenter: parent.verticalCenter
-        spacing: Theme.gapTight
-        KitText { text: ThemeService.baseOf(root.selected); font.weight: Font.ExtraBold; font.pixelSize: Theme.fontSize + 2 }
-        KitText {
-          text: (root.isLight(root.previewed) ? "Light" : "Dark")
-                + (root.changed ? " · enter applies, esc back" : " · in use")
-          color: Theme.muted
-          font.pixelSize: Theme.fontSize - 2
+      spacing: Theme.gapSmall
+      KitText {
+        width: parent.width
+        text: ThemeService.baseOf(root.selected)
+        font.weight: Font.Medium
+        font.pixelSize: Theme.fontSize + 5
+        elide: Text.ElideRight
+      }
+      KitText {
+        text: root.character(root.previewed) + (root.changed ? " · Preview" : " · In use")
+        color: Theme.muted
+        font.pixelSize: Theme.fontSize - 1
+      }
+      Item {
+        width: parent.width
+        height: Theme.controlHeight
+        KitSegments {
+          width: Math.min(180, parent.width - applyButton.width - Theme.gapSmall)
+          model: [{ label: "Dark", value: false }, { label: "Light", value: true }]
+          current: root.previewLight
+          onPicked: value => root.previewLight = value
         }
-      }
-
-      Row {
-        anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-        spacing: Theme.gapSmall
-
-      // the preview in the theme's dark or light twin
-      KitSegments {
-        width: 150
-        model: [{ label: "Dark", value: false }, { label: "Light", value: true }]
-        current: root.previewLight
-        onPicked: value => root.previewLight = value
-      }
-
-      KitButton {
-        visible: root.changed
-        icon: "check"
-        text: "Apply"
-        busy: ThemeService.busy
-        onClicked: root.apply()
-      }
+        KitButton {
+          id: applyButton
+          anchors.right: parent.right
+          icon: "check"
+          text: "Apply"
+          busy: ThemeService.busy
+          disabled: !root.changed || root.shown.length === 0
+          onClicked: root.apply()
+        }
       }
     }
 
@@ -221,7 +229,7 @@ Row {
     Rectangle {
       id: well
       width: parent.width
-      height: parent.height - y
+      height: Math.max(80, parent.height - y - (themeError.visible ? themeError.implicitHeight + Theme.gapWide : 0))
       radius: Theme.radiusCard
       color: root.col("background0")
       border.width: Theme.hairline
@@ -229,8 +237,17 @@ Row {
       clip: true
       Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.normal } }
 
-      Column {
-        anchors { fill: parent; margins: Theme.gapGroup }
+      Flickable {
+        anchors.fill: parent
+        contentWidth: width
+        contentHeight: themeSample.implicitHeight + 2 * Theme.gapGroup
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
+        Controls.ScrollBar.vertical: KitScrollBar {}
+        Column {
+        id: themeSample
+        x: Theme.gapGroup; y: Theme.gapGroup
+        width: Math.max(0, well.width - 2 * Theme.gapGroup)
         spacing: Theme.gapGroup
 
         // code, highlighted: [text, role] spans per line
@@ -405,9 +422,11 @@ Row {
           }
         }
       }
+      }
     }
 
     KitText {
+      id: themeError
       visible: ThemeService.error !== ""
       width: parent.width
       text: ThemeService.error

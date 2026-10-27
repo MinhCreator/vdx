@@ -71,7 +71,6 @@ Column {
   KitSelect {
     width: 150
     boxWidth: 150
-    overlay: true
     anchors.right: parent.right
     model: [{ label: "Old versions", value: "old" }, { label: "All versions", value: "all" }]
     current: page.cacheView

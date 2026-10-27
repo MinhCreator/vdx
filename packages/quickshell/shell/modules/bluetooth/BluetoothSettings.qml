@@ -5,7 +5,7 @@ import qs.kit
 
 // Bluetooth options in the Shell Manager: what the bar shows (Bar text).
 Column {
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "bluetooth" }

@@ -5,7 +5,7 @@ import qs.config
 
 // Windows options in the bar's module settings: when the popup closes by itself.
 Column {
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "windows" }

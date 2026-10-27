@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Widgets
 import qs.apps.files
 import qs.config
 import qs.kit
@@ -14,7 +15,8 @@ KitColumn {
   required property Item page               // AppearancePage: the wallpaper shown
 
   // the monitor a picked picture is for: "" every monitor
-  property string output: ""
+  property string output: page.wallpaperOutput
+  onOutputChanged: page.wallpaperOutput = output
   readonly property var screens: Quickshell.screens.map(s => s.name)
   readonly property var overrides: WallpaperService.outputsFor(ThemeService.current)
   // the picture shown where the next pick goes
@@ -32,7 +34,7 @@ KitColumn {
 
   KitLabel {
     text: "WALLPAPER"
-    value: page.currentImage !== "" ? page.currentImage.split("/").pop().toUpperCase()
+    value: root.shown !== "" && page.imageWallpaper ? root.shown.split("/").pop()
                                     : String(page.wallpaper).toUpperCase()
   }
 
@@ -48,7 +50,7 @@ KitColumn {
       model: [
         { label: "Theme",  value: "theme" },
         { label: "Image",  value: "image" },
-        { label: "Custom", value: "custom" }
+        { label: "Colour", value: "custom" }
       ]
       current: ShellSettings.wallpaperMode
       onPicked: value => ShellSettings.set("wallpaperMode", value)
@@ -56,31 +58,12 @@ KitColumn {
   }
 
   // ---- custom: a colour of your own, typed (live, Enter not needed) or picked from the palette ----
-  KitRow {
-    visible: page.customWallpaper
-    wide: true
-    label: "Colour"
-    hint: root.pickedName !== "" ? root.pickedName.charAt(0).toUpperCase() + root.pickedName.slice(1) : "Custom"
-
-    KitColourField {
-      value: ShellSettings.wallpaperColor
-      placeholder: "#32302f"
-      live: true
-      open: root.pickerOpen
-      onAccepted: colour => ShellSettings.set("wallpaperColor", colour)
-      onChipClicked: root.pickerOpen = !root.pickerOpen
-    }
-  }
-
   KitColourPicker {
-    visible: page.customWallpaper && root.pickerOpen
+    visible: page.customWallpaper
     width: parent.width
-    colour: ShellSettings.wallpaperColor
     palette: root.palette
     picked: root.pickedName
     colours: name => [root.colourOf(name), root.colourOf(name)]
-    onMoved: hex => ShellSettings.set("wallpaperColor", hex)
-    onReleased: hex => ShellSettings.set("wallpaperColor", hex)
     onChosen: name => ShellSettings.set("wallpaperColor", root.hexOf(name))
   }
 
@@ -98,6 +81,7 @@ KitColumn {
   Flow {
     width: parent.width
     visible: page.imageWallpaper && WallpaperService.pictures.length > 0
+    property bool kitUnboxed: true
     spacing: Theme.gapSmall
 
     Repeater {
@@ -105,6 +89,8 @@ KitColumn {
 
       WallpaperThumb {
         required property var modelData
+        width: (parent.width - 2 * Theme.gapSmall) / 3
+        height: width * 9 / 16
         source: modelData.path
         active: root.shown === modelData.rel
         onClicked: WallpaperService.choose(ThemeService.current, modelData.rel, root.output)

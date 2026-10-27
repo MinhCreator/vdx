@@ -30,7 +30,7 @@ KitColumn {
     { key: "nearby",    label: "Nearby",    y: nearbyGroup.y }
   ].filter(j => j.y > -2)
 
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   onVisibleChanged: if (visible) bt.popupShown()
 
@@ -128,6 +128,13 @@ KitColumn {
   // ---- paired devices ----
   KitLabel { id: pairedGroup; text: "PAIRED"; value: root.owned.length + " DEVICES" }
 
+  KitEmptyState {
+    visible: root.owned.length === 0
+    icon: "bluetooth"
+    title: "No paired devices"
+    hint: bt.powered ? "Scan below to pair a device" : "Turn Bluetooth on to connect"
+  }
+
   KitSelect {
     visible: root.chosen !== null
     label: "Device"
@@ -157,6 +164,7 @@ KitColumn {
 
     KitSwitch {
       checked: root.chosen?.trusted ?? false
+      disabled: !bt.powered || bt.busyMac !== ""
       onToggled: bt.setTrusted(root.chosen, !root.chosen.trusted)
     }
   }
@@ -168,6 +176,7 @@ KitColumn {
 
     KitSwitch {
       checked: root.chosen?.blocked ?? false
+      disabled: !bt.powered || bt.busyMac !== ""
       onToggled: bt.setBlocked(root.chosen, !root.chosen.blocked)
     }
   }
@@ -222,6 +231,15 @@ KitColumn {
         onClicked: bt.toggleDevice(modelData)
       }
     }
+  }
+
+  KitText {
+    visible: bt.error !== ""
+    width: parent.width
+    text: bt.error
+    color: Theme.red
+    wrapMode: Text.WordWrap
+    font.pixelSize: Theme.fontSize - 1
   }
 
   KitGrouper {}

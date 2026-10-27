@@ -6,7 +6,7 @@ import qs.kit
 Column {
   id: root
 
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   onVisibleChanged: if (visible) field.input.forceActiveFocus()
 

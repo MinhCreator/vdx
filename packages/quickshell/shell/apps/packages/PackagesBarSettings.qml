@@ -6,7 +6,7 @@ import qs.config
 // The package manager's bar module options (Shell apps › BAR, under the
 // module's place): what the icon shows and what its popup lists.
 Column {
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "packages" }

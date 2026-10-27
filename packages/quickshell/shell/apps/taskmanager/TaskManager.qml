@@ -76,7 +76,7 @@ Rectangle {
   Column {
     id: head
     anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.windowPadding; topMargin: Theme.windowPadding - Theme.headerInset }
-    spacing: Theme.gapGroup
+    spacing: Theme.sectionGap
 
     KitHeader {
       icon: "activity"
@@ -261,7 +261,7 @@ Rectangle {
   Column {
     id: foot
     anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
-    spacing: Theme.gapWide
+    spacing: Theme.sectionGap
 
     KitLine {}
 

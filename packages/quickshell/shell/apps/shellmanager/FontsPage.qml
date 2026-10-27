@@ -3,186 +3,166 @@ import qs.apps.display
 import qs.config
 import qs.kit
 
-// Fonts: the shell's text size, then a card per monospace font, each written
-// in itself. A click on an installed one makes it the system font at once; one
-// not installed yet asks first (a download, then the shell restarts).
-// Linked from Appearance › Style.
+// Preview a family before applying it. Installed and downloadable families
+// share a compact list; system scaling is a separate group.
 KitColumn {
   id: root
-
-  property string armed: ""                 // a font to download: the second click goes
-
-  // the window's fixed header shows these; the page under it scrolls
+  property string tab: "family"
+  readonly property var tabs: [{ label: "Family", value: "family" }, { label: "Text size", value: "size" }]
+  function jump(key) { tab = key === "size" ? "size" : "family"; }
   readonly property string icon: "text"
   readonly property string title: "Fonts"
   readonly property string subtitle: FontService.current.replace(" Nerd Font", "").toUpperCase() + " · " + ShellSettings.textSize + " PX"
-  readonly property var jumps: []
-
-  // the header's Reset: the text size back to its default (the font is the system's: picked, not reset)
+  readonly property var jumps: [
+    { key: "preview", label: "Preview", y: previewLabel.y },
+    { key: "families", label: "Families", y: familiesLabel.y },
+    { key: "size", label: "Text size", y: sizeLabel.y }
+  ].filter(j => tab === "size" ? j.key === "size" : j.key !== "size")
   readonly property var resetKeys: ["textSize"]
   readonly property bool changed: ShellSettings.changed(resetKeys)
   function reset() { ShellSettings.reset(resetKeys); }
 
-  readonly property int columns: width >= 600 ? 2 : 1
-  readonly property int gap: Theme.gapGroup
-
-  // a font installed after the shell started can't be drawn until it restarts
-  function drawable(f) { return f.installed && Qt.fontFamilies().includes(f.family); }
-
+  property string selected: FontService.current
+  property string query: ""
+  property string scope: "all"
+  property string armed: ""
+  readonly property var chosen: FontService.fonts.find(f => f.family === selected) ?? null
+  readonly property var shown: FontService.fonts.filter(f => (scope !== "installed" || f.installed)
+    && f.family.toLowerCase().includes(query.trim().toLowerCase()))
+  onShownChanged: if (shown.length && !shown.some(f => f.family === selected)) selected = shown[0].family
+  readonly property bool drawable: chosen !== null && chosen.installed && Qt.fontFamilies().includes(chosen.family)
+  readonly property string previewFamily: drawable ? chosen.family : Theme.fontFamily
+  function apply() {
+    if (!chosen || FontService.busy || selected === FontService.current) return;
+    if (!chosen.installed && armed !== selected) { armed = selected; disarm.restart(); return; }
+    armed = "";
+    FontService.apply(chosen);
+  }
+  Timer { id: disarm; interval: 3000; onTriggered: root.armed = "" }
+  onSelectedChanged: armed = ""
   onVisibleChanged: if (visible) DisplayService.refresh()
 
-  Timer { id: disarm; interval: 3000; onTriggered: root.armed = "" }
+  Column {
+  spacing: Theme.sectionGap
 
-  // ---- size ----
-  KitLabel { text: "TEXT" }
-
-  // the shell's own text (Theme.fontSize); larger stops at 15: the bar's and rows' heights are fixed
-  KitRow {
-    wide: true
-    label: "Text size"
-    hint: "The shell's own text"
-
-    KitSegments {
-      model: [12, 13, 14, 15].map(n => ({ label: n + " px", value: n }))
-      current: ShellSettings.textSize
-      onPicked: value => ShellSettings.set("textSize", value)
-    }
-  }
-
-  // GTK apps' text: a factor of their default size (gsettings, display.py)
-  KitRow {
-    wide: true
-    label: "GTK apps text"
-    hint: "Applied at once, GTK only"
-
-    KitSegments {
-      disabled: DisplayService.busy
-      model: DisplayService.textScales.map(f => ({ label: Math.round(f * 100) + "%", value: f }))
-      current: DisplayService.textFactor
-      onPicked: value => DisplayService.setText(value)
-    }
-  }
-
-  // ---- the fonts ----
-  KitLabel {
-    text: "FONT"
-    value: FontService.fonts.filter(f => f.installed).length + " OF " + FontService.fonts.length + " INSTALLED"
-  }
-
-  Grid {
-    property bool kitUnboxed: true          // KitGrouper: the cards stand on the page
-
+    width: parent.width; visible: root.tab === "family"
+  KitLabel { id: previewLabel; visible: root.shown.length > 0; text: "PREVIEW"; value: root.drawable ? "SELECTED FAMILY" : "INSTALL TO PREVIEW" }
+  Rectangle {
+    id: fontSpecimen
+    property bool kitUnboxed: true
+    visible: root.shown.length > 0
     width: parent.width
-    columns: root.columns
-    columnSpacing: root.gap
-    rowSpacing: root.gap
-
+    height: sample.implicitHeight + 2 * Theme.gapGroup
+    radius: Theme.radiusCard
+    color: Theme.groupFill
+    border.width: Theme.frameWidth
+    border.color: Theme.controlLine
+    Column {
+      id: sample
+      x: Theme.gapGroup; y: Theme.gapGroup
+      width: parent.width - 2 * Theme.gapGroup
+      spacing: Theme.gapMedium
+      KitText { width: parent.width; text: root.selected.replace(" Nerd Font", ""); font.family: root.previewFamily; font.pixelSize: Theme.fontSize + 7; elide: Text.ElideRight }
+      KitText { width: parent.width; text: "Aa Bb 0123456789 · iIl1 oO0"; font.family: root.previewFamily; font.pixelSize: Theme.fontSize + 3; elide: Text.ElideRight }
+      KitText { width: parent.width; text: "~/.dotfiles  {const value = 42;}  => !="; font.family: root.previewFamily; color: Theme.muted; elide: Text.ElideRight }
+    }
+  }
+  KitRow {
+    visible: root.shown.length > 0
+    label: root.selected === FontService.current ? "Current font" : "Selected font"
+    hint: root.selected === FontService.current ? "Used by the shell and system" : root.chosen?.installed ? "Apply when ready" : "Downloads before applying"
+    KitButton {
+      text: root.armed === root.selected ? "Confirm install" : root.chosen?.installed ? "Apply" : "Install & use"
+      icon: root.chosen?.installed ? "check" : "download"
+      disabled: !root.chosen || root.selected === FontService.current
+      busy: FontService.busy
+      onClicked: root.apply()
+    }
+  }
+  KitText { visible: FontService.error !== ""; width: parent.width; text: FontService.error; color: Theme.red; wrapMode: Text.WordWrap }
+  KitLine {}
+  KitLabel { id: familiesLabel; text: "FAMILIES"; value: root.shown.length + " SHOWN" }
+  Row {
+    property bool kitUnboxed: true
+    width: parent.width
+    spacing: Theme.gapMedium
+    KitInput { width: Math.max(100, parent.width - fontFilter.width - parent.spacing); icon: "search"; placeholder: "Search fonts"; onTextEdited: root.query = text }
+    KitButton {
+      id: fontFilter
+      width: 156
+      text: root.scope === "installed" ? "Installed" : "All fonts"
+      icon: root.scope === "installed" ? "check" : "list"
+      selected: root.scope === "installed"
+      Accessible.name: text
+      Accessible.description: root.scope === "installed" ? "Click to show all" : "Click to show installed only"
+      onClicked: root.scope = root.scope === "all" ? "installed" : "all"
+    }
+  }
+  Column {
+    property bool kitUnboxed: true
+    width: parent.width
+    spacing: Theme.gapHair
     Repeater {
-      model: FontService.fonts
-
+      model: root.shown
       Rectangle {
-        id: card
-
+        id: family
         required property var modelData
-        readonly property bool active: modelData.family === FontService.current
-        readonly property bool working: FontService.working === modelData.family
-        readonly property bool drawable: root.drawable(modelData)
-        readonly property string face: drawable ? modelData.family : Theme.fontFamily
-
-        width: (root.width - (root.columns - 1) * root.gap) / root.columns
-        height: 112
-        radius: Theme.radiusCard
-        color: area.containsMouse && !active ? Theme.background2 : Theme.background1
-        border.width: active ? Theme.ring : Theme.hairline
-        border.color: active ? Theme.foreground0 : Theme.background2
-        Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
-
-        // the specimen: a large Aa, the name, a line of code
-        KitText {
-          id: aa
-          x: Theme.gapGroup
-          y: Theme.gapWide
-          text: "Aa"
-          font.family: card.face
-          font.pixelSize: 34
-          font.weight: Font.Bold
-          color: card.drawable ? Theme.foreground0 : Theme.gray
-        }
-
+        readonly property bool picked: modelData.family === root.selected
+        readonly property bool inUse: modelData.family === FontService.current
+        width: parent.width
+        height: 54
+        radius: Theme.radiusControl
+        color: picked ? Theme.pickFill : area.containsMouse ? Theme.controlHover : Theme.groupFill
+        border.width: activeFocus ? Theme.focusWidth : Theme.frameWidth
+        border.color: activeFocus ? Theme.focusRing : Theme.controlLine
+        activeFocusOnTab: true
+        Accessible.role: Accessible.RadioButton
+        Accessible.name: modelData.family
+        Accessible.checkable: true
+        Accessible.checked: picked
+        function choose() { root.selected = modelData.family; }
+        Accessible.onPressAction: choose()
+        Keys.onSpacePressed: choose()
+        Keys.onReturnPressed: choose()
         Column {
-          anchors { left: aa.right; leftMargin: Theme.gapGroup; right: parent.right; rightMargin: Theme.gapGroup; verticalCenter: aa.verticalCenter }
+          anchors { left: parent.left; leftMargin: Theme.gapWide; right: mark.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
           spacing: Theme.gapTight
-
-          KitText {
-            width: parent.width
-            elide: Text.ElideRight
-            text: card.modelData.family.replace(" Nerd Font", "")
-            font.family: card.face
-            font.weight: card.active ? Font.ExtraBold : Font.DemiBold
-          }
-
-          KitText {
-            width: parent.width
-            elide: Text.ElideRight
-            text: card.working ? "Installing…" : card.active ? "In use" : card.modelData.installed ? "Installed"
-                : root.armed === card.modelData.family ? "Sure?" : "Not installed"
-            color: card.active ? Theme.green : root.armed === card.modelData.family ? Theme.yellow : Theme.muted
-            font.pixelSize: Theme.fontSize - 2
+          KitText { width: parent.width; text: family.modelData.family.replace(" Nerd Font", ""); font.family: family.modelData.installed && Qt.fontFamilies().includes(family.modelData.family) ? family.modelData.family : Theme.fontFamily; font.weight: family.picked ? Theme.pickWeight : Font.Normal; elide: Text.ElideRight }
+          KitText { text: family.inUse ? "In use" : family.modelData.installed ? "Installed" : "Available to install"; color: Theme.muted; font.pixelSize: Theme.fontSize - 1 }
+        }
+        Row {
+          id: mark
+          z: 1
+          anchors { right: parent.right; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
+          spacing: Theme.gapSmall
+          KitIcon { anchors.verticalCenter: parent.verticalCenter; name: family.inUse ? "check" : family.modelData.installed ? "text" : "download"; size: Theme.iconSmall; tint: Theme.foreground2 }
+          KitButton {
+            visible: family.picked && !family.inUse
+            text: root.armed === root.selected ? "Confirm" : family.modelData.installed ? "Apply" : "Install"
+            busy: FontService.busy
+            onClicked: root.apply()
           }
         }
-
-        KitText {
-          anchors { left: parent.left; leftMargin: Theme.gapGroup; right: parent.right; rightMargin: Theme.gapGroup; bottom: parent.bottom; bottomMargin: Theme.gapWide }
-          elide: Text.ElideRight
-          visible: card.drawable
-          text: "0123456789 {}[] => != iIl1 oO0 ~/.dotfiles"
-          color: Theme.foreground2
-          font.family: card.face
-        }
-
-        Item {
-          anchors { right: parent.right; rightMargin: Theme.gapWide; top: parent.top; topMargin: Theme.gapWide }
-          width: 16
-          height: 16
-
-          KitSpinner { anchors.centerIn: parent; visible: card.working }
-          KitIcon {
-            anchors.centerIn: parent
-            visible: !card.working && (card.active || !card.modelData.installed)
-            name: card.active ? "check" : "download"
-            tint: card.active ? Theme.green : Theme.foreground2
-            size: Theme.iconSmall
-          }
-        }
-
-        MouseArea {
-          id: area
-          anchors.fill: parent
-          hoverEnabled: true
-          cursorShape: card.active || FontService.busy ? Qt.ArrowCursor : Qt.PointingHandCursor
-          onClicked: {
-            if (card.active || FontService.busy) return;
-            if (!card.modelData.installed && root.armed !== card.modelData.family) {
-              root.armed = card.modelData.family;
-              disarm.restart();
-              return;
-            }
-            root.armed = "";
-            FontService.apply(card.modelData);
-          }
-        }
+        MouseArea { id: area; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: family.choose() }
       }
     }
   }
-
-  KitText {
-    width: parent.width
-    visible: FontService.error !== ""
-    text: FontService.error
-    color: Theme.red
-    wrapMode: Text.WordWrap
-    font.pixelSize: Theme.fontSize - 1
+  KitEmptyState { visible: root.shown.length === 0; icon: "text"; title: "No matching fonts"; hint: "Try another name or show all fonts" }
+  KitLine {}
+    KitGrouper {}
   }
-
+  Column {
+    width: parent.width; visible: root.tab === "size"
+  KitLabel { id: sizeLabel; text: "TEXT SIZE" }
+  KitRow {
+    wide: true; label: "Text size"; hint: "Shell text and controls"
+    KitSegments { model: [12, 13, 14, 15].map(n => ({ label: n + " px", value: n })); current: ShellSettings.textSize; onPicked: value => ShellSettings.set("textSize", value) }
+  }
+  KitRow {
+    wide: true; label: "GTK apps text"; hint: "Applied at once, GTK only"
+    KitSegments { disabled: DisplayService.busy; model: DisplayService.textScales.map(f => ({ label: Math.round(f * 100) + "%", value: f })); current: DisplayService.textFactor; onPicked: value => DisplayService.setText(value) }
+  }
+    KitGrouper {}
+  }
   KitGrouper {}
 }

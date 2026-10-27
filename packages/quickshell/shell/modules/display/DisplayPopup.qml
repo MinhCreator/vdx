@@ -35,7 +35,7 @@ KitFrame {
 
   Column {
     width: parent.width
-    spacing: Theme.gapGroup
+    spacing: Theme.sectionGap
 
     Repeater {
       model: root.ds.monitors

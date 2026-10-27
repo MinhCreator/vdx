@@ -9,7 +9,7 @@ import qs.kit
 Column {
   id: root
 
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   // the screen behind the panel: in the window, and behind the island's view
   KitToggleRow {

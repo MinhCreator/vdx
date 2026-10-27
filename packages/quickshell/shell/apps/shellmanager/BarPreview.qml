@@ -3,7 +3,7 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// A glance at one monitor's bar on the Bar page: icons left, centre and right
+// A glance at one monitor's bar on the Bar page: modules left, centre and right
 // as on screen — a side that runs out of room ends in +N. Island style: the
 // resting pill (LEFT, the clock, RIGHT) on an empty strip.
 //
@@ -16,33 +16,56 @@ Rectangle {
   id: root
 
   property string screenName
+  property bool interactive: true
+  property bool canAdd: true
+  readonly property bool detailed: true
 
   // child bars already on show, by spot: one that is new there (added, or
   // dropped on another spot) grows in
   property KitSeen seen: KitSeen {}
   onScreenNameChanged: seen.reset()
 
-  readonly property int iconStep: 24          // a 14px icon and its gap
+  readonly property int iconStep: detailed ? 44 : 24
   readonly property var children: BarLayout.barsOn(screenName)
   readonly property var center: BarLayout.visibleIn("center", screenName)
-  // icons one side has room for: its half, less the centre's half and margins
-  readonly property int perSide: Math.max(1, Math.floor((width / 2 - center.length * iconStep / 2 - 12 - 16) / iconStep))
+  readonly property int centerLimit: Math.max(1, Math.floor(stage.width / 3 / iconStep))
+  readonly property int perSide: Math.max(1, Math.floor((stage.width / 3 - 24) / iconStep))
+  readonly property int islandLimit: Math.max(1, Math.floor((stage.width - 60) / iconStep))
+  readonly property var islandIds: BarLayout.islandIn("start", screenName)
+    .concat(BarLayout.islandClock(screenName) ? ["clock"] : [], BarLayout.islandIn("end", screenName))
 
-  function shown(ids) { return ids.length <= perSide ? ids : ids.slice(0, perSide - 1); }
-  function extra(ids) { return ids.length <= perSide ? 0 : ids.length - perSide + 1; }
+  function shown(ids, limit = perSide) {
+    const budget = limit * iconStep;
+    let used = 0;
+    for (let i = 0; i < ids.length; i++) {
+      const next = pillIcons.faceWidth(ids[i]) + (i > 0 ? pillIcons.spacing : 0);
+      if (used + next + (i < ids.length - 1 ? 34 : 0) > budget)
+        return ids.slice(0, i);
+      used += next;
+    }
+    return ids;
+  }
+  function extra(ids, limit = perSide) { return ids.length - shown(ids, limit).length; }
 
   // filled, unlike the bands of chips under it; the box it sits in is filled
   // in material, so the bar takes the page's colour there
-  height: 30
+  height: 44
   radius: Theme.radiusCard
   // the island's pill and every bar beside it: one height
   readonly property int pillHeight: Theme.island ? height - 4 : height - 8
-  readonly property color surface: Theme.material ? Theme.background0 : Theme.background1
+  readonly property color surface: Theme.background0
   color: Theme.island ? "transparent" : surface
+
+  Item {
+    id: stage
+    width: root.width
+    height: root.height
+    transformOrigin: Item.TopLeft
 
   // ---- the main bar ----
   BarPreviewIcons {
     id: leftIcons
+    detailed: root.detailed
     visible: !Theme.island
     anchors.verticalCenter: parent.verticalCenter
     x: 12
@@ -52,16 +75,19 @@ Rectangle {
 
   BarPreviewIcons {
     id: centreIcons
+    detailed: root.detailed
     visible: !Theme.island
     anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
-    ids: Theme.island ? [] : root.center
+    ids: Theme.island ? [] : root.shown(root.center, root.centerLimit)
+    more: Theme.island ? 0 : root.extra(root.center, root.centerLimit)
   }
 
   BarPreviewIcons {
     id: rightIcons
+    detailed: root.detailed
     visible: !Theme.island
     anchors.verticalCenter: parent.verticalCenter
-    x: root.width - width - 12
+    x: stage.width - width - 12
     ids: Theme.island ? [] : root.shown(BarLayout.visibleIn("right", root.screenName))
     more: Theme.island ? 0 : root.extra(BarLayout.visibleIn("right", root.screenName))
   }
@@ -74,26 +100,29 @@ Rectangle {
     height: root.pillHeight
     radius: Math.min(height / 2, Theme.islandRadius)
     color: root.surface
+    border.width: Theme.islandFrameWidth
+    border.color: Theme.background2
 
     BarPreviewIcons {
       id: pillIcons
+      detailed: root.detailed
       anchors.centerIn: parent
-      ids: Theme.island ? BarLayout.islandIn("start", root.screenName)
-        .concat(BarLayout.islandClock(root.screenName) ? ["clock"] : [], BarLayout.islandIn("end", root.screenName)) : []
+      ids: Theme.island ? root.shown(root.islandIds, root.islandLimit) : []
+      more: Theme.island ? root.extra(root.islandIds, root.islandLimit) : 0
     }
   }
 
   // ---- child bars ----
   // the centre they stick to, and the four spots, as Bar.qml lays them out
   readonly property bool centreGone: Theme.island ? !islandPill.visible : centreIcons.width === 0
-  readonly property real cx: centreGone ? width / 2 : Theme.island ? islandPill.x : centreIcons.x
+  readonly property real cx: centreGone ? stage.width / 2 : Theme.island ? islandPill.x : centreIcons.x
   readonly property real cw: centreGone ? 0 : Theme.island ? islandPill.width : centreIcons.width
   readonly property int gap: 6
   readonly property var spots: [
     { side: "left",  place: "edge",   x: Theme.island || leftIcons.width === 0 ? 8 : leftIcons.x + leftIcons.width + gap },
     { side: "left",  place: "island", x: cx - gap },
     { side: "right", place: "island", x: cx + cw + gap },
-    { side: "right", place: "edge",   x: Theme.island || rightIcons.width === 0 ? width - 8 : rightIcons.x - gap }
+    { side: "right", place: "edge",   x: Theme.island || rightIcons.width === 0 ? stage.width - 8 : rightIcons.x - gap }
   ]
 
   component Group: Row {
@@ -119,11 +148,11 @@ Rectangle {
         width: (mini.ids.length > 0 ? miniIcons.width : emptyText.implicitWidth) + 2 * Theme.gapMedium
         height: root.pillHeight
         radius: Theme.island ? Math.min(height / 2, Theme.islandRadius) : Theme.radiusControl
-        color: area.containsMouse || root.dragId === bar.id ? Theme.background3 : Theme.background2
+        color: area.containsMouse || stage.dragId === bar.id ? Theme.background3 : Theme.background2
         Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
         // grown: 0 → 1 as it comes in; dim: lifted while it is dragged
         property real grown: 1
-        property real dim: root.dragId === bar.id ? 0.35 : 1
+        property real dim: stage.dragId === bar.id ? 0.35 : 1
         Behavior on dim { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
         Behavior on width { enabled: Motion.controls && root.seen.ready; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
         opacity: dim * grown
@@ -153,6 +182,7 @@ Rectangle {
 
         MouseArea {
           id: area
+          enabled: root.interactive
           anchors.fill: parent
           hoverEnabled: true
           preventStealing: true
@@ -160,18 +190,18 @@ Rectangle {
           property real grab: 0
           onPressed: mouse => {
             grab = mouse.x;
-            root.dragId = mini.bar.id;
+            stage.dragId = mini.bar.id;
             ghost.width = mini.width;
             ghost.ids = miniIcons.ids;
-            root.follow(mapToItem(root, mouse.x, mouse.y), grab);
+            stage.follow(mapToItem(stage, mouse.x, mouse.y), grab);
           }
-          onPositionChanged: mouse => { if (pressed) root.follow(mapToItem(root, mouse.x, mouse.y), grab); }
-          onReleased: root.land()
+          onPositionChanged: mouse => { if (pressed) stage.follow(mapToItem(stage, mouse.x, mouse.y), grab); }
+          onReleased: stage.land()
         }
 
         // a cross in the corner while the pointer is on it: removes the bar
         Rectangle {
-          visible: (area.containsMouse || closeArea.containsMouse) && root.dragId === ""
+          visible: root.interactive && (area.containsMouse || closeArea.containsMouse) && stage.dragId === ""
           anchors { right: parent.right; top: parent.top; rightMargin: -6; topMargin: -6 }
           width: 18
           height: 18
@@ -202,7 +232,7 @@ Rectangle {
     // a bar still to come, where a new one lands: a click adds it
     Rectangle {
       // one empty child bar at a time: fill it first
-      readonly property bool wanted: group.adds && root.dragId === "" && !root.children.some(b => BarLayout.barModules(root.screenName, b.id).length === 0)
+      readonly property bool wanted: root.interactive && root.canAdd && group.adds && stage.dragId === "" && !root.children.some(b => BarLayout.barModules(root.screenName, b.id).length === 0)
       opacity: wanted ? 1 : 0
       visible: opacity > 0
       Behavior on opacity { enabled: Motion.controls && root.seen.ready; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
@@ -233,13 +263,13 @@ Rectangle {
     }
   }
 
-  Group { id: edgeLeft; side: "left"; place: "edge"; x: root.spots[0].x }
+  Group { id: edgeLeft; side: "left"; place: "edge"; x: stage.spots[0].x }
   // no centre: the groups meant for it meet in the middle
   readonly property real join: besideLeft.width > 0 && besideRight.width > 0 ? gap : 0
   readonly property real meet: cx - (besideLeft.width + besideRight.width + join) / 2
-  Group { id: besideLeft; side: "left"; place: "island"; x: root.centreGone ? root.meet : root.spots[1].x - width }
-  Group { id: besideRight; side: "right"; place: "island"; adds: true; x: root.centreGone ? root.meet + besideLeft.width + root.join : root.spots[2].x }
-  Group { id: edgeRight; side: "right"; place: "edge"; x: root.spots[3].x - width }
+  Group { id: besideLeft; side: "left"; place: "island"; x: stage.centreGone ? stage.meet : stage.spots[1].x - width }
+  Group { id: besideRight; side: "right"; place: "island"; adds: true; x: stage.centreGone ? stage.meet + besideLeft.width + stage.join : stage.spots[2].x }
+  Group { id: edgeRight; side: "right"; place: "edge"; x: stage.spots[3].x - width }
 
   // ---- dragging one ----
   property string dragId: ""
@@ -268,9 +298,9 @@ Rectangle {
 
   // where a child bar in the air lands: a thin line, as between chips below
   Rectangle {
-    visible: root.dragId !== "" && root.target >= 0
-    x: root.target >= 0 ? root.spots[root.target].x - width / 2 : 0
-    Behavior on x { enabled: Motion.controls && root.dragId !== ""; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
+    visible: stage.dragId !== "" && stage.target >= 0
+    x: stage.target >= 0 ? stage.spots[stage.target].x - width / 2 : 0
+    Behavior on x { enabled: Motion.controls && stage.dragId !== ""; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
     anchors.verticalCenter: parent.verticalCenter
     width: 2
     height: root.pillHeight
@@ -280,13 +310,13 @@ Rectangle {
   Rectangle {
     id: ghost
     property var ids: []
-    visible: root.dragId !== ""
+    visible: stage.dragId !== ""
     height: root.pillHeight
     radius: Theme.island ? Math.min(height / 2, Theme.islandRadius) : Theme.radiusControl
     color: Theme.background3
-    border.width: root.target < 0 ? Theme.islandFrameWidth : 0
+    border.width: stage.target < 0 ? Theme.islandFrameWidth : 0
     border.color: Theme.red
-    opacity: root.target < 0 ? 0.6 : 1
+    opacity: stage.target < 0 ? 0.6 : 1
     Behavior on opacity { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
 
     BarPreviewIcons {
@@ -294,5 +324,6 @@ Rectangle {
       spacing: Theme.gapSmall
       ids: ghost.ids
     }
+  }
   }
 }

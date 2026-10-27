@@ -1,59 +1,87 @@
 import QtQuick
+import QtQuick.Controls as Controls
 import qs.config
 import qs.kit
 
-// How a shell window opens, as a dialog over the Shell Manager (Shell apps ›
-// an app › Window › Set up): the page dims, in the middle WindowOptions for
-// the app. Done, Escape or a click on the dimmed page closes it; every choice
-// is already applied.
 Item {
   id: root
-
-  property string appId: ""                 // shellapps.py id; "" closed
+  property string appId: ""
   readonly property var app: ShellAppsService.windows.find(a => a.id === appId) ?? null
-
   function close() { appId = ""; }
-
   visible: app !== null
 
   Rectangle {
     anchors.fill: parent
     color: Theme.scrim
-
     MouseArea { anchors.fill: parent; onClicked: root.close() }
   }
 
-  // clicks on the dialog don't reach the dimmed page
-  MouseArea { anchors.fill: dialog }
-
-  KitFrame {
+  Rectangle {
     id: dialog
     anchors.centerIn: parent
-    width: Math.min(parent.width - 48, 560)
+    width: Math.min(parent.width - 48, 900)
+    height: Math.min(parent.height - 48, 640)
+    radius: Theme.radiusSurface
+    color: Theme.background0
+    border.width: Theme.windowFrameWidth
+    border.color: Theme.popupFrame
+    clip: true
+    readonly property bool stacked: width < 700
+    MouseArea { anchors.fill: parent }
 
     KitHeader {
-      icon: "app-window"
+      id: heading
+      x: Theme.windowPadding; y: Theme.windowPadding
+      width: parent.width - 2 * Theme.windowPadding
       title: root.app?.title ?? ""
       subtitle: "WINDOW · APPLIED THE NEXT TIME IT OPENS"
+      KitButton { text: "Done"; onClicked: root.close() }
+    }
 
-      KitButton {
-        text: "Done"
-        onClicked: root.close()
+    Flickable {
+      id: viewport
+      anchors { left: parent.left; right: parent.right; top: heading.bottom; bottom: parent.bottom; margins: Theme.windowPadding }
+      contentHeight: content.implicitHeight
+      contentWidth: width
+      clip: true
+      boundsBehavior: Flickable.StopAtBounds
+      Controls.ScrollBar.vertical: KitScrollBar {}
+      Column {
+        id: content
+        width: viewport.width
+        spacing: Theme.gapWide
+        Loader {
+          width: parent.width
+          active: root.app !== null
+          sourceComponent: WindowOptions {
+            app: root.app
+            ipc: root.app.ipc
+            labelled: false
+            showPreview: dialog.stacked
+          }
+        }
+      }
+      anchors.rightMargin: dialog.stacked ? Theme.windowPadding : preview.width + 2 * Theme.windowPadding
+    }
+    Column {
+      id: preview
+      visible: !dialog.stacked && root.app !== null
+      width: 260
+      anchors { right: parent.right; rightMargin: Theme.windowPadding; top: heading.bottom; topMargin: Theme.windowPadding }
+      spacing: Theme.gapWide
+      KitLabel { text: "PREVIEW" }
+      Loader {
+        width: parent.width
+        active: preview.visible
+        sourceComponent: WindowPreview { app: root.app; settings: root.app.settings }
+      }
+      KitText {
+        width: parent.width
+        text: "Size and position are applied the next time this app opens."
+        color: Theme.muted
+        wrapMode: Text.WordWrap
       }
     }
-
-    KitLine {}
-
-    Loader {
-      width: parent.width
-      active: root.app !== null
-      sourceComponent: WindowOptions { app: root.app; ipc: root.app.ipc; labelled: false }
-    }
   }
-
-  Shortcut {
-    sequences: [StandardKey.Cancel]
-    enabled: root.visible
-    onActivated: root.close()
-  }
+  Shortcut { sequences: [StandardKey.Cancel]; enabled: root.visible; onActivated: root.close() }
 }

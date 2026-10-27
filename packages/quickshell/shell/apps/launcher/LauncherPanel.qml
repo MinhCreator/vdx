@@ -63,6 +63,7 @@ KitFrame {
   KitInput {
     id: field
     width: parent.width
+    icon: "search"
     placeholder: root.tab === "files" ? "File name in ~" : "Search " + root.tabs.find(t => t.value === root.tab).label.toLowerCase() + "…"
 
     input.Keys.onPressed: event => {
@@ -90,7 +91,7 @@ KitFrame {
 
   Item {
     width: parent.width
-    height: root.rows * 44
+    height: root.rows * Theme.rowHeight
 
     KitText {
       anchors.centerIn: parent
@@ -115,8 +116,8 @@ KitFrame {
         readonly property bool selected: index === root.current
 
         width: list.width
-        height: 44
-        color: selected ? Theme.background3 : Theme.clear
+        height: Theme.rowHeight
+        color: selected ? Theme.pickFill : Theme.clear
         Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
         IconImage {
@@ -146,7 +147,7 @@ KitFrame {
             width: parent.width
             elide: Text.ElideRight
             text: row.modelData.title
-            font.weight: row.selected ? Font.ExtraBold : Theme.fontWeight
+            font.weight: row.selected ? Theme.pickWeight : Theme.fontWeight
           }
 
           KitText {
@@ -155,7 +156,7 @@ KitFrame {
             elide: Text.ElideRight
             text: row.modelData.hint ?? ""
             color: Theme.muted
-            font.pixelSize: Theme.fontSize - 2
+            font.pixelSize: Theme.fontSize - 1
           }
         }
 
@@ -166,7 +167,7 @@ KitFrame {
           anchors.verticalCenter: parent.verticalCenter
           text: row.modelData.keys ?? ""
           color: Theme.muted
-          font.pixelSize: Theme.fontSize - 2
+          font.pixelSize: Theme.fontSize - 1
         }
 
         MouseArea {
@@ -186,7 +187,7 @@ KitFrame {
     width: parent.width
     horizontalAlignment: Text.AlignRight
     color: Theme.muted
-    font.pixelSize: Theme.fontSize - 2
+    font.pixelSize: Theme.fontSize - 1
     text: "↑ ↓ pick · enter run · tab list · esc close"
   }
 }

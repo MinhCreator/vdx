@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls as Controls
 import Quickshell
 import Quickshell.Io
 import qs.components
@@ -147,7 +148,7 @@ Item {
     id: listColumn
 
     anchors { left: parent.left; top: parent.top; right: parent.right; rightMargin: root.selected ? root.previewWidth + Theme.gapWide : 0 }
-    spacing: Theme.gapMedium
+    spacing: Theme.sectionGap
 
     KitLabel {
       text: "LIBRARY"
@@ -227,6 +228,7 @@ Item {
 
           width: parent.width
           height: Theme.fontSize + 14
+          clip: true
           radius: Theme.radiusControl
           color: current ? Theme.background3 : rowArea.containsMouse ? Theme.controlHover : Theme.clear
 
@@ -244,7 +246,7 @@ Item {
 
           KitText {
             x: icon.x + icon.width + Theme.gapSmall
-            width: root.colWidth("name", parent.width) - x - Theme.gapSmall
+            width: Math.max(0, root.colWidth("name", parent.width) - x - Theme.gapSmall)
             anchors.verticalCenter: parent.verticalCenter
             elide: Text.ElideRight
             font.weight: parent.current ? Font.ExtraBold : Theme.fontWeight
@@ -278,6 +280,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             horizontalAlignment: Text.AlignRight
             color: Theme.muted
+            elide: Text.ElideRight
             text: root.size(modelData.bytes)
           }
 
@@ -307,92 +310,104 @@ Item {
   }
 
   // the preview of the selected file, and what to do with it
-  Column {
+  Flickable {
     id: preview
 
     visible: root.selected !== null
-    anchors { top: parent.top; right: parent.right }
-    width: root.previewWidth
-    spacing: Theme.gapMedium
+    anchors { top: parent.top; right: parent.right; bottom: parent.bottom }
+    width: Math.min(root.previewWidth, root.width)
+    contentWidth: width
+    contentHeight: previewColumn.implicitHeight
+    clip: true
+    boundsBehavior: Flickable.StopAtBounds
+    flickableDirection: Flickable.VerticalFlick
+    Controls.ScrollBar.vertical: KitScrollBar {}
 
-    Rectangle {
-      width: parent.width
-      height: width * 0.66
-      radius: Theme.radiusCard
-      color: Theme.background1
-      clip: true
+    Column {
+      id: previewColumn
+      width: preview.width - Theme.gapMedium
+      spacing: Theme.gapMedium
 
-      Image {
-        id: picture
+      Rectangle {
+        width: parent.width
+        height: width * 0.66
+        radius: Theme.radiusCard
+        color: Theme.background1
+        clip: true
 
-        anchors.fill: parent
-        anchors.margins: Theme.gapSmall
-        fillMode: Image.PreserveAspectFit
-        asynchronous: true
-        // a screenshot is its own picture; a recording shows a frame made once (ffmpegthumbnailer)
-        source: root.selected === null ? ""
-          : root.selected.video ? (thumbs.ready ? "file://" + thumbs.target : "")
-          : "file://" + root.selected.path
+        Image {
+          id: picture
+
+          anchors.fill: parent
+          anchors.margins: Theme.gapSmall
+          fillMode: Image.PreserveAspectFit
+          asynchronous: true
+          // a screenshot is its own picture; a recording shows a frame made once (ffmpegthumbnailer)
+          source: root.selected === null ? ""
+            : root.selected.video ? (thumbs.ready ? "file://" + thumbs.target : "")
+            : "file://" + root.selected.path
+        }
+
+        KitIcon {
+          anchors.centerIn: parent
+          visible: picture.status !== Image.Ready
+          name: root.selected && root.selected.video ? "video" : "camera"
+          tint: Theme.muted
+          size: Theme.fontSize + 12
+        }
       }
 
-      KitIcon {
-        anchors.centerIn: parent
-        visible: picture.status !== Image.Ready
-        name: root.selected && root.selected.video ? "video" : "camera"
-        tint: Theme.muted
-        size: Theme.fontSize + 12
+      KitText {
+        width: parent.width
+        wrapMode: Text.WrapAnywhere
+        font.weight: Font.ExtraBold
+        text: root.selected ? root.selected.name : ""
+      }
+
+      KitText {
+        width: parent.width
+        wrapMode: Text.WordWrap
+        color: Theme.muted
+        font.pixelSize: Theme.fontSize - 2
+        text: {
+          if (!root.selected) return "";
+          const kind = root.selected.video ? "Recording" + (probe.seconds > 0 ? " · " + root.duration(probe.seconds) : "")
+            : "Screenshot" + (picture.sourceSize.width > 0 ? " · " + picture.sourceSize.width + " × " + picture.sourceSize.height + " px" : "");
+          return kind + " · " + root.size(root.selected.bytes) + "\n" + root.when(root.selected.time);
+        }
+      }
+
+      KitButton {
+        width: parent.width
+        icon: "external"
+        text: "Open"
+        onClicked: Quickshell.execDetached(["xdg-open", root.selected.path])
+      }
+
+      KitButton {
+        width: parent.width
+        visible: root.selected !== null && !root.selected.video
+        icon: "clipboard"
+        text: "Copy image"
+        onClicked: Quickshell.execDetached(["sh", "-c", 'wl-copy --type image/png < "$1" && notify-send -a Capture "Copied" "$2"', "sh", root.selected.path, root.selected.name])
+      }
+
+      KitButton {
+        width: parent.width
+        icon: "folder"
+        text: "Show in folder"
+        onClicked: ShellIpc.call("files", "reveal", [root.selected.path])
+      }
+
+      KitButton {
+        width: parent.width
+        icon: "trash"
+        iconTint: Theme.red
+        text: "Move to trash"
+        onClicked: root.trashSelected()
       }
     }
 
-    KitText {
-      width: parent.width
-      wrapMode: Text.WrapAnywhere
-      font.weight: Font.ExtraBold
-      text: root.selected ? root.selected.name : ""
-    }
-
-    KitText {
-      width: parent.width
-      wrapMode: Text.WordWrap
-      color: Theme.muted
-      font.pixelSize: Theme.fontSize - 2
-      text: {
-        if (!root.selected) return "";
-        const kind = root.selected.video ? "Recording" + (probe.seconds > 0 ? " · " + root.duration(probe.seconds) : "")
-          : "Screenshot" + (picture.sourceSize.width > 0 ? " · " + picture.sourceSize.width + " × " + picture.sourceSize.height + " px" : "");
-        return kind + " · " + root.size(root.selected.bytes) + "\n" + root.when(root.selected.time);
-      }
-    }
-
-    KitButton {
-      width: parent.width
-      icon: "external"
-      text: "Open"
-      onClicked: Quickshell.execDetached(["xdg-open", root.selected.path])
-    }
-
-    KitButton {
-      width: parent.width
-      visible: root.selected !== null && !root.selected.video
-      icon: "clipboard"
-      text: "Copy image"
-      onClicked: Quickshell.execDetached(["sh", "-c", 'wl-copy --type image/png < "$1" && notify-send -a Capture "Copied" "$2"', "sh", root.selected.path, root.selected.name])
-    }
-
-    KitButton {
-      width: parent.width
-      icon: "folder"
-      text: "Show in folder"
-      onClicked: ShellIpc.call("files", "reveal", [root.selected.path])
-    }
-
-    KitButton {
-      width: parent.width
-      icon: "trash"
-      iconTint: Theme.red
-      text: "Move to trash"
-      onClicked: root.trashSelected()
-    }
   }
 
   // a recording's frame, made once into the cache; the file is not decoded again

@@ -24,7 +24,7 @@ Column {
     return Math.log(1 + mbps) / Math.log(1001);
   }
 
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLine {}
 

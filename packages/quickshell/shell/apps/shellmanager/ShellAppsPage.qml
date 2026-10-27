@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls as Controls
 import Quickshell
 import qs.apps.keybinds
 import qs.bar
@@ -82,6 +83,8 @@ Column {
     // ---- the chosen app: its name, key, window and options, scrolling on their own ----
     Flickable {
       id: pane
+      visible: list.matches.length > 0
+      Controls.ScrollBar.vertical: KitScrollBar {}
       width: parent.width - list.width - parent.spacing
       height: parent.height
       contentHeight: details.implicitHeight
@@ -92,11 +95,12 @@ Column {
 
       Column {
         id: details
-        width: pane.width
-        spacing: Theme.gapGroup
+        width: pane.width - Theme.gapMedium
+        spacing: Theme.sectionGap
 
         // heading: icon, name and about; the key that opens it; Reset
         Item {
+          readonly property Item kitCaption: heading
           property bool kitUnboxed: true    // KitGrouper: the heading stands on the page
           width: parent.width
           height: Math.max(heading.implicitHeight, trailing.height)
@@ -119,16 +123,19 @@ Column {
               spacing: Theme.gapTight
 
               KitText {
+                width: parent.width
+                elide: Text.ElideRight
                 text: root.entry?.label ?? ""
-                font.weight: Font.ExtraBold
+                font.weight: Font.DemiBold
               }
 
               KitText {
                 width: parent.width
                 text: root.entry?.about ?? ""
                 elide: Text.ElideRight
+                maximumLineCount: 1
                 color: Theme.muted
-                font.pixelSize: Theme.fontSize - 2
+                font.pixelSize: Theme.fontSize - 1
               }
             }
           }
@@ -162,6 +169,8 @@ Column {
           }
         }
 
+        KitLine { sectionBreak: false }
+
         // its components are off on this machine: nothing to set until installed
         KitRow {
           visible: root.entry !== null && !ShellAppsService.installed(root.entry)
@@ -174,7 +183,7 @@ Column {
         Column {
           width: parent.width
           visible: ShellAppsService.installed(root.entry)
-          spacing: Theme.gapGroup
+          spacing: Theme.sectionGap
 
           // one line: how it opens now; the options in a dialog (WindowDialog)
           KitRow {
@@ -224,6 +233,13 @@ Column {
 
         KitGrouper {}
       }
+    }
+    KitEmptyState {
+      visible: list.matches.length === 0
+      width: parent.width - list.width - parent.spacing
+      icon: "search"
+      title: "No matching items"
+      hint: "Try a shorter search"
     }
   }
 

@@ -56,11 +56,10 @@ Rectangle {
     font.weight: Font.DemiBold
   }
 
-  Rectangle {
+  KitLine {
     id: line
     anchors { left: parent.left; right: parent.right; top: caption.bottom; leftMargin: Theme.gapWide; rightMargin: Theme.gapWide }
-    height: 1
-    color: Theme.background3
+    sectionBreak: false
   }
 
   ListView {

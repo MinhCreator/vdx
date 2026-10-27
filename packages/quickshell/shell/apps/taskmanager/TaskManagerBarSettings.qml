@@ -6,7 +6,7 @@ import qs.config
 // The task manager's bar module options (Shell apps › BAR, under the
 // module's place): how much its popup lists.
 Column {
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "taskmanager"; hasContent: false }

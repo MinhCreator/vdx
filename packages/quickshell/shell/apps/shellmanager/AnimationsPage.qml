@@ -10,6 +10,7 @@ import qs.kit
 Column {
   id: root
 
+
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "zap"
   readonly property string title: "Animations"
@@ -27,7 +28,7 @@ Column {
     { key: "parts",   label: "Parts",   y: partsGroup.y }
   ]
 
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   // ---- general ----
   KitLabel { id: generalGroup; text: "GENERAL" }
@@ -63,7 +64,13 @@ Column {
 
     Item {
       id: sample
-      height: 20
+      activeFocusOnTab: true
+      Accessible.role: Accessible.Button
+      Accessible.name: "Preview animations"
+      Accessible.onPressAction: play()
+      Keys.onSpacePressed: play()
+      Keys.onReturnPressed: play()
+      height: Theme.controlHeight
       opacity: ShellSettings.motion ? 1 : 0.4
 
       property bool atEnd: false

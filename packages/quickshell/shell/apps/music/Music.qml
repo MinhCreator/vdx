@@ -216,7 +216,7 @@ Item {
     Column {
       id: brand
       anchors { left: parent.left; leftMargin: root.padding; right: parent.right; top: parent.top; topMargin: root.padding - Theme.headerInset }
-      spacing: Theme.gapGroup
+      spacing: Theme.sectionGap
 
       KitHeader {
         icon: "music"
@@ -237,10 +237,9 @@ Item {
   }
 
   // the line between the panes
-  Rectangle {
+  KitLine {
     anchors { left: sidePane.right; top: parent.top; bottom: parent.bottom }
-    width: 1
-    color: Theme.background3
+    vertical: true
   }
 
   // ---- the page: its header, the field, the list (or the empty state), the player ----

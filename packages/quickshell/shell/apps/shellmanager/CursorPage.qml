@@ -1,11 +1,11 @@
 import QtQuick
 import qs.config
 import qs.kit
+import "../../kit/colour.js" as Colour
 
 // Cursor: the picked cursor's shapes large, in the chosen colour; its colour and
 // size; then a card per cursor theme. A pick (or a colour) is previewed and waits
 // for Apply (it may download the theme); the size applies at once.
-// Linked from Appearance › Style.
 KitColumn {
   id: root
 
@@ -17,10 +17,11 @@ KitColumn {
   // the cursor in the preview and its colour; Apply makes them the system's
   property string cursorSelected: CursorService.base
   property string cursorMode: CursorService.mode
+  property int cursorSize: CursorService.size
   property string cursorCustom: CursorService.mode === "custom" ? CursorService.fill : "d8a657"
   readonly property var cursorRow: CursorService.cursors.find(c => c.name === cursorSelected) ?? null
   readonly property bool cursorCustomValid: /^[0-9a-f]{6}$/.test(cursorCustom)
-  readonly property bool cursorChanged: cursorSelected !== CursorService.base || cursorMode !== CursorService.mode
+  readonly property bool cursorChanged: cursorSelected !== CursorService.base || cursorMode !== CursorService.mode || cursorSize !== CursorService.size
                                         || (cursorMode === "custom" && cursorCustom !== CursorService.fill)
   // the preview follows the selection (a theme-coloured one, the theme too)
   readonly property string cursorPreviewKey: cursorRow && cursorRow.installed
@@ -31,6 +32,7 @@ KitColumn {
   function resetCursor() {
     cursorSelected = CursorService.base;
     cursorMode = CursorService.mode;
+    cursorSize = CursorService.size;
     cursorCustom = CursorService.mode === "custom" ? CursorService.fill : "d8a657";
   }
 
@@ -38,13 +40,20 @@ KitColumn {
   readonly property string icon: "cursor"
   readonly property string title: "Cursor"
   readonly property string subtitle: cursorLabel(CursorService.base).toUpperCase() + " · " + CursorService.mode.toUpperCase() + " · " + CursorService.size
-  readonly property var jumps: []
+  readonly property var jumps: [
+    { key: "preview", label: "Preview", y: previewLabel.y },
+    { key: "style", label: "Style", y: styleLabel.y },
+    { key: "themes", label: "Cursor themes", y: themesLabel.y }
+  ]
+  property string query: ""
+  property string scope: "all"
+  readonly property var shown: CursorService.cursors.filter(c => (scope !== "installed" || c.installed) && cursorLabel(c.name).toLowerCase().includes(query.trim().toLowerCase()))
 
-  readonly property int columns: width >= 600 ? 3 : 2
+  readonly property int columns: width >= 720 ? 3 : width >= 440 ? 2 : 1
   readonly property int gap: Theme.gapGroup
 
   // ---- the picked cursor: its shapes, Apply when changed ----
-  KitLabel { text: "PREVIEW" }
+  KitLabel { id: previewLabel; text: "PREVIEW"; value: root.cursorChanged ? "NOT APPLIED" : "IN USE" }
 
   Rectangle {
     id: well
@@ -53,22 +62,24 @@ KitColumn {
                                   && CursorService.shapesKey === CursorService.wantedKey
 
     width: parent.width
-    height: 104
+    height: Math.max(80, cursorShapes.implicitHeight + 2 * Theme.gapWide)
     radius: Theme.radiusControl
     color: Theme.background0
 
-    Row {
+    Flow {
+      id: cursorShapes
+      width: Math.min(parent.width - 24, CursorService.shapes.length * (root.cursorSize * 1.5 + Theme.gapWide))
       anchors.centerIn: parent
       visible: well.ready
-      spacing: Theme.gapGroup * 2
+      spacing: Theme.gapWide
 
       Repeater {
         model: CursorService.shapes
 
         Image {
           required property var modelData
-          width: 44
-          height: 44
+          width: root.cursorSize * 1.5
+          height: width
           source: "file://" + modelData.path + "?" + CursorService.shapesKey
           sourceSize: Qt.size(modelData.width, modelData.height)
           cache: false
@@ -106,65 +117,83 @@ KitColumn {
       text: "Apply"
       busy: CursorService.busy
       disabled: root.cursorRow === null || (root.cursorMode === "custom" && !root.cursorCustomValid)
-      onClicked: CursorService.apply(root.cursorRow, CursorService.size, root.cursorMode, root.cursorCustom)
+      onClicked: CursorService.apply(root.cursorRow, root.cursorSize, root.cursorMode, root.cursorCustom)
     }
   }
 
   // ---- its look ----
-  KitLabel { text: "STYLE" }
+  KitLabel { id: styleLabel; text: "STYLE" }
 
   KitRow {
     wide: true
     label: "Colour"
     hint: root.cursorMode === "theme" ? "Follows the theme's colours"
-        : root.cursorMode === "custom" ? "Your colour, outlined to stand out" : "As the cursor theme draws it"
+        : root.cursorMode === "custom" ? "Choose a colour from the palette" : "As the cursor theme draws it"
 
     KitSegments {
       model: [
         { label: "Original", value: "original" },
         { label: "Theme",    value: "theme" },
-        { label: "Custom",   value: "custom" }
+        { label: "Colour",   value: "custom" }
       ]
       current: root.cursorMode
       onPicked: value => root.cursorMode = value
     }
   }
 
-  ColourRow {
+  KitColourPicker {
     visible: root.cursorMode === "custom"
-    value: "#" + root.cursorCustom
-    onEdited: text => root.cursorCustom = text.trim().replace(/^#/, "").toLowerCase()
-    onAccepted: colour => { if (root.cursorRow) CursorService.apply(root.cursorRow, CursorService.size, "custom", colour.slice(1)); }
+    width: parent.width
+    palette: ["red", "orange", "yellow", "green", "aqua", "blue", "purple"]
+    picked: palette.find(name => Colour.hexOfColour(Theme.accentColour(name)).slice(1) === root.cursorCustom) ?? ""
+    colours: name => [Theme.accentColour(name), Theme.accentColour(name)]
+    onChosen: name => root.cursorCustom = Colour.hexOfColour(Theme.accentColour(name)).slice(1)
   }
 
   KitRow {
     wide: true
     label: "Size"
-    hint: "Pixels at scale 1, applied at once"
+    hint: "Pixels at scale 1; Apply to use"
 
     KitSegments {
       model: [20, 24, 28, 32, 40].map(n => ({ label: String(n), value: n }))
-      current: CursorService.size
-      onPicked: value => CursorService.setSize(value)
+      current: root.cursorSize
+      onPicked: value => root.cursorSize = value
     }
   }
 
   // ---- the cursor themes ----
   KitLabel {
-    text: "CURSORS"
+    id: themesLabel
+    text: "CURSOR THEMES"
     value: CursorService.cursors.filter(c => c.installed).length + " OF " + CursorService.cursors.length + " INSTALLED"
   }
 
-  Grid {
+  Row {
+    property bool kitUnboxed: true
+    width: parent.width
+    spacing: Theme.gapMedium
+    KitInput { width: Math.max(100, parent.width - cursorFilter.width - parent.spacing); icon: "search"; placeholder: "Search cursor themes"; onTextEdited: root.query = text }
+    KitButton {
+      id: cursorFilter
+      width: 156
+      text: root.scope === "installed" ? "Installed" : "All cursors"
+      icon: root.scope === "installed" ? "check" : "list"
+      selected: root.scope === "installed"
+      Accessible.name: text
+      Accessible.description: root.scope === "installed" ? "Click to show all" : "Click to show installed only"
+      onClicked: root.scope = root.scope === "all" ? "installed" : "all"
+    }
+  }
+
+  Column {
     property bool kitUnboxed: true          // KitGrouper: the cards stand on the page
 
     width: parent.width
-    columns: root.columns
-    columnSpacing: root.gap
-    rowSpacing: root.gap
+    spacing: Theme.gapHair
 
     Repeater {
-      model: CursorService.cursors
+      model: root.shown
 
       Rectangle {
         id: card
@@ -174,12 +203,21 @@ KitColumn {
         readonly property bool picked: modelData.name === root.cursorSelected
         readonly property bool working: CursorService.working === modelData.name
 
-        width: (root.width - (root.columns - 1) * root.gap) / root.columns
-        height: 64
+        width: parent.width
+        height: 52
         radius: Theme.radiusCard
-        color: area.containsMouse && !picked ? Theme.background2 : Theme.background1
-        border.width: picked ? Theme.ring : Theme.hairline
-        border.color: picked ? Theme.foreground0 : Theme.background2
+        color: picked ? Theme.pickFill : area.containsMouse ? Theme.controlHover : Theme.groupFill
+        border.width: activeFocus ? Theme.focusWidth : Theme.frameWidth
+        border.color: activeFocus ? Theme.focusRing : Theme.controlLine
+        activeFocusOnTab: true
+        Accessible.role: Accessible.RadioButton
+        Accessible.name: root.cursorLabel(modelData.name)
+        Accessible.checkable: true
+        Accessible.checked: picked
+        function choose() { root.cursorSelected = modelData.name; }
+        Accessible.onPressAction: choose()
+        Keys.onSpacePressed: choose()
+        Keys.onReturnPressed: choose()
         Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
         Column {
@@ -190,13 +228,13 @@ KitColumn {
             width: parent.width
             elide: Text.ElideRight
             text: root.cursorLabel(card.modelData.name)
-            font.weight: card.picked ? Font.ExtraBold : Font.DemiBold
+            font.weight: card.picked ? Theme.pickWeight : Font.Normal
           }
 
           KitText {
             text: card.working ? "Installing…" : card.inUse ? "In use" : card.modelData.installed ? "Installed" : "Not installed"
-            color: card.inUse ? Theme.green : Theme.muted
-            font.pixelSize: Theme.fontSize - 2
+            color: Theme.muted
+            font.pixelSize: Theme.fontSize - 1
           }
         }
 
@@ -211,7 +249,7 @@ KitColumn {
             anchors.centerIn: parent
             visible: !card.working && (card.inUse || !card.modelData.installed)
             name: card.inUse ? "check" : "download"
-            tint: card.inUse ? Theme.green : Theme.foreground2
+            tint: Theme.foreground2
             size: Theme.iconSmall
           }
         }
@@ -221,10 +259,17 @@ KitColumn {
           anchors.fill: parent
           hoverEnabled: true
           cursorShape: Qt.PointingHandCursor
-          onClicked: root.cursorSelected = card.modelData.name
+          onClicked: card.choose()
         }
       }
     }
+  }
+
+  KitEmptyState {
+    visible: root.shown.length === 0
+    icon: "cursor"
+    title: "No matching cursor themes"
+    hint: "Try a shorter search"
   }
 
   KitText {

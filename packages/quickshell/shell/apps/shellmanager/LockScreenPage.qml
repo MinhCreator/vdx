@@ -9,6 +9,7 @@ import qs.kit
 // It was an app under Apps until 05; `shell open lock` still opens it.
 Column {
   id: root
+  readonly property Item previewItem: null
 
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "lock"
@@ -21,15 +22,6 @@ Column {
   function reset() { ModuleSettings.reset("lock"); }
 
   LockSettings { width: parent.width }
-
-  // how a typed password shows is set for every password field at once
-  KitLabel { text: "PASSWORD" }
-
-  KitLinkRow {
-    label: "Typed characters"
-    hint: "In Appearance › Style"
-    target: "appearance:style"
-  }
 
   KitGrouper {}
 }

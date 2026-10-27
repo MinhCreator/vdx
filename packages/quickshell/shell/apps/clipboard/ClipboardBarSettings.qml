@@ -6,7 +6,7 @@ import qs.config
 // The clipboard's bar popup options (Shell apps › Bar module): how much of
 // the history it lists and what it keeps on screen. The window is not affected.
 Column {
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "clipboard"; hasContent: false }

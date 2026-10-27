@@ -6,7 +6,7 @@ import qs.kit
 // Sysmon options in the Shell Manager: which metrics the bar shows (in this
 // order) and which popup sections show.
 Column {
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLabel { text: "BAR" }
   BarTextRow { id: barText; module: "sysmon" }

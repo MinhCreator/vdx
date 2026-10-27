@@ -34,7 +34,7 @@ FloatingWindow {
     id: foot
 
     anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
-    spacing: Theme.gapWide
+    spacing: Theme.sectionGap
     visible: library.items.length > 0
 
     KitLine {}

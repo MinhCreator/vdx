@@ -7,7 +7,7 @@ import qs.kit
 // order, the search, the sidebar, recent and starred files, what a click does,
 // the file chooser's size, what asks first, and the actions of the right click's menu.
 KitColumn {
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLabel { text: "VIEW"; value: FilesService.view.toUpperCase() }
 

@@ -6,7 +6,7 @@ import qs.config
 // place): how the icon shows a verdict, and what the popup takes from the
 // clipboard when it opens.
 Column {
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "virustotal"; hasContent: false }

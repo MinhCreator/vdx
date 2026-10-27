@@ -34,10 +34,18 @@ KitColumn {
 
   KitLabel { id: arrangeLabel; text: "ARRANGE"; value: "DRAG OR ARROWS" }
 
+  KitEmptyState {
+    visible: root.ds.monitors.length === 0
+    icon: "monitor"
+    title: "No displays detected"
+    hint: "Connect a display to arrange it here"
+  }
+
   MonitorLayout {
+    visible: root.ds.monitors.length > 0
     property bool kitUnboxed: true          // KitGrouper: the board stands on the page
     width: parent.width
-    height: 170
+    height: Math.max(150, Math.min(210, width * 0.28))
     selected: root.current ? root.current.name : ""
     onPicked: name => root.selected = name
   }
@@ -59,7 +67,6 @@ KitColumn {
 
   KitSelect {
     visible: root.current !== null
-    overlay: true
     disabled: root.ds.busy
     label: "Refresh rate"
     hint: root.current ? root.current.width + "x" + root.current.height : ""

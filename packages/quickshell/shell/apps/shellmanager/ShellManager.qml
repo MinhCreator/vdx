@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls as Controls
 import Quickshell
 import Quickshell.Io
 import qs.bar
@@ -183,7 +184,7 @@ Rectangle {
   color: Theme.background0
 
   // the gap under the header line, the sidebar's and the page's alike
-  readonly property int contentGap: Theme.gapGroup
+  readonly property int contentGap: Theme.settingsGap
 
   // ---- navigation ----
   Rectangle {
@@ -191,31 +192,16 @@ Rectangle {
     // the list's width plus the window's frame on its left: the labels keep their room
     width: Theme.sideWidth + Theme.windowPadding
     height: parent.height
-    color: Theme.background0
-
-    // the window's own header, level with the page's: its line runs on across
-    Column {
-      id: brand
-      anchors { left: parent.left; leftMargin: Theme.windowPadding; right: parent.right; top: parent.top; topMargin: Theme.windowPadding - Theme.headerInset }
-      spacing: Theme.gapGroup
-
-      KitHeader {
-        icon: "settings"
-        title: "Shell Manager"
-        subtitle: "SUPER + S"
-      }
-
-      KitLine {}
-    }
+    color: Theme.sideFill
 
     // the search, first in the list: typing swaps the sections for results
     KitInput {
       id: searchField
       x: Theme.windowPadding
-      // level with the page's first row (pages.y under the header): one top for both columns
-      y: brand.y + brand.height + root.contentGap
+      y: Theme.windowPadding
       width: nav.width
-      placeholder: "Search…"
+      icon: "search"
+      placeholder: "Search settings"
       passKeys: [Qt.Key_Up, Qt.Key_Down]
       onAccepted: root.openResult(root.results[root.picked])
       onKeyPassed: key => root.picked = Math.max(0, Math.min(root.results.length - 1, root.picked + (key === Qt.Key_Down ? 1 : -1)))
@@ -224,8 +210,9 @@ Rectangle {
     // the sections scroll when their group links outgrow the window
     Flickable {
       id: nav
+      Controls.ScrollBar.vertical: KitScrollBar {}
       x: Theme.windowPadding
-      y: searchField.y + searchField.height + Theme.gapMedium
+      y: searchField.y + searchField.height + (Theme.material ? Theme.gapMedium : Theme.gapGroup)
       width: parent.width - 2 * Theme.windowPadding
       height: parent.height - y - Theme.windowPadding
       visible: !root.searching
@@ -236,7 +223,7 @@ Rectangle {
 
     Column {
       id: navColumn
-      width: nav.width
+      width: nav.width - Theme.gapMedium
       spacing: Theme.gapHair
 
       Repeater {
@@ -278,8 +265,21 @@ Rectangle {
             radius: Theme.radiusControl
             id: item
             width: parent.width
-            height: 28
-            color: section.active ? Theme.background3 : itemArea.containsMouse ? Theme.background1 : Theme.clear
+            height: Theme.navigationHeight
+            activeFocusOnTab: true
+            Accessible.role: Accessible.Button
+            Accessible.name: section.modelData.label
+            Accessible.description: section.active ? "Current page" : ""
+            function activate() {
+              if (section.active) root.navOpen = !root.navOpen;
+              else root.tab = section.modelData.value;
+            }
+            Accessible.onPressAction: activate()
+            Keys.onReturnPressed: activate()
+            Keys.onSpacePressed: activate()
+            border.width: activeFocus ? Theme.focusWidth : 0
+            border.color: Theme.focusRing
+            color: section.active ? Theme.pickFill : itemArea.containsMouse || activeFocus ? Theme.controlHover : Theme.clear
             Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.quick } }
 
             KitIcon {
@@ -294,7 +294,7 @@ Rectangle {
               anchors { left: itemIcon.right; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               text: section.modelData.label
               color: section.active ? Theme.foreground0 : Theme.foreground2
-              font.weight: section.active ? Font.ExtraBold : Font.DemiBold
+              font.weight: section.active ? Theme.pickWeight : Font.Normal
             }
 
             // the open section with groups: a second click unfolds them
@@ -313,10 +313,7 @@ Rectangle {
               anchors.fill: parent
               hoverEnabled: true
               cursorShape: section.active && !section.hasJumps ? Qt.ArrowCursor : Qt.PointingHandCursor
-              onClicked: {
-                if (section.active) root.navOpen = !root.navOpen;
-                else root.tab = section.modelData.value;
-              }
+              onClicked: item.activate()
             }
           }
 
@@ -348,7 +345,7 @@ Rectangle {
                   readonly property bool here: section.active && modelData.key === root.currentJump
 
                   width: subs.width
-                  height: 26
+                  height: Theme.controlHeight
                   color: subArea.containsMouse ? Theme.background1 : Theme.clear
                   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
@@ -366,7 +363,7 @@ Rectangle {
                     elide: Text.ElideRight
                     color: sub.here || subArea.containsMouse ? Theme.foreground0 : Theme.muted
                     Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
-                    font.weight: sub.here ? Font.ExtraBold : Font.DemiBold
+                    font.weight: sub.here ? Theme.pickWeight : Font.Normal
                     font.pixelSize: Theme.fontSize - 1
                   }
 
@@ -391,6 +388,7 @@ Rectangle {
   // the search's results where the sections are: label, and the page › group it is on
   ListView {
     id: found
+      Controls.ScrollBar.vertical: KitScrollBar {}
     visible: root.searching
     x: nav.x
     y: nav.y
@@ -411,7 +409,7 @@ Rectangle {
       width: found.width
       height: hitText.implicitHeight + 2 * Theme.gapTight
       radius: Theme.radiusControl
-      color: index === root.picked ? Theme.background3 : hitArea.containsMouse ? Theme.background1 : Theme.clear
+      color: index === root.picked ? Theme.pickFill : hitArea.containsMouse ? Theme.background1 : Theme.clear
 
       Column {
         id: hitText
@@ -451,10 +449,9 @@ Rectangle {
   }
 
   // hairline between navigation and page
-  Rectangle {
+  KitLine {
     anchors { left: sidebar.right; top: parent.top; bottom: parent.bottom }
-    width: 1
-    color: Theme.background3
+    vertical: true
   }
 
   // ---- page ----
@@ -462,9 +459,11 @@ Rectangle {
   Column {
     id: header
     anchors { left: sidebar.right; leftMargin: Theme.windowPadding; right: parent.right; rightMargin: Theme.windowPadding; top: parent.top; topMargin: Theme.windowPadding - Theme.headerInset }
-    spacing: Theme.gapGroup
+    spacing: Theme.sectionGap
 
     KitHeader {
+      id: pageHead
+      page: true
       icon: root.currentPage.icon
       title: root.currentPage.title
       subtitle: root.currentPage.subtitle
@@ -488,12 +487,45 @@ Rectangle {
     KitLine {}
   }
 
+  // The controls scroll independently of the specimen on the right.
+  Item {
+    id: previewDock
+    readonly property Item specimen: root.currentPage.previewItem ?? null
+    readonly property real availableWidth: root.width - sidebar.width
+    width: specimen ? Math.max(240, Math.min(420, availableWidth * 0.42)) : 0
+    anchors { right: parent.right; rightMargin: Theme.windowPadding; top: header.bottom; topMargin: root.contentGap; bottom: parent.bottom; bottomMargin: Theme.windowPadding }
+    visible: specimen !== null
+    KitLabel { id: previewCaption; text: "PREVIEW"; width: parent.width }
+    Item {
+      id: specimenHost
+      anchors { left: parent.left; right: parent.right; top: previewCaption.bottom; topMargin: Theme.gapWide; bottom: parent.bottom }
+      clip: true
+    }
+    Binding {
+      target: previewDock.specimen
+      property: "parent"
+      value: specimenHost
+      when: previewDock.specimen !== null
+      restoreMode: Binding.RestoreBindingOrValue
+    }
+  }
+
+  KitLine {
+    visible: previewDock.visible
+    x: previewDock.x - Theme.gapWide
+    y: header.y + header.height + root.contentGap
+    vertical: true
+    height: previewDock.height
+
+  }
+
   Flickable {
     id: page
-    anchors { left: sidebar.right; leftMargin: 1; right: parent.right; top: header.bottom; bottom: parent.bottom }
+      Controls.ScrollBar.vertical: KitScrollBar {}
+    anchors { left: sidebar.right; leftMargin: 1; right: parent.right; rightMargin: previewDock.visible ? previewDock.width + Theme.windowPadding + Theme.gapWide : 0; top: header.bottom; bottom: parent.bottom }
     // to the window's edge: the rows scroll out of it, not out of a line above it
     // Apps, Bar modules and Themes fill the window and scroll their panes themselves: the page stays
-    contentHeight: apps.visible || modules.visible || themes.visible ? height : pages.implicitHeight + pages.y + Theme.windowPadding
+    contentHeight: (root.currentPage.fillsViewport ?? false) || apps.visible || modules.visible || themes.visible ? height : pages.implicitHeight + pages.y + Theme.windowPadding
     clip: true
     boundsBehavior: Flickable.StopAtBounds
     interactive: contentHeight > height
@@ -517,10 +549,10 @@ Rectangle {
     // a new page comes in: a fade and a short move from the right
     Item {
       id: pages
-      x: 24 + 16 * (1 - pageIn.shown)
+      x: Theme.windowPadding
       opacity: pageIn.shown
       y: root.contentGap
-      width: page.width - 48
+      width: page.width - 2 * Theme.windowPadding
       implicitHeight: Math.max(appearance.visible ? appearance.implicitHeight : 0,
                                bar.visible ? bar.implicitHeight : 0,
                                themes.visible ? themes.height : 0,
@@ -537,8 +569,8 @@ Rectangle {
                                notifications.visible ? notifications.implicitHeight : 0,
                                modules.visible ? modules.height : 0)
 
-      AppearancePage { id: appearance; width: parent.width; visible: root.tab === "appearance" }
-      BarPage     { id: bar;     width: parent.width; visible: root.tab === "bar" }
+      AppearancePage { id: appearance; width: parent.width; height: page.height - pages.y - Theme.windowPadding; visible: root.tab === "appearance" }
+      BarPage     { id: bar;     width: parent.width; height: page.height - pages.y - Theme.windowPadding; visible: root.tab === "bar" }
       ThemesPage  { id: themes;  width: parent.width; height: page.height - pages.y; visible: root.tab === "themes" }
       FontsPage   { id: fonts;   width: parent.width; visible: root.tab === "fonts" }
       CursorPage  { id: cursor;  width: parent.width; visible: root.tab === "cursor" }

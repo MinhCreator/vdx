@@ -16,7 +16,7 @@ Column {
                                   : signal >= 25 ? "Fair" : "Weak"
   readonly property bool measured: WifiService.connected && WifiService.pingMs > 0
 
-  spacing: Theme.gapGroup
+  spacing: Theme.sectionGap
 
   // ---- header ----
   KitHeader {

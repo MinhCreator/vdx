@@ -9,6 +9,7 @@ import qs.modules.notifications
 // brings the module's defaults and the dot's back. Bar modules lists it as a link here.
 Column {
   id: root
+  readonly property Item previewItem: null
 
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "bell"
