@@ -50,7 +50,8 @@ Rectangle {
     property string key: ""
     property string label: ""
     readonly property bool active: key !== "" && TaskManagerService.sortBy === key
-    text: (active ? "▾ " : "") + label
+    // the arrow after the label, as in Files: name A–Z ↑, the rest largest first ↓
+    text: label + (active ? (key === "name" ? " ↑" : " ↓") : "")
     color: active ? Theme.foreground0 : Theme.muted
     font.pixelSize: Theme.fontSize - 2
     font.weight: active ? Font.ExtraBold : Font.DemiBold
@@ -102,17 +103,17 @@ Rectangle {
     KitLine {}
 
     // CPU, memory, GPU and network over the last two minutes: a sparkline each,
-    // its own scale; the label shows now, or the hovered moment
+    // its own scale (CPU and GPU: at least 25 %, so a quiet machine still draws a line); the label shows now, or the hovered moment
     Row {
       width: parent.width
       spacing: 20
 
       Repeater {
         model: [
-          { label: "CPU", values: root.tm.cpuHistory, ceiling: 100, fmt: v => Math.round(v) + "%", load: true },
+          { label: "CPU", values: root.tm.cpuHistory, ceiling: 0, floor: 25, fmt: v => Math.round(v) + "%", load: true },
           { label: "MEMORY", values: root.tm.memHistory, ceiling: 100, load: true,
             fmt: v => Format.shortSize(v / 100 * root.tm.memTotal) },
-          { label: "GPU · " + root.tm.gpuName, values: root.tm.gpuHistory, ceiling: 100, fmt: v => Math.round(v) + "%", load: true },
+          { label: "GPU · " + root.tm.gpuName, values: root.tm.gpuHistory, ceiling: 0, floor: 25, fmt: v => Math.round(v) + "%", load: true },
           { label: "NET /S", values: root.tm.rxHistory, values2: root.tm.txHistory, ceiling: 0, floor: 65536,
             fmt: (v, u) => "↓ " + root.rate(v) + "  ↑ " + root.rate(u ?? 0) }
         ]
@@ -278,7 +279,7 @@ Rectangle {
           elide: Text.ElideRight
           text: root.tm.selectedRow ? root.tm.selectedRow.name : "Nothing selected"
           color: root.tm.selectedRow ? Theme.foreground0 : Theme.muted
-          font.weight: Font.ExtraBold
+          font.weight: root.tm.selectedRow ? Font.ExtraBold : Theme.fontWeight
         }
 
         KitText {

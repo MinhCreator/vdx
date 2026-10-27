@@ -485,19 +485,19 @@ Rectangle {
       title: root.currentPage.title
       subtitle: root.currentPage.subtitle
 
-      // a page that can go back to its defaults: `changed`, `reset()`
-      KitResetButton {
-        visible: typeof root.currentPage.reset === "function"
-        changed: root.currentPage.changed ?? false
-        onReset: root.currentPage.reset()
-      }
-
       // a page with tabs (Network) lists them: `tabs` [{label, value}], `tab`
       KitChoices {
         visible: (root.currentPage.tabs ?? []).length > 0
         model: root.currentPage.tabs ?? []
         current: root.currentPage.tab ?? ""
         onPicked: value => root.currentPage.tab = value
+      }
+
+      // a page that can go back to its defaults: `changed`, `reset()`
+      KitResetButton {
+        visible: typeof root.currentPage.reset === "function"
+        changed: root.currentPage.changed ?? false
+        onReset: root.currentPage.reset()
       }
     }
 
