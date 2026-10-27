@@ -73,10 +73,10 @@ Singleton {
       cpu = percent(s.cpu[0], prev.cpu[0]);
       cores = s.cpu.slice(1).map((c, i) => percent(c, prev.cpu[i + 1]));
     }
+    if (s.uptime !== undefined) uptime = s.uptime;
     if (s.mem) {
       freq = s.freq;
       load = s.load;
-      uptime = s.uptime;
       mem = s.mem;
       igpu = s.igpu;
       dgpu = s.dgpu;

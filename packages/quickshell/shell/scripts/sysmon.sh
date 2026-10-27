@@ -2,7 +2,7 @@
 #
 # sysmon.sh [cpu] — one snapshot of system counters as JSON; rates and
 # percentages come from the difference of two snapshots (SysmonService).
-# With `cpu`, only {"cpu": [...]}.
+# With `cpu`, only {"cpu": [...], "uptime": seconds}.
 #   {"cpu": [[total, idle], ...]  (first: all cores, then each core),
 #    "freq": 2400, "load": [0.5, 0.4, 0.3], "uptime": 12345,
 #    "mem": {"total": B, "available": B, "swapTotal": B, "swapFree": B},
@@ -17,12 +17,13 @@
 set -u
 
 cpu=$(awk '/^cpu/ { idle = $5 + $6; t = 0; for (i = 2; i <= 9; i++) t += $i; printf "%s[%d,%d]", (n++ ? "," : ""), t, idle }' /proc/stat)
-# `cpu`: just the cpu counters, cheap enough for the bar every few seconds
-[ "${1:-}" = cpu ] && { printf '{"cpu":[%s]}\n' "$cpu"; exit 0; }
+# Include uptime in the cheap sample; the hub needs no full hardware poll.
+read -r uptime _ </proc/uptime
+uptime=${uptime%.*}
+[ "${1:-}" = cpu ] && { printf '{"cpu":[%s],"uptime":%s}\n' "$cpu" "$uptime"; exit 0; }
 
 freq=$(awk -F: '/^cpu MHz/ { s += $2; n++ } END { printf "%d", n ? s / n : 0 }' /proc/cpuinfo)
 read -r l1 l5 l15 _ </proc/loadavg
-uptime=$(cut -d. -f1 /proc/uptime)
 mem=$(awk '/^(MemTotal|MemAvailable|SwapTotal|SwapFree):/ { v[$1] = $2 * 1024 }
   END { printf "{\"total\":%d,\"available\":%d,\"swapTotal\":%d,\"swapFree\":%d}", v["MemTotal:"], v["MemAvailable:"], v["SwapTotal:"], v["SwapFree:"] }' /proc/meminfo)
 
