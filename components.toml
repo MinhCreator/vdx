@@ -252,6 +252,13 @@ default = false
 aur = ["claude-code"]
 modules = ["ai"]
 
+[codex]
+group = "ai"
+about = "Codex CLI (its limits in the AI module)"
+default = false
+pacman = ["openai-codex"]
+modules = ["ai"]
+
 [opencode]
 group = "ai"
 about = "opencode, and the bar's chat with its free models"

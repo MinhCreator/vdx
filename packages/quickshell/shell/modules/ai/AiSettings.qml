@@ -3,18 +3,27 @@ import qs.bar
 import qs.config
 import qs.kit
 
-// AI module options in the Shell Manager: which plan limit its bar item shows.
+// AI module options in the Shell Manager: which plan limit (Claude's or Codex's) its bar item shows.
 KitColumn {
   spacing: Theme.gapGroup
 
   KitLabel { text: "BAR" }
   BarTextRow { module: "ai" }
 
-  KitOptionRow {
+  // four choices: a select, segments would cut the labels
+  KitSelect {
+    width: parent.width
     visible: ModuleSettings.get("ai", "text", "content") === "content"
-    module: "ai"; key: "limit"; fallback: "session"
-    label: "Limit"; hint: "Its percent is shown in the bar"
-    model: [{ label: "5 h", value: "session" }, { label: "Week", value: "weekly_all" }]
+    label: "Limit"
+    hint: "Its percent is shown in the bar"
+    model: [
+      { label: "Claude · 5 h", value: "session" },
+      { label: "Claude · week", value: "weekly_all" },
+      { label: "Codex · 5 h", value: "codex_session" },
+      { label: "Codex · week", value: "codex_weekly_all" }
+    ]
+    current: ModuleSettings.get("ai", "limit", "session")
+    onPicked: value => ModuleSettings.set("ai", "limit", value)
   }
 
   KitGrouper {}

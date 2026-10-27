@@ -5,7 +5,8 @@ import qs.components
 import qs.config
 import qs.kit
 
-// Robot icon and the percent of the chosen plan limit (Modules › AI › Limit);
+// Robot icon and the percent of the chosen plan limit, Claude's or Codex's
+// (Modules › AI › Limit);
 // yellow / red when that limit is running out.
 Item {
   id: root
@@ -16,7 +17,10 @@ Item {
   function openPopup() { popup.toggle(); }
 
   readonly property string kind: ModuleSettings.get("ai", "limit", "session")
-  readonly property var shown: ClaudeService.limits.find(l => l.kind === kind) ?? null
+  // a "codex_" kind is Codex's window of that name, the rest Claude's
+  readonly property bool codex: kind.startsWith("codex_")
+  readonly property var shown: (codex ? CodexService.limits : ClaudeService.limits)
+    .find(l => l.kind === (codex ? kind.slice(6) : kind)) ?? null
   readonly property int percent: shown ? shown.percent : -1
 
   implicitWidth: label.implicitWidth
