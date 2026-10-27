@@ -7,7 +7,10 @@ Rules without a keyword are MUST; new rules say MUST / SHOULD / MAY.
 
 ## Basics
 
-Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
+Minimal, monospace, near-monochrome. Two visual languages share the same
+components and settings: Strict uses outlines and quiet surfaces; Material 3
+uses tonal layers and more spacious controls. Audit and validation:
+[redesign.md](redesign.md).
 
 - Corners: Appearance › Shape › Corners (sharp | round + one radius). A radius is
   always a token: `Theme.radiusSurface` (popups, windows, panels),
@@ -20,9 +23,18 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   one slider hides while they show.
   No literal `height / 2` for a corner.
   An image in a rounded tile sits in a `ClippingRectangle`.
-- Controls: Appearance › Style (Terminal | Material). A control's frame is
-  `Theme.frameWidth` (0 in material), its fill `Theme.controlFill` /
+- Controls: Appearance › Style (Strict | Material, a select). A control's frame is
+  `Theme.frameWidth` (0 in material) in `Theme.controlLine` (`controlLineHover`
+  under the pointer, focused or open), its fill `Theme.controlFill` /
   `controlHover`, a popup's frame `Theme.popupFrame`. Never a literal 1.
+  Picked (a choice, a segment, a nav row): `Theme.pickFill` + `Theme.pickWeight`.
+  Strict: quiet 1 px frames, no fills at rest; `KitSegments` is an outlined track
+  with the picked segment a plate inset 3 px, no check; `KitSwitch` off is an
+  outlined dark track with a grey knob, on a light track with a dark knob; a
+  field has no prompt, a thin cursor, an optional `icon` (search); a Settings
+  group's box is framed in `controlLine` on the page surface; a window's sidebar
+  is `Theme.sideFill`. In both styles a Shell Manager page header
+  (`KitHeader { page: true }`) is a large title with no icon.
   An outline drawn in either style (a well, a preview, a card at rest) is
   `Theme.hairline`, a picked card's or tile's `Theme.ring`.
   Material follows Material 3 (primary = `foreground0`, or the accent where it
@@ -35,6 +47,23 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 - Spacing: the gaps and edge insets are `Theme.gapHair` (4), `gapTight` (2),
   `gapSmall` (6), `gapMedium` (8), `gapLoose` (10), `gapWide` (12) and `gapGroup`
   (14); a value that is used once stays a literal.
+- MUST — dividers: use `KitLine`, horizontally or with `vertical: true`.
+  The stroke is `Theme.dividerThickness` (1 px), in `Theme.dividerColor`
+  (`outlineVariant`) in both styles. The line owns no margins. A surrounding
+  section Column uses `Theme.sectionGap` (8 px) on both sides; a fixed header
+  uses the same gap above its line and below it. Do not add spacer Items after
+  a divider. Anchored pane edges and table rules use the same stroke with the
+  pane/table's existing inset. The bar's `Separator` also uses this stroke;
+  `separatorMargin` remains the user's horizontal module spacing.
+  In grouped settings, a default `KitLine` is a semantic card boundary:
+  KitGrouper suppresses its stroke and collapses redundant space before a
+  heading. `KitLine { sectionBreak: false }` is an actual header/table rule,
+  remains unboxed and visible, and requires no wrapper. Grouping MUST preserve
+  the caller's `visible` binding. Physical dividers in grouped forms are centred
+  between the rendered header caption and the following card surface, including
+  the card's row inset. Headers expose `kitCaption` for this measurement;
+  font descender space and taller trailing actions do not count as caption ink. Settings card row insets are separately
+  `Theme.settingsRowInset` (6 px); they are not header separator spacing.
 - Popup: `KitHeader` → `KitLine` → groups separated by `KitLine` → footer.
   No backgrounds under groups.
 - Window: the frame is `Theme.windowPadding` (24) on every side and nothing else:
@@ -65,7 +94,7 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
 - Group names: `BAR` (the module's face), `POPUP`, `WINDOW` / `LIST`,
   `OPENING`, `SAFETY` (the "Ask before …" toggles); a row shown only with
   another option sits under it and hides with it.
-- Selected = `background3` fill + ExtraBold; its text takes the accent only when
+- Selected = `Theme.pickFill` + `pickWeight`; its text takes the accent only when
   Choices is on (rule 2). Hover =
   `background1` (one step up from the surface).
 - Colour rules (the look has one exception, the accent):
@@ -83,7 +112,7 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   No hex in QML — `Theme.*` only (a custom colour is picked on the spectrum or typed in Shell Manager and
   kept in settings). Dimmed screens use `Theme.scrim`.
 - Text: secondary text (hints, captions, times) is `Theme.muted`, lifted to
-  4.5:1 on `background0` in every theme; `gray` is for frames, ticks, icons and
+  4.5:1 on the highest normal control surface in every theme; `gray` is for frames, ticks, icons and
   inactive text only. Sizes are `Theme.fontSize ± n` (Fonts › Text size,
   12–15), never a literal. Display figures are fixed sizes: the lock's
   clock, Overview's workspace numbers, the Fonts page's specimen.
@@ -97,7 +126,7 @@ Minimal, monospace, near-monochrome. Reference: the Wi-Fi popup.
   `enabled: Motion.<part>` (popups, panels, controls, bar, pages, lock, island) and a
   duration from it (`quick`, `normal`, `slow`, `ms()`), easing `Motion.easing` (`morph` for a shape that resizes, `tint` for a colour);
   set in Shell Manager › Animations. Rows that show and hide sit in a
-  `KitColumn` (KitFrame's column is one): they fade in, the rest glide. A
+  `KitColumn` (KitFrame's column is one): they fade in at their final positions; group geometry settles immediately. A
   list's new row (a Repeater remakes them all): `KitAppear` keyed in the list's
   `KitSeen`. A hover / selected fill fades (`Motion.controls`, `quick`) from
   `Theme.clear`, never `"transparent"` (black: it flashes dark); rows in a
@@ -109,7 +138,7 @@ Pages by the user's area; the look follows macOS System Settings.
 
 - MUST — groups: every settings Column (page, section, `<Name>Settings.qml`) ends
   with `KitGrouper {}`. A `KitLabel` starts a group, a `KitLine` ends it; the rows
-  between sit inset in one raised box (`background1`, `radiusCard`) with a
+  between sit inset in one box (`Theme.groupFill`, `radiusCard`) with a
   hairline between rows. A title that is not a KitLabel declares
   `readonly property bool isKitLabel: true`; a visual that stands on the page
   (a preview, a board of chips, theme cards) declares `property bool kitUnboxed: true`.
@@ -130,22 +159,24 @@ Pages by the user's area; the look follows macOS System Settings.
   Cursor: its shapes large, colour and size, a card per cursor theme; a pick waits
   for Apply.
 - MUST — a page's side list (Apps, Bar modules, Themes) is one look: a search
-  field, then the entries in one raised box (`background1`, `radiusCard`) to the
-  pane's foot; rows `radiusControl`, picked `background3` + ExtraBold, hover
-  `background2`. Apps and Bar modules use `EntryList`; a new list copies it.
+  field, then the entries in one box (`Theme.groupFill`, `radiusCard`) to the
+  pane's foot; rows `radiusControl`, picked `Theme.pickFill` + `Theme.pickWeight`, hover
+  `Theme.controlHover`. Apps and Bar modules use `EntryList`; a new list copies it.
 - A pick list longer than a few rows is a page of cards, not a long select; a
   `KitSelect` shows `maxRows` and scrolls, a choice's `note` says its state.
-- MUST — colour: `KitColourPicker` is one low panel in a row: a saturation ×
-  brightness square, a vertical hue strip, palette tiles in two rows filling its
-  height (the picked one has a ring; a tile that is not a plain colour — the theme's,
-  your own — has an icon, `icons`). Window frames (off | theme | accent) are
+- MUST — colour: `KitColourPicker` has a saturation × brightness plane,
+  horizontal hue strip, validated HEX input, selected-colour sample and named
+  palette chips. Below 440 px, the exact-value pane stacks below the plane.
+  Arrow keys adjust the plane and hue; palette chips accept Space / Enter.
+  Invalid HEX is visible and never applied. In nested editors the picker uses
+  the full section width, rather than a narrow trailing-control slot. Window frames (off | theme | accent) are
   in Windows › Look.
 - A caption over a slider (an app's name, a device) sits `gapMedium` above it;
   never `gapTight`.
 - Sliders in a box use the row layout (label left, value right). A snapped slider
   always shows its stops, at most 11 (every n-th of a long run). Controls ›
   Material draws Material 3's slider (thick track split by a bar handle, stops as
-  dots); Terminal the thin one.
+  dots); Strict the thin one.
 
 - MUST: where a setting lives follows the user's area, not the code: every bar
   module's options in Bar modules (an app's module too), an app's own options in
@@ -165,11 +196,72 @@ Pages by the user's area; the look follows macOS System Settings.
   wrapped, `Theme.fontSize - 1`; it clears on the next success.
 - MUST — pending: an apply that runs (install, reload) shows `busy` on its
   button or a `KitSpinner`; the rest of the page stays usable.
-- SHOULD (not built yet) — focus: one token `Theme.focusRing`, a 2 px `foreground2`
-  outline at `radiusControl`, on keyboard focus only; Space toggles a switch,
-  arrows move Choices, Enter activates; `Accessible.name` = the row's label.
+- MUST — focus: `Theme.focusRing` with `Theme.focusWidth` outlines focused
+  controls. Buttons accept Space / Enter, switches Space / Enter, segments
+  Left / Right / Home / End, sliders Left / Right. Selects accept Space to open,
+  Up / Down to highlight, Enter to commit, Escape to cancel. Disabled / busy
+  controls cannot activate. Switches inherit `Accessible.name` from their row;
+  icon buttons fall back to their icon's name. Lists and custom app actions
+  should supply descriptive names and keyboard handling as they adopt the kit.
 - SHOULD — no "Advanced" fold: rarely used groups go last on their page.
 - SHOULD — a page header's subtitle holds at most three parts; group labels
   carry their own values.
 - MUST — search: every row's label and hint is a literal string where it can be
   (the search index reads them, `scripts/settings_index.py`).
+
+## Shared roles and density
+
+- MUST — semantic surfaces are derived in Theme from the active palette:
+  `surfaceContainer`, `surfaceHigh`, `surfaceHighest`, `onSurfaceVariant`,
+  `outline`, `outlineVariant`, `secondaryContainer`. This adapts the M3 role
+  hierarchy to existing palettes; it is not a generated HCT tonal palette.
+- MUST — body text uses Normal, action labels Medium, selected items DemiBold.
+  Large page titles use Medium. Avoid ExtraBold for routine selection.
+- MUST — shared control height is 34 in Strict, 36 in Material; setting rows
+  at least 40, navigation 34 / 36. Wide settings stack below 560 px of
+  available row width. Use `Theme.rowHeight` / `navigationHeight` instead of
+  copying these values into pages.
+- MUST — Material settings groups use `Theme.groupFill` without outlines;
+  Strict groups use the page surface with quiet outlines. Nested controls use
+  `fillOn` / `hoverOn`; lines use `outlineVariant`.
+- MUST — text/handles placed on a custom solid accent use `Theme.inkOn(fill)`;
+  gradient handles use `Theme.inkOnGradient(first, last)`. The latter chooses
+  the better minimum contrast at the endpoints; arbitrary gradients can still
+  have poor contrast between their endpoints.
+- Shape remains an independent user preference in both styles. Material does
+  not force rounded windows when the user has chosen sharp corners.
+
+## Settings navigation and previews
+
+- Appearance separates Style, Accent, Wallpaper and Shape. Accent and Shape
+  preview real kit controls; Wallpaper previews a small desktop.
+- Bar separates General, Modules and Hub. General contains visual Solid /
+  Island mode cards, appearance and monitor settings. The module inspector offers destination and order
+  controls as an alternative to drag. Available modules are searchable.
+  Both bar tabs show a compact preview with representative module faces;
+  narrow previews use compact icons and overflow counts. General is read-only,
+  while Modules allows positioning, adding and removing child bars.
+- Hub has a dedicated preview pane and General / Content groups. On wide pages a full-size preview sits to the right of the settings. It uses
+  labelled sample values and never controls system devices. Hub appearance
+  options always address the Island settings, even when Solid is active.
+- Fonts and Cursor use searchable rows and one preview. Picking a row does
+  not apply it. Downloads and changes use an explicit action. Themes applies
+  the variant currently shown by its preview, including Light / Dark.
+- Password fields always use dots. The old key remains readable for settings
+  import compatibility but is no longer an appearance choice.
+- Scrollbars use a 2 px thumb, hidden at rest, in a separate gutter.
+- A `kitUnboxed` pane is a grouping boundary: a nested KitGrouper owns its own
+  boxes rather than joining groups across unrelated columns.
+
+## Strict reference direction
+
+- Dense instrument-panel typography, quiet thin frames and low-contrast tonal
+  steps. Preserve the selected theme palette rather than hardcoding black.
+- Resting controls and hub chips have no fill; media cards use the same
+  outlined surface. Hover adds a small neutral lift, selection a slightly
+  stronger one. Material retains its tonal containers.
+- Accent marks selection and meaningful readings, never a whole decorative
+  panel. Normal status colours remain semantic.
+- Every KitSelect expands inline and reserves space before the next item;
+  lists never float over following controls. Popup and settings hosts share
+  this behaviour, keyboard interaction and scrolling limits.

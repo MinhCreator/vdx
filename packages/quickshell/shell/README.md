@@ -90,7 +90,7 @@ Brightness, Audio, Wi-Fi, Bluetooth, Mihomo, Battery, Language, AI, Shell,
 Notifications, Capture, Clipboard, System, Task Manager, Cleaner, Backups,
 VirusTotal, Packages, Display, Windows, Chat, Folder.
 
-- Order, zones and visibility: Shell Manager › Bar › Layout. Options:
+- Order, zones and visibility: Shell Manager › Bar › Modules. Options:
   Shell Manager › Bar modules (an app's module too; Notifications has its own
   page). A right click on a module opens its options.
 - A new layout shows workspaces, the clock, audio, Wi-Fi, Bluetooth, battery,
@@ -101,13 +101,13 @@ VirusTotal, Packages, Display, Windows, Chat, Folder.
 
 ## Island
 
-Shell Manager › Bar › Look › Shape › Island: no strip, one pill at the top
+Shell Manager › Bar, mode selector › Island: no strip, one pill at the top
 centre is the whole bar (`bar/island/`). Solid and island keep their own icon
 size, gap, separators and hub opening.
 
 - At rest: LEFT · clock · RIGHT (by default the workspaces and the
   equalizer).
-- **The hub** opens from the clock on a hover or a click (Bar › Behaviour ›
+- **The hub** opens from the clock on a hover or a click (Bar › Hub › Opening ›
   Open the hub): the date, settings and power, the track, the **Launcher** and
   **Keys** chips, then the HUB modules as chips. A chip opens its module's
   popup inside the island, with a bubble back to the hub (the mouse's back
@@ -126,7 +126,7 @@ IPC: `qs -c shell ipc call island hub|media|power|launcher|keybinds|collapse`.
 
 ## Child bars
 
-Shell Manager › Bar › Layout: the empty framed bar on the preview adds a
+Shell Manager › Bar › Modules: the empty framed bar on the preview adds a
 child bar — a small bar beside the monitor's main one, one empty child bar at
 a time. Drag it to one of four spots (either edge, either side of the
 centre); its corner cross removes it. In the island style each child is an
@@ -142,8 +142,9 @@ island of its own, with its modules' popups inside it.
 
 All in Shell Manager › Appearance.
 
-- **Style**: Terminal (framed controls) or Material (filled controls, no
-  frames, a hairline round popups).
+- **Style**: Strict (quiet outlined controls) or Material 3 (tonal surfaces, spacious
+  filled controls). Appearance shows both choices as cards; corners remain a
+  separate preference. The shared kit supports keyboard focus and activation.
 - **Accent**: off (monochrome), one colour or a gradient, typed as hex or
   picked. It applies only where switched on: switches, sliders, choices,
   workspaces, dropdowns, bar modules, the window border (Hyprland's focused
@@ -152,7 +153,7 @@ All in Shell Manager › Appearance.
 - **Shape › Corners**: sharp, or round with one radius — popups, controls,
   the island, Hyprland's windows and mako follow, and the icons switch to
   Material Symbols Rounded.
-- **Typed characters**: dots or squares in every password field.
+- Password fields use dots; there is no separate appearance option.
 
 ## Settings
 
@@ -182,6 +183,7 @@ Files you may edit by hand:
 | Root actions without a password for 5 min | `system/etc/polkit-1/rules.d/50-pkexec-keep.rules` |
 | Ollama service switch | `system/etc/polkit-1/rules.d/50-ollama.rules` |
 | AI limits | Claude Code login (`~/.claude/.credentials.json`) |
+| AI: Codex limits | Codex CLI session logs (`~/.codex/sessions`, as of its last answer) |
 | File scans | `VIRUSTOTAL_API_KEY` (env or `~/.config/secrets/env`) |
 | Music likes | Yandex Music token (`~/.config/scripts/yandex-music/token`) |
 | Music | MPRIS players (Spotify, a browser, mpv with `mpv-mpris`); Yandex Music, local folders and radio through MPD (components `yandex-music`, `mpd`, `radio`) |
@@ -207,3 +209,26 @@ No bar and no terminal: switch to a tty (Ctrl+Alt+F2), log in, then
 HYPRLAND_INSTANCE_SIGNATURE=$(ls /run/user/$UID/hypr | tail -1) \
   hyprctl eval 'hl.exec_cmd("~/.config/quickshell/shell/scripts/supervise.sh")'
 ```
+
+UI validation: `python tests/check_shell_ui.py` from the repo root runs the
+kit's keyboard, disabled-state, contrast and responsive-row checks offscreen.
+Its Quickshell clipping substitute does not verify GPU rendering; check the
+live shell too. Design audit: [redesign.md](../../../docs/shell/redesign.md).
+
+Bar settings separate General, Modules and Hub. General combines visual
+Solid / Island mode cards with appearance and monitor settings. Click a module to choose its destination and order, or
+drag it between zones. Available modules have their own searchable bank.
+The main layouts and appearance values are kept independently for Solid and
+Island; child bars retain the existing shared model.
+
+Hub settings include a layout preview, opening/player options, width, avatar
+and quick sliders (output volume, microphone, brightness, software dimming).
+Volume and brightness are shown by default unless overridden. Sliders sit
+above a divider. Module layout offers compact semantic groups (the default), equal two-column
+grid tiles and content-sized chips; the preview follows the selection. The profile
+shows the user's initial or chosen image and current system uptime.
+
+Appearance has Style, Accent, Wallpaper and Shape tabs with previews. Fonts
+and Cursor use searchable lists and a single preview, with explicit Apply.
+The colour picker supports a horizontal hue strip, keyboard adjustments,
+validated HEX and named palette choices. Scrollbars hide while idle.
