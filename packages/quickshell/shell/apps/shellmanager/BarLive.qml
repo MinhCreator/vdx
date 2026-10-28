@@ -20,7 +20,7 @@ Column {
   BarLiveSection {
     width: parent.width
     section: "asks"
-    title: "Asks"
+    title: "ASKS"
     caption: "waits for an answer"
     text: "Needs your attention, so it takes the front of the queue. Keep it for things you must not miss."
     info: ({
@@ -30,9 +30,11 @@ Column {
     })
   }
 
+  KitLine {}
+
   BarLiveSection {
     width: parent.width
-    title: "Low battery"
+    title: "LOW BATTERY"
     caption: "selected above"
     text: "Choose when it interrupts. \"Until fixed\" keeps it up until the charger is back or the charge recovers; \"5 s\" lets it fold away by itself."
     Column {
@@ -58,10 +60,12 @@ Column {
     }
   }
 
+  KitLine {}
+
   BarLiveSection {
     width: parent.width
     section: "held"
-    title: "Held"
+    title: "HELD"
     caption: "stays while it runs"
     text: "Stays as long as the job runs, then folds away on its own. When several run at once, scroll over the pill to page through them. Drag a row up to let it take the pill first."
     info: ({
@@ -73,10 +77,12 @@ Column {
     })
   }
 
+  KitLine {}
+
   BarLiveSection {
     width: parent.width
     section: "flash"
-    title: "Flash"
+    title: "FLASH"
     caption: "passes by"
     text: "A short note about a quick change. It shows for a moment, then folds back to rest. Nothing to click, so turn off the ones you find noisy."
     info: ({
@@ -88,60 +94,49 @@ Column {
     })
   }
 
-  Rectangle {
+  KitLine {}
+
+  Column {
     width: parent.width
-    implicitHeight: rules.implicitHeight + 16
-    radius: Theme.radiusCard
-    color: Theme.background1
+    spacing: Theme.sectionGap
 
-    Column {
-      id: rules
-      anchors { left: parent.left; right: parent.right; top: parent.top; leftMargin: 22; rightMargin: 22; topMargin: 8 }
+    KitLabel { text: "BEHAVIOUR"; value: "every activity" }
+    KitText {
+      width: parent.width
+      text: "Rules that apply to all of them. The row order above is the priority: when two things happen at once, the higher row wins the pill and the other waits in the wheel."
+      color: Theme.muted
+      font.pixelSize: Theme.fontSize - 1
+      wrapMode: Text.WordWrap
+    }
 
-      Item {
-        width: parent.width
-        height: 44
-        KitText { anchors { left: parent.left; verticalCenter: parent.verticalCenter } text: "Behaviour"; font.weight: Font.Medium }
-        KitText { anchors { right: parent.right; verticalCenter: parent.verticalCenter } text: "every activity"; color: Theme.muted; font.pixelSize: Theme.fontSize - 2 }
-      }
-      KitText {
-        width: Math.min(parent.width, 600)
-        text: "Rules that apply to all of them. The row order above is the priority: when two things happen at once, the higher row wins the pill and the other waits in the wheel."
-        color: Theme.muted
-        font.pixelSize: Theme.fontSize - 1
-        wrapMode: Text.WordWrap
-        bottomPadding: 12
-      }
-
-      KitSliderRow {
-        label: "Flash lasts"
-        snaps: [0, 1/6, 2/6, 3/6, 4/6, 5/6, 1]
-        value: (ShellSettings.liveFlashMs - 1000) / 3000
-        text: ((pressed ? 1000 + Math.round(dragValue * 6) * 500 : ShellSettings.liveFlashMs) / 1000).toFixed(1) + " s"
-        onMoved: value => ShellSettings.setLook("liveFlashMs", 1000 + Math.round(value * 6) * 500, "island")
-      }
-      KitSliderRow {
-        label: "Return to rest after"
-        snaps: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
-        value: (ShellSettings.liveFullMs - 1000) / 5000
-        text: ((pressed ? 1000 + Math.round(dragValue * 10) * 500 : ShellSettings.liveFullMs) / 1000).toFixed(1) + " s"
-        onMoved: value => ShellSettings.setLook("liveFullMs", 1000 + Math.round(value * 10) * 500, "island")
-      }
-      KitRow {
-        label: "Expand on arrival"
-        hint: "A new activity opens whole, not as a chip"
-        KitSwitch { checked: ShellSettings.liveExpand; onToggled: ShellSettings.setLook("liveExpand", !checked, "island") }
-      }
-      KitRow {
-        label: "Wheel pages through them"
-        hint: "Scrolling over the pill moves between running activities"
-        KitSwitch { checked: ShellSettings.liveWheel; onToggled: ShellSettings.setLook("liveWheel", !checked, "island") }
-      }
-      KitRow {
-        label: "Open on hover"
-        hint: "The folded activity opens where it is"
-        KitSwitch { checked: ShellSettings.liveHover; onToggled: ShellSettings.setLook("liveHover", !checked, "island") }
-      }
+    KitSliderRow {
+      label: "Flash lasts"
+      snaps: [0, 1/6, 2/6, 3/6, 4/6, 5/6, 1]
+      value: (ShellSettings.liveFlashMs - 1000) / 3000
+      text: ((pressed ? 1000 + Math.round(dragValue * 6) * 500 : ShellSettings.liveFlashMs) / 1000).toFixed(1) + " s"
+      onMoved: value => ShellSettings.setLook("liveFlashMs", 1000 + Math.round(value * 6) * 500, "island")
+    }
+    KitSliderRow {
+      label: "Return to rest after"
+      snaps: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+      value: (ShellSettings.liveFullMs - 1000) / 5000
+      text: ((pressed ? 1000 + Math.round(dragValue * 10) * 500 : ShellSettings.liveFullMs) / 1000).toFixed(1) + " s"
+      onMoved: value => ShellSettings.setLook("liveFullMs", 1000 + Math.round(value * 10) * 500, "island")
+    }
+    KitRow {
+      label: "Expand on arrival"
+      hint: "A new activity opens whole, not as a chip"
+      KitSwitch { checked: ShellSettings.liveExpand; onToggled: ShellSettings.setLook("liveExpand", !checked, "island") }
+    }
+    KitRow {
+      label: "Wheel pages through them"
+      hint: "Scrolling over the pill moves between running activities"
+      KitSwitch { checked: ShellSettings.liveWheel; onToggled: ShellSettings.setLook("liveWheel", !checked, "island") }
+    }
+    KitRow {
+      label: "Open on hover"
+      hint: "The folded activity opens where it is"
+      KitSwitch { checked: ShellSettings.liveHover; onToggled: ShellSettings.setLook("liveHover", !checked, "island") }
     }
   }
 }
