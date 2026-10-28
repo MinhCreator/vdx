@@ -1056,7 +1056,7 @@
   "target": "notifications"
  },
  {
-  "label": "Stay for",
+  "label": "Card stays for",
   "hint": "Critical ones always stay",
   "where": "Notifications › NEW NOTIFICATIONS",
   "target": "notifications"

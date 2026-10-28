@@ -52,6 +52,7 @@ Singleton {
   // the island's live activities (Bar › Live): each kind on or off, the order
   // inside its section (the priority), how long a flash and a full view stay
   readonly property int liveFullMs: look("liveFullMs", "island")            // the full view folds back after this
+  readonly property int liveNoticeMs: look("liveNoticeMs", "island")  // a notification's line stays this long (0: until read)
   readonly property int liveFlashMs: look("liveFlashMs", "island")          // a flash stays this long
   readonly property bool liveHover: look("liveHover", "island")             // a hover on the slot opens it in place
   readonly property bool liveExpand: look("liveExpand", "island")           // a new activity opens whole first
@@ -85,7 +86,7 @@ Singleton {
     liveEnabled: true, liveBattery: true, liveBluetooth: true,
     liveRecording: true, liveUpdate: true, liveBackup: true, liveVpn: false, liveMusic: true,
     liveVolume: true, liveMic: true, liveLayout: true, livePlugged: true,
-    liveFullMs: 2500, liveFlashMs: 1500, liveHover: true, liveExpand: true, liveWheel: true, liveMusicOpen: true,
+    liveFullMs: 2500, liveFlashMs: 1500, liveNoticeMs: 5000, liveHover: true, liveExpand: true, liveWheel: true, liveMusicOpen: true,
     liveBatteryBelow: 20, liveBatteryStay: "fixed", liveOrder: ({}) })
   // animations (Shell Manager › Animations; Motion reads them)
   readonly property bool motion: state.motion                     // all of them on / off

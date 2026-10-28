@@ -117,6 +117,17 @@ Column {
       onMoved: value => ShellSettings.setLook("liveFullMs", 1000 + Math.round(value * 10) * 500, "island")
     }
     KitRow {
+      visible: ModuleSettings.get("notifications", "appear", "card") === "live"
+      label: "Messages stay for"
+      hint: "A notification's line in the slot"
+      wide: true
+      KitSegments {
+        model: [{label: "5 s", value: 5000}, {label: "10 s", value: 10000}, {label: "Until read", value: 0}]
+        current: ShellSettings.liveNoticeMs
+        onPicked: value => ShellSettings.setLook("liveNoticeMs", value, "island")
+      }
+    }
+    KitRow {
       label: "Expand on arrival"
       hint: "A new activity opens whole, not as a chip"
       KitSwitch { checked: ShellSettings.liveExpand; onToggled: ShellSettings.setLook("liveExpand", !checked, "island") }

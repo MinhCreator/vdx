@@ -185,10 +185,10 @@ Singleton {
       if (fresh.length === 0) return;
       root.noticeTime = fresh[0].time;
       if (root.noticeAppear === "live" && ShellSettings.liveEnabled) {
-        // the newest takes the slot; a critical one, or "Stay", waits until the centre opens or a click
+        // the newest takes the slot; a critical one, or "Until read", waits until the centre opens or a click
         root.noticeItem = fresh[0];
-        if (fresh[0].urgency === "critical" || root.toastSeconds === 0) noticeLiveTimer.stop();
-        else { noticeLiveTimer.interval = root.noticeMs; noticeLiveTimer.restart(); }
+        if (fresh[0].urgency === "critical" || ShellSettings.liveNoticeMs === 0) noticeLiveTimer.stop();
+        else { noticeLiveTimer.interval = ShellSettings.liveNoticeMs; noticeLiveTimer.restart(); }
         return;
       }
       // a replaced notification (same key) takes its old toast's place

@@ -14,7 +14,7 @@ Column {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "bell"
   readonly property string title: "Notifications"
-  readonly property string subtitle: toast === 0 ? "NEW ONES STAY" : "NEW ONES " + toast + " S"
+  readonly property string subtitle: Theme.island && ModuleSettings.get("notifications", "appear", "card") === "live" ? "AS A LIVE ACTIVITY" : toast === 0 ? "CARDS STAY" : "CARDS " + toast + " S"
   readonly property int toast: ModuleSettings.get("notifications", "toastSeconds", 5)
   readonly property var jumps: []
 

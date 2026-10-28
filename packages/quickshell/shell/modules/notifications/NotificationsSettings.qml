@@ -20,9 +20,11 @@ KitColumn {
     model: [{ label: "Card", value: "card" }, { label: "Live activity", value: "live" }]
   }
 
+  // a card (and a toast) stays this long; a live line has its own time in Bar › Live
   KitOptionRow {
+    visible: !Theme.island || ModuleSettings.get("notifications", "appear", "card") === "card"
     module: "notifications"; key: "toastSeconds"; fallback: 5
-    label: "Stay for"; hint: "Critical ones always stay"
+    label: "Card stays for"; hint: "Critical ones always stay"
     model: [{ label: "3 s", value: 3 }, { label: "5 s", value: 5 }, { label: "10 s", value: 10 }, { label: "Stay", value: 0 }]
   }
 
