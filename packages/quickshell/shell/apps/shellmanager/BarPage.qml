@@ -174,25 +174,19 @@ KitSettingsWorkspace {
   settings: Component {
     Column {
       width: parent.width
+      topPadding: Theme.settingsRowInset   // the first box reaches above its row
       // the style decides what the rest of the page has: it sits above every tab
       Column {
         width: parent.width
         KitRow {
           label: "Bar style"
-          hint: root.island ? "Island: one pill with a hub and live activities" : "Solid: a strip along the screen edge"
+          hint: (root.island ? "One pill with a hub and live activities" : "A strip along the screen edge") 
           wide: true
           KitSegments {
             model: [{label: "Solid", value: "solid"}, {label: "Island", value: "island"}]
             current: ShellSettings.barStyle
             onPicked: value => ShellSettings.set("barStyle", value)
           }
-        }
-        KitText {
-          property bool kitUnboxed: true
-          width: parent.width
-          text: "Each style keeps its own layout and look."
-          color: Theme.muted
-          font.pixelSize: Theme.fontSize - 2
         }
         KitGrouper {}
       }

@@ -23,7 +23,7 @@ Row {
   spacing: 8
   visible: kind !== ""
 
-  // recording: the dot, the time, the sound, the file's size, pause and stop
+  // recording: the dot, the time, the sound, pause and stop
   Rectangle {
     visible: face.kind === "recording"
     anchors.verticalCenter: parent.verticalCenter
@@ -47,12 +47,6 @@ Row {
     tone: Theme.red
     height: 16
     active: !CaptureService.paused
-  }
-  KitText {
-    visible: face.kind === "recording"
-    anchors.verticalCenter: parent.verticalCenter
-    text: CaptureService.sizeText
-    color: Theme.muted
   }
   // round buttons, the chip's height less its inset: pause (dim) and stop (red)
   Repeater {

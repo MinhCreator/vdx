@@ -99,9 +99,6 @@ Singleton {
   property bool paused: false
   property real pausedAt: 0             // when the pause began
   property real pausedFor: 0            // ms spent paused before it
-  property real fileBytes: 0            // the recording's size so far
-  readonly property string sizeText: fileBytes >= 1e9 ? (fileBytes / 1e9).toFixed(1) + " GB"
-    : fileBytes >= 1e6 ? Math.round(fileBytes / 1e6) + " MB" : Math.round(fileBytes / 1e3) + " KB"
   // "05:42", for the faces that show it
   readonly property string elapsedText: String(Math.floor(elapsed / 60)).padStart(2, "0") + ":" + String(elapsed % 60).padStart(2, "0")
   // the screens whose bar shows the Capture module (they show the recording;
@@ -347,7 +344,6 @@ Singleton {
       root.elapsed = 0;
       root.paused = false;
       root.pausedFor = 0;
-      root.fileBytes = 0;
       root.recordStarted = Date.now();
       recorder.command = args;
       recorder.running = true;
@@ -360,15 +356,7 @@ Singleton {
     repeat: true
     onTriggered: {
       if (!root.paused) root.elapsed = Math.floor((Date.now() - root.recordStarted - root.pausedFor) / 1000);
-      sizeProc.running = true;
     }
-  }
-
-  // the file's size, for the live activity
-  Process {
-    id: sizeProc
-    command: ["stat", "-c", "%s", root.recordFile]
-    stdout: StdioCollector { onStreamFinished: root.fileBytes = Number(text.trim()) || root.fileBytes }
   }
 
   // ---- countdown ----
