@@ -5,7 +5,6 @@ import qs.config
 import qs.kit
 import Quickshell.Widgets
 import qs.modules.sysmon
-import qs.modules.equalizer
 import qs.modules.audio
 import qs.modules.brightness
 
@@ -120,13 +119,16 @@ Item {
 
     // ---- track ----
     Rectangle {
+      id: track
       width: parent.width
-      height: 52
+      height: 60
       visible: root.hasPlayer
       radius: Theme.radiusCard
       color: Theme.controlFill
       border.width: Theme.frameWidth
       border.color: Theme.controlLine
+
+      function clock(s) { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
 
       // a click on the card (not its buttons) opens the Music popup, as the module's did
       MouseArea {
@@ -138,12 +140,13 @@ Item {
       IslandCover {
         id: cover
         anchors { left: parent.left; leftMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
-        size: 36
-        radius: Theme.radiusControl
+        size: track.height - 2 * Theme.gapMedium
+        radius: Theme.radiusFor(size)
       }
 
       Column {
-        anchors { left: cover.right; leftMargin: Theme.gapLoose; right: controls.left; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+        anchors { left: cover.right; leftMargin: Theme.gapWide; right: controls.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
+        spacing: Theme.gapTight
 
         KitText {
           width: parent.width
@@ -154,8 +157,8 @@ Item {
         }
         KitText {
           width: parent.width
-          visible: text !== ""
-          text: IslandService.artist
+          visible: IslandService.hasMedia
+          text: (IslandService.artist !== "" ? IslandService.artist + " · " : "") + track.clock(IslandService.position) + " / " + track.clock(IslandService.length)
           textFormat: Text.PlainText
           color: Theme.muted
           font.pixelSize: Theme.fontSize - 1
@@ -163,39 +166,34 @@ Item {
         }
       }
 
-      // one hover disc for the group: it slides to the button under the
-      // pointer, so two discs never show at once
-      // it jumps to the button it moves to and fades in or out on the group
-      // leaving: the last button stays put while it fades
-      Rectangle {
-        id: disc
-        readonly property Item target: controls.hoverTarget
-        property Item last: null
-        onTargetChanged: if (target) last = target
-        x: last ? controls.x + last.x : 0
-        y: last ? controls.y + last.y : 0
-        width: last ? last.width : 0
-        height: last ? last.height : 0
-        radius: Theme.pill(height)
-        color: Theme.background2
-        opacity: target ? 1 : 0
-
-        Behavior on opacity { enabled: Motion.controls; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
-      }
-
+      // back, and the one filled button
       Row {
         id: controls
-        anchors { right: parent.right; rightMargin: Theme.gapHair; verticalCenter: parent.verticalCenter }
-        property Item hoverTarget: null
+        anchors { right: parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
+        spacing: Theme.gapSmall
 
-        EqualizerBars {
+        IslandButton {
           anchors.verticalCenter: parent.verticalCenter
-          height: 14
-          rightPadding: Theme.gapMedium
+          icon: "skip-back"
+          iconSize: 14
+          onClicked: IslandService.prev()
         }
-        IslandButton { group: controls; icon: "skip-back"; iconSize: 16; onClicked: IslandService.prev() }
-        IslandButton { group: controls; icon: IslandService.playing ? "pause" : "play"; iconSize: 18; onClicked: IslandService.togglePlay() }
-        IslandButton { group: controls; icon: "skip-forward"; iconSize: 16; onClicked: IslandService.next() }
+        Rectangle {
+          anchors.verticalCenter: parent.verticalCenter
+          width: 40
+          height: 40
+          radius: Theme.pill(height)
+          color: playArea.containsMouse ? Theme.foreground0 : Theme.foreground1
+
+          KitIcon { anchors.centerIn: parent; name: IslandService.playing ? "pause" : "play"; size: 16; solid: true; tint: Theme.background0 }
+          MouseArea {
+            id: playArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: IslandService.togglePlay()
+          }
+        }
       }
     }
 
