@@ -27,6 +27,13 @@ Item {
   // the dot: unseen notices while the centre sits in the hub (Bar › Style › Notifications dot)
   readonly property bool unseen: NotificationsService.unseen > 0 && ShellSettings.barFolderDot
   readonly property bool clockOn: BarLayout.islandClock(screen)
+  // an activity shown in full holds the pill alone (IslandService.liveFull)
+  // the island follows the slot's own glide; when the others come or go (alone) it glides itself
+  property bool glide: false
+  readonly property bool slotMoving: live.moving && !glide
+  readonly property bool alone: IslandService.liveFull && IslandService.live !== ""
+  onAloneChanged: { glide = true; glideTimer.restart(); }
+  Timer { id: glideTimer; interval: Motion.normal + 50; onTriggered: root.glide = false }
   // nothing to show at rest: the island hides (Shell Manager › Bar › Clock)
   readonly property bool empty: !clockOn && !unseen && BarLayout.islandIn("start", screen).length === 0
                                 && BarLayout.islandIn("end", screen).length === 0
@@ -46,6 +53,7 @@ Item {
 
   Row {
     id: left
+    visible: !root.alone
     anchors.verticalCenter: parent.verticalCenter
     spacing: Theme.gapWide
 
@@ -69,7 +77,7 @@ Item {
 
   Item {
     anchors.verticalCenter: parent.verticalCenter
-    visible: root.clockOn
+    visible: root.clockOn && !root.alone
     width: clock.implicitWidth
     height: Theme.islandHeight
 
@@ -91,8 +99,14 @@ Item {
     }
   }
 
+  IslandLive {
+    id: live
+    anchors.verticalCenter: parent.verticalCenter
+  }
+
   Row {
     id: right
+    visible: !root.alone
     anchors.verticalCenter: parent.verticalCenter
     spacing: Theme.gapWide
 

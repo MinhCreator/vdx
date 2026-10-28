@@ -10,11 +10,14 @@ Row {
 
   readonly property var colours: Theme.equalizerColours(ModuleSettings.get("equalizer", "colour", "theme"))
   property int barWidth: 2
+  property int count: EqualizerService.bars      // fewer bars take their levels evenly from the 12
+  property var tone: null                       // one colour for all, over the module's own
 
   // the colour of bar i: the gradient's step at its place
   function colourAt(i) {
+    if (tone) return tone;
     const [a, b] = colours;
-    const t = EqualizerService.bars > 1 ? i / (EqualizerService.bars - 1) : 0;
+    const t = count > 1 ? i / (count - 1) : 0;
     return Qt.rgba(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t, 1);
   }
 
@@ -32,7 +35,7 @@ Row {
   Component.onDestruction: if (counted) EqualizerService.users--
 
   Repeater {
-    model: EqualizerService.bars
+    model: root.count
 
     Rectangle {
       required property int index
@@ -42,7 +45,7 @@ Row {
       radius: Theme.pill(width)
       color: root.colourAt(index)
       opacity: IslandService.playing ? 1 : 0.5
-      height: Math.max(width, root.height * (EqualizerService.levels[index] ?? 0))
+      height: Math.max(width, root.height * (EqualizerService.levels[Math.floor((index + 0.5) * EqualizerService.bars / root.count)] ?? 0))
 
       Behavior on height { enabled: Motion.bar; NumberAnimation { duration: Motion.ms(70) } }
     }

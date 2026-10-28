@@ -3,6 +3,9 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import qs.apps.backup
+import qs.apps.capture
+import qs.apps.packages
 import qs.components
 import qs.config
 import qs.modules.audio
@@ -49,6 +52,44 @@ Singleton {
   function next() { PlayerService.next(); }
   function prev() { PlayerService.prev(); }
   function seek(fraction) { PlayerService.seek(fraction); }
+
+
+  // ---- live activities: what is running, for the pill's live slot ----
+  // Held first (recording, backup, update), then music. `liveIndex` is the one
+  // showing; the wheel steps it (liveStep), a finished one drops out.
+  readonly property var activities: {
+    const list = [];
+    if (CaptureService.recording) list.push("recording");
+    if (BackupService.busy && BackupService.jobKind === "run") list.push("backup");
+    if (PackagesService.busy) list.push("update");
+    if (hasMedia && playing) list.push("music");
+    return list;
+  }
+  property int liveIndex: 0
+  readonly property string live: activities[Math.min(liveIndex, activities.length - 1)] ?? ""
+  // a step (or a new activity) shows it in full, the pill holding nothing else; it then folds back to the slot
+  readonly property int fullMs: 2500
+  property bool liveFull: false
+  property int liveDir: 1                      // the last step: 1 next, -1 back (the slide's way)
+
+  function liveStep(delta) {
+    const n = activities.length;
+    if (n < 2) return;
+    liveDir = delta;
+    showFull();
+    liveIndex = (Math.min(liveIndex, n - 1) + delta + n) % n;
+  }
+
+  // the pointer on the slot opens it where it is, the rest of the pill stays
+  property bool liveHeld: false
+  readonly property bool liveOpen: liveFull || liveHeld
+  function showFull() {
+    liveFull = true;
+    fullTimer.restart();
+  }
+  Timer { id: fullTimer; interval: root.fullMs; onTriggered: root.liveFull = false }
+  // a new activity shows in full as it starts; none left: nothing to hold open
+  onLiveChanged: { if (live !== "" && ready) showFull(); else if (live === "") liveFull = false; }
 
   // ---- osd ----
   property string osdKind: ""                  // volume | brightness

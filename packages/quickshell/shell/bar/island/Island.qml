@@ -159,7 +159,7 @@ Item {
     anchors.horizontalCenter: parent.horizontalCenter
     width: root.size[0]
     height: root.size[1]
-    radius: Math.min(Theme.barRadiusFor(height), Theme.islandRadius)
+    radius: root.shown === "compact" ? height / 2 : Math.min(Theme.barRadiusFor(height), Theme.islandRadius)
     color: Theme.background0
     border.width: Theme.islandFrameWidth
     border.color: Theme.background2
@@ -168,7 +168,7 @@ Item {
     visible: opacity > 0
     Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick } }
 
-    Behavior on width { enabled: Motion.island; NumberAnimation { duration: Motion.normal; easing.type: Motion.morph } }
+    Behavior on width { enabled: Motion.island && !(root.shown === "compact" && compact.slotMoving); NumberAnimation { duration: Motion.normal; easing.type: Motion.morph } }
     Behavior on height { enabled: Motion.island; NumberAnimation { duration: Motion.normal; easing.type: Motion.morph } }
     Behavior on radius { enabled: Motion.island; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
 
@@ -348,7 +348,7 @@ Item {
     y: 0
     width: Theme.islandHeight
     height: Theme.islandHeight
-    radius: Math.min(Theme.barRadiusFor(height), Theme.islandRadius)
+    radius: root.shown === "compact" ? height / 2 : Math.min(Theme.barRadiusFor(height), Theme.islandRadius)
     color: backArea.containsMouse ? Theme.background1 : Theme.background0
     Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
     border.width: Theme.islandFrameWidth
