@@ -117,15 +117,6 @@ Column {
         font.pixelSize: Theme.fontSize - 1
       }
     }
-
-    KitSelect {
-      label: "DNS"
-      hint: WifiService.dnsError !== "" ? WifiService.dnsError : "For this network"
-      model: WifiService.dnsProviders.map(p => ({ label: p.label, value: p.label }))
-      current: WifiService.dnsLabel
-      busy: WifiService.dnsBusy
-      onPicked: value => WifiService.setDns(WifiService.dnsProviders.find(p => p.label === value).servers)
-    }
   }
 
   KitLine { visible: WifiService.connected }

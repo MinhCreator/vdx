@@ -2,8 +2,8 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// Battery: charge and health, then the power settings (saver, charge limit,
-// platform profile, GPU mode).
+// Battery: charge and health, then the GPU mode (the profile and the charge limit
+// are in Settings › Power).
 KitFrame {
   id: root
 
@@ -19,13 +19,6 @@ KitFrame {
   readonly property string gpuNext: BatteryService.gpuPending === "Unknown" ? "" : BatteryService.gpuPending
   readonly property bool gpuPending: gpuNext !== "" && gpuNext !== BatteryService.gpuMode
     && !/no action/i.test(BatteryService.gpuAction)
-  readonly property var selects: [limit, profile, gpu]
-
-  // At most one select open at a time.
-  function collapseOthers(open) {
-    for (const s of selects) if (s !== open) s.expanded = false;
-  }
-
   // ---- header ----
   KitHeader {
     icon: BatteryService.saver ? "battery-saver" : BatteryService.charging ? "battery-bolt"
@@ -81,41 +74,7 @@ KitFrame {
     width: parent.width
     spacing: Theme.gapLoose
 
-    KitLabel { text: "POWER" }
-
-    KitRow {
-      visible: BatteryService.profiles.includes(BatteryService.saverProfile)
-      label: "Power saver"
-      hint: "Quiet profile, longer battery"
-
-      KitSwitch {
-        checked: BatteryService.saver
-        onToggled: BatteryService.setSaver(!BatteryService.saver)
-      }
-    }
-
-    KitSelect {
-      id: limit
-      visible: BatteryService.limitSupported
-      label: "Charge limit"
-      hint: "Stop charging at"
-      model: BatteryService.limits.map(v => ({ label: v + "%", value: v }))
-      current: BatteryService.threshold
-      busy: model.some(c => c.value === BatteryService.busy)
-      onPicked: value => BatteryService.setThreshold(value)
-      onExpandedChanged: if (expanded) root.collapseOthers(limit)
-    }
-
-    KitSelect {
-      id: profile
-      label: "Profile"
-      hint: "Platform profile"
-      model: BatteryService.profiles.map(p => ({ label: p, value: p }))
-      current: BatteryService.profile
-      busy: model.some(c => c.value === BatteryService.busy)
-      onPicked: value => BatteryService.setProfile(value)
-      onExpandedChanged: if (expanded) root.collapseOthers(profile)
-    }
+    KitLabel { text: "GRAPHICS" }
 
     KitSelect {
       id: gpu
@@ -130,7 +89,6 @@ KitFrame {
       current: root.gpuNext || BatteryService.gpuMode
       busy: model.some(c => c.value === BatteryService.busy)
       onPicked: value => BatteryService.setGpuMode(value)
-      onExpandedChanged: if (expanded) root.collapseOthers(gpu)
     }
   }
 
