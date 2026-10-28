@@ -156,6 +156,19 @@ Singleton {
   }
 
   function icon(id) { return modules.find(p => p.id === id)?.icon ?? ""; }
+  // where a module is now, in words ("" : not on the bar): the Modules page says it
+  function placeOf(id, screen) {
+    if (Theme.island) {
+      const l = islandLayout(screen);
+      if (l.start.includes(id)) return "Left of the clock";
+      if (l.end.includes(id)) return "Right of the clock";
+      if (l.hub.includes(id)) return isTile(id) ? "In the hub, as a tile" : "In the hub, as a chip";
+      return "";
+    }
+    const names = { left: "Left", center: "Centre", right: "Right" };
+    for (const z of zones) if (visibleIn(z, screen).includes(id)) return names[z];
+    return inFolder(screen).includes(id) ? "In the Folder" : "";
+  }
   function isTile(id) { return modules.find(p => p.id === id)?.tile === true; }
   function label(id) { return modules.find(p => p.id === id)?.label ?? ""; }
 

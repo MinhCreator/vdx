@@ -139,6 +139,16 @@ Column {
 
         KitLine { sectionBreak: false }
 
+        // where it is: its options mean little off the bar
+        KitRow {
+          id: placeRow
+          visible: root.module !== null && BarLayout.installed(root.selected) && root.selected !== "folder"
+          readonly property string place: BarLayout.placeOf(root.selected, BarLayout.mainScreen())
+          label: place !== "" ? "On the bar" : "Not on the bar"
+          hint: place !== "" ? place : "Its options apply once you place it"
+          KitButton { text: placeRow.place !== "" ? "Move…" : "Place it"; onClicked: root.navigate("bar", "layout") }
+        }
+
         // its components are off on this machine: nothing to set until installed
         KitRow {
           visible: root.module !== null && !BarLayout.installed(root.selected)
