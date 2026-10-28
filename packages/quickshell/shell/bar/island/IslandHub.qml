@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import qs.bar
+import qs.bar.island.hub
 import qs.config
 import qs.kit
 import Quickshell.Widgets
@@ -38,7 +39,10 @@ Item {
   }
   property date now: new Date()
 
-  implicitHeight: column.implicitHeight + 2 * Theme.gapGroup
+  // the month is a page of the hub: the island grows to it and back
+  property bool calendarOpen: false
+  onVisibleChanged: if (!visible) calendarOpen = false
+  implicitHeight: (calendarOpen ? calendarPage.implicitHeight : column.implicitHeight) + 2 * Theme.gapGroup
 
   // the Music module is on no bar; it lives here for its popup (the player card opens it)
   Loader {
@@ -55,8 +59,17 @@ Item {
     onTriggered: root.now = new Date()
   }
 
+  HubCalendar {
+    id: calendarPage
+    anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.gapGroup }
+    visible: root.calendarOpen
+    now: root.now
+    onBack: root.calendarOpen = false
+  }
+
   Column {
     id: column
+    visible: !root.calendarOpen
     anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.gapGroup }
     spacing: Theme.sectionGap
 
@@ -113,6 +126,13 @@ Item {
         iconSize: 16
         onClicked: root.power()
       }
+    }
+
+    // ---- the week ----
+    HubWeek {
+      width: parent.width
+      now: root.now
+      onClicked: root.calendarOpen = true
     }
 
     KitLine { visible: root.hasPlayer || root.hasSliders || root.ids.length > 0 }
