@@ -44,7 +44,7 @@ Rectangle {
   }
 
   // `caption` opens a group in the sidebar
-  // `child`: a page under the one above it, indented (the island's Hub and Live activities);
+  // `child`: a page that belongs to the one above it (the island's Hub and Live activities), a plain row;
   // `island`: only while the island is the bar style
   readonly property var allSections: [
     { value: "appearance", label: "Appearance", icon: "sun",        caption: "LOOK" },
@@ -55,7 +55,7 @@ Rectangle {
     { value: "wallpaper",  label: "Wallpaper",  icon: "image" },
     { value: "animations", label: "Motion",     icon: "zap" },
     { value: "bar",        label: "Bar",        icon: "layout",     caption: "DESKTOP" },
-    { value: "hub",        label: "Hub",        icon: "layout",     child: true, island: true },
+    { value: "hub",        label: "Hub",        icon: "home",     child: true, island: true },
     { value: "live",       label: "Live activities", icon: "activity", child: true, island: true },
     { value: "modules",    label: "Bar modules", icon: "puzzle" },
     { value: "windows",    label: "Windows",    icon: "app-window" },
@@ -316,9 +316,8 @@ Rectangle {
           Rectangle {
             radius: Theme.radiusControl
             id: item
-            x: section.child ? 22 : 0
-            width: parent.width - x
-            height: section.child ? Theme.controlHeight : Theme.navigationHeight
+            width: parent.width
+            height: Theme.navigationHeight
             activeFocusOnTab: true
             Accessible.role: Accessible.Button
             Accessible.name: section.modelData.label
@@ -335,21 +334,12 @@ Rectangle {
             color: section.active ? Theme.pickFill : itemArea.containsMouse || activeFocus ? Theme.controlHover : Theme.clear
             Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.quick } }
 
-            // a child hangs on a thin guide line from its page
-            Rectangle {
-              visible: section.child
-              x: -14
-              anchors { top: parent.top; bottom: parent.bottom }
-              width: Theme.hairline
-              color: Theme.controlLine
-            }
-
             KitIcon {
               id: itemIcon
               anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               name: section.modelData.icon
               tint: section.active ? Theme.foreground0 : Theme.foreground2
-              size: section.child ? Theme.iconSmall : 16
+              size: 16
             }
 
             KitText {
