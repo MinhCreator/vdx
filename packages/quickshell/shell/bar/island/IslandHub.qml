@@ -142,7 +142,8 @@ Item {
       width: parent.width
       height: 60
       visible: root.hasPlayer
-      radius: Theme.radiusCard
+      // the cover keeps the shell's one cover corner; the card's is concentric around it (cover corner + the gap)
+      radius: Math.min(height / 2, Theme.coverRadius(height - 2 * Theme.gapMedium) + Theme.gapMedium)
       color: Theme.controlFill
       border.width: Theme.frameWidth
       border.color: Theme.controlLine
