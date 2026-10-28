@@ -95,7 +95,7 @@ Item {
 
   // a hover opens the slot in place (IslandService.liveHeld)
   HoverHandler {
-    enabled: root.kind !== ""
+    enabled: root.kind !== "" && ShellSettings.liveHover
     onHoveredChanged: IslandService.liveHeld = hovered
   }
 

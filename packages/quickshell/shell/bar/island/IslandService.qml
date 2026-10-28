@@ -9,6 +9,8 @@ import qs.apps.packages
 import qs.components
 import qs.config
 import qs.modules.audio
+import qs.modules.battery
+import qs.modules.bluetooth
 import qs.modules.brightness
 import qs.modules.player
 import qs.modules.notifications
@@ -59,16 +61,23 @@ Singleton {
   // showing; the wheel steps it (liveStep), a finished one drops out.
   readonly property var activities: {
     const list = [];
-    if (CaptureService.recording) list.push("recording");
-    if (BackupService.busy && BackupService.jobKind === "run") list.push("backup");
-    if (PackagesService.busy) list.push("update");
-    if (hasMedia && playing) list.push("music");
+    if (CaptureService.recording && ShellSettings.liveOn("recording")) list.push("recording");
+    if (BackupService.busy && BackupService.jobKind === "run" && ShellSettings.liveOn("backup")) list.push("backup");
+    if (PackagesService.busy && ShellSettings.liveOn("update")) list.push("update");
+    if (BatteryService.present && BatteryService.discharging && BatteryService.capacity <= BatteryService.warning && ShellSettings.liveOn("battery")) list.push("battery");
+    if (btShown && BluetoothService.mainDevice && ShellSettings.liveOn("bluetooth")) list.push("bluetooth");
+    if (hasMedia && playing && ShellSettings.liveOn("music")) list.push("music");
     return list;
   }
+  // a device that connects shows for a while (it is an event, not a task)
+  property bool btShown: false
+  readonly property string btMac: BluetoothService.mainDevice?.mac ?? ""
+  onBtMacChanged: if (ready && btMac !== "") { btShown = true; btTimer.restart(); } else if (btMac === "") btShown = false
+  Timer { id: btTimer; interval: 8000; onTriggered: root.btShown = false }
   property int liveIndex: 0
   readonly property string live: activities[Math.min(liveIndex, activities.length - 1)] ?? ""
   // a step (or a new activity) shows it in full, the pill holding nothing else; it then folds back to the slot
-  readonly property int fullMs: 2500
+  readonly property int fullMs: ShellSettings.liveFullMs
   property bool liveFull: false
   property int liveDir: 1                      // the last step: 1 next, -1 back (the slide's way)
 
@@ -98,7 +107,7 @@ Singleton {
   readonly property string osdIcon: osdKind === "brightness" ? "sun" : osdMuted || AudioService.volume === 0 ? "volume-x" : "volume"
 
   function osd(kind) {
-    if (!ready) return;
+    if (!ready || !ShellSettings.liveOn("volume")) return;
     // a volume change made in the open volume popup shows in the popup, not as a flash
     if (kind === "volume" && PopupManager.current?.ipcTarget === "audio") return;
     osdKind = kind;
@@ -124,7 +133,7 @@ Singleton {
   Connections {
     target: NotificationsService
     function onItemsChanged() {
-      if (!root.ready) return;
+      if (!root.ready || !ShellSettings.liveOn("notice")) return;
       const now = Date.now();
       const fresh = NotificationsService.items.filter(n => n.time > root.noticeTime && now - n.time <= 10000);
       if (fresh.length === 0) return;

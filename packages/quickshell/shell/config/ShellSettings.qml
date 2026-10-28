@@ -49,7 +49,13 @@ Singleton {
   readonly property int barGap: look("barGap")                    // px each side of a separator (Theme.separatorMargin)
   readonly property string clockOpens: look("clockOpens")         // hover | click: how the island's hub opens from the clock
   readonly property bool hubPlayer: look("hubPlayer")             // the track (the player) shows in the island's hub
-  readonly property var lookDefaults: ({ barIconGrow: 0, barSeparators: true, barGap: 5, clockOpens: "hover", hubPlayer: true })
+  // the island's live activities (Bar › Live): each kind on or off, how long a new one shows in full
+  readonly property int liveFullMs: look("liveFullMs")
+  readonly property bool liveHover: look("liveHover")             // a hover on the slot opens it in place
+  function liveOn(kind) { return look("live" + kind.charAt(0).toUpperCase() + kind.slice(1), "island"); }
+  readonly property var lookDefaults: ({ barIconGrow: 0, barSeparators: true, barGap: 5, clockOpens: "hover", hubPlayer: true,
+    liveRecording: true, liveBackup: true, liveUpdate: true, liveMusic: true,
+    liveVolume: true, liveBattery: true, liveBluetooth: true, liveNotice: true, liveFullMs: 2500, liveHover: true })
   // animations (Shell Manager › Animations; Motion reads them)
   readonly property bool motion: state.motion                     // all of them on / off
   readonly property string motionSpeed: state.motionSpeed         // slow | normal | fast

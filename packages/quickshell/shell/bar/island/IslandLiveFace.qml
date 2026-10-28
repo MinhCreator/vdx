@@ -4,6 +4,8 @@ import qs.apps.backup
 import qs.apps.capture
 import qs.config
 import qs.kit
+import qs.modules.battery
+import qs.modules.bluetooth
 import qs.modules.equalizer
 
 // One face of the pill's live slot (IslandLive): what the activity `kind` shows.
@@ -62,6 +64,25 @@ Row {
     visible: face.kind === "backup" && face.full
     text: Math.max(0, Math.round(BackupService.progress)) + "%"
     color: Theme.foreground2
+  }
+
+  // low battery: the level in red, in full the time left
+  KitIcon { visible: face.kind === "battery"; name: BatteryService.levelIcon; size: 16; tint: Theme.red; anchors.verticalCenter: parent.verticalCenter }
+  KitText { visible: face.kind === "battery"; text: "Battery"; color: Theme.foreground1 }
+  KitText { visible: face.kind === "battery"; text: BatteryService.capacity + "%"; color: Theme.red }
+  KitText {
+    visible: face.kind === "battery" && face.full && BatteryService.minutesLeft > 0
+    text: "· " + (BatteryService.minutesLeft >= 60 ? Math.floor(BatteryService.minutesLeft / 60) + " h " : "") + BatteryService.minutesLeft % 60 + " min left"
+    color: Theme.muted
+  }
+
+  // a device that connected: its name, in full the charge
+  KitIcon { visible: face.kind === "bluetooth"; name: "bluetooth"; size: 16; tint: Theme.blue; anchors.verticalCenter: parent.verticalCenter }
+  KitText { visible: face.kind === "bluetooth"; text: BluetoothService.mainDevice?.name ?? ""; color: Theme.foreground1 }
+  KitText {
+    visible: face.kind === "bluetooth" && BluetoothService.mainDevice?.battery != null
+    text: BluetoothService.mainDevice?.battery + "%"
+    color: Theme.blue
   }
 
   // music: the cover, in full the track too, and the sound

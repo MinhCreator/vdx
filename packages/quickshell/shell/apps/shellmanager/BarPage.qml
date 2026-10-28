@@ -62,11 +62,12 @@ KitSettingsWorkspace {
     { key: "hub", label: "Hub", y: 0 },
     { key: "profile", label: "Profile", y: 0 },
     { key: "sliders", label: "Content", y: 0 },
+    { key: "live", label: "Live", y: 0 },
     { key: "monitor", label: "Monitor", y: 0 }
   ]
   function jump(key) {
     tab = ["look", "behaviour", "appearance"].includes(key) ? "appearance"
-      : ["hub", "profile", "sliders"].includes(key) ? "hub" : key === "monitor" ? "monitor" : "layout";
+      : ["hub", "profile", "sliders"].includes(key) ? "hub" : key === "live" ? "live" : key === "monitor" ? "monitor" : "layout";
   }
   function zoneLabel(zone) {
     return childOf(zone) ? "Bar " + (children.findIndex(b => b.id === childOf(zone)) + 2)
@@ -158,7 +159,7 @@ KitSettingsWorkspace {
 
 
   sections: [{label: "Layout", value: "layout"}, {label: "Appearance", value: "appearance"},
-    {label: "Hub", value: "hub"}, {label: "Monitors", value: "monitor"}]
+    {label: "Hub", value: "hub"}, {label: "Live", value: "live"}, {label: "Monitors", value: "monitor"}]
   current: tab
   onPicked: value => tab = value
 
@@ -271,6 +272,113 @@ KitSettingsWorkspace {
           KitSwitch { checked: BarLayout.islandClock(root.screenName); onToggled: BarLayout.setIslandClock(root.screenName, !checked) }
         }
         KitGrouper {}
+      }
+      Column {
+        spacing: Theme.sectionGap
+        width: parent.width
+        visible: root.tab === "live"
+        KitLabel { text: "LIVE ACTIVITIES" }
+        KitRow {
+          visible: !root.island
+          label: "Enable Island"
+          hint: "Live activities run in the island's live slot"
+          KitButton { text: "Use Island"; onClicked: ShellSettings.set("barStyle", "island") }
+        }
+        KitText {
+          width: parent.width
+          wrapMode: Text.WordWrap
+          text: "What is running shows beside the clock, only while it runs. The wheel over it pages through them."
+          color: Theme.muted
+          font.pixelSize: Theme.fontSize - 2
+        }
+        KitRow {
+          label: "Volume and brightness"
+          hint: "The level, when you change it"
+          Row {
+            spacing: 16
+            LivePreview { kind: "volume"; anchors.verticalCenter: parent.verticalCenter; opacity: ShellSettings.liveOn("volume") ? 1 : 0.4 }
+            KitSwitch { checked: ShellSettings.liveOn("volume"); onToggled: ShellSettings.setLook("liveVolume", !checked, "island"); anchors.verticalCenter: parent.verticalCenter }
+          }
+        }
+        KitRow {
+          label: "Music"
+          hint: "The playing track and its sound"
+          Row {
+            spacing: 16
+            LivePreview { kind: "music"; anchors.verticalCenter: parent.verticalCenter; opacity: ShellSettings.liveOn("music") ? 1 : 0.4 }
+            KitSwitch { checked: ShellSettings.liveOn("music"); onToggled: ShellSettings.setLook("liveMusic", !checked, "island"); anchors.verticalCenter: parent.verticalCenter }
+          }
+        }
+        KitRow {
+          label: "Low battery"
+          hint: "The charge left, when it runs low"
+          Row {
+            spacing: 16
+            LivePreview { kind: "battery"; anchors.verticalCenter: parent.verticalCenter; opacity: ShellSettings.liveOn("battery") ? 1 : 0.4 }
+            KitSwitch { checked: ShellSettings.liveOn("battery"); onToggled: ShellSettings.setLook("liveBattery", !checked, "island"); anchors.verticalCenter: parent.verticalCenter }
+          }
+        }
+        KitRow {
+          label: "Recording"
+          hint: "The screen recording and its time"
+          Row {
+            spacing: 16
+            LivePreview { kind: "recording"; anchors.verticalCenter: parent.verticalCenter; opacity: ShellSettings.liveOn("recording") ? 1 : 0.4 }
+            KitSwitch { checked: ShellSettings.liveOn("recording"); onToggled: ShellSettings.setLook("liveRecording", !checked, "island"); anchors.verticalCenter: parent.verticalCenter }
+          }
+        }
+        KitRow {
+          label: "Backup"
+          hint: "A running backup and its progress"
+          Row {
+            spacing: 16
+            LivePreview { kind: "backup"; anchors.verticalCenter: parent.verticalCenter; opacity: ShellSettings.liveOn("backup") ? 1 : 0.4 }
+            KitSwitch { checked: ShellSettings.liveOn("backup"); onToggled: ShellSettings.setLook("liveBackup", !checked, "island"); anchors.verticalCenter: parent.verticalCenter }
+          }
+        }
+        KitRow {
+          label: "Device connected"
+          hint: "A headset or other device that connects"
+          Row {
+            spacing: 16
+            LivePreview { kind: "bluetooth"; anchors.verticalCenter: parent.verticalCenter; opacity: ShellSettings.liveOn("bluetooth") ? 1 : 0.4 }
+            KitSwitch { checked: ShellSettings.liveOn("bluetooth"); onToggled: ShellSettings.setLook("liveBluetooth", !checked, "island"); anchors.verticalCenter: parent.verticalCenter }
+          }
+        }
+        KitRow {
+          label: "Updates"
+          hint: "Packages being installed"
+          Row {
+            spacing: 16
+            LivePreview { kind: "update"; anchors.verticalCenter: parent.verticalCenter; opacity: ShellSettings.liveOn("update") ? 1 : 0.4 }
+            KitSwitch { checked: ShellSettings.liveOn("update"); onToggled: ShellSettings.setLook("liveUpdate", !checked, "island"); anchors.verticalCenter: parent.verticalCenter }
+          }
+        }
+        KitRow {
+          label: "Notifications"
+          hint: "A new message, then a dot on the pill"
+          Row {
+            spacing: 16
+            LivePreview { kind: "notice"; anchors.verticalCenter: parent.verticalCenter; opacity: ShellSettings.liveOn("notice") ? 1 : 0.4 }
+            KitSwitch { checked: ShellSettings.liveOn("notice"); onToggled: ShellSettings.setLook("liveNotice", !checked, "island"); anchors.verticalCenter: parent.verticalCenter }
+          }
+        }
+        KitLine {}
+        KitRow {
+          label: "Show in full for"
+          hint: "A new activity, or one you page to, opens whole first"
+          wide: true
+          KitSegments {
+            model: [{label: "Short", value: 1500}, {label: "Normal", value: 2500}, {label: "Long", value: 5000}]
+            current: ShellSettings.liveFullMs
+            onPicked: value => ShellSettings.setLook("liveFullMs", value, "island")
+          }
+        }
+        KitRow {
+          label: "Open on hover"
+          hint: "The folded activity opens where it is"
+          KitSwitch { checked: ShellSettings.liveHover; onToggled: ShellSettings.setLook("liveHover", !checked, "island") }
+        }
       }
       Column {
         width: parent.width

@@ -107,6 +107,13 @@ size, gap, separators and hub opening.
 
 - At rest: LEFT · clock · RIGHT (by default the workspaces and the
   equalizer).
+- **The live slot** (`IslandLive`, between the clock and RIGHT) shows what
+  runs — a recording, a backup, an update, low battery, a device that just
+  connected, the music — only while it does. The wheel over it pages through
+  them with a slide. A new one, or one paged to, shows in full alone in the pill
+  and then folds to a chip; a hover opens the chip in place. Bar › Live: each
+  kind (also the volume / brightness flash and the notification toast) on or
+  off, how long the full view stays, the hover.
 - **The hub** opens from the clock on a hover or a click (Bar › Hub › Opening ›
   Open the hub): the date, settings and power, the track, the **Launcher** and
   **Keys** chips, then the HUB modules as chips. A chip opens its module's
