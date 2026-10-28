@@ -109,7 +109,7 @@ Row {
   }
   KitText { visible: face.kind === "volume"; text: Math.round(IslandService.osdLevel * 100); color: Theme.foreground1 }
 
-  // flashes: the mic, the layout, a new track, the cable
+  // flashes: the mic, the layout, the cable
   KitIcon { visible: face.kind === "mic"; name: IslandService.micMuted ? "mic-off" : "mic"; size: 14; tint: IslandService.micMuted ? Theme.red : Theme.green; anchors.verticalCenter: parent.verticalCenter }
   KitText { visible: face.kind === "mic"; text: IslandService.micMuted ? "Muted" : "Mic on"; color: Theme.foreground1 }
   KitText { visible: face.kind === "layout"; text: Format.layout(IslandService.layoutFrom) || IslandService.layoutFrom; color: Theme.muted }
@@ -127,7 +127,7 @@ Row {
 
   // music: the cover, in full the track too, and the sound
   Item {
-    visible: face.kind === "music" || face.kind === "track"
+    visible: face.kind === "music"
     anchors.verticalCenter: parent.verticalCenter
     width: face.coverSize
     height: face.coverSize
@@ -157,7 +157,7 @@ Row {
     Rectangle { anchors.fill: parent; radius: Theme.pill(width); color: Theme.background3; z: -1 }
   }
   KitText {
-    visible: (face.kind === "music" || face.kind === "track") && face.full
+    visible: (face.kind === "music") && face.full
     anchors.verticalCenter: parent.verticalCenter
     width: Math.min(implicitWidth, 260)
     elide: Text.ElideRight
@@ -165,7 +165,7 @@ Row {
     color: Theme.foreground1
   }
   EqualizerBars {
-    visible: face.kind === "music" || face.kind === "track"
+    visible: face.kind === "music"
     anchors.verticalCenter: parent.verticalCenter
     barCount: 4
     tone: Theme.green

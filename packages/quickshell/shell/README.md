@@ -110,7 +110,7 @@ size, gap, separators and hub opening.
 - **The live slot** (`IslandLive`, between the clock and RIGHT) shows what
   runs, only while it does, in three kinds: Asks (low battery, a connected
   device), Held (recording, update, backup, VPN, music) and Flash (the mic, the
-  layout, a new track, the cable). The wheel over it pages through them with a
+  layout, the cable). The wheel over it pages through them with a
   slide; a new one, or one paged to, shows whole alone in the pill, then folds
   to a chip; a hover opens the chip in place; a click on the music opens the
   Music popup (a middle click plays / pauses). Bar › Live: each activity on or

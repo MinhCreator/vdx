@@ -62,7 +62,7 @@ Singleton {
   readonly property var liveSections: ({
     asks:  ["notice", "battery", "bluetooth"],
     held:  ["recording", "update", "backup", "vpn", "music"],
-    flash: ["volume", "mic", "layout", "track", "plugged"]
+    flash: ["volume", "mic", "layout", "plugged"]
   })
   readonly property bool liveEnabled: look("liveEnabled", "island")  // the master switch: off, nothing shows in the live slot
   // one kind's own switch, and whether it is in effect (the master switch too)
@@ -80,7 +80,7 @@ Singleton {
   readonly property var lookDefaults: ({ barIconGrow: 0, barSeparators: true, barGap: 5, clockOpens: "hover", hubPlayer: true,
     liveEnabled: true, liveNotice: true, liveBattery: true, liveBluetooth: true,
     liveRecording: true, liveUpdate: true, liveBackup: true, liveVpn: false, liveMusic: true,
-    liveVolume: true, liveMic: true, liveLayout: true, liveTrack: true, livePlugged: true,
+    liveVolume: true, liveMic: true, liveLayout: true, livePlugged: true,
     liveFullMs: 2500, liveFlashMs: 1500, liveHover: true, liveExpand: true, liveWheel: true, liveMusicOpen: true,
     liveBatteryBelow: 20, liveBatteryStay: "fixed", liveOrder: ({}) })
   // animations (Shell Manager › Animations; Motion reads them)

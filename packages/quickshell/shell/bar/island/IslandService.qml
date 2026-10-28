@@ -89,7 +89,7 @@ Singleton {
   onBatLowChanged: if (batLow && ready) { batShown = true; batTimer.restart(); } else if (!batLow) batShown = false
   Timer { id: batTimer; interval: 5000; onTriggered: root.batShown = false }
 
-  // a flash: a short note about a quick change (the mic, the layout, a new track, the cable)
+  // a flash: a short note about a quick change (the mic, the layout, the cable)
   property string flashKind: ""
   function flash(kind) {
     if (!ready || !ShellSettings.liveOn(kind)) return;
@@ -107,8 +107,6 @@ Singleton {
   property string layoutFrom: ""               // the layout it changed from
   property string layoutLast: ""
   onLayoutNowChanged: { layoutFrom = layoutLast; layoutLast = layoutNow; if (layoutFrom !== "") flash("layout"); }
-  readonly property string trackNow: title
-  onTrackNowChanged: if (playing && trackNow !== "") flash("track")
   readonly property bool pluggedNow: BatteryService.plugged
   onPluggedNowChanged: if (pluggedNow) flash("plugged")
   property int liveIndex: 0

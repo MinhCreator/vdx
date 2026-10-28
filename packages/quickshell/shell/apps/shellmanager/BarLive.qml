@@ -90,7 +90,6 @@ Column {
       volume: { label: "Volume and brightness", hint: "A level while you change it" },
       mic: { label: "Microphone", hint: "When the mic is muted or unmuted" },
       layout: { label: "Keyboard layout", hint: "EN → RU when it changes" },
-      track: { label: "New track", hint: "Cover and title when the song changes" },
       plugged: { label: "Plugged in", hint: "Charge when the cable connects" }
     })
   }

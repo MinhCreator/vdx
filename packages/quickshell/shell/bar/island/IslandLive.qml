@@ -28,7 +28,7 @@ Item {
   readonly property int chipHeight: Theme.islandHeight - 2 * edge
   readonly property int chipRadius: Math.max(0, Math.min(Theme.barRadiusFor(Theme.islandHeight), Theme.islandRadius) - edge)
   readonly property int coverSize: chipHeight - 2 * inset
-  readonly property bool covered: (sliding ? backFace : frontFace).kind === "music" || (sliding ? backFace : frontFace).kind === "track"
+  readonly property bool covered: (sliding ? backFace : frontFace).kind === "music"
   // a cover starts at the inset, text and marks a little further in
   readonly property int padLeft: covered ? inset : Theme.gapLoose
   readonly property int padRight: Theme.gapLoose

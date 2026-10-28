@@ -71,12 +71,12 @@ Rectangle {
     KitText { visible: root.kind === "vpn"; text: "Finland"; font.pixelSize: Theme.fontSize - 1; width: 64 }
     KitText { visible: root.kind === "vpn"; text: "483"; color: Theme.foreground2; font.pixelSize: Theme.fontSize - 1 }
 
-    // music, and a new track: the cover, the name, the sound
-    Rectangle { visible: root.kind === "music" || root.kind === "track"; anchors.verticalCenter: parent.verticalCenter; width: 16; height: 16; radius: Theme.pill(width); color: Theme.background3
+    // music: the cover, the name, the sound
+    Rectangle { visible: root.kind === "music"; anchors.verticalCenter: parent.verticalCenter; width: 16; height: 16; radius: Theme.pill(width); color: Theme.background3
       KitIcon { anchors.centerIn: parent; name: "music"; size: 9; tint: Theme.foreground2 } }
-    KitText { visible: root.kind === "music" || root.kind === "track"; text: "Survivor"; font.pixelSize: Theme.fontSize - 1; width: 64; elide: Text.ElideRight }
+    KitText { visible: root.kind === "music"; text: "Survivor"; font.pixelSize: Theme.fontSize - 1; width: 64; elide: Text.ElideRight }
     Row {
-      visible: root.kind === "music" || root.kind === "track"
+      visible: root.kind === "music"
       anchors.verticalCenter: parent.verticalCenter
       spacing: 2
       Repeater { model: [0.45, 1, 0.65, 0.85]; Rectangle { required property real modelData; anchors.verticalCenter: parent.verticalCenter; width: 2; height: 14 * modelData; radius: 1; color: Theme.green } }
