@@ -7,20 +7,10 @@ import qs.kit
 Column {
   id: root
 
-  KitText {
-    property bool kitUnboxed: true
-    width: parent.width
-    text: "Things that grow out of the pill. The row order is the priority: the top one takes the pill, the others wait in the wheel."
-    color: Theme.muted
-    wrapMode: Text.WordWrap
-    font.pixelSize: Theme.fontSize - 1
-  }
-
   BarLiveSection {
     width: parent.width
     section: "asks"
     title: "ASKS"
-    caption: "waits for an answer"
     info: ({
       notice: { label: "Messages", hint: "A new notification, as a toast on the pill" },
       battery: { label: "Low battery", hint: "The charge left, when it runs low" },
@@ -33,7 +23,7 @@ Column {
   Column {
     width: parent.width
 
-    KitLabel { text: "LOW BATTERY"; value: "selected above" }
+    KitLabel { text: "LOW BATTERY" }
     KitRow {
       label: "Interrupts below"
       hint: "The charge at which it takes the pill"
@@ -63,7 +53,6 @@ Column {
     width: parent.width
     section: "held"
     title: "HELD"
-    caption: "stays while it runs"
     info: ({
       recording: { label: "Recording", hint: "A timer while the screen records" },
       update: { label: "Updates", hint: "Progress of an update run" },
@@ -79,7 +68,6 @@ Column {
     width: parent.width
     section: "flash"
     title: "FLASH"
-    caption: "passes by"
     info: ({
       volume: { label: "Volume and brightness", hint: "A level while you change it" },
       mic: { label: "Microphone", hint: "When the mic is muted or unmuted" },
@@ -94,7 +82,7 @@ Column {
   Column {
     width: parent.width
 
-    KitLabel { text: "BEHAVIOUR"; value: "every activity" }
+    KitLabel { text: "BEHAVIOUR" }
 
     KitSliderRow {
       label: "Flash lasts"

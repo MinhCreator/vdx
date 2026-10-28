@@ -2,8 +2,7 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// One block of Bar › Live, a settings section: a small-caps caption with a note
-// on the right, then its rows (the page's KitGrouper boxes them) — a drag
+// One block of Bar › Live, a settings section: a small-caps caption, then its rows (the page's KitGrouper boxes them) — a drag
 // handle, a same-size sample of the pill, the name, a switch. The row order is
 // the priority; drag a row by its handle to move it.
 Column {
@@ -11,7 +10,6 @@ Column {
 
   property string section: ""
   property string title: ""
-  property string caption: ""
   property var info: ({})                      // kind -> { label, hint }
 
   readonly property var kinds: ShellSettings.liveOrdered(section)
@@ -32,7 +30,7 @@ Column {
     return at;
   }
 
-  KitLabel { text: root.title; value: root.caption }
+  KitLabel { text: root.title }
 
   Repeater {
     id: rows
