@@ -12,6 +12,12 @@ KitColumn {
   KitLabel { text: "DELIVERY" }
 
   KitOptionRow {
+    module: "notifications"; key: "appear"; fallback: "card"
+    label: "Show new ones as"; hint: "Live activity: a line in the island's live slot (island style); Card: a toast"
+    model: [{ label: "Card", value: "card" }, { label: "Live activity", value: "live" }]
+  }
+
+  KitOptionRow {
     module: "notifications"; key: "toastSeconds"; fallback: 5
     label: "Toast duration"; hint: "Stay: until dismissed. Critical always stays"
     model: [{ label: "3 s", value: 3 }, { label: "5 s", value: 5 }, { label: "10 s", value: 10 }, { label: "Stay", value: 0 }]

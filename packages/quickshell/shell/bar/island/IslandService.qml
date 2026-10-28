@@ -69,7 +69,8 @@ Singleton {
       update: PackagesService.busy,
       backup: BackupService.busy && BackupService.jobKind === "run",
       vpn: MihomoService.serviceOn,
-      music: hasMedia && playing
+      music: hasMedia && playing,
+      notice: noticeItem !== null
     };
     if (flashKind !== "") on[flashKind] = true;
     const list = [];
@@ -171,14 +172,26 @@ Singleton {
   property int noticeMore: 0                   // fresh ones past the stack: "N more notifications"
   property real noticeTime: 0                 // the newest one taken: later ones are news
 
+  // Notifications › Delivery › Show as: a card (the island's toast) or a live activity (a line in the slot)
+  readonly property string noticeAppear: ModuleSettings.get("notifications", "appear", "card")
+  property var noticeItem: null                // the one the live slot shows (appear "live")
+
   Connections {
     target: NotificationsService
     function onItemsChanged() {
-      if (!root.ready || !ShellSettings.liveOn("notice")) return;
+      if (!root.ready) return;
       const now = Date.now();
       const fresh = NotificationsService.items.filter(n => n.time > root.noticeTime && now - n.time <= 10000);
       if (fresh.length === 0) return;
       root.noticeTime = fresh[0].time;
+      if (root.noticeAppear === "live") {
+        // the newest takes the slot; a critical one, or "Stay", waits until the centre opens or a click
+        if (!ShellSettings.liveOn("notice")) return;
+        root.noticeItem = fresh[0];
+        if (fresh[0].urgency === "critical" || root.toastSeconds === 0) noticeLiveTimer.stop();
+        else { noticeLiveTimer.interval = root.noticeMs; noticeLiveTimer.restart(); }
+        return;
+      }
       // a replaced notification (same key) takes its old toast's place
       root.notices = fresh.concat(root.notices.filter(n => !fresh.some(f => f.key === n.key)))
                           .slice(0, root.noticeMax);
@@ -188,6 +201,8 @@ Singleton {
       root.flashed("notice", root.hasCritical() ? 0 : root.noticeMs);
     }
   }
+  Timer { id: noticeLiveTimer; onTriggered: root.noticeItem = null }
+  function dismissLiveNotice() { noticeItem = null; noticeLiveTimer.stop(); NotificationsService.markSeen(); }
 
   function hasCritical() { return root.notices.some(n => n.urgency === "critical"); }
 
@@ -235,7 +250,7 @@ Singleton {
   // the centre opened (from anywhere): the toasts close, the centre keeps them
   Connections {
     target: NotificationsService
-    function onOpened() { root.clearNotices(); }
+    function onOpened() { root.clearNotices(); root.noticeItem = null; }
   }
 
   function openNotifications() {

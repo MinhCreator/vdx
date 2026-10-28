@@ -1044,6 +1044,12 @@
   "target": "notifications"
  },
  {
+  "label": "Show new ones as",
+  "hint": "Live activity: a line in the island's live slot (island style); Card: a toast",
+  "where": "Notifications › DELIVERY",
+  "target": "notifications"
+ },
+ {
   "label": "Toast duration",
   "hint": "Stay: until dismissed. Critical always stays",
   "where": "Notifications › DELIVERY",

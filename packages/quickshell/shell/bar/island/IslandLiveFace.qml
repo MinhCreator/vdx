@@ -68,6 +68,30 @@ Row {
     color: Theme.foreground2
   }
 
+  // a notification, as a line: the app's initial, "app: summary", in full the text too
+  Rectangle {
+    visible: face.kind === "notice"
+    anchors.verticalCenter: parent.verticalCenter
+    width: face.coverSize
+    height: face.coverSize
+    radius: Theme.radiusFor(height)
+    color: Theme.pickFill
+    KitText { anchors.centerIn: parent; text: (IslandService.noticeItem?.app ?? "").slice(0, 1).toUpperCase(); font.pixelSize: Theme.fontSize - 2; font.weight: Font.Medium }
+  }
+  KitText {
+    visible: face.kind === "notice"
+    width: Math.min(implicitWidth, face.full ? 300 : 150)
+    elide: Text.ElideRight
+    textFormat: Text.PlainText
+    text: {
+      const n = IslandService.noticeItem;
+      if (!n) return "";
+      const head = n.summary !== "" ? n.summary : n.app;
+      return face.full && n.body !== "" ? head + ": " + n.body : head;
+    }
+    color: IslandService.noticeItem?.urgency === "critical" ? Theme.red : Theme.foreground1
+  }
+
   // low battery: the level in red, in full the time left
   KitIcon { visible: face.kind === "battery"; name: BatteryService.levelIcon; size: 16; tint: Theme.red; anchors.verticalCenter: parent.verticalCenter }
   KitText { visible: face.kind === "battery"; text: "Battery"; color: Theme.foreground1 }

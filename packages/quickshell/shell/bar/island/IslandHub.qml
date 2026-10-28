@@ -260,9 +260,6 @@ Item {
     }
 
 
-    // ---- notifications ----
-    HubNotes { width: parent.width }
-
     // ---- modules ----
     Flow {
       width: parent.width

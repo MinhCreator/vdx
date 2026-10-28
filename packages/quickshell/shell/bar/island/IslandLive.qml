@@ -107,13 +107,18 @@ Item {
   }
 
   // the wheel pages; on the music a click opens the Music popup (the hub's hosted
-  // module answers to `player`), a middle click plays or pauses
+  // module answers to `player`), a middle click plays or pauses; on a notification
+  // a click opens its app, a middle click dismisses
   MouseArea {
     anchors.fill: parent
-    acceptedButtons: root.kind === "music" ? Qt.LeftButton | Qt.MiddleButton : Qt.NoButton
-    cursorShape: root.kind === "music" ? Qt.PointingHandCursor : Qt.ArrowCursor
+    acceptedButtons: root.kind === "music" || root.kind === "notice" ? Qt.LeftButton | Qt.MiddleButton : Qt.NoButton
+    cursorShape: root.kind === "music" || root.kind === "notice" ? Qt.PointingHandCursor : Qt.ArrowCursor
     onClicked: mouse => {
-      if (mouse.button === Qt.MiddleButton) IslandService.togglePlay();
+      if (root.kind === "notice") {
+        // a click brings the app up (else the centre), a middle click dismisses
+        if (mouse.button === Qt.LeftButton) IslandService.activate(IslandService.noticeItem);
+        IslandService.dismissLiveNotice();
+      } else if (mouse.button === Qt.MiddleButton) IslandService.togglePlay();
       else ShellIpc.call("player", "toggle");
     }
     onWheel: w => IslandService.liveStep(w.angleDelta.y < 0 ? 1 : -1)
