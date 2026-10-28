@@ -14,7 +14,7 @@ QML keeps reading the old shapes too (a live reload runs without this)."""
 import hashlib, json, os, sys
 from pathlib import Path
 
-VERSION = 7
+VERSION = 8
 FILES = ("settings.json", "modules.json", "layout.json")
 RENAMED = {"claude": "ai", "plugins": "shell", "player": "music", "yandex": "music", "radio": "music"}   # module ids that changed (BarLayout.renamed)
 
@@ -161,7 +161,18 @@ def to_7(name: str, data: dict) -> None:
             values.pop("music", None)
 
 
-MIGRATIONS = {0: to_1, 1: to_2, 2: to_3, 3: to_4, 4: to_5, 5: to_6, 6: to_7}          # n -> the step from version n to n + 1
+def to_8(name: str, data: dict) -> None:
+    """Version 8: keys nothing reads any more go (the accent's gradient and its custom
+    colours, the password dots), and the unseen dot's old colour "light" is "theme"."""
+    if name != "settings.json":
+        return
+    for key in ("accentGradient", "accentCustom", "passwordDots"):
+        data.pop(key, None)
+    if data.get("barDotColor") == "light":
+        data["barDotColor"] = "theme"
+
+
+MIGRATIONS = {0: to_1, 1: to_2, 2: to_3, 3: to_4, 4: to_5, 5: to_6, 6: to_7, 7: to_8}          # n -> the step from version n to n + 1
 
 
 def migrate(name: str, data: dict) -> dict:

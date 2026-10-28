@@ -135,6 +135,12 @@ class Migrate(unittest.TestCase):
         self.run_it()
         self.assertEqual(self.read("modules.json")["values"]["capture"], {"quality": "high", "text": "icon"})
 
+    def test_dead_keys_go_and_light_dot_is_theme(self):
+        self.write("settings.json", {"version": 7, "accentGradient": True, "accentCustom": ["#fff", ""],
+                                     "passwordDots": True, "barDotColor": "light", "font": "Iosevka"})
+        self.run_it()
+        self.assertEqual(self.read("settings.json"), {"version": sm.VERSION, "barDotColor": "theme", "font": "Iosevka"})
+
     def test_twice_is_once(self):
         self.write("modules.json", {"values": {"music": {"titleLength": 0}}})
         self.run_it()
