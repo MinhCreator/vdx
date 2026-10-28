@@ -1,6 +1,8 @@
 import QtQuick
+import qs.bar
 import qs.config
 import qs.kit
+import qs.modules.battery
 
 // One block of Bar › Live, a settings section: a small-caps caption, then its rows (the page's KitGrouper boxes them) — a drag
 // handle, a same-size sample of the pill, the name, a switch. The row order is
@@ -51,6 +53,11 @@ Column {
       required property string kind
       required property int index
       readonly property bool on: ShellSettings.liveKind(kind)
+      // what is not here cannot run: the row says so and keeps its switch out of reach
+      readonly property string missing: kind === "vpn" && !BarLayout.installed("mihomo") ? "Not installed"
+        : kind === "backup" && !BarLayout.installed("backup") ? "Not installed"
+        : kind === "battery" && !BatteryService.present ? "No battery in this machine"
+        : kind === "music" && !BarLayout.installed("music") ? "Not installed" : ""
 
       width: root.width
       height: root.rowHeight
@@ -94,20 +101,21 @@ Column {
         id: preview
         anchors { left: handle.right; leftMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
         kind: row.kind
-        opacity: row.on && ShellSettings.liveEnabled ? 1 : 0.45
+        opacity: row.on && ShellSettings.liveEnabled && row.missing === "" ? 1 : 0.45
       }
 
       Column {
         anchors { left: preview.right; leftMargin: Theme.gapWide; right: sw.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
         spacing: Theme.gapTight
         KitText { width: parent.width; text: root.info[row.kind]?.label ?? row.kind; elide: Text.ElideRight }
-        KitText { width: parent.width; text: root.info[row.kind]?.hint ?? ""; color: Theme.muted; font.pixelSize: Theme.fontSize - 1; elide: Text.ElideRight }
+        KitText { width: parent.width; text: row.missing !== "" ? row.missing : (root.info[row.kind]?.hint ?? ""); color: Theme.muted; font.pixelSize: Theme.fontSize - 1; elide: Text.ElideRight }
       }
 
       KitSwitch {
         id: sw
         anchors { right: parent.right; verticalCenter: parent.verticalCenter }
         checked: row.on
+        enabled: row.missing === ""
         onToggled: row.kind === "notice"
           ? ModuleSettings.set("notifications", "appear", checked ? "card" : "live")
           : ShellSettings.setLook("live" + row.kind.charAt(0).toUpperCase() + row.kind.slice(1), !checked, "island")

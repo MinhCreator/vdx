@@ -16,7 +16,7 @@ KitColumn {
   KitOptionRow {
     enabled: Theme.island; dimmed: !enabled
     module: "notifications"; key: "appear"; fallback: "card"
-    label: "Show as"; hint: "A toast on the island, or a line in its live slot"
+    label: "Show as"; hint: ShellSettings.liveEnabled ? "A toast on the island, or a line in its live slot" : "Live activities are off (Bar › Live): new ones arrive as cards"
     model: [{ label: "Card", value: "card" }, { label: "Live activity", value: "live" }]
   }
 

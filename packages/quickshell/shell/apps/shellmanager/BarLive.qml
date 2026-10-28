@@ -37,7 +37,7 @@ Column {
 
   Column {
     width: parent.width
-    visible: ShellSettings.liveEnabled
+    visible: ShellSettings.liveEnabled && ShellSettings.liveKind("battery")
 
     KitLabel { text: "LOW BATTERY" }
     KitRow {
@@ -63,7 +63,7 @@ Column {
     KitGrouper {}
   }
 
-  KitLine { visible: ShellSettings.liveEnabled }
+  KitLine { visible: ShellSettings.liveEnabled && ShellSettings.liveKind("battery") }
 
   BarLiveSection {
     width: parent.width

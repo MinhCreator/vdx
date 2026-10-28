@@ -51,11 +51,13 @@ KitSettingsWorkspace {
     && (module(id)?.label ?? "").toLowerCase().includes(availableQuery.trim().toLowerCase()))
   onScreenNameChanged: { selectedModule = ""; undoStack = []; }
   onIslandChanged: {
+    wanted = "";
     undoStack = []; selectedModule = ""; activeZone = island ? "start" : "left";
     if (!island && (tab === "hub" || tab === "live")) tab = "layout";
   }
   onColumnZonesChanged: if (!columnZones.includes(activeZone)) activeZone = island ? "start" : "left"
-  readonly property var resetKeys: ["barStyle", "looks", "barRightSettings"]
+  // the style is the owner's choice, not a setting of its own page to reset: Reset keeps it
+  readonly property var resetKeys: ["looks", "barRightSettings"]
   readonly property bool changed: ShellSettings.changed(resetKeys) || ModuleSettings.changed("hub")
   function reset() { ShellSettings.reset(resetKeys); ModuleSettings.reset("hub"); }
   readonly property var jumps: [
@@ -68,7 +70,11 @@ KitSettingsWorkspace {
     { key: "live", label: "Live", y: 0 },
     { key: "monitor", label: "Monitor", y: 0 }
   ]
+  // a page of the island asked for while the strip is the style: Layout, with a note and the way
+  property string wanted: ""
   function jump(key) {
+    wanted = "";
+    if (!island && ["hub", "profile", "sliders", "live"].includes(key)) { wanted = key === "live" ? "live" : "hub"; tab = "layout"; return; }
     tab = ["look", "behaviour", "appearance"].includes(key) ? "appearance"
       : ["hub", "profile", "sliders"].includes(key) ? "hub" : key === "live" ? "live" : key === "monitor" ? "monitor" : "layout";
   }
@@ -192,10 +198,17 @@ KitSettingsWorkspace {
           color: Theme.muted
           font.pixelSize: Theme.fontSize - 2
         }
+        // asked for the hub or the live activities in the strip: say why they are not here, and offer the way
+        KitRow {
+          visible: root.wanted !== "" && !root.island
+          label: root.wanted === "live" ? "Live activities need the Island style" : "The hub needs the Island style"
+          hint: "The island is one pill with a hub and live activities; the strip has neither"
+          KitButton { text: "Use Island"; onClicked: { ShellSettings.set("barStyle", "island"); root.tab = root.wanted; root.wanted = ""; } }
+        }
         KitGrouper {}
       }
       KitSelect {
-        visible: root.roles.length > 1 && !BarLayout.shared
+        visible: root.roles.length > 1 && !BarLayout.shared && (root.tab === "layout" || root.tab === "monitor")
         label: "Editing monitor"
         model: root.roles.map(n => ({label: (BarLayout.roleOf(n) === "main" ? "Main · " : "Extra · ") + n, value: n}))
         current: root.screenName

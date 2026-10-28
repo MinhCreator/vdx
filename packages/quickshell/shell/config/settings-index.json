@@ -1078,7 +1078,7 @@
  },
  {
   "label": "Show as",
-  "hint": "A toast on the island, or a line in its live slot",
+  "hint": "",
   "where": "Notifications › NEW NOTIFICATIONS",
   "target": "notifications",
   "aliases": [

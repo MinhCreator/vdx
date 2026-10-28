@@ -25,7 +25,7 @@ Item {
     + (ModuleSettings.get("clock", "twelveHour", false) ? " AP" : "")
 
   // the dot: unseen notices while the centre sits in the hub (Bar › Style › Notifications dot)
-  readonly property bool unseen: NotificationsService.unseen > 0 && ShellSettings.barFolderDot
+  readonly property bool unseen: NotificationsService.unseen > 0 && ShellSettings.barFolderDot && !BarLayout.bellOnPill(screen)
   readonly property bool clockOn: BarLayout.islandClock(screen)
   // the island follows the slot's own glide
   readonly property bool slotMoving: live.moving
