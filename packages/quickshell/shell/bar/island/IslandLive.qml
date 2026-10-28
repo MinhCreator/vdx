@@ -1,4 +1,5 @@
 import QtQuick
+import qs.bar
 import qs.components
 import qs.config
 
@@ -20,7 +21,7 @@ Item {
   readonly property Item backFace: front === 0 ? faceB : faceA
 
   clip: true
-  // the activity sits in a chip of its own, folded or open: concentric with the
+  // the activity sits in a chip of its own, always whole: concentric with the
   // pill — the same gap (`edge`) to the pill's rim above and below, its corners
   // the pill's less that gap; a cover inside sits `inset` from the chip's rim
   readonly property int edge: 4
@@ -96,31 +97,26 @@ Item {
     color: Theme.background2
   }
 
-  IslandLiveFace { id: faceA; full: IslandService.liveOpen || (kind === "music" && ShellSettings.liveMusicOpen); coverSize: root.coverSize; badgeRadius: root.badgeRadius }
-  IslandLiveFace { id: faceB; full: IslandService.liveOpen || (kind === "music" && ShellSettings.liveMusicOpen); coverSize: root.coverSize; badgeRadius: root.badgeRadius }
+  IslandLiveFace { id: faceA; coverSize: root.coverSize; badgeRadius: root.badgeRadius }
+  IslandLiveFace { id: faceB; coverSize: root.coverSize; badgeRadius: root.badgeRadius }
 
   Component.onCompleted: { faceA.kind = kind; place(); }
 
-  // a hover opens the slot in place (IslandService.liveHeld)
-  HoverHandler {
-    enabled: root.kind !== "" && ShellSettings.liveHover
-    onHoveredChanged: IslandService.liveHeld = hovered
-  }
-
-  // the wheel pages; on the music a click opens the Music popup (the hub's hosted
-  // module answers to `player`), a middle click plays or pauses; on a notification
-  // a click opens its app, a middle click dismisses
+  // the wheel pages; a click opens what the activity is about (IslandService.liveTarget:
+  // the module's popup, else its options); on a notification it brings its
+  // app up; a middle click plays or pauses the music, dismisses a notification
+  readonly property bool clickable: kind === "notice" || IslandService.liveTarget[kind] !== undefined
   MouseArea {
     anchors.fill: parent
-    acceptedButtons: root.kind === "music" || root.kind === "notice" ? Qt.LeftButton | Qt.MiddleButton : Qt.NoButton
-    cursorShape: root.kind === "music" || root.kind === "notice" ? Qt.PointingHandCursor : Qt.ArrowCursor
+    acceptedButtons: root.clickable ? Qt.LeftButton | Qt.MiddleButton : Qt.NoButton
+    cursorShape: root.clickable ? Qt.PointingHandCursor : Qt.ArrowCursor
     onClicked: mouse => {
       if (root.kind === "notice") {
         // a click brings the app up (else the centre), a middle click dismisses
         if (mouse.button === Qt.LeftButton) IslandService.activate(IslandService.noticeItem);
         IslandService.dismissLiveNotice();
-      } else if (mouse.button === Qt.MiddleButton) IslandService.togglePlay();
-      else ShellIpc.call("player", "toggle");
+      } else if (mouse.button === Qt.MiddleButton) { if (root.kind === "music") IslandService.togglePlay(); }
+      else BarLayout.openModule(IslandService.liveTarget[root.kind]);
     }
     onWheel: w => IslandService.liveStep(w.angleDelta.y < 0 ? 1 : -1)
   }

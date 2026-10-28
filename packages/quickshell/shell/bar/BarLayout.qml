@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.components
 import qs.config
 
 // Which modules the bar shows and where, per monitor: three zones, each in
@@ -14,6 +15,7 @@ Singleton {
   // Registry, in default order. A new module: an entry here + its Component in
   // ModuleFaces.qml. `icon` names a kit/icons SVG, `about` is the manager's one-liner,
   // `settings` its options page in the module's folder (Shell Manager › Modules),
+  // `tile`: in the island's hub it is drawn as a tile (Hub tiles, bar/island/hub/HubTiles.qml), not a chip;
   // `island` its place in the island while that is not arranged (else the hub;
   // "none": nowhere — its popup opens from elsewhere, the hub's player for Music).
   readonly property var modules: [
@@ -21,16 +23,17 @@ Singleton {
     { id: "music",         label: "Music",         zone: "left",   island: "none", icon: "music", settings: "MusicSettings.qml", about: "Players, local music and radio" },
     { id: "themes",        label: "Themes",        zone: "right",  icon: "palette", settings: "ThemesSettings.qml", about: "Switch theme" },
     { id: "tray",          label: "Tray",          zone: "right",  icon: "grid", settings: "TraySettings.qml", about: "App status icons" },
-    { id: "mode",          label: "Mode",          zone: "right",  icon: "moon", settings: "ModeSettings.qml", about: "Switch light or dark mode" },
+    { id: "mode",          label: "Mode",          zone: "right",  tile: true, icon: "moon", settings: "ModeSettings.qml", about: "Switch light or dark mode" },
     { id: "wallpapers",    label: "Wallpapers",    zone: "right",  icon: "image", settings: "WallpapersSettings.qml", about: "Choose a wallpaper" },
     { id: "equalizer",     label: "Equalizer",     zone: "center", island: "end", icon: "activity", settings: "EqualizerSettings.qml", about: "Audio visualizer" },
     { id: "clock",         label: "Clock",         zone: "center", icon: "clock", settings: "ClockSettings.qml", about: "Time, click for the date" },
     { id: "brightness",    label: "Brightness",    zone: "right",  icon: "sun", settings: "BrightnessSettings.qml", about: "Backlight, dimming, night light" },
     { id: "audio",         label: "Audio",         zone: "right",  icon: "volume", settings: "AudioSettings.qml", about: "Devices, volumes, app streams" },
-    { id: "wifi",          label: "Wi-Fi",         zone: "right",  icon: "wifi", settings: "WifiSettings.qml", about: "Networks, DNS, speed test" },
-    { id: "bluetooth",     label: "Bluetooth",     zone: "right",  icon: "bluetooth", settings: "BluetoothSettings.qml", about: "Pair and manage devices" },
-    { id: "mihomo",        label: "Mihomo",        zone: "right",  icon: "public", settings: "MihomoSettings.qml", about: "Proxy service and servers" },
+    { id: "wifi",          label: "Wi-Fi",         zone: "right",  tile: true, icon: "wifi", settings: "WifiSettings.qml", about: "Networks, DNS, speed test" },
+    { id: "bluetooth",     label: "Bluetooth",     zone: "right",  tile: true, icon: "bluetooth", settings: "BluetoothSettings.qml", about: "Pair and manage devices" },
+    { id: "mihomo",        label: "Mihomo",        zone: "right",  tile: true, icon: "public", settings: "MihomoSettings.qml", about: "Proxy service and servers" },
     { id: "battery",       label: "Battery",       zone: "right",  icon: "battery-full", settings: "BatterySettings.qml", about: "Charge, limit, power profile, GPU" },
+    { id: "focus",         label: "Focus",         zone: "right",  tile: true, icon: "moon", about: "Do not disturb" },
     { id: "language",      label: "Language",      zone: "right",  icon: "keyboard", settings: "LanguageSettings.qml", about: "Keyboard layout" },
     { id: "ai",            label: "AI",            zone: "right",  icon: "bot", settings: "AiSettings.qml", about: "AI limits and local models" },
     { id: "shell",         label: "Shell",         zone: "right",  icon: "sliders", about: "Shell settings and layout" },
@@ -58,6 +61,20 @@ Singleton {
       { label: "Appearance", ids: ids.filter(id => appearance.includes(id)) },
       { label: "Tools", ids: ids.filter(id => !controls.includes(id) && !appearance.includes(id)) }
     ].filter(group => group.ids.length > 0);
+  }
+
+  // ---- opening a module ----
+  // The one way to open a module's popup from anywhere (a live activity, a key,
+  // a tile): by its id. Its popup answers wherever the module sits (the bar, the
+  // Folder, the island's hub, a child bar); a module placed nowhere has none, so
+  // its options open instead — where it can be put on the bar.
+  readonly property var popupTargets: ({ music: "player", backup: "backups", cleaner: "clean", virustotal: "scan",
+                                         taskmanager: "tasks", display: "monitors", packages: "updates", clipboard: "clip" })
+  function popupTarget(id) { return popupTargets[id] ?? id; }
+  function openModule(id) {
+    const target = popupTarget(id);
+    if (PopupManager.ipcOwner(target)) ShellIpc.call(target, "toggle");
+    else if (modules.find(p => p.id === id)?.settings) ShellIpc.call("shell", "open", ["modules:" + id]);
   }
 
   readonly property var zones: ["left", "center", "right"]
@@ -139,6 +156,7 @@ Singleton {
   }
 
   function icon(id) { return modules.find(p => p.id === id)?.icon ?? ""; }
+  function isTile(id) { return modules.find(p => p.id === id)?.tile === true; }
   function label(id) { return modules.find(p => p.id === id)?.label ?? ""; }
 
   // A bar face's text, by its "Bar text" option (BarTextRow): Content (`content`),

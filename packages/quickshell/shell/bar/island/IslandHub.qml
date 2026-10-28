@@ -23,7 +23,10 @@ Item {
   signal settings(string id)
 
   // Shell Manager › Bar › HUB (island style)
-  readonly property var ids: BarLayout.islandIn("hub", bar.screen?.name ?? "")
+  readonly property var allIds: BarLayout.islandIn("hub", bar.screen?.name ?? "")
+  // the hub row: modules that can be a tile are drawn as tiles, the rest stay chips
+  readonly property var tileIds: allIds.filter(id => BarLayout.isTile(id))
+  readonly property var ids: allIds.filter(id => !BarLayout.isTile(id))
 
   readonly property real preferredWidth: ModuleSettings.get("hub", "width", 400)
   function quickSlider(key) { return ModuleSettings.get("hub", key, key === "volume" || key === "brightness"); }
@@ -133,6 +136,13 @@ Item {
       width: parent.width
       now: root.now
       onClicked: root.calendarOpen = true
+    }
+
+    // ---- tiles ----
+    HubTiles {
+      width: parent.width
+      ids: root.tileIds
+      modules: root.modules
     }
 
 

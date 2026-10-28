@@ -17,6 +17,7 @@ Column {
   property var idsOf: zone => []
   property var labelOf: id => id
   property var iconOf: id => ""
+  property var tileOf: id => false
   property var accepts: (id, zone) => true
   property var zoneLabel: zone => zone
   property string selectedId: ""
@@ -148,6 +149,7 @@ Column {
       idsOf: editor.idsOf
       labelOf: editor.labelOf
       iconOf: editor.iconOf
+      tileOf: editor.tileOf
       selectedId: editor.selectedId
       accepts: editor.accepts
       scrollViewport: editor.scrollViewport

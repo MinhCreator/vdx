@@ -2,10 +2,11 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.apps.capture
 import qs.bar.island
 
 // The sound as bar levels for the Equalizer module, the island's player and
-// its hub: cava's bars while something plays (IslandService.playing), a calm
+// its hub, the recording's live activity: cava's bars while something plays (IslandService.playing) or a recording runs, a calm
 // made-up wave without cava. Runs only while some EqualizerBars is visible.
 Singleton {
   id: root
@@ -17,7 +18,7 @@ Singleton {
   property var levels: new Array(bars).fill(0)
   property bool cava: true                      // false once cava turns out missing
   property int users: 0                         // EqualizerBars on screen right now
-  readonly property bool on: IslandService.playing && users > 0
+  readonly property bool on: (IslandService.playing || (CaptureService.recording && !CaptureService.paused)) && users > 0
 
   Process {
     id: cavaProc

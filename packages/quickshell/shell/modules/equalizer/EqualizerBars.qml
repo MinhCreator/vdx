@@ -11,6 +11,7 @@ Row {
   readonly property var colours: Theme.equalizerColours(ModuleSettings.get("equalizer", "colour", "theme"))
   property int barWidth: 2
   property int barCount: EqualizerService.bars      // fewer bars take their levels evenly from the 12
+  property bool active: IslandService.playing    // live bars, else a dim flat row
   property var tone: null                       // one colour for all, over the module's own
 
   // the colour of bar i: the gradient's step at its place
@@ -44,7 +45,7 @@ Row {
       width: root.barWidth
       radius: Theme.pill(width)
       color: root.colourAt(index)
-      opacity: IslandService.playing ? 1 : 0.5
+      opacity: root.active ? 1 : 0.5
       height: Math.max(width, root.height * (EqualizerService.levels[Math.floor((index + 0.5) * EqualizerService.bars / root.barCount)] ?? 0))
 
       Behavior on height { enabled: Motion.bar; NumberAnimation { duration: Motion.ms(70) } }

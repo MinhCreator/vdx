@@ -44,6 +44,9 @@ Imports: `import qs.<dir>` from the config root. Singletons: `pragma Singleton`
    `Bar text › Name` or `Icon`, from `BarTextRow` at the top of its BAR settings); a module
    with no content takes `BarLayout.faceText(id, BarLayout.label(id))` and `hasContent: false`.
    Options that only shape the content show under Content.
+   Open a module from elsewhere (a live activity, a tile) with `BarLayout.openModule(id)`,
+   never by its IPC target; a module whose popup target differs from its id goes in
+   `BarLayout.popupTargets`.
 4. Popup — root `KitFrame`; reads the service, calls its functions. Another app or
    window opens by `ShellIpc.call(<target>, <fn>)`, never a `qs` spawned by hand.
 5. Register: `BarLayout.modules` (id, label, zone, icon, about, settings) and a

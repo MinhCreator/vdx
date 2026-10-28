@@ -95,7 +95,13 @@ Singleton {
   property string recordFile: ""
   property real recordStarted: 0
   property rect recordRect: Qt.rect(0, 0, 0, 0)     // layout coordinates
-  property int elapsed: 0               // seconds, while recording
+  property int elapsed: 0               // seconds recorded, not counting a pause
+  property bool paused: false
+  property real pausedAt: 0             // when the pause began
+  property real pausedFor: 0            // ms spent paused before it
+  property real fileBytes: 0            // the recording's size so far
+  readonly property string sizeText: fileBytes >= 1e9 ? (fileBytes / 1e9).toFixed(1) + " GB"
+    : fileBytes >= 1e6 ? Math.round(fileBytes / 1e6) + " MB" : Math.round(fileBytes / 1e3) + " KB"
   // "05:42", for the faces that show it
   readonly property string elapsedText: String(Math.floor(elapsed / 60)).padStart(2, "0") + ":" + String(elapsed % 60).padStart(2, "0")
   // the screens whose bar shows the Capture module (they show the recording;
@@ -286,6 +292,15 @@ Singleton {
     if (recorder.running) recorder.signal(2);
   }
 
+  // gpu-screen-recorder pauses and resumes on SIGUSR2
+  function togglePause() {
+    if (!recorder.running) return;
+    recorder.signal(12);
+    if (paused) pausedFor += Date.now() - pausedAt;
+    else pausedAt = Date.now();
+    paused = !paused;
+  }
+
   function run(command) { Quickshell.execDetached(command); }
 
   // the library's window (CaptureWindow)
@@ -330,6 +345,9 @@ Singleton {
       root.faceScreens = [];
       root.facesAsked();
       root.elapsed = 0;
+      root.paused = false;
+      root.pausedFor = 0;
+      root.fileBytes = 0;
       root.recordStarted = Date.now();
       recorder.command = args;
       recorder.running = true;
@@ -340,7 +358,17 @@ Singleton {
     interval: 500
     running: root.recording
     repeat: true
-    onTriggered: root.elapsed = Math.floor((Date.now() - root.recordStarted) / 1000)
+    onTriggered: {
+      if (!root.paused) root.elapsed = Math.floor((Date.now() - root.recordStarted - root.pausedFor) / 1000);
+      sizeProc.running = true;
+    }
+  }
+
+  // the file's size, for the live activity
+  Process {
+    id: sizeProc
+    command: ["stat", "-c", "%s", root.recordFile]
+    stdout: StdioCollector { onStreamFinished: root.fileBytes = Number(text.trim()) || root.fileBytes }
   }
 
   // ---- countdown ----
@@ -392,6 +420,7 @@ Singleton {
     // whatever the exit code (a stop is 0, 2 or 130; an error is 1 or 2 too),
     // the recording is there when its file is: recordCheck decides
     onExited: code => {
+      root.paused = false;
       if (root.recordFile === "") return;
       recordCheck.file = root.recordFile;
       recordCheck.code = code;

@@ -319,13 +319,19 @@
  },
  {
   "label": "Open the hub",
-  "hint": "Shown when media is available",
+  "hint": "Hub row modules that can be tiles: Wi-Fi, Bluetooth, VPN, Focus, Dark mode",
   "where": "Bar › HUB",
   "target": "bar:hub"
  },
  {
   "label": "Hub width",
-  "hint": "Shown when media is available",
+  "hint": "Hub row modules that can be tiles: Wi-Fi, Bluetooth, VPN, Focus, Dark mode",
+  "where": "Bar › HUB",
+  "target": "bar:hub"
+ },
+ {
+  "label": "Tiles per row",
+  "hint": "Hub row modules that can be tiles: Wi-Fi, Bluetooth, VPN, Focus, Dark mode",
   "where": "Bar › HUB",
   "target": "bar:hub"
  },
@@ -1057,7 +1063,7 @@
  },
  {
   "label": "Card stays for",
-  "hint": "Critical ones always stay",
+  "hint": "",
   "where": "Notifications › NEW NOTIFICATIONS",
   "target": "notifications"
  },
@@ -1074,8 +1080,8 @@
   "target": "notifications"
  },
  {
-  "label": "Show the dot",
-  "hint": "On the island's pill, or the Folder, while there is something unseen",
+  "label": "Dot while tucked away",
+  "hint": "On the Folder or the island's pill when the bell is not on the bar",
   "where": "Notifications › UNSEEN",
   "target": "notifications"
  },
@@ -1086,8 +1092,8 @@
   "target": "notifications"
  },
  {
-  "label": "Bell badge",
-  "hint": "On the Notifications bar module. Off: the bell only tints",
+  "label": "Unseen mark",
+  "hint": "On the bell while something is unseen. Off: it only lights up",
   "where": "Notifications › BELL",
   "target": "notifications"
  },
@@ -1516,6 +1522,12 @@
   "hint": "56+",
   "where": "Bar modules › Battery › BAR",
   "target": "modules:battery"
+ },
+ {
+  "label": "Focus",
+  "hint": "Do not disturb",
+  "where": "Bar modules",
+  "target": "modules:focus"
  },
  {
   "label": "Language",

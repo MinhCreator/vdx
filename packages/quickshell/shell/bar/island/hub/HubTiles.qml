@@ -1,0 +1,90 @@
+import QtQuick
+import qs.apps.shellmanager
+import qs.bar
+import qs.config
+import qs.kit
+import qs.modules.bluetooth
+import qs.modules.focus
+import qs.modules.mihomo
+import qs.modules.wifi
+
+// The hub's tiles: the modules of the hub row that can be one (BarLayout `tile`),
+// in the row's order, two or four to a row (Bar › Hub › Tiles per row). A tile
+// shows the module's state; the icon switches it, the rest opens its popup. The
+// module itself is made here, out of sight, so its own popup answers.
+Item {
+  id: root
+
+  property var ids: []                          // tile modules, in order
+  property var modules: ({})                    // Bar's module id -> Component
+  readonly property int columns: ModuleSettings.get("hub", "tileColumns", 2)
+
+  implicitHeight: grid.implicitHeight
+  visible: ids.length > 0
+
+  // what each tile shows and does
+  function spec(id) {
+    switch (id) {
+    case "wifi": return {
+      icon: WifiService.connected ? "wifi" : "wifi-off", title: "Wi-Fi", on: WifiService.connected,
+      detail: WifiService.connected ? WifiService.ssid : WifiService.radioOn ? "Not connected" : "Off",
+      toggle: () => WifiService.toggleRadio() };
+    case "bluetooth": return {
+      icon: BluetoothService.powered ? "bluetooth" : "bluetooth-off", title: BluetoothService.mainDevice ? BluetoothService.mainDevice.name : "Bluetooth",
+      on: BluetoothService.powered && BluetoothService.mainDevice !== null,
+      detail: BluetoothService.mainDevice ? (BluetoothService.mainDevice.battery != null ? BluetoothService.mainDevice.battery + "%" : "Connected")
+                                          : BluetoothService.powered ? "No device" : "Off",
+      toggle: () => BluetoothService.togglePower() };
+    case "mihomo": return {
+      icon: "shield", title: "VPN", on: MihomoService.serviceOn,
+      detail: MihomoService.serviceOn ? (MihomoService.current || "On") : "Off",
+      toggle: () => MihomoService.toggleService() };
+    case "focus": return {
+      icon: "moon", title: "Focus", on: FocusService.on, detail: FocusService.on ? "Do not disturb" : "Off",
+      toggle: () => FocusService.toggle(), noPopup: true };
+    case "mode": return {
+      icon: ThemeService.light ? "sun" : "moon", title: ThemeService.light ? "Light" : "Dark mode", on: !ThemeService.light,
+      detail: ThemeService.light ? "Light theme" : "Dark theme",
+      toggle: () => { if (!ThemeService.busy) ThemeService.setLight(!ThemeService.light); }, noPopup: true };
+    }
+    return { icon: "grid", title: id, on: false, detail: "", toggle: () => {}, noPopup: true };
+  }
+
+  // the modules, made once each, hidden: a popup opens through `openPopup()`
+  property var hosts: ({})
+  Repeater {
+    model: root.ids
+    Loader {
+      required property string modelData
+      visible: false
+      sourceComponent: root.modules[modelData] ?? null
+      onLoaded: root.hosts[modelData] = item
+    }
+  }
+  function open(id) { root.hosts[id]?.openPopup?.(); }
+
+  Grid {
+    id: grid
+    width: parent.width
+    columns: root.columns
+    spacing: Theme.gapMedium
+
+    Repeater {
+      model: root.ids
+
+      HubTile {
+        required property string modelData
+        readonly property var s: root.spec(modelData)
+        width: (grid.width - (root.columns - 1) * grid.spacing) / root.columns
+        compact: root.columns > 2
+        icon: s.icon
+        title: s.title
+        detail: s.detail
+        on: s.on
+        canOpen: !s.noPopup
+        onToggled: s.toggle()
+        onOpened: root.open(modelData)
+      }
+    }
+  }
+}

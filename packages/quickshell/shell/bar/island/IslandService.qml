@@ -11,6 +11,7 @@ import qs.config
 import qs.modules.audio
 import qs.modules.battery
 import qs.modules.bluetooth
+import qs.modules.focus
 import qs.modules.language
 import qs.modules.mihomo
 import qs.modules.brightness
@@ -99,7 +100,6 @@ Singleton {
     flashTimer.restart();
     liveIndex = Math.max(0, activities.indexOf(kind));
     liveDir = 1;
-    if (ShellSettings.liveExpand) showFull();
   }
   Timer { id: flashTimer; onTriggered: { root.flashKind = ""; root.liveIndex = 0; } }
   readonly property bool micMuted: AudioService.source?.audio?.muted ?? false
@@ -110,6 +110,8 @@ Singleton {
   onLayoutNowChanged: { layoutFrom = layoutLast; layoutLast = layoutNow; if (layoutFrom !== "") flash("layout"); }
   readonly property bool pluggedNow: BatteryService.plugged
   onPluggedNowChanged: if (pluggedNow) flash("plugged")
+  // the module a click on an activity opens (BarLayout.openModule)
+  readonly property var liveTarget: ({ music: "music", vpn: "mihomo", battery: "battery", bluetooth: "bluetooth", update: "packages", backup: "backup" })
   property int liveIndex: 0
   // the top of the queue (the priority's winner) takes the pill whenever it changes —
   // a new activity, a reorder in Bar › Live; paging with the wheel is temporary
@@ -117,9 +119,6 @@ Singleton {
   onTopKindChanged: liveIndex = 0
   Timer { id: pageBack; interval: 8000; onTriggered: root.liveIndex = 0 }
   readonly property string live: activities[Math.min(liveIndex, activities.length - 1)] ?? ""
-  // a step (or a new activity) opens the slot in place; it then folds back to the chip
-  readonly property int fullMs: ShellSettings.liveFullMs
-  property bool liveFull: false
   property int liveDir: 1                      // the last step: 1 next, -1 back (the slide's way)
 
   function liveStep(delta) {
@@ -127,20 +126,8 @@ Singleton {
     if (n < 2 || !ShellSettings.liveWheel) return;
     liveDir = delta;
     pageBack.restart();
-    showFull();
     liveIndex = (Math.min(liveIndex, n - 1) + delta + n) % n;
   }
-
-  // the pointer on the slot opens it where it is, the rest of the pill stays
-  property bool liveHeld: false
-  readonly property bool liveOpen: liveFull || liveHeld
-  function showFull() {
-    liveFull = true;
-    fullTimer.restart();
-  }
-  Timer { id: fullTimer; interval: root.fullMs; onTriggered: root.liveFull = false }
-  // a new activity shows in full as it starts; none left: nothing to hold open
-  onLiveChanged: { if (live !== "" && ready && ShellSettings.liveExpand) showFull(); else if (live === "") liveFull = false; }
 
   // ---- osd ----
   property string osdKind: ""                  // volume | brightness
@@ -184,6 +171,8 @@ Singleton {
       const fresh = NotificationsService.items.filter(n => n.time > root.noticeTime && now - n.time <= 10000);
       if (fresh.length === 0) return;
       root.noticeTime = fresh[0].time;
+      // Focus: only the critical ones come through
+      if (FocusService.on && fresh[0].urgency !== "critical") return;
       if (root.noticeAppear === "live" && ShellSettings.liveEnabled) {
         // the newest takes the slot; a critical one, or "Until read", waits until the centre opens or a click
         root.noticeItem = fresh[0];

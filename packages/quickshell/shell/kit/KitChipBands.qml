@@ -46,6 +46,7 @@ Column {
   // a chip's label and icon; a band's text when it has no chips
   property var labelOf: id => id
   property var iconOf: id => ""
+  property var tileOf: id => false             // a module the hub draws as a tile: a small mark on its chip
   // a chip that is a line in its box (a separator), not icon + label
   property var lineOf: id => false
   property var removable: id => false
@@ -296,6 +297,16 @@ Column {
                   color: band.zone === "hidden" ? Theme.muted : Theme.foreground0
                   font.pixelSize: board.chipFontSize
                 }
+              }
+
+              // the hub draws it as a tile
+              Rectangle {
+                visible: board.tileOf(chip.modelData) && !chip.line
+                anchors { right: parent.right; rightMargin: 4; top: parent.top; topMargin: 4 }
+                width: 7
+                height: 7
+                radius: 2
+                color: Theme.foreground2
               }
 
               // insertion marker before this chip, or after the last one

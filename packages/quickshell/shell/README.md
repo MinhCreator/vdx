@@ -111,15 +111,16 @@ size, gap, separators and hub opening.
   runs, only while it does, in three kinds: Asks (low battery, a connected
   device), Held (recording, update, backup, VPN, music) and Flash (the mic, the
   layout, the cable). The wheel over it pages through them with a
-  slide; a new one, or one paged to, shows whole alone in the pill, then folds
-  to a chip; a hover opens the chip in place; a click on the music opens the
+  slide; a new one, or one paged to, shows whole in the pill (activities never fold);
+  a click on the music opens the
   Music popup (a middle click plays / pauses). Bar › Live: each activity on or
   off, the row order in its kind is the priority (drag a row), the low battery
-  line, how long a flash and the full view stay, expand on arrival, the wheel
-  and the hover. The notification toast is the island's own view and only
+  line, how long a flash stays and the wheel. The notification toast is the island's own view and only
   follows its switch there.
 - **The hub** opens from the clock on a hover or a click (Bar › Hub › Opening ›
-  Open the hub): the date, settings and power, the week (a click opens the month), the player card (a click opens the
+  Open the hub): the date, settings and power, the week (a click opens the month), the **tiles** (the Hub row's modules that can
+  be one — Wi-Fi, Bluetooth, VPN, Focus, Dark mode — two or four to a row, Bar › Hub ›
+  Tiles per row; the icon switches, the rest opens the module's popup), the player card (a click opens the
   Music popup, the Music module is on no bar; the card shows with nothing playing
   too), the **Launcher** and
   **Keys** chips, then the HUB modules as chips. A chip opens its module's

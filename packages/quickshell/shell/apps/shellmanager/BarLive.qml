@@ -109,13 +109,6 @@ Column {
       text: ((pressed ? 1000 + Math.round(dragValue * 6) * 500 : ShellSettings.liveFlashMs) / 1000).toFixed(1) + " s"
       onMoved: value => ShellSettings.setLook("liveFlashMs", 1000 + Math.round(value * 6) * 500, "island")
     }
-    KitSliderRow {
-      label: "Return to rest after"
-      snaps: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
-      value: (ShellSettings.liveFullMs - 1000) / 5000
-      text: ((pressed ? 1000 + Math.round(dragValue * 10) * 500 : ShellSettings.liveFullMs) / 1000).toFixed(1) + " s"
-      onMoved: value => ShellSettings.setLook("liveFullMs", 1000 + Math.round(value * 10) * 500, "island")
-    }
     KitRow {
       visible: ModuleSettings.get("notifications", "appear", "card") === "live"
       label: "Messages stay for"
@@ -128,24 +121,9 @@ Column {
       }
     }
     KitRow {
-      label: "Expand on arrival"
-      hint: "A new activity opens whole, not as a chip"
-      KitSwitch { checked: ShellSettings.liveExpand; onToggled: ShellSettings.setLook("liveExpand", !checked, "island") }
-    }
-    KitRow {
       label: "Wheel pages through them"
       hint: "Scrolling over the pill moves between running activities"
       KitSwitch { checked: ShellSettings.liveWheel; onToggled: ShellSettings.setLook("liveWheel", !checked, "island") }
-    }
-    KitRow {
-      label: "Keep music open"
-      hint: "The playing track stays whole, not folded to a chip"
-      KitSwitch { checked: ShellSettings.liveMusicOpen; onToggled: ShellSettings.setLook("liveMusicOpen", !checked, "island") }
-    }
-    KitRow {
-      label: "Open on hover"
-      hint: "The folded activity opens where it is"
-      KitSwitch { checked: ShellSettings.liveHover; onToggled: ShellSettings.setLook("liveHover", !checked, "island") }
     }
     KitGrouper {}
   }
