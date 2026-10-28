@@ -35,6 +35,9 @@ PAGES = [
     ("bar", "Bar", ["BarPage.qml"]),
     ("windows", "Windows", ["WindowsPage.qml"]),
     ("network", "Network", ["NetworkPage.qml"]),
+    ("hotspot", "Hotspot", ["HotspotPage.qml"]),
+    ("sound", "Sound", ["SoundPage.qml"]),
+    ("updates", "Updates", ["UpdatesPage.qml"]),
     ("bluetooth", "Bluetooth", ["BluetoothPage.qml"]),
     ("displays", "Displays", ["DisplaysPage.qml"]),
     ("about", "About", ["AboutPage.qml"]),
@@ -149,7 +152,7 @@ def build() -> list:
     out += entries_of(SHELL / "modules/notifications/NotificationsSettings.qml", "Notifications", "notifications")
     out += entries_of(SHELL / "modules/notifications/NotificationsColours.qml", "Notifications", "notifications")
     out += entries_of(SM / "BarLive.qml", "Bar › Live", "bar", "bar:live")
-    out += entries_of(SM / "NetworkHotspot.qml", "Network › Hotspot", "network")
+    out += entries_of(SM / "NetworkHotspot.qml", "Hotspot", "hotspot")
     out += entries_of(SM / "NetworkEthernet.qml", "Network › Ethernet", "network")
     out += entries_of(SM / "WindowOptions.qml", "Windows", "windows")
     out.append({"label": "Bar text", "hint": "Content, name or icon only, for each bar module", "where": "Bar modules", "target": "modules"})

@@ -4,15 +4,15 @@ import qs.kit
 import qs.modules.wifi
 
 // Network, a tab each for Wi-Fi (the radio, the connection in use, the saved
-// networks, a hidden network to join), the hotspot and the wired connection.
+// networks, a hidden network to join) and the wired connection. The hotspot has a page of its own.
 // Each group has the same order: its switch or state first, then the settings,
 // then the facts.
 KitColumn {
   id: root
 
-  property string tab: "wifi"                 // wifi | hotspot | ethernet
+  property string tab: "wifi"                 // wifi | ethernet
   // the tabs the window's header shows
-  readonly property var tabs: [{ label: "Wi-Fi", value: "wifi" }, { label: "Hotspot", value: "hotspot" }, { label: "Ethernet", value: "ethernet" }]
+  readonly property var tabs: [{ label: "Wi-Fi", value: "wifi" }, { label: "Ethernet", value: "ethernet" }]
 
   readonly property var ws: WifiService
   readonly property var eth: ws.ethernet
@@ -38,7 +38,7 @@ KitColumn {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "wifi"
   readonly property string title: "Network"
-  readonly property string description: "Wi-Fi and saved networks, the hotspot and Ethernet (NetworkManager)."
+  readonly property string description: "Wi-Fi and saved networks, and the wired connection (NetworkManager)."
   readonly property string subtitle: !ws.radioOn ? "OFF" : ws.connected ? ws.ssid.toUpperCase() : "NOT CONNECTED"
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
@@ -52,7 +52,7 @@ KitColumn {
 
   // a link from another page (a module's Open) lands on the tab that holds the group
   function jump(key) {
-    tab = key === "hotspot" || key === "ethernet" ? key : "wifi";
+    tab = key === "ethernet" ? key : "wifi";
   }
 
   spacing: Theme.gapGroup
@@ -334,12 +334,6 @@ KitColumn {
     }
 
     KitGrouper {}
-  }
-
-  NetworkHotspot {
-    page: root
-    width: parent.width
-    visible: root.tab === "hotspot"
   }
 
   NetworkEthernet {

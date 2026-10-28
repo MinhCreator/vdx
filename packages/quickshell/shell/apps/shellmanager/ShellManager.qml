@@ -58,9 +58,12 @@ Rectangle {
     { value: "lockscreen", label: "Lock screen", icon: "lock" },
     { value: "notifications", label: "Notifications", icon: "bell" },
     { value: "network",    label: "Network",    icon: "wifi",       caption: "SYSTEM" },
+    { value: "hotspot",    label: "Hotspot",    icon: "wifi" },
     { value: "bluetooth",  label: "Bluetooth",  icon: "bluetooth" },
+    { value: "sound",      label: "Sound",      icon: "volume" },
     { value: "displays",   label: "Displays",   icon: "monitor" },
     { value: "apps",       label: "Apps",       icon: "grid",       caption: "SHELL" },
+    { value: "updates",    label: "Updates",    icon: "package" },
     { value: "about",      label: "About",      icon: "info" }
   ]
 
@@ -87,6 +90,8 @@ Rectangle {
     // the wallpaper and the icons left Appearance too
     if (value === "appearance" && target === "wallpaper") return { tab: "wallpaper", target: "" };
     if (value === "wallpaper") return { tab: "wallpaper", target: "" };
+    if (value === "network" && target === "hotspot") return { tab: "hotspot", target: "" };
+    if (value === "modules" && target === "audio") return { tab: "modules", target: "audio" };
     // the theme, the font and the cursor left Appearance for pages of their own
     if (value === "appearance" && ["themes", "font", "cursor"].includes(target))
       return { tab: target === "font" ? "fonts" : target, target: "" };
@@ -153,7 +158,7 @@ Rectangle {
   }
 
   function pageFor(value) {
-    return ({ themes: themes, fonts: fonts, icons: icons, wallpaper: wallpaper, cursor: cursor, bar: bar, animations: animations, windows: windows, network: network, bluetooth: bluetooth, displays: displays,
+    return ({ themes: themes, fonts: fonts, icons: icons, wallpaper: wallpaper, cursor: cursor, bar: bar, animations: animations, windows: windows, network: network, hotspot: hotspot, sound: sound, updates: updates, bluetooth: bluetooth, displays: displays,
               modules: modules, apps: apps, about: about, lockscreen: lockscreen,
               notifications: notifications })[value] ?? appearance;
   }
@@ -603,6 +608,9 @@ Rectangle {
                                apps.visible ? apps.height : 0,
                                windows.visible ? windows.implicitHeight : 0,
                                network.visible ? network.implicitHeight : 0,
+                               hotspot.visible ? hotspot.implicitHeight : 0,
+                               sound.visible ? sound.implicitHeight : 0,
+                               updates.visible ? updates.implicitHeight : 0,
                                bluetooth.visible ? bluetooth.implicitHeight : 0,
                                displays.visible ? displays.implicitHeight : 0,
                                about.visible ? about.implicitHeight : 0,
@@ -622,6 +630,9 @@ Rectangle {
       ShellAppsPage { id: apps;  width: parent.width; onNavigate: (t, k) => root.navigate(t, k); onWindowSetup: id => windowDialog.appId = id; height: page.height - pages.y; visible: root.tab === "apps" }
       WindowsPage { id: windows; width: parent.width; visible: root.tab === "windows" }
       NetworkPage   { id: network;   width: parent.width; visible: root.tab === "network" }
+      HotspotPage   { id: hotspot;   width: parent.width; visible: root.tab === "hotspot" }
+      SoundPage     { id: sound;     width: parent.width; visible: root.tab === "sound" }
+      UpdatesPage   { id: updates;   width: parent.width; visible: root.tab === "updates" }
       BluetoothPage { id: bluetooth; width: parent.width; visible: root.tab === "bluetooth" }
       DisplaysPage  { id: displays;  width: parent.width; visible: root.tab === "displays" }
       AboutPage   { id: about;   width: parent.width; visible: root.tab === "about" }

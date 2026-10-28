@@ -13,7 +13,7 @@ si = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(si)
 
 TABS = {"themes", "fonts", "icons", "wallpaper", "cursor", "appearance", "animations", "bar", "modules", "windows", "lockscreen", "notifications",
-        "network", "bluetooth", "displays", "apps", "about"}
+        "network", "hotspot", "sound", "updates", "bluetooth", "displays", "apps", "about"}
 
 # a word typed -> where the task is done
 JOURNEYS = {
@@ -30,7 +30,9 @@ JOURNEYS = {
     "accent": "appearance:accent",
     "gap": "windows:look",
     "search field": "modules:clipboard",
-    "pause": "modules:audio",
+    "pause": "sound",
+    "updates": "updates",
+    "aur": "updates",
     "dot colour": "notifications",
     "width": "apps:launcher",
     "reset everything": "about:settings",
@@ -42,7 +44,7 @@ JOURNEYS = {
     "island": "bar",
     "solid": "bar",
     "wifi": "network",
-    "hotspot": "network",
+    "hotspot": "hotspot",
     "ethernet": "network",
     "dark mode": "themes",
     "shortcut": "apps:keybinds",

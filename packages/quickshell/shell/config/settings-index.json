@@ -660,6 +660,95 @@
   "target": "network:new"
  },
  {
+  "label": "Hotspot",
+  "hint": "",
+  "where": "",
+  "target": "hotspot"
+ },
+ {
+  "label": "Sound",
+  "hint": "",
+  "where": "",
+  "target": "sound"
+ },
+ {
+  "label": "Music",
+  "hint": "",
+  "where": "Sound",
+  "target": "sound",
+  "aliases": [
+   "player",
+   "song",
+   "track"
+  ]
+ },
+ {
+  "label": "Pause on other sound",
+  "hint": "Pauses the local music (MPD) while another app plays",
+  "where": "Sound › MUSIC",
+  "target": "sound"
+ },
+ {
+  "label": "Resume when it stops",
+  "hint": "Only music the shell paused",
+  "where": "Sound › MUSIC",
+  "target": "sound"
+ },
+ {
+  "label": "Updates",
+  "hint": "",
+  "where": "",
+  "target": "updates"
+ },
+ {
+  "label": "Checking",
+  "hint": "",
+  "where": "Updates",
+  "target": "updates"
+ },
+ {
+  "label": "Safety",
+  "hint": "",
+  "where": "Updates",
+  "target": "updates"
+ },
+ {
+  "label": "Packages",
+  "hint": "",
+  "where": "Updates",
+  "target": "updates"
+ },
+ {
+  "label": "Check on open",
+  "hint": "Once in ten minutes at most",
+  "where": "Updates › CHECKING",
+  "target": "updates"
+ },
+ {
+  "label": "Background check",
+  "hint": "How often updates are checked; Off: only when you ask",
+  "where": "Updates › CHECKING",
+  "target": "updates"
+ },
+ {
+  "label": "Include the AUR",
+  "hint": "Counted and listed with the repos",
+  "where": "Updates › CHECKING",
+  "target": "updates"
+ },
+ {
+  "label": "Ask before uninstalling",
+  "hint": "Uninstall asks “Sure?” once",
+  "where": "Updates › SAFETY",
+  "target": "updates"
+ },
+ {
+  "label": "Open Packages",
+  "hint": "Updates, installed packages and the cache",
+  "where": "Updates › PACKAGES",
+  "target": "updates"
+ },
+ {
   "label": "Bluetooth",
   "hint": "",
   "where": "",
@@ -1269,32 +1358,32 @@
  {
   "label": "Hotspot",
   "hint": "",
-  "where": "Network › Hotspot",
-  "target": "network"
+  "where": "Hotspot",
+  "target": "hotspot"
  },
  {
   "label": "Hotspot",
   "hint": "",
-  "where": "Network › Hotspot › HOTSPOT",
-  "target": "network"
+  "where": "Hotspot › HOTSPOT",
+  "target": "hotspot"
  },
  {
   "label": "Name",
   "hint": "The network the phones see",
-  "where": "Network › Hotspot › HOTSPOT",
-  "target": "network"
+  "where": "Hotspot › HOTSPOT",
+  "target": "hotspot"
  },
  {
   "label": "Password",
   "hint": "8 characters or more",
-  "where": "Network › Hotspot › HOTSPOT",
-  "target": "network"
+  "where": "Hotspot › HOTSPOT",
+  "target": "hotspot"
  },
  {
   "label": "Channel",
   "hint": "Auto picks a free one",
-  "where": "Network › Hotspot › HOTSPOT",
-  "target": "network"
+  "where": "Hotspot › HOTSPOT",
+  "target": "hotspot"
  },
  {
   "label": "Ethernet",
@@ -1758,27 +1847,9 @@
   "target": "modules:audio"
  },
  {
-  "label": "Auto-pause",
-  "hint": "",
-  "where": "Bar modules › Audio",
-  "target": "modules:audio"
- },
- {
   "label": "Show volume",
   "hint": "Off: icon only",
   "where": "Bar modules › Audio › BAR",
-  "target": "modules:audio"
- },
- {
-  "label": "Pause on other sound",
-  "hint": "Pauses MPD while a player plays",
-  "where": "Bar modules › Audio › AUTO-PAUSE",
-  "target": "modules:audio"
- },
- {
-  "label": "Resume when it stops",
-  "hint": "Only music the shell paused",
-  "where": "Bar modules › Audio › AUTO-PAUSE",
   "target": "modules:audio"
  },
  {
@@ -2546,19 +2617,7 @@
   "target": "apps:packages"
  },
  {
-  "label": "Updates",
-  "hint": "",
-  "where": "Apps › Packages",
-  "target": "apps:packages"
- },
- {
   "label": "List",
-  "hint": "",
-  "where": "Apps › Packages",
-  "target": "apps:packages"
- },
- {
-  "label": "Safety",
   "hint": "",
   "where": "Apps › Packages",
   "target": "apps:packages"
@@ -2567,24 +2626,6 @@
   "label": "Opens on",
   "hint": "The tab shown first",
   "where": "Apps › Packages › OPENING",
-  "target": "apps:packages"
- },
- {
-  "label": "Check on open",
-  "hint": "Once in ten minutes at most",
-  "where": "Apps › Packages › UPDATES",
-  "target": "apps:packages"
- },
- {
-  "label": "Background check",
-  "hint": "How often updates are checked",
-  "where": "Apps › Packages › UPDATES",
-  "target": "apps:packages"
- },
- {
-  "label": "Include the AUR",
-  "hint": "Counted and listed with the repos",
-  "where": "Apps › Packages › UPDATES",
   "target": "apps:packages"
  },
  {
@@ -2597,12 +2638,6 @@
   "label": "Cache shows",
   "hint": "Old versions, or all cached",
   "where": "Apps › Packages › LIST",
-  "target": "apps:packages"
- },
- {
-  "label": "Ask before uninstalling",
-  "hint": "Uninstall asks “Sure?” once",
-  "where": "Apps › Packages › SAFETY",
   "target": "apps:packages"
  },
  {

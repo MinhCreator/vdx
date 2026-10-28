@@ -33,11 +33,7 @@
   "text"
  ],
  "apps/packages/PackagesSettings.qml": [
-  "aur",
   "cacheView",
-  "checkOnOpen",
-  "confirm",
-  "interval",
   "sortBy",
   "startTab"
  ],
