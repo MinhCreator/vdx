@@ -242,18 +242,6 @@
   "target": "bar:monitor"
  },
  {
-  "label": "Hub",
-  "hint": "",
-  "where": "Bar",
-  "target": "bar:hub"
- },
- {
-  "label": "Content",
-  "hint": "",
-  "where": "Bar",
-  "target": "bar:sliders"
- },
- {
   "label": "Bar style",
   "hint": "",
   "where": "Bar",
@@ -335,16 +323,34 @@
   "target": "bar:monitor"
  },
  {
+  "label": "Hub",
+  "hint": "",
+  "where": "",
+  "target": "hub"
+ },
+ {
+  "label": "Hub",
+  "hint": "",
+  "where": "Hub",
+  "target": "hub"
+ },
+ {
+  "label": "Content",
+  "hint": "",
+  "where": "Hub",
+  "target": "hub"
+ },
+ {
   "label": "Opens on",
   "hint": "Hover the clock, or click it",
-  "where": "Bar › HUB",
-  "target": "bar:hub"
+  "where": "Hub › HUB",
+  "target": "hub"
  },
  {
   "label": "Hub width",
   "hint": "",
-  "where": "Bar › HUB",
-  "target": "bar:hub",
+  "where": "Hub › HUB",
+  "target": "hub",
   "aliases": [
    "wider",
    "narrower",
@@ -352,10 +358,16 @@
   ]
  },
  {
-  "label": "Tiles per row",
+  "label": "Picture",
   "hint": "",
-  "where": "Bar › HUB",
-  "target": "bar:hub",
+  "where": "Hub › HUB",
+  "target": "hub"
+ },
+ {
+  "label": "Tiles per row",
+  "hint": "Wi-Fi, Bluetooth, VPN, Focus, Dark mode",
+  "where": "Hub › CONTENT",
+  "target": "hub",
   "aliases": [
    "tile",
    "tiles",
@@ -363,40 +375,34 @@
   ]
  },
  {
-  "label": "Avatar",
-  "hint": "",
-  "where": "Bar › HUB",
-  "target": "bar:hub"
- },
- {
   "label": "Player card",
   "hint": "Shows with nothing playing too",
-  "where": "Bar › CONTENT",
-  "target": "bar:sliders"
+  "where": "Hub › CONTENT",
+  "target": "hub"
  },
  {
   "label": "Sliders",
   "hint": "The ones you drag in the hub",
-  "where": "Bar › CONTENT",
-  "target": "bar:sliders"
+  "where": "Hub › CONTENT",
+  "target": "hub"
  },
  {
   "label": "Volume",
   "hint": "",
-  "where": "Bar › CONTENT",
-  "target": "bar:sliders"
+  "where": "Hub › CONTENT",
+  "target": "hub"
  },
  {
   "label": "Microphone",
   "hint": "",
-  "where": "Bar › CONTENT",
-  "target": "bar:sliders"
+  "where": "Hub › CONTENT",
+  "target": "hub"
  },
  {
   "label": "Brightness",
   "hint": "",
-  "where": "Bar › CONTENT",
-  "target": "bar:sliders",
+  "where": "Hub › CONTENT",
+  "target": "hub",
   "aliases": [
    "night light",
    "dimming"
@@ -405,14 +411,20 @@
  {
   "label": "Dimming",
   "hint": "",
-  "where": "Bar › CONTENT",
-  "target": "bar:sliders"
+  "where": "Hub › CONTENT",
+  "target": "hub"
  },
  {
   "label": "Modules in the hub",
   "hint": "Placed in the Hub row of Layout: ",
-  "where": "Bar › CONTENT",
-  "target": "bar:sliders"
+  "where": "Hub › CONTENT",
+  "target": "hub"
+ },
+ {
+  "label": "Live activities",
+  "hint": "",
+  "where": "",
+  "target": "live"
  },
  {
   "label": "Windows",
@@ -1218,32 +1230,32 @@
  {
   "label": "Live activities",
   "hint": "",
-  "where": "Bar › Live",
-  "target": "bar:live"
+  "where": "Live activities",
+  "target": "live"
  },
  {
   "label": "Low battery",
   "hint": "",
-  "where": "Bar › Live",
-  "target": "bar:live"
+  "where": "Live activities",
+  "target": "live"
  },
  {
   "label": "Behaviour",
   "hint": "",
-  "where": "Bar › Live",
-  "target": "bar:live"
+  "where": "Live activities",
+  "target": "live"
  },
  {
   "label": "Live activities",
   "hint": "Off: nothing grows out of the pill, it stays at rest",
-  "where": "Bar › Live › LIVE ACTIVITIES",
-  "target": "bar:live"
+  "where": "Live activities › LIVE ACTIVITIES",
+  "target": "live"
  },
  {
   "label": "Messages",
   "hint": "A new notification as a line in the slot; off: a card",
-  "where": "Bar › Live › LIVE ACTIVITIES",
-  "target": "bar:live",
+  "where": "Live activities › LIVE ACTIVITIES",
+  "target": "live",
   "aliases": [
    "notification",
    "live",
@@ -1253,50 +1265,50 @@
  {
   "label": "Low battery",
   "hint": "The charge left, when it runs low",
-  "where": "Bar › Live › LIVE ACTIVITIES",
-  "target": "bar:live"
+  "where": "Live activities › LIVE ACTIVITIES",
+  "target": "live"
  },
  {
   "label": "Device connected",
   "hint": "Headphones and other Bluetooth devices",
-  "where": "Bar › Live › LIVE ACTIVITIES",
-  "target": "bar:live"
+  "where": "Live activities › LIVE ACTIVITIES",
+  "target": "live"
  },
  {
   "label": "Shows below",
   "hint": "The charge at which it takes the pill",
-  "where": "Bar › Live › LOW BATTERY",
-  "target": "bar:live"
+  "where": "Live activities › LOW BATTERY",
+  "target": "live"
  },
  {
   "label": "Stays for",
   "hint": "Until fixed: until the charger is back or the charge recovers",
-  "where": "Bar › Live › LOW BATTERY",
-  "target": "bar:live"
+  "where": "Live activities › LOW BATTERY",
+  "target": "live"
  },
  {
   "label": "Recording",
   "hint": "A timer while the screen records",
-  "where": "Bar › Live › LOW BATTERY",
-  "target": "bar:live"
+  "where": "Live activities › LOW BATTERY",
+  "target": "live"
  },
  {
   "label": "Updates",
   "hint": "Progress of an update run",
-  "where": "Bar › Live › LOW BATTERY",
-  "target": "bar:live"
+  "where": "Live activities › LOW BATTERY",
+  "target": "live"
  },
  {
   "label": "Backup",
   "hint": "Progress of a backup",
-  "where": "Bar › Live › LOW BATTERY",
-  "target": "bar:live"
+  "where": "Live activities › LOW BATTERY",
+  "target": "live"
  },
  {
   "label": "VPN",
   "hint": "Which server and the ping",
-  "where": "Bar › Live › LOW BATTERY",
-  "target": "bar:live",
+  "where": "Live activities › LOW BATTERY",
+  "target": "live",
   "aliases": [
    "mihomo",
    "proxy"
@@ -1305,8 +1317,8 @@
  {
   "label": "Music",
   "hint": "The playing track and its sound",
-  "where": "Bar › Live › LOW BATTERY",
-  "target": "bar:live",
+  "where": "Live activities › LOW BATTERY",
+  "target": "live",
   "aliases": [
    "player",
    "song",
@@ -1316,44 +1328,44 @@
  {
   "label": "Volume and brightness",
   "hint": "A level while you change it",
-  "where": "Bar › Live › LOW BATTERY",
-  "target": "bar:live"
+  "where": "Live activities › LOW BATTERY",
+  "target": "live"
  },
  {
   "label": "Microphone",
   "hint": "When the mic is muted or unmuted",
-  "where": "Bar › Live › LOW BATTERY",
-  "target": "bar:live"
+  "where": "Live activities › LOW BATTERY",
+  "target": "live"
  },
  {
   "label": "Keyboard layout",
   "hint": "EN → RU when it changes",
-  "where": "Bar › Live › LOW BATTERY",
-  "target": "bar:live"
+  "where": "Live activities › LOW BATTERY",
+  "target": "live"
  },
  {
   "label": "Plugged in",
   "hint": "Charge when the cable connects",
-  "where": "Bar › Live › LOW BATTERY",
-  "target": "bar:live"
+  "where": "Live activities › LOW BATTERY",
+  "target": "live"
  },
  {
   "label": "Flash lasts",
   "hint": "",
-  "where": "Bar › Live › BEHAVIOUR",
-  "target": "bar:live"
+  "where": "Live activities › BEHAVIOUR",
+  "target": "live"
  },
  {
   "label": "Messages stay for",
   "hint": "A notification's line in the slot",
-  "where": "Bar › Live › BEHAVIOUR",
-  "target": "bar:live"
+  "where": "Live activities › BEHAVIOUR",
+  "target": "live"
  },
  {
   "label": "Wheel pages through them",
   "hint": "Scrolling over the pill moves between running activities",
-  "where": "Bar › Live › BEHAVIOUR",
-  "target": "bar:live"
+  "where": "Live activities › BEHAVIOUR",
+  "target": "live"
  },
  {
   "label": "Hotspot",

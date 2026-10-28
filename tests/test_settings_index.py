@@ -13,7 +13,7 @@ si = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(si)
 
 TABS = {"themes", "fonts", "icons", "wallpaper", "cursor", "appearance", "animations", "bar", "modules", "windows", "lockscreen", "notifications",
-        "network", "hotspot", "sound", "updates", "bluetooth", "displays", "apps", "about"}
+        "bar", "hub", "live", "network", "hotspot", "sound", "updates", "bluetooth", "displays", "apps", "about"}
 
 # a word typed -> where the task is done
 JOURNEYS = {
@@ -25,8 +25,8 @@ JOURNEYS = {
     "seconds": "modules:clock",
     "theme": "themes",
     "text size": "fonts:size",
-    "hub width": "bar:hub",
-    "sliders": "bar:sliders",
+    "hub width": "hub",
+    "sliders": "hub",
     "accent": "appearance:accent",
     "gap": "windows:look",
     "search field": "modules:clipboard",
@@ -38,9 +38,9 @@ JOURNEYS = {
     "reset everything": "about:settings",
     "refresh rate": "displays:monitor",
     # the live activities, the island and the words people use for them
-    "live": "bar:live",
-    "flash": "bar:live",
-    "low battery": "bar:live",
+    "live": "live",
+    "flash": "live",
+    "low battery": "live",
     "island": "bar",
     "solid": "bar",
     "wifi": "network",
@@ -48,7 +48,7 @@ JOURNEYS = {
     "ethernet": "network",
     "dark mode": "themes",
     "shortcut": "apps:keybinds",
-    "tile": "bar:hub",
+    "tile": "hub",
     "app colour": "notifications",
     "vpn": "modules:mihomo",
     "night light": "modules:brightness",

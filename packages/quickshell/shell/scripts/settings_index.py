@@ -33,6 +33,8 @@ PAGES = [
     ("cursor", "Cursor", ["CursorPage.qml"]),
     ("animations", "Motion", ["AnimationsPage.qml"]),
     ("bar", "Bar", ["BarPage.qml"]),
+    ("hub", "Hub", ["HubPage.qml"]),
+    ("live", "Live activities", ["LivePage.qml"]),
     ("windows", "Windows", ["WindowsPage.qml"]),
     ("network", "Network", ["NetworkPage.qml"]),
     ("hotspot", "Hotspot", ["HotspotPage.qml"]),
@@ -151,7 +153,7 @@ def build() -> list:
     out += entries_of(SM / "LockScreenPage.qml", "Lock screen", "lockscreen")
     out += entries_of(SHELL / "modules/notifications/NotificationsSettings.qml", "Notifications", "notifications")
     out += entries_of(SHELL / "modules/notifications/NotificationsColours.qml", "Notifications", "notifications")
-    out += entries_of(SM / "BarLive.qml", "Bar › Live", "bar", "bar:live")
+    out += entries_of(SM / "BarLive.qml", "Live activities", "live")
     out += entries_of(SM / "NetworkHotspot.qml", "Hotspot", "hotspot")
     out += entries_of(SM / "NetworkEthernet.qml", "Network › Ethernet", "network")
     out += entries_of(SM / "WindowOptions.qml", "Windows", "windows")

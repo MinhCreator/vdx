@@ -52,34 +52,28 @@ KitSettingsWorkspace {
     && (module(id)?.label ?? "").toLowerCase().includes(availableQuery.trim().toLowerCase()))
   onScreenNameChanged: { selectedModule = ""; undoStack = []; }
   onIslandChanged: {
-    wanted = "";
     undoStack = []; selectedModule = ""; activeZone = island ? "start" : "left";
-    if (!island && (tab === "hub" || tab === "live")) tab = "layout";
   }
   onColumnZonesChanged: if (!columnZones.includes(activeZone)) activeZone = island ? "start" : "left"
-  // the style is the owner's choice, not a setting of its own page to reset: Reset keeps it
-  // the tile modules in the hub row: what Tiles per row is for
-  readonly property int tileCount: BarLayout.islandIn("hub", screenName).filter(id => BarLayout.isTile(id)).length
-  readonly property var resetKeys: ["looks", "barRightSettings"]
-  readonly property bool changed: ShellSettings.changed(resetKeys) || ModuleSettings.changed("hub")
-  function reset() { ShellSettings.reset(resetKeys); ModuleSettings.reset("hub"); }
+  // Reset covers this page: the look of both styles and the right click. The style is the owner's
+  // choice, and the hub and the live activities have their own pages and Resets.
+  readonly property var lookKeys: ["barIconGrow", "barSeparators", "barGap"]
+  readonly property bool changed: ShellSettings.looksTouched(lookKeys, "solid") || ShellSettings.looksTouched(lookKeys, "island")
+                                   || ShellSettings.changed(["barRightSettings"])
+  function reset() {
+    ShellSettings.looksReset(lookKeys, "solid");
+    ShellSettings.looksReset(lookKeys, "island");
+    ShellSettings.reset(["barRightSettings"]);
+  }
   readonly property var jumps: [
     { key: "layout", label: "Layout", y: 0 },
     { key: "look", label: "Look", y: 0 },
     { key: "behaviour", label: "Behaviour", y: 0 },
-    { key: "hub", label: "Hub", y: 0 },
-    { key: "profile", label: "Profile", y: 0 },
-    { key: "sliders", label: "Content", y: 0 },
-    { key: "live", label: "Live", y: 0 },
     { key: "monitor", label: "Monitor", y: 0 }
   ]
-  // a page of the island asked for while the strip is the style: Layout, with a note and the way
-  property string wanted: ""
   function jump(key) {
-    wanted = "";
-    if (!island && ["hub", "profile", "sliders", "live"].includes(key)) { wanted = key === "live" ? "live" : "hub"; tab = "layout"; return; }
-    tab = ["look", "behaviour", "appearance"].includes(key) ? "appearance"
-      : ["hub", "profile", "sliders"].includes(key) ? "hub" : key === "live" ? "live" : key === "monitor" ? "monitor" : "layout";
+    if (key === "hubzone") { tab = "layout"; if (island) chooseZone("hub"); return; }
+    tab = ["look", "behaviour", "appearance"].includes(key) ? "appearance" : key === "monitor" ? "monitor" : "layout";
   }
   function zoneLabel(zone) {
     return childOf(zone) ? "Bar " + (children.findIndex(b => b.id === childOf(zone)) + 2)
@@ -171,10 +165,9 @@ KitSettingsWorkspace {
 
 
   // the tabs follow the style: the hub and the live activities are the island's
-  sections: island
-    ? [{label: "Layout", value: "layout"}, {label: "Look", value: "appearance"}, {label: "Hub", value: "hub"},
-       {label: "Live", value: "live"}, {label: "Monitors", value: "monitor"}]
-    : [{label: "Layout", value: "layout"}, {label: "Look", value: "appearance"}, {label: "Monitors", value: "monitor"}]
+  // the strip's and the island's own pages: Layout, Look, Monitors. The hub and the live
+  // activities are sidebar pages of their own (Island style).
+  sections: [{label: "Layout", value: "layout"}, {label: "Look", value: "appearance"}, {label: "Monitors", value: "monitor"}]
   current: tab
   onPicked: value => tab = value
 
@@ -200,14 +193,6 @@ KitSettingsWorkspace {
           text: "Each style keeps its own layout and look."
           color: Theme.muted
           font.pixelSize: Theme.fontSize - 2
-        }
-        // asked for the hub or the live activities in the strip: say why they are not here, and offer the way
-        KitNotice {
-          visible: root.wanted !== "" && !root.island
-          title: root.wanted === "live" ? "Live activities belong to the Island style" : "The hub belongs to the Island style"
-          text: "The island is one pill with a hub and live activities. The strip has neither: these settings wait until you switch."
-          action: "Use Island"
-          onActed: { ShellSettings.set("barStyle", "island"); root.tab = root.wanted; root.wanted = ""; }
         }
         KitGrouper {}
       }
@@ -308,12 +293,6 @@ KitSettingsWorkspace {
       }
       Column {
         width: parent.width
-        visible: root.tab === "live"
-        BarLive { width: parent.width }
-        KitGrouper {}
-      }
-      Column {
-        width: parent.width
         visible: root.tab === "monitor"
         KitLabel { text: "MONITOR"; about: "Which screens show a bar, and whether they share one" }
         KitRow {
@@ -346,81 +325,6 @@ KitSettingsWorkspace {
           visible: root.other !== "" && !BarLayout.shared
           label: "Copy layout"
           KitButton { text: "From " + root.other; onClicked: { root.remember(); root.island ? BarLayout.islandCopy(root.other, root.screenName) : BarLayout.copyLayout(root.other, root.screenName); } }
-        }
-        KitGrouper {}
-      }
-      Column {
-  spacing: Theme.sectionGap
-
-        width: parent.width
-        visible: root.tab === "hub"
-        KitLabel { text: "HUB"; about: "The panel that opens from the clock" }
-        KitRow {
-          label: "Opens on"
-          hint: "Hover the clock, or click it"
-          wide: true
-          KitSegments {
-            model: [{label: "Hover", value: "hover"}, {label: "Click", value: "click"}]
-            current: ShellSettings.look("clockOpens", "island")
-            onPicked: value => ShellSettings.setLook("clockOpens", value, "island")
-          }
-        }
-        KitSliderRow {
-          id: hubWidth
-          label: "Hub width"
-          snaps: [0, 0.25, 0.5, 0.75, 1]
-          value: (ModuleSettings.get("hub", "width", 400) - 320) / 160
-          text: Math.round(320 + (pressed ? dragValue : value) * 160) + " px"
-          onMoved: value => ModuleSettings.set("hub", "width", Math.round(320 + value * 160))
-        }
-        KitOptionRow {
-          needs: root.tileCount === 0 ? "Put Wi-Fi, Bluetooth, VPN, Focus or Dark mode in the Hub row" : ""
-          needsAction: "Arrange"
-          onNeedsActed: { root.tab = "layout"; root.chooseZone("hub"); }
-          module: "hub"; key: "tileColumns"; fallback: 2
-          label: "Tiles per row"; hint: "Wi-Fi, Bluetooth, VPN, Focus, Dark mode"
-          model: [{ label: "2 ×", value: 2 }, { label: "4 ×", value: 4 }]
-        }
-        KitRow {
-          label: "Avatar"
-          hint: ModuleSettings.get("hub", "avatar", "").split("/").pop() || "Your initial"
-          KitButton { text: "Choose…"; onClicked: FilesService.pick("Choose a hub avatar", FilesService.home, false, ["image/*"], path => { if (path) ModuleSettings.set("hub", "avatar", path); }) }
-          KitButton { visible: ModuleSettings.get("hub", "avatar", "") !== ""; icon: "x"; Accessible.name: "Clear avatar"; onClicked: ModuleSettings.set("hub", "avatar", "") }
-        }
-        KitLine {}
-        KitLabel { text: "CONTENT"; about: "What the hub holds" }
-        KitRow {
-          label: "Player card"
-          hint: "Shows with nothing playing too"
-          KitSwitch { checked: ShellSettings.look("hubPlayer", "island"); onToggled: ShellSettings.setLook("hubPlayer", !checked, "island") }
-        }
-        // the four quick sliders in one row: a picked one shows in the hub
-        KitRow {
-          label: "Sliders"
-          hint: "The ones you drag in the hub"
-          Repeater {
-            model: [
-              {key: "volume", label: "Volume", fallback: true},
-              {key: "microphone", label: "Microphone", fallback: false},
-              {key: "brightness", label: "Brightness", fallback: true},
-              {key: "dimming", label: "Dimming", fallback: false}
-            ]
-            KitButton {
-              id: sliderChip
-              required property var modelData
-              readonly property bool on: ModuleSettings.get("hub", modelData.key, modelData.fallback)
-              text: modelData.label
-              selected: on
-              Accessible.role: Accessible.CheckBox
-              Accessible.checked: on
-              onClicked: ModuleSettings.set("hub", modelData.key, !on)
-            }
-          }
-        }
-        KitRow {
-          label: "Modules in the hub"
-          hint: "Placed in the Hub row of Layout: " + BarLayout.islandIn("hub", root.screenName).length
-          KitButton { text: "Arrange…"; onClicked: { root.tab = "layout"; if (root.island) root.chooseZone("hub"); } }
         }
         KitGrouper {}
       }

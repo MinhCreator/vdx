@@ -113,6 +113,20 @@ Singleton {
     return v === undefined ? lookDefaults[key] : v;
   }
 
+  // looks saved for a shape under these keys (any key given: was it ever changed) and the way back
+  function looksTouched(keys, shape) { return keys.some(k => ((looks[shape ?? "island"] ?? {})[k]) !== undefined); }
+  function looksReset(keys, shape) {
+    const target = shape ?? "island";
+    const all = Object.assign({}, looks);
+    const mine = Object.assign({}, all[target] ?? {});
+    for (const k of Object.keys(mine)) if (keys.includes(k)) delete mine[k];
+    all[target] = mine;
+    state.looks = all;
+  }
+  // the island's live-activity keys: every look key that starts with `live`
+  readonly property bool liveChanged: Object.keys(looks.island ?? {}).some(k => k.startsWith("live"))
+  function liveReset() { looksReset(Object.keys(looks.island ?? {}).filter(k => k.startsWith("live"))); }
+
   function setLook(key, value, shape) {
     const target = shape ?? barStyle;
     const all = Object.assign({}, looks);

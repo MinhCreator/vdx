@@ -44,7 +44,9 @@ Rectangle {
   }
 
   // `caption` opens a group in the sidebar
-  readonly property var sections: [
+  // `child`: a page under the one above it, indented (the island's Hub and Live activities);
+  // `island`: only while the island is the bar style
+  readonly property var allSections: [
     { value: "appearance", label: "Appearance", icon: "sun",        caption: "LOOK" },
     { value: "themes",     label: "Themes",     icon: "palette" },
     { value: "fonts",      label: "Fonts",      icon: "text" },
@@ -53,6 +55,8 @@ Rectangle {
     { value: "wallpaper",  label: "Wallpaper",  icon: "image" },
     { value: "animations", label: "Motion",     icon: "zap" },
     { value: "bar",        label: "Bar",        icon: "layout",     caption: "DESKTOP" },
+    { value: "hub",        label: "Hub",        icon: "layout",     child: true, island: true },
+    { value: "live",       label: "Live activities", icon: "activity", child: true, island: true },
     { value: "modules",    label: "Bar modules", icon: "puzzle" },
     { value: "windows",    label: "Windows",    icon: "app-window" },
     { value: "lockscreen", label: "Lock screen", icon: "lock" },
@@ -66,6 +70,7 @@ Rectangle {
     { value: "updates",    label: "Updates",    icon: "package" },
     { value: "about",      label: "About",      icon: "info" }
   ]
+  readonly property var sections: allSections.filter(s => !s.island || Theme.island)
 
   // the sidebar group a page sits in (LOOK, DESKTOP, ...): the crumb over its title
   function groupOf(tab) {
@@ -91,6 +96,9 @@ Rectangle {
     if (value === "appearance" && target === "wallpaper") return { tab: "wallpaper", target: "" };
     if (value === "wallpaper") return { tab: "wallpaper", target: "" };
     if (value === "network" && target === "hotspot") return { tab: "hotspot", target: "" };
+    // the Bar page's Hub and Live tabs became pages of their own
+    if (value === "bar" && ["hub", "profile", "sliders"].includes(target)) return { tab: "hub", target: "" };
+    if (value === "bar" && target === "live") return { tab: "live", target: "" };
     if (value === "modules" && target === "audio") return { tab: "modules", target: "audio" };
     // the theme, the font and the cursor left Appearance for pages of their own
     if (value === "appearance" && ["themes", "font", "cursor"].includes(target))
@@ -158,7 +166,7 @@ Rectangle {
   }
 
   function pageFor(value) {
-    return ({ themes: themes, fonts: fonts, icons: icons, wallpaper: wallpaper, cursor: cursor, bar: bar, animations: animations, windows: windows, network: network, hotspot: hotspot, sound: sound, updates: updates, bluetooth: bluetooth, displays: displays,
+    return ({ themes: themes, fonts: fonts, icons: icons, wallpaper: wallpaper, cursor: cursor, bar: bar, animations: animations, windows: windows, network: network, hotspot: hotspot, sound: sound, updates: updates, hub: hub, live: live, bluetooth: bluetooth, displays: displays,
               modules: modules, apps: apps, about: about, lockscreen: lockscreen,
               notifications: notifications })[value] ?? appearance;
   }
@@ -282,6 +290,7 @@ Rectangle {
           readonly property bool unfolded: active && root.navOpen
           // a group after the first starts a gap of gapMedium between the groups' captions
           readonly property int lead: index > 0 ? Theme.gapMedium : 0
+          readonly property bool child: !!modelData.child
 
           width: parent.width
           spacing: Theme.gapTight
@@ -306,8 +315,9 @@ Rectangle {
           Rectangle {
             radius: Theme.radiusControl
             id: item
-            width: parent.width
-            height: Theme.navigationHeight
+            x: section.child ? 22 : 0
+            width: parent.width - x
+            height: section.child ? Theme.controlHeight : Theme.navigationHeight
             activeFocusOnTab: true
             Accessible.role: Accessible.Button
             Accessible.name: section.modelData.label
@@ -324,8 +334,18 @@ Rectangle {
             color: section.active ? Theme.pickFill : itemArea.containsMouse || activeFocus ? Theme.controlHover : Theme.clear
             Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.quick } }
 
+            // a child hangs on a thin guide line from its page
+            Rectangle {
+              visible: section.child
+              x: -14
+              anchors { top: parent.top; bottom: parent.bottom }
+              width: Theme.hairline
+              color: Theme.controlLine
+            }
+
             KitIcon {
               id: itemIcon
+              visible: !section.child
               anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               name: section.modelData.icon
               tint: section.active ? Theme.foreground0 : Theme.foreground2
@@ -333,7 +353,7 @@ Rectangle {
             }
 
             KitText {
-              anchors { left: itemIcon.right; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+              anchors { left: section.child ? parent.left : itemIcon.right; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               text: section.modelData.label
               color: section.active ? Theme.foreground0 : Theme.foreground2
               font.weight: section.active ? Theme.pickWeight : Font.Normal
@@ -610,6 +630,8 @@ Rectangle {
                                network.visible ? network.implicitHeight : 0,
                                hotspot.visible ? hotspot.implicitHeight : 0,
                                sound.visible ? sound.implicitHeight : 0,
+                               hub.visible ? hub.implicitHeight : 0,
+                               live.visible ? live.implicitHeight : 0,
                                updates.visible ? updates.implicitHeight : 0,
                                bluetooth.visible ? bluetooth.implicitHeight : 0,
                                displays.visible ? displays.implicitHeight : 0,
@@ -632,6 +654,8 @@ Rectangle {
       NetworkPage   { id: network;   width: parent.width; visible: root.tab === "network" }
       HotspotPage   { id: hotspot;   width: parent.width; visible: root.tab === "hotspot" }
       SoundPage     { id: sound;     width: parent.width; visible: root.tab === "sound" }
+      HubPage       { id: hub;       width: parent.width; onNavigate: (t, k) => root.navigate(t, k); visible: root.tab === "hub" }
+      LivePage      { id: live;      width: parent.width; visible: root.tab === "live" }
       UpdatesPage   { id: updates;   width: parent.width; visible: root.tab === "updates" }
       BluetoothPage { id: bluetooth; width: parent.width; visible: root.tab === "bluetooth" }
       DisplaysPage  { id: displays;  width: parent.width; visible: root.tab === "displays" }
