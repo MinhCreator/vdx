@@ -28,9 +28,10 @@ Item {
   readonly property int chipHeight: Theme.islandHeight - 2 * edge
   readonly property int chipRadius: Math.max(0, Math.min(Theme.barRadiusFor(Theme.islandHeight), Theme.islandRadius) - edge)
   readonly property int coverSize: chipHeight - 2 * inset
-  readonly property bool covered: (sliding ? backFace : frontFace).kind === "music"
-  // a cover starts at the inset, text and marks a little further in
-  readonly property int padLeft: covered ? inset : Theme.gapLoose
+  readonly property int badgeRadius: Math.max(0, chipRadius - inset)
+  // one rule for every activity: a badge (cover, avatar) starts at the inset, text and marks a little further in
+  readonly property bool badged: (sliding ? backFace : frontFace).badged
+  readonly property int padLeft: badged ? inset : Theme.gapLoose
   readonly property int padRight: Theme.gapLoose
   // the slot's width is moving: the island follows it as it goes, without a glide of its own
   readonly property bool moving: targetAnim.running
@@ -95,8 +96,8 @@ Item {
     color: Theme.background2
   }
 
-  IslandLiveFace { id: faceA; full: IslandService.liveOpen || (kind === "music" && ShellSettings.liveMusicOpen); coverSize: root.coverSize }
-  IslandLiveFace { id: faceB; full: IslandService.liveOpen || (kind === "music" && ShellSettings.liveMusicOpen); coverSize: root.coverSize }
+  IslandLiveFace { id: faceA; full: IslandService.liveOpen || (kind === "music" && ShellSettings.liveMusicOpen); coverSize: root.coverSize; badgeRadius: root.badgeRadius }
+  IslandLiveFace { id: faceB; full: IslandService.liveOpen || (kind === "music" && ShellSettings.liveMusicOpen); coverSize: root.coverSize; badgeRadius: root.badgeRadius }
 
   Component.onCompleted: { faceA.kind = kind; place(); }
 

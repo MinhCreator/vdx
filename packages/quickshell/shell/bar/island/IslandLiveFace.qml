@@ -14,7 +14,10 @@ Row {
   id: face
 
   property string kind: ""
-  property int coverSize: 18
+  property int coverSize: 18                   // a badge (cover, avatar): the chip's height less its inset on both sides
+  property int badgeRadius: 4                  // concentric with the chip
+  // an activity that starts with a badge sits it the same inset from the chip's left, top and bottom
+  readonly property bool badged: kind === "music" || kind === "notice"
   property bool full: false                    // the whole activity, not just its mark
 
   anchors.verticalCenter: parent.verticalCenter
@@ -74,7 +77,7 @@ Row {
     anchors.verticalCenter: parent.verticalCenter
     width: face.coverSize
     height: face.coverSize
-    radius: Theme.radiusFor(height)
+    radius: face.badgeRadius
     readonly property color tone: IslandService.noticeItem?.urgency === "critical" ? Theme.red : Theme.appColour(IslandService.noticeItem?.app)
     color: Theme.mix(Theme.background0, tone, 0.22)
     KitText { anchors.centerIn: parent; text: (IslandService.noticeItem?.app ?? "").slice(0, 1).toUpperCase(); color: parent.tone; font.pixelSize: Theme.fontSize - 2; font.weight: Font.Medium }
@@ -170,7 +173,7 @@ Row {
       anchors.fill: parent
       visible: false
       layer.enabled: true
-      Rectangle { anchors.fill: parent; radius: Theme.coverRadius(width) }
+      Rectangle { anchors.fill: parent; radius: face.badgeRadius }
     }
     // a circle: the cover's corners cut by the mask
     MultiEffect {
@@ -179,7 +182,7 @@ Row {
       maskEnabled: true
       maskSource: round
     }
-    Rectangle { anchors.fill: parent; radius: Theme.coverRadius(width); color: Theme.background3; z: -1 }
+    Rectangle { anchors.fill: parent; radius: face.badgeRadius; color: Theme.background3; z: -1 }
   }
   KitText {
     visible: (face.kind === "music") && face.full
