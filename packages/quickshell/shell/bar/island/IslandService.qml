@@ -100,7 +100,7 @@ Singleton {
     liveDir = 1;
     if (ShellSettings.liveExpand) showFull();
   }
-  Timer { id: flashTimer; onTriggered: root.flashKind = "" }
+  Timer { id: flashTimer; onTriggered: { root.flashKind = ""; root.liveIndex = 0; } }
   readonly property bool micMuted: AudioService.source?.audio?.muted ?? false
   onMicMutedChanged: flash("mic")
   readonly property string layoutNow: LanguageService.layout
@@ -112,6 +112,11 @@ Singleton {
   readonly property bool pluggedNow: BatteryService.plugged
   onPluggedNowChanged: if (pluggedNow) flash("plugged")
   property int liveIndex: 0
+  // the top of the queue (the priority's winner) takes the pill whenever it changes —
+  // a new activity, a reorder in Bar › Live; paging with the wheel is temporary
+  readonly property string topKind: activities[0] ?? ""
+  onTopKindChanged: liveIndex = 0
+  Timer { id: pageBack; interval: 8000; onTriggered: root.liveIndex = 0 }
   readonly property string live: activities[Math.min(liveIndex, activities.length - 1)] ?? ""
   // a step (or a new activity) opens the slot in place; it then folds back to the chip
   readonly property int fullMs: ShellSettings.liveFullMs
@@ -122,6 +127,7 @@ Singleton {
     const n = activities.length;
     if (n < 2 || !ShellSettings.liveWheel) return;
     liveDir = delta;
+    pageBack.restart();
     showFull();
     liveIndex = (Math.min(liveIndex, n - 1) + delta + n) % n;
   }
