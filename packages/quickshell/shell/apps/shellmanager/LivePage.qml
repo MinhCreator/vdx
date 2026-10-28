@@ -11,7 +11,7 @@ Column {
 
   readonly property string icon: "activity"
   readonly property string title: "Live activities"
-  readonly property string description: "What grows out of the island's pill while something runs. The row order is the priority: the top one takes the pill."
+  readonly property string description: "What grows out of the pill while something runs. The top row has priority."
   readonly property string subtitle: !Theme.island ? "ISLAND STYLE ONLY" : ShellSettings.liveEnabled ? "ON" : "OFF"
   readonly property var jumps: []
 

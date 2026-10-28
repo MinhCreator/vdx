@@ -17,7 +17,7 @@ Column {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "info"
   readonly property string title: "About"
-  readonly property string description: "The shell's version, your settings (export, import, reset) and the shell itself."
+  readonly property string description: "Version, your settings and the shell itself."
   readonly property string subtitle: "DIOMINVD'S DOTFILES · ARCH · HYPRLAND · QUICKSHELL"
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`

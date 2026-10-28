@@ -10,7 +10,7 @@ Column {
 
   readonly property string icon: "grid"
   readonly property string title: "Icons"
-  readonly property string description: "The icon set and its style, in the bar, the popups and the windows alike."
+  readonly property string description: "One icon set for the bar, popups and windows."
   readonly property string subtitle: ShellSettings.iconSet.toUpperCase() + " · " + (ShellSettings.solidIcons ? "SOLID" : "OUTLINE")
   readonly property var jumps: []
 

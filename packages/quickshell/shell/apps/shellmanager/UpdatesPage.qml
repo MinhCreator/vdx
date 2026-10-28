@@ -13,7 +13,7 @@ Column {
 
   readonly property string icon: "package"
   readonly property string title: "Updates"
-  readonly property string description: "When the shell looks for package updates, and how careful it is before it removes anything."
+  readonly property string description: "When the shell looks for updates, and how careful it is."
   readonly property string subtitle: PackagesService.count > 0 ? PackagesService.count + " WAITING" : "UP TO DATE"
   readonly property var jumps: []
 
@@ -21,7 +21,7 @@ Column {
   readonly property bool changed: ModuleSettings.changed("packages", resetKeys)
   function reset() { ModuleSettings.reset("packages", resetKeys); }
 
-  KitLabel { text: "CHECKING"; about: "When the shell looks for updates" }
+  KitLabel { text: "CHECKING" }
 
   KitToggleRow { module: "packages"; key: "checkOnOpen"; label: "Check on open"; hint: "Once in ten minutes at most" }
 
@@ -35,13 +35,13 @@ Column {
 
   KitLine {}
 
-  KitLabel { text: "SAFETY"; about: "How careful it is before it removes anything" }
+  KitLabel { text: "SAFETY" }
 
   KitToggleRow { module: "packages"; key: "confirm"; label: "Ask before uninstalling"; hint: "Uninstall asks “Sure?” once" }
 
   KitLine {}
 
-  KitLabel { text: "PACKAGES"; about: "The window that lists, installs and rolls back" }
+  KitLabel { text: "PACKAGES" }
 
   KitRow {
     label: "Open Packages"

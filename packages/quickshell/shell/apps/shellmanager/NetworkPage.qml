@@ -38,7 +38,7 @@ KitColumn {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "wifi"
   readonly property string title: "Network"
-  readonly property string description: "Wi-Fi and saved networks, and the wired connection (NetworkManager)."
+  readonly property string description: "Wi-Fi and wired connections."
   readonly property string subtitle: !ws.radioOn ? "OFF" : ws.connected ? ws.ssid.toUpperCase() : "NOT CONNECTED"
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`

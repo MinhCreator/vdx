@@ -21,7 +21,7 @@ KitColumn {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "app-window"
   readonly property string title: "Windows"
-  readonly property string description: "How windows are laid out and how they look. Writes Hyprland's configuration."
+  readonly property string description: "Window layout and look. Writes Hyprland's config."
   readonly property string subtitle: mode.label.toUpperCase()
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`

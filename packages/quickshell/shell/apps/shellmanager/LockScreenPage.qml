@@ -14,7 +14,7 @@ Column {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "lock"
   readonly property string title: "Lock screen"
-  readonly property string description: "When and how the screen locks, and what is on it."
+  readonly property string description: "When the screen locks, and what is on it."
   readonly property string subtitle: (KeybindsService.keysFor("Lock the screen").join(" + ") || "LOCK").toUpperCase()
   readonly property var jumps: []
 

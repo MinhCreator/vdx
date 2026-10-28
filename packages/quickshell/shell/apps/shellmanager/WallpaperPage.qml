@@ -11,7 +11,7 @@ Column {
 
   readonly property string icon: "image"
   readonly property string title: "Wallpaper"
-  readonly property string description: "What is behind the windows: the theme's colour, a picture per theme, or a colour of your own."
+  readonly property string description: "What is behind the windows."
   readonly property string subtitle: ShellSettings.wallpaperMode === "image" ? "PICTURE" : ShellSettings.wallpaperMode === "custom" ? "YOUR COLOUR" : "THE THEME'S COLOUR"
   readonly property var jumps: []
 

@@ -11,7 +11,7 @@ KitColumn {
 
   readonly property string icon: "wifi"
   readonly property string title: "Hotspot"
-  readonly property string description: "Share this computer's connection over Wi-Fi: its name, password, band and who is connected."
+  readonly property string description: "Share this computer's connection over Wi-Fi."
   readonly property string subtitle: !hs?.supported ? "NOT SUPPORTED BY THIS WI-FI CARD" : hs?.active ? "ON · " + hs.clients + " CLIENTS" : "OFF"
   readonly property var jumps: []
 

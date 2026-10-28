@@ -11,7 +11,7 @@ Column {
 
   readonly property string icon: "zap"
   readonly property string title: "Power"
-  readonly property string description: "The power profile and how far the battery charges. The Battery popup on the bar has the same controls."
+  readonly property string description: "Power profile and battery charge limit."
   readonly property string subtitle: !BatteryService.present ? "NO BATTERY" : BatteryService.profile !== "" ? BatteryService.profile.toUpperCase() + " · " + BatteryService.capacity + "%" : BatteryService.capacity + "%"
   readonly property var jumps: []
 
@@ -33,7 +33,7 @@ Column {
     spacing: Theme.sectionGap
     visible: BatteryService.profiles.length > 0
 
-    KitLabel { text: "PROFILE"; about: "Trades speed for battery life, for the whole machine" }
+    KitLabel { text: "PROFILE" }
     KitRow {
       label: "Power profile"
       hint: BatteryService.saver ? "Saver: quiet and slow" : "The one in use now"
@@ -54,7 +54,7 @@ Column {
     spacing: Theme.sectionGap
     visible: BatteryService.present && BatteryService.limitSupported
 
-    KitLabel { text: "CHARGE"; about: "Stopping short of full spares the battery over the years" }
+    KitLabel { text: "CHARGE" }
     KitRow {
       label: "Charge limit"
       hint: "The battery stops charging here"

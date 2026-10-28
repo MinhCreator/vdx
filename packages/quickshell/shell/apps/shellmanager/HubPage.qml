@@ -13,7 +13,7 @@ Column {
 
   readonly property string icon: "layout"
   readonly property string title: "Hub"
-  readonly property string description: "The panel that opens from the island's clock: what it holds, how wide it is and when it opens."
+  readonly property string description: "The panel that opens from the island's clock."
   readonly property string subtitle: Theme.island ? "ISLAND · " + ModuleSettings.get("hub", "tileColumns", 2) + " TILES PER ROW" : "ISLAND STYLE ONLY"
   readonly property var jumps: []
 
@@ -39,7 +39,7 @@ Column {
     spacing: Theme.sectionGap
     visible: Theme.island
 
-    KitLabel { text: "SIZE"; about: "How wide the panel is" }
+    KitLabel { text: "SIZE" }
     KitSliderRow {
       label: "Hub width"
       snaps: [0, 0.25, 0.5, 0.75, 1]
@@ -57,7 +57,7 @@ Column {
     spacing: Theme.sectionGap
     visible: Theme.island
 
-    KitLabel { text: "BEHAVIOUR"; about: "How it opens and closes" }
+    KitLabel { text: "BEHAVIOUR" }
     KitRow {
       label: "Opens on"
       hint: "Hover the clock, or click it"
@@ -87,7 +87,7 @@ Column {
     spacing: Theme.sectionGap
     visible: Theme.island
 
-    KitLabel { text: "LOOK"; about: "The picture in the hub's header" }
+    KitLabel { text: "LOOK" }
     KitRow {
       label: "Picture"
       hint: ModuleSettings.get("hub", "avatar", "").split("/").pop() || "None: your initial"

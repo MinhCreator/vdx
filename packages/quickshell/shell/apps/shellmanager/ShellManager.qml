@@ -346,15 +346,14 @@ Rectangle {
 
             KitIcon {
               id: itemIcon
-              visible: !section.child
               anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               name: section.modelData.icon
               tint: section.active ? Theme.foreground0 : Theme.foreground2
-              size: 16
+              size: section.child ? Theme.iconSmall : 16
             }
 
             KitText {
-              anchors { left: section.child ? parent.left : itemIcon.right; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+              anchors { left: itemIcon.right; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
               text: section.modelData.label
               color: section.active ? Theme.foreground0 : Theme.foreground2
               font.weight: section.active ? Theme.pickWeight : Font.Normal

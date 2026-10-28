@@ -15,7 +15,7 @@ KitSettingsWorkspace {
   readonly property var tabs: sections
   readonly property string icon: "layout"
   readonly property string title: "Bar"
-  readonly property string description: "The bar: its style, what sits on it, how it looks and on which screens. The Island style adds a hub and live activities."
+  readonly property string description: "The bar's style, content, look and screens."
   readonly property string subtitle: "Arrange your desktop controls"
   property string tab: "layout"
   property string screenName: BarLayout.mainScreen()
@@ -264,7 +264,7 @@ KitSettingsWorkspace {
 
         width: parent.width
         visible: root.tab === "appearance"
-        KitLabel { text: "LOOK"; about: "Icons and spacing of this style's bar; each style keeps its own" }
+        KitLabel { text: "LOOK" }
         KitRow {
           needs: root.island ? "" : "The pill belongs to the Island style"
           needsAction: "Use Island"
@@ -296,7 +296,7 @@ KitSettingsWorkspace {
           KitSwitch { checked: ShellSettings.barSeparators; onToggled: ShellSettings.setLook("barSeparators", !checked) }
         }
         KitLine {}
-        KitLabel { text: "BEHAVIOUR"; about: "How the bar reacts to you" }
+        KitLabel { text: "BEHAVIOUR" }
         KitRow {
           label: "Right click opens options"
           hint: "On a module: its settings here"
@@ -307,7 +307,7 @@ KitSettingsWorkspace {
       Column {
         width: parent.width
         visible: root.tab === "monitor"
-        KitLabel { text: "MONITOR"; about: "Which screens show a bar, and whether they share one" }
+        KitLabel { text: "MONITOR" }
         KitRow {
           label: "Show bar"
           hint: root.screenName
