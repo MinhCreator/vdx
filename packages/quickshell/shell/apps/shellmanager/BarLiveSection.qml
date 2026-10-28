@@ -54,6 +54,20 @@ Column {
 
       width: root.width
       height: root.rowHeight
+      z: grip.pressed ? 5 : 0
+      scale: grip.pressed ? 1.02 : 1
+      Behavior on scale { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
+
+      // lifted while dragged: a raised plate with a frame under the row
+      Rectangle {
+        anchors { fill: parent; margins: -Theme.gapSmall }
+        z: -1
+        visible: grip.pressed
+        radius: Theme.radiusControl
+        color: Theme.pickFill
+        border.width: Theme.frameWidth
+        border.color: Theme.controlLineHover
+      }
 
       // the handle: two columns of three dots
       Item {
