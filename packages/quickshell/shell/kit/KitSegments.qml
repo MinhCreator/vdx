@@ -43,7 +43,7 @@ Rectangle {
   radius: Theme.radiusControl
   color: Theme.clear
   border.width: m3 ? 1 : Theme.frameWidth
-  border.color: Theme.controlLine
+  border.color: Theme.controlLineRest
   opacity: disabled ? 0.4 : 1
 
   Rectangle {

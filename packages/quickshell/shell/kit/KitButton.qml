@@ -36,7 +36,7 @@ Rectangle {
   Component.onCompleted: boxed = Theme.boxed(parent)
   color: area.pressed && !disabled && !busy ? Theme.pickFill : selected ? Theme.pickFill : hovered ? Theme.hoverOn(boxed) : Theme.fillOn(boxed)
   border.width: activeFocus ? Theme.focusWidth : Theme.frameWidth
-  border.color: activeFocus ? Theme.focusRing : selected || hovered ? Theme.controlLineHover : Theme.controlLine
+  border.color: activeFocus ? Theme.focusRing : selected || hovered ? Theme.controlLineHover : Theme.controlLineRest
   opacity: disabled ? 0.4 : 1
 
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }

@@ -155,6 +155,8 @@ QtObject {
     return Qt.rgba(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t, 1);
   }
   readonly property color controlLine: material ? outline : mix(background0, foreground0, 0.14)
+  // at rest a control's frame is fainter still: the frame answers the pointer, it does not shout
+  readonly property color controlLineRest: material ? outline : mix(background0, foreground0, 0.085)
   readonly property color controlLineHover: material ? onSurfaceVariant : mix(background0, foreground0, 0.28)
   readonly property color pickFill: material ? secondaryContainer : mix(background0, foreground0, 0.075)
   readonly property int pickWeight: Font.DemiBold

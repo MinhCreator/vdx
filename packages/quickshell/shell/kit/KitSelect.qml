@@ -130,7 +130,7 @@ Column {
       color: boxArea.containsMouse && !root.disabled ? Theme.hoverOn(root.boxed) : Theme.fillOn(root.boxed)
       border.width: box.activeFocus && !Theme.material ? Theme.focusWidth : Theme.frameWidth
       border.color: box.activeFocus ? Theme.focusRing : root.expanded ? Theme.accentFor("selects", Theme.controlLineHover)
-        : boxArea.containsMouse ? Theme.controlLineHover : Theme.controlLine
+        : boxArea.containsMouse ? Theme.controlLineHover : Theme.controlLineRest
       opacity: root.disabled ? 0.4 : 1
 
       Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }

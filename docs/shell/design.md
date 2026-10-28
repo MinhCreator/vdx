@@ -23,7 +23,7 @@ uses tonal layers and more spacious controls.
   No literal `height / 2` for a corner.
   An image in a rounded tile sits in a `ClippingRectangle`.
 - Controls: Appearance › Style (Strict | Material, a select). A control's frame is
-  `Theme.frameWidth` (0 in material) in `Theme.controlLine` (`controlLineHover`
+  `Theme.frameWidth` (0 in material) in `Theme.controlLineRest` (`controlLineHover`
   under the pointer, focused or open), its fill `Theme.controlFill` /
   `controlHover`, a popup's frame `Theme.popupFrame`. Never a literal 1.
   Picked (a choice, a segment, a nav row): `Theme.pickFill` + `Theme.pickWeight`.
