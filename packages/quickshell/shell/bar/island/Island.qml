@@ -140,7 +140,7 @@ Item {
   }
   readonly property var sizes: ({
     compact: [compact.implicitWidth, Theme.islandHeight],
-    hub:     [Math.max(280, Math.min(hub.preferredWidth, ModuleSettings.get("hub", "width", 400), (bar.screen?.width ?? 1920) - 24)), hub.implicitHeight],
+    hub:     [Math.max(280, Math.min(hub.preferredWidth, ModuleSettings.get("hub", "width", 580), (bar.screen?.width ?? 1920) - 24)), hub.implicitHeight],
     launcher: [520, islandLauncher.implicitHeight],
     keybinds: [520, islandKeybinds.implicitHeight],
     media:   [420, 148],

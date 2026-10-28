@@ -106,7 +106,7 @@ Row {
   EqualizerBars {
     visible: face.kind === "music"
     anchors.verticalCenter: parent.verticalCenter
-    count: 4
+    barCount: 4
     tone: Theme.green
     height: 14
   }
