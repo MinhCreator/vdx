@@ -8,13 +8,17 @@ QtObject {
   id: root
 
   // id -> what it is, in the default order
-  readonly property var all: ["tiles", "week", "sliders", "player", "modules"]
-  readonly property var names: ({ tiles: "Toggles", week: "Calendar", player: "Player", sliders: "Sliders", modules: "Module chips" })
+  readonly property var all: ["tiles", "week", "volume", "microphone", "brightness", "night", "dimming", "player", "modules"]
+  readonly property var names: ({ tiles: "Toggles", week: "Calendar", player: "Player", volume: "Volume", microphone: "Microphone", brightness: "Brightness", night: "Night light", dimming: "Dimming", modules: "Module chips" })
   readonly property var notes: ({
     tiles: "The tiles of the Hub row: Wi-Fi, Bluetooth, VPN, Focus",
     week: "The week, or the whole month",
     player: "Opens the Music popup",
-    sliders: "Sound, brightness and the rest you pick",
+    volume: "Output volume slider",
+    microphone: "Microphone volume slider",
+    brightness: "Backlight slider; its icon switches night mode",
+    night: "Warmth slider, always or only while night mode is on",
+    dimming: "Software dimming slider",
     modules: "The Hub row's other modules, as chips"
   })
 
@@ -22,12 +26,21 @@ QtObject {
   readonly property var off: ModuleSettings.get("hub", "blocksOff", []) ?? []
 
   // the saved order first, then what it did not name (a block added later lands at the end)
-  readonly property var order: saved.filter(id => all.includes(id)).concat(all.filter(id => !saved.includes(id)))
+  // (the sliders were one block, "sliders": it stands for the five)
+  readonly property var sliderIds: ["volume", "microphone", "brightness", "night", "dimming"]
+  readonly property var order: saved.reduce((list, id) => list.concat(id === "sliders" ? sliderIds : [id]), [])
+    .filter((id, i, list) => all.includes(id) && list.indexOf(id) === i)
+    .concat(all.filter(id => !saved.includes(id) && !(saved.includes("sliders") && sliderIds.includes(id))))
 
+  // a slider's switch is its own key (volume, microphone, ...), on by default for volume and brightness
   // (the player once had a switch of its own, ShellSettings look hubPlayer: off there is off here)
-  function shown(id) { return !off.includes(id) && !(id === "player" && ShellSettings.look("hubPlayer", "island") === false); }
+  function shown(id) {
+    if (sliderIds.includes(id)) return ModuleSettings.get("hub", id, id === "volume" || id === "brightness");
+    return !off.includes(id) && !(id === "player" && ShellSettings.look("hubPlayer", "island") === false);
+  }
   function setOrder(list) { ModuleSettings.set("hub", "blocks", list); }
   function setShown(id, on) {
+    if (sliderIds.includes(id)) { ModuleSettings.set("hub", id, on); return; }
     if (id === "player" && on) ShellSettings.setLook("hubPlayer", true, "island");
     const rest = off.filter(x => x !== id);
     ModuleSettings.set("hub", "blocksOff", on ? rest : rest.concat([id]));

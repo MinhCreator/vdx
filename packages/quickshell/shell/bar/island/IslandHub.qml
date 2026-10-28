@@ -29,10 +29,8 @@ Item {
   readonly property var ids: allIds.filter(id => !BarLayout.isTile(id))
 
   readonly property real preferredWidth: ModuleSettings.get("hub", "width", 400)
-  function quickSlider(key) { return ModuleSettings.get("hub", key, key === "volume" || key === "brightness"); }
   // the player card is also the way into the Music popup, so it shows with nothing playing too
   readonly property bool hasPlayer: ShellSettings.hubPlayer
-  readonly property bool hasSliders: ["volume", "microphone", "brightness", "dimming"].some(k => quickSlider(k))
   readonly property string userName: Quickshell.env("USER") || "User"
   readonly property string avatarPath: ModuleSettings.get("hub", "avatar", "")
   function uptime(seconds) {
@@ -44,11 +42,11 @@ Item {
 
   // a block is there when it has something to show
   function wants(id) {
-    return id === "tiles" ? tileIds.length > 0 : id === "player" ? hasPlayer : id === "sliders" ? hasSliders
+    return id === "tiles" ? tileIds.length > 0 : id === "player" ? hasPlayer : id === "night" ? !ModuleSettings.get("hub", "nightAuto", true) || BrightnessService.nightActive
          : id === "modules" ? ids.length > 0 : true;
   }
   function blockOf(id) {
-    return ({ tiles: tilesBlock, week: weekBlock, player: playerBlock, sliders: slidersBlock, modules: modulesBlock })[id] ?? null;
+    return ({ tiles: tilesBlock, week: weekBlock, player: playerBlock, volume: volumeBlock, microphone: microphoneBlock, brightness: brightnessBlock, night: nightBlock, dimming: dimmingBlock, modules: modulesBlock })[id] ?? null;
   }
 
   // the month is a page of the hub: the island grows to it and back
@@ -277,42 +275,56 @@ Item {
       }
   }
 
+  // the quick sliders: each a block of its own
   Component {
-    id: slidersBlock
-      Column {
-        width: parent.width
-        spacing: Theme.gapSmall
-        visible: root.hasSliders
-
-        AudioVolumeRow {
-          visible: root.quickSlider("volume")
-          node: AudioService.sink
-          accessibleName: "Output volume"
-        }
-        AudioVolumeRow {
-          visible: root.quickSlider("microphone")
-          node: AudioService.source
-          iconOn: "mic"; iconOff: "mic-off"
-          accessibleName: "Microphone volume"
-        }
-        KitSliderRow {
-          visible: root.quickSlider("brightness")
-          enabled: BrightnessService.available
-          icon: "sun"
-          accessibleName: "Brightness"
-          value: BrightnessService.brightness / 100
-          text: BrightnessService.available ? BrightnessService.brightness + "%" : "—"
-          onMoved: value => BrightnessService.setBrightness(value * 100)
-        }
-        KitSliderRow {
-          visible: root.quickSlider("dimming")
-          icon: "moon"
-          accessibleName: "Screen dimming"
-          value: (BrightnessService.gamma - BrightnessService.gammaMin) / (100 - BrightnessService.gammaMin)
-          text: BrightnessService.gamma + "%"
-          onMoved: value => BrightnessService.setGamma(BrightnessService.gammaMin + value * (100 - BrightnessService.gammaMin))
-        }
-      }
+    id: volumeBlock
+    AudioVolumeRow {
+      node: AudioService.sink
+      accessibleName: "Output volume"
+    }
+  }
+  Component {
+    id: microphoneBlock
+    AudioVolumeRow {
+      node: AudioService.source
+      iconOn: "mic"; iconOff: "mic-off"
+      accessibleName: "Microphone volume"
+    }
+  }
+  Component {
+    id: brightnessBlock
+    KitSliderRow {
+      enabled: BrightnessService.available
+      icon: BrightnessService.nightActive ? "moon" : "sun"
+      iconTint: BrightnessService.nightActive ? Theme.orange : Theme.foreground0
+      clickable: true
+      onIconClicked: BrightnessService.setNight(!BrightnessService.nightActive)
+      accessibleName: "Brightness"
+      value: BrightnessService.brightness / 100
+      text: BrightnessService.available ? BrightnessService.brightness + "%" : "—"
+      onMoved: value => BrightnessService.setBrightness(value * 100)
+    }
+  }
+  Component {
+    id: nightBlock
+    KitSliderRow {
+      icon: "thermometer"
+      iconTint: Theme.orange
+      accessibleName: "Night light warmth"
+      value: (BrightnessService.temperature - BrightnessService.temperatureMin) / (BrightnessService.temperatureMax - BrightnessService.temperatureMin)
+      text: BrightnessService.temperature + " K"
+      onMoved: value => BrightnessService.setTemperature(BrightnessService.temperatureMin + value * (BrightnessService.temperatureMax - BrightnessService.temperatureMin))
+    }
+  }
+  Component {
+    id: dimmingBlock
+    KitSliderRow {
+      icon: "moon"
+      accessibleName: "Screen dimming"
+      value: (BrightnessService.gamma - BrightnessService.gammaMin) / (100 - BrightnessService.gammaMin)
+      text: BrightnessService.gamma + "%"
+      onMoved: value => BrightnessService.setGamma(BrightnessService.gammaMin + value * (100 - BrightnessService.gammaMin))
+    }
   }
 
   Component {

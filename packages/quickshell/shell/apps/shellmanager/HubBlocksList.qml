@@ -137,25 +137,14 @@ Column {
             current: ModuleSettings.get("hub", "playerSize", "card")
             onPicked: value => ModuleSettings.set("hub", "playerSize", value)
           }
-          KitButton { visible: row.id === "modules" || row.id === "tiles"; text: "Arrange…"; onClicked: root.arrange() }
-          // the quick sliders: the picked ones show in the hub
-          Repeater {
-            model: row.id === "sliders" ? [
-              {key: "volume", label: "Volume", fallback: true},
-              {key: "microphone", label: "Mic", fallback: false},
-              {key: "brightness", label: "Light", fallback: true},
-              {key: "dimming", label: "Dim", fallback: false}
-            ] : []
-            KitButton {
-              required property var modelData
-              readonly property bool picked: ModuleSettings.get("hub", modelData.key, modelData.fallback)
-              text: modelData.label
-              selected: picked
-              Accessible.role: Accessible.CheckBox
-              Accessible.checked: picked
-              onClicked: ModuleSettings.set("hub", modelData.key, !picked)
-            }
+          KitSegments {
+            visible: row.id === "night"
+            width: 190
+            model: [{ label: "Always", value: false }, { label: "With night mode", value: true }]
+            current: ModuleSettings.get("hub", "nightAuto", true)
+            onPicked: value => ModuleSettings.set("hub", "nightAuto", value)
           }
+          KitButton { visible: row.id === "modules" || row.id === "tiles"; text: "Arrange…"; onClicked: root.arrange() }
         }
       }
 

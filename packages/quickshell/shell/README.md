@@ -240,7 +240,7 @@ The main layouts and appearance values are kept independently for Solid and
 Island; child bars retain the existing shared model.
 
 Hub settings include a layout preview, opening/player options, width, avatar
-and quick sliders (output volume, microphone, brightness, software dimming).
+and the blocks list, where each quick slider (volume, microphone, brightness, night-light warmth, software dimming) is a block of its own with its own switch (warmth shows with night mode, or always).
 Volume and brightness are shown by default unless overridden. Sliders sit
 above a divider. Module layout offers compact semantic groups (the default), equal two-column
 grid tiles and content-sized chips; the preview follows the selection. The profile
