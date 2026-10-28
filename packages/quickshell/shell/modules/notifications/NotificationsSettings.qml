@@ -25,6 +25,10 @@ KitColumn {
 
   KitLine {}
 
+  NotificationsColours { width: parent.width }
+
+  KitLine {}
+
   KitLabel { text: "HISTORY" }
 
   KitOptionRow {

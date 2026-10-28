@@ -61,16 +61,27 @@ QtObject {
          : name === "blue" ? blue : foreground0;
   }
 
-  // one corner for every track cover, whatever its size (a thing `size` high, a bit rounder than a control)
-  function coverRadius(size: real): real { return radiusFor(size * 1.4); }
+  // one corner for every track cover: a preview is a card's corner (design.md: radiusCard — tiles, previews, cards)
+  function coverRadius(size: real): real { return radiusCard; }
 
-  // an app's own colour for its avatar: stable for a name, from the state colours
-  // (never the red of an urgent one)
-  function appColour(name: string): color {
-    const palette = [blue, green, yellow, orange, purple, aqua];
+  // the colours an app can be given (Notifications › App colours), by name
+  readonly property var appPalette: ["blue", "green", "yellow", "orange", "purple", "aqua", "red"]
+  function paletteColour(name: string): color {
+    return ({ blue: blue, green: green, yellow: yellow, orange: orange, purple: purple, aqua: aqua, red: red })[name] ?? foreground0;
+  }
+  // the colour an app gets with no rule: stable for a name, never the red of an urgent one
+  function autoColourName(name: string): string {
+    const names = ["blue", "green", "yellow", "orange", "purple", "aqua"];
     let h = 0;
     for (const ch of (name ?? "").toLowerCase()) h = (h * 31 + ch.charCodeAt(0)) % 997;
-    return palette[h % palette.length];
+    return names[h % names.length];
+  }
+  // an app's own colour for its avatar: the first rule whose text is in its name
+  // (Notifications › App colours), else its stable automatic one
+  function appColour(name: string): color {
+    const lower = (name ?? "").toLowerCase();
+    const rule = (ModuleSettings.get("notifications", "appColours", []) ?? []).find(r => (r.app ?? "") !== "" && lower.includes(r.app.toLowerCase()));
+    return paletteColour(rule ? rule.colour : autoColourName(name));
   }
 
   // the equalizer's colours (Modules › Equalizer): one colour, or a [from, to] gradient across its bars
