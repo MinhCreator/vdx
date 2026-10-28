@@ -108,7 +108,9 @@ Column {
         id: sw
         anchors { right: parent.right; verticalCenter: parent.verticalCenter }
         checked: row.on
-        onToggled: ShellSettings.setLook("live" + row.kind.charAt(0).toUpperCase() + row.kind.slice(1), !checked, "island")
+        onToggled: row.kind === "notice"
+          ? ModuleSettings.set("notifications", "appear", checked ? "card" : "live")
+          : ShellSettings.setLook("live" + row.kind.charAt(0).toUpperCase() + row.kind.slice(1), !checked, "island")
       }
     }
   }

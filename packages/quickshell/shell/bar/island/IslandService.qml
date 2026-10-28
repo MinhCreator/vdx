@@ -184,9 +184,8 @@ Singleton {
       const fresh = NotificationsService.items.filter(n => n.time > root.noticeTime && now - n.time <= 10000);
       if (fresh.length === 0) return;
       root.noticeTime = fresh[0].time;
-      if (root.noticeAppear === "live") {
+      if (root.noticeAppear === "live" && ShellSettings.liveEnabled) {
         // the newest takes the slot; a critical one, or "Stay", waits until the centre opens or a click
-        if (!ShellSettings.liveOn("notice")) return;
         root.noticeItem = fresh[0];
         if (fresh[0].urgency === "critical" || root.toastSeconds === 0) noticeLiveTimer.stop();
         else { noticeLiveTimer.interval = root.noticeMs; noticeLiveTimer.restart(); }

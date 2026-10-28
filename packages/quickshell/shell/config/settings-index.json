@@ -1026,63 +1026,69 @@
   "target": "lockscreen"
  },
  {
-  "label": "Delivery",
+  "label": "New notifications",
   "hint": "",
   "where": "Notifications",
   "target": "notifications"
  },
  {
-  "label": "History",
+  "label": "Centre",
   "hint": "",
   "where": "Notifications",
   "target": "notifications"
  },
  {
-  "label": "Bar indicators",
+  "label": "Unseen",
   "hint": "",
   "where": "Notifications",
   "target": "notifications"
  },
  {
-  "label": "Show new ones as",
-  "hint": "Live activity: a line in the island's live slot (island style); Card: a toast",
-  "where": "Notifications › DELIVERY",
+  "label": "Bell",
+  "hint": "",
+  "where": "Notifications",
   "target": "notifications"
  },
  {
-  "label": "Toast duration",
-  "hint": "Stay: until dismissed. Critical always stays",
-  "where": "Notifications › DELIVERY",
+  "label": "Show as",
+  "hint": "A toast on the island, or a line in its live slot",
+  "where": "Notifications › NEW NOTIFICATIONS",
+  "target": "notifications"
+ },
+ {
+  "label": "Stay for",
+  "hint": "Critical ones always stay",
+  "where": "Notifications › NEW NOTIFICATIONS",
   "target": "notifications"
  },
  {
   "label": "Notifications shown",
   "hint": "Before the list scrolls",
-  "where": "Notifications › HISTORY",
+  "where": "Notifications › CENTRE",
   "target": "notifications"
  },
  {
   "label": "Close after clear",
-  "hint": "Off: the popup stays open",
-  "where": "Notifications › HISTORY",
-  "target": "notifications"
- },
- {
-  "label": "Bell badge",
-  "hint": "Off: the bell only tints",
-  "where": "Notifications › BAR INDICATORS",
+  "hint": "Off: the centre stays open",
+  "where": "Notifications › CENTRE",
   "target": "notifications"
  },
  {
   "label": "Show the dot",
-  "hint": "On the Folder, or the island's pill, while the centre is tucked away",
-  "where": "Notifications › BAR INDICATORS",
+  "hint": "On the island's pill, or the Folder, while there is something unseen",
+  "where": "Notifications › UNSEEN",
   "target": "notifications"
  },
  {
   "label": "Dot colour",
   "hint": "Theme: the text colour",
-  "where": "Notifications › BAR INDICATORS",
+  "where": "Notifications › UNSEEN",
+  "target": "notifications"
+ },
+ {
+  "label": "Bell badge",
+  "hint": "On the Notifications bar module. Off: the bell only tints",
+  "where": "Notifications › BELL",
   "target": "notifications"
  },
  {

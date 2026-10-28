@@ -28,6 +28,36 @@ Column {
 
   KitLabel { text: "APP COLOURS" }
 
+  KitRow {
+    label: "Add a rule"
+    hint: "A piece of the app's name; the first rule that fits wins"
+    KitButton { icon: "plus"; text: "Add rule"; onClicked: root.add("") }
+  }
+
+  // the apps seen lately, one click each
+  Item {
+    visible: root.seen.length > 0
+    width: parent.width
+    height: visible ? Math.max(Theme.rowHeight, chips.implicitHeight + 12) : 0
+
+    KitText {
+      id: fromHistory
+      anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+      text: "From history"
+      color: Theme.foreground2
+      font.pixelSize: Theme.fontSize - 1
+    }
+    Flow {
+      id: chips
+      anchors { left: fromHistory.right; leftMargin: Theme.gapWide; right: parent.right; verticalCenter: parent.verticalCenter }
+      spacing: Theme.gapSmall
+      Repeater {
+        model: root.seen
+        KitButton { required property string modelData; text: modelData; onClicked: root.add(modelData) }
+      }
+    }
+  }
+
   // a rule: the app's name (a piece of it), its colour, away
   Repeater {
     model: root.rules.length
@@ -79,36 +109,6 @@ Column {
         picked: rule.rl.colour
         colours: name => [Theme.paletteColour(name), Theme.paletteColour(name)]
         onChosen: name => root.edit(rule.index, { colour: name })
-      }
-    }
-  }
-
-  KitRow {
-    label: "Add a rule"
-    hint: "A piece of the app's name; the first rule that fits wins"
-    KitButton { icon: "plus"; text: "Add rule"; onClicked: root.add("") }
-  }
-
-  // the apps seen lately, one click each
-  Item {
-    visible: root.seen.length > 0
-    width: parent.width
-    height: visible ? Math.max(Theme.rowHeight, chips.implicitHeight + 12) : 0
-
-    KitText {
-      id: fromHistory
-      anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-      text: "From history"
-      color: Theme.foreground2
-      font.pixelSize: Theme.fontSize - 1
-    }
-    Flow {
-      id: chips
-      anchors { left: fromHistory.right; leftMargin: Theme.gapWide; right: parent.right; verticalCenter: parent.verticalCenter }
-      spacing: Theme.gapSmall
-      Repeater {
-        model: root.seen
-        KitButton { required property string modelData; text: modelData; onClicked: root.add(modelData) }
       }
     }
   }

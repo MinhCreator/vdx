@@ -66,7 +66,11 @@ Singleton {
   })
   readonly property bool liveEnabled: look("liveEnabled", "island")  // the master switch: off, nothing shows in the live slot
   // one kind's own switch, and whether it is in effect (the master switch too)
-  function liveKind(kind) { return look("live" + kind.charAt(0).toUpperCase() + kind.slice(1), "island"); }
+  // (the messages are Notifications › Show new ones as: Live activity — one setting, two doors)
+  function liveKind(kind) {
+    if (kind === "notice") return ModuleSettings.get("notifications", "appear", "card") === "live";
+    return look("live" + kind.charAt(0).toUpperCase() + kind.slice(1), "island");
+  }
   function liveOn(kind) { return liveEnabled && liveKind(kind); }
   // a section's kinds in the owner's order (what is not listed keeps its place at the end)
   function liveOrdered(section) {
@@ -78,7 +82,7 @@ Singleton {
     setLook("liveOrder", Object.assign({}, look("liveOrder", "island") ?? {}, { [section]: list }), "island");
   }
   readonly property var lookDefaults: ({ barIconGrow: 0, barSeparators: true, barGap: 5, clockOpens: "hover", hubPlayer: true,
-    liveEnabled: true, liveNotice: true, liveBattery: true, liveBluetooth: true,
+    liveEnabled: true, liveBattery: true, liveBluetooth: true,
     liveRecording: true, liveUpdate: true, liveBackup: true, liveVpn: false, liveMusic: true,
     liveVolume: true, liveMic: true, liveLayout: true, livePlugged: true,
     liveFullMs: 2500, liveFlashMs: 1500, liveHover: true, liveExpand: true, liveWheel: true, liveMusicOpen: true,

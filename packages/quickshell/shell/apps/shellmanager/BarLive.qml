@@ -27,7 +27,7 @@ Column {
     section: "asks"
     title: "ASKS"
     info: ({
-      notice: { label: "Messages", hint: "A new notification as a line in the slot (Notifications › Show new ones as)" },
+      notice: { label: "Messages", hint: "A new notification as a line in the slot; off: a card (Notifications › Show as)" },
       battery: { label: "Low battery", hint: "The charge left, when it runs low" },
       bluetooth: { label: "Device connected", hint: "Headphones and other Bluetooth devices" }
     })
