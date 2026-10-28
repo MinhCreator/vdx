@@ -135,7 +135,6 @@ Item {
       onClicked: root.calendarOpen = true
     }
 
-    KitLine { visible: root.hasPlayer || root.hasSliders || root.ids.length > 0 }
 
     // ---- track ----
     Rectangle {
@@ -223,7 +222,6 @@ Item {
       }
     }
 
-    KitLine { visible: root.hasPlayer && root.hasSliders }
 
     // ---- optional quick sliders, independent of the bar's module placement ----
     Column {
@@ -261,7 +259,6 @@ Item {
       }
     }
 
-    KitLine { visible: root.ids.length > 0 && (root.hasPlayer || root.hasSliders) }
 
     // ---- modules ----
     Flow {
