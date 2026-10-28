@@ -3,8 +3,9 @@ import qs.config
 import qs.kit
 import "../../kit/markup.js" as Markup
 
-// Notification history, newest first: app and time, summary, body. Unread
-// ones carry a red square; critical summaries are red.
+// Notification history, newest first, a card each: the app's avatar in its colour
+// rule, app and time, summary, body. Unread ones carry a red dot; critical
+// summaries are red.
 KitFrame {
   id: root
 
@@ -58,7 +59,7 @@ KitFrame {
   Flickable {
     width: parent.width
     visible: root.items.length > 0
-    height: Math.min(contentHeight, ModuleSettings.get("notifications", "rows", 6) * 66)
+    height: Math.min(contentHeight, ModuleSettings.get("notifications", "rows", 6) * 82)
     contentHeight: rows.implicitHeight
     interactive: contentHeight > height
     clip: true
@@ -67,12 +68,13 @@ KitFrame {
     Column {
       id: rows
       width: parent.width
-      spacing: Theme.gapLoose
+      spacing: Theme.gapMedium
 
       Repeater {
         model: root.items
 
-        // a row: a click brings up the app's window, a hover lights it up
+        // a card: the app's avatar in its colour rule (Notifications › App colours), a click
+        // brings up the app's window, a hover lights it up
         Item {
           id: item
 
@@ -80,6 +82,8 @@ KitFrame {
           required property int index
 
           readonly property bool fresh: NotificationsService.isFresh(modelData)
+          readonly property bool critical: modelData.urgency === "critical"
+          readonly property color tone: critical ? Theme.red : Theme.appColour(modelData.app)
 
           KitAppear { target: item; seen: root.seen; key: item.modelData.key }
 
@@ -90,25 +94,44 @@ KitFrame {
           }
 
           width: rows.width
-          height: content.height + 2 * Theme.gapTight
+          height: Math.max(badge.height, content.implicitHeight) + 2 * Theme.gapLoose
 
           Rectangle {
             anchors.fill: parent
-            radius: Theme.radiusControl
-            color: hover.hovered ? Theme.controlHover : Theme.clear
+            radius: Theme.radiusCard
+            color: hover.hovered ? Theme.controlHover : Theme.controlFill
+            border.width: Theme.frameWidth
+            border.color: hover.hovered ? Theme.controlLineHover : Theme.controlLineRest
             Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
           }
 
-          // the row's content: a column, the gaps inside the lit box
+          Rectangle {
+            id: badge
+            anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+            width: 40
+            height: 40
+            radius: Theme.pill(height)
+            color: Theme.mix(Theme.background0, item.tone, 0.18)
+            border.width: Theme.hairline
+            border.color: Theme.mix(Theme.background0, item.tone, 0.45)
+
+            KitText {
+              anchors.centerIn: parent
+              text: (item.modelData.app || "?").slice(0, 1).toUpperCase()
+              color: item.tone
+              font.pixelSize: Theme.fontSize + 3
+              font.weight: Font.Medium
+            }
+          }
+
           Column {
             id: content
             anchors {
-              left: parent.left; right: parent.right; top: parent.top
-              leftMargin: Theme.gapMedium; rightMargin: Theme.gapMedium; topMargin: Theme.gapTight
+              left: badge.right; leftMargin: Theme.gapWide
+              right: parent.right; rightMargin: Theme.gapLoose
+              verticalCenter: parent.verticalCenter
             }
-            spacing: Theme.sectionGap
-
-            KitLine { visible: item.index > 0 }
+            spacing: 2
 
             Item {
               width: parent.width
@@ -148,8 +171,8 @@ KitFrame {
               text: Markup.plain(item.modelData.summary)
               textFormat: Text.PlainText
               elide: Text.ElideRight
-              color: item.modelData.urgency === "critical" ? Theme.red : Theme.foreground0
-              font.weight: Font.ExtraBold
+              color: item.critical ? Theme.red : Theme.foreground0
+              font.weight: Font.Bold
             }
 
             KitText {
