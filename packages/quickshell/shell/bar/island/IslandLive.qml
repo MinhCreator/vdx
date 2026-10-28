@@ -19,11 +19,21 @@ Item {
   readonly property Item backFace: front === 0 ? faceB : faceA
 
   clip: true
-  // the activity sits in a chip of its own, folded or open
-  readonly property int pad: 18
+  // the activity sits in a chip of its own, folded or open: concentric with the
+  // pill — the same gap (`edge`) to the pill's rim above and below, its corners
+  // the pill's less that gap; a cover inside sits `inset` from the chip's rim
+  readonly property int edge: 4
+  readonly property int inset: 3
+  readonly property int chipHeight: Theme.islandHeight - 2 * edge
+  readonly property int chipRadius: Math.max(0, Math.min(Theme.barRadiusFor(Theme.islandHeight), Theme.islandRadius) - edge)
+  readonly property int coverSize: chipHeight - 2 * inset
+  readonly property bool covered: (sliding ? backFace : frontFace).kind === "music" || (sliding ? backFace : frontFace).kind === "track"
+  // a cover starts at the inset, text and marks a little further in
+  readonly property int padLeft: covered ? inset : Theme.gapLoose
+  readonly property int padRight: Theme.gapLoose
   // the slot's width is moving: the island follows it as it goes, without a glide of its own
   readonly property bool moving: targetAnim.running
-  implicitWidth: kind === "" ? 0 : target + pad
+  implicitWidth: kind === "" ? 0 : target + padLeft + padRight
   implicitHeight: Theme.islandHeight
   visible: kind !== ""
   property real target: (sliding ? backFace : frontFace).implicitWidth
@@ -32,16 +42,17 @@ Item {
   function place() {
     const dir = IslandService.liveDir;
     if (!sliding) {
-      frontFace.x = pad * 0.45;
+      frontFace.x = padLeft;
       frontFace.anchors.verticalCenterOffset = 0; frontFace.opacity = 1;
       backFace.opacity = 0;
       return;
     }
-    frontFace.x = pad * 0.45; backFace.x = pad * 0.45;
+    frontFace.x = padLeft; backFace.x = padLeft;
     frontFace.anchors.verticalCenterOffset = -dir * travel * t; frontFace.opacity = 1 - t;
     backFace.anchors.verticalCenterOffset = dir * travel * (1 - t); backFace.opacity = t;
   }
   onTChanged: place()
+  onPadLeftChanged: place()
 
   onKindChanged: {
     slide.stop();
@@ -78,13 +89,13 @@ Item {
   Rectangle {
     anchors.verticalCenter: parent.verticalCenter
     width: parent.width
-    height: 26
-    radius: 13
+    height: root.chipHeight
+    radius: root.chipRadius
     color: Theme.background2
   }
 
-  IslandLiveFace { id: faceA; full: IslandService.liveOpen }
-  IslandLiveFace { id: faceB; full: IslandService.liveOpen }
+  IslandLiveFace { id: faceA; full: IslandService.liveOpen; coverSize: root.coverSize }
+  IslandLiveFace { id: faceB; full: IslandService.liveOpen; coverSize: root.coverSize }
 
   Component.onCompleted: { faceA.kind = kind; place(); }
 

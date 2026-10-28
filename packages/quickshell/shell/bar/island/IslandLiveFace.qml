@@ -14,6 +14,7 @@ Row {
   id: face
 
   property string kind: ""
+  property int coverSize: 18
   property bool full: false                    // the whole activity, not just its mark
 
   anchors.verticalCenter: parent.verticalCenter
@@ -111,8 +112,8 @@ Row {
   Item {
     visible: face.kind === "music" || face.kind === "track"
     anchors.verticalCenter: parent.verticalCenter
-    width: 22
-    height: 22
+    width: face.coverSize
+    height: face.coverSize
 
     Image {
       id: cover
@@ -127,7 +128,7 @@ Row {
       anchors.fill: parent
       visible: false
       layer.enabled: true
-      Rectangle { anchors.fill: parent; radius: width / 2 }
+      Rectangle { anchors.fill: parent; radius: Theme.pill(width) }
     }
     // a circle: the cover's corners cut by the mask
     MultiEffect {
@@ -136,7 +137,7 @@ Row {
       maskEnabled: true
       maskSource: round
     }
-    Rectangle { anchors.fill: parent; radius: width / 2; color: Theme.background3; z: -1 }
+    Rectangle { anchors.fill: parent; radius: Theme.pill(width); color: Theme.background3; z: -1 }
   }
   KitText {
     visible: (face.kind === "music" || face.kind === "track") && face.full
