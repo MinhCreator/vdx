@@ -42,6 +42,15 @@ Item {
   }
   property date now: new Date()
 
+  // a block is there when it has something to show
+  function wants(id) {
+    return id === "tiles" ? tileIds.length > 0 : id === "player" ? hasPlayer : id === "sliders" ? hasSliders
+         : id === "modules" ? ids.length > 0 : true;
+  }
+  function blockOf(id) {
+    return ({ tiles: tilesBlock, week: weekBlock, player: playerBlock, sliders: slidersBlock, modules: modulesBlock })[id] ?? null;
+  }
+
   // the month is a page of the hub: the island grows to it and back
   property bool calendarOpen: false
   onVisibleChanged: if (!visible) calendarOpen = false
@@ -131,179 +140,218 @@ Item {
       }
     }
 
-    // ---- the week ----
+    // ---- the blocks, in the order and the visibility of Bar › Hub ----
+    Repeater {
+      model: HubBlocks.order
+
+      Loader {
+        required property string modelData
+        width: parent.width
+        active: HubBlocks.shown(modelData) && root.wants(modelData)
+        visible: active
+        sourceComponent: root.blockOf(modelData)
+      }
+    }
+  }
+
+  // the calendar: the week strip (a click opens the month as a page), or the month itself
+  Component {
+    id: weekBlock
+    Loader {
+      sourceComponent: ModuleSettings.get("hub", "calendarMode", "week") === "month" ? monthInline : weekStrip
+    }
+  }
+  Component {
+    id: weekStrip
     HubWeek {
       width: parent.width
       now: root.now
       onClicked: root.calendarOpen = true
     }
-
-    // ---- tiles ----
-    HubTiles {
+  }
+  Component {
+    id: monthInline
+    HubCalendar {
       width: parent.width
-      ids: root.tileIds
-      modules: root.modules
-    }
-
-
-    // ---- track ----
-    Rectangle {
-      id: track
-      width: parent.width
-      height: 60
-      visible: root.hasPlayer
-      radius: Theme.radiusCard
-      color: Theme.controlFill
-      border.width: Theme.frameWidth
-      border.color: Theme.controlLine
-
-      function clock(s) { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
-
-      // a click on the card (not its buttons) opens the Music popup, as the module's did
-      MouseArea {
-        anchors.fill: parent
-        cursorShape: Qt.PointingHandCursor
-        onClicked: musicHost.item?.openPopup()
-      }
-
-      IslandCover {
-        id: cover
-        anchors { left: parent.left; leftMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
-        size: track.height - 2 * Theme.gapMedium
-      }
-
-      Column {
-        anchors { left: cover.right; leftMargin: Theme.gapWide; right: controls.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
-        spacing: Theme.gapTight
-
-        KitText {
-          width: parent.width
-          text: IslandService.title || "Nothing playing"
-          textFormat: Text.PlainText
-          font.weight: Font.Bold
-          elide: Text.ElideRight
-        }
-        KitText {
-          width: parent.width
-          visible: IslandService.hasMedia
-          text: (IslandService.artist !== "" ? IslandService.artist + " · " : "") + track.clock(IslandService.position) + " / " + track.clock(IslandService.length)
-          textFormat: Text.PlainText
-          color: Theme.muted
-          font.pixelSize: Theme.fontSize - 1
-          elide: Text.ElideRight
-        }
-      }
-
-      // back, the one filled button, forward
-      Row {
-        id: controls
-        anchors { right: parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
-        spacing: Theme.gapSmall
-
-        IslandButton {
-          anchors.verticalCenter: parent.verticalCenter
-          icon: "skip-back"
-          iconSize: 14
-          onClicked: IslandService.prev()
-        }
-        Rectangle {
-          anchors.verticalCenter: parent.verticalCenter
-          width: 40
-          height: 40
-          radius: Theme.pill(height)
-          color: playArea.containsMouse ? Theme.foreground0 : Theme.foreground1
-
-          KitIcon { anchors.centerIn: parent; name: IslandService.playing ? "pause" : "play"; size: 16; solid: true; tint: Theme.background0 }
-          MouseArea {
-            id: playArea
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: IslandService.togglePlay()
-          }
-        }
-        IslandButton {
-          anchors.verticalCenter: parent.verticalCenter
-          icon: "skip-forward"
-          iconSize: 14
-          onClicked: IslandService.next()
-        }
-      }
-    }
-
-
-    // ---- optional quick sliders, independent of the bar's module placement ----
-    Column {
-      width: parent.width
-      spacing: Theme.gapSmall
-      visible: root.hasSliders
-
-      AudioVolumeRow {
-        visible: root.quickSlider("volume")
-        node: AudioService.sink
-        accessibleName: "Output volume"
-      }
-      AudioVolumeRow {
-        visible: root.quickSlider("microphone")
-        node: AudioService.source
-        iconOn: "mic"; iconOff: "mic-off"
-        accessibleName: "Microphone volume"
-      }
-      KitSliderRow {
-        visible: root.quickSlider("brightness")
-        enabled: BrightnessService.available
-        icon: "sun"
-        accessibleName: "Brightness"
-        value: BrightnessService.brightness / 100
-        text: BrightnessService.available ? BrightnessService.brightness + "%" : "—"
-        onMoved: value => BrightnessService.setBrightness(value * 100)
-      }
-      KitSliderRow {
-        visible: root.quickSlider("dimming")
-        icon: "moon"
-        accessibleName: "Screen dimming"
-        value: (BrightnessService.gamma - BrightnessService.gammaMin) / (100 - BrightnessService.gammaMin)
-        text: BrightnessService.gamma + "%"
-        onMoved: value => BrightnessService.setGamma(BrightnessService.gammaMin + value * (100 - BrightnessService.gammaMin))
-      }
-    }
-
-
-    // ---- modules ----
-    Flow {
-      width: parent.width
-      spacing: Theme.gapSmall
-
-      Repeater {
-        model: root.ids
-
-        Rectangle {
-          id: chip
-          required property string modelData
-
-          width: slot.width + 2 * Theme.gapWide
-          height: 32
-          radius: Theme.radiusCard
-          color: hover.hovered ? Theme.controlHover : Theme.controlFill
-          border.width: Theme.frameWidth
-          border.color: hover.hovered ? Theme.controlLineHover : Theme.controlLine
-          Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
-
-          HoverHandler { id: hover }
-
-          Loader {
-            id: slot
-            anchors.centerIn: parent
-            sourceComponent: root.modules[chip.modelData] ?? null
-          }
-
-          TapHandler {
-            acceptedButtons: Qt.RightButton
-            enabled: ShellSettings.barRightSettings
-            onTapped: root.settings(chip.modelData)
-          }
-        }
-      }
+      now: root.now
+      embedded: true
     }
   }
+
+  Component {
+    id: tilesBlock
+      HubTiles {
+        width: parent.width
+        ids: root.tileIds
+        modules: root.modules
+      }
+  }
+
+  Component {
+    id: playerBlock
+      Rectangle {
+        id: track
+        readonly property bool compact: ModuleSettings.get("hub", "playerSize", "card") === "compact"
+        width: parent.width
+        height: compact ? 44 : 60
+        visible: root.hasPlayer
+        radius: Theme.radiusCard
+        color: Theme.controlFill
+        border.width: Theme.frameWidth
+        border.color: Theme.controlLine
+
+        function clock(s) { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+
+        // a click on the card (not its buttons) opens the Music popup, as the module's did
+        MouseArea {
+          anchors.fill: parent
+          cursorShape: Qt.PointingHandCursor
+          onClicked: musicHost.item?.openPopup()
+        }
+
+        IslandCover {
+          id: cover
+          anchors { left: parent.left; leftMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
+          size: track.height - 2 * Theme.gapMedium
+        }
+
+        Column {
+          anchors { left: cover.right; leftMargin: Theme.gapWide; right: controls.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
+          spacing: Theme.gapTight
+
+          KitText {
+            width: parent.width
+            text: IslandService.title || "Nothing playing"
+            textFormat: Text.PlainText
+            font.weight: Font.Bold
+            elide: Text.ElideRight
+          }
+          KitText {
+            width: parent.width
+            visible: IslandService.hasMedia && !track.compact
+            text: (IslandService.artist !== "" ? IslandService.artist + " · " : "") + track.clock(IslandService.position) + " / " + track.clock(IslandService.length)
+            textFormat: Text.PlainText
+            color: Theme.muted
+            font.pixelSize: Theme.fontSize - 1
+            elide: Text.ElideRight
+          }
+        }
+
+        // back, the one filled button, forward
+        Row {
+          id: controls
+          anchors { right: parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
+          spacing: Theme.gapSmall
+
+          IslandButton {
+            anchors.verticalCenter: parent.verticalCenter
+            visible: !track.compact
+            icon: "skip-back"
+            iconSize: 14
+            onClicked: IslandService.prev()
+          }
+          Rectangle {
+            anchors.verticalCenter: parent.verticalCenter
+            width: track.compact ? 30 : 40
+            height: width
+            radius: Theme.pill(height)
+            color: playArea.containsMouse ? Theme.foreground0 : Theme.foreground1
+
+            KitIcon { anchors.centerIn: parent; name: IslandService.playing ? "pause" : "play"; size: 16; solid: true; tint: Theme.background0 }
+            MouseArea {
+              id: playArea
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              onClicked: IslandService.togglePlay()
+            }
+          }
+          IslandButton {
+            anchors.verticalCenter: parent.verticalCenter
+            visible: !track.compact
+            icon: "skip-forward"
+            iconSize: 14
+            onClicked: IslandService.next()
+          }
+        }
+      }
+  }
+
+  Component {
+    id: slidersBlock
+      Column {
+        width: parent.width
+        spacing: Theme.gapSmall
+        visible: root.hasSliders
+
+        AudioVolumeRow {
+          visible: root.quickSlider("volume")
+          node: AudioService.sink
+          accessibleName: "Output volume"
+        }
+        AudioVolumeRow {
+          visible: root.quickSlider("microphone")
+          node: AudioService.source
+          iconOn: "mic"; iconOff: "mic-off"
+          accessibleName: "Microphone volume"
+        }
+        KitSliderRow {
+          visible: root.quickSlider("brightness")
+          enabled: BrightnessService.available
+          icon: "sun"
+          accessibleName: "Brightness"
+          value: BrightnessService.brightness / 100
+          text: BrightnessService.available ? BrightnessService.brightness + "%" : "—"
+          onMoved: value => BrightnessService.setBrightness(value * 100)
+        }
+        KitSliderRow {
+          visible: root.quickSlider("dimming")
+          icon: "moon"
+          accessibleName: "Screen dimming"
+          value: (BrightnessService.gamma - BrightnessService.gammaMin) / (100 - BrightnessService.gammaMin)
+          text: BrightnessService.gamma + "%"
+          onMoved: value => BrightnessService.setGamma(BrightnessService.gammaMin + value * (100 - BrightnessService.gammaMin))
+        }
+      }
+  }
+
+  Component {
+    id: modulesBlock
+      Flow {
+        width: parent.width
+        spacing: Theme.gapSmall
+
+        Repeater {
+          model: root.ids
+
+          Rectangle {
+            id: chip
+            required property string modelData
+
+            width: slot.width + 2 * Theme.gapWide
+            height: 32
+            radius: Theme.radiusCard
+            color: hover.hovered ? Theme.controlHover : Theme.controlFill
+            border.width: Theme.frameWidth
+            border.color: hover.hovered ? Theme.controlLineHover : Theme.controlLine
+            Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+
+            HoverHandler { id: hover }
+
+            Loader {
+              id: slot
+              anchors.centerIn: parent
+              sourceComponent: root.modules[chip.modelData] ?? null
+            }
+
+            TapHandler {
+              acceptedButtons: Qt.RightButton
+              enabled: ShellSettings.barRightSettings
+              onTapped: root.settings(chip.modelData)
+            }
+          }
+        }
+      }
+  }
+
 }

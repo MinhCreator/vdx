@@ -68,28 +68,28 @@ Column {
 
   KitLine { visible: Theme.island }
 
+  HubBlocksList { width: parent.width; visible: Theme.island; onArrange: root.navigate("bar", "hubzone") }
+
+  KitLine { visible: Theme.island }
+
   Column {
     width: parent.width
     spacing: Theme.sectionGap
     visible: Theme.island
 
     KitLabel { text: "CONTENT"; about: "What the hub holds. Modules are placed in the Hub row of the bar's Layout" }
-    KitOptionRow {
-      needs: root.tileCount === 0 ? "Put Wi-Fi, Bluetooth, VPN, Focus or Dark mode in the Hub row" : ""
+    KitRow {
+      needs: root.tileCount === 0 ? "No tile in the Hub row: put Wi-Fi, Bluetooth, VPN, Focus or Dark mode there" : ""
       needsAction: "Arrange"
       onNeedsActed: root.navigate("bar", "hubzone")
-      module: "hub"; key: "tileColumns"; fallback: 2
-      label: "Tiles per row"; hint: "Wi-Fi, Bluetooth, VPN, Focus, Dark mode"
-      model: [{ label: "2 ×", value: 2 }, { label: "4 ×", value: 4 }]
-    }
-    KitRow {
-      label: "Player card"
-      hint: "Shows with nothing playing too"
-      KitSwitch { checked: ShellSettings.look("hubPlayer", "island"); onToggled: ShellSettings.setLook("hubPlayer", !checked, "island") }
+      label: "Toggles"
+      hint: "Tiles of the Hub row: " + root.tileCount
+      KitButton { text: "Arrange…"; onClicked: root.navigate("bar", "hubzone") }
     }
     // the four quick sliders in one row: a picked one shows in the hub
     KitRow {
-      label: "Sliders"
+      visible: HubBlocks.shown("sliders")
+      label: "Sliders shown"
       hint: "The ones you drag in the hub"
       Repeater {
         model: [
@@ -109,11 +109,6 @@ Column {
           onClicked: ModuleSettings.set("hub", modelData.key, !on)
         }
       }
-    }
-    KitRow {
-      label: "Modules in the hub"
-      hint: "Placed in the Hub row of Layout: " + BarLayout.islandIn("hub", BarLayout.mainScreen()).length
-      KitButton { text: "Arrange…"; onClicked: root.navigate("bar", "hubzone") }
     }
     KitGrouper {}
   }

@@ -117,8 +117,10 @@ size, gap, separators and hub opening.
   off, the row order in its kind is the priority (drag a row), the low battery
   line, how long a flash stays and the wheel. The notification toast is the island's own view and only
   follows its switch there.
-- **The hub** opens from the clock on a hover or a click (Bar › Hub › Opening ›
-  Open the hub): the date, settings and power, the week (a click opens the month), the **tiles** (the Hub row's modules that can
+- **The hub** opens from the clock on a hover or a click (Hub › Opens on). Under the
+  clock and day it holds blocks — Toggles (tiles), Calendar (week or month), Sliders,
+  Player (card or compact), Module chips — in the order and with the visibility set in
+  Hub › Blocks (`config/HubBlocks.qml`): the date, settings and power, the week (a click opens the month), the **tiles** (the Hub row's modules that can
   be one — Wi-Fi, Bluetooth, VPN, Focus, Dark mode — two or four to a row, Bar › Hub ›
   Tiles per row; the icon switches, the rest opens the module's popup), the player card (a click opens the
   Music popup, the Music module is on no bar; the card shows with nothing playing

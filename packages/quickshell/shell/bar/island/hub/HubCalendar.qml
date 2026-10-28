@@ -10,6 +10,7 @@ Item {
 
   property date now: new Date()
   signal back()
+  property bool embedded: false              // in the hub itself, not a page of it: no way back
 
   // the first day of the month shown
   property date month: new Date(now.getFullYear(), now.getMonth(), 1)
@@ -41,7 +42,7 @@ Item {
       Row {
         anchors { left: parent.left; verticalCenter: parent.verticalCenter }
         spacing: Theme.gapMedium
-        IslandButton { anchors.verticalCenter: parent.verticalCenter; icon: "arrow-left"; iconSize: 16; onClicked: root.back() }
+        IslandButton { visible: !root.embedded; anchors.verticalCenter: parent.verticalCenter; icon: "arrow-left"; iconSize: 16; onClicked: root.back() }
         KitText { anchors.verticalCenter: parent.verticalCenter; text: Qt.formatDate(root.month, "MMMM"); font.weight: Font.Bold; font.pixelSize: Theme.fontSize + 3 }
         KitText { anchors.verticalCenter: parent.verticalCenter; text: Qt.formatDate(root.month, "yyyy"); color: Theme.muted; font.pixelSize: Theme.fontSize + 3 }
       }

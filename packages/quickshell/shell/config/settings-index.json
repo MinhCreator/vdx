@@ -364,24 +364,13 @@
   "target": "hub"
  },
  {
-  "label": "Tiles per row",
-  "hint": "Wi-Fi, Bluetooth, VPN, Focus, Dark mode",
-  "where": "Hub › CONTENT",
-  "target": "hub",
-  "aliases": [
-   "tile",
-   "tiles",
-   "toggles"
-  ]
- },
- {
-  "label": "Player card",
-  "hint": "Shows with nothing playing too",
+  "label": "Toggles",
+  "hint": "Tiles of the Hub row: ",
   "where": "Hub › CONTENT",
   "target": "hub"
  },
  {
-  "label": "Sliders",
+  "label": "Sliders shown",
   "hint": "The ones you drag in the hub",
   "where": "Hub › CONTENT",
   "target": "hub"
@@ -411,12 +400,6 @@
  {
   "label": "Dimming",
   "hint": "",
-  "where": "Hub › CONTENT",
-  "target": "hub"
- },
- {
-  "label": "Modules in the hub",
-  "hint": "Placed in the Hub row of Layout: ",
   "where": "Hub › CONTENT",
   "target": "hub"
  },
