@@ -57,6 +57,7 @@ Singleton {
   readonly property bool liveWheel: look("liveWheel", "island")
   readonly property int liveBatteryBelow: look("liveBatteryBelow", "island") // %, low battery interrupts below this
   readonly property string liveBatteryStay: look("liveBatteryStay", "island") // fixed | 5s
+  readonly property bool liveMusicPaused: look("liveMusicPaused", "island")  // the music stays in the live slot on pause
   readonly property var liveSections: ({
     asks:  ["notice", "battery", "bluetooth"],
     held:  ["recording", "update", "backup", "vpn", "music"],
@@ -81,7 +82,7 @@ Singleton {
   }
   readonly property var lookDefaults: ({ barIconGrow: 0, barSeparators: true, barGap: 5, clockOpens: "hover", hubPlayer: true, pillHeight: 0,
     liveEnabled: true, liveBattery: true, liveBluetooth: true,
-    liveRecording: true, liveUpdate: true, liveBackup: true, liveVpn: false, liveMusic: true,
+    liveRecording: true, liveUpdate: true, liveBackup: true, liveVpn: false, liveMusic: true, liveMusicPaused: false,
     liveVolume: true, liveMic: true, liveLayout: true, livePlugged: true,
     liveFlashMs: 1500, liveNoticeMs: 5000, liveWheel: true,
     liveBatteryBelow: 20, liveBatteryStay: "fixed", liveOrder: ({}) })

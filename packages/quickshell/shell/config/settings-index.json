@@ -1016,6 +1016,12 @@
   "target": "appearance:accent"
  },
  {
+  "label": "Window frames",
+  "hint": "The focused window's frame",
+  "where": "Appearance",
+  "target": "appearance:accent"
+ },
+ {
   "label": "Accent",
   "hint": "Highlight active controls across the shell",
   "where": "Appearance › ACCENT COLOUR",
@@ -1249,12 +1255,6 @@
   "target": "live"
  },
  {
-  "label": "Low battery",
-  "hint": "",
-  "where": "Live activities",
-  "target": "live"
- },
- {
   "label": "Behaviour",
   "hint": "",
   "where": "Live activities",
@@ -1290,39 +1290,27 @@
   "target": "live"
  },
  {
-  "label": "Shows below",
-  "hint": "The charge at which it takes the pill",
-  "where": "Live activities › LOW BATTERY",
-  "target": "live"
- },
- {
-  "label": "Stays for",
-  "hint": "Until fixed: until the charger is back or the charge recovers",
-  "where": "Live activities › LOW BATTERY",
-  "target": "live"
- },
- {
   "label": "Recording",
   "hint": "A timer while the screen records",
-  "where": "Live activities › LOW BATTERY",
+  "where": "Live activities › LIVE ACTIVITIES",
   "target": "live"
  },
  {
   "label": "Updates",
   "hint": "Progress of an update run",
-  "where": "Live activities › LOW BATTERY",
+  "where": "Live activities › LIVE ACTIVITIES",
   "target": "live"
  },
  {
   "label": "Backup",
   "hint": "Progress of a backup",
-  "where": "Live activities › LOW BATTERY",
+  "where": "Live activities › LIVE ACTIVITIES",
   "target": "live"
  },
  {
   "label": "VPN",
   "hint": "Which server and the ping",
-  "where": "Live activities › LOW BATTERY",
+  "where": "Live activities › LIVE ACTIVITIES",
   "target": "live",
   "aliases": [
    "mihomo",
@@ -1332,7 +1320,7 @@
  {
   "label": "Music",
   "hint": "The playing track and its sound",
-  "where": "Live activities › LOW BATTERY",
+  "where": "Live activities › LIVE ACTIVITIES",
   "target": "live",
   "aliases": [
    "player",
@@ -1343,36 +1331,30 @@
  {
   "label": "Volume and brightness",
   "hint": "A level while you change it",
-  "where": "Live activities › LOW BATTERY",
+  "where": "Live activities › LIVE ACTIVITIES",
   "target": "live"
  },
  {
   "label": "Microphone",
   "hint": "When the mic is muted or unmuted",
-  "where": "Live activities › LOW BATTERY",
+  "where": "Live activities › LIVE ACTIVITIES",
   "target": "live"
  },
  {
   "label": "Keyboard layout",
   "hint": "EN → RU when it changes",
-  "where": "Live activities › LOW BATTERY",
+  "where": "Live activities › LIVE ACTIVITIES",
   "target": "live"
  },
  {
   "label": "Plugged in",
   "hint": "Charge when the cable connects",
-  "where": "Live activities › LOW BATTERY",
+  "where": "Live activities › LIVE ACTIVITIES",
   "target": "live"
  },
  {
   "label": "Flash lasts",
   "hint": "",
-  "where": "Live activities › BEHAVIOUR",
-  "target": "live"
- },
- {
-  "label": "Messages stay for",
-  "hint": "A notification's line in the slot",
   "where": "Live activities › BEHAVIOUR",
   "target": "live"
  },

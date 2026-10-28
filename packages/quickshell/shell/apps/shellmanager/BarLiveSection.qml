@@ -17,6 +17,7 @@ Column {
 
   readonly property var kinds: ShellSettings.liveOrdered(section)
   readonly property int rowHeight: 52
+  property string open: ""                     // the kind whose options are unfolded (one at a time)
 
   // the rows keep their items while one is dragged: a ListModel moves them, a
   // new array would rebuild them and drop the grip's press
@@ -60,8 +61,11 @@ Column {
         : kind === "battery" && !BatteryService.present ? "No battery in this machine"
         : kind === "music" && !BarLayout.installed("music") ? "Not installed" : ""
 
+      readonly property bool unfolded: root.open === kind && on && missing === ""
       width: root.width
-      height: root.rowHeight
+      height: root.rowHeight + (unfolded ? options.implicitHeight : 0)
+      clip: true
+      Behavior on height { enabled: Motion.controls && !grip.pressed; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
       z: grip.pressed ? 5 : 0
       scale: grip.pressed ? 1.02 : 1
       Behavior on scale { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
@@ -94,27 +98,57 @@ Column {
           anchors { fill: parent; margins: -8 }
           preventStealing: true
           cursorShape: pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+          // the rows stand the same height while one is dragged: the options fold
+          onPressed: root.open = ""
           onPositionChanged: mouse => { if (pressed) root.dragTo(row.kind, mapToItem(root, mouse.x, mouse.y).y); }
         }
       }
 
       LivePreview {
         id: preview
-        anchors { left: handle.right; leftMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
+        anchors { left: handle.right; leftMargin: Theme.gapWide; top: parent.top; topMargin: (root.rowHeight - height) / 2 }
         kind: row.kind
         opacity: row.on && ShellSettings.liveEnabled && row.missing === "" ? 1 : 0.45
       }
 
       Column {
-        anchors { left: preview.right; leftMargin: Theme.gapWide; right: sw.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
+        anchors { left: preview.right; leftMargin: Theme.gapWide; right: more.visible ? more.left : sw.left; rightMargin: Theme.gapWide; top: parent.top; topMargin: (root.rowHeight - height) / 2 }
         spacing: Theme.gapTight
         KitText { width: parent.width; text: root.info[row.kind]?.label ?? row.kind; elide: Text.ElideRight }
         KitText { width: parent.width; text: row.missing !== "" ? row.missing : (root.info[row.kind]?.hint ?? ""); color: Theme.muted; font.pixelSize: Theme.fontSize - 1; elide: Text.ElideRight }
       }
 
+      // the options of this activity, if it has any: a click on the row's name or the arrow unfolds them
+      MouseArea {
+        anchors { left: preview.right; right: more.visible ? more.right : sw.left; top: parent.top }
+        height: root.rowHeight
+        enabled: more.visible
+        cursorShape: Qt.PointingHandCursor
+        onClicked: root.open = row.unfolded ? "" : row.kind
+      }
+
+      KitIcon {
+        id: more
+        visible: options.any && row.on && row.missing === ""
+        anchors { right: sw.left; rightMargin: Theme.gapWide; top: parent.top; topMargin: (root.rowHeight - height) / 2 }
+        name: "chevron-down"
+        size: Theme.iconSmall
+        tint: row.unfolded ? Theme.foreground0 : Theme.foreground2
+        rotation: row.unfolded ? 180 : 0
+        Behavior on rotation { enabled: Motion.controls; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
+      }
+
+      LiveOptions {
+        id: options
+        kind: row.kind
+        anchors { left: preview.left; right: parent.right; top: parent.top; topMargin: root.rowHeight }
+        opacity: row.unfolded ? 1 : 0
+        Behavior on opacity { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
+      }
+
       KitSwitch {
         id: sw
-        anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+        anchors { right: parent.right; top: parent.top; topMargin: (root.rowHeight - height) / 2 }
         checked: row.on
         enabled: row.missing === ""
         onToggled: row.kind === "notice"

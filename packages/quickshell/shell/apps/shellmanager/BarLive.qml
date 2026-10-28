@@ -3,7 +3,8 @@ import qs.config
 import qs.kit
 
 // Bar › Live: the island's live activities — what grows out of the pill, in
-// priority order — and the rules that apply to all of them.
+// priority order — and the rules that apply to all of them. An activity's own options
+// open under its row (LiveOptions).
 Column {
   id: root
 
@@ -34,36 +35,6 @@ Column {
   }
 
   KitLine { visible: ShellSettings.liveEnabled }
-
-  Column {
-    width: parent.width
-    visible: ShellSettings.liveEnabled && ShellSettings.liveKind("battery")
-
-    KitLabel { text: "LOW BATTERY" }
-    KitRow {
-      label: "Shows below"
-      hint: "The charge at which it takes the pill"
-      wide: true
-      KitSegments {
-        model: [{label: "10%", value: 10}, {label: "15%", value: 15}, {label: "20%", value: 20}, {label: "30%", value: 30}]
-        current: ShellSettings.liveBatteryBelow
-        onPicked: value => ShellSettings.setLook("liveBatteryBelow", value, "island")
-      }
-    }
-    KitRow {
-      label: "Stays for"
-      hint: "Until fixed: until the charger is back or the charge recovers"
-      wide: true
-      KitSegments {
-        model: [{label: "5 s", value: "5s"}, {label: "Until fixed", value: "fixed"}]
-        current: ShellSettings.liveBatteryStay
-        onPicked: value => ShellSettings.setLook("liveBatteryStay", value, "island")
-      }
-    }
-    KitGrouper {}
-  }
-
-  KitLine { visible: ShellSettings.liveEnabled && ShellSettings.liveKind("battery") }
 
   BarLiveSection {
     width: parent.width
@@ -109,17 +80,6 @@ Column {
       value: (ShellSettings.liveFlashMs - 1000) / 3000
       text: ((pressed ? 1000 + Math.round(dragValue * 6) * 500 : ShellSettings.liveFlashMs) / 1000).toFixed(1) + " s"
       onMoved: value => ShellSettings.setLook("liveFlashMs", 1000 + Math.round(value * 6) * 500, "island")
-    }
-    KitRow {
-      visible: ModuleSettings.get("notifications", "appear", "card") === "live"
-      label: "Messages stay for"
-      hint: "A notification's line in the slot"
-      wide: true
-      KitSegments {
-        model: [{label: "5 s", value: 5000}, {label: "10 s", value: 10000}, {label: "Until read", value: 0}]
-        current: ShellSettings.liveNoticeMs
-        onPicked: value => ShellSettings.setLook("liveNoticeMs", value, "island")
-      }
     }
     KitRow {
       label: "Wheel pages through them"

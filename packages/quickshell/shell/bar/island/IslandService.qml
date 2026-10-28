@@ -70,7 +70,7 @@ Singleton {
       update: PackagesService.busy,
       backup: BackupService.busy && BackupService.jobKind === "run",
       vpn: MihomoService.serviceOn,
-      music: hasMedia && playing,
+      music: hasMedia && (playing || ShellSettings.liveMusicPaused),
       notice: noticeItem !== null
     };
     if (flashKind !== "") on[flashKind] = true;
