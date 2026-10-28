@@ -14,17 +14,21 @@ KitColumn {
   KitLabel { text: "NEW NOTIFICATIONS" }
 
   KitOptionRow {
-    enabled: Theme.island; dimmed: !enabled
+    needs: Theme.island ? "" : "A live line needs the Island style"
+    needsAction: "Use Island"
+    onNeedsActed: ShellSettings.set("barStyle", "island")
     module: "notifications"; key: "appear"; fallback: "card"
-    label: "Show as"; hint: ShellSettings.liveEnabled ? "A toast on the island, or a line in its live slot" : "Live activities are off (Bar › Live): new ones arrive as cards"
+    label: "New ones arrive as"; hint: ShellSettings.liveEnabled ? "A card, or a line in the live slot" : "Live activities are off: cards only"
     model: [{ label: "Card", value: "card" }, { label: "Live activity", value: "live" }]
   }
 
-  // a card (and a toast) stays this long; a live line has its own time in Bar › Live
+  // a card (and a toast) stays this long; a live line has its own time in Bar › Live. Cards are what
+  // arrives in the strip, in card mode and with the live activities off
   KitOptionRow {
-    enabled: !Theme.island || ModuleSettings.get("notifications", "appear", "card") === "card"; dimmed: !enabled
+    needs: !Theme.island || ModuleSettings.get("notifications", "appear", "card") === "card" || !ShellSettings.liveEnabled
+           ? "" : "Cards only: a live line has its own time in Bar › Live"
     module: "notifications"; key: "toastSeconds"; fallback: 5
-    label: "Card stays for"; hint: enabled ? "Critical ones always stay" : "Cards only: a live line has its own time in Bar › Live"
+    label: "Card stays for"; hint: "Stay: until you close it. Urgent ones always stay"
     model: [{ label: "3 s", value: 3 }, { label: "5 s", value: 5 }, { label: "10 s", value: 10 }, { label: "Stay", value: 0 }]
   }
 
@@ -42,7 +46,7 @@ KitColumn {
     model: [{ label: "4", value: 4 }, { label: "6", value: 6 }, { label: "10", value: 10 }]
   }
 
-  KitToggleRow { module: "notifications"; key: "closeOnClear"; fallback: false; label: "Close after clear"; hint: "Off: the centre stays open" }
+  KitToggleRow { module: "notifications"; key: "closeOnClear"; fallback: false; label: "Close after Clear all"; hint: "Off: the centre stays open" }
 
   KitLine {}
 

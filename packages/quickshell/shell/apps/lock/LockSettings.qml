@@ -81,7 +81,7 @@ KitColumn {
   KitLine {}
 
   KitRow {
-    label: "Try it"
+    label: "Lock now"
     hint: "Locks the screen now"
 
     KitButton {

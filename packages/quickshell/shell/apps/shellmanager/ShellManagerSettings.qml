@@ -15,7 +15,7 @@ Column {
 
     KitSegments {
       model: [
-        { label: "Main page", value: "main" },
+        { label: "First page", value: "main" },
         { label: "Last page", value: "last" }
       ]
       current: ShellSettings.managerStart

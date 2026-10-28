@@ -247,14 +247,14 @@
   ]
  },
  {
-  "label": "Editing monitor",
-  "hint": "",
+  "label": "Monitor",
+  "hint": "The one Layout and Monitors edit",
   "where": "Bar",
   "target": "bar"
  },
  {
-  "label": "Clock",
-  "hint": "Off and nothing beside it: hidden",
+  "label": "Show the clock",
+  "hint": "Off: the pill shows only its modules",
   "where": "Bar",
   "target": "bar",
   "aliases": [
@@ -264,25 +264,25 @@
  },
  {
   "label": "Icon size",
-  "hint": "",
+  "hint": "The icons on the bar",
   "where": "Bar › LOOK",
   "target": "bar:look"
  },
  {
-  "label": "Module gap",
-  "hint": "",
+  "label": "Separator spacing",
+  "hint": "Room on each side of a line",
   "where": "Bar › LOOK",
   "target": "bar:look"
  },
  {
-  "label": "Separators",
-  "hint": "Lines between neighbouring modules",
+  "label": "Separator lines",
+  "hint": "Between neighbouring modules",
   "where": "Bar › LOOK",
   "target": "bar:look"
  },
  {
   "label": "Right click opens options",
-  "hint": "Open a bar module's settings",
+  "hint": "On a module: its settings here",
   "where": "Bar › BEHAVIOUR",
   "target": "bar:behaviour"
  },
@@ -298,14 +298,10 @@
   ]
  },
  {
-  "label": "Same bar everywhere",
-  "hint": "Share the main monitor's layout",
+  "label": "Same bar on every monitor",
+  "hint": "Off: each monitor gets its own",
   "where": "Bar › MONITOR",
-  "target": "bar:monitor",
-  "aliases": [
-   "per monitor",
-   "monitors"
-  ]
+  "target": "bar:monitor"
  },
  {
   "label": "Main monitor",
@@ -320,8 +316,8 @@
   "target": "bar:monitor"
  },
  {
-  "label": "Open the hub",
-  "hint": "",
+  "label": "Opens on",
+  "hint": "Hover the clock, or click it",
   "where": "Bar › HUB",
   "target": "bar:hub"
  },
@@ -354,14 +350,14 @@
   "target": "bar:hub"
  },
  {
-  "label": "Media player",
-  "hint": "Shown when media is available",
+  "label": "Player card",
+  "hint": "Shows with nothing playing too",
   "where": "Bar › CONTENT",
   "target": "bar:sliders"
  },
  {
   "label": "Sliders",
-  "hint": "Pick the ones the hub shows",
+  "hint": "The ones you drag in the hub",
   "where": "Bar › CONTENT",
   "target": "bar:sliders"
  },
@@ -394,8 +390,8 @@
   "target": "bar:sliders"
  },
  {
-  "label": "Hub modules",
-  "hint": "",
+  "label": "Modules in the hub",
+  "hint": "Placed in the Hub row of Layout: ",
   "where": "Bar › CONTENT",
   "target": "bar:sliders"
  },
@@ -429,7 +425,7 @@
   "target": "windows:layout"
  },
  {
-  "label": "Master size",
+  "label": "Main window size",
   "hint": "",
   "where": "Windows › LAYOUT",
   "target": "windows:layout"
@@ -916,7 +912,7 @@
  },
  {
   "label": "Corners",
-  "hint": "Also windows and toasts; Round rounds the icons",
+  "hint": "Every part at once, icons too",
   "where": "Appearance",
   "target": "appearance:shape"
  },
@@ -927,8 +923,8 @@
   "target": "appearance:shape"
  },
  {
-  "label": "Separately",
-  "hint": "A slider per part, in one proportion",
+  "label": "Set each part",
+  "hint": "A slider per part",
   "where": "Appearance",
   "target": "appearance:shape"
  },
@@ -957,8 +953,8 @@
   "target": "appearance:shape"
  },
  {
-  "label": "Icons",
-  "hint": "Bar, popups and windows",
+  "label": "Icon set",
+  "hint": "Everywhere in the shell",
   "where": "Appearance",
   "target": "appearance:shape"
  },
@@ -1047,7 +1043,7 @@
   "target": "lockscreen"
  },
  {
-  "label": "Try it",
+  "label": "Lock now",
   "hint": "Locks the screen now",
   "where": "Lock screen › ON SCREEN",
   "target": "lockscreen"
@@ -1077,7 +1073,7 @@
   "target": "notifications"
  },
  {
-  "label": "Show as",
+  "label": "New ones arrive as",
   "hint": "",
   "where": "Notifications › NEW NOTIFICATIONS",
   "target": "notifications",
@@ -1091,7 +1087,7 @@
  },
  {
   "label": "Card stays for",
-  "hint": "",
+  "hint": "Stay: until you close it. Urgent ones always stay",
   "where": "Notifications › NEW NOTIFICATIONS",
   "target": "notifications",
   "aliases": [
@@ -1107,7 +1103,7 @@
   "target": "notifications"
  },
  {
-  "label": "Close after clear",
+  "label": "Close after Clear all",
   "hint": "Off: the centre stays open",
   "where": "Notifications › CENTRE",
   "target": "notifications"
@@ -1138,7 +1134,7 @@
  },
  {
   "label": "Add a rule",
-  "hint": "A piece of the app's name; the first rule that fits wins",
+  "hint": "A piece of the name; the first match wins",
   "where": "Notifications › APP COLOURS",
   "target": "notifications",
   "aliases": [
@@ -1173,7 +1169,7 @@
  },
  {
   "label": "Messages",
-  "hint": "A new notification as a line in the slot; off: a card (Notifications › Show as)",
+  "hint": "A new notification as a line in the slot; off: a card",
   "where": "Bar › Live › LIVE ACTIVITIES",
   "target": "bar:live",
   "aliases": [
@@ -1195,7 +1191,7 @@
   "target": "bar:live"
  },
  {
-  "label": "Interrupts below",
+  "label": "Shows below",
   "hint": "The charge at which it takes the pill",
   "where": "Bar › Live › LOW BATTERY",
   "target": "bar:live"
@@ -1228,7 +1224,11 @@
   "label": "VPN",
   "hint": "Which server and the ping",
   "where": "Bar › Live › LOW BATTERY",
-  "target": "bar:live"
+  "target": "bar:live",
+  "aliases": [
+   "mihomo",
+   "proxy"
+  ]
  },
  {
   "label": "Music",
@@ -1706,11 +1706,7 @@
   "label": "Clock",
   "hint": "Time, click for the date",
   "where": "Bar modules",
-  "target": "modules:clock",
-  "aliases": [
-   "hide the clock",
-   "time"
-  ]
+  "target": "modules:clock"
  },
  {
   "label": "Bar",
@@ -1831,19 +1827,19 @@
   "target": "modules:bluetooth"
  },
  {
-  "label": "Mihomo",
-  "hint": "Proxy service and servers",
+  "label": "VPN",
+  "hint": "Mihomo proxy and servers",
   "where": "Bar modules",
   "target": "modules:mihomo",
   "aliases": [
-   "vpn",
+   "mihomo",
    "proxy"
   ]
  },
  {
   "label": "Bar",
   "hint": "",
-  "where": "Bar modules › Mihomo",
+  "where": "Bar modules › VPN",
   "target": "modules:mihomo"
  },
  {
@@ -2826,14 +2822,7 @@
   "label": "Show as",
   "hint": "Ctrl + G in the window",
   "where": "Apps › Files › VIEW",
-  "target": "apps:files",
-  "aliases": [
-   "card",
-   "toast",
-   "live line",
-   "popup",
-   "banner"
-  ]
+  "target": "apps:files"
  },
  {
   "label": "Density",

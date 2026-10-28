@@ -53,7 +53,7 @@ KitColumn {
   KitSliderRow {
     id: master
     visible: root.ws.mode === "tiling"
-    label: "Master size"
+    label: "Main window size"
     snaps: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => i / 10)
     value: (root.o.mfact - 0.3) / 0.5
     text: root.pct(0.3 + (master.pressed ? master.dragValue : master.value) * 0.5)
@@ -129,7 +129,7 @@ KitColumn {
     hint: root.o.taskbarShape === "island" ? "A pill over the windows" : "A strip along the bottom"
 
     KitSegments {
-      model: [{ label: "Strip", value: "strip" }, { label: "Island", value: "island" }]
+      model: [{ label: "Strip", value: "strip" }, { label: "Pill", value: "island" }]
       current: root.o.taskbarShape
       onPicked: value => root.o.taskbarShape = value
     }

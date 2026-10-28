@@ -212,7 +212,8 @@ KitSettingsWorkspace {
       }
       KitSelect {
         visible: root.roles.length > 1 && !BarLayout.shared && (root.tab === "layout" || root.tab === "monitor")
-        label: "Editing monitor"
+        label: "Monitor"
+        hint: "The one Layout and Monitors edit"
         model: root.roles.map(n => ({label: (BarLayout.roleOf(n) === "main" ? "Main · " : "Extra · ") + n, value: n}))
         current: root.screenName
         onPicked: value => root.screenName = value
@@ -224,8 +225,8 @@ KitSettingsWorkspace {
         visible: root.tab === "layout"
         KitRow {
           visible: root.island
-          label: "Clock"
-          hint: "Off and nothing beside it: hidden"
+          label: "Show the clock"
+          hint: "Off: the pill shows only its modules"
           KitSwitch { checked: BarLayout.islandClock(root.screenName); onToggled: BarLayout.setIslandClock(root.screenName, !checked) }
         }
         Item {
@@ -280,24 +281,26 @@ KitSettingsWorkspace {
         KitLabel { text: "LOOK" }
         KitRow {
           label: "Icon size"
+          hint: "The icons on the bar"
           wide: true
           KitSegments { model: [{label: "Small", value: 0}, {label: "Medium", value: 2}, {label: "Large", value: 4}]; current: ShellSettings.barIconGrow; onPicked: value => ShellSettings.setLook("barIconGrow", value) }
         }
         KitRow {
-          label: "Module gap"
+          label: "Separator spacing"
+          hint: "Room on each side of a line"
           wide: true
           KitSegments { model: [{label: "Tight", value: 2}, {label: "Normal", value: 5}, {label: "Wide", value: 8}]; current: ShellSettings.barGap; onPicked: value => ShellSettings.setLook("barGap", value) }
         }
         KitRow {
-          label: "Separators"
-          hint: "Lines between neighbouring modules"
+          label: "Separator lines"
+          hint: "Between neighbouring modules"
           KitSwitch { checked: ShellSettings.barSeparators; onToggled: ShellSettings.setLook("barSeparators", !checked) }
         }
         KitLine {}
         KitLabel { text: "BEHAVIOUR" }
         KitRow {
           label: "Right click opens options"
-          hint: "Open a bar module's settings"
+          hint: "On a module: its settings here"
           KitSwitch { checked: ShellSettings.barRightSettings; onToggled: ShellSettings.set("barRightSettings", !checked) }
         }
         KitGrouper {}
@@ -319,8 +322,8 @@ KitSettingsWorkspace {
         }
         KitRow {
           visible: Quickshell.screens.length > 1
-          label: "Same bar everywhere"
-          hint: "Share the main monitor's layout"
+          label: "Same bar on every monitor"
+          hint: "Off: each monitor gets its own"
           KitSwitch { checked: BarLayout.shared; onToggled: { BarLayout.setShared(!checked); root.screenName = BarLayout.mainScreen(); } }
         }
         KitSelect {
@@ -352,7 +355,8 @@ KitSettingsWorkspace {
         visible: root.tab === "hub"
         KitLabel { text: "HUB" }
         KitRow {
-          label: "Open the hub"
+          label: "Opens on"
+          hint: "Hover the clock, or click it"
           wide: true
           KitSegments {
             model: [{label: "Hover", value: "hover"}, {label: "Click", value: "click"}]
@@ -373,7 +377,7 @@ KitSettingsWorkspace {
           needsAction: "Arrange"
           onNeedsActed: { root.tab = "layout"; root.chooseZone("hub"); }
           module: "hub"; key: "tileColumns"; fallback: 2
-          label: "Tiles per row"; hint: "Hub row modules that can be tiles: Wi-Fi, Bluetooth, VPN, Focus, Dark mode"
+          label: "Tiles per row"; hint: "Wi-Fi, Bluetooth, VPN, Focus, Dark mode"
           model: [{ label: "2 ×", value: 2 }, { label: "4 ×", value: 4 }]
         }
         KitRow {
@@ -385,14 +389,14 @@ KitSettingsWorkspace {
         KitLine {}
         KitLabel { text: "CONTENT" }
         KitRow {
-          label: "Media player"
-          hint: "Shown when media is available"
+          label: "Player card"
+          hint: "Shows with nothing playing too"
           KitSwitch { checked: ShellSettings.look("hubPlayer", "island"); onToggled: ShellSettings.setLook("hubPlayer", !checked, "island") }
         }
         // the four quick sliders in one row: a picked one shows in the hub
         KitRow {
           label: "Sliders"
-          hint: "Pick the ones the hub shows"
+          hint: "The ones you drag in the hub"
           Repeater {
             model: [
               {key: "volume", label: "Volume", fallback: true},
@@ -413,8 +417,8 @@ KitSettingsWorkspace {
           }
         }
         KitRow {
-          label: "Hub modules"
-          hint: BarLayout.islandIn("hub", root.screenName).length + " modules"
+          label: "Modules in the hub"
+          hint: "Placed in the Hub row of Layout: " + BarLayout.islandIn("hub", root.screenName).length
           KitButton { text: "Arrange…"; onClicked: { root.tab = "layout"; if (root.island) root.chooseZone("hub"); } }
         }
         KitGrouper {}

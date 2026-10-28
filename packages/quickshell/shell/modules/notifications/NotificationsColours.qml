@@ -30,7 +30,7 @@ Column {
 
   KitRow {
     label: "Add a rule"
-    hint: "A piece of the app's name; the first rule that fits wins"
+    hint: "A piece of the name; the first match wins"
     KitButton { icon: "plus"; text: "Add rule"; onClicked: root.add("") }
   }
 

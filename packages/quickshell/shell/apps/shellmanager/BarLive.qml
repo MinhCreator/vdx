@@ -27,7 +27,7 @@ Column {
     section: "asks"
     title: "ASKS"
     info: ({
-      notice: { label: "Messages", hint: "A new notification as a line in the slot; off: a card (Notifications › Show as)" },
+      notice: { label: "Messages", hint: "A new notification as a line in the slot; off: a card" },
       battery: { label: "Low battery", hint: "The charge left, when it runs low" },
       bluetooth: { label: "Device connected", hint: "Headphones and other Bluetooth devices" }
     })
@@ -41,7 +41,7 @@ Column {
 
     KitLabel { text: "LOW BATTERY" }
     KitRow {
-      label: "Interrupts below"
+      label: "Shows below"
       hint: "The charge at which it takes the pill"
       wide: true
       KitSegments {

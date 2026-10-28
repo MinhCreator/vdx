@@ -19,7 +19,7 @@ KitColumn {
   KitRow {
     wide: true
     label: "Corners"
-    hint: "Also windows and toasts; Round rounds the icons"
+    hint: "Every part at once, icons too"
 
     KitSegments {
       model: [
@@ -51,8 +51,8 @@ KitColumn {
 
   KitRow {
     visible: root.round
-    label: "Separately"
-    hint: "A slider per part, in one proportion"
+    label: "Set each part"
+    hint: "A slider per part"
 
     KitSwitch {
       checked: ShellSettings.cornerSplit

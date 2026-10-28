@@ -10,8 +10,8 @@ KitColumn {
 
   KitRow {
     wide: true
-    label: "Icons"
-    hint: "Bar, popups and windows"
+    label: "Icon set"
+    hint: "Everywhere in the shell"
 
     KitSegments {
       model: [

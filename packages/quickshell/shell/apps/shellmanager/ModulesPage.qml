@@ -142,7 +142,7 @@ Column {
         KitRow {
           visible: root.module !== null && !BarLayout.installed(root.selected)
           label: "Not installed"
-          hint: "components add " + (BarLayout.notInstalled[root.selected] ?? []).join(" or ")
+          hint: "Add with ./install.py components add " + (BarLayout.notInstalled[root.selected] ?? []).join(" or ")
           labelColor: Theme.foreground2
         }
 
