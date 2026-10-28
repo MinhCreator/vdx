@@ -140,7 +140,7 @@ Item {
   }
   readonly property var sizes: ({
     compact: [compact.implicitWidth, Theme.islandHeight],
-    hub:     [Math.max(280, Math.min(hub.preferredWidth, ModuleSettings.get("hub", "width", 440), (bar.screen?.width ?? 1920) - 24)), hub.implicitHeight],
+    hub:     [Math.max(280, Math.min(hub.preferredWidth, ModuleSettings.get("hub", "width", 400), (bar.screen?.width ?? 1920) - 24)), hub.implicitHeight],
     launcher: [520, islandLauncher.implicitHeight],
     keybinds: [520, islandKeybinds.implicitHeight],
     media:   [420, 148],
@@ -159,7 +159,7 @@ Item {
     anchors.horizontalCenter: parent.horizontalCenter
     width: root.size[0]
     height: root.size[1]
-    radius: root.shown === "compact" ? height / 2 : Math.min(Theme.barRadiusFor(height), Theme.islandRadius)
+    radius: Math.min(Theme.barRadiusFor(height), Theme.islandRadius)
     color: Theme.background0
     border.width: Theme.islandFrameWidth
     border.color: Theme.background2
@@ -348,7 +348,7 @@ Item {
     y: 0
     width: Theme.islandHeight
     height: Theme.islandHeight
-    radius: root.shown === "compact" ? height / 2 : Math.min(Theme.barRadiusFor(height), Theme.islandRadius)
+    radius: Math.min(Theme.barRadiusFor(height), Theme.islandRadius)
     color: backArea.containsMouse ? Theme.background1 : Theme.background0
     Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
     border.width: Theme.islandFrameWidth

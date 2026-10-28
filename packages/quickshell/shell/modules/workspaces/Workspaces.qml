@@ -52,7 +52,7 @@ Row {
         ? (highlighted ? Theme.accentFor("modules", Theme.yellow) : Theme.foreground0)
         : (highlighted ? Theme.accentFor("modules", Theme.foreground1) : Theme.gray)
 
-      implicitWidth: (root.shape ? (root.style === "dashes" ? 14 : root.style === "dots" && highlighted ? 20 : 10) : Math.max(label.implicitWidth, Theme.workspaceMinWidth) + 4) * grow
+      implicitWidth: (root.shape ? (root.style === "dashes" ? 14 : 10) : Math.max(label.implicitWidth, Theme.workspaceMinWidth) + 4) * grow
       implicitHeight: label.implicitHeight
 
       // a new workspace opens up from nothing and fades in (Motion.bar)
@@ -66,15 +66,14 @@ Row {
       Rectangle {
         anchors.centerIn: parent
         visible: root.shape
-        width: root.style === "dashes" ? 12 : root.style === "dots" && workspace.highlighted ? 18 : 8
+        width: root.style === "dashes" ? 12 : 8
         height: root.style === "dashes" ? 2 : 8
         radius: root.style === "dots" ? 4 : 0
-        color: root.style === "dashes" || root.style === "dots" || workspace.highlighted ? workspace.tone : Qt.rgba(workspace.tone.r, workspace.tone.g, workspace.tone.b, 0)
-        border.width: root.style === "dashes" || root.style === "dots" || workspace.highlighted ? 0 : Theme.hairline
+        color: root.style === "dashes" || workspace.highlighted ? workspace.tone : Qt.rgba(workspace.tone.r, workspace.tone.g, workspace.tone.b, 0)
+        border.width: root.style === "dashes" || workspace.highlighted ? 0 : Theme.hairline
         border.color: workspace.tone
 
         Behavior on color { enabled: Motion.bar; ColorAnimation { duration: Motion.slow; easing.type: Motion.tint } }
-        Behavior on width { enabled: Motion.bar; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
       }
 
       KitText {
