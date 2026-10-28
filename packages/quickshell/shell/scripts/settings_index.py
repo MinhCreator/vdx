@@ -41,7 +41,7 @@ PAGES = [
 # form: "wifi" = "Wi-Fi", see norm())
 ALIASES = {
     "Bar style": ["island", "solid", "strip", "pill"],
-    "Colour mode": ["dark", "light", "dark mode", "light mode", "night mode"],
+    "Themes": ["dark", "light", "dark mode", "light mode", "colour mode", "night mode"],
     "Tiles per row": ["tile", "tiles", "toggles"],
     "New ones arrive as": ["card", "toast", "live line", "popup", "banner"],
     "Card stays for": ["toast", "how long", "duration"],

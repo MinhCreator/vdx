@@ -44,7 +44,7 @@ JOURNEYS = {
     "wifi": "network",
     "hotspot": "network",
     "ethernet": "network",
-    "dark mode": "appearance",
+    "dark mode": "themes",
     "shortcut": "apps:keybinds",
     "tile": "bar:hub",
     "app colour": "notifications",

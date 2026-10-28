@@ -18,19 +18,6 @@
   "target": "appearance:shape"
  },
  {
-  "label": "Colour mode",
-  "hint": "",
-  "where": "Appearance › APPEARANCE",
-  "target": "appearance",
-  "aliases": [
-   "dark",
-   "light",
-   "dark mode",
-   "light mode",
-   "night mode"
-  ]
- },
- {
   "label": "Interface style",
   "hint": "",
   "where": "Appearance › APPEARANCE",
@@ -40,7 +27,15 @@
   "label": "Themes",
   "hint": "",
   "where": "",
-  "target": "themes"
+  "target": "themes",
+  "aliases": [
+   "dark",
+   "light",
+   "dark mode",
+   "light mode",
+   "colour mode",
+   "night mode"
+  ]
  },
  {
   "label": "Fonts",
@@ -1538,7 +1533,15 @@
   "label": "Themes",
   "hint": "Switch theme",
   "where": "Bar modules",
-  "target": "modules:themes"
+  "target": "modules:themes",
+  "aliases": [
+   "dark",
+   "light",
+   "dark mode",
+   "light mode",
+   "colour mode",
+   "night mode"
+  ]
  },
  {
   "label": "Bar",

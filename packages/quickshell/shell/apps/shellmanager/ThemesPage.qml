@@ -15,7 +15,7 @@ Flow {
   // the window's fixed header shows these
   readonly property string icon: "palette"
   readonly property string title: "Themes"
-  readonly property string description: "A theme is a whole set of colours by role. Pick one to try it, Apply to keep it."
+  readonly property string description: "A theme is a whole set of colours by role. Dark or Light shows its twin; pick one to try it, Apply to keep it."
   readonly property string subtitle: (ThemeService.current || "—").toUpperCase() + " · " + ThemeService.bases.length + " THEMES · " + (ThemeService.light ? "LIGHT" : "DARK")
   readonly property var jumps: []
 

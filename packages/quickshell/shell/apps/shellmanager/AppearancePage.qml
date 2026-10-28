@@ -46,16 +46,6 @@ KitSettingsWorkspace {
         visible: root.tab === "style"
         KitLabel { text: "APPEARANCE" }
         KitRow {
-          label: "Colour mode"
-          wide: true
-          KitSegments {
-            model: [{label: "Dark", value: false}, {label: "Light", value: true}]
-            current: ThemeService.light
-            disabled: ThemeService.busy
-            onPicked: value => ThemeService.setLight(value)
-          }
-        }
-        KitRow {
           label: "Interface style"
           hint: ShellSettings.material ? "Tonal surfaces and soft controls" : "Clean outlines and compact controls"
           wide: true
