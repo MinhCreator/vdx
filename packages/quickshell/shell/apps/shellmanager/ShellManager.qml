@@ -85,12 +85,16 @@ Rectangle {
   readonly property bool searching: searchField.text.trim() !== ""
   property var index: []
   property int picked: 0
+  // letters and digits only, lower case: "wifi" finds "Wi-Fi", "dark mode" finds "Dark  mode"
+  function norm(s) { return (s ?? "").toLowerCase().replace(/[^a-z0-9а-яё]+/g, ""); }
   readonly property var results: {
-    const q = searchField.text.trim().toLowerCase();
+    const q = norm(searchField.text);
     if (q === "") return [];
-    const first = index.filter(e => e.label.toLowerCase().includes(q));
-    const then = index.filter(e => !first.includes(e) && (e.hint + " " + e.where).toLowerCase().includes(q));
-    return first.concat(then).slice(0, 30);
+    const aliased = e => (e.aliases ?? []).some(a => norm(a).includes(q));
+    const first = index.filter(e => norm(e.label).includes(q));
+    const second = index.filter(e => !first.includes(e) && aliased(e));
+    const then = index.filter(e => !first.includes(e) && !second.includes(e) && norm(e.hint + " " + e.where).includes(q));
+    return first.concat(second, then).slice(0, 30);
   }
   onResultsChanged: picked = 0
 

@@ -21,7 +21,14 @@
   "label": "Colour mode",
   "hint": "",
   "where": "Appearance › APPEARANCE",
-  "target": "appearance"
+  "target": "appearance",
+  "aliases": [
+   "dark",
+   "light",
+   "dark mode",
+   "light mode",
+   "night mode"
+  ]
  },
  {
   "label": "Interface style",
@@ -94,12 +101,6 @@
   "hint": "",
   "where": "Cursor",
   "target": "cursor:themes"
- },
- {
-  "label": "Use ",
-  "hint": "",
-  "where": "Cursor › PREVIEW",
-  "target": "cursor:preview"
  },
  {
   "label": "Colour",
@@ -235,13 +236,19 @@
  },
  {
   "label": "Bar style",
-  "hint": "Off and nothing beside it: hidden",
+  "hint": "",
   "where": "Bar",
-  "target": "bar"
+  "target": "bar",
+  "aliases": [
+   "island",
+   "solid",
+   "strip",
+   "pill"
+  ]
  },
  {
   "label": "Editing monitor",
-  "hint": "Off and nothing beside it: hidden",
+  "hint": "",
   "where": "Bar",
   "target": "bar"
  },
@@ -249,17 +256,21 @@
   "label": "Clock",
   "hint": "Off and nothing beside it: hidden",
   "where": "Bar",
-  "target": "bar"
+  "target": "bar",
+  "aliases": [
+   "hide the clock",
+   "time"
+  ]
  },
  {
   "label": "Icon size",
-  "hint": "Lines between neighbouring modules",
+  "hint": "",
   "where": "Bar › LOOK",
   "target": "bar:look"
  },
  {
   "label": "Module gap",
-  "hint": "Lines between neighbouring modules",
+  "hint": "",
   "where": "Bar › LOOK",
   "target": "bar:look"
  },
@@ -277,15 +288,24 @@
  },
  {
   "label": "Show bar",
-  "hint": "Share the main monitor's layout",
+  "hint": "",
   "where": "Bar › MONITOR",
-  "target": "bar:monitor"
+  "target": "bar:monitor",
+  "aliases": [
+   "per monitor",
+   "monitors",
+   "extra monitor"
+  ]
  },
  {
   "label": "Same bar everywhere",
   "hint": "Share the main monitor's layout",
   "where": "Bar › MONITOR",
-  "target": "bar:monitor"
+  "target": "bar:monitor",
+  "aliases": [
+   "per monitor",
+   "monitors"
+  ]
  },
  {
   "label": "Main monitor",
@@ -301,25 +321,35 @@
  },
  {
   "label": "Open the hub",
-  "hint": "Hub row modules that can be tiles: Wi-Fi, Bluetooth, VPN, Focus, Dark mode",
+  "hint": "",
   "where": "Bar › HUB",
   "target": "bar:hub"
  },
  {
   "label": "Hub width",
-  "hint": "Hub row modules that can be tiles: Wi-Fi, Bluetooth, VPN, Focus, Dark mode",
+  "hint": "",
   "where": "Bar › HUB",
-  "target": "bar:hub"
+  "target": "bar:hub",
+  "aliases": [
+   "wider",
+   "narrower",
+   "size"
+  ]
  },
  {
   "label": "Tiles per row",
   "hint": "Hub row modules that can be tiles: Wi-Fi, Bluetooth, VPN, Focus, Dark mode",
   "where": "Bar › HUB",
-  "target": "bar:hub"
+  "target": "bar:hub",
+  "aliases": [
+   "tile",
+   "tiles",
+   "toggles"
+  ]
  },
  {
   "label": "Avatar",
-  "hint": "Shown when media is available",
+  "hint": "",
   "where": "Bar › HUB",
   "target": "bar:hub"
  },
@@ -351,7 +381,11 @@
   "label": "Brightness",
   "hint": "",
   "where": "Bar › CONTENT",
-  "target": "bar:sliders"
+  "target": "bar:sliders",
+  "aliases": [
+   "night light",
+   "dimming"
+  ]
  },
  {
   "label": "Dimming",
@@ -375,7 +409,12 @@
   "label": "Layout",
   "hint": "",
   "where": "Windows",
-  "target": "windows:layout"
+  "target": "windows:layout",
+  "aliases": [
+   "add module",
+   "arrange",
+   "order"
+  ]
  },
  {
   "label": "Look",
@@ -1041,13 +1080,25 @@
   "label": "Show as",
   "hint": "A toast on the island, or a line in its live slot",
   "where": "Notifications › NEW NOTIFICATIONS",
-  "target": "notifications"
+  "target": "notifications",
+  "aliases": [
+   "card",
+   "toast",
+   "live line",
+   "popup",
+   "banner"
+  ]
  },
  {
   "label": "Card stays for",
   "hint": "",
   "where": "Notifications › NEW NOTIFICATIONS",
-  "target": "notifications"
+  "target": "notifications",
+  "aliases": [
+   "toast",
+   "how long",
+   "duration"
+  ]
  },
  {
   "label": "Notifications shown",
@@ -1080,6 +1131,303 @@
   "target": "notifications"
  },
  {
+  "label": "App colours",
+  "hint": "",
+  "where": "Notifications",
+  "target": "notifications"
+ },
+ {
+  "label": "Add a rule",
+  "hint": "A piece of the app's name; the first rule that fits wins",
+  "where": "Notifications › APP COLOURS",
+  "target": "notifications",
+  "aliases": [
+   "app colour",
+   "avatar colour",
+   "notification colour"
+  ]
+ },
+ {
+  "label": "Live activities",
+  "hint": "",
+  "where": "Bar › Live",
+  "target": "bar:live"
+ },
+ {
+  "label": "Low battery",
+  "hint": "",
+  "where": "Bar › Live",
+  "target": "bar:live"
+ },
+ {
+  "label": "Behaviour",
+  "hint": "",
+  "where": "Bar › Live",
+  "target": "bar:live"
+ },
+ {
+  "label": "Live activities",
+  "hint": "Off: nothing grows out of the pill, it stays at rest",
+  "where": "Bar › Live › LIVE ACTIVITIES",
+  "target": "bar:live"
+ },
+ {
+  "label": "Messages",
+  "hint": "A new notification as a line in the slot; off: a card (Notifications › Show as)",
+  "where": "Bar › Live › LIVE ACTIVITIES",
+  "target": "bar:live",
+  "aliases": [
+   "notification",
+   "live",
+   "chat"
+  ]
+ },
+ {
+  "label": "Low battery",
+  "hint": "The charge left, when it runs low",
+  "where": "Bar › Live › LIVE ACTIVITIES",
+  "target": "bar:live"
+ },
+ {
+  "label": "Device connected",
+  "hint": "Headphones and other Bluetooth devices",
+  "where": "Bar › Live › LIVE ACTIVITIES",
+  "target": "bar:live"
+ },
+ {
+  "label": "Interrupts below",
+  "hint": "The charge at which it takes the pill",
+  "where": "Bar › Live › LOW BATTERY",
+  "target": "bar:live"
+ },
+ {
+  "label": "Stays for",
+  "hint": "Until fixed: until the charger is back or the charge recovers",
+  "where": "Bar › Live › LOW BATTERY",
+  "target": "bar:live"
+ },
+ {
+  "label": "Recording",
+  "hint": "A timer while the screen records",
+  "where": "Bar › Live › LOW BATTERY",
+  "target": "bar:live"
+ },
+ {
+  "label": "Updates",
+  "hint": "Progress of an update run",
+  "where": "Bar › Live › LOW BATTERY",
+  "target": "bar:live"
+ },
+ {
+  "label": "Backup",
+  "hint": "Progress of a backup",
+  "where": "Bar › Live › LOW BATTERY",
+  "target": "bar:live"
+ },
+ {
+  "label": "VPN",
+  "hint": "Which server and the ping",
+  "where": "Bar › Live › LOW BATTERY",
+  "target": "bar:live"
+ },
+ {
+  "label": "Music",
+  "hint": "The playing track and its sound",
+  "where": "Bar › Live › LOW BATTERY",
+  "target": "bar:live",
+  "aliases": [
+   "player",
+   "song",
+   "track"
+  ]
+ },
+ {
+  "label": "Volume and brightness",
+  "hint": "A level while you change it",
+  "where": "Bar › Live › LOW BATTERY",
+  "target": "bar:live"
+ },
+ {
+  "label": "Microphone",
+  "hint": "When the mic is muted or unmuted",
+  "where": "Bar › Live › LOW BATTERY",
+  "target": "bar:live"
+ },
+ {
+  "label": "Keyboard layout",
+  "hint": "EN → RU when it changes",
+  "where": "Bar › Live › LOW BATTERY",
+  "target": "bar:live"
+ },
+ {
+  "label": "Plugged in",
+  "hint": "Charge when the cable connects",
+  "where": "Bar › Live › LOW BATTERY",
+  "target": "bar:live"
+ },
+ {
+  "label": "Flash lasts",
+  "hint": "",
+  "where": "Bar › Live › BEHAVIOUR",
+  "target": "bar:live"
+ },
+ {
+  "label": "Messages stay for",
+  "hint": "A notification's line in the slot",
+  "where": "Bar › Live › BEHAVIOUR",
+  "target": "bar:live"
+ },
+ {
+  "label": "Wheel pages through them",
+  "hint": "Scrolling over the pill moves between running activities",
+  "where": "Bar › Live › BEHAVIOUR",
+  "target": "bar:live"
+ },
+ {
+  "label": "Hotspot",
+  "hint": "",
+  "where": "Network › Hotspot",
+  "target": "network"
+ },
+ {
+  "label": "Hotspot",
+  "hint": "",
+  "where": "Network › Hotspot › HOTSPOT",
+  "target": "network"
+ },
+ {
+  "label": "Name",
+  "hint": "The network the phones see",
+  "where": "Network › Hotspot › HOTSPOT",
+  "target": "network"
+ },
+ {
+  "label": "Password",
+  "hint": "8 characters or more",
+  "where": "Network › Hotspot › HOTSPOT",
+  "target": "network"
+ },
+ {
+  "label": "Channel",
+  "hint": "Auto picks a free one",
+  "where": "Network › Hotspot › HOTSPOT",
+  "target": "network"
+ },
+ {
+  "label": "Ethernet",
+  "hint": "",
+  "where": "Network › Ethernet",
+  "target": "network"
+ },
+ {
+  "label": "Wired",
+  "hint": "Off until you connect again",
+  "where": "Network › Ethernet › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "Connect automatically",
+  "hint": "Joins when the cable is in",
+  "where": "Network › Ethernet › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "Addressing",
+  "hint": "Manual: a fixed address",
+  "where": "Network › Ethernet › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "Address",
+  "hint": "Address and prefix",
+  "where": "Network › Ethernet › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "Gateway",
+  "hint": "Press Enter to apply",
+  "where": "Network › Ethernet › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "DNS",
+  "hint": "Applies now while connected",
+  "where": "Network › Ethernet › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "IPv6",
+  "hint": "Off: IPv4 only",
+  "where": "Network › Ethernet › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "Metered",
+  "hint": "Yes: apps save data",
+  "where": "Network › Ethernet › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "Speed",
+  "hint": "",
+  "where": "Network › Ethernet › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "MAC",
+  "hint": "",
+  "where": "Network › Ethernet › ETHERNET",
+  "target": "network"
+ },
+ {
+  "label": "Window",
+  "hint": "",
+  "where": "Windows",
+  "target": "windows"
+ },
+ {
+  "label": "Window",
+  "hint": "",
+  "where": "Windows › WINDOW",
+  "target": "windows"
+ },
+ {
+  "label": "Size",
+  "hint": "",
+  "where": "Windows › WINDOW",
+  "target": "windows"
+ },
+ {
+  "label": "Preset",
+  "hint": "",
+  "where": "Windows › WINDOW",
+  "target": "windows"
+ },
+ {
+  "label": "Width × height",
+  "hint": "",
+  "where": "Windows › WINDOW",
+  "target": "windows"
+ },
+ {
+  "label": "Position",
+  "hint": "",
+  "where": "Windows › WINDOW",
+  "target": "windows"
+ },
+ {
+  "label": "X, Y",
+  "hint": "",
+  "where": "Windows › WINDOW",
+  "target": "windows"
+ },
+ {
+  "label": "Bar text",
+  "hint": "Content, name or icon only, for each bar module",
+  "where": "Bar modules",
+  "target": "modules"
+ },
+ {
   "label": "Workspaces",
   "hint": "Hyprland workspaces",
   "where": "Bar modules",
@@ -1101,7 +1449,12 @@
   "label": "Music",
   "hint": "Players, local music and radio",
   "where": "Bar modules",
-  "target": "modules:music"
+  "target": "modules:music",
+  "aliases": [
+   "player",
+   "song",
+   "track"
+  ]
  },
  {
   "label": "Bar",
@@ -1353,7 +1706,11 @@
   "label": "Clock",
   "hint": "Time, click for the date",
   "where": "Bar modules",
-  "target": "modules:clock"
+  "target": "modules:clock",
+  "aliases": [
+   "hide the clock",
+   "time"
+  ]
  },
  {
   "label": "Bar",
@@ -1383,7 +1740,11 @@
   "label": "Brightness",
   "hint": "Backlight, dimming, night light",
   "where": "Bar modules",
-  "target": "modules:brightness"
+  "target": "modules:brightness",
+  "aliases": [
+   "night light",
+   "dimming"
+  ]
  },
  {
   "label": "Bar",
@@ -1473,7 +1834,11 @@
   "label": "Mihomo",
   "hint": "Proxy service and servers",
   "where": "Bar modules",
-  "target": "modules:mihomo"
+  "target": "modules:mihomo",
+  "aliases": [
+   "vpn",
+   "proxy"
+  ]
  },
  {
   "label": "Bar",
@@ -1485,7 +1850,12 @@
   "label": "Battery",
   "hint": "Charge, limit, power profile, GPU",
   "where": "Bar modules",
-  "target": "modules:battery"
+  "target": "modules:battery",
+  "aliases": [
+   "power",
+   "charge",
+   "limit"
+  ]
  },
  {
   "label": "Bar",
@@ -1815,7 +2185,12 @@
   "label": "Layout",
   "hint": "",
   "where": "Apps › Launcher",
-  "target": "apps:launcher"
+  "target": "apps:launcher",
+  "aliases": [
+   "add module",
+   "arrange",
+   "order"
+  ]
  },
  {
   "label": "Tabs",
@@ -1881,7 +2256,14 @@
   "label": "Keybinds",
   "hint": "Every keybind, by tab",
   "where": "Apps",
-  "target": "apps:keybinds"
+  "target": "apps:keybinds",
+  "aliases": [
+   "shortcut",
+   "shortcuts",
+   "keys",
+   "keybinding",
+   "hotkey"
+  ]
  },
  {
   "label": "Island",
@@ -1893,7 +2275,12 @@
   "label": "Layout",
   "hint": "",
   "where": "Apps › Keybinds",
-  "target": "apps:keybinds"
+  "target": "apps:keybinds",
+  "aliases": [
+   "add module",
+   "arrange",
+   "order"
+  ]
  },
  {
   "label": "Opening",
@@ -2439,7 +2826,14 @@
   "label": "Show as",
   "hint": "Ctrl + G in the window",
   "where": "Apps › Files › VIEW",
-  "target": "apps:files"
+  "target": "apps:files",
+  "aliases": [
+   "card",
+   "toast",
+   "live line",
+   "popup",
+   "banner"
+  ]
  },
  {
   "label": "Density",
@@ -2769,6 +3163,11 @@
   "label": "Music",
   "hint": "Music player and queue",
   "where": "Apps",
-  "target": "apps:music"
+  "target": "apps:music",
+  "aliases": [
+   "player",
+   "song",
+   "track"
+  ]
  }
 ]

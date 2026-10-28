@@ -37,6 +37,27 @@ PAGES = [
     ("displays", "Displays", ["DisplaysPage.qml"]),
     ("about", "About", ["AboutPage.qml"]),
 ]
+# words people type for a thing, by its label: found beside the label (and the normalised
+# form: "wifi" = "Wi-Fi", see norm())
+ALIASES = {
+    "Bar style": ["island", "solid", "strip", "pill"],
+    "Colour mode": ["dark", "light", "dark mode", "light mode", "night mode"],
+    "Tiles per row": ["tile", "tiles", "toggles"],
+    "Show as": ["card", "toast", "live line", "popup", "banner"],
+    "Card stays for": ["toast", "how long", "duration"],
+    "Messages": ["notification", "live", "chat"],
+    "Brightness": ["night light", "dimming"],
+    "Battery": ["power", "charge", "limit"],
+    "Keybinds": ["shortcut", "shortcuts", "keys", "keybinding", "hotkey"],
+    "Show bar": ["per monitor", "monitors", "extra monitor"],
+    "Same bar everywhere": ["per monitor", "monitors"],
+    "Add a rule": ["app colour", "avatar colour", "notification colour"],
+    "Hub width": ["wider", "narrower", "size"],
+    "Clock": ["hide the clock", "time"],
+    "Music": ["player", "song", "track"],
+    "Mihomo": ["vpn", "proxy"],
+    "Layout": ["add module", "arrange", "order"],
+}
 SECTIONS = {"AccentSection.qml": "accent", "WallpaperSection.qml": "wallpaper", "CornersSection.qml": "shape",
             "IconsSection.qml": "shape"}
 
@@ -58,6 +79,25 @@ def jumps(text: str) -> dict:
     return {label.upper(): key for key, label in re.findall(r'\{\s*key:\s*"(\w+)",\s*label:\s*"([^"]+)"', text)}
 
 
+def hint_of(text: str, pos: int) -> str:
+    """The `hint:` of the element the label at `pos` sits in — its own, never the next row's."""
+    start = text.rfind("{", 0, pos)
+    depth, end = 0, len(text)
+    for i in range(start, len(text)):
+        depth += {"{": 1, "}": -1}.get(text[i], 0)
+        if depth == 0:
+            end = i
+            break
+    body = text[start + 1:end]
+    while True:                                         # the element's own lines: nested { } blocks out
+        inner = re.sub(r"\{[^{}]*\}", "", body)
+        if inner == body:
+            break
+        body = inner
+    m = re.search(r'\bhint:\s*"([^"]*)"', body)
+    return m.group(1) if m else ""
+
+
 def rows(text: str) -> list:
     """(group, label, hint) of every row, in file order."""
     text = re.sub(r"property var jumps: \[.*?\n  \]", "", text, flags=re.S)   # the page's own jump list
@@ -74,8 +114,9 @@ def rows(text: str) -> list:
         body = text[start:end]
         if "\n" not in body and re.search(r"\bvalue:", body) and not re.search(r"\bhint:", body):
             continue                                    # a choice ({ label, value } on a line), not a row
-        hint = re.search(r'\bhint:\s*"([^"]*)"', text[pos:text.find("\n\n", pos) if "\n\n" in text[pos:] else len(text)])
-        out.append((group, v.group(1), hint.group(1) if hint else ""))
+        if v.group(1) != v.group(1).strip():
+            continue                                    # a computed label ("Use " + name), not a row to find
+        out.append((group, v.group(1), hint_of(text, pos)))
     return out
 
 
@@ -104,6 +145,12 @@ def build() -> list:
     out += entries_of(SHELL / "apps/lock/LockSettings.qml", "Lock screen", "lockscreen")
     out += entries_of(SM / "LockScreenPage.qml", "Lock screen", "lockscreen")
     out += entries_of(SHELL / "modules/notifications/NotificationsSettings.qml", "Notifications", "notifications")
+    out += entries_of(SHELL / "modules/notifications/NotificationsColours.qml", "Notifications", "notifications")
+    out += entries_of(SM / "BarLive.qml", "Bar › Live", "bar", "bar:live")
+    out += entries_of(SM / "NetworkHotspot.qml", "Network › Hotspot", "network")
+    out += entries_of(SM / "NetworkEthernet.qml", "Network › Ethernet", "network")
+    out += entries_of(SM / "WindowOptions.qml", "Windows", "windows")
+    out.append({"label": "Bar text", "hint": "Content, name or icon only, for each bar module", "where": "Bar modules", "target": "modules"})
     layout = (SHELL / "bar" / "BarLayout.qml").read_text()
     for entry in re.findall(r'\{ id: "\w+",[^}]*\}', layout):
         mid = re.search(r'id: "(\w+)"', entry).group(1)
@@ -127,6 +174,8 @@ def build() -> list:
         k = (e["label"], e["where"], e["target"])
         if k not in seen:
             seen.add(k)
+            if e["label"] in ALIASES:
+                e["aliases"] = ALIASES[e["label"]]
             unique.append(e)
     return unique
 

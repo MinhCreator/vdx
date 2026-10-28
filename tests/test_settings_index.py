@@ -35,12 +35,37 @@ JOURNEYS = {
     "width": "apps:launcher",
     "reset everything": "about:settings",
     "refresh rate": "displays:monitor",
+    # the live activities, the island and the words people use for them
+    "live": "bar:live",
+    "flash": "bar:live",
+    "low battery": "bar:live",
+    "island": "bar",
+    "solid": "bar",
+    "wifi": "network",
+    "hotspot": "network",
+    "ethernet": "network",
+    "dark mode": "appearance",
+    "shortcut": "apps:keybinds",
+    "tile": "bar:hub",
+    "app colour": "notifications",
+    "vpn": "modules:mihomo",
+    "night light": "modules:brightness",
 }
+
+# a row's hint is its own: these used to carry the next row's
+NOT_THIS_HINT = {("Open the hub", "Hub row modules"), ("Bar style", "Off and nothing beside it"),
+                 ("Icon size", "Lines between neighbouring modules")}
+
+
+def norm(s):
+    return "".join(c for c in s.lower() if c.isalnum())
 
 
 def search(index, q):
-    q = q.lower()
-    return [e for e in index if q in e["label"].lower() or q in e["hint"].lower()]
+    """What ShellManager.qml's results find: the label, its aliases, then the hint and the place."""
+    q = norm(q)
+    return [e for e in index if q in norm(e["label"]) or any(q in norm(a) for a in e.get("aliases", []))
+            or q in norm(e["hint"] + " " + e["where"])]
 
 
 class Index(unittest.TestCase):
@@ -53,6 +78,16 @@ class Index(unittest.TestCase):
         for e in self.index:
             self.assertIn(e["target"].split(":")[0], TABS, e)
             self.assertTrue(e["label"].strip(), e)
+
+    def test_hints_are_their_own(self):
+        for label, wrong in NOT_THIS_HINT:
+            for e in self.index:
+                if e["label"] == label:
+                    self.assertNotIn(wrong, e["hint"], e)
+
+    def test_no_computed_labels(self):
+        for e in self.index:
+            self.assertEqual(e["label"], e["label"].strip(), e)
 
     def test_journeys(self):
         for q, target in JOURNEYS.items():
