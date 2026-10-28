@@ -2,7 +2,7 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// Interface, accent and wallpaper settings use a full-width form.
+// Interface (style, corners) and accent use a full-width form. Icons and Wallpaper are pages of their own.
 KitSettingsWorkspace {
   id: root
   readonly property bool fillsViewport: true
@@ -16,23 +16,16 @@ KitSettingsWorkspace {
   readonly property var jumps: [
     { key: "style", label: "Interface", y: 0 },
     { key: "accent", label: "Accent", y: 0 },
-    { key: "wallpaper", label: "Wallpaper", y: 0 },
     { key: "shape", label: "Shape", y: 0 }
   ]
   function jump(key) {
-    tab = key === "shape" ? "style" : ["style", "accent", "wallpaper"].includes(key) ? key : "style";
+    tab = key === "accent" ? "accent" : "style";
   }
-  readonly property var resetKeys: ["iconSet", "solidIcons", "wallpaperMode", "wallpaperColor", "wallpaperImages", "wallpaperOutputs", "corners", "cornerRadius", "cornerSplit", "cornerRadii", "material", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere"]
+  readonly property var resetKeys: ["corners", "cornerRadius", "cornerSplit", "cornerRadii", "material", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere"]
   readonly property bool changed: ShellSettings.changed(resetKeys)
   function reset() { ShellSettings.reset(resetKeys); }
-  readonly property bool customWallpaper: ShellSettings.wallpaperMode === "custom"
-  readonly property bool imageWallpaper: ShellSettings.wallpaperMode === "image"
-  readonly property string currentImage: WallpaperService.imageFor(ThemeService.current)
-  readonly property color wallpaper: customWallpaper ? ShellSettings.wallpaperColor : Theme.background1
-  property string wallpaperOutput: ""
-  readonly property string wallpaperRel: WallpaperService.outputsFor(ThemeService.current)[wallpaperOutput] || currentImage
 
-  sections: [{label: "Interface", value: "style"}, {label: "Accent", value: "accent"}, {label: "Wallpaper", value: "wallpaper"}]
+  sections: [{label: "Interface", value: "style"}, {label: "Accent", value: "accent"}]
   current: tab
   onPicked: value => tab = value
 
@@ -58,11 +51,9 @@ KitSettingsWorkspace {
         KitLine {}
         KitLabel { text: "SHAPE" }
         CornersSection { width: parent.width }
-        IconsSection { width: parent.width }
         KitGrouper {}
       }
       AccentSection { width: parent.width; visible: root.tab === "accent" }
-      WallpaperSection { width: parent.width; page: root; visible: root.tab === "wallpaper" }
       KitGrouper {}
     }
   }

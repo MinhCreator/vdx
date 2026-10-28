@@ -74,6 +74,24 @@
   "target": "fonts:size"
  },
  {
+  "label": "Icons",
+  "hint": "",
+  "where": "",
+  "target": "icons"
+ },
+ {
+  "label": "Icons",
+  "hint": "",
+  "where": "Icons",
+  "target": "icons"
+ },
+ {
+  "label": "Wallpaper",
+  "hint": "",
+  "where": "",
+  "target": "wallpaper"
+ },
+ {
   "label": "Cursor",
   "hint": "",
   "where": "",
@@ -110,87 +128,93 @@
   "target": "cursor:style"
  },
  {
-  "label": "Animations",
+  "label": "Motion",
   "hint": "",
   "where": "",
-  "target": "animations"
+  "target": "animations",
+  "aliases": [
+   "animations",
+   "animation",
+   "transitions",
+   "speed"
+  ]
  },
  {
   "label": "General",
   "hint": "",
-  "where": "Animations",
+  "where": "Motion",
   "target": "animations:general"
  },
  {
   "label": "Parts",
   "hint": "",
-  "where": "Animations",
+  "where": "Motion",
   "target": "animations:parts"
  },
  {
   "label": "Animations",
   "hint": "Off: everything snaps in place",
-  "where": "Animations › GENERAL",
+  "where": "Motion › GENERAL",
   "target": "animations:general"
  },
  {
   "label": "Speed",
   "hint": "How long every move takes",
-  "where": "Animations › GENERAL",
+  "where": "Motion › GENERAL",
   "target": "animations:general"
  },
  {
   "label": "Sample",
   "hint": "Click to preview",
-  "where": "Animations › GENERAL",
+  "where": "Motion › GENERAL",
   "target": "animations:general"
  },
  {
   "label": "Bar popups",
   "hint": "How a popup comes in under the bar",
-  "where": "Animations › PARTS",
+  "where": "Motion › PARTS",
   "target": "animations:parts"
  },
  {
   "label": "Underline",
   "hint": "The line under an open module",
-  "where": "Animations › PARTS",
+  "where": "Motion › PARTS",
   "target": "animations:parts"
  },
  {
   "label": "Panels",
   "hint": "Launcher, keybinds, overview zoom in",
-  "where": "Animations › PARTS",
+  "where": "Motion › PARTS",
   "target": "animations:parts"
  },
  {
   "label": "Controls",
   "hint": "Hovers, switches, rows, level bars",
-  "where": "Animations › PARTS",
+  "where": "Motion › PARTS",
   "target": "animations:parts"
  },
  {
   "label": "Bar",
   "hint": "Workspaces and colours",
-  "where": "Animations › PARTS",
+  "where": "Motion › PARTS",
   "target": "animations:parts"
  },
  {
   "label": "Pages",
   "hint": "This window's pages and sidebar",
-  "where": "Animations › PARTS",
+  "where": "Motion › PARTS",
   "target": "animations:parts"
  },
  {
   "label": "Island",
   "hint": "Morphs between its views",
-  "where": "Animations › PARTS",
+  "where": "Motion › PARTS",
   "target": "animations:parts"
  },
  {
   "label": "Lock screen",
   "hint": "Comes in, shakes on a wrong password",
-  "where": "Animations › PARTS",
+  "where": "Motion › PARTS",
   "target": "animations:parts"
  },
  {
@@ -882,30 +906,6 @@
   "target": "appearance:accent"
  },
  {
-  "label": "Wallpaper",
-  "hint": "",
-  "where": "Appearance",
-  "target": "appearance:wallpaper"
- },
- {
-  "label": "Source",
-  "hint": "",
-  "where": "Appearance › WALLPAPER",
-  "target": "appearance:wallpaper"
- },
- {
-  "label": "Monitor",
-  "hint": "",
-  "where": "Appearance › WALLPAPER",
-  "target": "appearance:wallpaper"
- },
- {
-  "label": "Add image",
-  "hint": "Kept outside the repo",
-  "where": "Appearance › WALLPAPER",
-  "target": "appearance:wallpaper"
- },
- {
   "label": "Corners",
   "hint": "Every part at once, icons too",
   "where": "Appearance",
@@ -943,18 +943,6 @@
  },
  {
   "label": "Bar",
-  "hint": "",
-  "where": "Appearance",
-  "target": "appearance:shape"
- },
- {
-  "label": "Icon set",
-  "hint": "Everywhere in the shell",
-  "where": "Appearance",
-  "target": "appearance:shape"
- },
- {
-  "label": "Icon style",
   "hint": "",
   "where": "Appearance",
   "target": "appearance:shape"

@@ -48,8 +48,10 @@ Rectangle {
     { value: "appearance", label: "Appearance", icon: "sun",        caption: "LOOK" },
     { value: "themes",     label: "Themes",     icon: "palette" },
     { value: "fonts",      label: "Fonts",      icon: "text" },
+    { value: "icons",      label: "Icons",      icon: "grid" },
     { value: "cursor",     label: "Cursor",     icon: "cursor" },
-    { value: "animations", label: "Animations", icon: "zap" },
+    { value: "wallpaper",  label: "Wallpaper",  icon: "image" },
+    { value: "animations", label: "Motion",     icon: "zap" },
     { value: "bar",        label: "Bar",        icon: "layout",     caption: "DESKTOP" },
     { value: "modules",    label: "Bar modules", icon: "puzzle" },
     { value: "windows",    label: "Windows",    icon: "app-window" },
@@ -82,6 +84,9 @@ Rectangle {
     if (value === "modules" && target === "notifications") return { tab: "notifications", target: "" };
     if (value === "media") return { tab: "modules", target: "audio" };
     if (value === "display" || (value === "apps" && target === "display")) return { tab: "displays", target: "" };
+    // the wallpaper and the icons left Appearance too
+    if (value === "appearance" && target === "wallpaper") return { tab: "wallpaper", target: "" };
+    if (value === "wallpaper") return { tab: "wallpaper", target: "" };
     // the theme, the font and the cursor left Appearance for pages of their own
     if (value === "appearance" && ["themes", "font", "cursor"].includes(target))
       return { tab: target === "font" ? "fonts" : target, target: "" };
@@ -148,7 +153,7 @@ Rectangle {
   }
 
   function pageFor(value) {
-    return ({ themes: themes, fonts: fonts, cursor: cursor, bar: bar, animations: animations, windows: windows, network: network, bluetooth: bluetooth, displays: displays,
+    return ({ themes: themes, fonts: fonts, icons: icons, wallpaper: wallpaper, cursor: cursor, bar: bar, animations: animations, windows: windows, network: network, bluetooth: bluetooth, displays: displays,
               modules: modules, apps: apps, about: about, lockscreen: lockscreen,
               notifications: notifications })[value] ?? appearance;
   }
@@ -591,6 +596,8 @@ Rectangle {
                                bar.visible ? bar.implicitHeight : 0,
                                themes.visible ? themes.height : 0,
                                fonts.visible ? fonts.implicitHeight : 0,
+                               icons.visible ? icons.implicitHeight : 0,
+                               wallpaper.visible ? wallpaper.implicitHeight : 0,
                                cursor.visible ? cursor.implicitHeight : 0,
                                animations.visible ? animations.implicitHeight : 0,
                                apps.visible ? apps.height : 0,
@@ -607,6 +614,8 @@ Rectangle {
       BarPage     { id: bar;     width: parent.width; height: page.height - pages.y - Theme.windowPadding; visible: root.tab === "bar" }
       ThemesPage  { id: themes;  width: parent.width; height: page.height - pages.y; visible: root.tab === "themes" }
       FontsPage   { id: fonts;   width: parent.width; visible: root.tab === "fonts" }
+      IconsPage   { id: icons;   width: parent.width; visible: root.tab === "icons" }
+      WallpaperPage { id: wallpaper; width: parent.width; visible: root.tab === "wallpaper" }
       CursorPage  { id: cursor;  width: parent.width; visible: root.tab === "cursor" }
       AnimationsPage { id: animations; width: parent.width; visible: root.tab === "animations" }
       // fills the window and scrolls its two panes itself

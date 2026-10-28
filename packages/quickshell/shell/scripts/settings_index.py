@@ -28,8 +28,10 @@ PAGES = [
     ("appearance", "Appearance", ["AppearancePage.qml"]),
     ("themes", "Themes", ["ThemesPage.qml"]),
     ("fonts", "Fonts", ["FontsPage.qml"]),
+    ("icons", "Icons", ["IconsPage.qml"]),
+    ("wallpaper", "Wallpaper", ["WallpaperPage.qml"]),
     ("cursor", "Cursor", ["CursorPage.qml"]),
-    ("animations", "Animations", ["AnimationsPage.qml"]),
+    ("animations", "Motion", ["AnimationsPage.qml"]),
     ("bar", "Bar", ["BarPage.qml"]),
     ("windows", "Windows", ["WindowsPage.qml"]),
     ("network", "Network", ["NetworkPage.qml"]),
@@ -41,6 +43,7 @@ PAGES = [
 # form: "wifi" = "Wi-Fi", see norm())
 ALIASES = {
     "Bar style": ["island", "solid", "strip", "pill"],
+    "Motion": ["animations", "animation", "transitions", "speed"],
     "Themes": ["dark", "light", "dark mode", "light mode", "colour mode", "night mode"],
     "Tiles per row": ["tile", "tiles", "toggles"],
     "New ones arrive as": ["card", "toast", "live line", "popup", "banner"],
@@ -58,8 +61,7 @@ ALIASES = {
     "VPN": ["mihomo", "proxy"],
     "Layout": ["add module", "arrange", "order"],
 }
-SECTIONS = {"AccentSection.qml": "accent", "WallpaperSection.qml": "wallpaper", "CornersSection.qml": "shape",
-            "IconsSection.qml": "shape"}
+SECTIONS = {"AccentSection.qml": "accent", "CornersSection.qml": "shape"}
 
 ROW = re.compile(r'\blabel:\s*"([^"]+)"')
 GROUP = re.compile(r'(?:KitLabel\s*\{(?:[^{}]|\{[^{}]*\})*?\btext|KitGroup\s*\{(?:[^{}]|\{[^{}]*\})*?\btitle)'

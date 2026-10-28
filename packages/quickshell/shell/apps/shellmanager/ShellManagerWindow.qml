@@ -42,7 +42,7 @@ FloatingWindow {
     function open(page: string): void {
       const [p, target] = page.split(":");
       ShellSettings.managerOpen = true;
-      manager.navigate(({ wallpaper: "appearance", layout: "bar" })[p] ?? p, target ?? "");
+      manager.navigate(({ layout: "bar" })[p] ?? p, target ?? "");
     }
     // the sidebar's search, `search <words>` typed in
     function search(words: string): void {

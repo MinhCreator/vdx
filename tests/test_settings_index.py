@@ -12,12 +12,12 @@ spec = importlib.util.spec_from_file_location("settings_index", SCRIPT)
 si = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(si)
 
-TABS = {"themes", "fonts", "cursor", "appearance", "animations", "bar", "modules", "windows", "lockscreen", "notifications",
+TABS = {"themes", "fonts", "icons", "wallpaper", "cursor", "appearance", "animations", "bar", "modules", "windows", "lockscreen", "notifications",
         "network", "bluetooth", "displays", "apps", "about"}
 
 # a word typed -> where the task is done
 JOURNEYS = {
-    "wallpaper": "appearance:wallpaper",
+    "wallpaper": "wallpaper",
     "toast": "notifications",
     "show bar": "bar:monitor",
     "clock format": "lockscreen",
