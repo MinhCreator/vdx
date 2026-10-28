@@ -2,73 +2,49 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// One tile of the hub: a mono caption with a state dot, the value, a detail
-// line. On = a lifted surface and a glowing dot in the state colour; off = the
-// block surface, dim text. A click is the tile's own action.
+// One tile of the hub: a round icon (white when on, dark when off), the name,
+// a detail line and a chevron. A click is the tile's own action.
 Rectangle {
   id: root
 
+  property string icon: ""
   property string title: ""
-  property string value: ""
   property string detail: ""
   property bool on: false
-  property color tone: Theme.green
-  property alias extra: extraSlot.data
 
   signal clicked()
 
-  implicitHeight: 104
-  radius: 20
-  color: on ? Theme.background3 : Theme.background1
+  implicitHeight: 64
+  radius: 22
+  color: area.containsMouse ? Theme.background2 : Theme.background1
 
-  Item {
-    anchors { fill: parent; margins: 14 }
+  Rectangle {
+    id: disc
+    anchors { left: parent.left; leftMargin: 12; verticalCenter: parent.verticalCenter }
+    width: 40; height: 40; radius: 20
+    color: root.on ? Theme.foreground1 : Theme.background3
+    KitIcon { anchors.centerIn: parent; name: root.icon; size: 18; tint: root.on ? Theme.background0 : Theme.foreground2 }
+  }
 
-    KitText {
-      text: root.title
-      color: root.on ? Theme.foreground2 : Theme.dim
-      font.pixelSize: 11
-      font.letterSpacing: 0.9
-    }
-    Rectangle {
-      anchors { right: parent.right; top: parent.top; topMargin: 3 }
-      width: 6
-      height: 6
-      radius: 3
-      color: root.on ? root.tone : Theme.gray
-    }
+  Column {
+    anchors { left: disc.right; leftMargin: 12; right: chevron.left; rightMargin: 6; verticalCenter: parent.verticalCenter }
+    spacing: 1
+    KitText { width: parent.width; text: root.title; font.pixelSize: 14; font.weight: Font.Medium; elide: Text.ElideRight }
+    KitText { width: parent.width; text: root.detail; color: Theme.muted; font.pixelSize: 11; elide: Text.ElideRight }
+  }
 
-    Column {
-      anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-      spacing: 4
-
-      KitText {
-        width: parent.width
-        text: root.value
-        color: root.on ? Theme.foreground0 : Theme.dim
-        font.pixelSize: 17
-        font.weight: Font.Medium
-        elide: Text.ElideRight
-      }
-      Row {
-        spacing: 6
-        height: 14
-        Item { id: extraSlot; width: childrenRect.width; height: parent.height }
-        KitText {
-          anchors.verticalCenter: parent.verticalCenter
-          width: Math.min(implicitWidth, root.width - 28 - extraSlot.width - 6)
-          elide: Text.ElideRight
-          visible: text !== ""
-          text: root.detail
-          color: root.on ? Theme.muted : Theme.dim
-          font.pixelSize: 11
-        }
-      }
-    }
+  KitIcon {
+    id: chevron
+    anchors { right: parent.right; rightMargin: 14; verticalCenter: parent.verticalCenter }
+    name: "chevron-right"
+    size: 12
+    tint: Theme.dim
   }
 
   MouseArea {
+    id: area
     anchors.fill: parent
+    hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
     onClicked: root.clicked()
   }

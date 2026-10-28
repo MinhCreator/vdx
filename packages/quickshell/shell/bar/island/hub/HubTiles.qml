@@ -12,7 +12,7 @@ import qs.modules.wifi
 Grid {
   id: root
 
-  columns: 4
+  columns: 2
   spacing: 8
 
   property bool dnd: false
@@ -31,42 +31,40 @@ Grid {
     dnd = !dnd;
   }
 
-  readonly property real cell: (width - 3 * spacing) / 4
+  readonly property real cell: (width - spacing) / 2
 
   HubTile {
     width: root.cell
-    title: "WI-FI"
+    icon: WifiService.connected ? "wifi" : "wifi-off"
+    title: "Wi-Fi"
     on: WifiService.connected
-    tone: Theme.green
-    value: WifiService.connected ? WifiService.ssid : (WifiService.radioOn ? "Not connected" : "Off")
-    detail: WifiService.connected && WifiService.pingMs > 0 ? Math.round(WifiService.pingMs) + " ms" : ""
+    detail: WifiService.connected ? WifiService.ssid : (WifiService.radioOn ? "Not connected" : "Off")
     onClicked: root.open("wifi")
   }
   HubTile {
     width: root.cell
-    title: "BT"
+    icon: BluetoothService.powered ? "bluetooth" : "bluetooth-off"
+    title: BluetoothService.mainDevice ? BluetoothService.mainDevice.name : "Bluetooth"
     on: BluetoothService.powered && BluetoothService.mainDevice !== null
-    tone: Theme.blue
-    value: BluetoothService.mainDevice ? BluetoothService.mainDevice.name : (BluetoothService.powered ? "No device" : "Off")
-    detail: BluetoothService.mainDevice && BluetoothService.mainDevice.battery != null ? BluetoothService.mainDevice.battery + "%" : ""
+    detail: BluetoothService.mainDevice
+      ? (BluetoothService.mainDevice.battery != null ? BluetoothService.mainDevice.battery + "%" : "Connected")
+      : (BluetoothService.powered ? "No device" : "Off")
     onClicked: root.open("bluetooth")
   }
   HubTile {
     width: root.cell
+    icon: "shield"
     title: "VPN"
     on: MihomoService.serviceOn
-    tone: Theme.green
-    value: MihomoService.serviceOn ? "On" : "Off"
-    detail: MihomoService.serviceOn ? MihomoService.current : ""
+    detail: MihomoService.serviceOn ? (MihomoService.current || "On") : "Off"
     onClicked: root.open("mihomo")
   }
   HubTile {
     width: root.cell
-    title: "FOCUS"
+    icon: "moon"
+    title: "Focus"
     on: root.dnd
-    tone: Theme.purple
-    value: root.dnd ? "On" : "Off"
-    detail: "DND"
+    detail: root.dnd ? "Do not disturb" : "Off"
     onClicked: root.toggleFocus()
   }
 }

@@ -27,7 +27,7 @@ Item {
   readonly property var ids: BarLayout.islandIn("hub", bar.screen?.name ?? "")
 
   readonly property int panelPad: 22           // the board's panel padding
-  readonly property real preferredWidth: ModuleSettings.get("hub", "width", 580)
+  readonly property real preferredWidth: ModuleSettings.get("hub", "width", 440)
   function quickSlider(key) { return ModuleSettings.get("hub", key, key === "volume" || key === "brightness"); }
   readonly property bool hasPlayer: IslandService.hasMedia && ShellSettings.hubPlayer
   readonly property bool hasSliders: ["volume", "microphone", "brightness", "dimming"].some(k => quickSlider(k))
@@ -63,6 +63,12 @@ Item {
       onPower: root.power()
     }
 
+    // ---- the week ----
+    HubWeek {
+      width: parent.width
+      now: root.now
+    }
+
     // ---- tiles ----
     HubTiles {
       width: parent.width
@@ -81,7 +87,7 @@ Item {
         icon: AudioService.muted || AudioService.volume === 0 ? "volume-x" : "volume"
         label: "Sound"
         value: Math.min(1, AudioService.volume / 100)
-        text: String(AudioService.volume)
+        text: AudioService.volume + "%"
         onMoved: v => { if (AudioService.sink?.audio) AudioService.sink.audio.volume = v; }
       }
       HubSlider {
@@ -90,7 +96,7 @@ Item {
         icon: "mic"
         label: "Microphone"
         value: Math.min(1, AudioService.source?.audio?.volume ?? 0)
-        text: String(Math.round((AudioService.source?.audio?.volume ?? 0) * 100))
+        text: Math.round((AudioService.source?.audio?.volume ?? 0) * 100) + "%"
         onMoved: v => { if (AudioService.source?.audio) AudioService.source.audio.volume = v; }
       }
       HubSlider {
@@ -100,7 +106,7 @@ Item {
         icon: "sun"
         label: "Brightness"
         value: BrightnessService.brightness / 100
-        text: BrightnessService.available ? String(BrightnessService.brightness) : "—"
+        text: BrightnessService.available ? BrightnessService.brightness + "%" : "—"
         onMoved: v => BrightnessService.setBrightness(v * 100)
       }
       HubSlider {
@@ -109,7 +115,7 @@ Item {
         icon: "moon"
         label: "Dimming"
         value: (BrightnessService.gamma - BrightnessService.gammaMin) / (100 - BrightnessService.gammaMin)
-        text: String(BrightnessService.gamma)
+        text: BrightnessService.gamma + "%"
         onMoved: v => BrightnessService.setGamma(BrightnessService.gammaMin + v * (100 - BrightnessService.gammaMin))
       }
     }
@@ -120,8 +126,8 @@ Item {
       visible: root.hasPlayer
     }
 
-    // ---- system strip ----
-    HubStrip { width: parent.width }
+    // ---- notifications ----
+    HubNotes { width: parent.width }
 
     KitLine { visible: root.ids.length > 0 && (root.hasPlayer || root.hasSliders) }
 
