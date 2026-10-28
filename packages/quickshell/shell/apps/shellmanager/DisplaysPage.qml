@@ -2,6 +2,7 @@ import QtQuick
 import qs.apps.display
 import qs.config
 import qs.kit
+import qs.modules.brightness
 
 // Displays: the arrangement of the monitors (drag or arrow keys), then the
 // picked monitor's scale (a slider whose stops are the scales it offers),
@@ -23,7 +24,7 @@ KitColumn {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "monitor"
   readonly property string title: "Displays"
-  readonly property string description: "Arrange the monitors; resolution, refresh rate and scale of each."
+  readonly property string description: "Arrange the monitors; resolution, refresh rate and scale of each, and the night light."
   readonly property string subtitle: ds.monitors.length + (ds.monitors.length === 1 ? " MONITOR" : " MONITORS")
   readonly property var jumps: [
     { key: "arrange", label: "Arrange", y: arrangeLabel.y },
@@ -86,6 +87,26 @@ KitColumn {
       text: root.current ? root.current.x + ", " + root.current.y : ""
       color: Theme.muted
     }
+  }
+
+  // ---- night light ----
+  KitLine {}
+
+  KitLabel { text: "NIGHT LIGHT"; about: "Warms the colours of every screen; the bar's Brightness module has the same switch" }
+
+  KitRow {
+    label: "Night light"
+    hint: BrightnessService.nightActive ? "On: the screens are warmer" : "Off"
+    KitSwitch { checked: BrightnessService.nightActive; onToggled: BrightnessService.setNight(!checked) }
+  }
+
+  KitSliderRow {
+    visible: BrightnessService.nightActive
+    label: "Warmth"
+    snaps: [0, 0.2, 0.4, 0.6, 0.8, 1]
+    value: (BrightnessService.temperature - BrightnessService.temperatureMin) / (BrightnessService.temperatureMax - BrightnessService.temperatureMin)
+    text: Math.round(pressed ? BrightnessService.temperatureMin + dragValue * (BrightnessService.temperatureMax - BrightnessService.temperatureMin) : BrightnessService.temperature) + " K"
+    onMoved: value => BrightnessService.setTemperature(BrightnessService.temperatureMin + value * (BrightnessService.temperatureMax - BrightnessService.temperatureMin))
   }
 
   KitText {

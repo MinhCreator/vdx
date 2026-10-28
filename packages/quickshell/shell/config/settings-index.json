@@ -720,6 +720,36 @@
   "target": "sound"
  },
  {
+  "label": "Power",
+  "hint": "",
+  "where": "",
+  "target": "power"
+ },
+ {
+  "label": "Profile",
+  "hint": "",
+  "where": "Power",
+  "target": "power"
+ },
+ {
+  "label": "Charge",
+  "hint": "",
+  "where": "Power",
+  "target": "power"
+ },
+ {
+  "label": "Power profile",
+  "hint": "",
+  "where": "Power › PROFILE",
+  "target": "power"
+ },
+ {
+  "label": "Charge limit",
+  "hint": "The battery stops charging here",
+  "where": "Power › CHARGE",
+  "target": "power"
+ },
+ {
   "label": "Updates",
   "hint": "",
   "where": "",
@@ -888,6 +918,12 @@
   "target": "displays:monitor"
  },
  {
+  "label": "Night light",
+  "hint": "",
+  "where": "Displays",
+  "target": "displays"
+ },
+ {
   "label": "Scale",
   "hint": "",
   "where": "Displays › MONITOR",
@@ -904,6 +940,18 @@
   "hint": "Logical pixels, from the top left",
   "where": "Displays › MONITOR",
   "target": "displays:monitor"
+ },
+ {
+  "label": "Night light",
+  "hint": "",
+  "where": "Displays › NIGHT LIGHT",
+  "target": "displays"
+ },
+ {
+  "label": "Warmth",
+  "hint": "",
+  "where": "Displays › NIGHT LIGHT",
+  "target": "displays"
  },
  {
   "label": "About",

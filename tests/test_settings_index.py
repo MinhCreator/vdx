@@ -13,7 +13,7 @@ si = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(si)
 
 TABS = {"themes", "fonts", "icons", "wallpaper", "cursor", "appearance", "animations", "bar", "modules", "windows", "lockscreen", "notifications",
-        "bar", "hub", "live", "network", "hotspot", "sound", "updates", "bluetooth", "displays", "apps", "about"}
+        "bar", "hub", "live", "network", "hotspot", "sound", "power", "updates", "bluetooth", "displays", "apps", "about"}
 
 # a word typed -> where the task is done
 JOURNEYS = {
@@ -51,7 +51,8 @@ JOURNEYS = {
     "tile": "hub",
     "app colour": "notifications",
     "vpn": "modules:mihomo",
-    "night light": "modules:brightness",
+    "night light": "displays",
+    "charge limit": "power",
 }
 
 # a row's hint is its own: these used to carry the next row's

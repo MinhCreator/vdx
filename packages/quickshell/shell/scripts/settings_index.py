@@ -39,6 +39,7 @@ PAGES = [
     ("network", "Network", ["NetworkPage.qml"]),
     ("hotspot", "Hotspot", ["HotspotPage.qml"]),
     ("sound", "Sound", ["SoundPage.qml"]),
+    ("power", "Power", ["PowerPage.qml"]),
     ("updates", "Updates", ["UpdatesPage.qml"]),
     ("bluetooth", "Bluetooth", ["BluetoothPage.qml"]),
     ("displays", "Displays", ["DisplaysPage.qml"]),

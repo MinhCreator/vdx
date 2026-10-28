@@ -66,6 +66,7 @@ Rectangle {
     { value: "bluetooth",  label: "Bluetooth",  icon: "bluetooth" },
     { value: "sound",      label: "Sound",      icon: "volume" },
     { value: "displays",   label: "Displays",   icon: "monitor" },
+    { value: "power",      label: "Power",      icon: "zap" },
     { value: "apps",       label: "Apps",       icon: "grid",       caption: "SHELL" },
     { value: "updates",    label: "Updates",    icon: "package" },
     { value: "about",      label: "About",      icon: "info" }
@@ -166,7 +167,7 @@ Rectangle {
   }
 
   function pageFor(value) {
-    return ({ themes: themes, fonts: fonts, icons: icons, wallpaper: wallpaper, cursor: cursor, bar: bar, animations: animations, windows: windows, network: network, hotspot: hotspot, sound: sound, updates: updates, hub: hub, live: live, bluetooth: bluetooth, displays: displays,
+    return ({ themes: themes, fonts: fonts, icons: icons, wallpaper: wallpaper, cursor: cursor, bar: bar, animations: animations, windows: windows, network: network, hotspot: hotspot, sound: sound, power: power, updates: updates, hub: hub, live: live, bluetooth: bluetooth, displays: displays,
               modules: modules, apps: apps, about: about, lockscreen: lockscreen,
               notifications: notifications })[value] ?? appearance;
   }
@@ -630,6 +631,7 @@ Rectangle {
                                network.visible ? network.implicitHeight : 0,
                                hotspot.visible ? hotspot.implicitHeight : 0,
                                sound.visible ? sound.implicitHeight : 0,
+                               power.visible ? power.implicitHeight : 0,
                                hub.visible ? hub.implicitHeight : 0,
                                live.visible ? live.implicitHeight : 0,
                                updates.visible ? updates.implicitHeight : 0,
@@ -654,6 +656,7 @@ Rectangle {
       NetworkPage   { id: network;   width: parent.width; visible: root.tab === "network" }
       HotspotPage   { id: hotspot;   width: parent.width; visible: root.tab === "hotspot" }
       SoundPage     { id: sound;     width: parent.width; visible: root.tab === "sound" }
+      PowerPage     { id: power;     width: parent.width; visible: root.tab === "power" }
       HubPage       { id: hub;       width: parent.width; onNavigate: (t, k) => root.navigate(t, k); visible: root.tab === "hub" }
       LivePage      { id: live;      width: parent.width; visible: root.tab === "live" }
       UpdatesPage   { id: updates;   width: parent.width; visible: root.tab === "updates" }
