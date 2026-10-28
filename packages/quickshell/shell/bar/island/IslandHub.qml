@@ -141,7 +141,7 @@ Item {
         id: cover
         anchors { left: parent.left; leftMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
         size: track.height - 2 * Theme.gapMedium
-        radius: Theme.radiusFor(size)
+        radius: Theme.radiusFor(size * 1.4)
       }
 
       Column {
@@ -166,7 +166,7 @@ Item {
         }
       }
 
-      // back, and the one filled button
+      // back, the one filled button, forward
       Row {
         id: controls
         anchors { right: parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
@@ -193,6 +193,12 @@ Item {
             cursorShape: Qt.PointingHandCursor
             onClicked: IslandService.togglePlay()
           }
+        }
+        IslandButton {
+          anchors.verticalCenter: parent.verticalCenter
+          icon: "skip-forward"
+          iconSize: 14
+          onClicked: IslandService.next()
         }
       }
     }
