@@ -182,6 +182,14 @@ Pages by the user's area; the look follows macOS System Settings.
   Material draws Material 3's slider (thick track split by a bar handle, stops as
   dots); Strict the thin one.
 
+- MUST: one pattern for a setting that waits for something (`KitRow.needs`). The row
+  stays in sight, its control is out of reach, and the phrase where the hint was says
+  what it waits for, with one button that fixes it: `Island style only` · `Use Island`;
+  `Needs <Row> on` · `Turn on`; `Put <Module> in the Hub row` · `Arrange`;
+  `Not installed: <component>`. A child of a switch in the same block hides with its
+  parent instead (the parent's hint says what it opens). Hardware that cannot change
+  (no battery) hides the row and the block says so once. A whole page waiting for the
+  style opens with a `KitNotice` banner. The search reads the phrase as the row's hint.
 - MUST: where a setting lives follows the user's area, not the code: every bar
   module's options in Bar modules (an app's module too), an app's own options in
   Apps, Lock screen and Notifications on their own pages.

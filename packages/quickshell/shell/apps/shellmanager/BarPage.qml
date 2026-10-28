@@ -57,6 +57,8 @@ KitSettingsWorkspace {
   }
   onColumnZonesChanged: if (!columnZones.includes(activeZone)) activeZone = island ? "start" : "left"
   // the style is the owner's choice, not a setting of its own page to reset: Reset keeps it
+  // the tile modules in the hub row: what Tiles per row is for
+  readonly property int tileCount: BarLayout.islandIn("hub", screenName).filter(id => BarLayout.isTile(id)).length
   readonly property var resetKeys: ["looks", "barRightSettings"]
   readonly property bool changed: ShellSettings.changed(resetKeys) || ModuleSettings.changed("hub")
   function reset() { ShellSettings.reset(resetKeys); ModuleSettings.reset("hub"); }
@@ -199,11 +201,12 @@ KitSettingsWorkspace {
           font.pixelSize: Theme.fontSize - 2
         }
         // asked for the hub or the live activities in the strip: say why they are not here, and offer the way
-        KitRow {
+        KitNotice {
           visible: root.wanted !== "" && !root.island
-          label: root.wanted === "live" ? "Live activities need the Island style" : "The hub needs the Island style"
-          hint: "The island is one pill with a hub and live activities; the strip has neither"
-          KitButton { text: "Use Island"; onClicked: { ShellSettings.set("barStyle", "island"); root.tab = root.wanted; root.wanted = ""; } }
+          title: root.wanted === "live" ? "Live activities belong to the Island style" : "The hub belongs to the Island style"
+          text: "The island is one pill with a hub and live activities. The strip has neither: these settings wait until you switch."
+          action: "Use Island"
+          onActed: { ShellSettings.set("barStyle", "island"); root.tab = root.wanted; root.wanted = ""; }
         }
         KitGrouper {}
       }
@@ -366,6 +369,9 @@ KitSettingsWorkspace {
           onMoved: value => ModuleSettings.set("hub", "width", Math.round(320 + value * 160))
         }
         KitOptionRow {
+          needs: root.tileCount === 0 ? "Put Wi-Fi, Bluetooth, VPN, Focus or Dark mode in the Hub row" : ""
+          needsAction: "Arrange"
+          onNeedsActed: { root.tab = "layout"; root.chooseZone("hub"); }
           module: "hub"; key: "tileColumns"; fallback: 2
           label: "Tiles per row"; hint: "Hub row modules that can be tiles: Wi-Fi, Bluetooth, VPN, Focus, Dark mode"
           model: [{ label: "2 ×", value: 2 }, { label: "4 ×", value: 4 }]

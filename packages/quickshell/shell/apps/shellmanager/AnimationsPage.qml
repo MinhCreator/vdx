@@ -126,6 +126,9 @@ Column {
     wide: true
     label: "Underline"
     hint: "The line under an open module"
+    needs: Theme.island ? "Solid style only" : ""
+    needsAction: "Use Solid"
+    onNeedsActed: ShellSettings.set("barStyle", "solid")
 
     KitSegments {
       disabled: !ShellSettings.motion || !ShellSettings.motionBar
@@ -151,6 +154,10 @@ Column {
 
       label: modelData.label
       hint: modelData.hint
+      // the island's morphing exists only in the island
+      needs: modelData.key === "motionIsland" && !Theme.island ? "Island style only" : ""
+      needsAction: "Use Island"
+      onNeedsActed: ShellSettings.set("barStyle", "island")
 
       KitSwitch {
         disabled: !ShellSettings.motion

@@ -25,7 +25,9 @@ Column {
   // Island style: the window opens from the island, inside it, like a module's popup
   KitLabel { text: "ISLAND"; visible: ShellSettings.barStyle === "island" }
   KitToggleRow {
-    visible: ShellSettings.barStyle === "island"
+    needs: ShellSettings.barStyle === "island" ? "" : "Island style only"
+    needsAction: "Use Island"
+    onNeedsActed: ShellSettings.set("barStyle", "island")
     module: "launcher"; key: "island"; fallback: true
     label: "Open from the island"
     hint: "On: it opens inside the island instead of as a window"

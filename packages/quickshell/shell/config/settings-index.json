@@ -338,7 +338,7 @@
  },
  {
   "label": "Tiles per row",
-  "hint": "Hub row modules that can be tiles: Wi-Fi, Bluetooth, VPN, Focus, Dark mode",
+  "hint": "",
   "where": "Bar › HUB",
   "target": "bar:hub",
   "aliases": [
