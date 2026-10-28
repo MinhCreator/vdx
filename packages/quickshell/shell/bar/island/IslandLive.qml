@@ -19,12 +19,10 @@ Item {
   readonly property Item backFace: front === 0 ? faceB : faceA
 
   clip: true
-  // folded, the activity sits in a chip of its own; in full the pill is its background
-  readonly property bool chip: !IslandService.liveFull
-  property real pad: chip ? 18 : 0
-  Behavior on pad { enabled: Motion.island; NumberAnimation { id: padAnim; duration: Motion.normal; easing.type: Motion.easing } }
+  // the activity sits in a chip of its own, folded or open
+  readonly property int pad: 18
   // the slot's width is moving: the island follows it as it goes, without a glide of its own
-  readonly property bool moving: targetAnim.running || padAnim.running
+  readonly property bool moving: targetAnim.running
   implicitWidth: kind === "" ? 0 : target + pad
   implicitHeight: Theme.islandHeight
   visible: kind !== ""
@@ -44,7 +42,6 @@ Item {
     backFace.anchors.verticalCenterOffset = dir * travel * (1 - t); backFace.opacity = t;
   }
   onTChanged: place()
-  onPadChanged: place()
 
   onKindChanged: {
     slide.stop();
@@ -84,8 +81,6 @@ Item {
     height: 26
     radius: 13
     color: Theme.background2
-    opacity: root.chip ? 1 : 0
-    Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
   }
 
   IslandLiveFace { id: faceA; full: IslandService.liveOpen }

@@ -114,7 +114,7 @@ Singleton {
   onPluggedNowChanged: if (pluggedNow) flash("plugged")
   property int liveIndex: 0
   readonly property string live: activities[Math.min(liveIndex, activities.length - 1)] ?? ""
-  // a step (or a new activity) shows it in full, the pill holding nothing else; it then folds back to the slot
+  // a step (or a new activity) opens the slot in place; it then folds back to the chip
   readonly property int fullMs: ShellSettings.liveFullMs
   property bool liveFull: false
   property int liveDir: 1                      // the last step: 1 next, -1 back (the slide's way)
