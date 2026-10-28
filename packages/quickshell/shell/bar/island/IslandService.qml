@@ -11,6 +11,8 @@ import qs.config
 import qs.modules.audio
 import qs.modules.battery
 import qs.modules.bluetooth
+import qs.modules.language
+import qs.modules.mihomo
 import qs.modules.brightness
 import qs.modules.player
 import qs.modules.notifications
@@ -60,13 +62,21 @@ Singleton {
   // Held first (recording, backup, update), then music. `liveIndex` is the one
   // showing; the wheel steps it (liveStep), a finished one drops out.
   readonly property var activities: {
+    const on = {
+      battery: BatteryService.present && BatteryService.discharging && BatteryService.capacity <= ShellSettings.liveBatteryBelow
+               && (ShellSettings.liveBatteryStay === "fixed" || batShown),
+      bluetooth: btShown && BluetoothService.mainDevice !== null,
+      recording: CaptureService.recording,
+      update: PackagesService.busy,
+      backup: BackupService.busy && BackupService.jobKind === "run",
+      vpn: MihomoService.serviceOn,
+      music: hasMedia && playing
+    };
+    if (flashKind !== "") on[flashKind] = true;
     const list = [];
-    if (CaptureService.recording && ShellSettings.liveOn("recording")) list.push("recording");
-    if (BackupService.busy && BackupService.jobKind === "run" && ShellSettings.liveOn("backup")) list.push("backup");
-    if (PackagesService.busy && ShellSettings.liveOn("update")) list.push("update");
-    if (BatteryService.present && BatteryService.discharging && BatteryService.capacity <= BatteryService.warning && ShellSettings.liveOn("battery")) list.push("battery");
-    if (btShown && BluetoothService.mainDevice && ShellSettings.liveOn("bluetooth")) list.push("bluetooth");
-    if (hasMedia && playing && ShellSettings.liveOn("music")) list.push("music");
+    for (const section of ["asks", "held", "flash"])
+      for (const k of ShellSettings.liveOrdered(section))
+        if (on[k] && ShellSettings.liveOn(k)) list.push(k);
     return list;
   }
   // a device that connects shows for a while (it is an event, not a task)
@@ -74,6 +84,34 @@ Singleton {
   readonly property string btMac: BluetoothService.mainDevice?.mac ?? ""
   onBtMacChanged: if (ready && btMac !== "") { btShown = true; btTimer.restart(); } else if (btMac === "") btShown = false
   Timer { id: btTimer; interval: 8000; onTriggered: root.btShown = false }
+  // low battery with "5 s": it shows once when the level crosses the line
+  property bool batShown: false
+  readonly property bool batLow: BatteryService.present && BatteryService.discharging && BatteryService.capacity <= ShellSettings.liveBatteryBelow
+  onBatLowChanged: if (batLow && ready) { batShown = true; batTimer.restart(); } else if (!batLow) batShown = false
+  Timer { id: batTimer; interval: 5000; onTriggered: root.batShown = false }
+
+  // a flash: a short note about a quick change (the mic, the layout, a new track, the cable)
+  property string flashKind: ""
+  function flash(kind) {
+    if (!ready || !ShellSettings.liveOn(kind)) return;
+    flashKind = kind;
+    flashTimer.interval = ShellSettings.liveFlashMs;
+    flashTimer.restart();
+    liveIndex = Math.max(0, activities.indexOf(kind));
+    liveDir = 1;
+    if (ShellSettings.liveExpand) showFull();
+  }
+  Timer { id: flashTimer; onTriggered: root.flashKind = "" }
+  readonly property bool micMuted: AudioService.source?.audio?.muted ?? false
+  onMicMutedChanged: flash("mic")
+  readonly property string layoutNow: LanguageService.layout
+  property string layoutFrom: ""               // the layout it changed from
+  property string layoutLast: ""
+  onLayoutNowChanged: { layoutFrom = layoutLast; layoutLast = layoutNow; if (layoutFrom !== "") flash("layout"); }
+  readonly property string trackNow: title
+  onTrackNowChanged: if (playing && trackNow !== "") flash("track")
+  readonly property bool pluggedNow: BatteryService.plugged
+  onPluggedNowChanged: if (pluggedNow) flash("plugged")
   property int liveIndex: 0
   readonly property string live: activities[Math.min(liveIndex, activities.length - 1)] ?? ""
   // a step (or a new activity) shows it in full, the pill holding nothing else; it then folds back to the slot
@@ -83,7 +121,7 @@ Singleton {
 
   function liveStep(delta) {
     const n = activities.length;
-    if (n < 2) return;
+    if (n < 2 || !ShellSettings.liveWheel) return;
     liveDir = delta;
     showFull();
     liveIndex = (Math.min(liveIndex, n - 1) + delta + n) % n;
@@ -98,7 +136,7 @@ Singleton {
   }
   Timer { id: fullTimer; interval: root.fullMs; onTriggered: root.liveFull = false }
   // a new activity shows in full as it starts; none left: nothing to hold open
-  onLiveChanged: { if (live !== "" && ready) showFull(); else if (live === "") liveFull = false; }
+  onLiveChanged: { if (live !== "" && ready && ShellSettings.liveExpand) showFull(); else if (live === "") liveFull = false; }
 
   // ---- osd ----
   property string osdKind: ""                  // volume | brightness

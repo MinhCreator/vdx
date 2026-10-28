@@ -49,13 +49,36 @@ Singleton {
   readonly property int barGap: look("barGap")                    // px each side of a separator (Theme.separatorMargin)
   readonly property string clockOpens: look("clockOpens")         // hover | click: how the island's hub opens from the clock
   readonly property bool hubPlayer: look("hubPlayer")             // the track (the player) shows in the island's hub
-  // the island's live activities (Bar › Live): each kind on or off, how long a new one shows in full
-  readonly property int liveFullMs: look("liveFullMs")
-  readonly property bool liveHover: look("liveHover")             // a hover on the slot opens it in place
+  // the island's live activities (Bar › Live): each kind on or off, the order
+  // inside its section (the priority), how long a flash and a full view stay
+  readonly property int liveFullMs: look("liveFullMs", "island")            // the full view folds back after this
+  readonly property int liveFlashMs: look("liveFlashMs", "island")          // a flash stays this long
+  readonly property bool liveHover: look("liveHover", "island")             // a hover on the slot opens it in place
+  readonly property bool liveExpand: look("liveExpand", "island")           // a new activity opens whole first
+  readonly property bool liveWheel: look("liveWheel", "island")             // the wheel pages through them
+  readonly property int liveBatteryBelow: look("liveBatteryBelow", "island") // %, low battery interrupts below this
+  readonly property string liveBatteryStay: look("liveBatteryStay", "island") // fixed | 5s
+  readonly property var liveSections: ({
+    asks:  ["notice", "battery", "bluetooth"],
+    held:  ["recording", "update", "backup", "vpn", "music"],
+    flash: ["volume", "mic", "layout", "track", "plugged"]
+  })
   function liveOn(kind) { return look("live" + kind.charAt(0).toUpperCase() + kind.slice(1), "island"); }
+  // a section's kinds in the owner's order (what is not listed keeps its place at the end)
+  function liveOrdered(section) {
+    const base = liveSections[section] ?? [];
+    const saved = (look("liveOrder", "island") ?? {})[section] ?? [];
+    return saved.filter(k => base.includes(k)).concat(base.filter(k => !saved.includes(k)));
+  }
+  function liveSetOrder(section, list) {
+    setLook("liveOrder", Object.assign({}, look("liveOrder", "island") ?? {}, { [section]: list }), "island");
+  }
   readonly property var lookDefaults: ({ barIconGrow: 0, barSeparators: true, barGap: 5, clockOpens: "hover", hubPlayer: true,
-    liveRecording: true, liveBackup: true, liveUpdate: true, liveMusic: true,
-    liveVolume: true, liveBattery: true, liveBluetooth: true, liveNotice: true, liveFullMs: 2500, liveHover: true })
+    liveNotice: true, liveBattery: true, liveBluetooth: true,
+    liveRecording: true, liveUpdate: true, liveBackup: true, liveVpn: false, liveMusic: true,
+    liveVolume: true, liveMic: true, liveLayout: true, liveTrack: true, livePlugged: true,
+    liveFullMs: 2500, liveFlashMs: 1500, liveHover: true, liveExpand: true, liveWheel: true,
+    liveBatteryBelow: 20, liveBatteryStay: "fixed", liveOrder: ({}) })
   // animations (Shell Manager › Animations; Motion reads them)
   readonly property bool motion: state.motion                     // all of them on / off
   readonly property string motionSpeed: state.motionSpeed         // slow | normal | fast

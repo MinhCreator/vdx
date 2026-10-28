@@ -6,6 +6,7 @@ import qs.config
 import qs.kit
 import qs.modules.battery
 import qs.modules.bluetooth
+import qs.modules.mihomo
 import qs.modules.equalizer
 
 // One face of the pill's live slot (IslandLive): what the activity `kind` shows.
@@ -85,9 +86,30 @@ Row {
     color: Theme.blue
   }
 
+  // vpn: the server and the ping
+  KitText { visible: face.kind === "vpn"; text: "VPN"; color: Theme.foreground1; font.letterSpacing: 1 }
+  KitText { visible: face.kind === "vpn"; text: MihomoService.current; color: Theme.foreground2; width: Math.min(implicitWidth, 110); elide: Text.ElideRight }
+  KitText { visible: face.kind === "vpn" && MihomoService.currentDelay > 0; text: String(MihomoService.currentDelay); color: Theme.muted }
+
+  // flashes: the mic, the layout, a new track, the cable
+  KitIcon { visible: face.kind === "mic"; name: IslandService.micMuted ? "mic-off" : "mic"; size: 14; tint: IslandService.micMuted ? Theme.red : Theme.green; anchors.verticalCenter: parent.verticalCenter }
+  KitText { visible: face.kind === "mic"; text: IslandService.micMuted ? "Muted" : "Mic on"; color: Theme.foreground1 }
+  KitText { visible: face.kind === "layout"; text: Format.layout(IslandService.layoutFrom) || IslandService.layoutFrom; color: Theme.muted }
+  KitText { visible: face.kind === "layout"; text: "→"; color: Theme.dim }
+  KitText { visible: face.kind === "layout"; text: Format.layout(IslandService.layoutNow) || IslandService.layoutNow; color: Theme.foreground1; font.weight: Font.Medium }
+  KitIcon { visible: face.kind === "plugged"; name: "zap"; size: 14; tint: Theme.purple; anchors.verticalCenter: parent.verticalCenter }
+  Rectangle {
+    visible: face.kind === "plugged"
+    anchors.verticalCenter: parent.verticalCenter
+    width: 70; height: 4; radius: 2
+    color: Theme.background3
+    Rectangle { width: parent.width * BatteryService.capacity / 100; height: parent.height; radius: 2; color: Theme.purple }
+  }
+  KitText { visible: face.kind === "plugged"; text: String(BatteryService.capacity); color: Theme.purple }
+
   // music: the cover, in full the track too, and the sound
   Item {
-    visible: face.kind === "music"
+    visible: face.kind === "music" || face.kind === "track"
     anchors.verticalCenter: parent.verticalCenter
     width: 22
     height: 22
@@ -117,7 +139,7 @@ Row {
     Rectangle { anchors.fill: parent; radius: width / 2; color: Theme.background3; z: -1 }
   }
   KitText {
-    visible: face.kind === "music" && face.full
+    visible: (face.kind === "music" || face.kind === "track") && face.full
     anchors.verticalCenter: parent.verticalCenter
     width: Math.min(implicitWidth, 260)
     elide: Text.ElideRight
@@ -125,7 +147,7 @@ Row {
     color: Theme.foreground1
   }
   EqualizerBars {
-    visible: face.kind === "music"
+    visible: face.kind === "music" || face.kind === "track"
     anchors.verticalCenter: parent.verticalCenter
     barCount: 4
     tone: Theme.green

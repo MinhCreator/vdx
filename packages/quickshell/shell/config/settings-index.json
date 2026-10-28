@@ -216,12 +216,6 @@
   "target": "bar:behaviour"
  },
  {
-  "label": "Live activities",
-  "hint": "",
-  "where": "Bar",
-  "target": "bar"
- },
- {
   "label": "Monitor",
   "hint": "",
   "where": "Bar",
@@ -290,68 +284,8 @@
  {
   "label": "Enable Island",
   "hint": "Live activities run in the island's live slot",
-  "where": "Bar › LIVE ACTIVITIES",
-  "target": "bar"
- },
- {
-  "label": "Volume and brightness",
-  "hint": "The level, when you change it",
-  "where": "Bar › LIVE ACTIVITIES",
-  "target": "bar"
- },
- {
-  "label": "Music",
-  "hint": "The playing track and its sound",
-  "where": "Bar › LIVE ACTIVITIES",
-  "target": "bar"
- },
- {
-  "label": "Low battery",
-  "hint": "The charge left, when it runs low",
-  "where": "Bar › LIVE ACTIVITIES",
-  "target": "bar"
- },
- {
-  "label": "Recording",
-  "hint": "The screen recording and its time",
-  "where": "Bar › LIVE ACTIVITIES",
-  "target": "bar"
- },
- {
-  "label": "Backup",
-  "hint": "A running backup and its progress",
-  "where": "Bar › LIVE ACTIVITIES",
-  "target": "bar"
- },
- {
-  "label": "Device connected",
-  "hint": "A headset or other device that connects",
-  "where": "Bar › LIVE ACTIVITIES",
-  "target": "bar"
- },
- {
-  "label": "Updates",
-  "hint": "Packages being installed",
-  "where": "Bar › LIVE ACTIVITIES",
-  "target": "bar"
- },
- {
-  "label": "Notifications",
-  "hint": "A new message, then a dot on the pill",
-  "where": "Bar › LIVE ACTIVITIES",
-  "target": "bar"
- },
- {
-  "label": "Show in full for",
-  "hint": "A new activity, or one you page to, opens whole first",
-  "where": "Bar › LIVE ACTIVITIES",
-  "target": "bar"
- },
- {
-  "label": "Open on hover",
-  "hint": "The folded activity opens where it is",
-  "where": "Bar › LIVE ACTIVITIES",
-  "target": "bar"
+  "where": "Bar › BEHAVIOUR",
+  "target": "bar:behaviour"
  },
  {
   "label": "Show bar",
