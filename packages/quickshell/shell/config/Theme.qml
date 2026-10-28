@@ -137,8 +137,8 @@ QtObject {
   // Strict: framed controls on the surface. material:
   // no frames — controls are filled one step up, a popup has a quiet hairline
   readonly property bool material: ShellSettings.material
-  readonly property color controlFill: material ? surfaceContainer : clear
-  readonly property color controlHover: material ? surfaceHigh : mix(background0, foreground0, 0.045)
+  readonly property color controlFill: material ? surfaceContainer : mix(background0, foreground0, 0.04)
+  readonly property color controlHover: material ? surfaceHigh : mix(background0, foreground0, 0.075)
   // a control in a Settings box (KitGrouper) sits on background1: its fills go one step up
   function boxed(item) {
     for (let p = item; p; p = p.parent)
@@ -156,9 +156,9 @@ QtObject {
   }
   readonly property color controlLine: material ? outline : mix(background0, foreground0, 0.14)
   // at rest a control's frame is fainter still: the frame answers the pointer, it does not shout
-  readonly property color controlLineRest: material ? outline : mix(background0, foreground0, 0.085)
+  readonly property color controlLineRest: material ? outline : mix(background0, foreground0, 0.06)
   readonly property color controlLineHover: material ? onSurfaceVariant : mix(background0, foreground0, 0.28)
-  readonly property color pickFill: material ? secondaryContainer : mix(background0, foreground0, 0.075)
+  readonly property color pickFill: material ? secondaryContainer : mix(background0, foreground0, 0.11)
   readonly property int pickWeight: Font.DemiBold
   // a window's side pane (Shell Manager's sidebar): Strict sets it a shade under the page
   readonly property color sideFill: material ? surfaceContainer : mix(background0, foreground0, 0.025)

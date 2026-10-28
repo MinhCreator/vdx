@@ -27,7 +27,7 @@ uses tonal layers and more spacious controls.
   under the pointer, focused or open), its fill `Theme.controlFill` /
   `controlHover`, a popup's frame `Theme.popupFrame`. Never a literal 1.
   Picked (a choice, a segment, a nav row): `Theme.pickFill` + `Theme.pickWeight`.
-  Strict: quiet 1 px frames, no fills at rest; `KitSegments` is an outlined track
+  Strict: faint 1 px frames over a barely lifted tonal fill (`controlFill`); `KitSegments` is an outlined track
   with the picked segment a plate inset 3 px, no check; `KitSwitch` off is an
   outlined dark track with a grey knob, on a light track with a dark knob; a
   field has no prompt, a thin cursor, an optional `icon` (search); a Settings
@@ -180,7 +180,10 @@ Pages by the user's area; the look follows macOS System Settings.
 - Sliders in a box use the row layout (label left, value right). A snapped slider
   always shows its stops, at most 11 (every n-th of a long run). Controls ›
   Material draws Material 3's slider (thick track split by a bar handle, stops as
-  dots); Strict the thin one.
+  dots); Strict the thin one — except in a Settings box, where it is a plate: a
+  tonal bar (`controlFill`) with the fill a step lighter (`pickFill`), a mark inside
+  the fill's end, the stops to come as dots, the reading inside at the right, the
+  label at the left of the row (`KitSlider.plate`; a colour ramp stays thin).
 
 - MUST: one pattern for a setting that waits for something (`KitRow.needs`). The row
   stays in sight, its control is out of reach, and the phrase where the hint was says

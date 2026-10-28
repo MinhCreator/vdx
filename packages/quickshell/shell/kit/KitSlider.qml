@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell.Widgets
 import qs.config
 
 // Thin slider: a 3px track, the filled part in `tint`, a round knob; with
@@ -18,6 +19,8 @@ Item {
   property var snaps: []
   property bool ticks: true              // false: the stops still snap, no marks
   property var spectrum: []              // colours laid along the track, instead of the fill
+  property bool plate: false             // Strict, in a Settings row: a tonal bar, a mark at the end of the fill
+  property string text: ""               // a plate carries its reading inside, at the right
 
   // the default tint takes the accent (Appearance › Accent › Sliders); a
   // state colour passed in (a load, a battery) keeps its own
@@ -34,6 +37,8 @@ Item {
   function letGo(v) { held = v; holdTimer.restart(); released(v); }
   readonly property real knobSize: m3 ? 4 : 12
   readonly property bool m3: Theme.material && spectrum.length === 0
+  readonly property bool flat: plate && !m3 && spectrum.length === 0     // the plate is drawn
+  readonly property real plateEdge: shown * width
   readonly property real track: 12            // Material: the track's height
   readonly property real gap: 5               // Material: the space on each side of the handle
   readonly property real handleX: shown * (width - knobSize)
@@ -81,11 +86,11 @@ Item {
   }
 
   implicitWidth: 120
-  implicitHeight: m3 ? 28 : 18
+  implicitHeight: m3 ? 28 : flat ? 36 : 18
   opacity: enabled ? 1 : 0.4
 
   Rectangle {
-    visible: !root.m3
+    visible: !root.m3 && !root.flat
     anchors.verticalCenter: parent.verticalCenter
     width: parent.width
     height: 3
@@ -135,7 +140,7 @@ Item {
 
     Rectangle {
       required property real modelData
-      visible: !root.m3
+      visible: !root.m3 && !root.flat
       x: modelData * (root.width - root.knobSize) + root.knobSize / 2 - 1
       anchors.verticalCenter: parent.verticalCenter
       width: 2
@@ -199,7 +204,7 @@ Item {
   }
 
   Rectangle {
-    visible: !root.m3
+    visible: !root.m3 && !root.flat
     readonly property int size: area.containsMouse || root.pressed ? 14 : 12
     width: size
     height: size
@@ -211,6 +216,55 @@ Item {
     color: root.fill
     border.width: 2
     border.color: Theme.background0
+  }
+
+  // ---- Strict plate: a tonal track, the fill a step lighter, a mark inside the fill's end ----
+  ClippingRectangle {
+    visible: root.flat
+    anchors.fill: parent
+    radius: Theme.radiusControl
+    color: Theme.controlFill
+
+    // square: the track's corners cut it, so the left end is rounded, the right is flat
+    Rectangle {
+      width: Math.max(root.plateEdge, 0)
+      height: parent.height
+      color: root.dimmed ? Theme.controlHover : Theme.pickFill
+    }
+
+    // the stops still to come: a dot each, none under the fill
+    Repeater {
+      model: root.flat ? stops.model : []
+
+      Rectangle {
+        required property real modelData
+        readonly property real cx: modelData * root.width
+        visible: cx > root.plateEdge + 8 && cx < root.width - 56
+        x: cx - 1.5
+        anchors.verticalCenter: parent.verticalCenter
+        width: 3
+        height: 3
+        radius: 1.5
+        color: Theme.muted
+      }
+    }
+
+    Rectangle {
+      visible: root.plateEdge > 18
+      x: root.plateEdge - 10
+      anchors.verticalCenter: parent.verticalCenter
+      width: 2
+      height: 16
+      radius: 1
+      color: root.dimmed ? Theme.gray : root.accented ? Theme.accent : Theme.foreground0
+    }
+
+    KitText {
+      anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+      text: root.text
+      color: root.dimmed ? Theme.gray : Theme.foreground2
+      font.pixelSize: Theme.fontSize - 1
+    }
   }
 
   MouseArea {

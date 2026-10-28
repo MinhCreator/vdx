@@ -41,7 +41,7 @@ Rectangle {
   implicitWidth: Theme.controlWidth
   implicitHeight: Theme.controlHeight
   radius: Theme.radiusControl
-  color: Theme.clear
+  color: m3 ? Theme.clear : Theme.controlFill
   border.width: m3 ? 1 : Theme.frameWidth
   border.color: Theme.controlLineRest
   opacity: disabled ? 0.4 : 1

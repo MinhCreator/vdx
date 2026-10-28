@@ -4,7 +4,8 @@ import qs.config
 // A slider with its reading. Two layouts:
 //   * `label` set — small-caps "LABEL ......... value" over a full-width slider
 //     (`rowStyle`: the label and value as in a KitRow);
-//   * `label` empty — icon, slider and value on one line; with `clickable` the
+//   * `label` empty — icon, slider and value on one line (Strict: the icon and the
+//     value sit inside the plate); with `clickable` the
 //     icon is a button (mute and the like).
 Item {
   id: root
@@ -21,6 +22,8 @@ Item {
   property var snaps: []
   property var spectrum: []
   property bool rowStyle: false
+  // Strict: the label at the left, a bar with its reading inside at the right
+  readonly property bool plate: !Theme.material && spectrum.length === 0
 
   readonly property bool captioned: label !== ""
   readonly property bool pressed: slider.pressed
@@ -31,11 +34,11 @@ Item {
   signal iconClicked()
 
   width: parent ? parent.width : 0
-  implicitHeight: captioned ? (rowStyle ? rowCaption.implicitHeight + Theme.gapMedium : caption.implicitHeight + 6) + slider.implicitHeight : Math.max(28, slider.implicitHeight + 4)
+  implicitHeight: plate ? slider.implicitHeight + 4 : captioned ? (rowStyle ? rowCaption.implicitHeight + Theme.gapMedium : caption.implicitHeight + 6) + slider.implicitHeight : Math.max(28, slider.implicitHeight + 4)
 
   KitLabel {
     id: caption
-    visible: root.captioned && !root.rowStyle
+    visible: root.captioned && !root.rowStyle && !root.plate
     text: root.label
     value: root.text
     valueColor: root.dimmed ? Theme.gray : Theme.foreground2
@@ -43,12 +46,13 @@ Item {
 
   KitText {
     id: rowCaption
-    visible: root.captioned && root.rowStyle
+    visible: root.captioned && (root.rowStyle || root.plate)
+    anchors.verticalCenter: root.plate ? parent.verticalCenter : undefined
     text: root.label
   }
 
   KitText {
-    visible: rowCaption.visible
+    visible: rowCaption.visible && !root.plate
     anchors { right: parent.right; baseline: rowCaption.baseline }
     text: root.text
     color: root.dimmed ? Theme.gray : Theme.foreground2
@@ -58,7 +62,8 @@ Item {
   Item {
     id: iconBox
     visible: !root.captioned
-    anchors { left: parent.left; verticalCenter: slider.verticalCenter }
+    z: 1                       // a plate carries the icon inside its left end
+    anchors { left: parent.left; leftMargin: root.plate ? 2 : 0; verticalCenter: slider.verticalCenter }
     width: Math.max(28, slider.implicitHeight + 4)
     height: Math.max(28, slider.implicitHeight + 4)
 
@@ -90,7 +95,7 @@ Item {
 
   KitText {
     id: inlineValue
-    visible: !root.captioned
+    visible: !root.captioned && !root.plate
     anchors { right: parent.right; verticalCenter: slider.verticalCenter }
     width: metrics.advanceWidth("150%")
     horizontalAlignment: Text.AlignRight
@@ -102,13 +107,16 @@ Item {
   KitSlider {
     id: slider
     anchors {
-      left: root.captioned ? parent.left : iconBox.right
-      leftMargin: root.captioned ? 0 : 8
-      right: root.captioned ? parent.right : inlineValue.left
-      rightMargin: root.captioned ? 0 : 10
+      left: root.plate && root.captioned ? undefined : root.captioned || root.plate ? parent.left : iconBox.right
+      leftMargin: root.captioned || root.plate ? 0 : 8
+      right: root.captioned || root.plate ? parent.right : inlineValue.left
+      rightMargin: root.captioned || root.plate ? 0 : 10
       bottom: parent.bottom
-      bottomMargin: root.captioned ? 0 : 4
+      bottomMargin: root.plate ? 2 : root.captioned ? 0 : 4
     }
+    width: root.plate && root.captioned ? Math.round(parent.width * 0.58) : implicitWidth
+    plate: root.plate
+    text: root.text
     accessibleName: root.accessibleName
     value: root.value
     dimmed: root.dimmed
