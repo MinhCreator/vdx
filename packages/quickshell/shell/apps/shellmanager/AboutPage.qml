@@ -150,7 +150,7 @@ Column {
 
   KitRow {
     label: "Export"
-    hint: "Every option to shell-settings.json in a folder"
+    hint: "Options, bar layout and window options in a folder; not the theme or the cursor"
 
     KitButton {
       width: Theme.buttonWidth
@@ -164,7 +164,7 @@ Column {
 
   KitRow {
     label: "Import"
-    hint: "Replaces every option; the shell restarts"
+    hint: "Replaces the exported options; the shell restarts"
 
     KitButton {
       width: Theme.buttonWidth
