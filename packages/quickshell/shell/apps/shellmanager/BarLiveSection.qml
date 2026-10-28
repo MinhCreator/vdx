@@ -40,7 +40,7 @@ Column {
       id: row
       required property string modelData
       required property int index
-      readonly property bool on: ShellSettings.liveOn(modelData)
+      readonly property bool on: ShellSettings.liveKind(modelData)
 
       width: root.width
       height: root.rowHeight
@@ -69,7 +69,7 @@ Column {
         id: preview
         anchors { left: handle.right; leftMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
         kind: row.modelData
-        opacity: row.on ? 1 : 0.45
+        opacity: row.on && ShellSettings.liveEnabled ? 1 : 0.45
       }
 
       Column {

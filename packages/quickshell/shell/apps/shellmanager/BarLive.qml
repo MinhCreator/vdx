@@ -7,8 +7,23 @@ import qs.kit
 Column {
   id: root
 
+  Column {
+    width: parent.width
+
+    KitLabel { text: "LIVE ACTIVITIES" }
+    KitRow {
+      label: "Live activities"
+      hint: "Off: nothing grows out of the pill, it stays at rest"
+      KitSwitch { checked: ShellSettings.liveEnabled; onToggled: ShellSettings.setLook("liveEnabled", !checked, "island") }
+    }
+    KitGrouper {}
+  }
+
+  KitLine { visible: ShellSettings.liveEnabled }
+
   BarLiveSection {
     width: parent.width
+    visible: ShellSettings.liveEnabled
     section: "asks"
     title: "ASKS"
     info: ({
@@ -18,10 +33,11 @@ Column {
     })
   }
 
-  KitLine {}
+  KitLine { visible: ShellSettings.liveEnabled }
 
   Column {
     width: parent.width
+    visible: ShellSettings.liveEnabled
 
     KitLabel { text: "LOW BATTERY" }
     KitRow {
@@ -47,10 +63,11 @@ Column {
     KitGrouper {}
   }
 
-  KitLine {}
+  KitLine { visible: ShellSettings.liveEnabled }
 
   BarLiveSection {
     width: parent.width
+    visible: ShellSettings.liveEnabled
     section: "held"
     title: "HELD"
     info: ({
@@ -62,10 +79,11 @@ Column {
     })
   }
 
-  KitLine {}
+  KitLine { visible: ShellSettings.liveEnabled }
 
   BarLiveSection {
     width: parent.width
+    visible: ShellSettings.liveEnabled
     section: "flash"
     title: "FLASH"
     info: ({
@@ -77,10 +95,11 @@ Column {
     })
   }
 
-  KitLine {}
+  KitLine { visible: ShellSettings.liveEnabled }
 
   Column {
     width: parent.width
+    visible: ShellSettings.liveEnabled
 
     KitLabel { text: "BEHAVIOUR" }
 
