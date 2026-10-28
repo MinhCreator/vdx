@@ -125,7 +125,8 @@ QtObject {
   // barEdge: where the bar ends for windows and popups, either style.
   readonly property bool island: ShellSettings.barStyle === "island"
   readonly property int islandTop: 8
-  readonly property int islandHeight: material ? 36 : 32
+  // Bar › Look › Pill height (a look of the island), else by the control style
+  readonly property int islandHeight: ShellSettings.pillHeight > 0 ? ShellSettings.pillHeight : (material ? 36 : 32)
   readonly property int islandFrameWidth: 1      // either control style: it floats over windows
   // the island's corners: in proportion while small (radiusFor), no more than
   // half again a popup's when open (sharp: 0)

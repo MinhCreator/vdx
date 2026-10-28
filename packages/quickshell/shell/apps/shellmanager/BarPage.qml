@@ -57,7 +57,7 @@ KitSettingsWorkspace {
   onColumnZonesChanged: if (!columnZones.includes(activeZone)) activeZone = island ? "start" : "left"
   // Reset covers this page: the look of both styles and the right click. The style is the owner's
   // choice, and the hub and the live activities have their own pages and Resets.
-  readonly property var lookKeys: ["barIconGrow", "barSeparators", "barGap"]
+  readonly property var lookKeys: ["barIconGrow", "barSeparators", "barGap", "pillHeight"]
   readonly property bool changed: ShellSettings.looksTouched(lookKeys, "solid") || ShellSettings.looksTouched(lookKeys, "island")
                                    || ShellSettings.changed(["barRightSettings"])
   function reset() {
@@ -265,6 +265,19 @@ KitSettingsWorkspace {
         width: parent.width
         visible: root.tab === "appearance"
         KitLabel { text: "LOOK"; about: "Icons and spacing of this style's bar; each style keeps its own" }
+        KitRow {
+          needs: root.island ? "" : "The pill belongs to the Island style"
+          needsAction: "Use Island"
+          onNeedsActed: ShellSettings.set("barStyle", "island")
+          label: "Pill height"
+          hint: "The island's height at rest"
+          wide: true
+          KitSegments {
+            model: [{label: "Compact", value: 32}, {label: "Regular", value: 36}, {label: "Large", value: 40}]
+            current: Theme.islandHeight
+            onPicked: value => ShellSettings.setLook("pillHeight", value, "island")
+          }
+        }
         KitRow {
           label: "Icon size"
           hint: "The icons on the bar"

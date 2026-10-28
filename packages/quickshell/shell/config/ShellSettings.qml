@@ -48,6 +48,7 @@ Singleton {
   readonly property bool barSeparators: look("barSeparators")     // "|" between the bar's modules
   readonly property int barGap: look("barGap")                    // px each side of a separator (Theme.separatorMargin)
   readonly property string clockOpens: look("clockOpens")         // hover | click: how the island's hub opens from the clock
+  readonly property int pillHeight: look("pillHeight", "island")   // px: 0 follows the control style
   readonly property bool hubPlayer: look("hubPlayer")             // the track (the player) shows in the island's hub
   // the island's live activities (Bar › Live): each kind on or off, the order
   // inside its section (the priority), how long a flash stays
@@ -78,7 +79,7 @@ Singleton {
   function liveSetOrder(section, list) {
     setLook("liveOrder", Object.assign({}, look("liveOrder", "island") ?? {}, { [section]: list }), "island");
   }
-  readonly property var lookDefaults: ({ barIconGrow: 0, barSeparators: true, barGap: 5, clockOpens: "hover", hubPlayer: true,
+  readonly property var lookDefaults: ({ barIconGrow: 0, barSeparators: true, barGap: 5, clockOpens: "hover", hubPlayer: true, pillHeight: 0,
     liveEnabled: true, liveBattery: true, liveBluetooth: true,
     liveRecording: true, liveUpdate: true, liveBackup: true, liveVpn: false, liveMusic: true,
     liveVolume: true, liveMic: true, liveLayout: true, livePlugged: true,

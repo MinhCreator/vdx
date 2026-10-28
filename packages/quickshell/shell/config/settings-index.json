@@ -270,6 +270,12 @@
   ]
  },
  {
+  "label": "Pill height",
+  "hint": "The island's height at rest",
+  "where": "Bar › LOOK",
+  "target": "bar:look"
+ },
+ {
   "label": "Icon size",
   "hint": "The icons on the bar",
   "where": "Bar › LOOK",
