@@ -8,8 +8,10 @@ import qs.kit
 // While recording, when the focused monitor's bar has no Capture module to
 // show it: a small panel with the elapsed time and Stop (Super+Shift+S stops
 // too), in the first corner the recorded area leaves free — it is not in the video.
+// Not on the island with its recording live activity: that one has Pause and Stop.
 Variants {
-  model: CaptureService.recording && CaptureService.recordStarted > 0
+  readonly property bool inIsland: Theme.island && ShellSettings.liveEnabled && ShellSettings.liveOn("recording")
+  model: CaptureService.recording && CaptureService.recordStarted > 0 && !inIsland
     ? Quickshell.screens.filter(s => s.name === (Hyprland.focusedMonitor?.name ?? s.name)
                                      && !CaptureService.faceScreens.includes(s.name)).slice(0, 1)
     : []
