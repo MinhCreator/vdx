@@ -23,9 +23,6 @@ Item {
   property bool rowStyle: false
 
   readonly property bool captioned: label !== ""
-  readonly property bool bar: slider.bar
-  // the Strict bar carries the name and the reading inside; a stepped one keeps its name above, a small caption
-  readonly property bool nameInside: bar && captioned && snaps.length === 0
   readonly property bool pressed: slider.pressed
   readonly property real dragValue: slider.dragValue
 
@@ -34,26 +31,26 @@ Item {
   signal iconClicked()
 
   width: parent ? parent.width : 0
-  implicitHeight: nameInside ? slider.implicitHeight : captioned ? (rowStyle ? rowCaption.implicitHeight + Theme.gapMedium : caption.implicitHeight + 6) + slider.implicitHeight : Math.max(28, slider.implicitHeight + 4)
+  implicitHeight: captioned ? (rowStyle ? rowCaption.implicitHeight + Theme.gapMedium : caption.implicitHeight + 6) + slider.implicitHeight : Math.max(28, slider.implicitHeight + 4)
 
   KitLabel {
     id: caption
-    visible: root.captioned && !root.rowStyle && !root.nameInside
+    visible: root.captioned && !root.rowStyle
     text: root.label
-    value: root.bar ? "" : root.text
+    value: root.text
     valueColor: root.dimmed ? Theme.gray : Theme.foreground2
   }
 
   KitText {
     id: rowCaption
-    visible: root.captioned && root.rowStyle && !root.nameInside
+    visible: root.captioned && root.rowStyle
     text: root.label
   }
 
   KitText {
-    visible: rowCaption.visible && !root.bar
+    visible: rowCaption.visible
     anchors { right: parent.right; baseline: rowCaption.baseline }
-    text: root.bar ? "" : root.text
+    text: root.text
     color: root.dimmed ? Theme.gray : Theme.foreground2
   }
 
@@ -118,9 +115,6 @@ Item {
     tint: root.tint
     snaps: root.snaps
     spectrum: root.spectrum
-    barLabel: root.nameInside ? root.label : ""
-    barValue: root.bar && root.captioned && (root.nameInside || root.snaps.length > 0) ? root.text : ""
-    barHeight: root.captioned ? 42 : 34
     onMoved: value => root.moved(value)
     onReleased: value => root.released(value)
   }
