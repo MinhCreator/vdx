@@ -75,8 +75,9 @@ Row {
     width: face.coverSize
     height: face.coverSize
     radius: Theme.radiusFor(height)
-    color: Theme.pickFill
-    KitText { anchors.centerIn: parent; text: (IslandService.noticeItem?.app ?? "").slice(0, 1).toUpperCase(); font.pixelSize: Theme.fontSize - 2; font.weight: Font.Medium }
+    readonly property color tone: IslandService.noticeItem?.urgency === "critical" ? Theme.red : Theme.appColour(IslandService.noticeItem?.app)
+    color: Theme.mix(Theme.background0, tone, 0.22)
+    KitText { anchors.centerIn: parent; text: (IslandService.noticeItem?.app ?? "").slice(0, 1).toUpperCase(); color: parent.tone; font.pixelSize: Theme.fontSize - 2; font.weight: Font.Medium }
   }
   KitText {
     visible: face.kind === "notice"
@@ -169,7 +170,7 @@ Row {
       anchors.fill: parent
       visible: false
       layer.enabled: true
-      Rectangle { anchors.fill: parent; radius: Theme.pill(width) }
+      Rectangle { anchors.fill: parent; radius: Theme.coverRadius(width) }
     }
     // a circle: the cover's corners cut by the mask
     MultiEffect {
@@ -178,7 +179,7 @@ Row {
       maskEnabled: true
       maskSource: round
     }
-    Rectangle { anchors.fill: parent; radius: Theme.pill(width); color: Theme.background3; z: -1 }
+    Rectangle { anchors.fill: parent; radius: Theme.coverRadius(width); color: Theme.background3; z: -1 }
   }
   KitText {
     visible: (face.kind === "music") && face.full

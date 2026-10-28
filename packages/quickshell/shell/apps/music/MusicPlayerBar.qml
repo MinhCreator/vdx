@@ -41,7 +41,7 @@ Rectangle {
       id: cover
       width: 48
       height: 48
-      radius: Theme.radiusControl
+      radius: Theme.coverRadius(48)
       color: Theme.background2
 
       Image {

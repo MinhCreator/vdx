@@ -160,7 +160,6 @@ Item {
         id: cover
         anchors { left: parent.left; leftMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
         size: track.height - 2 * Theme.gapMedium
-        radius: Theme.radiusFor(size * 1.4)
       }
 
       Column {

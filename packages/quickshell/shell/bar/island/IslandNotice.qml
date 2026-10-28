@@ -3,7 +3,7 @@ import qs.config
 import qs.kit
 import "../../kit/markup.js" as Markup
 
-// A new notification: app badge, app name with "now", summary and body.
+// A new notification: the app's initial in its own colour, app name with "now", summary and body.
 // Click focuses its app's window, else opens the notifications popup; the cross dismisses. The island stacks
 // one per row (Island › notice).
 Item {
@@ -20,14 +20,15 @@ Item {
     width: 40
     height: 40
     radius: Theme.radiusCard
-    color: root.critical ? Theme.red : Theme.background2
+    readonly property color tone: root.critical ? Theme.red : Theme.appColour(root.n?.app)
+    color: Theme.mix(Theme.background0, tone, 0.22)
 
-    KitIcon {
+    KitText {
       anchors.centerIn: parent
-      name: "bell"
-      solid: true
-      size: 20
-      tint: root.critical ? Theme.background0 : Theme.foreground0
+      text: (root.n?.app || "?").slice(0, 1).toUpperCase()
+      color: badge.tone
+      font.pixelSize: Theme.fontSize + 3
+      font.weight: Font.Medium
     }
   }
 

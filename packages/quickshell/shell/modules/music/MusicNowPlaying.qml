@@ -51,7 +51,7 @@ Column {
       id: cover
       x: 0
       y: 0
-      radius: Theme.radiusCard
+      radius: Theme.coverRadius(root.coverSize)
       width: root.coverSize
       height: width
       color: Theme.background1

@@ -11,6 +11,7 @@ ClippingRectangle {
 
   implicitWidth: size
   implicitHeight: size
+  radius: Theme.coverRadius(size)
   color: Theme.background2
 
   KitIcon {

@@ -20,7 +20,6 @@ Item {
     x: 18
     y: 16
     size: 52
-    radius: Theme.radiusCard
   }
 
   Column {

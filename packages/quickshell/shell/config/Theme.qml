@@ -61,6 +61,18 @@ QtObject {
          : name === "blue" ? blue : foreground0;
   }
 
+  // one corner for every track cover, whatever its size (a thing `size` high, a bit rounder than a control)
+  function coverRadius(size: real): real { return radiusFor(size * 1.4); }
+
+  // an app's own colour for its avatar: stable for a name, from the state colours
+  // (never the red of an urgent one)
+  function appColour(name: string): color {
+    const palette = [blue, green, yellow, orange, purple, aqua];
+    let h = 0;
+    for (const ch of (name ?? "").toLowerCase()) h = (h * 31 + ch.charCodeAt(0)) % 997;
+    return palette[h % palette.length];
+  }
+
   // the equalizer's colours (Modules › Equalizer): one colour, or a [from, to] gradient across its bars
   function equalizerColours(name) {
     // Appearance › Accent, APPLIES TO Bar modules: the accent takes the bars whatever the choice
