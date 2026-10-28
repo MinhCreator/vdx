@@ -112,7 +112,8 @@ size, gap, separators and hub opening.
   device), Held (recording, update, backup, VPN, music) and Flash (the mic, the
   layout, a new track, the cable). The wheel over it pages through them with a
   slide; a new one, or one paged to, shows whole alone in the pill, then folds
-  to a chip; a hover opens the chip in place. Bar › Live: each activity on or
+  to a chip; a hover opens the chip in place; a click on the music opens the
+  Music popup (a middle click plays / pauses). Bar › Live: each activity on or
   off, the row order in its kind is the priority (drag a row), the low battery
   line, how long a flash and the full view stay, expand on arrival, the wheel
   and the hover. The notification toast is the island's own view and only

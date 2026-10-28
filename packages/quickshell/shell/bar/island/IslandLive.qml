@@ -1,4 +1,5 @@
 import QtQuick
+import qs.components
 import qs.config
 
 // The pill's live slot: the running activity (IslandService.live), only while
@@ -105,10 +106,16 @@ Item {
     onHoveredChanged: IslandService.liveHeld = hovered
   }
 
-  // the wheel pages; a click unfolds the card (music: the media view)
+  // the wheel pages; on the music a click opens the Music popup (the hub's hosted
+  // module answers to `player`), a middle click plays or pauses
   MouseArea {
     anchors.fill: parent
-    acceptedButtons: Qt.NoButton
+    acceptedButtons: root.kind === "music" ? Qt.LeftButton | Qt.MiddleButton : Qt.NoButton
+    cursorShape: root.kind === "music" ? Qt.PointingHandCursor : Qt.ArrowCursor
+    onClicked: mouse => {
+      if (mouse.button === Qt.MiddleButton) IslandService.togglePlay();
+      else ShellIpc.call("player", "toggle");
+    }
     onWheel: w => IslandService.liveStep(w.angleDelta.y < 0 ? 1 : -1)
   }
 }
