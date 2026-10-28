@@ -39,7 +39,25 @@ Column {
     spacing: Theme.sectionGap
     visible: Theme.island
 
-    KitLabel { text: "HUB"; about: "The panel that opens from the clock" }
+    KitLabel { text: "SIZE"; about: "How wide the panel is" }
+    KitSliderRow {
+      label: "Hub width"
+      snaps: [0, 0.25, 0.5, 0.75, 1]
+      value: (ModuleSettings.get("hub", "width", 400) - 320) / 160
+      text: Math.round(320 + (pressed ? dragValue : value) * 160) + " px"
+      onMoved: value => ModuleSettings.set("hub", "width", Math.round(320 + value * 160))
+    }
+    KitGrouper {}
+  }
+
+  KitLine { visible: Theme.island }
+
+  Column {
+    width: parent.width
+    spacing: Theme.sectionGap
+    visible: Theme.island
+
+    KitLabel { text: "BEHAVIOUR"; about: "How it opens and closes" }
     KitRow {
       label: "Opens on"
       hint: "Hover the clock, or click it"
@@ -50,13 +68,26 @@ Column {
         onPicked: value => ShellSettings.setLook("clockOpens", value, "island")
       }
     }
+    KitToggleRow { module: "hub"; key: "autoClose"; fallback: true; label: "Close when the pointer leaves"; hint: "Off: it stays until Escape or a click away" }
     KitSliderRow {
-      label: "Hub width"
-      snaps: [0, 0.25, 0.5, 0.75, 1]
-      value: (ModuleSettings.get("hub", "width", 400) - 320) / 160
-      text: Math.round(320 + (pressed ? dragValue : value) * 160) + " px"
-      onMoved: value => ModuleSettings.set("hub", "width", Math.round(320 + value * 160))
+      visible: ModuleSettings.get("hub", "autoClose", true)
+      label: "Close delay"
+      snaps: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+      value: (ModuleSettings.get("hub", "closeDelay", 500) - 200) / 1000
+      text: ((pressed ? 200 + Math.round(dragValue * 10) * 100 : ModuleSettings.get("hub", "closeDelay", 500)) / 1000).toFixed(1) + " s"
+      onMoved: value => ModuleSettings.set("hub", "closeDelay", 200 + Math.round(value * 10) * 100)
     }
+    KitGrouper {}
+  }
+
+  KitLine { visible: Theme.island }
+
+  Column {
+    width: parent.width
+    spacing: Theme.sectionGap
+    visible: Theme.island
+
+    KitLabel { text: "LOOK"; about: "The picture in the hub's header" }
     KitRow {
       label: "Picture"
       hint: ModuleSettings.get("hub", "avatar", "").split("/").pop() || "None: your initial"

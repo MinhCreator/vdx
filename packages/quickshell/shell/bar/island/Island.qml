@@ -369,10 +369,11 @@ Item {
     interval: 350
     running: ShellSettings.clockOpens === "hover" && compact.clockHovered && root.view === "compact" && root.flash === ""
              && !PopupManager.current
-    onTriggered: { root.view = "hub"; root.pinned = false; }
+    // Hub › Behaviour › Close when the pointer leaves, off: a hover-opened hub stays until Escape or a click away
+    onTriggered: { root.view = "hub"; root.pinned = !ModuleSettings.get("hub", "autoClose", true); }
   }
   Timer {
-    interval: 450
+    interval: ModuleSettings.get("hub", "closeDelay", 500)             // Hub › Behaviour › Close delay
     running: !hover.hovered && !root.pinned && root.view !== "compact" && !PopupManager.holding
     onTriggered: root.collapse()
   }

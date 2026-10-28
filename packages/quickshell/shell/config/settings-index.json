@@ -329,7 +329,19 @@
   "target": "hub"
  },
  {
-  "label": "Hub",
+  "label": "Size",
+  "hint": "",
+  "where": "Hub",
+  "target": "hub"
+ },
+ {
+  "label": "Behaviour",
+  "hint": "",
+  "where": "Hub",
+  "target": "hub"
+ },
+ {
+  "label": "Look",
   "hint": "",
   "where": "Hub",
   "target": "hub"
@@ -341,15 +353,9 @@
   "target": "hub"
  },
  {
-  "label": "Opens on",
-  "hint": "Hover the clock, or click it",
-  "where": "Hub › HUB",
-  "target": "hub"
- },
- {
   "label": "Hub width",
   "hint": "",
-  "where": "Hub › HUB",
+  "where": "Hub › SIZE",
   "target": "hub",
   "aliases": [
    "wider",
@@ -358,9 +364,27 @@
   ]
  },
  {
+  "label": "Opens on",
+  "hint": "Hover the clock, or click it",
+  "where": "Hub › BEHAVIOUR",
+  "target": "hub"
+ },
+ {
+  "label": "Close when the pointer leaves",
+  "hint": "Off: it stays until Escape or a click away",
+  "where": "Hub › BEHAVIOUR",
+  "target": "hub"
+ },
+ {
+  "label": "Close delay",
+  "hint": "",
+  "where": "Hub › BEHAVIOUR",
+  "target": "hub"
+ },
+ {
   "label": "Picture",
   "hint": "",
-  "where": "Hub › HUB",
+  "where": "Hub › LOOK",
   "target": "hub"
  },
  {
