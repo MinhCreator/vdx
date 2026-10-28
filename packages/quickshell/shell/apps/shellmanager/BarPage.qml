@@ -15,6 +15,7 @@ KitSettingsWorkspace {
   readonly property var tabs: sections
   readonly property string icon: "layout"
   readonly property string title: "Bar"
+  readonly property string description: "The bar: its style, what sits on it, how it looks and on which screens. The Island style adds a hub and live activities."
   readonly property string subtitle: "Arrange your desktop controls"
   property string tab: "layout"
   property string screenName: BarLayout.mainScreen()
@@ -278,7 +279,7 @@ KitSettingsWorkspace {
 
         width: parent.width
         visible: root.tab === "appearance"
-        KitLabel { text: "LOOK" }
+        KitLabel { text: "LOOK"; about: "Icons and spacing of this style's bar; each style keeps its own" }
         KitRow {
           label: "Icon size"
           hint: "The icons on the bar"
@@ -297,7 +298,7 @@ KitSettingsWorkspace {
           KitSwitch { checked: ShellSettings.barSeparators; onToggled: ShellSettings.setLook("barSeparators", !checked) }
         }
         KitLine {}
-        KitLabel { text: "BEHAVIOUR" }
+        KitLabel { text: "BEHAVIOUR"; about: "How the bar reacts to you" }
         KitRow {
           label: "Right click opens options"
           hint: "On a module: its settings here"
@@ -314,7 +315,7 @@ KitSettingsWorkspace {
       Column {
         width: parent.width
         visible: root.tab === "monitor"
-        KitLabel { text: "MONITOR" }
+        KitLabel { text: "MONITOR"; about: "Which screens show a bar, and whether they share one" }
         KitRow {
           label: "Show bar"
           hint: root.screenName
@@ -353,7 +354,7 @@ KitSettingsWorkspace {
 
         width: parent.width
         visible: root.tab === "hub"
-        KitLabel { text: "HUB" }
+        KitLabel { text: "HUB"; about: "The panel that opens from the clock" }
         KitRow {
           label: "Opens on"
           hint: "Hover the clock, or click it"
@@ -387,7 +388,7 @@ KitSettingsWorkspace {
           KitButton { visible: ModuleSettings.get("hub", "avatar", "") !== ""; icon: "x"; Accessible.name: "Clear avatar"; onClicked: ModuleSettings.set("hub", "avatar", "") }
         }
         KitLine {}
-        KitLabel { text: "CONTENT" }
+        KitLabel { text: "CONTENT"; about: "What the hub holds" }
         KitRow {
           label: "Player card"
           hint: "Shows with nothing playing too"

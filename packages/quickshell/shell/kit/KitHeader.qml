@@ -11,6 +11,8 @@ Item {
   property color iconColor: Theme.foreground0
   property string title: ""
   property string subtitle: ""
+  property string crumb: ""                 // a page: the sidebar group it sits in (DESKTOP)
+  property string description: ""           // a page: one or two lines on what it is for
   property color subtitleColor: Theme.muted
   property bool page: false
   readonly property bool large: page
@@ -49,6 +51,15 @@ Item {
 
     KitText {
       width: parent.width
+      visible: root.large && root.crumb !== ""
+      text: root.crumb
+      color: Theme.muted
+      font.pixelSize: Theme.fontSize - 3
+      font.letterSpacing: 1
+    }
+
+    KitText {
+      width: parent.width
       text: root.title
       elide: Text.ElideRight
       font.pixelSize: Theme.fontSize + (root.large ? 9 : 3)
@@ -63,6 +74,16 @@ Item {
       elide: Text.ElideRight
       font.pixelSize: Theme.fontSize - 2
       font.letterSpacing: 0.6
+    }
+
+    KitText {
+      width: parent.width
+      visible: root.large && root.description !== ""
+      text: root.description
+      color: Theme.foreground2
+      wrapMode: Text.WordWrap
+      font.pixelSize: Theme.fontSize - 1
+      topPadding: Theme.gapTight
     }
   }
 

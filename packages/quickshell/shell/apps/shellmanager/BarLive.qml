@@ -10,7 +10,7 @@ Column {
   Column {
     width: parent.width
 
-    KitLabel { text: "LIVE ACTIVITIES" }
+    KitLabel { text: "LIVE ACTIVITIES"; about: "What grows out of the pill while something runs" }
     KitRow {
       label: "Live activities"
       hint: "Off: nothing grows out of the pill, it stays at rest"
@@ -26,6 +26,7 @@ Column {
     visible: ShellSettings.liveEnabled
     section: "asks"
     title: "ASKS"
+    about: "They need your attention, so they take the front of the queue"
     info: ({
       notice: { label: "Messages", hint: "A new notification as a line in the slot; off: a card" },
       battery: { label: "Low battery", hint: "The charge left, when it runs low" },
@@ -39,7 +40,7 @@ Column {
     width: parent.width
     visible: ShellSettings.liveEnabled && ShellSettings.liveKind("battery")
 
-    KitLabel { text: "LOW BATTERY" }
+    KitLabel { text: "LOW BATTERY"; about: "When it takes the pill and how long it stays" }
     KitRow {
       label: "Shows below"
       hint: "The charge at which it takes the pill"
@@ -70,6 +71,7 @@ Column {
     visible: ShellSettings.liveEnabled
     section: "held"
     title: "HELD"
+    about: "They stay while the job runs; drag a row to set who takes the pill first"
     info: ({
       recording: { label: "Recording", hint: "A timer while the screen records" },
       update: { label: "Updates", hint: "Progress of an update run" },
@@ -86,6 +88,7 @@ Column {
     visible: ShellSettings.liveEnabled
     section: "flash"
     title: "FLASH"
+    about: "A quick note about a change, then it folds away"
     info: ({
       volume: { label: "Volume and brightness", hint: "A level while you change it" },
       mic: { label: "Microphone", hint: "When the mic is muted or unmuted" },
@@ -100,7 +103,7 @@ Column {
     width: parent.width
     visible: ShellSettings.liveEnabled
 
-    KitLabel { text: "BEHAVIOUR" }
+    KitLabel { text: "BEHAVIOUR"; about: "Rules for every activity" }
 
     KitSliderRow {
       label: "Flash lasts"

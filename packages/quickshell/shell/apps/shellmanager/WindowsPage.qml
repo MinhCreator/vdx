@@ -10,7 +10,7 @@ import qs.modules.windows
 KitColumn {
   id: root
   property string tab: "layout"
-  readonly property var tabs: [{ label: "Layout", value: "layout" }, { label: "Appearance", value: "look" }]
+  readonly property var tabs: [{ label: "Layout", value: "layout" }, { label: "Look", value: "look" }]
   function jump(key) { tab = key === "look" ? "look" : "layout"; }
 
   readonly property var ws: WindowsService
@@ -21,6 +21,7 @@ KitColumn {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "app-window"
   readonly property string title: "Windows"
+  readonly property string description: "How windows are laid out and how they look. Writes Hyprland's configuration."
   readonly property string subtitle: mode.label.toUpperCase()
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`

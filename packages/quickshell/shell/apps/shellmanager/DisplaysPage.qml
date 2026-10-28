@@ -23,6 +23,7 @@ KitColumn {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "monitor"
   readonly property string title: "Displays"
+  readonly property string description: "Arrange the monitors; resolution, refresh rate and scale of each."
   readonly property string subtitle: ds.monitors.length + (ds.monitors.length === 1 ? " MONITOR" : " MONITORS")
   readonly property var jumps: [
     { key: "arrange", label: "Arrange", y: arrangeLabel.y },

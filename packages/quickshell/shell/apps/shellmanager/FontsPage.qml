@@ -12,6 +12,7 @@ KitColumn {
   function jump(key) { tab = key === "size" ? "size" : "family"; }
   readonly property string icon: "text"
   readonly property string title: "Fonts"
+  readonly property string description: "The shell's typeface and its text size, and the text size of GTK apps."
   readonly property string subtitle: FontService.current.replace(" Nerd Font", "").toUpperCase() + " · " + ShellSettings.textSize + " PX"
   readonly property var jumps: [
     { key: "preview", label: "Preview", y: previewLabel.y },

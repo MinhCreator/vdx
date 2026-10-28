@@ -18,6 +18,7 @@ Column {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "grid"
   readonly property string title: "Apps"
+  readonly property string description: "The shell's own programs: how each one opens and behaves."
   readonly property string subtitle: listed.length + " APPS · "
                                      + ShellAppsService.windows.length + " WITH A WINDOW"
 

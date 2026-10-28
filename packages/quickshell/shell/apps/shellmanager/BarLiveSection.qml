@@ -12,6 +12,7 @@ Column {
 
   property string section: ""
   property string title: ""
+  property string about: ""
   property var info: ({})                      // kind -> { label, hint }
 
   readonly property var kinds: ShellSettings.liveOrdered(section)
@@ -42,7 +43,7 @@ Column {
     ShellSettings.liveSetOrder(section, list);
   }
 
-  KitLabel { text: root.title }
+  KitLabel { text: root.title; about: root.about }
 
   Repeater {
     id: rows

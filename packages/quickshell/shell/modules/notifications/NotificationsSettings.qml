@@ -11,7 +11,7 @@ import qs.kit
 KitColumn {
   spacing: Theme.sectionGap
 
-  KitLabel { text: "NEW NOTIFICATIONS" }
+  KitLabel { text: "NEW NOTIFICATIONS"; about: "How a new one reaches you: a card, or a line in the live slot" }
 
   KitOptionRow {
     needs: Theme.island ? "" : "A live line needs the Island style"
@@ -38,7 +38,7 @@ KitColumn {
 
   KitLine {}
 
-  KitLabel { text: "CENTRE" }
+  KitLabel { text: "CENTRE"; about: "The history you open from the bell" }
 
   KitOptionRow {
     module: "notifications"; key: "rows"; fallback: 6
@@ -50,7 +50,7 @@ KitColumn {
 
   KitLine {}
 
-  KitLabel { text: "UNSEEN" }
+  KitLabel { text: "UNSEEN"; about: "The mark for what you have not looked at yet" }
 
   KitRow {
     label: "Dot while tucked away"
@@ -77,7 +77,7 @@ KitColumn {
 
   KitLine {}
 
-  KitLabel { text: "BELL" }
+  KitLabel { text: "BELL"; about: "The Notifications module on the bar" }
 
   KitOptionRow {
     module: "notifications"; key: "badge"; fallback: "off"

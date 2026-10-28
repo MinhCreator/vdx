@@ -62,6 +62,16 @@ Rectangle {
     { value: "about",      label: "About",      icon: "info" }
   ]
 
+  // the sidebar group a page sits in (LOOK, DESKTOP, ...): the crumb over its title
+  function groupOf(tab) {
+    let group = "";
+    for (const s of sections) {
+      if (s.caption) group = s.caption;
+      if (s.value === tab) return group;
+    }
+    return "";
+  }
+
   // the pages that moved: Launcher and Keybinds are apps (Apps), Media is the
   // audio's (Bar modules), the lock and the notifications have pages of their
   // own (05). Their old names still open them: `shell open lock`,
@@ -489,6 +499,8 @@ Rectangle {
       icon: root.currentPage.icon
       title: root.currentPage.title
       subtitle: root.currentPage.subtitle
+      crumb: root.groupOf(root.tab)
+      description: root.currentPage.description ?? ""
 
       // a page with tabs (Network) lists them: `tabs` [{label, value}], `tab`
       KitChoices {

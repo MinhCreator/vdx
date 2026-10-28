@@ -26,7 +26,7 @@ Column {
   function edit(i, change) { save(rules.map((r, j) => j === i ? Object.assign({}, r, change) : r)); }
   function remove(i) { save(rules.filter((r, j) => j !== i)); }
 
-  KitLabel { text: "APP COLOURS" }
+  KitLabel { text: "APP COLOURS"; about: "Each app's avatar has its own colour; a rule picks yours" }
 
   KitRow {
     label: "Add a rule"
