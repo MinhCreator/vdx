@@ -55,7 +55,8 @@ Singleton {
   readonly property int liveFlashMs: look("liveFlashMs", "island")          // a flash stays this long
   readonly property bool liveHover: look("liveHover", "island")             // a hover on the slot opens it in place
   readonly property bool liveExpand: look("liveExpand", "island")           // a new activity opens whole first
-  readonly property bool liveWheel: look("liveWheel", "island")             // the wheel pages through them
+  readonly property bool liveWheel: look("liveWheel", "island")
+  readonly property bool liveMusicOpen: look("liveMusicOpen", "island")  // the playing track stays whole, not folded to a chip
   readonly property int liveBatteryBelow: look("liveBatteryBelow", "island") // %, low battery interrupts below this
   readonly property string liveBatteryStay: look("liveBatteryStay", "island") // fixed | 5s
   readonly property var liveSections: ({
@@ -80,7 +81,7 @@ Singleton {
     liveEnabled: true, liveNotice: true, liveBattery: true, liveBluetooth: true,
     liveRecording: true, liveUpdate: true, liveBackup: true, liveVpn: false, liveMusic: true,
     liveVolume: true, liveMic: true, liveLayout: true, liveTrack: true, livePlugged: true,
-    liveFullMs: 2500, liveFlashMs: 1500, liveHover: true, liveExpand: true, liveWheel: true,
+    liveFullMs: 2500, liveFlashMs: 1500, liveHover: true, liveExpand: true, liveWheel: true, liveMusicOpen: true,
     liveBatteryBelow: 20, liveBatteryStay: "fixed", liveOrder: ({}) })
   // animations (Shell Manager › Animations; Motion reads them)
   readonly property bool motion: state.motion                     // all of them on / off

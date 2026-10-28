@@ -94,8 +94,8 @@ Item {
     color: Theme.background2
   }
 
-  IslandLiveFace { id: faceA; full: IslandService.liveOpen; coverSize: root.coverSize }
-  IslandLiveFace { id: faceB; full: IslandService.liveOpen; coverSize: root.coverSize }
+  IslandLiveFace { id: faceA; full: IslandService.liveOpen || (kind === "music" && ShellSettings.liveMusicOpen); coverSize: root.coverSize }
+  IslandLiveFace { id: faceB; full: IslandService.liveOpen || (kind === "music" && ShellSettings.liveMusicOpen); coverSize: root.coverSize }
 
   Component.onCompleted: { faceA.kind = kind; place(); }
 

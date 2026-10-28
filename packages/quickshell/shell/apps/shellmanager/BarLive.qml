@@ -128,6 +128,11 @@ Column {
       KitSwitch { checked: ShellSettings.liveWheel; onToggled: ShellSettings.setLook("liveWheel", !checked, "island") }
     }
     KitRow {
+      label: "Keep music open"
+      hint: "The playing track stays whole, not folded to a chip"
+      KitSwitch { checked: ShellSettings.liveMusicOpen; onToggled: ShellSettings.setLook("liveMusicOpen", !checked, "island") }
+    }
+    KitRow {
       label: "Open on hover"
       hint: "The folded activity opens where it is"
       KitSwitch { checked: ShellSettings.liveHover; onToggled: ShellSettings.setLook("liveHover", !checked, "island") }

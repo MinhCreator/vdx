@@ -71,10 +71,10 @@ Rectangle {
     KitText { visible: root.kind === "vpn"; text: "Finland"; font.pixelSize: Theme.fontSize - 1; width: 64 }
     KitText { visible: root.kind === "vpn"; text: "483"; color: Theme.foreground2; font.pixelSize: Theme.fontSize - 1 }
 
-    // music
-    Rectangle { visible: root.kind === "music"; anchors.verticalCenter: parent.verticalCenter; width: 16; height: 16; radius: 8; color: Theme.background3
+    // music, and a new track: the cover, the name, the sound
+    Rectangle { visible: root.kind === "music" || root.kind === "track"; anchors.verticalCenter: parent.verticalCenter; width: 16; height: 16; radius: Theme.pill(width); color: Theme.background3
       KitIcon { anchors.centerIn: parent; name: "music"; size: 9; tint: Theme.foreground2 } }
-    KitText { visible: root.kind === "music"; text: "Survivor"; font.pixelSize: Theme.fontSize - 1; width: 64; elide: Text.ElideRight }
+    KitText { visible: root.kind === "music" || root.kind === "track"; text: "Survivor"; font.pixelSize: Theme.fontSize - 1; width: 64; elide: Text.ElideRight }
     Row {
       visible: root.kind === "music" || root.kind === "track"
       anchors.verticalCenter: parent.verticalCenter
@@ -100,10 +100,6 @@ Rectangle {
     KitText { visible: root.kind === "layout"; text: "EN"; color: Theme.muted; font.pixelSize: Theme.fontSize - 1 }
     KitText { visible: root.kind === "layout"; text: "→"; color: Theme.dim; font.pixelSize: Theme.fontSize - 1 }
     KitText { visible: root.kind === "layout"; text: "RU"; font.pixelSize: Theme.fontSize - 1; font.weight: Font.Medium }
-
-    // a new track
-    Rectangle { visible: root.kind === "track"; anchors.verticalCenter: parent.verticalCenter; width: 16; height: 16; radius: 8; color: Theme.background3 }
-    KitText { visible: root.kind === "track"; text: "Survivor"; font.pixelSize: Theme.fontSize - 1; width: 64; elide: Text.ElideRight }
 
     // the cable
     KitIcon { visible: root.kind === "plugged"; name: "zap"; size: 12; tint: Theme.purple; anchors.verticalCenter: parent.verticalCenter }
