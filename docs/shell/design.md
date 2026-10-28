@@ -180,7 +180,10 @@ Pages by the user's area; the look follows macOS System Settings.
 - Sliders in a box use the row layout (label left, value right). A snapped slider
   always shows its stops, at most 11 (every n-th of a long run). Controls ›
   Material draws Material 3's slider (thick track split by a bar handle, stops as
-  dots); Strict the thin one.
+  dots); Strict a bar filled up to the value with a white marker at its end, the
+  name inside on the left and the reading inside on the right (a stepped slider
+  keeps its name in a small caption above and shows its stops as dots); a colour
+  ramp keeps the thin track.
 
 - MUST: where a setting lives follows the user's area, not the code: every bar
   module's options in Bar modules (an app's module too), an app's own options in

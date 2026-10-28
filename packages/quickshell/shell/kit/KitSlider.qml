@@ -1,7 +1,9 @@
 import QtQuick
 import qs.config
 
-// Thin slider: a 3px track, the filled part in `tint`, a round knob; with
+// Strict: a bar filled up to the value with a white marker at its end, the
+// name inside on the left and the reading on the right (`barLabel`, `barValue`),
+// the stops as dots; a spectrum keeps the thin track. Thin slider: a 3px track, the filled part in `tint`, a round knob; with
 // Appearance › Controls › Material it is Material 3's: a thick track split by a
 // bar handle, stops as dots inside the track. It never
 // writes `value` itself: drag and click emit moved(value) for live
@@ -18,6 +20,9 @@ Item {
   property var snaps: []
   property bool ticks: true              // false: the stops still snap, no marks
   property var spectrum: []              // colours laid along the track, instead of the fill
+  property string barLabel: ""           // Strict bar: the name inside, left
+  property string barValue: ""           // Strict bar: the reading inside, right
+  property real barHeight: 42
 
   // the default tint takes the accent (Appearance › Accent › Sliders); a
   // state colour passed in (a load, a battery) keeps its own
@@ -34,6 +39,7 @@ Item {
   function letGo(v) { held = v; holdTimer.restart(); released(v); }
   readonly property real knobSize: m3 ? 4 : 12
   readonly property bool m3: Theme.material && spectrum.length === 0
+  readonly property bool bar: !Theme.material && spectrum.length === 0    // the Strict bar
   readonly property real track: 12            // Material: the track's height
   readonly property real gap: 5               // Material: the space on each side of the handle
   readonly property real handleX: shown * (width - knobSize)
@@ -81,11 +87,11 @@ Item {
   }
 
   implicitWidth: 120
-  implicitHeight: m3 ? 28 : 18
+  implicitHeight: bar ? barHeight : m3 ? 28 : 18
   opacity: enabled ? 1 : 0.4
 
   Rectangle {
-    visible: !root.m3
+    visible: !root.m3 && !root.bar
     anchors.verticalCenter: parent.verticalCenter
     width: parent.width
     height: 3
@@ -135,7 +141,7 @@ Item {
 
     Rectangle {
       required property real modelData
-      visible: !root.m3
+      visible: !root.m3 && !root.bar
       x: modelData * (root.width - root.knobSize) + root.knobSize / 2 - 1
       anchors.verticalCenter: parent.verticalCenter
       width: 2
@@ -199,7 +205,7 @@ Item {
   }
 
   Rectangle {
-    visible: !root.m3
+    visible: !root.m3 && !root.bar
     readonly property int size: area.containsMouse || root.pressed ? 14 : 12
     width: size
     height: size
@@ -211,6 +217,59 @@ Item {
     color: root.fill
     border.width: 2
     border.color: Theme.background0
+  }
+
+  // ---- Strict bar: the track, the fill, the stops, the marker, the texts ----
+  Rectangle {
+    id: bar
+    visible: root.bar
+    anchors.fill: parent
+    radius: Theme.radiusControl
+    color: Theme.background1
+    clip: true
+
+    Rectangle {
+      width: root.shown * parent.width
+      height: parent.height
+      color: root.accented || root.tint !== Theme.foreground0 ? Qt.rgba(root.fill.r, root.fill.g, root.fill.b, 0.3) : Theme.background3
+    }
+
+    // the stops, a dot each (none under the marker)
+    Repeater {
+      model: root.bar && root.ticks ? stops.model : []
+
+      Rectangle {
+        required property real modelData
+        readonly property real cx: modelData * bar.width
+        visible: Math.abs(cx - root.shown * bar.width) > 14 && cx > 8 && cx < bar.width - 8
+        x: cx - 2
+        anchors.verticalCenter: parent.verticalCenter
+        width: 4
+        height: 4
+        radius: Theme.pill(width)
+        color: Theme.gray
+      }
+    }
+
+    Rectangle {
+      x: Math.max(4, Math.min(bar.width - 6, root.shown * bar.width - 9))
+      anchors.verticalCenter: parent.verticalCenter
+      width: 2
+      height: 16
+      radius: 1
+      color: root.dimmed ? Theme.gray : Theme.foreground1
+    }
+
+    KitText {
+      anchors { left: parent.left; leftMargin: Theme.gapWide + 2; verticalCenter: parent.verticalCenter }
+      text: root.barLabel
+      color: root.dimmed ? Theme.gray : Theme.foreground0
+    }
+    KitText {
+      anchors { right: parent.right; rightMargin: Theme.gapWide + 2; verticalCenter: parent.verticalCenter }
+      text: root.barValue
+      color: root.dimmed ? Theme.gray : Theme.foreground2
+    }
   }
 
   MouseArea {
