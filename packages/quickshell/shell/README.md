@@ -118,7 +118,9 @@ size, gap, separators and hub opening.
   and the hover. The volume / brightness flash and the notification toast are
   the island's own views and only follow their switches there.
 - **The hub** opens from the clock on a hover or a click (Bar › Hub › Opening ›
-  Open the hub): the date, settings and power, the track, the **Launcher** and
+  Open the hub): the date, settings and power, the player card (a click opens the
+  Music popup, the Music module is on no bar; the card shows with nothing playing
+  too), the **Launcher** and
   **Keys** chips, then the HUB modules as chips. A chip opens its module's
   popup inside the island, with a bubble back to the hub (the mouse's back
   button too). Right click on a chip: its options. Middle click: play / pause.

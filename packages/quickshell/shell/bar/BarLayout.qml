@@ -14,10 +14,11 @@ Singleton {
   // Registry, in default order. A new module: an entry here + its Component in
   // ModuleFaces.qml. `icon` names a kit/icons SVG, `about` is the manager's one-liner,
   // `settings` its options page in the module's folder (Shell Manager › Modules),
-  // `island` its place in the island while that is not arranged (else the hub).
+  // `island` its place in the island while that is not arranged (else the hub;
+  // "none": nowhere — its popup opens from elsewhere, the hub's player for Music).
   readonly property var modules: [
     { id: "workspaces",    label: "Workspaces",    zone: "left",   icon: "layout", settings: "WorkspacesSettings.qml", about: "Hyprland workspaces" },
-    { id: "music",         label: "Music",         zone: "left",   icon: "music", settings: "MusicSettings.qml", about: "Players, local music and radio" },
+    { id: "music",         label: "Music",         zone: "left",   island: "none", icon: "music", settings: "MusicSettings.qml", about: "Players, local music and radio" },
     { id: "themes",        label: "Themes",        zone: "right",  icon: "palette", settings: "ThemesSettings.qml", about: "Switch theme" },
     { id: "tray",          label: "Tray",          zone: "right",  icon: "grid", settings: "TraySettings.qml", about: "App status icons" },
     { id: "mode",          label: "Mode",          zone: "right",  icon: "moon", settings: "ModeSettings.qml", about: "Switch light or dark mode" },
@@ -281,7 +282,7 @@ Singleton {
       const placed = zones.reduce((all, z) => all.concat(visibleIn(z, screen)), []).concat(inFolder(screen)).filter(id => !isSeparator(id) && usable(id));
       const at = id => id === "workspaces" ? "start" : modules.find(p => p.id === id)?.island ?? "hub";
       return { start: placed.filter(id => at(id) === "start"), end: placed.filter(id => at(id) === "end"),
-               hub: placed.filter(id => at(id) === "hub") };
+               hub: placed.filter(id => at(id) === "hub") };   // "none": in no zone
     }
     const z = { start: [], end: [], hub: [] };
     const seen = new Set();
@@ -292,7 +293,7 @@ Singleton {
       }
     // a module new since it was arranged takes its place (`island`), else the hub
     const off = (saved.hidden ?? []).map(id => renamed[id] ?? id);
-    for (const p of modules) if (!seen.has(p.id) && !off.includes(p.id)) z[p.island ?? "hub"].push(p.id);
+    for (const p of modules) if (!seen.has(p.id) && !off.includes(p.id) && p.island !== "none") z[p.island ?? "hub"].push(p.id);
     for (const name of islandZones) z[name] = z[name].filter(usable);
     return z;
   }

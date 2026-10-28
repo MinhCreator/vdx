@@ -27,7 +27,8 @@ Item {
 
   readonly property real preferredWidth: ModuleSettings.get("hub", "width", 400)
   function quickSlider(key) { return ModuleSettings.get("hub", key, key === "volume" || key === "brightness"); }
-  readonly property bool hasPlayer: IslandService.hasMedia && ShellSettings.hubPlayer
+  // the player card is also the way into the Music popup, so it shows with nothing playing too
+  readonly property bool hasPlayer: ShellSettings.hubPlayer
   readonly property bool hasSliders: ["volume", "microphone", "brightness", "dimming"].some(k => quickSlider(k))
   readonly property string userName: Quickshell.env("USER") || "User"
   readonly property string avatarPath: ModuleSettings.get("hub", "avatar", "")
@@ -39,6 +40,13 @@ Item {
   property date now: new Date()
 
   implicitHeight: column.implicitHeight + 2 * Theme.gapGroup
+
+  // the Music module is on no bar; it lives here for its popup (the player card opens it)
+  Loader {
+    id: musicHost
+    visible: false
+    sourceComponent: root.modules["music"] ?? null
+  }
 
   Timer {
     interval: 30000
@@ -119,6 +127,13 @@ Item {
       color: Theme.controlFill
       border.width: Theme.frameWidth
       border.color: Theme.controlLine
+
+      // a click on the card (not its buttons) opens the Music popup, as the module's did
+      MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        onClicked: musicHost.item?.openPopup()
+      }
 
       IslandCover {
         id: cover
