@@ -180,7 +180,7 @@ KitSettingsWorkspace {
         width: parent.width
         KitRow {
           label: "Bar style"
-          hint: (root.island ? "One pill with a hub and live activities" : "A strip along the screen edge") 
+          hint: (root.island ? "One pill with a hub and live activities" : "A strip along the screen edge")
           wide: true
           KitSegments {
             model: [{label: "Solid", value: "solid"}, {label: "Island", value: "island"}]
