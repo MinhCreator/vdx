@@ -26,6 +26,13 @@ GRUVBOX = dict(background0="202020", background1="32302f", background2="3c3836",
 EXTRA = {"282828": "background0", "ebdbb2": "foreground0", "ffffff": "foreground1"}
 
 THEMES = {
+    "vdx": dict(
+        title="vdx — soft black, white text, colour only on state",
+        background0="0e0e10", background1="151518", background2="19191c", background3="222226",
+        foreground0="ececee", foreground1="f2f2f4", foreground2="a3a3ab", gray="3a3a40",
+        muted="8b8b93", dim="6e6e76", red="ff6b63", orange="f59e6b", yellow="f5b13d",
+        green="4ade9a", aqua="5fd3c8", blue="7db1ff", purple="b79cff", bright="a3a3ab",
+        frame="3a3a40", frame_active="ececee"),
     "graphite": dict(
         title="Graphite — near-black monochrome, light gray frames",
         background0="0e0e0e", background1="171717", background2="1f1f1f", background3="2c2c2c",
