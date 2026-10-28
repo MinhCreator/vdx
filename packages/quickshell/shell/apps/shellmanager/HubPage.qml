@@ -34,6 +34,14 @@ Column {
     onActed: ShellSettings.set("barStyle", "island")
   }
 
+  KitNotice {
+    visible: Theme.island && HubBlocks.shown("tiles") && root.tileCount === 0
+    title: "No tile in the Hub row"
+    text: "Put Wi-Fi, Bluetooth, VPN, Focus or Dark mode there."
+    action: "Arrange"
+    onActed: root.navigate("bar", "hubzone")
+  }
+
   Column {
     width: parent.width
     spacing: Theme.sectionGap
@@ -102,47 +110,6 @@ Column {
   HubBlocksList { width: parent.width; visible: Theme.island; onArrange: root.navigate("bar", "hubzone") }
 
   KitLine { visible: Theme.island }
-
-  Column {
-    width: parent.width
-    spacing: Theme.sectionGap
-    visible: Theme.island
-
-    KitLabel { text: "CONTENT"; about: "What the hub holds. Modules are placed in the Hub row of the bar's Layout" }
-    KitRow {
-      needs: root.tileCount === 0 ? "No tile in the Hub row: put Wi-Fi, Bluetooth, VPN, Focus or Dark mode there" : ""
-      needsAction: "Arrange"
-      onNeedsActed: root.navigate("bar", "hubzone")
-      label: "Toggles"
-      hint: "Tiles of the Hub row: " + root.tileCount
-      KitButton { text: "Arrange…"; onClicked: root.navigate("bar", "hubzone") }
-    }
-    // the four quick sliders in one row: a picked one shows in the hub
-    KitRow {
-      visible: HubBlocks.shown("sliders")
-      label: "Sliders shown"
-      hint: "The ones you drag in the hub"
-      Repeater {
-        model: [
-          {key: "volume", label: "Volume", fallback: true},
-          {key: "microphone", label: "Microphone", fallback: false},
-          {key: "brightness", label: "Brightness", fallback: true},
-          {key: "dimming", label: "Dimming", fallback: false}
-        ]
-        KitButton {
-          id: sliderChip
-          required property var modelData
-          readonly property bool on: ModuleSettings.get("hub", modelData.key, modelData.fallback)
-          text: modelData.label
-          selected: on
-          Accessible.role: Accessible.CheckBox
-          Accessible.checked: on
-          onClicked: ModuleSettings.set("hub", modelData.key, !on)
-        }
-      }
-    }
-    KitGrouper {}
-  }
 
   KitGrouper {}
 }

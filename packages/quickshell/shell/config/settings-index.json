@@ -353,12 +353,6 @@
   "target": "hub"
  },
  {
-  "label": "Content",
-  "hint": "",
-  "where": "Hub",
-  "target": "hub"
- },
- {
   "label": "Hub width",
   "hint": "",
   "where": "Hub › SIZE",
@@ -391,46 +385,6 @@
   "label": "Picture",
   "hint": "",
   "where": "Hub › LOOK",
-  "target": "hub"
- },
- {
-  "label": "Toggles",
-  "hint": "Tiles of the Hub row: ",
-  "where": "Hub › CONTENT",
-  "target": "hub"
- },
- {
-  "label": "Sliders shown",
-  "hint": "The ones you drag in the hub",
-  "where": "Hub › CONTENT",
-  "target": "hub"
- },
- {
-  "label": "Volume",
-  "hint": "",
-  "where": "Hub › CONTENT",
-  "target": "hub"
- },
- {
-  "label": "Microphone",
-  "hint": "",
-  "where": "Hub › CONTENT",
-  "target": "hub"
- },
- {
-  "label": "Brightness",
-  "hint": "",
-  "where": "Hub › CONTENT",
-  "target": "hub",
-  "aliases": [
-   "night light",
-   "dimming"
-  ]
- },
- {
-  "label": "Dimming",
-  "hint": "",
-  "where": "Hub › CONTENT",
   "target": "hub"
  },
  {
