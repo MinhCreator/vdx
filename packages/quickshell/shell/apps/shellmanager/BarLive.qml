@@ -7,9 +7,8 @@ import qs.kit
 Column {
   id: root
 
-  spacing: Theme.sectionGap
-
   KitText {
+    property bool kitUnboxed: true
     width: parent.width
     text: "Things that grow out of the pill. The row order is the priority: the top one takes the pill, the others wait in the wheel."
     color: Theme.muted
@@ -22,7 +21,6 @@ Column {
     section: "asks"
     title: "ASKS"
     caption: "waits for an answer"
-    text: "Needs your attention, so it takes the front of the queue. Keep it for things you must not miss."
     info: ({
       notice: { label: "Messages", hint: "A new notification, as a toast on the pill" },
       battery: { label: "Low battery", hint: "The charge left, when it runs low" },
@@ -32,32 +30,31 @@ Column {
 
   KitLine {}
 
-  BarLiveSection {
+  Column {
     width: parent.width
-    title: "LOW BATTERY"
-    caption: "selected above"
-    text: "Choose when it interrupts. \"Until fixed\" keeps it up until the charger is back or the charge recovers; \"5 s\" lets it fold away by itself."
-    Column {
-      width: parent.width
-      KitRow {
-        label: "Interrupts below"
-        wide: true
-        KitSegments {
-          model: [{label: "10%", value: 10}, {label: "15%", value: 15}, {label: "20%", value: 20}, {label: "30%", value: 30}]
-          current: ShellSettings.liveBatteryBelow
-          onPicked: value => ShellSettings.setLook("liveBatteryBelow", value, "island")
-        }
-      }
-      KitRow {
-        label: "Stays for"
-        wide: true
-        KitSegments {
-          model: [{label: "5 s", value: "5s"}, {label: "Until fixed", value: "fixed"}]
-          current: ShellSettings.liveBatteryStay
-          onPicked: value => ShellSettings.setLook("liveBatteryStay", value, "island")
-        }
+
+    KitLabel { text: "LOW BATTERY"; value: "selected above" }
+    KitRow {
+      label: "Interrupts below"
+      hint: "The charge at which it takes the pill"
+      wide: true
+      KitSegments {
+        model: [{label: "10%", value: 10}, {label: "15%", value: 15}, {label: "20%", value: 20}, {label: "30%", value: 30}]
+        current: ShellSettings.liveBatteryBelow
+        onPicked: value => ShellSettings.setLook("liveBatteryBelow", value, "island")
       }
     }
+    KitRow {
+      label: "Stays for"
+      hint: "Until fixed: until the charger is back or the charge recovers"
+      wide: true
+      KitSegments {
+        model: [{label: "5 s", value: "5s"}, {label: "Until fixed", value: "fixed"}]
+        current: ShellSettings.liveBatteryStay
+        onPicked: value => ShellSettings.setLook("liveBatteryStay", value, "island")
+      }
+    }
+    KitGrouper {}
   }
 
   KitLine {}
@@ -67,7 +64,6 @@ Column {
     section: "held"
     title: "HELD"
     caption: "stays while it runs"
-    text: "Stays as long as the job runs, then folds away on its own. When several run at once, scroll over the pill to page through them. Drag a row up to let it take the pill first."
     info: ({
       recording: { label: "Recording", hint: "A timer while the screen records" },
       update: { label: "Updates", hint: "Progress of an update run" },
@@ -84,7 +80,6 @@ Column {
     section: "flash"
     title: "FLASH"
     caption: "passes by"
-    text: "A short note about a quick change. It shows for a moment, then folds back to rest. Nothing to click, so turn off the ones you find noisy."
     info: ({
       volume: { label: "Volume and brightness", hint: "A level while you change it" },
       mic: { label: "Microphone", hint: "When the mic is muted or unmuted" },
@@ -98,16 +93,8 @@ Column {
 
   Column {
     width: parent.width
-    spacing: Theme.sectionGap
 
     KitLabel { text: "BEHAVIOUR"; value: "every activity" }
-    KitText {
-      width: parent.width
-      text: "Rules that apply to all of them. The row order above is the priority: when two things happen at once, the higher row wins the pill and the other waits in the wheel."
-      color: Theme.muted
-      font.pixelSize: Theme.fontSize - 1
-      wrapMode: Text.WordWrap
-    }
 
     KitSliderRow {
       label: "Flash lasts"
@@ -138,5 +125,8 @@ Column {
       hint: "The folded activity opens where it is"
       KitSwitch { checked: ShellSettings.liveHover; onToggled: ShellSettings.setLook("liveHover", !checked, "island") }
     }
+    KitGrouper {}
   }
+
+  KitGrouper {}
 }

@@ -283,6 +283,7 @@ KitSettingsWorkspace {
           KitButton { text: "Use Island"; onClicked: ShellSettings.set("barStyle", "island") }
         }
         BarLive { width: parent.width }
+        KitGrouper {}
       }
       Column {
         width: parent.width
