@@ -29,13 +29,12 @@ Singleton {
   id: root
 
   // ---- tuning ----
-  readonly property int osdMs: 1600            // a volume / brightness flash
   // a notification flash: Notifications › Toasts › Toast duration (0: until dismissed)
   readonly property int toastSeconds: ModuleSettings.get("notifications", "toastSeconds", 5)
   readonly property int noticeMs: toastSeconds * 1000
   readonly property int quietStartMs: 3000     // values read at startup are not news
 
-  // a flash: "osd" or "notice"; `requested`: a view asked for over IPC
+  // a flash: "notice"; `requested`: a view asked for over IPC
   signal flashed(string kind, int ms)
   signal requested(string view, string screen)
 
@@ -144,12 +143,12 @@ Singleton {
   readonly property bool osdMuted: osdKind === "volume" && AudioService.muted
   readonly property string osdIcon: osdKind === "brightness" ? "sun" : osdMuted || AudioService.volume === 0 ? "volume-x" : "volume"
 
+  // a volume or brightness change is a flash of the live slot (the "volume" kind)
   function osd(kind) {
-    if (!ready || !ShellSettings.liveOn("volume")) return;
     // a volume change made in the open volume popup shows in the popup, not as a flash
     if (kind === "volume" && PopupManager.current?.ipcTarget === "audio") return;
     osdKind = kind;
-    flashed("osd", osdMs);
+    flash("volume");
   }
 
   Connections {

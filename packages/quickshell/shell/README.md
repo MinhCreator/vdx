@@ -115,8 +115,8 @@ size, gap, separators and hub opening.
   to a chip; a hover opens the chip in place. Bar › Live: each activity on or
   off, the row order in its kind is the priority (drag a row), the low battery
   line, how long a flash and the full view stay, expand on arrival, the wheel
-  and the hover. The volume / brightness flash and the notification toast are
-  the island's own views and only follow their switches there.
+  and the hover. The notification toast is the island's own view and only
+  follows its switch there.
 - **The hub** opens from the clock on a hover or a click (Bar › Hub › Opening ›
   Open the hub): the date, settings and power, the player card (a click opens the
   Music popup, the Music module is on no bar; the card shows with nothing playing
@@ -127,10 +127,10 @@ size, gap, separators and hub opening.
   The wheel belongs to the modules.
 - The launcher and the keybinds open inside the island (their own option
   "Open from the island"); Escape goes back to the hub when they came from it.
-- Volume and brightness pass over the island as a flash (not when changed
-  from the island itself or while the pointer rests on it); new notifications
-  too — a click on one focuses its app's window, else opens the centre.
-  Toast duration: Notifications › Toasts.
+- Volume and brightness show in the live slot as a flash (a ruler and the
+  value; not when changed in the open volume popup); new notifications pass
+  over the island as a toast — a click on one focuses its app's window, else
+  opens the centre. Toast duration: Notifications › Toasts.
 - Bar › Monitor › Island clock, per monitor: off with nothing beside it, the
   island hides there until it has something to show.
 

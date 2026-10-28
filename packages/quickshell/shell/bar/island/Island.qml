@@ -11,7 +11,7 @@ import qs.modules.audio
 // The whole bar in the island style: one dark pill that morphs between
 // views. compact (LEFT · clock · RIGHT) is the resting face; hub (the
 // date, the track and every module as a chip) opens on a hover over the clock;
-// media (the player) from the equalizer; osd (volume, brightness) and notice
+// media (the player) from the equalizer; notice
 // (a new notification) pass over it for a moment. A module's popup opens
 // inside the island (module): its content moves in from the BarPopup and back
 // once the island has folded. The launcher and the keybinds (the hub's Launcher and Keys chips)
@@ -31,11 +31,8 @@ Item {
 
   property string view: "compact"              // compact | hub | media | power | module: what was asked for
   property bool pinned: false                  // opened by a click or IPC, not a hover
-  property string flash: ""                    // osd | notice: passes over compact and media
-  // an osd under the pointer would take the view away from it (and the wheel
-  // with it): the module under the pointer already shows the new level
-  readonly property string shown: flash !== "" && view !== "power" && view !== "module" && !appView
-    && !(flash === "osd" && hover.hovered) ? flash : view
+  property string flash: ""                    // notice: passes over compact and media
+  readonly property string shown: flash !== "" && view !== "power" && view !== "module" && !appView ? flash : view
   readonly property bool open: shown !== "compact"
   // resting with nothing to show (no clock, no modules): gone until it has
   readonly property bool hidden: shown === "compact" && compact.empty
@@ -144,7 +141,6 @@ Item {
     launcher: [520, islandLauncher.implicitHeight],
     keybinds: [520, islandKeybinds.implicitHeight],
     media:   [420, 148],
-    osd:     [290, Theme.islandHeight],
     notice:  [400, noticeHeight()],
     power:   [434, 86],
     module:  [popupContent?.fitWidth ? popupContent.implicitWidth : Math.max(Theme.popupWidth, popupContent?.implicitWidth ?? 0), popupContent?.implicitHeight ?? Theme.islandHeight]
@@ -224,15 +220,6 @@ Item {
       height: root.sizes.media[1]
       visible: root.shown === "media" && opacity > 0
       opacity: root.shown === "media" ? 1 : 0
-      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
-    }
-
-    IslandOsd {
-      anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
-      width: root.sizes.osd[0]
-      height: root.sizes.osd[1]
-      visible: root.shown === "osd" && opacity > 0
-      opacity: root.shown === "osd" ? 1 : 0
       Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
     }
 
@@ -397,8 +384,6 @@ Item {
     id: flashTimer
     onTriggered: {
       if (root.flash === "notice" && (hover.hovered || root.shown !== "notice")) restart();
-      // the OSD is over: the critical notices it passed over come back, untimed
-      else if (root.flash === "osd" && IslandService.notices.length > 0) root.flash = "notice";
       else {
         if (root.flash === "notice") IslandService.clearNotices(false);
         root.flash = "";
@@ -415,11 +400,6 @@ Item {
       if (IslandService.notices.length === 0 && root.flash === "notice") root.flash = "";
     }
     function onFlashed(kind, ms) {
-      // a change made from the island (its wheel, its chips) is shown there: no flash
-      if (kind === "osd" && (hover.hovered || root.view === "hub")) return;
-      // an OSD replaces a notice flash: its plain toasts are over, not waiting;
-      // the critical ones wait for its end (flashTimer)
-      if (root.flash === "notice" && kind !== "notice") IslandService.clearNotices(true);
       root.flash = kind;
       // ms 0: stays until the notices are dismissed (onNoticesChanged ends it)
       flashTimer.stop();

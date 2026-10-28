@@ -92,6 +92,23 @@ Row {
   KitText { visible: face.kind === "vpn"; text: MihomoService.current; color: Theme.foreground2; width: Math.min(implicitWidth, 110); elide: Text.ElideRight }
   KitText { visible: face.kind === "vpn" && MihomoService.currentDelay > 0; text: String(MihomoService.currentDelay); color: Theme.muted }
 
+  // volume and brightness: the level as a ruler while it changes
+  KitIcon { visible: face.kind === "volume"; name: IslandService.osdIcon; size: 14; tint: IslandService.osdMuted ? Theme.red : Theme.foreground2; anchors.verticalCenter: parent.verticalCenter }
+  Row {
+    visible: face.kind === "volume"
+    anchors.verticalCenter: parent.verticalCenter
+    spacing: 3
+    Repeater {
+      model: 14
+      Rectangle {
+        required property int index
+        width: 2; height: 14; radius: 1
+        color: index < Math.round(Math.min(1, IslandService.osdLevel) * 14) ? Theme.foreground1 : Theme.background3
+      }
+    }
+  }
+  KitText { visible: face.kind === "volume"; text: Math.round(IslandService.osdLevel * 100); color: Theme.foreground1 }
+
   // flashes: the mic, the layout, a new track, the cable
   KitIcon { visible: face.kind === "mic"; name: IslandService.micMuted ? "mic-off" : "mic"; size: 14; tint: IslandService.micMuted ? Theme.red : Theme.green; anchors.verticalCenter: parent.verticalCenter }
   KitText { visible: face.kind === "mic"; text: IslandService.micMuted ? "Muted" : "Mic on"; color: Theme.foreground1 }
