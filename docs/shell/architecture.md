@@ -71,12 +71,19 @@ links, secrets, `/etc`, units, services). `link` also writes
 | Export / import / reset | one bundle of the three files and the Windows page's (`windows.json`, `window-mode`) | `scripts/settings_io.py`, About › Settings | import migrates; import and reset stop the shell, write (old files `.bak`), start it again; `tests/test_settings_io.py` |
 | Dotfiles state | `~/.local/state/dotfiles/` | installer + shell | `components.json` (modules not installed), `accent.lua`, `window-mode`, `shell-apps.json` |
 
-Settings UI = **Shell Manager** (`apps/shellmanager/`, Super+S). Pages:
-Appearance, Themes, Fonts, Cursor, Animations · Bar, Bar modules, Windows, Lock screen, Notifications · Network, Bluetooth, Displays · Apps, About.
-An app's or module's options are its `<Name>Settings.qml`, shown under Apps
-or Bar modules (Lock screen, Notifications: own pages). Applied at once (pickers with preview: Apply; fields: Enter).
-A page with its own options has Reset in the header (two steps: Reset, Sure?); Appearance,
-Animations and Bar reset their `ShellSettings` keys (`ShellSettings.reset(keys)`, defaults in `config/ShellState.qml`).
+Settings UI = **Shell Manager** (`apps/shellmanager/`, Super+S). The sidebar, by what the
+user is after: LOOK Appearance, Themes (also Dark / Light), Fonts, Icons, Cursor, Wallpaper, Motion ·
+DESKTOP Bar (Layout, Look, Monitors; under it, in the Island style only: Hub, Live activities),
+Bar modules, Windows, Lock screen, Notifications · SYSTEM Network, Hotspot, Bluetooth, Sound,
+Displays (with the night light), Power · SHELL Apps, Updates, About. A page header has its group, a
+state line and one or two lines on what the page does; a block has an `about` line (`KitLabel`).
+One home per setting; a setting that waits for something (a style, a switch, a module in the Hub
+row) says so with `KitRow.needs` and one fixing button (design.md). An app's or module's options are its
+`<Name>Settings.qml`, shown under Apps or Bar modules (Lock screen, Notifications: own pages).
+Applied at once (pickers with preview: Apply; fields: Enter). A page with its own options has Reset in
+the header (two steps: Reset, Sure?) that resets only that page's keys (`ShellSettings.reset(keys)`,
+`looksReset`, `ModuleSettings.reset(module, keys)`; defaults in `config/ShellState.qml`). The old page
+names still open the new places (`resolve()` in ShellManager.qml).
 
 ## Feature map
 

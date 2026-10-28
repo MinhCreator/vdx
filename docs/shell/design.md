@@ -123,13 +123,13 @@ uses tonal layers and more spacious controls.
   twins in `phosphor/` and `phosphor/solid/` (`icons/phosphor.txt`, one set for
   both corners), and a Lucide twin in `lucide/`, outline only,
   `stroke="#ffffff"` (`icons/lucide.txt`).
-  Appearance › Icons picks the set; Lucide has no solid, so a state an icon shows
+  Icons picks the set; Lucide has no solid, so a state an icon shows
   by `solid` also needs a tint.
 - Refactors keep the look; a new look is prototyped on one popup first.
 - Motion: every animation goes through `config/Motion.qml` — a Behavior takes
   `enabled: Motion.<part>` (popups, panels, controls, bar, pages, lock, island) and a
   duration from it (`quick`, `normal`, `slow`, `ms()`), easing `Motion.easing` (`morph` for a shape that resizes, `tint` for a colour);
-  set in Shell Manager › Animations. Rows that show and hide sit in a
+  set in Shell Manager › Motion. Rows that show and hide sit in a
   `KitColumn` (KitFrame's column is one): they fade in at their final positions; group geometry settles immediately. A
   list's new row (a Repeater remakes them all): `KitAppear` keyed in the list's
   `KitSeen`. A hover / selected fill fades (`Motion.controls`, `quick`) from
@@ -155,7 +155,7 @@ Pages by the user's area; the look follows macOS System Settings.
   desktop in its colours (`ThemeMock`), name, light or dark and its cast, and a
   check on the active one. A large preview in the picked theme's colours sits on
   the right (code, a prompt, controls, the colours and tones as named pills).
-  A search over the list works on one mode (Appearance › Mode) at a time. ↑/↓
+  A search over the list works on one mode (Themes › Dark / Light) at a time. ↑/↓
   previews, Enter / Apply switches, Esc goes back.
   Apps, Bar modules and Themes fill the window and scroll their panes, not the page.
   Fonts: a card per font written in itself, with its state (in use, installed,
