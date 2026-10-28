@@ -234,6 +234,12 @@
   "target": "bar:sliders"
  },
  {
+  "label": "Bar style",
+  "hint": "Off and nothing beside it: hidden",
+  "where": "Bar",
+  "target": "bar"
+ },
+ {
   "label": "Editing monitor",
   "hint": "Off and nothing beside it: hidden",
   "where": "Bar",
@@ -244,12 +250,6 @@
   "hint": "Off and nothing beside it: hidden",
   "where": "Bar",
   "target": "bar"
- },
- {
-  "label": "Bar style",
-  "hint": "Each style remembers its own layout",
-  "where": "Bar › LOOK",
-  "target": "bar:look"
  },
  {
   "label": "Icon size",
@@ -276,18 +276,6 @@
   "target": "bar:behaviour"
  },
  {
-  "label": "Island clock",
-  "hint": "Keep the clock visible in the resting bar",
-  "where": "Bar › BEHAVIOUR",
-  "target": "bar:behaviour"
- },
- {
-  "label": "Enable Island",
-  "hint": "Live activities run in the island's live slot",
-  "where": "Bar › BEHAVIOUR",
-  "target": "bar:behaviour"
- },
- {
   "label": "Show bar",
   "hint": "Share the main monitor's layout",
   "where": "Bar › MONITOR",
@@ -310,12 +298,6 @@
   "hint": "",
   "where": "Bar › MONITOR",
   "target": "bar:monitor"
- },
- {
-  "label": "Enable Island",
-  "hint": "The hub opens from the island clock",
-  "where": "Bar › HUB",
-  "target": "bar:hub"
  },
  {
   "label": "Open the hub",

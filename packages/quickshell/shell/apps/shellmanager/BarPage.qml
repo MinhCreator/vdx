@@ -50,7 +50,10 @@ KitSettingsWorkspace {
   readonly property var available: ids("hidden").filter(id => canPlace(id, activeZone)
     && (module(id)?.label ?? "").toLowerCase().includes(availableQuery.trim().toLowerCase()))
   onScreenNameChanged: { selectedModule = ""; undoStack = []; }
-  onIslandChanged: { undoStack = []; selectedModule = ""; activeZone = island ? "start" : "left"; }
+  onIslandChanged: {
+    undoStack = []; selectedModule = ""; activeZone = island ? "start" : "left";
+    if (!island && (tab === "hub" || tab === "live")) tab = "layout";
+  }
   onColumnZonesChanged: if (!columnZones.includes(activeZone)) activeZone = island ? "start" : "left"
   readonly property var resetKeys: ["barStyle", "looks", "barRightSettings"]
   readonly property bool changed: ShellSettings.changed(resetKeys) || ModuleSettings.changed("hub")
@@ -158,14 +161,39 @@ KitSettingsWorkspace {
   }
 
 
-  sections: [{label: "Layout", value: "layout"}, {label: "Appearance", value: "appearance"},
-    {label: "Hub", value: "hub"}, {label: "Live", value: "live"}, {label: "Monitors", value: "monitor"}]
+  // the tabs follow the style: the hub and the live activities are the island's
+  sections: island
+    ? [{label: "Layout", value: "layout"}, {label: "Look", value: "appearance"}, {label: "Hub", value: "hub"},
+       {label: "Live", value: "live"}, {label: "Monitors", value: "monitor"}]
+    : [{label: "Layout", value: "layout"}, {label: "Look", value: "appearance"}, {label: "Monitors", value: "monitor"}]
   current: tab
   onPicked: value => tab = value
 
   settings: Component {
     Column {
       width: parent.width
+      // the style decides what the rest of the page has: it sits above every tab
+      Column {
+        width: parent.width
+        KitRow {
+          label: "Bar style"
+          hint: root.island ? "Island: one pill with a hub and live activities" : "Solid: a strip along the screen edge"
+          wide: true
+          KitSegments {
+            model: [{label: "Solid", value: "solid"}, {label: "Island", value: "island"}]
+            current: ShellSettings.barStyle
+            onPicked: value => ShellSettings.set("barStyle", value)
+          }
+        }
+        KitText {
+          property bool kitUnboxed: true
+          width: parent.width
+          text: "Each style keeps its own layout and look."
+          color: Theme.muted
+          font.pixelSize: Theme.fontSize - 2
+        }
+        KitGrouper {}
+      }
       KitSelect {
         visible: root.roles.length > 1 && !BarLayout.shared
         label: "Editing monitor"
@@ -235,16 +263,6 @@ KitSettingsWorkspace {
         visible: root.tab === "appearance"
         KitLabel { text: "LOOK" }
         KitRow {
-          label: "Bar style"
-          hint: "Each style remembers its own layout"
-          wide: true
-          KitSegments {
-            model: [{label: "Solid", value: "solid"}, {label: "Island", value: "island"}]
-            current: ShellSettings.barStyle
-            onPicked: value => ShellSettings.set("barStyle", value)
-          }
-        }
-        KitRow {
           label: "Icon size"
           wide: true
           KitSegments { model: [{label: "Small", value: 0}, {label: "Medium", value: 2}, {label: "Large", value: 4}]; current: ShellSettings.barIconGrow; onPicked: value => ShellSettings.setLook("barIconGrow", value) }
@@ -266,25 +284,12 @@ KitSettingsWorkspace {
           hint: "Open a bar module's settings"
           KitSwitch { checked: ShellSettings.barRightSettings; onToggled: ShellSettings.set("barRightSettings", !checked) }
         }
-        KitRow {
-          visible: root.island
-          label: "Island clock"
-          hint: "Keep the clock visible in the resting bar"
-          KitSwitch { checked: BarLayout.islandClock(root.screenName); onToggled: BarLayout.setIslandClock(root.screenName, !checked) }
-        }
         KitGrouper {}
       }
       Column {
         width: parent.width
         visible: root.tab === "live"
-        KitRow {
-          visible: !root.island
-          label: "Enable Island"
-          hint: "Live activities run in the island's live slot"
-          KitButton { text: "Use Island"; onClicked: ShellSettings.set("barStyle", "island") }
-        }
-        // without the island there is no slot: the options stay, dimmed and out of reach
-        BarLive { width: parent.width; enabled: root.island; opacity: root.island ? 1 : 0.4 }
+        BarLive { width: parent.width }
         KitGrouper {}
       }
       Column {
@@ -331,13 +336,6 @@ KitSettingsWorkspace {
         visible: root.tab === "hub"
         KitLabel { text: "HUB" }
         KitRow {
-          visible: !root.island
-          label: "Enable Island"
-          hint: "The hub opens from the island clock"
-          KitButton { text: "Use Island"; onClicked: ShellSettings.set("barStyle", "island") }
-        }
-        KitRow {
-          enabled: root.island; dimmed: !root.island
           label: "Open the hub"
           wide: true
           KitSegments {
@@ -348,7 +346,6 @@ KitSettingsWorkspace {
         }
         KitSliderRow {
           id: hubWidth
-          enabled: root.island; opacity: root.island ? 1 : 0.4
           label: "Hub width"
           snaps: [0, 0.25, 0.5, 0.75, 1]
           value: (ModuleSettings.get("hub", "width", 400) - 320) / 160
@@ -356,13 +353,11 @@ KitSettingsWorkspace {
           onMoved: value => ModuleSettings.set("hub", "width", Math.round(320 + value * 160))
         }
         KitOptionRow {
-          enabled: root.island; dimmed: !root.island
           module: "hub"; key: "tileColumns"; fallback: 2
           label: "Tiles per row"; hint: "Hub row modules that can be tiles: Wi-Fi, Bluetooth, VPN, Focus, Dark mode"
           model: [{ label: "2 ×", value: 2 }, { label: "4 ×", value: 4 }]
         }
         KitRow {
-          enabled: root.island; dimmed: !root.island
           label: "Avatar"
           hint: ModuleSettings.get("hub", "avatar", "").split("/").pop() || "Your initial"
           KitButton { text: "Choose…"; onClicked: FilesService.pick("Choose a hub avatar", FilesService.home, false, ["image/*"], path => { if (path) ModuleSettings.set("hub", "avatar", path); }) }
@@ -371,14 +366,12 @@ KitSettingsWorkspace {
         KitLine {}
         KitLabel { text: "CONTENT" }
         KitRow {
-          enabled: root.island; dimmed: !root.island
           label: "Media player"
           hint: "Shown when media is available"
           KitSwitch { checked: ShellSettings.look("hubPlayer", "island"); onToggled: ShellSettings.setLook("hubPlayer", !checked, "island") }
         }
         // the four quick sliders in one row: a picked one shows in the hub
         KitRow {
-          enabled: root.island; dimmed: !root.island
           label: "Sliders"
           hint: "Pick the ones the hub shows"
           Repeater {
@@ -401,7 +394,6 @@ KitSettingsWorkspace {
           }
         }
         KitRow {
-          enabled: root.island; dimmed: !root.island
           label: "Hub modules"
           hint: BarLayout.islandIn("hub", root.screenName).length + " modules"
           KitButton { text: "Arrange…"; onClicked: { root.tab = "layout"; if (root.island) root.chooseZone("hub"); } }
