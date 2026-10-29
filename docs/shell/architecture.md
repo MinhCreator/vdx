@@ -63,6 +63,13 @@ before responding, clears password strings on completion/error or lock-state
 change, and aborts an attempt when leaving its lock state. Callbacks without
 an active attempt cannot verify or change the error. Tests use a fake context.
 
+`LockPreparation.qml` owns the optional parallel `grim` processes before a
+blurred-background lock. A shared one-second deadline and 200 ms kill grace
+bound the process group, including children that ignore TERM. A separate
+1.3-second QML fallback covers launch failure. Completion always requests the
+session lock; repeated requests while preparing are ignored. An old worker
+still stopping causes the next request to lock immediately without waiting.
+
 Files selection lives in `apps/files/FilesSelection.qml`, a QtQuick-only
 model tested without the filesystem or portal. FilesService supplies visible
 rows and the picker's single-selection constraint and exposes the existing

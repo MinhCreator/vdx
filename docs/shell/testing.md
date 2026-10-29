@@ -61,7 +61,7 @@ Each area lists the scenarios it touches; these are the shared base.
 
 ### Audit checkpoint (2026-10-29)
 
-Current validation: 256 Python tests and 69 QML cases. Full repository checks
+Current validation: 262 Python tests and 74 QML cases. Full repository checks
 and Python lint pass. These counts include baseline tests; they do not imply
 that every shell function or desktop scenario has been reviewed.
 
@@ -73,6 +73,7 @@ that every shell function or desktop scenario has been reviewed.
 | Popup hosting | Repeated attachment, switching popups, restoration of borrowed items, unrelated host children, leaving Island style, host and source destruction |
 | Popup arbitration | Production manager with isolated monitor/settings: reactive ownership, fallback, disconnected screens, duplicate registration, teardown, module close preference and capture hold |
 | Root actions | Six process tests: pending cancellation, overlap rejection, backend/authorization errors, error reset and listeners starting or cancelling the next request during completion |
+| Lock preparation | Six fake-grim process tests: parallel capture, overlap rejection, failure, timeout, TERM-resistant children, launch failure and completion reentry; production lock routing and screen-selection fallback in a lightweight fixture |
 | Lock authentication | Production state model with fake PAM: start/empty/busy/locked guards, password consumption and clearing, start failure, success/failure/error, abort and callbacks after completion |
 
 Process fixtures use temporary runtime/state directories and fake backends.
@@ -90,8 +91,8 @@ supervised shell restarted; subsequent edits loaded without QML errors.
 
 Still manual: compositor focus and monitor hotplug, rendering during a style
 switch, real GPU capture and screen-copy rendering, save overlays, real
-polkit, PAM and Wayland lock-screen lifecycles, and real devices. Passing the automated
-checks does not cover these scenarios.
+polkit, PAM and Wayland lock-screen lifecycles, and real devices. Passing
+the automated checks does not cover these scenarios.
 
 Current remaining audit map (baseline tests are not a per-function review):
 
@@ -101,7 +102,7 @@ Current remaining audit map (baseline tests are not a per-function review):
 | Files | Selection, mutation queue and history reviewed; remaining service, portal and real USB scenarios |
 | Capture | Recorder, saving and clipboard lifecycles reviewed; real GPU capture and overlays |
 | Bar and Island | Content hosting and popup arbitration reviewed; compositor focus, layout changes and multiple monitors |
-| Lock and authentication | Root completion and password-attempt state reviewed; snapshot/marker lifecycle, real PAM, polkit and Wayland lock |
+| Lock and authentication | Root completion and password-attempt state reviewed; marker lifecycle, real PAM, polkit and Wayland lock |
 | Device services | Audio, network, Bluetooth, battery, brightness and display review remains |
 | Other apps and background services | Per-function review, navigation, failure states and decomposition remain |
 | Final verification | Both bar styles, theme/settings combinations and measured performance |

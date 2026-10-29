@@ -56,17 +56,15 @@ Scope {
   function snapshot(name) { return name !== "" ? "file://" + snapshotDir + "/" + name + ".jpg" : ""; }
 
   function lock() {
-    console.warn("lock: asked for (ipc call lock lock)" + (sessionLock.locked || shot.running ? ", already locking" : ""));
-    if (sessionLock.locked || shot.running) return;
+    console.warn("lock: asked for (ipc call lock lock)" + (sessionLock.locked || preparation.busy ? ", already locking" : ""));
+    if (sessionLock.locked || preparation.busy) return;
     if (ModuleSettings.get("lock", "background", "solid") !== "blur") { sessionLock.locked = true; return; }
-    shot.command = ["bash", "-c", "umask 077; d=$1; shift; mkdir -p \"$d\"; for m; do grim -t jpeg -q 85 -o \"$m\" \"$d/$m.jpg\" & done; wait",
-                    "lock", snapshotDir].concat(Quickshell.screens.map(s => s.name));
-    shot.running = true;
+    preparation.prepare(snapshotDir, Quickshell.screens.map(s => s.name));
   }
 
-  Process {
-    id: shot
-    onExited: sessionLock.locked = true
+  LockPreparation {
+    id: preparation
+    onReady: sessionLock.locked = true
   }
 
   Process { id: cleanup; command: ["rm", "-rf", root.snapshotDir] }

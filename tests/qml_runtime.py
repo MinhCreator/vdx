@@ -8,10 +8,12 @@ import subprocess
 SHELL = Path(__file__).resolve().parent.parent / "packages/quickshell/shell"
 
 
-def run_quickshell(root, timeout=8):
+def run_quickshell(root, timeout=8, environment=None):
     runtime = root / "run"
     runtime.mkdir(mode=0o700, exist_ok=True)
-    env = dict(os.environ, QT_QPA_PLATFORM="offscreen", QT_QUICK_BACKEND="software",
+    env = dict(os.environ)
+    env.update(environment or {})
+    env.update(QT_QPA_PLATFORM="offscreen", QT_QUICK_BACKEND="software",
                XDG_RUNTIME_DIR=str(runtime), XDG_STATE_HOME=str(root / "state"),
                XDG_CACHE_HOME=str(root / "cache"))
     result = subprocess.run(["qs", "--no-color", "-p", str(root)], env=env,
