@@ -71,7 +71,8 @@ Singleton {
     });
     if (!win) return false;
     if (Hypr.minimized(win)) Hypr.call("RestoreWindow(\"" + Hypr.addr(win) + "\")");
-    Hypr.call("hl.dispatch(hl.dsp.focus({ window = \"" + Hypr.target(win) + "\" }))");
+    // the pointer stays where it is (FocusWindow: a plain focus warps it to the window)
+    Hypr.call("FocusWindow(\"" + Hypr.addr(win) + "\")");
     return true;
   }
 
