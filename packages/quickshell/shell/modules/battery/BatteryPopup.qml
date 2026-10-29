@@ -7,6 +7,8 @@ import qs.kit
 KitFrame {
   id: root
 
+  // Modules › Battery › Compact popup: no health, cycles and energy
+  readonly property bool compact: ModuleSettings.get("battery", "compact", false)
   readonly property string timeLeft: BatteryService.minutesLeft < 0 ? "—"
     : Math.floor(BatteryService.minutesLeft / 60) + ":" + String(BatteryService.minutesLeft % 60).padStart(2, "0")
   readonly property string summary: BatteryService.charging ? "CHARGING · " + timeLeft + " TO " + BatteryService.threshold + "%"
@@ -47,17 +49,19 @@ KitFrame {
       tint: root.levelColor
     }
 
-    Item { width: 1; height: 2 }
+    Item { visible: !root.compact; width: 1; height: 2 }
 
     KitInfo {
+      visible: !root.compact
       label: "Health"
       value: BatteryService.health + "%"
       valueColor: Theme.qualityColor(BatteryService.health, 80, 60)
     }
 
-    KitInfo { label: "Cycles"; value: String(BatteryService.cycles) }
+    KitInfo { visible: !root.compact; label: "Cycles"; value: String(BatteryService.cycles) }
 
     KitInfo {
+      visible: !root.compact
       label: "Energy"
       value: BatteryService.energy.toFixed(1) + " / " + BatteryService.energyDesign.toFixed(1) + " Wh"
     }

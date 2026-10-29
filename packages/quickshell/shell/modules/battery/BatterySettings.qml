@@ -25,5 +25,10 @@ Column {
     hint: "56+"
   }
 
+  KitToggleRow {
+    module: "battery"; key: "compact"; fallback: false
+    label: "Compact popup"; hint: "Hides the details: health, cycles, energy"
+  }
+
   KitGrouper {}
 }

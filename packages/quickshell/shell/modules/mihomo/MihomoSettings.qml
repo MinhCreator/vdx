@@ -12,6 +12,11 @@ Column {
 
   KitLabel { text: "POPUP" }
 
+  KitToggleRow {
+    module: "mihomo"; key: "compact"; fallback: false
+    label: "Compact popup"; hint: "Hides the details: ping, provider, traffic"
+  }
+
   KitRow {
     wide: true
     label: "Servers shown"

@@ -14,6 +14,8 @@ Column {
   readonly property int signal: active ? active.signal : 0
   readonly property string quality: signal >= 75 ? "Excellent" : signal >= 50 ? "Good"
                                   : signal >= 25 ? "Fair" : "Weak"
+  // Modules › Wi-Fi › Compact popup: no connection details (address, signal, traffic, DNS)
+  readonly property bool compact: ModuleSettings.get("wifi", "compact", false)
   readonly property bool measured: WifiService.connected && WifiService.pingMs > 0
 
   spacing: Theme.sectionGap
@@ -46,7 +48,7 @@ Column {
   // ---- connection ----
   Column {
     width: parent.width
-    visible: WifiService.connected
+    visible: WifiService.connected && !root.compact
     spacing: Theme.gapLoose
 
     KitLabel { text: "CONNECTION"; value: WifiService.gateway ? "GATEWAY " + WifiService.gateway : "" }
@@ -119,7 +121,7 @@ Column {
     }
   }
 
-  KitLine { visible: WifiService.connected }
+  KitLine { visible: WifiService.connected && !root.compact }
 
   // ---- networks ----
   Column {

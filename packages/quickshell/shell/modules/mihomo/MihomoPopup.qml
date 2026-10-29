@@ -10,6 +10,8 @@ KitFrame {
 
   // how many servers show before the list scrolls: VPN › Servers shown
   readonly property int rows: ModuleSettings.get("mihomo", "serverRows", Theme.visibleRows)
+  // Modules › VPN › Compact popup: no connection details (ping, provider, traffic)
+  readonly property bool compact: ModuleSettings.get("mihomo", "compact", false)
   readonly property bool listed: MihomoService.serviceOn && MihomoService.providers.length > 0
 
   signal closeRequested()
@@ -41,7 +43,7 @@ KitFrame {
   // ---- connection ----
   Column {
     width: parent.width
-    visible: MihomoService.serviceOn
+    visible: MihomoService.serviceOn && !root.compact
     spacing: Theme.gapLoose
 
     KitLabel {
@@ -82,7 +84,7 @@ KitFrame {
     }
   }
 
-  KitLine { visible: MihomoService.serviceOn }
+  KitLine { visible: MihomoService.serviceOn && !root.compact }
 
   // ---- routing ----
   KitText {

@@ -344,5 +344,6 @@ Row {
     tone: face.kind === "media" ? Theme.orange : Theme.green
     glowTarget: "live"
     height: 14
+    active: face.player.playing      // its own player: the radio or another app playing does not move it
   }
 }

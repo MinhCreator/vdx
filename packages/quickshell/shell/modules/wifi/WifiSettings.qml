@@ -10,6 +10,11 @@ Column {
   KitLabel { text: "BAR" }
   BarTextRow { module: "wifi" }
 
+  KitToggleRow {
+    module: "wifi"; key: "compact"; fallback: false
+    label: "Compact popup"; hint: "Hides the details: address, signal, traffic, DNS"
+  }
+
   KitLine {}
 
   KitLinkRow {

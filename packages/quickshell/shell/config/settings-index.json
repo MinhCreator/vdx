@@ -2095,6 +2095,12 @@
   "target": "modules:wifi"
  },
  {
+  "label": "Compact popup",
+  "hint": "Hides the details: address, signal, traffic, DNS",
+  "where": "Bar modules › Wi-Fi › BAR",
+  "target": "modules:wifi"
+ },
+ {
   "label": "Wi-Fi",
   "hint": "Networks, DNS, the speed test: Network",
   "where": "Bar modules › Wi-Fi › BAR",
@@ -2141,6 +2147,12 @@
   "target": "modules:mihomo"
  },
  {
+  "label": "Compact popup",
+  "hint": "Hides the details: ping, provider, traffic",
+  "where": "Bar modules › VPN › POPUP",
+  "target": "modules:mihomo"
+ },
+ {
   "label": "Servers shown",
   "hint": "How many the popup lists before it scrolls",
   "where": "Bar modules › VPN › POPUP",
@@ -2172,6 +2184,12 @@
  {
   "label": "Plus while charging",
   "hint": "56+",
+  "where": "Bar modules › Battery › BAR",
+  "target": "modules:battery"
+ },
+ {
+  "label": "Compact popup",
+  "hint": "Hides the details: health, cycles, energy",
   "where": "Bar modules › Battery › BAR",
   "target": "modules:battery"
  },
