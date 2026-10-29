@@ -20,6 +20,7 @@ TestCase {
     TestWifiService.radioOn = true;
     TestWifiService.ssid = "";
     TestWifiService.connectingSsid = "";
+    TestWifiService.hiddenBusy = false;
     TestWifiService.calls = [];
     row.forceActiveFocus();
   }
@@ -44,6 +45,10 @@ TestCase {
     compare(row.enabled, false);
     row.activate();
     TestWifiService.connectingSsid = "";
+    TestWifiService.hiddenBusy = true;
+    compare(row.enabled, false);
+    row.activate();
+    TestWifiService.hiddenBusy = false;
     TestWifiService.radioOn = false;
     row.activate();
     compare(TestWifiService.calls.length, 0);

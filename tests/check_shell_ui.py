@@ -80,7 +80,10 @@ def main():
         (work / "qs/kit/TestWifiService.qml").write_text(
             'pragma Singleton\nimport QtQuick\nQtObject {\n'
             'property bool connected: false\nproperty bool radioOn: true\n'
-            'property string ssid: ""\nproperty string connectingSsid: ""\nproperty var calls: []\n'
+            'property string ssid: ""\nproperty string connectingSsid: ""\n'
+            'property bool hiddenBusy: false\n'
+            'readonly property bool connectionBusy: connectingSsid !== "" || hiddenBusy\n'
+            'property var calls: []\n'
             'function connectTo(network) { calls = calls.concat([network.ssid]); }\n}\n')
         lock = (SHELL / "apps/lock/Lock.qml").read_text()
         (work / "qs/kit/TestLockRouting.qml").write_text(

@@ -13,7 +13,7 @@ Rectangle {
 
   readonly property bool current: WifiService.connected && modelData.ssid === WifiService.ssid
   readonly property bool connecting: WifiService.connectingSsid === modelData.ssid
-  readonly property bool available: WifiService.radioOn && !current && WifiService.connectingSsid === ""
+  readonly property bool available: WifiService.radioOn && !current && !WifiService.connectionBusy
   activeFocusOnTab: true
   enabled: available
   Accessible.role: Accessible.Button

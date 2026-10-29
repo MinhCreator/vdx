@@ -100,6 +100,7 @@ Singleton {
   property string saveError: ""
   property string hiddenError: ""
   property bool hiddenBusy: false
+  readonly property bool connectionBusy: connectingSsid !== "" || hiddenBusy
 
   function refreshSaved() { if (radioOn) savedProc.running = true; }
   function refreshDetails() { if (connected) detailsProc.running = true; }
@@ -151,7 +152,7 @@ Singleton {
   }
 
   function connectHidden(name, pw) {
-    if (hiddenBusy || name === "") return;
+    if (connectionBusy || name === "") return;
     hiddenBusy = true;
     hiddenError = "";
     hiddenProc.environment = { WIFI_PASS: pw };
@@ -187,7 +188,7 @@ Singleton {
   }
 
   function connectTo(net) {
-    if (!radioOn || connectingSsid !== "" || (connected && net.ssid === ssid)) return;
+    if (!radioOn || connectionBusy || (connected && net.ssid === ssid)) return;
     if (net.secure && !net.saved) {
       selected = net;
       password = "";
@@ -198,7 +199,7 @@ Singleton {
   }
 
   function submitPassword() {
-    if (connectingSsid === "" && password !== "") connect(selected.ssid, password);
+    if (!connectionBusy && password !== "") connect(selected.ssid, password);
   }
 
   function setDns(servers) {
@@ -239,6 +240,7 @@ Singleton {
   function refreshDns() { if (connected) dnsGetProc.running = true; }
 
   function connect(name, pw) {
+    if (!radioOn || connectionBusy || name === "") return;
     connectingSsid = name;
     connectStatus = "";
     connectError = "";

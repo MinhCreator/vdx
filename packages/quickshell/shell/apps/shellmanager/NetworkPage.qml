@@ -230,7 +230,7 @@ KitColumn {
         width: Theme.buttonWidth
         text: "Connect"
         busy: ws.connectingSsid !== "" && ws.connectingSsid === root.chosen?.ssid
-        disabled: !(root.inRange.indexOf(root.chosen) >= 0) || ws.connectingSsid !== ""
+        disabled: !(root.inRange.indexOf(root.chosen) >= 0) || ws.connectionBusy
         onClicked: ws.connect(root.chosen.ssid, "")
       }
     }
@@ -342,8 +342,8 @@ KitColumn {
       KitButton {
         width: Theme.buttonWidth
         text: "Connect"
-        busy: ws.hiddenBusy
-        disabled: !ws.radioOn || newName.text === ""
+        busy: ws.connectionBusy
+        disabled: !ws.radioOn || ws.connectionBusy || newName.text === ""
         onClicked: {
           ws.connectHidden(newName.text, newPass.text);
           newPass.text = "";

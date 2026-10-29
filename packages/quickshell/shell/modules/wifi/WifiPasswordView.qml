@@ -52,8 +52,8 @@ Column {
       icon: "check"
       text: "Connect"
       selected: true
-      busy: WifiService.connectingSsid !== ""
-      disabled: WifiService.password === ""
+      busy: WifiService.connectionBusy
+      disabled: WifiService.password === "" || WifiService.connectionBusy
       onClicked: WifiService.submitPassword()
     }
   }

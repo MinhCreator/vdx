@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import shutil
+import subprocess
 import tempfile
 import unittest
 
@@ -31,7 +32,10 @@ Scope {
   } }
 }
 ''')
-            output = run_quickshell(root)
+            try:
+                output = run_quickshell(root)
+            except subprocess.TimeoutExpired as error:
+                self.fail(f"Quickshell fixture timed out: {error.stdout}\n{error.stderr}")
             results = [line.split("DEVICE_RESULT:", 1)[1]
                        for line in output.splitlines() if "DEVICE_RESULT:" in line]
             self.assertEqual(len(results), 1, output)
@@ -247,3 +251,47 @@ Scope {
           return {failure: failure, error: actionError, busy: scanning};
         ''')
         self.assertEqual(result, {"failure": "scan failed", "error": "", "busy": False})
+
+    def test_wifi_connection_paths_cannot_overlap(self):
+        source = (SHELL / "modules/wifi/WifiService.qml").read_text()
+        result = self.evaluate('''
+  property bool radioOn: true
+  property bool connected: false
+  property string ssid: ""
+  property string connectingSsid: ""
+  property bool hiddenBusy: false
+  property string hiddenError: ""
+  readonly property bool connectionBusy: connectingSsid !== "" || hiddenBusy
+  property string password: "secret"
+  property string connectStatus: ""
+  property string connectError: ""
+  property var selected: ({ssid: "protected"})
+  property string view: "list"
+  property string script: "wifi.sh"
+  property var calls: []
+  QtObject { id: connectProc; property var environment: ({}) }
+  QtObject { id: hiddenProc; property var environment: ({}) }
+  function run(proc, args) { calls = calls.concat([args]); }
+''' + "\n".join(qml_function(source, name)
+                for name in ("connect", "connectHidden", "connectTo", "submitPassword")) + '''
+  function exercise() {
+    hiddenBusy = true;
+    connect("open", "");
+    connectTo({ssid: "open", secure: false, saved: false});
+    const duringHidden = calls.length;
+    hiddenBusy = false;
+    connectHidden("hidden", "secret");
+    connect("open", "");
+    const duringConnect = calls.length;
+    connectingSsid = "";
+    hiddenBusy = false;
+    connectTo({ssid: "open", secure: false, saved: false});
+    return {duringHidden, duringConnect, calls, connectionBusy};
+  }
+''', 'return exercise();')
+        self.assertEqual(result, {
+            "duringHidden": 0,
+            "duringConnect": 1,
+            "calls": [["--hidden", "hidden"], ["--connect", "open"]],
+            "connectionBusy": True,
+        })
