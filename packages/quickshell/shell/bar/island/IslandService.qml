@@ -116,10 +116,9 @@ Singleton {
   readonly property var liveTarget: ({ music: "music", vpn: "mihomo", battery: "battery", bluetooth: "bluetooth", update: "packages", backup: "backup" })
   property int liveIndex: 0
   // the top of the queue (the priority's winner) takes the pill whenever it changes —
-  // a new activity, a reorder in Bar › Live; paging with the wheel is temporary
+  // a new activity, a reorder in Bar › Live; paging with the wheel stays until then
   readonly property string topKind: activities[0] ?? ""
   onTopKindChanged: liveIndex = 0
-  Timer { id: pageBack; interval: 8000; onTriggered: root.liveIndex = 0 }
   readonly property string live: activities[Math.min(liveIndex, activities.length - 1)] ?? ""
   property int liveDir: 1                      // the last step: 1 next, -1 back (the slide's way)
 
@@ -127,7 +126,6 @@ Singleton {
     const n = activities.length;
     if (n < 2 || !ShellSettings.liveWheel) return;
     liveDir = delta;
-    pageBack.restart();
     liveIndex = (Math.min(liveIndex, n - 1) + delta + n) % n;
   }
 
