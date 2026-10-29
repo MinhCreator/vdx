@@ -55,7 +55,7 @@ KitColumn {
 
     KitSwitch {
       checked: eth?.autoconnect ?? false
-      disabled: !eth?.uuid
+      disabled: !eth?.uuid || ws.savedBusy
       onToggled: ws.setSaved(eth.uuid, "autoconnect", eth.autoconnect ? "no" : "yes")
     }
   }
@@ -67,6 +67,7 @@ KitColumn {
     hint: "Manual: a fixed address"
 
     KitSegments {
+      disabled: ws.savedBusy
       model: [{ label: "Auto", value: "auto" }, { label: "Manual", value: "manual" }]
       current: root.manual ? "manual" : "auto"
       onPicked: value => {
@@ -88,6 +89,7 @@ KitColumn {
 
     KitInput {
       id: ethAddr
+      enabled: !ws.savedBusy
       text: eth?.addresses ?? ""
       placeholder: "192.168.1.10/24"
       onAccepted: root.applyManual()
@@ -102,6 +104,7 @@ KitColumn {
 
     KitInput {
       id: ethGateway
+      enabled: !ws.savedBusy
       text: eth?.gw ?? ""
       placeholder: "192.168.1.1"
       onAccepted: root.applyManual()
@@ -109,6 +112,7 @@ KitColumn {
   }
 
   KitSelect {
+    disabled: ws.savedBusy
     visible: eth !== null
     label: "DNS"
     hint: "Applies now while connected"
@@ -124,7 +128,7 @@ KitColumn {
 
     KitSwitch {
       checked: eth?.ipv6 ?? true
-      disabled: !eth?.uuid
+      disabled: !eth?.uuid || ws.savedBusy
       onToggled: ws.setSaved(eth.uuid, "ipv6", eth.ipv6 ? "off" : "auto")
     }
   }
@@ -136,6 +140,7 @@ KitColumn {
     hint: "Yes: apps save data"
 
     KitSegments {
+      disabled: ws.savedBusy
       model: [{ label: "Auto", value: "unknown" }, { label: "Yes", value: "yes" }, { label: "No", value: "no" }]
       current: eth?.metered ?? "unknown"
       onPicked: value => ws.setSaved(eth.uuid, "metered", value)
@@ -167,8 +172,8 @@ KitColumn {
   }
 
   KitText {
-    visible: page.ws.ethernetError !== ""
-    text: page.ws.ethernetError
+    visible: page.ws.ethernetError !== "" || page.ws.saveError !== ""
+    text: page.ws.ethernetError || page.ws.saveError
     color: Theme.red
     wrapMode: Text.WordWrap
   }

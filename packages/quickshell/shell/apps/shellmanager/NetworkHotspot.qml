@@ -54,6 +54,7 @@ KitColumn {
     hint: "The network the phones see"
 
     KitInput {
+      enabled: !ws.hotspotBusy
       text: hs?.ssid ?? ""
       placeholder: "name"
       onAccepted: ws.setHotspotSetting("ssid", text)
@@ -66,6 +67,7 @@ KitColumn {
     hint: "8 characters or more"
 
     KitInput {
+      enabled: !ws.hotspotBusy
       placeholder: "password"
       echoMode: TextInput.Password
       onAccepted: {
@@ -81,6 +83,7 @@ KitColumn {
     hint: "Auto picks a free one"
 
     KitSegments {
+      disabled: ws.hotspotBusy
       model: [{ label: "Auto", value: "auto" }, { label: "1", value: "1" }, { label: "6", value: "6" }, { label: "11", value: "11" }]
       current: (hs?.channel ?? "0") === "0" ? "auto" : hs?.channel
       onPicked: value => ws.setHotspotSetting("channel", value)
