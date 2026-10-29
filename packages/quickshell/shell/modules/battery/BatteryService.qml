@@ -75,8 +75,7 @@ Singleton {
   }
 
   function setThreshold(percent) {
-    state.threshold = percent;
-    apply(["--threshold", String(percent)], percent);
+    if (apply(["--threshold", String(percent)], percent)) state.threshold = percent;
   }
 
   function setProfile(name) { apply(["--profile", name], name); }
@@ -84,8 +83,7 @@ Singleton {
   // Power saver is the quiet profile; turning it off restores the one before.
   function setSaver(on) {
     if (on) {
-      state.lastProfile = profile;
-      setProfile(root.saverProfile);
+      if (apply(["--profile", root.saverProfile], root.saverProfile)) state.lastProfile = profile;
     } else {
       setProfile(state.lastProfile !== root.saverProfile ? state.lastProfile : "balanced");
     }
@@ -101,10 +99,11 @@ Singleton {
   }
 
   function apply(args, value) {
-    if (actionProc.running) return;
+    if (busy !== null || actionProc.running) return false;
     busy = value;
     error = "";
     run(actionProc, args);
+    return true;
   }
 
   function refresh() {
@@ -178,10 +177,10 @@ Singleton {
     stdout: StdioCollector {
       onStreamFinished: {
         const o = Reply.parse(text, "battery.sh");
-        root.busy = null;
         if (!o?.ok) root.error = o?.error ?? "action failed";
         root.refresh();
         root.run(gpuProc, ["--gpu"]);
+        root.busy = null;
       }
     }
   }
@@ -192,7 +191,7 @@ Singleton {
     path: Quickshell.statePath("battery.json")
     printErrors: false
     onAdapterUpdated: writeAdapter()
-    onLoaded: if (state.threshold < 100) root.run(actionProc, ["--threshold", String(state.threshold)])
+    onLoaded: if (state.threshold < 100) root.setThreshold(state.threshold)
     onLoadFailed: writeAdapter()
 
     JsonAdapter {

@@ -33,6 +33,7 @@ Column {
     KitSwitch {
       anchors.verticalCenter: parent.verticalCenter
       checked: BluetoothService.powered
+      accessibleName: "Bluetooth"
       disabled: BluetoothService.toggling
       onToggled: BluetoothService.togglePower()
     }

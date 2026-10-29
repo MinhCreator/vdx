@@ -234,9 +234,9 @@ KitColumn {
   }
 
   KitText {
-    visible: bt.error !== ""
+    visible: bt.actionError !== "" || bt.error !== ""
     width: parent.width
-    text: bt.error
+    text: bt.actionError || bt.error
     color: Theme.red
     wrapMode: Text.WordWrap
     font.pixelSize: Theme.fontSize - 1

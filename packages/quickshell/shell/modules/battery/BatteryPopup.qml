@@ -40,6 +40,7 @@ KitFrame {
       visible: BatteryService.profiles.length > 0
       accessibleName: "Power saver"
       checked: BatteryService.saver
+      disabled: BatteryService.busy !== null
       onToggled: BatteryService.setSaver(!BatteryService.saver)
     }
   }

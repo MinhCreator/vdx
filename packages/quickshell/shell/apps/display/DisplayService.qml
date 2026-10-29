@@ -20,7 +20,9 @@ Singleton {
   property bool busy: false
   property string working: ""               // "scale:<output>", "rate:<output>", "pos:<output>" or "text", while applied
   property var pending: null                // the value being applied
-  property string error: ""
+  property string listError: ""
+  property string actionError: ""
+  readonly property string error: actionError || listError
 
   // a change was applied in Hyprland: the wallpaper redraws at the new scales
   signal applied()
@@ -64,7 +66,7 @@ Singleton {
     busy = true;
     working = key;
     pending = value;
-    error = "";
+    actionError = "";
     actProc.command = ["python3", script].concat(args);
     actProc.running = true;
   }
@@ -81,8 +83,8 @@ Singleton {
     stdout: StdioCollector {
       onStreamFinished: {
         const r = root.parse(text);
-        if (!r.ok) { root.error = r.error; return; }
-        root.error = "";              // a good list clears the error of an earlier action
+        if (!r.ok) { root.listError = r.error; return; }
+        root.listError = "";
         root.monitors = r.monitors;
         root.textFactor = r.text;
         root.textScales = r.textScales;
@@ -95,12 +97,12 @@ Singleton {
     stdout: StdioCollector {
       onStreamFinished: {
         const r = root.parse(text);
-        root.busy = false;
         root.working = "";
         root.pending = null;
-        if (!r.ok) { root.error = r.error; root.refresh(); return; }
-        root.applied();
+        root.actionError = r.ok ? "" : r.error;
         root.refresh();
+        root.busy = false;
+        if (r.ok) root.applied();
       }
     }
   }

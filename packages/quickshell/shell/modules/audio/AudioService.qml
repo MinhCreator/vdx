@@ -45,7 +45,7 @@ Singleton {
   readonly property string inputNote: noteOf(source, inputs, inputKey)
 
   // Whether output or input is still live; the header switch mutes both.
-  readonly property bool live: !muted || !(source?.audio?.muted ?? true)
+  readonly property bool live: !(sink?.audio?.muted ?? true) || !(source?.audio?.muted ?? true)
 
   // headphones in the jack: a sink's headphone port is available (its jack
   // detection works, unlike the mic's)

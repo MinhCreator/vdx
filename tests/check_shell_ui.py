@@ -66,6 +66,13 @@ def main():
         shutil.copy(SHELL / "components/PopupContentHost.qml", work / "qs/kit/PopupContentHost.qml")
         shutil.copy(SHELL / "apps/lock/LockAuthentication.qml", work / "qs/kit/LockAuthentication.qml")
         shutil.copy(SHELL / "apps/lock/LockLifecycle.qml", work / "qs/kit/LockLifecycle.qml")
+        device_row = (SHELL / "modules/bluetooth/DeviceRow.qml").read_text()
+        (work / "qs/kit/TestBluetoothRow.qml").write_text(
+            device_row.replace("BluetoothService", "TestBluetoothService"))
+        (work / "qs/kit/TestBluetoothService.qml").write_text(
+            'pragma Singleton\nimport QtQuick\nQtObject {\n'
+            'property bool powered: true\nproperty string busyMac: ""\nproperty var calls: []\n'
+            'function toggleDevice(device) { calls = calls.concat([device.mac]); }\n}\n')
         lock = (SHELL / "apps/lock/Lock.qml").read_text()
         (work / "qs/kit/TestLockRouting.qml").write_text(
             'import QtQuick\nimport TestQuickshell\nimport qs.config\nQtObject {\n'

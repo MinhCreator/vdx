@@ -41,6 +41,8 @@ KitFrame {
     KitSwitch {
       anchors.verticalCenter: parent.verticalCenter
       checked: AudioService.live
+      accessibleName: "Audio"
+      disabled: !AudioService.sink?.audio && !AudioService.source?.audio
       onToggled: AudioService.setMuted(AudioService.live)
     }
   }

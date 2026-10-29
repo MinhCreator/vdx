@@ -52,6 +52,7 @@ Singleton {
   function scan() {
     if (!powered || scanning) return;
     scanning = true;
+    actionError = "";
     run(scanProc, ["--scan"]);
   }
 
@@ -164,8 +165,10 @@ Singleton {
     id: scanProc
     stdout: StdioCollector {
       onStreamFinished: {
-        root.scanning = false;
+        const o = root.parse(text);
+        root.actionError = o?.ok ? "" : (o?.error ?? "could not scan for devices");
         root.refresh();
+        root.scanning = false;
       }
     }
   }

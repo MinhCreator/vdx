@@ -10,6 +10,18 @@ Rectangle {
   radius: Theme.radiusControl
 
   required property var modelData
+  readonly property bool available: BluetoothService.powered && BluetoothService.busyMac === ""
+  activeFocusOnTab: true
+  enabled: available
+  Accessible.role: Accessible.Button
+  Accessible.name: (modelData.connected ? "Disconnect " : "Connect ") + modelData.name
+  Accessible.onPressAction: activate()
+  Keys.onSpacePressed: event => { if (!event.isAutoRepeat) activate(); }
+  Keys.onReturnPressed: event => { if (!event.isAutoRepeat) activate(); }
+
+  function activate() {
+    if (available) BluetoothService.toggleDevice(modelData);
+  }
 
   readonly property bool busy: BluetoothService.busyMac === modelData.mac
   readonly property string glyph: modelData.icon.startsWith("audio") ? "headphones"
@@ -22,12 +34,20 @@ Rectangle {
 
   HoverHandler { id: hover }
 
+  Rectangle {
+    anchors.fill: parent
+    radius: parent.radius
+    color: Theme.clear
+    border.width: Theme.focusWidth
+    border.color: Theme.focusRing
+    visible: root.activeFocus
+  }
+
   // the whole row: connect or disconnect
   MouseArea {
     anchors.fill: parent
-    enabled: !root.busy
     cursorShape: Qt.PointingHandCursor
-    onClicked: BluetoothService.toggleDevice(root.modelData)
+    onClicked: { root.forceActiveFocus(); root.activate(); }
   }
 
   KitIcon {
@@ -47,7 +67,7 @@ Rectangle {
     elide: Text.ElideRight
     color: root.modelData.connected || hover.hovered ? Theme.foreground0 : Theme.foreground2
     Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
-    font.weight: root.modelData.connected ? Font.ExtraBold : Font.DemiBold
+    font.weight: root.modelData.connected ? Font.DemiBold : Font.Normal
   }
 
   KitText {
