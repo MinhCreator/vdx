@@ -45,8 +45,8 @@ Rectangle {
     { value: "cursor",     label: "Cursor",     icon: "cursor" },
     { value: "wallpaper",  label: "Wallpaper",  icon: "image" },
     { value: "animations", label: "Motion",     icon: "play" },
-    { value: "bar",        label: "Bar",        icon: "layout",     caption: "DESKTOP" },
-    { value: "hub",        label: "Hub",        icon: "gauge",    child: true, island: true },
+    { value: "bar",        label: "Bar",        icon: "menu",     caption: "DESKTOP" },
+    { value: "hub",        label: "Hub",        icon: "home",    child: true, island: true },
     { value: "live",       label: "Live activities", icon: "activity", child: true, island: true },
     { value: "modules",    label: "Bar modules", icon: "puzzle" },
     { value: "windows",    label: "Windows",    icon: "tiling" },
@@ -66,7 +66,7 @@ Rectangle {
 
   // the rail's groups: one button each, the list beside it shows the open group's pages
   readonly property var groups: [
-    { name: "LOOK", icon: "palette" }, { name: "DESKTOP", icon: "layout" }, { name: "SYSTEM", icon: "cpu" }
+    { name: "LOOK", icon: "palette" }, { name: "DESKTOP", icon: "laptop" }, { name: "SYSTEM", icon: "cpu" }
   ]
   readonly property var footSections: sections.filter(s => s.foot)
   readonly property var navSections: sections.filter(s => !s.foot && groupOf(s.value) === openGroup)

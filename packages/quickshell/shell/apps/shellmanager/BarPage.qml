@@ -13,7 +13,7 @@ KitSettingsWorkspace {
   showScrollBar: false
   readonly property Item previewItem: null
   readonly property var tabs: sections
-  readonly property string icon: "layout"
+  readonly property string icon: "menu"
   readonly property string title: "Bar"
   readonly property string description: "The bar's style, content, look and screens."
   property string tab: "layout"
