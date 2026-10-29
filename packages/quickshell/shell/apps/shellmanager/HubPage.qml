@@ -20,7 +20,7 @@ Column {
   function reset() { ModuleSettings.reset("hub"); ShellSettings.looksReset(["clockOpens", "hubPlayer"]); }
 
   // the tile modules in the hub row: what Tiles per row is for
-  readonly property int tileCount: BarLayout.islandIn("hub", BarLayout.mainScreen()).filter(id => BarLayout.isTile(id)).length
+  readonly property int tileCount: BarLayout.islandIn("tiles", BarLayout.mainScreen()).length
 
   spacing: Theme.sectionGap
 

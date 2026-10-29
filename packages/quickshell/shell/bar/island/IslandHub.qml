@@ -23,10 +23,9 @@ Item {
   signal settings(string id)
 
   // Shell Manager › Bar › HUB (island style)
-  readonly property var allIds: BarLayout.islandIn("hub", bar.screen?.name ?? "")
-  // the hub row: modules that can be a tile are drawn as tiles, the rest stay chips
-  readonly property var tileIds: allIds.filter(id => BarLayout.isTile(id))
-  readonly property var ids: allIds.filter(id => !BarLayout.isTile(id))
+  // the hub has two sets of its own: the tiles (zone tiles) and the module chips (zone hub)
+  readonly property var tileIds: BarLayout.islandIn("tiles", bar.screen?.name ?? "")
+  readonly property var ids: BarLayout.islandIn("hub", bar.screen?.name ?? "")
 
   readonly property real preferredWidth: ModuleSettings.get("hub", "width", 400)
   // the player card is also the way into the Music popup, so it shows with nothing playing too
@@ -358,9 +357,46 @@ Item {
 
   Component {
     id: modulesBlock
-      Flow {
+      // the chips wrap to rows by what they hold; Hub › Fill each row stretches the chips of a row
+      // to the whole width (the last row too), so the width is always full
+      Item {
+        id: chips
         width: parent.width
-        spacing: Theme.gapSmall
+        height: extent
+
+        readonly property bool fill: ModuleSettings.get("hub", "chipsFill", true)
+        readonly property int chipHeight: 32
+        property var naturals: []                  // each chip's own width, reported by the chip
+
+        function setNatural(i, w) {
+          if (naturals[i] === w) return;
+          const copy = naturals.slice();
+          copy[i] = w;
+          naturals = copy;
+        }
+
+        // the greedy packing: a chip goes on the row while it fits, else on the next
+        readonly property var places: {
+          const gap = Theme.gapSmall, out = [];
+          let row = [], used = 0, y = 0;
+          const flush = () => {
+            if (row.length === 0) return;
+            const extra = chips.fill ? Math.max(0, chips.width - used) / row.length : 0;
+            let x = 0;
+            for (const r of row) { out[r.i] = { x: x, y: y, w: r.w + extra }; x += r.w + extra + gap; }
+            y += chips.chipHeight + gap;
+            row = []; used = 0;
+          };
+          for (let i = 0; i < root.ids.length; i++) {
+            const w = Math.min(chips.naturals[i] ?? 0, chips.width);
+            if (row.length > 0 && used + gap + w > chips.width) flush();
+            used += (row.length > 0 ? gap : 0) + w;
+            row.push({ i: i, w: w });
+          }
+          flush();
+          return out;
+        }
+        readonly property real extent: places.length > 0 ? places.reduce((m, p) => Math.max(m, p.y), 0) + chipHeight : 0
 
         Repeater {
           model: root.ids
@@ -368,9 +404,16 @@ Item {
           Rectangle {
             id: chip
             required property string modelData
+            required property int index
 
-            width: slot.width + 2 * Theme.gapWide
-            height: 32
+            readonly property real natural: slot.width + 2 * Theme.gapWide
+            onNaturalChanged: chips.setNatural(index, natural)
+            Component.onCompleted: chips.setNatural(index, natural)
+
+            x: chips.places[index]?.x ?? 0
+            y: chips.places[index]?.y ?? 0
+            width: chips.places[index]?.w ?? natural
+            height: chips.chipHeight
             radius: Theme.radiusCard
             color: hover.hovered ? Theme.controlHover : Theme.controlFill
             border.width: Theme.frameWidth

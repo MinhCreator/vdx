@@ -42,7 +42,7 @@ KitSettingsWorkspace {
   readonly property string other: roles.find(n => n !== screenName) ?? ""
   readonly property var layout: BarLayout.layout(screenName)
   readonly property var children: BarLayout.barsOn(screenName)
-  readonly property var columnZones: (island ? ["start", "end", "hub"] : ["left", "center", "right", "folder"])
+  readonly property var columnZones: (island ? ["start", "end", "hub", "tiles"] : ["left", "center", "right", "folder"])
     .concat(children.map(b => "bar:" + b.id), ["hidden"])
   function childOf(zone) { return zone.startsWith("bar:") ? zone.slice(4) : ""; }
   readonly property string selectedZone: columnZones.find(z => ids(z).includes(selectedModule)) ?? ""
@@ -76,7 +76,7 @@ KitSettingsWorkspace {
   }
   function zoneLabel(zone) {
     return childOf(zone) ? "Bar " + (children.findIndex(b => b.id === childOf(zone)) + 2)
-      : ({left: "Left", center: "Centre", right: "Right", start: "Left of clock", end: "Right of clock", hub: "Hub", folder: "Folder", hidden: "Not on the bar"})[zone] ?? zone;
+      : ({left: "Left", center: "Centre", right: "Right", start: "Left of clock", end: "Right of clock", hub: "Hub chips", tiles: "Hub tiles", folder: "Folder", hidden: "Not on the bar"})[zone] ?? zone;
   }
   function chooseZone(zone) { activeZone = zone; }
   function selectModule(id) {
@@ -98,7 +98,7 @@ KitSettingsWorkspace {
   function module(id) { return BarLayout.modules.find(p => p.id === id) ?? null; }
   function ids(zone) {
     if (!zone) return [];
-    if (["start", "end", "hub"].includes(zone)) return BarLayout.islandIn(zone, screenName);
+    if (["start", "end", "hub", "tiles"].includes(zone)) return BarLayout.islandIn(zone, screenName);
     if (childOf(zone) !== "") return BarLayout.barModules(screenName, childOf(zone));
     if (island) return zone === "hidden" ? BarLayout.islandHidden(screenName) : BarLayout.islandIn(zone, screenName);
     return zone === "hidden" ? BarLayout.unplaced(screenName)
@@ -113,7 +113,8 @@ KitSettingsWorkspace {
   property string layoutError: ""
   function canPlace(id, zone) {
     if (id === "folder") return ["left", "center", "right"].includes(zone) || childOf(zone) !== "";
-    if (BarLayout.isSeparator(id)) return !["folder", "hub"].includes(zone) && childOf(zone) === "";
+    if (BarLayout.isSeparator(id)) return !["folder", "hub", "tiles"].includes(zone) && childOf(zone) === "";
+    if (zone === "tiles") return BarLayout.isTile(id);      // only a module that has a tile
     return columnZones.includes(zone);
   }
   function drop(id, zone, index) {
@@ -128,7 +129,7 @@ KitSettingsWorkspace {
     // a separator sits in the main bar's sides only: HIDDEN removes it, the rest
     // refuse it; the tray's chip becomes a new one where it lands
     if (BarLayout.isSeparator(id)) {
-      if (zone === "folder" || childOf(zone) !== "" || zone === "hub") return;
+      if (zone === "folder" || childOf(zone) !== "" || zone === "hub" || zone === "tiles") return;
       if (zone === "hidden") { if (id !== newSeparator) BarLayout.removeSeparator(id, screenName); return; }
       if (id === newSeparator) id = BarLayout.newSeparator();
     }

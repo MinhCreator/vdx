@@ -47,6 +47,16 @@ class Migrate(unittest.TestCase):
         v = self.read("modules.json")["values"]
         self.assertEqual(v, {"music": {"show": "icon", "titleLength": 60}})
 
+    def test_hub_tiles_get_their_own_zone(self):
+        self.write("layout.json", {"screens": {"main": {"island": {
+            "start": ["workspaces"], "end": [], "hub": ["wifi", "tray", "timer", "clock"]}}}})
+        self.run_it()
+        island = self.read("layout.json")["screens"]["main"]["island"]
+        self.assertEqual(island["tiles"], ["wifi", "timer"])
+        self.assertEqual(island["hub"], ["tray", "clock"])
+        self.run_it()                                             # once: a second run changes nothing
+        self.assertEqual(self.read("layout.json")["screens"]["main"]["island"], island)
+
     def test_layout_ids_renamed_and_roles_kept(self):
         self.write("layout.json", {"hidden": ["claude"], "screens": {
             "main": {"zones": {"left": ["plugins", "clock"], "right": ["ai", "claude"]},

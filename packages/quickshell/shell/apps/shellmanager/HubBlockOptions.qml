@@ -26,6 +26,15 @@ Column {
     }
   }
   KitRow {
+    visible: root.block === "modules"
+    label: "Fill each row"
+    hint: "The chips of a row stretch to the whole width; one that does not fit goes on the next row"
+    KitSwitch {
+      checked: ModuleSettings.get("hub", "chipsFill", true)
+      onToggled: ModuleSettings.set("hub", "chipsFill", !checked)
+    }
+  }
+  KitRow {
     visible: root.block === "week"
     wide: true
     label: "Shows"

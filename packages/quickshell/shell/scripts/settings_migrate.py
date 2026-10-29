@@ -14,7 +14,7 @@ QML keeps reading the old shapes too (a live reload runs without this)."""
 import hashlib, json, os, sys
 from pathlib import Path
 
-VERSION = 9
+VERSION = 10
 FILES = ("settings.json", "modules.json", "layout.json")
 RENAMED = {"claude": "ai", "plugins": "shell", "player": "music", "yandex": "music", "radio": "music"}   # module ids that changed (BarLayout.renamed)
 
@@ -185,7 +185,25 @@ def to_9(name: str, data: dict) -> None:
             profile.setdefault("avatar", avatar)
 
 
-MIGRATIONS = {0: to_1, 1: to_2, 2: to_3, 3: to_4, 4: to_5, 5: to_6, 6: to_7, 7: to_8, 8: to_9}          # n -> the step from version n to n + 1
+# the modules that have a tile in the hub (BarLayout `tile: true`)
+HUB_TILES = ("mode", "wifi", "bluetooth", "mihomo", "timer", "focus")
+
+
+def to_10(name: str, data: dict) -> None:
+    """Version 10: the hub's tiles have a zone of their own ("tiles"); the tile modules the
+    saved hub held move there, in their order, the rest stay its chips."""
+    if name != "layout.json":
+        return
+    entries = [data] + [e for e in (data.get("screens") or {}).values() if isinstance(e, dict)]
+    for e in entries:
+        island = e.get("island")
+        if not isinstance(island, dict) or "tiles" in island or not isinstance(island.get("hub"), list):
+            continue
+        island["tiles"] = [i for i in island["hub"] if i in HUB_TILES]
+        island["hub"] = [i for i in island["hub"] if i not in HUB_TILES]
+
+
+MIGRATIONS = {0: to_1, 1: to_2, 2: to_3, 3: to_4, 4: to_5, 5: to_6, 6: to_7, 7: to_8, 8: to_9, 9: to_10}          # n -> the step from version n to n + 1
 
 
 def migrate(name: str, data: dict) -> dict:

@@ -57,13 +57,21 @@ Item {
     settling = true;
     order.move(from, at, 1);
     relayout();
+    // the new order is told once, at the drop: saving it (and a hub redrawn from it) at every
+    // slot the row passes made the drag stutter
     const list = [];
     for (let i = 0; i < order.count; i++) list.push(order.get(i).key);
-    ordered(list);
+    pending = list;
   }
+  property var pending: null
 
   // let the rows glide into their slots, then stop animating them (unfolding must not lag)
-  function settle() { settling = true; relayout(); settleOff.restart(); }
+  function settle() {
+    settling = true;
+    relayout();
+    settleOff.restart();
+    if (pending) { const list = pending; pending = null; ordered(list); }
+  }
   Timer { id: settleOff; interval: Motion.normal + 50; onTriggered: root.settling = false }
 
   Repeater {

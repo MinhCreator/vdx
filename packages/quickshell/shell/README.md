@@ -121,12 +121,12 @@ size, gap, separators and hub opening.
 - **The hub** opens from the clock on a hover or a click (Hub › Opens on). Under the
   clock and day it holds blocks — Toggles (tiles), Calendar (week or month), Sliders,
   Player (card or compact), Module chips — in the order and with the visibility set in
-  Hub › Blocks (`config/HubBlocks.qml`): the date, settings and power, the week (a click opens the month), the **tiles** (the Hub row's modules that can
-  be one — Wi-Fi, Bluetooth, VPN, Focus, Timer, Dark mode — two or four to a row, Bar › Hub ›
+  Hub › Blocks (`config/HubBlocks.qml`): the date, settings and power, the week (a click opens the month), the **tiles** (their own zone of Bar › Layout, "Hub tiles":
+  the modules that can be one — Wi-Fi, Bluetooth, VPN, Focus, Timer, Dark mode — two or four to a row, Bar › Hub ›
   Tiles per row; the icon switches, the rest opens the module's popup), the player card (a click opens the
   Music popup, the Music module is on no bar; the card shows with nothing playing
   too), the **Launcher** and
-  **Keys** chips, then the HUB modules as chips. A chip opens its module's
+  **Keys** chips, then the modules of the "Hub chips" zone as chips (Hub › Fill each row stretches the chips of a row to the whole width). A chip opens its module's
   popup inside the island, with a bubble back to the hub (the mouse's back
   button too). Right click on a chip: its options. Middle click: play / pause.
   The wheel belongs to the modules.

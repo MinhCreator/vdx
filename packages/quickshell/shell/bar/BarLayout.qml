@@ -34,9 +34,9 @@ Singleton {
     { id: "mihomo",        label: "VPN",           zone: "right",  tile: true, icon: "public", settings: "MihomoSettings.qml", about: "Mihomo proxy and servers" },
     { id: "battery",       label: "Battery",       zone: "right",  icon: "battery-full", settings: "BatterySettings.qml", about: "Charge, limit, power profile, GPU" },
     { id: "timer",         label: "Timer",         zone: "right",  tile: true, icon: "clock", about: "Countdown and stopwatch" },
-    { id: "media",         label: "Media",         zone: "left",   icon: "video", about: "What plays in other apps" },
+    { id: "media",         label: "Media",         zone: "left",   icon: "play", about: "What plays in other apps" },
     { id: "tuner",         label: "Radio",         zone: "right",  icon: "radio", settings: "modules/radio/RadioSettings.qml", about: "Internet radio dial" },
-    { id: "focus",         label: "Focus",         zone: "right",  tile: true, icon: "moon", about: "Do not disturb" },
+    { id: "focus",         label: "Focus",         zone: "right",  tile: true, icon: "bell-off", about: "Do not disturb" },
     { id: "language",      label: "Language",      zone: "right",  icon: "keyboard", settings: "LanguageSettings.qml", about: "Keyboard layout" },
     { id: "ai",            label: "AI",            zone: "right",  icon: "bot", settings: "AiSettings.qml", about: "AI limits and local models" },
     { id: "shell",         label: "Shell",         zone: "right",  icon: "sliders", about: "Shell settings and layout" },
@@ -165,13 +165,15 @@ Singleton {
       const l = islandLayout(screen);
       if (l.start.includes(id)) return "Left of the clock";
       if (l.end.includes(id)) return "Right of the clock";
-      if (l.hub.includes(id)) return isTile(id) ? "In the hub, as a tile" : "In the hub, as a chip";
+      if (l.tiles.includes(id)) return "In the hub, as a tile";
+      if (l.hub.includes(id)) return "In the hub, as a chip";
       return "";
     }
     const names = { left: "Left", center: "Centre", right: "Right" };
     for (const z of zones) if (visibleIn(z, screen).includes(id)) return names[z];
     return inFolder(screen).includes(id) ? "In the Folder" : "";
   }
+  // a module with `tile: true` can be a tile of the hub (its own zone, Hub tiles); any module can be a chip
   function isTile(id) { return modules.find(p => p.id === id)?.tile === true; }
   function label(id) { return modules.find(p => p.id === id)?.label ?? ""; }
 
@@ -301,7 +303,8 @@ Singleton {
   // clock in the resting pill; hub — the chips when it opens; the rest hidden.
   // Never arranged, it follows the strip: workspaces at the start, every other
   // placed module (the folder's too) in the hub.
-  readonly property var islandZones: ["start", "end", "hub"]
+  // hub: the chips; tiles: the tiles (only modules with `tile: true`), a grid of their own
+  readonly property var islandZones: ["start", "end", "hub", "tiles"]
   readonly property var islandOwn: ["clock", "folder"]   // the island shows the time; it needs no folder
 
   function islandLayout(screen) {
@@ -310,36 +313,40 @@ Singleton {
     const saved = entry(screen)?.island ?? null;
     if (!saved) {
       const placed = zones.reduce((all, z) => all.concat(visibleIn(z, screen)), []).concat(inFolder(screen)).filter(id => !isSeparator(id) && usable(id));
-      const at = id => id === "workspaces" ? "start" : modules.find(p => p.id === id)?.island ?? "hub";
+      const at = id => id === "workspaces" ? "start" : modules.find(p => p.id === id)?.island ?? (isTile(id) ? "tiles" : "hub");
       return { start: placed.filter(id => at(id) === "start"), end: placed.filter(id => at(id) === "end"),
-               hub: placed.filter(id => at(id) === "hub") };   // "none": in no zone
+               hub: placed.filter(id => at(id) === "hub"), tiles: placed.filter(id => at(id) === "tiles") };   // "none": in no zone
     }
-    const z = { start: [], end: [], hub: [] };
+    const z = { start: [], end: [], hub: [], tiles: [] };
     const seen = new Set();
+    // saved before the tiles had a zone: the tile modules of the hub are its tiles (a live reload runs no migration)
+    const legacy = saved.tiles === undefined;
     for (const name of islandZones)
       for (const old of saved[name] ?? []) {
         const id = renamed[old] ?? old;
-        if (!seen.has(id)) { z[name].push(id); seen.add(id); }
+        if (seen.has(id)) continue;
+        z[legacy && name === "hub" && isTile(id) ? "tiles" : name].push(id);
+        seen.add(id);
       }
     // a module new since it was arranged takes its place (`island`), else the hub
     const off = (saved.hidden ?? []).map(id => renamed[id] ?? id);
-    for (const p of modules) if (!seen.has(p.id) && !off.includes(p.id) && p.island !== "none") z[p.island ?? "hub"].push(p.id);
+    for (const p of modules) if (!seen.has(p.id) && !off.includes(p.id) && p.island !== "none") z[p.island ?? (isTile(p.id) ? "tiles" : "hub")].push(p.id);
     for (const name of islandZones) z[name] = z[name].filter(usable);
     return z;
   }
   function islandIn(zone, screen) { return islandLayout(screen)[zone] ?? []; }
   function islandHidden(screen) {
     const l = islandLayout(screen);
-    const placed = l.start.concat(l.end, l.hub);
+    const placed = l.start.concat(l.end, l.hub, l.tiles);
     return modules.map(p => p.id).filter(id => !placed.includes(id) && installed(id) && !islandOwn.includes(id) && !taken(id, screen));
   }
-  // zone: start | end | hub | hidden
+  // zone: start | end | hub | tiles | hidden
   function islandMove(id, zone, index, screen) {
     const l = islandLayout(screen);
     const z = {};
     for (const name of islandZones) z[name] = l[name].filter(x => x !== id);
     if (zone !== "hidden") z[zone].splice(Math.max(0, Math.min(index, z[zone].length)), 0, id);
-    const placed = z.start.concat(z.end, z.hub);
+    const placed = z.start.concat(z.end, z.hub, z.tiles);
     z.hidden = modules.map(p => p.id).filter(x => !placed.includes(x) && !islandOwn.includes(x));
     update(screen, { island: z });
   }
