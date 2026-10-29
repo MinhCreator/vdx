@@ -105,15 +105,17 @@ Singleton {
 
   // a flash: a short note about a quick change (the mic, the layout, the cable)
   property string flashKind: ""
+  property string flashBack: ""
   function flash(kind) {
     if (!ready || !ShellSettings.liveOn(kind)) return;
+    if (flashKind === "") flashBack = live;      // what was showing comes back after the flash
     flashKind = kind;
     flashTimer.interval = ShellSettings.liveFlashMs;
     flashTimer.restart();
     liveIndex = Math.max(0, activities.indexOf(kind));
     liveDir = 1;
   }
-  Timer { id: flashTimer; onTriggered: { root.flashKind = ""; root.liveIndex = 0; } }
+  Timer { id: flashTimer; onTriggered: { root.flashKind = ""; root.liveIndex = Math.max(0, root.activities.indexOf(root.flashBack)); root.flashBack = ""; } }
   readonly property bool micMuted: AudioService.source?.audio?.muted ?? false
   onMicMutedChanged: flash("mic")
   readonly property string layoutNow: LanguageService.layout
