@@ -24,7 +24,7 @@ Column {
   readonly property var jumps: []
 
   // an app with a page of its own (Lock screen) is set there, not here
-  readonly property var listed: ShellAppsService.entries.filter(e => !e.page && e.listed !== false)
+  readonly property var listed: ShellAppsService.entries.filter(e => !e.page && e.listed !== false).sort((a, b) => a.label.localeCompare(b.label))
   property string selected: listed[0]?.id ?? ""
   readonly property var entry: listed.find(e => e.id === selected) ?? null
   // its window's settings (shellapps.py), when it has one
@@ -72,11 +72,25 @@ Column {
 
     EntryList {
       id: list
-      width: Theme.sideWidth
+      compact: true
       height: parent.height - Theme.windowPadding
       model: root.listed.map(e => Object.assign({ off: !ShellAppsService.installed(e) }, e))
       selected: root.selected
       onPicked: id => root.selected = id
+    }
+
+    // the list's edge
+    // — as far from the list as the list is from the pane's edge on the other side
+    Item {
+      id: edge
+      width: Math.max(0, Theme.windowPadding - Theme.gapGroup) + Theme.dividerThickness
+      height: parent.height - Theme.windowPadding
+
+      Rectangle {
+        anchors { right: parent.right; top: parent.top; bottom: parent.bottom }
+        width: Theme.dividerThickness
+        color: Theme.dividerColor
+      }
     }
 
     // ---- the chosen app: its name, key, window and options, scrolling on their own ----
@@ -84,7 +98,7 @@ Column {
       id: pane
       visible: list.matches.length > 0
       Controls.ScrollBar.vertical: KitScrollBar {}
-      width: parent.width - list.width - parent.spacing
+      width: parent.width - list.width - edge.width - 2 * parent.spacing
       height: parent.height
       contentHeight: details.implicitHeight
       bottomMargin: Theme.windowPadding  // the window's edge clips, not a line above it
@@ -236,7 +250,7 @@ Column {
     }
     KitEmptyState {
       visible: list.matches.length === 0
-      width: parent.width - list.width - parent.spacing
+      width: parent.width - list.width - edge.width - 2 * parent.spacing
       icon: "search"
       title: "No matching items"
       hint: "Try a shorter search"

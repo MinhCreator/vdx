@@ -119,14 +119,26 @@ Rectangle {
   property int picked: 0
   // letters and digits only, lower case: "wifi" finds "Wi-Fi", "dark mode" finds "Dark  mode"
   function norm(s) { return (s ?? "").toLowerCase().replace(/[^a-z0-9а-яё]+/g, ""); }
+  // the words of a text, lower case: a hint matches by whole-word starts ("scan" finds "Scan files",
+  // not "…ing a scan…" inside a word), so a hint or a place does not match every row near it
+  function words(s) { return (s ?? "").toLowerCase().split(/[^a-z0-9а-яё]+/).filter(w => w !== ""); }
+  function wordsMatch(text, q) {
+    const w = words(text);
+    const tokens = words(q);
+    return tokens.length > 0 && tokens.every(t => w.some(x => x.startsWith(t)));
+  }
   readonly property var results: {
     const q = norm(searchField.text);
     if (q === "") return [];
+    const raw = searchField.text;
     const aliased = e => (e.aliases ?? []).some(a => norm(a).includes(q));
     const first = index.filter(e => norm(e.label).includes(q));
     const second = index.filter(e => !first.includes(e) && aliased(e));
-    const then = index.filter(e => !first.includes(e) && !second.includes(e) && norm(e.hint + " " + e.where).includes(q));
-    return first.concat(second, then).slice(0, 30);
+    const then = index.filter(e => !first.includes(e) && !second.includes(e) && wordsMatch(e.hint, raw));
+    // the page or group named (a place) only when nothing else answers
+    const place = first.length + second.length + then.length > 0 ? []
+      : index.filter(e => wordsMatch(e.where, raw));
+    return first.concat(second, then, place).slice(0, 30);
   }
   onResultsChanged: picked = 0
 

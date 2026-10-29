@@ -2,9 +2,8 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// Appearance › SHAPE, under the corners: the icon set for the whole shell —
-// Material or Phosphor (outline or solid), or Lucide (outline only). The group's label lives
-// in AppearancePage.
+// Icons: the icon set for the whole shell — Material or Phosphor (outline or
+// solid), or Lucide (outline only) — and the style.
 KitColumn {
   spacing: Theme.gapGroup
 

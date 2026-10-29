@@ -32,7 +32,7 @@ Column {
 
   // modules whose options live on a page of their own (no row here: a right click goes there)
   readonly property var pages: ({ notifications: "notifications" })
-  readonly property var listed: BarLayout.modules.filter(p => !pages[p.id])
+  readonly property var listed: BarLayout.modules.filter(p => !pages[p.id]).sort((a, b) => a.label.localeCompare(b.label))
 
   // the app a module belongs to (apps/apps.json), if any: its options page is the app's `moduleSettings`
   function appOf(id) { return ShellAppsService.entries.find(a => a.module === id) ?? null; }
@@ -55,14 +55,28 @@ Column {
     height: root.height
     spacing: Theme.gapGroup
 
-    // ---- list: like the theme list — title, search, a framed list ----
+    // ---- list: like the theme list — search, a narrow list with its edge ----
     EntryList {
       id: list
-      width: Theme.sideWidth
+      compact: true
       height: parent.height - Theme.windowPadding
       model: root.listed.map(p => Object.assign({ off: !BarLayout.installed(p.id) }, p))
       selected: root.selected
       onPicked: id => root.jump(id)
+    }
+
+    // the list's edge
+    // — as far from the list as the list is from the pane's edge on the other side
+    Item {
+      id: edge
+      width: Math.max(0, Theme.windowPadding - Theme.gapGroup) + Theme.dividerThickness
+      height: parent.height - Theme.windowPadding
+
+      Rectangle {
+        anchors { right: parent.right; top: parent.top; bottom: parent.bottom }
+        width: Theme.dividerThickness
+        color: Theme.dividerColor
+      }
     }
 
     // ---- the chosen module: its name and options, scrolling on their own ----
@@ -70,7 +84,7 @@ Column {
       id: pane
       visible: list.matches.length > 0
       Controls.ScrollBar.vertical: KitScrollBar {}
-      width: parent.width - list.width - parent.spacing
+      width: parent.width - list.width - edge.width - 2 * parent.spacing
       height: parent.height
       contentHeight: details.implicitHeight
       bottomMargin: Theme.windowPadding  // the window's edge clips, not a line above it
@@ -82,6 +96,7 @@ Column {
         id: details
         width: pane.width - Theme.gapMedium
         spacing: Theme.sectionGap
+        opacity: paneIn.shown
 
         // heading: icon, name and about; Reset brings the options' defaults back
         Item {
@@ -177,12 +192,19 @@ Column {
     }
     KitEmptyState {
       visible: list.matches.length === 0
-      width: parent.width - list.width - parent.spacing
+      width: parent.width - list.width - edge.width - 2 * parent.spacing
       icon: "search"
       title: "No matching items"
       hint: "Try a shorter search"
     }
   }
 
-  onSelectedChanged: pane.contentY = 0
+  // the chosen module fades in like a page does (ShellManager's pageIn), as in Apps
+  QtObject { id: paneIn; property real shown: 1 }
+  NumberAnimation { id: paneAnim; target: paneIn; property: "shown"; from: 0; to: 1; duration: Motion.ms(240); easing.type: Motion.easing }
+
+  onSelectedChanged: {
+    pane.contentY = 0;
+    if (Motion.pages) paneAnim.restart();
+  }
 }

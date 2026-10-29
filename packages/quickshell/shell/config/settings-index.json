@@ -1257,12 +1257,6 @@
   "target": "lockscreen"
  },
  {
-  "label": "Lock now",
-  "hint": "Locks the screen now",
-  "where": "Lock screen › ON SCREEN",
-  "target": "lockscreen"
- },
- {
   "label": "New notifications",
   "hint": "",
   "where": "Notifications",

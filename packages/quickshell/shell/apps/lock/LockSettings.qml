@@ -78,19 +78,5 @@ KitColumn {
     model: [1, 3, 5, 10].map(v => ({ label: v + " s", value: v }))
   }
 
-  KitLine {}
-
-  KitRow {
-    label: "Lock now"
-    hint: "Locks the screen now"
-
-    KitButton {
-      width: Theme.buttonWidth
-      icon: "lock"
-      text: "Lock"
-      onClicked: ShellIpc.call("lock", "lock")
-    }
-  }
-
   KitGrouper {}
 }

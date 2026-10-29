@@ -8,12 +8,13 @@ import qs.kit
 // then the entries {id, label, icon, link?, off?} in one raised box down to the
 // pane's foot; the chosen one filled and bold, a link (set elsewhere) muted with
 // an arrow, an entry that is off (not installed) muted. A click or an arrow
-// emits picked(id).
+// emits picked(id). `compact`: the sidebar's look — no box, a narrow column of rows.
 Column {
   id: root
 
   property var model: []
   property string selected: ""
+  property bool compact: false
   signal picked(string id)
 
   property string query: ""
@@ -36,7 +37,7 @@ Column {
     const i = matches.findIndex(p => p.id === selected);
     if (matches.length > 0) picked(matches[Math.max(0, Math.min(matches.length - 1, i < 0 ? 0 : i + delta))].id);
   }
-  width: Theme.sideWidth
+  width: compact ? Math.round(Theme.sideWidth * 0.85) : Theme.sideWidth
   height: parent.height
   spacing: Theme.gapMedium
 
@@ -59,14 +60,14 @@ Column {
     radius: Theme.radiusCard
     width: parent.width
     height: root.height - y
-    color: Theme.groupFill
-    border.width: Theme.material ? 0 : Theme.hairline
+    color: root.compact ? Theme.clear : Theme.groupFill
+    border.width: root.compact || Theme.material ? 0 : Theme.hairline
     border.color: Theme.controlLine
 
     Flickable {
       id: scroller
       Controls.ScrollBar.vertical: KitScrollBar {}
-      anchors { fill: parent; margins: Theme.gapSmall }
+      anchors { fill: parent; margins: root.compact ? 0 : Theme.gapSmall }
       contentHeight: rows.implicitHeight
       interactive: contentHeight > height
       clip: true
@@ -80,7 +81,7 @@ Column {
       }
       Column {
         id: rows
-        width: parent.width - Theme.gapMedium
+        width: root.compact ? parent.width : parent.width - Theme.gapMedium   // compact: as wide as the search
         spacing: Theme.gapTight
 
         Repeater {
