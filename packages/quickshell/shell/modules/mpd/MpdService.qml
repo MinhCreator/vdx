@@ -38,6 +38,7 @@ Singleton {
   readonly property bool playing: player.state === "playing"
   readonly property bool paused: player.state === "paused"
   readonly property bool stopped: !service || player.state === "stop" || source === ""
+  readonly property bool parked: player.parked ?? false     // music put aside for a station (`--unpark` brings it back)
   readonly property string source: player.source ?? ""     // likes | radio | files | ""
   readonly property string file: player.file ?? ""
   readonly property real duration: player.duration ?? 0
@@ -62,6 +63,7 @@ Singleton {
     if (on) load("on", ["--on"]);
     else control(["--off"]);
   }
+  function unpark() { load("parked", ["--unpark"]); }
   function pause() { control(["--pause"]); }
   function stop() { control(["--stop"]); }
   function next() { control(["--next"]); }

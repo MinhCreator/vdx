@@ -14,7 +14,8 @@
 #   --off               stop playback and mpd.service (the popup's switch)
 #   --queue-del POS     take a track out of the queue
 #   --repeat            cycle repeat: off -> all -> one -> off
-#   --radio KEY         play a station
+#   --radio KEY         play a station (the music playing is parked first: queue and place kept)
+#   --unpark            bring the parked music back, at the track and the second it stopped at
 #   --likes             rebuild the likes queue (manager.py --init)
 #   --likes-at FILE     play a liked track by its file; the likes queue loads first when it is not in
 #   --likes-refresh     rebuild the likes queue after an update, the playing track kept
@@ -32,6 +33,7 @@ set -u
 MANAGER="$HOME/.config/scripts/yandex-music/manager.py"
 STATIONS="$HOME/.config/scripts/radio/stations.json"
 YANDEX_DIR="$HOME/Music/yandex"
+PARKED="${XDG_STATE_HOME:-$HOME/.local/state}/music-parked"      # "pos<TAB>seconds" of the music a station took the queue from
 
 ok()    { echo '{"ok":true}'; }
 error() { jq -cn --arg e "$1" '{ok:false, error:$e}'; }
@@ -49,13 +51,15 @@ cmd_status() {
         return
     fi
     current=$(mpc current -f $'%file%\t%title%\t%artist%\t%album%\t%date%\t%name%')
-    jq -cn --arg status "$status" --arg current "$current" --slurpfile stations "$STATIONS" '
+    local parked=0
+    [[ -f "$PARKED" ]] && parked=1
+    jq -cn --arg status "$status" --arg current "$current" --arg parked "$parked" --slurpfile stations "$STATIONS" '
         def seconds: split(":") | map(tonumber? // 0) | reduce .[] as $p (0; . * 60 + $p);
         ($status | split("\t")) as $s
         | ($current | split("\t")) as $c
         | ($stations[0] // {} | to_entries | map(select(.value.url == ($c[0] // ""))) | first) as $station
         | {
-            service: true,
+            service: true, parked: ($parked == "1"),
             state: $s[0], pos: ($s[1] | tonumber? // 0), length: ($s[2] | tonumber? // 0),
             elapsed: ($s[3] // "0" | seconds), duration: ($s[4] // "0" | seconds),
             random: ($s[5] == "on"),
@@ -95,11 +99,35 @@ cmd_repeat() {
     ok
 }
 
+# the music in the queue, put aside for a station: the queue saved as a playlist, the place noted
+park_music() {
+    local file
+    file=$(mpc current -f '%file%' 2>/dev/null)
+    [[ -z "$file" ]] && return
+    jq -e --arg f "$file" 'any(.[]; .url == $f)' "$STATIONS" >/dev/null 2>&1 && return    # a station already: the music is parked
+    mpc -q rm _parked 2>/dev/null
+    mpc -q save _parked || return
+    mkdir -p "$(dirname "$PARKED")"
+    mpc status $'%songpos%\t%currenttime%' | head -1 | awk -F'\t' '{ n = split($2, t, ":"); s = 0; for (i = 1; i <= n; i++) s = s * 60 + t[i]; print $1 "\t" s }' > "$PARKED"
+}
+
+cmd_unpark() {
+    local pos secs
+    [[ -f "$PARKED" ]] || { error "no music was put aside"; return; }
+    IFS=$'\t' read -r pos secs < "$PARKED"
+    mpd_up
+    mpc -q clear && mpc -q load _parked || { error "could not bring the music back"; return; }
+    mpc -q play "${pos:-1}" && mpc -q seek "${secs:-0}" 2>/dev/null
+    rm -f "$PARKED"
+    ok
+}
+
 cmd_radio() {
     local url
     url=$(jq -r --arg k "$1" '.[$k].url // empty' "$STATIONS")
     [[ -z "$url" ]] && { error "unknown station"; return; }
     mpd_up
+    park_music
     mpc -q clear && mpc -q add "$url" && mpc -q play && ok || error "could not start the station"
 }
 
@@ -201,6 +229,7 @@ case "${1:-}" in
     --random)   mpc -q random && ok ;;
     --repeat)   cmd_repeat ;;
     --radio)    cmd_radio "${2:-}" ;;
+    --unpark)   cmd_unpark ;;
     --likes)    mpd_up; uv run --script "$MANAGER" --init >/dev/null 2>&1 && ok || error "could not load likes" ;;
     --likes-at) cmd_likes_at "${2:-}" ;;
     --likes-refresh) cmd_likes_refresh ;;

@@ -215,10 +215,12 @@ Column {
           width: 52
           icon: root.player.playing ? "pause" : "play"
           selected: true
-          // nothing playing: the likes start (never what MPD kept — that may be the radio — nor
-          // another app's sound); without Yandex Music the Library opens to pick from
+          // nothing playing: the music a station put aside comes back; else the likes start (never what
+          // MPD kept — that may be the radio — nor another app's sound); without Yandex Music
+          // the Library opens to pick from
           onClicked: {
             if (root.player.hasMedia) root.player.togglePlay();
+            else if (MpdService.parked) MpdService.unpark();
             else if (BarLayout.installed("yandex")) YandexService.setActive(true);
             else root.pickRequested();
           }
