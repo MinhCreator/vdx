@@ -47,6 +47,43 @@ Item {
     name: "ShellControls"
     when: windowShown
     function init() { ShellSettings.motion = false; }
+    function test_capture_save_panel_pending_and_retry() {
+      const sample = Qt.createQmlObject([
+        'import QtQuick; import qs.kit;',
+        'CaptureSavePanel { home: "/home/test"; controller: QtObject {',
+        'property var pending: ({kind: "shot", path: "/home/test/capture.png"});',
+        'property bool saveBusy: false; property string saveError: ""; property bool replaceSave: false;',
+        'property int saves: 0; property int dismissals: 0;',
+        'function confirmSave(path) { saves++; } function dismissSave() { dismissals++; }',
+        'function editSave() { saveError = ""; replaceSave = false; } } }'
+      ].join('\n'), parent);
+      wait(20);
+      const field = findNamed(sample, "Capture file path");
+      const save = findNamed(sample, "Save"), skip = findNamed(sample, "Skip");
+      verify(field !== null && save !== null && skip !== null);
+      compare(field.text, "~/capture.png");
+      sample.controller.pending = {kind: "shot", path: "/backup/home/test/capture.png"};
+      compare(field.text, "/backup/home/test/capture.png");
+      sample.controller.saveBusy = true;
+      verify(!field.enabled && !save.enabled && !skip.enabled);
+      mouseClick(save); mouseClick(skip);
+      compare(sample.controller.saves, 0); compare(sample.controller.dismissals, 0);
+      sample.controller.saveBusy = false;
+      const normalHeight = sample.implicitHeight;
+      sample.controller.saveError = "The output folder cannot be written";
+      sample.controller.replaceSave = true;
+      wait(20);
+      verify(sample.implicitHeight > normalHeight);
+      compare(save.text, "Replace");
+      field.forceActiveFocus(); keyClick(Qt.Key_End); keyClick(Qt.Key_A);
+      compare(sample.controller.saveError, ""); verify(!sample.controller.replaceSave);
+      mouseClick(save); compare(sample.controller.saves, 1);
+      sample.controller.pending = {kind: "video", path: "/home/test/default.mp4"};
+      field.text = "/elsewhere/typed.mp4";
+      field.forceActiveFocus(); keyClick(Qt.Key_Escape);
+      compare(field.text, "~/default.mp4"); compare(sample.controller.dismissals, 1);
+      sample.destroy();
+    }
     function test_file_history_commits_only_successful_operations() {
       fileHistory.undos = []; fileHistory.redos = []; fileHistory.pending = null; fileHistory.busy = false;
       let undoCalls = 0, redoCalls = 0;

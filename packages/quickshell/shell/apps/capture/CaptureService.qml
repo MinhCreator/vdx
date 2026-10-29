@@ -119,8 +119,12 @@ Singleton {
   readonly property bool notifyShot: ModuleSettings.get("capture", "notifyShot", true)     // off: no toast; errors still show
   readonly property bool notifyRecord: ModuleSettings.get("capture", "notifyRecord", true)
   readonly property string cacheDir: Quickshell.env("HOME") + "/.cache/quickshell-capture"
+  readonly property string saveScript: Paths.scriptsDir + "/capture.py"
   // a capture waiting for its Save as answer: {kind: shot | video, tmp, path}
-  property var pending: null
+  readonly property var pending: saveSession.pending
+  readonly property bool saveBusy: saveSession.busy
+  readonly property string saveError: saveSession.error
+  readonly property bool replaceSave: saveSession.replacing
   readonly property bool recordAsk: recordSession.request?.ask ?? false
   readonly property string videoDir: ModuleSettings.get("capture", "videoDir", "") || Quickshell.env("HOME") + "/Videos/Recordings"
 
@@ -138,7 +142,7 @@ Singleton {
   // `capture shot <region|window|screen>`: screen is taken on the focused
   // monitor at once; region and window open the overlay on that choice
   function shot(target) {
-    if (recordSession.busy || pending || armed || countdown > 0 || countdownEnd.running) return;
+    if (recordSession.busy || clipboardSession.busy || pending || armed || countdown > 0 || countdownEnd.running) return;
     if (!["region", "window", "screen"].includes(target)) return;
     if (target === "screen") { instant = true; startSelection(); return; }
     setMode(target);
@@ -148,7 +152,7 @@ Singleton {
 
   // freezes the screens: the stills, then the overlay with its toolbar
   function startSelection() {
-    if (recordSession.busy || pending || armed) return;
+    if (recordSession.busy || clipboardSession.busy || pending || armed) return;
     closing = false;
     cursorStills = 0;
     plainStills = 0;
@@ -229,43 +233,46 @@ Singleton {
   // goes to the clipboard, then to wherever shotTarget says.
   function shotSaved(path) {
     close();
-    const copy = 'wl-copy --type image/png < "$1"' + (notifyShot ? ' && notify-send -a Capture -i "$1" "$2" "$3"' : "");
-    if (shotTarget === "ask") {
-      run(["sh", "-c", 'wl-copy --type image/png < "$1"', "sh", path]);
-      pending = { kind: "shot", tmp: path, path: shotDir + "/" + path.split("/").pop() };
-    } else {
-      run(["sh", "-c", copy, "sh", path, "Screenshot copied", shotTarget === "folder" ? path : "clipboard only"]);
+    clipboardSession.copy({ file: path, target: shotTarget, notify: notifyShot,
+      path: shotDir + "/" + path.split("/").pop() });
+  }
+
+  CaptureClipboard {
+    id: clipboardSession
+    script: root.saveScript
+    onCompleted: (capture, result) => {
+      if (!result.ok) root.fail("Screenshot was not copied", (result.error || "Clipboard failed") + "\n" + capture.file);
+      if (capture.target === "ask") {
+        saveSession.offer({ kind: "shot", tmp: capture.file, path: capture.path, notify: capture.notify,
+          copyFailed: !result.ok, error: result.ok ? "" : "Clipboard failed. Save the screenshot to a file." });
+      } else if (result.ok && capture.notify) {
+        root.run(["notify-send", "-a", "Capture", "-i", capture.file, "Screenshot copied",
+          capture.target === "folder" ? capture.file : "clipboard only"]);
+      }
     }
   }
 
   // Save as answered: move the capture there (a leading ~ is the home folder)
-  function confirmSave(path) {
-    if (!pending) return;
-    const p = pending;
-    pending = null;
-    const target = path.trim().replace(/^~(?=\/|$)/, Quickshell.env("HOME"));
-    const notify = p.kind === "shot" ? notifyShot : notifyRecord;
-    run(["sh", "-c", 'mkdir -p "$(dirname "$2")" && mv "$1" "$2"' + (notify ? ' && notify-send -a Capture "$3" "$2"' : "")
-                     + ' || notify-send -a Capture -u critical "Could not save" "$2"',
-         "sh", p.tmp, target, p.kind === "shot" ? "Screenshot saved" : "Recording saved"]);
-  }
+  function confirmSave(path) { saveSession.confirm(path); }
+  function editSave() { saveSession.edited(); }
 
   // Save as dismissed: a shot stays on the clipboard only; a recording is
   // never thrown away — it goes to its default folder
-  function dismissSave() {
-    if (!pending) return;
-    if (pending.kind === "shot") {
-      run(["rm", "-f", pending.tmp]);
-      pending = null;
-    } else {
-      confirmSave(pending.path);
+  function dismissSave() { saveSession.dismiss(); }
+
+  CaptureSaver {
+    id: saveSession
+    script: root.saveScript
+    onSaved: (capture, path) => {
+      if (capture.notify) root.run(["notify-send", "-a", "Capture",
+        capture.kind === "shot" ? "Screenshot saved" : "Recording saved", path]);
     }
   }
 
   // rect in layout coordinates (logical pixels across all monitors);
   // gpu-screen-recorder scales them to the output itself
   function startRecording(rect) {
-    if (recordSession.busy || pending || closing || rect.width < 1 || rect.height < 1) return;
+    if (recordSession.busy || clipboardSession.busy || pending || closing || rect.width < 1 || rect.height < 1) return;
     close();
     const ask = videoTarget === "ask";
     const folder = ask ? cacheDir : videoDir;
@@ -371,7 +378,7 @@ Singleton {
     startDelay: closeTimer.interval + 60
     onAboutToStart: { root.faceScreens = []; root.facesAsked(); }
     onCompleted: capture => {
-      if (capture.ask) root.pending = { kind: "video", tmp: capture.file, path: capture.path };
+      if (capture.ask) saveSession.offer({ kind: "video", tmp: capture.file, path: capture.path, notify: capture.notify });
       else if (capture.notify) root.run(["notify-send", "-a", "Capture", "Recording saved", capture.file]);
     }
     onFailed: (capture, message) => root.fail("Recording failed", message)

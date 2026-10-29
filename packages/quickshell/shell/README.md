@@ -70,6 +70,15 @@ launches. The output folder, notification choice and displayed audio/FPS are
 kept from that recording's start. Capture names include milliseconds so
 successive captures within one second use different names.
 
+Save as accepts an absolute file path or `~/…`. A failed save leaves the
+window and temporary capture available for retry. An existing destination
+requires a second press of Replace; editing the path clears that confirmation.
+Esc keeps a screenshot on the clipboard only; a recording goes to the default
+folder, with the same replacement confirmation if a file already exists.
+Repeated Esc never confirms replacement. Save as opens after clipboard
+delivery finishes; a clipboard failure shows the temporary file's path, and
+Skip retains that cached screenshot for recovery until normal cache cleanup.
+
 ### Music
 
 A window tabbed by source, each tab only while its component is installed:

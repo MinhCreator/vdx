@@ -66,6 +66,17 @@ can cancel before launching; a non-empty output determines success even when
 the recorder exits with an interrupt code. The service retains overlay and
 countdown coordination.
 
+`CaptureSaver.qml` owns pending Save as requests and replacement confirmation;
+`CaptureSavePanel.qml` draws its contents without depending on layer-shell or
+the capture singleton. `scripts/capture.py` moves or discards the temporary
+output. A failed save retains the request and source, and a destination is
+replaced only after confirmation for that exact path. Cross-filesystem copies
+keep the source until success; a failed replacement copy keeps the old target.
+`CaptureClipboard.qml` tracks clipboard delivery before the Save as request
+is offered, so moving or discarding a screenshot cannot race wl-copy opening
+its source. Clipboard failures are reported with the temporary path; skipping
+Save as after such a failure retains that cached source for normal cleanup.
+
 ## Themes
 
 `themes/gruvbox/` is the source; `themes/mktheme.py <name>` generates every
