@@ -192,7 +192,7 @@ KitFrame {
     KitButton {
       width: parent.width - pingButton.width - parent.spacing
       icon: "sliders"
-      text: "VPN settings"
+      text: "Open settings"
       onClicked: {
         root.closeRequested();
         ShellIpc.call("shell", "open", ["vpn"]);

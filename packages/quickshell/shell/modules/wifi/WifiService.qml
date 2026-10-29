@@ -33,7 +33,7 @@ Singleton {
 
   // ---- popup ----
   property bool popupOpen: false
-  property string view: "list"                 // list | password | speedtest
+  property string view: "list"                 // list | password
   property var selected: null                  // network of the password view
 
   property string password: ""
@@ -88,11 +88,6 @@ Singleton {
     connectError = "";
     dnsError = "";
     stopSpeedtest();
-  }
-
-  function showSpeedtest() {
-    view = "speedtest";
-    measure();
   }
 
   // ---- Network settings ----

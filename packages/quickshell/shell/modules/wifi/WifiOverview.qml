@@ -9,6 +9,7 @@ Column {
   id: root
   // rows already on show: a new one eases in (KitAppear)
   property KitSeen seen: KitSeen {}
+  signal closeRequested()
 
   readonly property var active: WifiService.networks.find(n => n.ssid === WifiService.ssid) ?? null
   readonly property int signal: active ? active.signal : 0
@@ -162,9 +163,11 @@ Column {
 
   // ---- actions ----
   Row {
+    width: parent.width
     spacing: Theme.gapMedium
 
     KitButton {
+      id: rescan
       icon: "refresh"
       text: "Rescan"
       disabled: !WifiService.radioOn
@@ -172,10 +175,13 @@ Column {
     }
 
     KitButton {
-      icon: "gauge"
-      text: "Speed test"
-      disabled: !WifiService.connected
-      onClicked: WifiService.showSpeedtest()
+      width: parent.width - rescan.width - parent.spacing
+      icon: "sliders"
+      text: "Open settings"
+      onClicked: {
+        root.closeRequested();
+        ShellIpc.call("shell", "open", ["network"]);
+      }
     }
   }
 }

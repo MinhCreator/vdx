@@ -21,14 +21,6 @@ KitFrame {
     title: "Display"
     subtitle: ds.monitors.length + (ds.monitors.length === 1 ? " MONITOR" : " MONITORS")
         + " · TEXT " + root.pct(ds.textFactor)
-
-    KitButton {
-      icon: "external"
-      onClicked: {
-        root.openWindow();
-        ShellIpc.call("shell", "open", ["displays"]);
-      }
-    }
   }
 
   KitLine {}
@@ -82,6 +74,18 @@ KitFrame {
       text: root.ds.error
       color: Theme.red
       wrapMode: Text.WordWrap
+    }
+  }
+
+  KitLine {}
+
+  KitButton {
+    width: parent.width
+    icon: "sliders"
+    text: "Open settings"
+    onClicked: {
+      root.openWindow();
+      ShellIpc.call("shell", "open", ["displays"]);
     }
   }
 }

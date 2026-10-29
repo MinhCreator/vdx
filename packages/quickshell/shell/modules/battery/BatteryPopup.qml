@@ -1,4 +1,5 @@
 import QtQuick
+import qs.components
 import qs.config
 import qs.kit
 
@@ -6,6 +7,8 @@ import qs.kit
 // and the GPU mode are in Settings › Power).
 KitFrame {
   id: root
+
+  signal closeRequested()
 
   // Modules › Battery › Compact popup: no health, cycles and energy
   readonly property bool compact: ModuleSettings.get("battery", "compact", false)
@@ -29,6 +32,15 @@ KitFrame {
       anchors.verticalCenter: parent.verticalCenter
       text: BatteryService.capacity + "%"
       tint: root.levelColor
+    }
+
+    // the power saver: a quiet profile, slower and cooler
+    KitSwitch {
+      anchors.verticalCenter: parent.verticalCenter
+      visible: BatteryService.profiles.length > 0
+      accessibleName: "Power saver"
+      checked: BatteryService.saver
+      onToggled: BatteryService.setSaver(!BatteryService.saver)
     }
   }
 
@@ -69,19 +81,6 @@ KitFrame {
 
   KitLine {}
 
-  // ---- power saver ----
-  KitRow {
-    width: parent.width
-    visible: BatteryService.profiles.length > 0
-    label: "Power saver"
-    hint: "Quiet profile, slower and cooler"
-    KitSwitch {
-      accessibleName: "Power saver"
-      checked: BatteryService.saver
-      onToggled: BatteryService.setSaver(!BatteryService.saver)
-    }
-  }
-
   KitText {
     width: parent.width
     visible: BatteryService.error !== ""
@@ -89,5 +88,17 @@ KitFrame {
     color: Theme.red
     wrapMode: Text.WordWrap
     font.pixelSize: Theme.fontSize - 1
+  }
+
+  KitLine {}
+
+  KitButton {
+    width: parent.width
+    icon: "sliders"
+    text: "Open settings"
+    onClicked: {
+      root.closeRequested();
+      ShellIpc.call("shell", "open", ["power"]);
+    }
   }
 }

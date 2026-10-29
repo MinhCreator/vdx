@@ -55,6 +55,7 @@ Item {
     BatteryPopup {
       id: content
       anchors.fill: parent
+      onCloseRequested: popup.visible = false
     }
   }
 }
