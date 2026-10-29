@@ -6,6 +6,7 @@ import qs.kit
 import qs.modules.bluetooth
 import qs.modules.focus
 import qs.modules.mihomo
+import qs.modules.timer
 import qs.modules.wifi
 
 // The hub's tiles: the modules of the hub row that can be one (BarLayout `tile`),
@@ -42,6 +43,10 @@ Item {
     case "focus": return {
       icon: "moon", title: "Focus", on: FocusService.on, detail: FocusService.on ? "Do not disturb" : "Off",
       toggle: () => FocusService.toggle(), noPopup: true };
+    case "timer": return {
+      icon: "clock", title: TimerService.active ? TimerService.title : "Timer", on: TimerService.active,
+      detail: TimerService.active ? TimerService.text + (TimerService.paused ? " · paused" : "") : "Not running",
+      toggle: () => TimerService.active ? TimerService.togglePause() : root.open("timer") };
     case "mode": return {
       icon: ThemeService.light ? "sun" : "moon", title: ThemeService.light ? "Light" : "Dark mode", on: !ThemeService.light,
       detail: ThemeService.light ? "Light theme" : "Dark theme",

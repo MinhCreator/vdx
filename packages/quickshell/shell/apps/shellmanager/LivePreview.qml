@@ -78,6 +78,10 @@ Rectangle {
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "vpn"; text: "Finland"; font.pixelSize: Theme.fontSize - 1 }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "vpn"; text: "483"; color: Theme.foreground2; font.pixelSize: Theme.fontSize - 1 }
 
+    // timer
+    KitIcon { visible: root.kind === "timer"; glowTarget: "live"; anchors.verticalCenter: parent.verticalCenter; name: "clock"; size: 16; tint: Theme.orange }
+    KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "timer"; text: "13:12"; color: Theme.orange; font.pixelSize: Theme.fontSize - 1 }
+
     // focus
     KitIcon { visible: root.kind === "focus"; glowTarget: "live"; anchors.verticalCenter: parent.verticalCenter; name: "moon"; size: 16; tint: Theme.purple }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "focus"; text: "Focus"; font.pixelSize: Theme.fontSize - 1 }

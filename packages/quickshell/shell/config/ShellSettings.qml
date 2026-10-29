@@ -70,7 +70,7 @@ Singleton {
   readonly property bool liveMusicAlways: look("liveMusicAlways", "island")  // the music stays in the live slot with no player at all
   readonly property var liveSections: ({
     asks:  ["notice", "battery", "bluetooth"],
-    held:  ["recording", "update", "backup", "vpn", "focus", "music"],
+    held:  ["recording", "update", "backup", "timer", "vpn", "focus", "music"],
     flash: ["volume", "mic", "layout", "plugged"]
   })
   readonly property bool liveEnabled: look("liveEnabled", "island")  // the master switch: off, nothing shows in the live slot
@@ -92,7 +92,7 @@ Singleton {
   }
   readonly property var lookDefaults: ({ barIconGrow: 0, barSeparators: true, barGap: 5, clockOpens: "hover", hubPlayer: true, pillHeight: 0,
     liveEnabled: true, liveBattery: true, liveBluetooth: true,
-    liveRecording: true, liveUpdate: true, liveBackup: true, liveVpn: false, liveFocus: true, liveMusic: true, liveMusicPaused: false, liveMusicAlways: false, liveNoticeMark: "avatar",
+    liveRecording: true, liveUpdate: true, liveBackup: true, liveTimer: true, liveVpn: false, liveFocus: true, liveMusic: true, liveMusicPaused: false, liveMusicAlways: false, liveNoticeMark: "avatar",
     liveVolume: true, liveMic: true, liveLayout: true, livePlugged: true,
     liveFlashMs: 1500, liveNoticeMs: 5000, liveWheel: true, liveRightSettings: true,
     liveBatteryBelow: 20, liveBatteryStay: "fixed", liveOrder: ({}) })

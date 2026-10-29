@@ -13,6 +13,7 @@ import qs.modules.audio
 import qs.modules.battery
 import qs.modules.bluetooth
 import qs.modules.focus
+import qs.modules.timer
 import qs.modules.language
 import qs.modules.mihomo
 import qs.modules.brightness
@@ -72,6 +73,7 @@ Singleton {
       backup: BackupService.busy && BackupService.jobKind === "run",
       vpn: MihomoService.serviceOn,
       focus: FocusService.on,
+      timer: TimerService.active,
       music: ShellSettings.liveMusicAlways || hasMedia && (playing || ShellSettings.liveMusicPaused),
       notice: noticeItem !== null
     };
@@ -113,12 +115,9 @@ Singleton {
   readonly property bool pluggedNow: BatteryService.plugged
   onPluggedNowChanged: if (pluggedNow) flash("plugged")
   // the module a click on an activity opens (BarLayout.openModule)
-  readonly property var liveTarget: ({ music: "music", vpn: "mihomo", battery: "battery", bluetooth: "bluetooth", update: "packages", backup: "backup" })
+  readonly property var liveTarget: ({ timer: "timer", music: "music", vpn: "mihomo", battery: "battery", bluetooth: "bluetooth", update: "packages", backup: "backup" })
   property int liveIndex: 0
-  // the top of the queue (the priority's winner) takes the pill whenever it changes —
-  // a new activity, a reorder in Bar › Live; paging with the wheel stays until then
-  readonly property string topKind: activities[0] ?? ""
-  onTopKindChanged: liveIndex = 0
+  // paging with the wheel stays: nothing switches the pill back by itself
   readonly property string live: activities[Math.min(liveIndex, activities.length - 1)] ?? ""
   property int liveDir: 1                      // the last step: 1 next, -1 back (the slide's way)
 

@@ -13,6 +13,7 @@ import qs.modules.bluetooth
 import qs.modules.mihomo
 import qs.modules.equalizer
 import qs.modules.focus
+import qs.modules.timer
 
 // One face of the pill's live slot (IslandLive): what the activity `kind` shows.
 Row {
@@ -202,6 +203,25 @@ Row {
   KitText { visible: face.kind === "vpn"; text: "VPN"; color: Theme.foreground1; font.letterSpacing: 1 }
   KitText { visible: face.kind === "vpn"; text: MihomoService.current; color: Theme.foreground2; width: Math.min(implicitWidth, 110); elide: Text.ElideRight }
   KitText { visible: face.kind === "vpn" && MihomoService.currentDelay > 0; text: String(MihomoService.currentDelay); color: Theme.muted }
+
+  // timer: the ring of what is left (a stopwatch: the clock), the time
+  TimerRing {
+    visible: face.kind === "timer" && TimerService.kind === "countdown"
+    anchors.verticalCenter: parent.verticalCenter
+    width: 16; height: 16
+    progress: TimerService.progress
+    tint: Theme.orange
+    opacity: TimerService.paused ? 0.5 : 1
+  }
+  KitIcon { visible: face.kind === "timer" && TimerService.kind === "stopwatch"; glowTarget: "live"; name: "clock"; size: 16; tint: Theme.orange; anchors.verticalCenter: parent.verticalCenter }
+  KitText {
+    visible: face.kind === "timer"
+    anchors.verticalCenter: parent.verticalCenter
+    text: TimerService.text
+    color: Theme.orange
+    font.weight: Font.Medium
+    opacity: TimerService.paused ? 0.5 : 1
+  }
 
   // focus: do not disturb is on
   KitIcon { visible: face.kind === "focus"; glowTarget: "live"; name: "moon"; size: 16; tint: Theme.purple; anchors.verticalCenter: parent.verticalCenter }

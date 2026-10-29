@@ -1417,6 +1417,12 @@
   "target": "live"
  },
  {
+  "label": "Timer",
+  "hint": "The time left, or the stopwatch; a click opens it",
+  "where": "Live activities › LIVE ACTIVITIES",
+  "target": "live"
+ },
+ {
   "label": "VPN",
   "hint": "Which server and the ping",
   "where": "Live activities › LIVE ACTIVITIES",
@@ -2062,6 +2068,12 @@
   "hint": "56+",
   "where": "Bar modules › Battery › BAR",
   "target": "modules:battery"
+ },
+ {
+  "label": "Timer",
+  "hint": "Countdown and stopwatch",
+  "where": "Bar modules",
+  "target": "modules:timer"
  },
  {
   "label": "Focus",

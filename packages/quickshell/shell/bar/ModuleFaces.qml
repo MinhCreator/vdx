@@ -16,6 +16,7 @@ import qs.modules.clock
 import qs.modules.display
 import qs.modules.equalizer
 import qs.modules.focus
+import qs.modules.timer
 import qs.modules.folder
 import qs.modules.language
 import qs.modules.mode
@@ -48,12 +49,13 @@ Item {
     workspaces: workspaces, music: music, equalizer: equalizer, themes: themes, mode: mode, tray: tray, wallpapers: wallpapers, clock: clock,
     brightness: brightness, audio: audio, wifi: wifi, bluetooth: bluetooth, mihomo: mihomo,
     battery: battery, language: language, ai: ai, notifications: notifications,
-    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, backup: backup, virustotal: virustotal, packages: packages, display: display, windows: windows, chat: chat, folder: folder, focus: focus
+    shell: shell, capture: capture, clipboard: clipboard, sysmon: sysmon, taskmanager: taskmanager, cleaner: cleaner, backup: backup, virustotal: virustotal, packages: packages, display: display, windows: windows, chat: chat, folder: folder, focus: focus, timer: timer
   })
 
   Component { id: workspaces; Workspaces {} }
   Component { id: music; Music { bar: root.bar } }
   Component { id: focus; Focus {} }
+  Component { id: timer; TimerBar { bar: root.bar } }
   Component { id: clock; Clock {} }
   Component { id: equalizer; Equalizer { bar: root.bar } }
   Component { id: themes; Themes { bar: root.bar } }

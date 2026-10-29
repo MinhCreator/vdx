@@ -50,6 +50,7 @@ Column {
       recording: { label: "Recording", hint: "A timer while the screen records" },
       update: { label: "Updates", hint: "Progress of an update run" },
       backup: { label: "Backup", hint: "Progress of a backup" },
+      timer: { label: "Timer", hint: "The time left, or the stopwatch; a click opens it" },
       vpn: { label: "VPN", hint: "Which server and the ping" },
       focus: { label: "Focus", hint: "Do not disturb is on; a click ends it" },
       music: { label: "Music", hint: "The playing track and its sound" }

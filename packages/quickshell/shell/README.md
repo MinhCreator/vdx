@@ -110,9 +110,9 @@ size, gap, separators and hub opening.
   equalizer).
 - **The live slot** (`IslandLive`, between the clock and RIGHT) shows what
   runs, only while it does, in three kinds: Asks (low battery, a connected
-  device), Held (recording, update, backup, VPN, Focus, music) and Flash (the mic, the
+  device), Held (recording, update, backup, timer, VPN, Focus, music) and Flash (the mic, the
   layout, the cable). The wheel over it pages through them with a
-  slide; a new one, or one paged to, shows whole in the pill (activities never fold);
+  slide, and it stays on the one paged to (nothing pages back by itself); one shows whole in the pill (activities never fold);
   a click on the music opens the
   Music popup (a middle click plays / pauses). Bar › Live: each activity on or
   off, the row order in its kind is the priority (drag a row), the low battery
@@ -122,7 +122,7 @@ size, gap, separators and hub opening.
   clock and day it holds blocks — Toggles (tiles), Calendar (week or month), Sliders,
   Player (card or compact), Module chips — in the order and with the visibility set in
   Hub › Blocks (`config/HubBlocks.qml`): the date, settings and power, the week (a click opens the month), the **tiles** (the Hub row's modules that can
-  be one — Wi-Fi, Bluetooth, VPN, Focus, Dark mode — two or four to a row, Bar › Hub ›
+  be one — Wi-Fi, Bluetooth, VPN, Focus, Timer, Dark mode — two or four to a row, Bar › Hub ›
   Tiles per row; the icon switches, the rest opens the module's popup), the player card (a click opens the
   Music popup, the Music module is on no bar; the card shows with nothing playing
   too), the **Launcher** and
