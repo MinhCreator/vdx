@@ -10,7 +10,7 @@ Column {
   readonly property Item previewItem: null
   signal navigate(string tab, string target)
 
-  readonly property string icon: "layout"
+  readonly property string icon: "gauge"
   readonly property string title: "Hub"
   readonly property string description: "The panel that opens from the island's clock."
   readonly property var jumps: []

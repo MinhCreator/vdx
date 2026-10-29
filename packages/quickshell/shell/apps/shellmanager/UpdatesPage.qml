@@ -11,7 +11,7 @@ Column {
   id: root
   readonly property Item previewItem: null
 
-  readonly property string icon: "package"
+  readonly property string icon: "download"
   readonly property string title: "Updates"
   readonly property string description: "When the shell looks for updates, and how careful it is."
   readonly property var jumps: []

@@ -10,23 +10,13 @@ import qs.kit
 // on the left, the chosen page on the right under its fixed header, scrolling
 // on its own. Under the open section its groups (`jumps` of the page) jump
 // there on a click.
-// The sections come in four groups, by what the user is after:
+// The sections come in groups, by what the user is after (a rail button each; the
+// list beside it shows the open group):
 //   LOOK     — how it looks and moves
-//     APPEARANCE — theme, accent, wallpaper, text, cursor, shape and controls;
-//     ANIMATIONS — how the shell moves: all on / off, speed, each part on its own.
-//   DESKTOP  — the desktop itself
-//     BAR           — the layout of the bar's zones, modules on / off.
-//     BAR MODULES   — each bar module's own options, an app's module too.
-//     WINDOWS       — the window mode, each mode's options, gaps, the taskbar.
-//     LOCK SCREEN   — what the lock shows and where.
-//     NOTIFICATIONS — toasts, the history popup, the bar's marks.
-//   SYSTEM   — the machine's connections
-//     NETWORK    — Wi-Fi, saved and new networks, hotspot, Ethernet.
-//     BLUETOOTH  — the adapter, paired and nearby devices.
-//   SHELL    — the shell's own apps and parts
-//     APPS       — each app: its options and its window; the launcher and keybinds
-//                  are here too, and the Shell Manager's own opening.
-//     ABOUT      — the ideas behind it, the author, versions.
+//   DESKTOP  — the bar (Bar, Hub, Live activities, Bar modules), Windows, Lock screen
+//   SYSTEM   — the machine and what runs on it: Network, Bluetooth, Sound, Displays,
+//              Power, Notifications, Apps (each app's options and window), Updates
+//   SHELL    — Profile and About, the rail's foot (`foot`)
 // A page may offer `changed` + `reset()`: Reset (two steps) in the header.
 Rectangle {
   id: root
@@ -48,35 +38,35 @@ Rectangle {
   // `child`: a page that belongs to the one above it (the island's Hub and Live activities), a plain row;
   // `island`: only while the island is the bar style
   readonly property var allSections: [
-    { value: "appearance", label: "Appearance", icon: "sun",        caption: "LOOK" },
+    { value: "appearance", label: "Appearance", icon: "sliders",    caption: "LOOK" },
     { value: "themes",     label: "Themes",     icon: "palette" },
     { value: "fonts",      label: "Fonts",      icon: "text" },
     { value: "icons",      label: "Icons",      icon: "star" },
     { value: "cursor",     label: "Cursor",     icon: "cursor" },
     { value: "wallpaper",  label: "Wallpaper",  icon: "image" },
-    { value: "animations", label: "Motion",     icon: "gauge" },
+    { value: "animations", label: "Motion",     icon: "play" },
     { value: "bar",        label: "Bar",        icon: "layout",     caption: "DESKTOP" },
-    { value: "hub",        label: "Hub",        icon: "home",     child: true, island: true },
+    { value: "hub",        label: "Hub",        icon: "gauge",    child: true, island: true },
     { value: "live",       label: "Live activities", icon: "activity", child: true, island: true },
     { value: "modules",    label: "Bar modules", icon: "puzzle" },
-    { value: "windows",    label: "Windows",    icon: "app-window" },
+    { value: "windows",    label: "Windows",    icon: "tiling" },
     { value: "lockscreen", label: "Lock screen", icon: "lock" },
-    { value: "notifications", label: "Notifications", icon: "bell" },
     { value: "network",    label: "Network",    icon: "wifi",       caption: "SYSTEM" },
     { value: "bluetooth",  label: "Bluetooth",  icon: "bluetooth" },
     { value: "sound",      label: "Sound",      icon: "volume" },
     { value: "displays",   label: "Displays",   icon: "monitor" },
-    { value: "power",      label: "Power",      icon: "zap" },
+    { value: "power",      label: "Power",      icon: "power" },
+    { value: "notifications", label: "Notifications", icon: "bell" },
+    { value: "apps",       label: "Apps",       icon: "grid" },
+    { value: "updates",    label: "Updates",    icon: "download" },
     { value: "profile",    label: "Profile",    icon: "user",       caption: "SHELL", foot: true },
-    { value: "apps",       label: "Apps",       icon: "list",     foot: true },
-    { value: "updates",    label: "Updates",    icon: "package",  foot: true },
-    { value: "about",      label: "About",      icon: "info",     foot: true }
+    { value: "about",      label: "About",      icon: "info",       foot: true }
   ]
   readonly property var sections: allSections.filter(s => !s.island || Theme.island)
 
   // the rail's groups: one button each, the list beside it shows the open group's pages
   readonly property var groups: [
-    { name: "LOOK", icon: "palette" }, { name: "DESKTOP", icon: "layout" }, { name: "SYSTEM", icon: "monitor" }
+    { name: "LOOK", icon: "palette" }, { name: "DESKTOP", icon: "layout" }, { name: "SYSTEM", icon: "cpu" }
   ]
   readonly property var footSections: sections.filter(s => s.foot)
   readonly property var navSections: sections.filter(s => !s.foot && groupOf(s.value) === openGroup)

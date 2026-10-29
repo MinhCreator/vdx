@@ -12,7 +12,7 @@ Column {
 
 
   // the window's fixed header shows these; the page under it scrolls
-  readonly property string icon: "gauge"
+  readonly property string icon: "play"
   readonly property string title: "Motion"
   readonly property string description: "How the shell moves. Off, everything snaps in place."
 

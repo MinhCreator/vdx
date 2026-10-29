@@ -16,7 +16,7 @@ Column {
   id: root
 
   // the window's fixed header shows these; the page under it scrolls
-  readonly property string icon: "list"
+  readonly property string icon: "grid"
   readonly property string title: "Apps"
   readonly property string description: "The shell's own programs: how each one opens and behaves."
 

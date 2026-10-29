@@ -8,7 +8,7 @@ KitSettingsWorkspace {
   readonly property bool fillsViewport: true
   readonly property Item previewItem: null
   readonly property var tabs: sections
-  readonly property string icon: "sun"
+  readonly property string icon: "sliders"
   readonly property string title: "Appearance"
   readonly property string description: "The colour, shape and style of the shell."
   property string tab: "style"
