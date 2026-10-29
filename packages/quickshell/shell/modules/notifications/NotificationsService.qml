@@ -45,6 +45,12 @@ Singleton {
 
   function isFresh(item) { return item.time > openedSeenAt; }
 
+  // the open centre's rows count as read: their dots go
+  function markRead() { openedSeenAt = Date.now(); }
+
+  // one row dismissed from the history
+  function remove(key) { state.items = state.items.filter(n => n.key !== key); }
+
   // The app's window, focused (restored first when minimized). Its class is the
   // desktop entry or the app's name, as the app's own windows name themselves:
   // "org.telegram.desktop" and "Telegram Desktop" both reduce to a letters-and-
