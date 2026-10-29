@@ -312,12 +312,29 @@ Variants {
         border.color: CaptureService.kind === "record" ? Theme.red : Theme.foreground0
       }
 
+      // thirds inside the target, to compose by (Capture › Overlay › Grid)
+      Item {
+        id: grid
+        visible: root.hasTarget && root.live && CaptureService.mode === "region" && ModuleSettings.get("capture", "grid", true)
+        x: root.fx; y: root.fy; width: root.fw; height: root.fh
+        Repeater {
+          model: 2
+          Rectangle { required property int index; x: Math.round(grid.width * (index + 1) / 3); width: 1; height: grid.height; color: Theme.foreground0; opacity: 0.3 }
+        }
+        Repeater {
+          model: 2
+          Rectangle { required property int index; y: Math.round(grid.height * (index + 1) / 3); height: 1; width: grid.width; color: Theme.foreground0; opacity: 0.3 }
+        }
+      }
+
       Rectangle {
         visible: root.hasTarget && root.live && CaptureService.mode === "region"
-        x: Math.min(root.target.x, root.width - width)
-        y: root.target.y + root.target.height + 6 + height > root.height ? root.target.y - height - 6 : root.target.y + root.target.height + 6
-        width: sizeText.implicitWidth + 12
-        height: sizeText.implicitHeight + 6
+        // a tag over the middle of the top edge (under the bottom edge when there is no room above)
+        x: Math.max(0, Math.min(root.target.x + (root.target.width - width) / 2, root.width - width))
+        y: root.target.y - height - 10 < 0 ? root.target.y + root.target.height + 10 : root.target.y - height - 10
+        width: sizeText.implicitWidth + 24
+        height: sizeText.implicitHeight + 12
+        radius: Theme.radiusControl             // a label like the toolbar's controls and the tips: the shell's corners
         color: Theme.background0
 
         KitText {

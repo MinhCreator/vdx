@@ -19,6 +19,12 @@ Column {
     model: [{ label: "Off", value: 0 }, { label: "3 s", value: 3 }, { label: "5 s", value: 5 }, { label: "10 s", value: 10 }]
   }
 
+  KitToggleRow {
+    module: "capture"; key: "grid"; fallback: true
+    label: "Grid"
+    hint: "Thirds inside the selection, to compose by"
+  }
+
   KitLine {}
 
   KitLabel { text: "SAVING" }

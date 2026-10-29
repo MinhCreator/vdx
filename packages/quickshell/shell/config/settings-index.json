@@ -3245,6 +3245,12 @@
   "target": "apps:capture"
  },
  {
+  "label": "Grid",
+  "hint": "Thirds inside the selection, to compose by",
+  "where": "Apps › Capture › TOOLBAR",
+  "target": "apps:capture"
+ },
+ {
   "label": "After a screenshot",
   "hint": "Also copied to the clipboard",
   "where": "Apps › Capture › SAVING",

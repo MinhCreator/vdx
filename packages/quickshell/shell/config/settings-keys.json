@@ -65,6 +65,7 @@
   "delay",
   "encoder",
   "fps",
+  "grid",
   "notifyRecord",
   "notifyShot",
   "quality",

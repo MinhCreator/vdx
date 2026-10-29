@@ -123,6 +123,16 @@ Rectangle {
       }
 
       Chip {
+        visible: CaptureService.mode === "region"
+        icon: "grid"
+        readonly property bool on: ModuleSettings.get("capture", "grid", true)
+        tipTitle: on ? "Grid shown" : "Grid hidden"
+        tipText: "Thirds inside the selection, to compose by"
+        selected: on
+        onClicked: ModuleSettings.set("capture", "grid", !on)
+      }
+
+      Chip {
         visible: CaptureService.delay > 0
         icon: "clock"
         text: CaptureService.delay + " s"
