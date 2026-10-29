@@ -33,7 +33,8 @@ set -u
 MANAGER="$HOME/.config/scripts/yandex-music/manager.py"
 STATIONS="$HOME/.config/scripts/radio/stations.json"
 YANDEX_DIR="$HOME/Music/yandex"
-PARKED="${XDG_STATE_HOME:-$HOME/.local/state}/music-parked"      # "pos<TAB>seconds" of the music a station took the queue from
+PARKED="${XDG_STATE_HOME:-$HOME/.local/state}/music-parked"      # "pos<TAB>seconds<TAB>title<TAB>artist<TAB>length" of the music a station took the queue from
+PARKED_QUEUE="$PARKED.queue"                                       # and its queue, one URI a line
 
 ok()    { echo '{"ok":true}'; }
 error() { jq -cn --arg e "$1" '{ok:false, error:$e}'; }
@@ -101,15 +102,15 @@ cmd_repeat() {
     ok
 }
 
-# the music in the queue, put aside for a station: the queue saved as a playlist, the place noted
+# the music in the queue, put aside for a station: the queue saved to a file, the place noted
 park_music() {
     local file
     file=$(mpc current -f '%file%' 2>/dev/null)
     [[ -z "$file" ]] && return
     jq -e --arg f "$file" 'any(.[]; .url == $f)' "$STATIONS" >/dev/null 2>&1 && return    # a station already: the music is parked
-    mpc -q rm _parked 2>/dev/null
-    mpc -q save _parked || return
     mkdir -p "$(dirname "$PARKED")"
+    # the queue goes to a file of ours: MPD may have stored playlists off ("Stored playlists are disabled")
+    mpc playlist -f '%file%' > "$PARKED_QUEUE" || return
     # "pos<TAB>seconds<TAB>title<TAB>artist<TAB>length in seconds": where it stopped and what it was
     local place track
     place=$(mpc status $'%songpos%\t%currenttime%\t%totaltime%' | head -1)
@@ -123,9 +124,9 @@ cmd_unpark() {
     [[ -f "$PARKED" ]] || { error "no music was put aside"; return; }
     IFS=$'\t' read -r pos secs _ < "$PARKED"
     mpd_up
-    mpc -q clear && mpc -q load _parked || { error "could not bring the music back"; return; }
+    mpc -q clear && mpc -q add < "$PARKED_QUEUE" || { error "could not bring the music back"; return; }
     mpc -q play "${pos:-1}" && mpc -q seek "${secs:-0}" 2>/dev/null
-    rm -f "$PARKED"
+    rm -f "$PARKED" "$PARKED_QUEUE"
     ok
 }
 

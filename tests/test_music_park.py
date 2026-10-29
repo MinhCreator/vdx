@@ -16,6 +16,7 @@ FAKE_MPC = """#!/bin/bash
 echo "mpc $*" >> "$FAKE_LOG"
 case "$*" in
   "current -f %file%") echo "$FAKE_FILE" ;;
+  playlist\\ *) printf 'a.mp3\\nb.mp3\\n' ;;
   current\\ -f\\ *) printf 'Song\\tBand\\n' ;;
   status\\ *) printf '3\\t1:05\\t3:20\\n' ;;
 esac
@@ -49,17 +50,17 @@ class Park(unittest.TestCase):
 
     def test_station_parks_the_music_and_unpark_restores_it(self):
         self.assertTrue(self.run_script("--radio", "love")["ok"])
-        self.assertIn("mpc -q save _parked", self.calls())
+        self.assertEqual((self.state / "music-parked.queue").read_text(), "a.mp3\nb.mp3\n")
         self.assertEqual((self.state / "music-parked").read_text(), "3\t65\tSong\tBand\t200\n")
         self.assertTrue(self.run_script("--unpark")["ok"])
-        self.assertIn("mpc -q load _parked", self.calls())
+        self.assertIn("mpc -q add", self.calls())
         self.assertIn("mpc -q play 3", self.calls())
         self.assertIn("mpc -q seek 65", self.calls())
         self.assertFalse((self.state / "music-parked").exists())
 
     def test_a_station_playing_is_not_parked(self):
         self.run_script("--radio", "love", playing="http://r/love")
-        self.assertNotIn("mpc -q save _parked", self.calls())
+        self.assertFalse((self.state / "music-parked.queue").exists())
         self.assertFalse((self.state / "music-parked").exists())
 
     def test_unpark_with_nothing_parked_is_an_error(self):
