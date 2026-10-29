@@ -132,7 +132,7 @@ Singleton {
     command: ["bash", root.script, "--list"]
     stdout: StdioCollector {
       onStreamFinished: {
-        const o = Reply.parse(text, "notifications.sh", null);
+        const o = Reply.parseList(text, null);
         if (o) root.ingest(o);
       }
     }

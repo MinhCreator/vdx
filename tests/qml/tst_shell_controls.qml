@@ -242,6 +242,15 @@ Item {
       compare(Reply.parse('{"ok":true,"value":3}', "example.py").value, 3);
       compare(Reply.parse('{"ok":false,"error":"offline"}', "example.py").error, "offline");
     }
+    function test_backend_list_contract() {
+      compare(Reply.parseList('[{"ssid":"network"}]')[0].ssid, "network");
+      compare(Reply.parseList("[]"), []);
+      for (const value of ["null", "{}", '{"ok":false}', "true", "42", '"text"', "", "bad JSON"]) {
+        compare(Reply.parseList(value), []);
+        compare(Reply.parseList(value, null), null);
+        compare(Reply.parseList(value, ["fallback"]), ["fallback"]);
+      }
+    }
     function test_select_pending_and_model_changes() {
       const model = select.model;
       const current = select.current;

@@ -100,6 +100,8 @@ Singleton {
     proc.running = true;
   }
 
+  function parseList(text) { return Reply.parseList(text); }
+
   function parse(text) {
     return Reply.parse(text, "music.sh", null);
   }
@@ -150,7 +152,7 @@ Singleton {
   Process {
     id: queueProc
     stdout: StdioCollector {
-      onStreamFinished: root.queue = root.parse(text) ?? []
+      onStreamFinished: root.queue = root.parseList(text)
     }
   }
 

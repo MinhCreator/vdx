@@ -161,7 +161,7 @@ Singleton {
     command: ["bash", root.script, "--providers"]
     stdout: StdioCollector {
       onStreamFinished: {
-        const list = root.parse(text);
+        const list = Reply.parseList(text, null);
         if (!Array.isArray(list)) return;
         const has = name => list.some(p => p.name === name);
         root.providers = list;
@@ -176,7 +176,7 @@ Singleton {
     id: nodesProc
     stdout: StdioCollector {
       onStreamFinished: {
-        const list = root.parse(text);
+        const list = Reply.parseList(text, null);
         root.nodes = Array.isArray(list) ? list : [];
       }
     }

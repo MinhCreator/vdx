@@ -55,6 +55,11 @@ Imports: `import qs.<dir>` from the config root. Singletons: `pragma Singleton`
 6. Its id in `modules` of a component in `components.toml` (`quickshell` for
    core ones): a module whose components are all off is "not installed".
 
+JSON replies use `kit/reply.js`: `Reply.parse(text, script, fallback)` accepts
+objects only; `Reply.parseList(text, fallback)` accepts arrays only (default
+`[]`). Legacy shell list commands and array-shaped config files use the list
+parser explicitly. Never pass their replies through an object-only wrapper.
+
 ## An app
 
 Entry in `apps/apps.json`: id, label, icon, about, bind (Hyprland bind

@@ -126,7 +126,7 @@ Singleton {
   Process {
     id: sessionsProc
     stdout: StdioCollector {
-      onStreamFinished: root.sessions = root.parse(text, [])
+      onStreamFinished: root.sessions = Reply.parseList(text)
     }
   }
 }

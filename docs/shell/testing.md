@@ -61,12 +61,13 @@ Each area lists the scenarios it touches; these are the shared base.
 
 ### Audit checkpoint (2026-10-30)
 
-Current validation: 269 Python tests and 88 QML cases. Full repository checks
+Current validation: 272 Python tests and 89 QML cases. Full repository checks
 and Python lint pass. These counts include baseline tests; they do not imply
 that every shell function or desktop scenario has been reviewed.
 
 | Reviewed area | Automated coverage |
 |---|---|
+| List reply compatibility | Eight production consumer handlers with populated/empty arrays, error objects, null and malformed JSON; separate object/list parser contracts |
 | Shared controls / Launcher | Object-only backend replies; select activation and pending states; literal search, query cancellation and navigation bounds |
 | Files | Production selection model: Shift extension/contraction, visible-row pruning and single picker selection; FIFO mutations and cancellation; history changes only after success and creation redo without duplicate entries |
 | Capture | Recorder lifecycle with real child processes; late callbacks and countdown cancellation; save/discard backend and failures, replacement confirmation, busy/error/edit panel states and tracked clipboard completion |

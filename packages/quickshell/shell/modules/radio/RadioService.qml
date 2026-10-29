@@ -56,7 +56,7 @@ Singleton {
   Process {
     id: stationsProc
     stdout: StdioCollector {
-      onStreamFinished: root.stations = MpdService.parse(text) ?? []
+      onStreamFinished: root.stations = MpdService.parseList(text)
     }
   }
 }

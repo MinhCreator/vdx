@@ -89,6 +89,12 @@ names such as `constructor`, `toString` and `__proto__` remain ordinary keys.
 Descendant traversal tracks visited PIDs with a Set to handle cycles and
 avoid repeatedly scanning the accumulated result.
 
+Backend reply shapes are explicit: `kit/reply.js` parses objects with `parse`
+and arrays with `parseList`. Wi-Fi networks/DNS providers, Mihomo providers
+and nodes, MPD queues/radio stations, Claude sessions and notification lists
+use the array parser. Error objects and malformed replies cannot become list
+models; consumers either clear their list or retain it with a null fallback.
+
 Files selection lives in `apps/files/FilesSelection.qml`, a QtQuick-only
 model tested without the filesystem or portal. FilesService supplies visible
 rows and the picker's single-selection constraint and exposes the existing

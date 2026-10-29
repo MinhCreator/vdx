@@ -354,7 +354,7 @@ Singleton {
     id: networksProc
     command: ["bash", root.script, "--list"]
     stdout: StdioCollector {
-      onStreamFinished: root.networks = root.parse(text) ?? []
+      onStreamFinished: root.networks = Reply.parseList(text)
     }
   }
 
@@ -557,6 +557,6 @@ Singleton {
     path: Quickshell.shellDir + "/modules/wifi/dns_providers.json"
     watchChanges: true
     onFileChanged: reload()
-    onLoaded: root.dnsProviders = root.parse(text()) ?? []
+    onLoaded: root.dnsProviders = Reply.parseList(text())
   }
 }

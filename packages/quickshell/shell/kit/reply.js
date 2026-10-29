@@ -10,3 +10,13 @@ function parse(text, script, fallback) {
   } catch (e) {}
   return fallback === undefined ? { ok: false, error: "bad reply from " + script } : fallback;
 }
+
+// Legacy shell backends and list files return a top-level array. Keep that
+// contract separate so an error object cannot become a view's list model.
+function parseList(text, fallback) {
+  try {
+    const reply = JSON.parse(text);
+    if (Array.isArray(reply)) return reply;
+  } catch (e) {}
+  return fallback === undefined ? [] : fallback;
+}
