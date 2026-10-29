@@ -58,6 +58,14 @@ picker's cancellation and does not wait for a long file copy.
 An entry moves between stacks only on successful completion; failure or
 cancellation keeps it in its original stack. Redo never records a new entry.
 
+Capture recording lives in `apps/capture/CaptureRecorder.qml`: one immutable
+request spans the start delay, recorder process and output verification.
+The service snapshots the command, output destination, notifications and
+displayed recording parameters. The session rejects overlapping starts and
+can cancel before launching; a non-empty output determines success even when
+the recorder exits with an interrupt code. The service retains overlay and
+countdown coordination.
+
 ## Themes
 
 `themes/gruvbox/` is the source; `themes/mktheme.py <name>` generates every

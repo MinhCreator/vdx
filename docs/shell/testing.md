@@ -16,6 +16,7 @@ commit", "Before a push"): [repo/commits.md](../repo/commits.md) — not repeate
 | `ruff check` | Python lint (`ruff.toml`) |
 | `python tests/check_shell_ui.py` | offscreen QML behaviour: shared controls, keyboard, disabled/busy states, inline selects, grouping, layout copies and backend reply parsing |
 | `python -m unittest tests.test_files_actions` | production FilesActions with real Quickshell child processes, an isolated runtime and a fake backend: FIFO, reply isolation, failure, cancellation and completion reentrancy |
+| `python -m unittest tests.test_capture_recorder` | production recorder lifecycle offscreen, with a fake recorder: delayed cancellation, request snapshots, overlap guards, output verification, pause/resume and restart |
 | `git ls-files '*.sh' \| grep -v ^packages/nvim \| xargs shellcheck -S warning` | shell scripts |
 | `tests/fresh-machine.sh [defaults \| component…]` | clean Arch in podman: setup, doctor, verify, second setup, uninstall (slow) |
 
@@ -88,6 +89,12 @@ process tests cover queue ordering and lifecycle; the QML suite also covers
 redo of creation without adding a duplicate history entry and history
 transitions after success, failure or cancellation (48 QML cases). There
 are now 224 Python tests, including the five process tests.
+
+Capture's recording process is isolated and covered by six additional process
+tests (230 Python tests in total). No desktop recording or keyboard-grabbing
+overlay is started by them. Late still callbacks during closing and the
+countdown's final settling interval are guarded in the service. Screen-copy
+rendering and the real GPU encoder still require a live scenario.
 
 - The agent cannot see the screen unless it takes a screenshot; visual checks
   are the owner's unless asked (token cost).

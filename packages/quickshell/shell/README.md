@@ -65,6 +65,11 @@ cancels or stops a recording. Super+P shoots the focused screen at once. The
 bar module is a button for the same and shows a recording; `capture library`
 opens the saved captures.
 
+A stop during the recording's start delay cancels it before the recorder
+launches. The output folder, notification choice and displayed audio/FPS are
+kept from that recording's start. Capture names include milliseconds so
+successive captures within one second use different names.
+
 ### Music
 
 A window tabbed by source, each tab only while its component is installed:

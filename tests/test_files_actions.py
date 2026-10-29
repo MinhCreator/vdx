@@ -6,14 +6,12 @@ only prints replies. It cannot operate on the user's files or start the shell UI
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 import shutil
-import subprocess
 import tempfile
 import unittest
 
-SHELL = Path(__file__).resolve().parent.parent / "packages/quickshell/shell"
+from tests.qml_runtime import SHELL, run_quickshell
 
 
 @unittest.skipUnless(shutil.which("qs"), "Quickshell is not installed")
@@ -23,7 +21,6 @@ class FileActions(unittest.TestCase):
             root = Path(tmp)
             (root / "apps/files").mkdir(parents=True)
             (root / "kit").mkdir()
-            (root / "run").mkdir(mode=0o700)
             shutil.copy(SHELL / "apps/files/FilesActions.qml", root / "apps/files/FilesActions.qml")
             shutil.copy(SHELL / "kit/reply.js", root / "kit/reply.js")
             (root / "backend.py").write_text('''import json, sys, time
@@ -63,13 +60,7 @@ Scope {
 ''' + ('Timer { interval: 40; running: true; onTriggered: actions.cancel() }' if cancel else '') + '''
 }
 ''')
-            env = dict(os.environ, QT_QPA_PLATFORM="offscreen", QT_QUICK_BACKEND="software",
-                       XDG_RUNTIME_DIR=str(root / "run"), XDG_STATE_HOME=str(root / "state"),
-                       XDG_CACHE_HOME=str(root / "cache"))
-            result = subprocess.run(["qs", "--no-color", "-p", str(root)], env=env,
-                                    capture_output=True, text=True, timeout=8)
-            output = result.stdout + result.stderr
-            self.assertEqual(result.returncode, 0, output)
+            output = run_quickshell(root)
             lines = [line.split("QUEUE_RESULT:", 1)[1] for line in output.splitlines() if "QUEUE_RESULT:" in line]
             self.assertEqual(len(lines), 1, output)
             return json.loads(lines[0])

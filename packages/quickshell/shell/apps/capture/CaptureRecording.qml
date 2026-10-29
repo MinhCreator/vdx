@@ -56,8 +56,8 @@ Variants {
         icon: "circle"
         iconColor: Theme.red
         title: "Recording"
-        subtitle: CaptureService.elapsedText + " · " + CaptureService.fps + " FPS"
-          + (CaptureService.audio !== "off" ? " · " + CaptureService.audio.toUpperCase() : "")
+        subtitle: CaptureService.elapsedText + " · " + CaptureService.recordFps + " FPS"
+          + (CaptureService.recordAudio !== "off" ? " · " + CaptureService.recordAudio.toUpperCase() : "")
 
         KitButton {
           icon: "square"

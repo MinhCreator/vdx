@@ -91,14 +91,14 @@ Singleton {
   property int countdown: 0             // seconds left; 0: none running
 
   // ---- recording ----
-  readonly property bool recording: recorder.running
-  property string recordFile: ""
-  property real recordStarted: 0
-  property rect recordRect: Qt.rect(0, 0, 0, 0)     // layout coordinates
-  property int elapsed: 0               // seconds recorded, not counting a pause
-  property bool paused: false
-  property real pausedAt: 0             // when the pause began
-  property real pausedFor: 0            // ms spent paused before it
+  readonly property bool recording: recordSession.recording
+  readonly property string recordFile: recordSession.request?.file ?? ""
+  readonly property real recordStarted: recordSession.started
+  readonly property rect recordRect: recordSession.request?.rect ?? Qt.rect(0, 0, 0, 0)
+  readonly property int recordFps: recordSession.request?.fps ?? fps
+  readonly property string recordAudio: recordSession.request?.audio ?? audio
+  readonly property int elapsed: recordSession.elapsed
+  readonly property bool paused: recordSession.paused
   // "05:42", for the faces that show it
   readonly property string elapsedText: String(Math.floor(elapsed / 60)).padStart(2, "0") + ":" + String(elapsed % 60).padStart(2, "0")
   // the screens whose bar shows the Capture module (they show the recording;
@@ -121,16 +121,16 @@ Singleton {
   readonly property string cacheDir: Quickshell.env("HOME") + "/.cache/quickshell-capture"
   // a capture waiting for its Save as answer: {kind: shot | video, tmp, path}
   property var pending: null
-  property bool recordAsk: false      // the running recording waits for Save as
+  readonly property bool recordAsk: recordSession.request?.ask ?? false
   readonly property string videoDir: ModuleSettings.get("capture", "videoDir", "") || Quickshell.env("HOME") + "/Videos/Recordings"
 
-  function stamp() { return Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss"); }
+  function stamp() { return Qt.formatDateTime(new Date(), "yyyy-MM-dd_HH-mm-ss-zzz"); }
 
   // Super+Shift+S and the bar module: stops a recording, cancels a countdown,
   // closes an open overlay, else freezes the screens and shows the toolbar
   function open() {
-    if (recording) { stopRecording(); return; }
-    if (countdown > 0) { cancelDelay(); return; }
+    if (recordSession.busy) { stopRecording(); return; }
+    if (countdown > 0 || countdownEnd.running) { cancelDelay(); return; }
     if (armed) { close(); return; }
     startSelection();
   }
@@ -138,7 +138,7 @@ Singleton {
   // `capture shot <region|window|screen>`: screen is taken on the focused
   // monitor at once; region and window open the overlay on that choice
   function shot(target) {
-    if (recording || armed || countdown > 0) return;
+    if (recordSession.busy || pending || armed || countdown > 0 || countdownEnd.running) return;
     if (!["region", "window", "screen"].includes(target)) return;
     if (target === "screen") { instant = true; startSelection(); return; }
     setMode(target);
@@ -148,7 +148,7 @@ Singleton {
 
   // freezes the screens: the stills, then the overlay with its toolbar
   function startSelection() {
-    if (recording || armed) return;
+    if (recordSession.busy || pending || armed) return;
     closing = false;
     cursorStills = 0;
     plainStills = 0;
@@ -165,7 +165,7 @@ Singleton {
 
   // the toolbar's Delay: the overlay goes, the countdown runs, the screens freeze again
   function startDelay() {
-    if (delay <= 0 || !armed) return;
+    if (delay <= 0 || !armed || closing) return;
     close();
     countdown = delay;
     countdownTimer.restart();
@@ -191,14 +191,14 @@ Singleton {
   // Every screen has its still with the pointer: hide it (hideProc goes on).
   function cursorStillReady() {
     cursorStills += 1;
-    if (cursorStills < Quickshell.screens.length || !armed) return;
+    if (cursorStills < Quickshell.screens.length || !armed || closing) return;
     setPointerHidden(true);
   }
 
   // Every screen has its plain still: the pointer is back, show the overlays.
   function plainStillReady() {
     plainStills += 1;
-    if (plainStills < Quickshell.screens.length || !armed || shown) return;
+    if (plainStills < Quickshell.screens.length || !armed || closing || shown) return;
     setPointerHidden(false);
     shown = true;
     freezeTimer.restart();
@@ -265,9 +265,10 @@ Singleton {
   // rect in layout coordinates (logical pixels across all monitors);
   // gpu-screen-recorder scales them to the output itself
   function startRecording(rect) {
+    if (recordSession.busy || pending || closing || rect.width < 1 || rect.height < 1) return;
     close();
-    recordAsk = videoTarget === "ask";
-    const folder = recordAsk ? cacheDir : videoDir;
+    const ask = videoTarget === "ask";
+    const folder = ask ? cacheDir : videoDir;
     const file = folder + "/Recording_" + stamp() + ".mp4";
     const args = ["gpu-screen-recorder", "-w", "region",
                   "-region", Math.round(rect.width) + "x" + Math.round(rect.height) + "+" + Math.round(rect.x) + "+" + Math.round(rect.y),
@@ -278,25 +279,14 @@ Singleton {
     if (codecInUse === "hevc") args.push("-k", "hevc");
     if (encoderInUse === "cpu") args.push("-encoder", "cpu");
     if (encoderInUse === "igpu") args.unshift("env", "__EGL_VENDOR_LIBRARY_FILENAMES=" + mesaOnly);
-    recordFile = file;
-    recordRect = rect;
     // start after the overlay is gone, so it is not in the first frames
-    recordStart.args = ["sh", "-c", 'mkdir -p "$1" && shift && exec "$@"', "sh", folder].concat(args);
-    recordStart.restart();
+    recordSession.start({ file: file, rect: rect, ask: ask, notify: notifyRecord, fps: fps, audio: audio,
+      path: videoDir + "/" + file.split("/").pop(),
+      command: ["sh", "-c", 'mkdir -p "$1" && shift && exec "$@"', "sh", folder].concat(args) });
   }
 
-  function stopRecording() {
-    if (recorder.running) recorder.signal(2);
-  }
-
-  // gpu-screen-recorder pauses and resumes on SIGUSR2
-  function togglePause() {
-    if (!recorder.running) return;
-    recorder.signal(12);
-    if (paused) pausedFor += Date.now() - pausedAt;
-    else pausedAt = Date.now();
-    paused = !paused;
-  }
+  function stopRecording() { recordSession.stop(); }
+  function togglePause() { recordSession.togglePause(); }
 
   function run(command) { Quickshell.execDetached(command); }
 
@@ -330,32 +320,6 @@ Singleton {
       root.armed = false;
       root.closing = false;
       PopupManager.holding = false;
-    }
-  }
-
-  Timer {
-    id: recordStart
-    property var args: []
-    interval: closeTimer.interval + 60   // after the overlay is gone, not while it fades
-    onTriggered: {
-      // the bars showing the module first, so the panel never flashes on them
-      root.faceScreens = [];
-      root.facesAsked();
-      root.elapsed = 0;
-      root.paused = false;
-      root.pausedFor = 0;
-      root.recordStarted = Date.now();
-      recorder.command = args;
-      recorder.running = true;
-    }
-  }
-
-  Timer {
-    interval: 500
-    running: root.recording
-    repeat: true
-    onTriggered: {
-      if (!root.paused) root.elapsed = Math.floor((Date.now() - root.recordStarted - root.pausedFor) / 1000);
     }
   }
 
@@ -402,39 +366,15 @@ Singleton {
   }
 
   // ---- recording ----
-  Process {
-    id: recorder
-    stderr: StdioCollector { id: recorderErr }
-    // whatever the exit code (a stop is 0, 2 or 130; an error is 1 or 2 too),
-    // the recording is there when its file is: recordCheck decides
-    onExited: code => {
-      root.paused = false;
-      if (root.recordFile === "") return;
-      recordCheck.file = root.recordFile;
-      recordCheck.code = code;
-      recordCheck.running = true;
-      root.recordFile = "";
+  CaptureRecorder {
+    id: recordSession
+    startDelay: closeTimer.interval + 60
+    onAboutToStart: { root.faceScreens = []; root.facesAsked(); }
+    onCompleted: capture => {
+      if (capture.ask) root.pending = { kind: "video", tmp: capture.file, path: capture.path };
+      else if (capture.notify) root.run(["notify-send", "-a", "Capture", "Recording saved", capture.file]);
     }
-  }
-
-  Process {
-    id: recordCheck
-    property string file: ""
-    property int code: 0
-    command: ["test", "-s", file]
-    onExited: status => {
-      if (status === 0) {
-        if (root.recordAsk)
-          root.pending = { kind: "video", tmp: file, path: root.videoDir + "/" + file.split("/").pop() };
-        else if (root.notifyRecord)
-          root.run(["notify-send", "-a", "Capture", "Recording saved", file]);
-        return;
-      }
-      // the recorder's own reason: its last "gsr error" line, else its last line
-      const lines = recorderErr.text.trim().split("\n");
-      const error = lines.filter(l => l.includes("gsr error")).pop()?.replace(/^gsr error:\s*/, "");
-      root.fail("Recording failed", error || lines.pop() || "gpu-screen-recorder exited with " + code);
-    }
+    onFailed: (capture, message) => root.fail("Recording failed", message)
   }
 
   // ---- settings ----
