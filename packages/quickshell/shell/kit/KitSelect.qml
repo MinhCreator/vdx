@@ -125,7 +125,7 @@ Column {
       // a click focuses it (the keys work) but draws no ring: the ring is for Tab
       property bool byMouse: false
       readonly property bool ring: activeFocus && !byMouse
-      onActiveFocusChanged: { if (!activeFocus) { root.expanded = false; byMouse = false; } }
+      onActiveFocusChanged: { if (!activeFocus) { root.expanded = false; if (window?.active) byMouse = false; } }
       anchors { right: parent.right; verticalCenter: parent.verticalCenter }
       width: root.boxWidth
       height: Theme.controlHeight

@@ -72,7 +72,7 @@ Rectangle {
 
   // a click focuses it (the keys work) but draws no ring: the ring is for Tab
   property bool byMouse: false
-  onActiveFocusChanged: if (!activeFocus) byMouse = false
+  onActiveFocusChanged: if (!activeFocus && window?.active) byMouse = false     // the window losing focus keeps it
 
   readonly property bool m3: Theme.material
   readonly property int inset: m3 ? 0 : 3
