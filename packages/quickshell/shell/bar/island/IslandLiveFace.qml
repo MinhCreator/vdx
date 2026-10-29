@@ -216,7 +216,7 @@ Row {
     width: 8
     height: 8
     radius: Theme.pill(height)
-    color: Theme.green
+    color: Theme.yellow
     opacity: MpdService.playing ? 1 : 0.4
 
     KitGlow { z: -1; anchors.fill: parent; target: "live"; lit: MpdService.playing; tint: parent.color; radius: parent.radius }
@@ -233,10 +233,11 @@ Row {
     visible: face.kind === "radio"
     anchors.verticalCenter: parent.verticalCenter
     barCount: 4
-    tone: Theme.green
+    tone: Theme.yellow
     glowTarget: "live"
     height: 14
     active: MpdService.playing
+    flatWhenIdle: true
   }
 
   // timer: the ring of what is left (a stopwatch: the clock), the time
@@ -341,9 +342,10 @@ Row {
     visible: face.track
     anchors.verticalCenter: parent.verticalCenter
     barCount: 4
-    tone: face.kind === "media" ? Theme.orange : Theme.green
+    tone: face.kind === "media" ? Theme.foreground2 : Theme.green
     glowTarget: "live"
     height: 14
     active: face.player.playing      // its own player: the radio or another app playing does not move it
+    flatWhenIdle: true
   }
 }

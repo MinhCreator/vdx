@@ -10,7 +10,7 @@ Item {
 
   property int count: 0                        // stations
   property int current: 0                      // the one on air (or the last one)
-  property color tint: Theme.green
+  property color tint: Theme.yellow
   signal tuned(int index)
 
   readonly property real stationWidth: 64

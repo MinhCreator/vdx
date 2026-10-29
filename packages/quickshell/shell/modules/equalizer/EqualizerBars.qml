@@ -13,6 +13,7 @@ Row {
   property int barWidth: 2
   property int barCount: EqualizerService.bars      // fewer bars take their levels evenly from the 12
   property bool active: IslandService.playing    // live bars, else a dim flat row
+  property bool flatWhenIdle: false              // not active: a flat row (a live activity's: its own player, not the room's sound)
   property string glowTarget: ""                 // a Glow target; the live activity's bars: "live"
   property var tone: null                       // one colour for all, over the module's own
 
@@ -48,7 +49,7 @@ Row {
       radius: Theme.pill(width)
       color: root.colourAt(index)
       opacity: root.active ? 1 : 0.5
-      height: Math.max(width, root.height * (EqualizerService.levels[Math.floor((index + 0.5) * EqualizerService.bars / root.barCount)] ?? 0))
+      height: root.flatWhenIdle && !root.active ? width : Math.max(width, root.height * (EqualizerService.levels[Math.floor((index + 0.5) * EqualizerService.bars / root.barCount)] ?? 0))
 
       Behavior on height { enabled: Motion.bar; NumberAnimation { duration: Motion.ms(70) } }
 
