@@ -4,7 +4,6 @@ import qs.bar
 import qs.components
 import qs.config
 import qs.kit
-import qs.modules.mpd
 import qs.modules.player
 
 // The music module: what plays now, of any source (PlayerService: Yandex Music,
@@ -47,7 +46,7 @@ Item {
     acceptedButtons: Qt.LeftButton | Qt.MiddleButton
     cursorShape: Qt.PointingHandCursor
     onClicked: mouse => {
-      if (mouse.button === Qt.MiddleButton) { if (PlayerService.music.hasMedia) PlayerService.music.togglePlay(); else if (MpdService.parked) MpdService.unpark(); }
+      if (mouse.button === Qt.MiddleButton) { if (PlayerService.music.hasMedia) PlayerService.music.togglePlay(); }
       else popup.toggle();
     }
   }

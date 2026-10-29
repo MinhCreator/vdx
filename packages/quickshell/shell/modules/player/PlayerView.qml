@@ -3,10 +3,10 @@ import Quickshell.Services.Mpris
 import qs.modules.mpd
 import qs.modules.yandex
 
-// One player as the shell shows it: what a source of PlayerService (`{key, name, mpd,
-// mpris, playing}`, or null) plays, and the controls that go to it. The service
-// makes one per family — the music of MPD, the media of other apps — and one for
-// whatever the keys control; a null source is "nothing playing".
+// One player as the shell shows it: what a source of PlayerService (`{key, name, playing}` and
+// `mpd`, `parked` (+ `track`) or `mpris`; or null) plays, and the controls that go to it. The
+// service makes one per player — the music, the radio, the media of other apps; a null source
+// is "nothing playing".
 QtObject {
   id: root
 
@@ -15,7 +15,7 @@ QtObject {
   readonly property bool mpd: source?.mpd ?? false
   readonly property var mpris: source?.mpris ?? null
 
-  readonly property bool parked: source?.parked ?? false        // the music a station put aside: shown paused
+  readonly property bool parked: source?.parked ?? false        // the music a station put aside: shown paused, as it stood
   readonly property bool hasMedia: source !== null
   readonly property bool playing: source?.playing ?? false
   readonly property string name: source?.name ?? ""
@@ -25,12 +25,12 @@ QtObject {
                                       : (mpris?.trackTitle ?? "")
   readonly property string artist: parked ? source.track.artist : mpd ? (radio ? MpdService.player.station : MpdService.player.artist)
                                        : (mpris?.trackArtist ?? "")
-  readonly property string cover: parked ? source.track.cover : mpd ? YandexService.cover : (mpris?.trackArtUrl ?? "")
+  readonly property string cover: parked ? YandexService.parkedCover : mpd ? YandexService.cover : (mpris?.trackArtUrl ?? "")
   // album and year, under the artist
   readonly property string detail: parked ? [source.track.album, source.track.year].filter(x => x).join(" · ")
     : mpd ? [MpdService.player.album, MpdService.player.year].filter(x => x).join(" · ") : ""
-  readonly property real position: parked ? source.track.position : mpd ? MpdService.elapsed : (mpris?.position ?? 0)
-  readonly property real length: parked ? source.track.length : mpd ? MpdService.duration : (mpris?.length ?? 0)
+  readonly property real position: parked ? source.track.elapsed : mpd ? MpdService.elapsed : (mpris?.position ?? 0)
+  readonly property real length: parked ? source.track.duration : mpd ? MpdService.duration : (mpris?.length ?? 0)
   readonly property bool canNext: mpd ? true : (mpris?.canGoNext ?? false)
   readonly property bool canPrevious: mpd ? true : (mpris?.canGoPrevious ?? false)
   readonly property bool canSeek: length > 0 && (mpd || (mpris?.canSeek ?? false))

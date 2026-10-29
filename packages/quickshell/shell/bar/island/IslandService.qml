@@ -50,8 +50,8 @@ Singleton {
   readonly property bool hasMedia: PlayerService.hasMedia
   readonly property bool playing: PlayerService.playing
   readonly property bool radio: PlayerService.radio
-  // whose popup the current player belongs to: the radio's, MPD's music, or another app's media
-  readonly property string family: PlayerService.radio ? "radio" : PlayerService.mpd ? "music" : "media"
+  // whose popup the current player belongs to: the radio's, the music's, or another app's media
+  readonly property string family: PlayerService.family || "music"
   readonly property string title: PlayerService.title
   readonly property string artist: PlayerService.artist
   readonly property string cover: PlayerService.cover

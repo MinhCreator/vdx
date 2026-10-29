@@ -3,14 +3,16 @@ import Quickshell.Services.Mpris
 import qs.config
 import qs.modules.mpd
 
-// One source at a time (Sound › One source at a time): the music (MPD, a station too) and an app's media
-// do not play together — whichever starts last, the other is paused.
+// One source at a time (Sound › One source at a time): the music and the radio (both MPD, one
+// queue: a station parks the music, see music.sh) and an app's media (MPRIS) do not play together.
+// Each side's start is read from what it plays, not from who asked: MPD starting a track or a
+// station (from the shell, ncmpcpp or mpc alike) pauses the apps' players; an app starting pauses MPD.
 //
 // Smart pause: the music (MPD) pauses while another app plays sound — a video
 // in the browser, say — and resumes when that sound stops, if this paused it.
 // "Playing" is MPRIS: a player (a browser, mpv, …) reports whether it plays,
 // which a PipeWire stream does not (a browser's stream runs while idle too).
-// Options in Shell Manager › Modules › Audio (ShellSettings pauseMusic, resumeMusic). Runs
+// Options in Shell Manager › Sound (ShellSettings exclusiveSound, pauseMusic, resumeMusic). Runs
 // from shell.qml, so it works whether or not the Audio module is on the bar.
 QtObject {
   id: root
@@ -19,30 +21,27 @@ QtObject {
   readonly property bool pauseOn: ShellSettings.pauseMusic || exclusive
   readonly property bool resumeOn: ShellSettings.resumeMusic
 
+  // ---- MPD starts something: the apps' media pauses ----
+  // what MPD plays ("" when it does not): a new value is a start — a track, the music coming
+  // back, a station, even one replacing the music (MPD "playing" all the way through)
+  readonly property string mpdTrack: MpdService.playing ? MpdService.file : ""
+  // the first state read after the shell starts (MPD up or down) is not a start
+  property bool known: false
+  readonly property bool mpdRead: MpdService.player.service !== undefined
+  onMpdReadChanged: if (mpdRead) Qt.callLater(() => root.known = true)
+  onMpdTrackChanged: {
+    if (mpdTrack === "") return;
+    pausedHere = false;                // the music is the user's again
+    if (!known || !exclusive) return;
+    for (const p of Mpris.players.values)
+      if (p.isPlaying && p.canPause) p.pause();
+  }
+
+  // ---- an app starts: MPD pauses (and comes back, with Resume) ----
   // some other player is playing (MPD is not an MPRIS player here)
   readonly property bool otherSound: Mpris.players.values.some(p => p.isPlaying)
-
   property bool pausedHere: false     // the music was paused by this, not by hand
-
-  // The music is taken back by hand (played or stopped) while this paused it:
-  // from now on it is the user's, and nothing resumes it. Our own pause and
-  // resume come through here too, harmlessly: the pause only stops playback,
-  // and the resume clears the flag before it plays.
-  readonly property bool mpdPlaying: MpdService.playing
   readonly property bool mpdStopped: MpdService.stopped
-  onMpdPlayingChanged: if (mpdPlaying) pausedHere = false;
-
-  // the music or a station is being started: the apps' media (a browser, mpv, …) that plays stops
-  // (One source at a time); MpdService says so, the state alone misses a station replacing music
-  readonly property Connections starts: Connections {
-    target: MpdService
-    function onStarted() {
-      if (!root.exclusive) return;
-      root.pausedHere = false;
-      for (const p of Mpris.players.values)
-        if (p.isPlaying && p.canPause) p.pause();
-    }
-  }
   onMpdStoppedChanged: pausedHere = false;
 
   onOtherSoundChanged: {

@@ -18,12 +18,20 @@ Singleton {
   readonly property bool active: MpdService.source === "likes" && !MpdService.stopped
 
   property string cover: ""                    // file:// url of the cached cover
+  property string parkedCover: ""              // and of the music a station put aside (MpdService.parkedTrack)
 
   property var liked: []                       // Yandex ids of liked tracks
   property var fileIds: ({})                   // file -> Yandex id (state.json)
   readonly property string trackId: fileIds[MpdService.file] ?? ""
   readonly property bool isLiked: liked.includes(trackId)
   onTrackIdChanged: refreshCover()          // also when the library map arrives after the file
+  readonly property string parkedId: fileIds[MpdService.parkedTrack?.file ?? ""] ?? ""
+  onParkedIdChanged: {
+    parkedCover = "";
+    if (parkedId === "") return;
+    parkedCoverProc.command = ["uv", "run", "--script", root.script, "--cover", parkedId];
+    parkedCoverProc.running = true;
+  }
   // Yandex id -> file, for the tracks the library has downloaded (playable)
   readonly property var localIds: {
     const map = {};
@@ -83,6 +91,16 @@ Singleton {
       onStreamFinished: {
         const o = MpdService.parse(text);
         root.cover = o?.ok ? "file://" + o.path : "";
+      }
+    }
+  }
+
+  Process {
+    id: parkedCoverProc
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const o = MpdService.parse(text);
+        root.parkedCover = o?.ok ? "file://" + o.path : "";
       }
     }
   }

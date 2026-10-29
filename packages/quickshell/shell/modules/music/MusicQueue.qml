@@ -5,10 +5,10 @@ import qs.modules.mpd
 import qs.modules.player
 import qs.kit
 
-// MPD's queue, whatever plays it (the likes, the files, a playlist): two lines per
-// track, nine rows visible, then it scrolls. It scrolls itself so the current track
-// sits on top. A click plays a track, a right click takes it out; the search button
-// swaps the list for matches. An MPRIS player has no queue here: a line says so.
+// The music's queue (PlayerService.musicQueue: MPD's, or the one a station put aside; never a
+// station's or another app's): two lines per track, nine rows visible, then it scrolls. It scrolls
+// itself so the current track sits on top. A click plays a track, a right click takes it out
+// (frozen: a click brings the music back); the search button swaps the list for matches.
 Column {
   id: root
 
@@ -18,8 +18,8 @@ Column {
   readonly property int rowHeight: 38
   readonly property int upNext: 9
   // while a station has the queue the player is frozen: its queue and place are the kept ones
-  readonly property bool frozen: PlayerService.musicSource?.parked ?? false
-  readonly property int currentPos: frozen ? PlayerService.musicSource.track.pos : (MpdService.player.pos ?? 0)
+  readonly property bool frozen: PlayerService.music.parked
+  readonly property int currentPos: frozen ? MpdService.parkedTrack.pos : (MpdService.player.pos ?? 0)
   // the Queue tab is the music's (MPD, or its frozen player): another app's queue is not shown here
   readonly property string notice: PlayerService.music.hasMedia ? "" : "Nothing is queued"
   readonly property var tracks: {
@@ -60,7 +60,7 @@ Column {
       text: root.searching ? "SEARCH" : "UP NEXT FROM #" + root.currentPos
     }
 
-    // re-read MPD's queue
+    // re-read the queue
     KitButton {
       anchors { right: searchButton.left; rightMargin: Theme.gapMedium }
       icon: "refresh"

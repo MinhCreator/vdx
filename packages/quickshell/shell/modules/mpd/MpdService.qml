@@ -37,9 +37,15 @@ Singleton {
   readonly property bool service: player.service ?? false
   readonly property bool playing: player.state === "playing"
   readonly property bool paused: player.state === "paused"
-  readonly property bool stopped: !service || player.state === "stop" || source === ""
-  readonly property var parkedTrack: player.parked || null    // music put aside for a station: {title, artist, elapsed, duration} (`--unpark` brings it back)
+  readonly property bool stopped: !service || player.state === "stopped" || source === ""
+  // The music a station put aside, frozen as it stood: {pos, elapsed, duration, file, title, artist,
+  // album, year, length}, and its queue. The script's file is the only record of it (`music.sh
+  // --radio` writes it, `--unpark` restores and removes it), so it survives a reload of the shell.
+  readonly property var parkedTrack: player.parked || null
   readonly property bool parked: parkedTrack !== null
+  property var parkedQueue: []                 // [{pos, artist, title}] (`music.sh --parked-queue`)
+  readonly property string parkedKey: parked ? parkedTrack.file + "\n" + parkedTrack.pos + "\n" + parkedTrack.length : ""
+  onParkedKeyChanged: refreshQueue()
   readonly property string source: player.source ?? ""     // likes | radio | files | ""
   readonly property string file: player.file ?? ""
   readonly property real duration: player.duration ?? 0
@@ -49,13 +55,7 @@ Singleton {
   property string error: ""
 
   // ---- playback ----
-  // something is being started (a track, a folder, a station, the music coming back): the others
-  // that play stop (AudioPause › One source at a time). The state change alone is no sign: a
-  // station replacing playing music leaves MPD "playing" all the way.
-  signal started()
-
   function control(args) {
-    if (["--play", "--on", "--unpark"].includes(args[0])) started();
     Quickshell.execDetached(["bash", root.script].concat(args));
     settle.restart();
   }
@@ -64,7 +64,7 @@ Singleton {
   // can lag (MPD coming up is only noticed by its 2 s poll), and a popup waits on it
   function refresh() { if (needed && !statusProc.running) run(statusProc, ["--status"]); }
 
-  function toggle() { if (paused || stopped) started(); control(["--toggle"]); }
+  function toggle() { control(["--toggle"]); }
   // the popup's switch: MPD itself on (playing what it kept, else the likes) or off
   function setOn(on) {
     if (on) load("on", ["--on"]);
@@ -86,7 +86,6 @@ Singleton {
 
   // Replaces the queue (likes, a station or a folder); errors land in `error`.
   function load(value, args) {
-    started();
     busy = value;
     error = "";
     run(loadProc, args);
@@ -99,9 +98,11 @@ Singleton {
 
   function addFile(file, next) { control([next ? "--files-next" : "--files-add", file]); }
 
-  // the queue as MPD has it now (the popups and the window ask when they show)
+  // the queue as MPD has it now, and the parked one (the popups and the window ask when they show)
   function refreshQueue() {
     if (!queueProc.running) run(queueProc, ["--queue"]);
+    if (!parked) parkedQueue = [];
+    else if (!parkedQueueProc.running) run(parkedQueueProc, ["--parked-queue"]);
   }
 
   // ---- internals ----
@@ -161,6 +162,13 @@ Singleton {
     id: queueProc
     stdout: StdioCollector {
       onStreamFinished: root.queue = root.parse(text) ?? []
+    }
+  }
+
+  Process {
+    id: parkedQueueProc
+    stdout: StdioCollector {
+      onStreamFinished: root.parkedQueue = root.parked ? (root.parse(text) ?? []) : []
     }
   }
 

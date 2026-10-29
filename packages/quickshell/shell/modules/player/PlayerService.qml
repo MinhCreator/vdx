@@ -4,23 +4,24 @@ import Quickshell
 import Quickshell.Services.Mpris
 import qs.config
 import qs.modules.mpd
+import qs.modules.radio
 import qs.modules.yandex
 
-// Every media player in one list: MPD (the Yandex likes, the local files and the
-// radio, through MpdService) and each MPRIS player (Spotify, a browser, mpv). The
-// island and the music module show one of them, and the controls go to it. Which one: the pick
-// of the Player popup while it runs, else a playing one (MPD first), else MPD when
-// it has something queued, else the first player there is.
+// The shell's three players, each with its own popup, bar module and live activity:
+//   music  MPD playing its own music (the Yandex likes, the local files); while a station has
+//          MPD's one queue, the music it put aside, frozen as it stood (MpdService.parkedTrack)
+//   radio  MPD playing a station (RadioService)
+//   media  the other apps, over MPRIS (a browser, mpv, Spotify)
+// `view` is the one the keys, the hub's card and the island control: the one that plays (the
+// radio, the music, the media), else a paused one in the same order.
 Singleton {
   id: root
 
   // ---- tuning ----
   readonly property int positionMs: 1000     // an MPRIS position is read, not pushed: asked this often while playing
 
-  property string picked: ""                 // a source's key, chosen in the popup
-
   // Music › Players: all (every MPRIS player), music (none: MPD only), pick (the ones not in
-  // hiddenPlayers, by name). MPD is always a source.
+  // hiddenPlayers, by name).
   readonly property string playersShown: ModuleSettings.get("music", "players", "all")
   readonly property var hiddenPlayers: ModuleSettings.get("music", "hiddenPlayers", [])
 
@@ -40,92 +41,71 @@ Singleton {
     return true;
   }
 
-  // {key, name, mpd, mpris, playing}: MPRIS players by their unique id
-  readonly property var sources: {
+  // ---- the sources: {key, name, playing} and mpd, parked or mpris ----
+  readonly property bool mpdMusic: !MpdService.stopped && MpdService.source !== "radio"
+  readonly property var musicSource: mpdMusic
+    ? { key: "mpd", name: MpdService.source === "files" ? "Files" : "Yandex Music", mpd: true, playing: MpdService.playing }
+    : MpdService.parked ? { key: "parked", name: "Paused by the radio", parked: true, playing: false, track: MpdService.parkedTrack }
+    : null
+  // the music's queue: MPD's, or the one put aside with it; never a station's
+  readonly property var musicQueue: musicSource?.parked ? MpdService.parkedQueue : musicSource ? MpdService.queue : []
+  readonly property var radioSource: RadioService.active ? { key: "radio", name: "Radio", mpd: true, playing: MpdService.playing } : null
+  // the apps' players, by their unique id
+  readonly property var externals: {
     const list = [];
-    if (!MpdService.stopped)
-      list.push({ key: "mpd", name: MpdService.source === "radio" ? "Radio" : MpdService.source === "files" ? "Files" : "Yandex Music",
-                  mpd: true, playing: MpdService.playing });
     for (const p of Mpris.players.values)
       if (shownPlayer(p)) list.push({ key: p.uniqueId || p.dbusName, name: nameOf(p), mpris: p, playing: p.isPlaying });
     return list;
   }
-
-  readonly property var current: sources.find(s => s.key === picked)
-                                 ?? sources.find(s => s.playing)
-                                 ?? sources.find(s => s.mpd)
-                                 ?? sources[0] ?? null
-  // ---- the families: the music of MPD (no radio), the radio, the media of other apps ----
-  // Each shows apart (a live activity, a popup); `current` is only what the keys control.
-  // What MPD's music was, kept while a station has the queue: the player is frozen as it stood
-  // (track, cover, place, queue). Updated while the music is MPD's own; after a restart of the
-  // shell only what the script noted (title, artist, place) is left.
-  property var frozen: null
-  readonly property var musicNow: MpdService.source !== "radio" && !MpdService.stopped ? {
-    title: MpdService.player.title || MpdService.file.split("/").pop(), artist: MpdService.player.artist ?? "",
-    album: MpdService.player.album ?? "", year: MpdService.player.year ?? "",
-    cover: YandexService.cover, position: MpdService.elapsed, length: MpdService.duration, pos: MpdService.player.pos ?? 0,
-    name: MpdService.source === "files" ? "Files" : "Yandex Music", queue: MpdService.queue } : null
-  onMusicNowChanged: {
-    if (!musicNow) return;
-    // a queue cleared for the station must not wipe the one kept
-    frozen = Object.assign({}, musicNow, { queue: musicNow.queue.length > 0 ? musicNow.queue : (frozen?.queue ?? []) });
-  }
-  readonly property var parkedTrack: {
-    const t = MpdService.parkedTrack;
-    if (!t) return null;
-    return frozen ?? { title: t.title, artist: t.artist, album: "", year: "", cover: "", position: t.elapsed, length: t.duration, pos: t.pos, queue: [] };
-  }
-  // (read from MPD directly, not through `music`: that one reads this)
-  // the music is MPD's, or — while a station has the queue — the frozen player, paused
-  readonly property var musicSource: sources.find(s => s.mpd && MpdService.source !== "radio")
-    ?? (parkedTrack ? { key: "parked", name: "Paused by the radio", parked: true, playing: false, track: parkedTrack } : null)
-  // its queue: MPD's, or the frozen one
-  readonly property var musicQueue: musicSource?.parked ? musicSource.track.queue : MpdService.queue
-  readonly property var externals: sources.filter(s => s.mpris)
   property string mediaPicked: ""              // an app's key, chosen in the Media popup
   readonly property var mediaSource: externals.find(s => s.key === mediaPicked)
                                      ?? externals.find(s => s.playing) ?? externals[0] ?? null
+
   readonly property PlayerView music: PlayerView { source: root.musicSource }
+  readonly property PlayerView radioView: PlayerView { source: root.radioSource }
   readonly property PlayerView media: PlayerView { source: root.mediaSource }
-  readonly property PlayerView view: PlayerView { id: cur; source: root.current }
 
-  // ---- what the keys control (the current player) ----
-  property alias mpd: cur.mpd
-  property alias mpris: cur.mpris
-  property alias hasMedia: cur.hasMedia
-  property alias playing: cur.playing
-  property alias name: cur.name
-  property alias radio: cur.radio
-  property alias title: cur.title
-  property alias artist: cur.artist
-  property alias cover: cur.cover
-  property alias position: cur.position
-  property alias length: cur.length
-  property alias canNext: cur.canNext
-  property alias canPrevious: cur.canPrevious
-  property alias canSeek: cur.canSeek
-  property alias canRaise: cur.canRaise
-  property alias shuffleOn: cur.shuffleOn
-  property alias canShuffle: cur.canShuffle
-  property alias loop: cur.loop
-  property alias canLoop: cur.canLoop
+  // ---- what the keys control ----
+  // radio | music | media | "" (nothing at all)
+  readonly property string family: radioView.playing ? "radio" : music.playing ? "music" : media.playing ? "media"
+                                 : radioView.hasMedia ? "radio" : music.hasMedia ? "music" : media.hasMedia ? "media" : ""
+  readonly property PlayerView view: family === "radio" ? radioView : family === "media" ? media : music
 
-  // ---- actions: the current player ----
+  readonly property bool mpd: view.mpd
+  readonly property var mpris: view.mpris
+  readonly property bool hasMedia: view.hasMedia
+  readonly property bool playing: view.playing
+  readonly property string name: view.name
+  readonly property bool radio: view.radio
+  readonly property string title: view.title
+  readonly property string artist: view.artist
+  readonly property string cover: view.cover
+  readonly property real position: view.position
+  readonly property real length: view.length
+  readonly property bool canNext: view.canNext
+  readonly property bool canPrevious: view.canPrevious
+  readonly property bool canSeek: view.canSeek
+  readonly property bool canRaise: view.canRaise
+  readonly property bool shuffleOn: view.shuffleOn
+  readonly property bool canShuffle: view.canShuffle
+  readonly property string loop: view.loop
+  readonly property bool canLoop: view.canLoop
+
+  // ---- actions: the player the keys control ----
   function togglePlay() {
-    if (!current) YandexService.setActive(true);     // nothing running: the likes
-    else cur.togglePlay();
+    if (family === "") YandexService.setActive(true);     // nothing at all: the likes
+    else view.togglePlay();
   }
-  function next() { cur.next(); }
-  function prev() { cur.prev(); }
-  function seek(fraction) { cur.seek(fraction); }
-  function toggleShuffle() { cur.toggleShuffle(); }
-  function cycleLoop() { cur.cycleLoop(); }
-  function raise() { cur.raise(); }
+  function next() { view.next(); }
+  function prev() { view.prev(); }
+  function seek(fraction) { view.seek(fraction); }
+  function toggleShuffle() { view.toggleShuffle(); }
+  function cycleLoop() { view.cycleLoop(); }
+  function raise() { view.raise(); }
 
   // an MPRIS position is read, not pushed: ask for it while something plays
   Timer {
-    running: root.sources.some(s => s.mpris && s.playing)
+    running: root.externals.some(s => s.playing)
     interval: root.positionMs
     repeat: true
     onTriggered: { for (const s of root.externals) if (s.playing) s.mpris.positionChanged(); }

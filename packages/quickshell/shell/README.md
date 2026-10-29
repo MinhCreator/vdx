@@ -68,10 +68,14 @@ Yandex Music (likes, search, playlists), Files (the folders of
 to queue) and Radio (a star marks a favourite). The player sits at the foot
 of every tab.
 
-The bar module `music` shows what plays from any source. Its popup: the music
-service on or off, Now playing (a choice of players when several run), the
-Queue (MPD) and the Library (likes, folders, favourite stations). Options:
-Shell Manager › Bar modules › Music.
+Three players, each with its own bar module, popup and live activity: the music
+(`music`: MPD playing the likes or the local files), the radio (`tuner`: MPD
+playing a station) and the media of other apps (`media`: MPRIS). The music's popup:
+Now playing, its Queue and the Library (likes, folders). MPD has one queue: a
+station parks the music — the whole player as it stood, in
+`~/.local/state/music-parked.json` — and the Music popup keeps showing it, paused;
+play brings it back at the same track and second. Sound › One source at a time: a
+player that starts pauses the others. Options: Shell Manager › Bar modules › Music.
 
 ### Backups
 
@@ -184,8 +188,9 @@ one file, imports it (the shell restarts) and resets everything (the old set
 kept as `settings-before-reset.json`).
 
 State: `~/.local/state/quickshell/by-shell/<id>/` (`settings.json`,
-`modules.json`, `layout.json`, …) and `~/.local/state/dotfiles/`
-(`window-mode`, `windows.json`, `shell-apps.json`).
+`modules.json`, `layout.json`, …), `~/.local/state/dotfiles/`
+(`window-mode`, `windows.json`, `shell-apps.json`) and `~/.local/state/music-parked.json`
+(the music a station put aside, `scripts/music.sh`).
 
 Files you may edit by hand:
 
