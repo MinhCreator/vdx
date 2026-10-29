@@ -55,7 +55,7 @@ Rectangle {
     { value: "bluetooth",  label: "Bluetooth",  icon: "bluetooth" },
     { value: "sound",      label: "Sound",      icon: "volume" },
     { value: "displays",   label: "Displays",   icon: "monitor" },
-    { value: "power",      label: "Power",      icon: "power" },
+    { value: "power",      label: "Power",      icon: "zap" },
     { value: "notifications", label: "Notifications", icon: "bell" },
     { value: "apps",       label: "Apps",       icon: "grid" },
     { value: "updates",    label: "Updates",    icon: "download" },

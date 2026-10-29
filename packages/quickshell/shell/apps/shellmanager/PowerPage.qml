@@ -9,7 +9,7 @@ Column {
   id: root
   readonly property Item previewItem: null
 
-  readonly property string icon: "power"
+  readonly property string icon: "zap"
   readonly property string title: "Power"
   readonly property string description: "Power profile, battery charge limit and GPU mode."
   readonly property var jumps: []
