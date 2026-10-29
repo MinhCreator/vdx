@@ -46,6 +46,9 @@ Window mode: `windowmode set tiling|floating|scrolling`.
   letter jumps to a name.
 - Shift-click and Shift-arrow extend or shrink a range from its original
   row. Filtering clears selections of rows no longer shown.
+- File operations run in the order submitted. Cancel stops the current
+  operation; queued operations still run. Undo/redo waits until the queue is done
+  and changes history only after success.
 - Keys: F1 lists them; Ctrl+G list, grid, columns; Ctrl+T terminal here; F2
   on several files renames them by a pattern.
 - The file chooser of every app (`xdg-desktop-portal`): Save lists the

@@ -41,10 +41,47 @@ Item {
   SignalSpy { id: clicks; target: button; signalName: "clicked" }
   SignalSpy { id: selections; target: select; signalName: "picked" }
   FilesSelection { id: fileSelection }
+  TestFileCreation { id: fileCreation }
+  FilesHistory { id: fileHistory }
   TestCase {
     name: "ShellControls"
     when: windowShown
     function init() { ShellSettings.motion = false; }
+    function test_file_history_commits_only_successful_operations() {
+      fileHistory.undos = []; fileHistory.redos = []; fileHistory.pending = null; fileHistory.busy = false;
+      let undoCalls = 0, redoCalls = 0;
+      const entry = {label: "rename", undo: () => { undoCalls++; }, redo: () => { redoCalls++; }};
+      fileHistory.record(entry);
+      fileHistory.undo();
+      compare(undoCalls, 1); verify(!fileHistory.canUndo);
+      compare(fileHistory.undos.length, 1); compare(fileHistory.redos.length, 0);
+      fileHistory.undo(); compare(undoCalls, 1);
+      fileHistory.complete(false);
+      verify(fileHistory.canUndo); compare(fileHistory.redos.length, 0);
+      fileHistory.undo(); fileHistory.complete(true);
+      compare(fileHistory.undos.length, 0); compare(fileHistory.redos.length, 1);
+      fileHistory.redo(); compare(redoCalls, 1);
+      fileHistory.complete(false); verify(fileHistory.canRedo);
+      compare(fileHistory.undos.length, 0); compare(fileHistory.redos.length, 1);
+      fileHistory.redo(); fileHistory.complete(true);
+      compare(fileHistory.undos.length, 1); compare(fileHistory.redos.length, 0);
+      fileHistory.busy = true; fileHistory.undo(); compare(undoCalls, 2);
+      fileHistory.busy = false;
+      fileHistory.undo(); fileHistory.complete(true);
+      fileHistory.record(entry); verify(!fileHistory.canRedo);
+    }
+    function test_file_create_redo_does_not_record_another_action() {
+      fileCreation.calls = []; fileCreation.history = [];
+      fileCreation.createNew("mkdir", "/new-folder");
+      compare(fileCreation.calls.length, 1);
+      fileCreation.calls[0].request.after();
+      compare(fileCreation.history.length, 1);
+      fileCreation.history[0].redo();
+      compare(fileCreation.calls.length, 2);
+      compare(fileCreation.calls[1].args, ["mkdir", "/new-folder"]);
+      if (fileCreation.calls[1].request.after) fileCreation.calls[1].request.after();
+      compare(fileCreation.history.length, 1);
+    }
     function test_file_selection_missing_anchor() {
       fileSelection.single = false;
       fileSelection.selection = [];

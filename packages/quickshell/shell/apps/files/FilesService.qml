@@ -423,28 +423,14 @@ Singleton {
   }
 
   // ---- undo and redo: the reversible operations, newest last ----
-  property var undos: []
-  property var redos: []
-  readonly property bool canUndo: undos.length > 0 && !actionProc.running
-  readonly property bool canRedo: redos.length > 0 && !actionProc.running
-
-  function record(entry) { undos = undos.concat([entry]); redos = []; }
-
-  function undo() {
-    if (!canUndo) return;
-    const e = undos[undos.length - 1];
-    undos = undos.slice(0, -1);
-    redos = redos.concat([e]);
-    e.undo();
-  }
-
-  function redo() {
-    if (!canRedo) return;
-    const e = redos[redos.length - 1];
-    redos = redos.slice(0, -1);
-    undos = undos.concat([e]);
-    e.redo();
-  }
+  readonly property var undos: operationHistory.undos
+  readonly property var redos: operationHistory.redos
+  readonly property bool canUndo: operationHistory.canUndo
+  readonly property bool canRedo: operationHistory.canRedo
+  FilesHistory { id: operationHistory; busy: actionProc.busy }
+  function record(entry) { operationHistory.record(entry); }
+  function undo() { operationHistory.undo(); }
+  function redo() { operationHistory.redo(); }
 
   // ---- properties: the panel of a path (scripts/files.py stat) or of a device ----
   // panel: {title, subtitle, rows: [{label, value}]}; null when closed
@@ -524,7 +510,7 @@ Singleton {
     act({ done: "created", after: () => record({
       label: verb,
       undo: () => act({ done: "undone" }, ["trash", target]),
-      redo: () => createNew(verb, target),
+      redo: () => act({ done: "redone" }, [verb, target]),
     }) }, [verb, target]);
   }
 
@@ -570,8 +556,7 @@ Singleton {
 
   // the backend runs the action; the folder is read again after its reply
   function act(asked, args) {
-    if (!actionProc.running) job = { label: jobLabels[asked.done] ?? "Working", progress: 0, of: args.length - 1, name: "" };
-    run(actionProc, args, asked);
+    actionProc.submit(asked, args);
   }
 
   function openExternal(p) { Quickshell.execDetached(["xdg-open", p]); }
@@ -724,7 +709,7 @@ Singleton {
     if (!picker) return;
     const asked = picker;
     if (asked.onPick) asked.onPick(response === 0 && paths.length > 0 ? paths[0] : "");
-    else run(answerProc, ["answer", asked.id, JSON.stringify({ response: response, paths: paths })], "");
+    else answerProc.submit({ done: "answered" }, ["answer", asked.id, JSON.stringify({ response: response, paths: paths })]);
     picker = null;
     go(pickerReturn);
     pickerDone();
@@ -914,19 +899,12 @@ Singleton {
 
 
   // an action runs as one process: progress lines while it works (the job), the reply last
-  property var job: null             // {label, progress, of, name} while an action runs
-  property bool cancelling: false
-  readonly property var jobLabels: { "trashed": "Trashing", "pasted": "Copying", "moved": "Moving", "deleted": "Deleting",
-                                    "restored": "Restoring", "renamed": "Renaming", "created": "Creating", "emptied": "Emptying" }
-
-  function cancelJob() {
-    if (!actionProc.running) return;
-    cancelling = true;
-    actionProc.running = false;
-  }
+  readonly property var job: actionProc.job
+  readonly property bool cancelling: actionProc.cancelling
+  function cancelJob() { actionProc.cancel(); }
 
   function finishAction(o, asked, cancelled) {
-    job = null;
+    const success = !cancelled && o.ok && !(o.errors || []).length;
     if (cancelled) {
       error = "cancelled: the items done before are done";
     } else {
@@ -940,31 +918,14 @@ Singleton {
         if (asked.after) asked.after(o);
       }
     }
+    if (asked.done === "undone" || asked.done === "redone") operationHistory.complete(success);
     refresh();
   }
 
-  Process {
+  FilesActions {
     id: actionProc
-    property var next: null
-    property var asked: null
-    property var reply: null
-    stdout: SplitParser {
-      onRead: line => {
-        if (line.trim() === "") return;
-        const o = root.parse(line);
-        if (o.progress !== undefined) {
-          if (root.job) root.job = { label: root.job.label, progress: o.progress, of: o.of, name: o.name };
-        } else {
-          actionProc.reply = o;
-        }
-      }
-    }
-    onExited: {
-      const cancelled = root.cancelling;
-      root.cancelling = false;
-      root.finishAction(actionProc.reply ?? { ok: false, error: "no answer from files.py" }, actionProc.asked, cancelled);
-      root.resume(actionProc);
-    }
+    script: root.script
+    onFinished: (result, request, cancelled) => root.finishAction(result, request, cancelled)
   }
 
   // the duplicates of a folder: the search's list, in groups
@@ -996,11 +957,10 @@ Singleton {
     }
   }
 
-  Process {
+  FilesActions {
     id: answerProc
-    property var next: null
-    property var asked: null
-    onRunningChanged: root.resume(answerProc)
+    script: root.script
+    onFinished: result => { if (!result.ok) root.error = result.error; }
   }
 
   // the portal's backend: started with the shell, gone with it (pdeathsig)

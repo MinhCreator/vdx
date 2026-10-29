@@ -47,6 +47,17 @@ selection API. `anchor` is the current row used for scrolling; `rangeStart`
 keeps the original row while Shift extends or shrinks a range. Filtering or
 removing rows prunes their selection so file actions target visible items.
 
+`apps/files/FilesActions.qml` owns file mutations, their progress and replies.
+It queues every submitted action in FIFO order; FilesService's latest-request
+queue is reserved for replaceable reads. Each mutation clears its reply before
+starting, and the completion callback runs before the next action starts.
+Undo/redo stays disabled until the mutation queue has drained. Portal replies
+use a second FIFO instance so answering one picker never replaces another
+picker's cancellation and does not wait for a long file copy.
+`FilesHistory.qml` owns the undo/redo stacks and their pending transaction.
+An entry moves between stacks only on successful completion; failure or
+cancellation keeps it in its original stack. Redo never records a new entry.
+
 ## Themes
 
 `themes/gruvbox/` is the source; `themes/mktheme.py <name>` generates every

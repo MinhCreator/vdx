@@ -15,6 +15,7 @@ commit", "Before a push"): [repo/commits.md](../repo/commits.md) — not repeate
 | `./install.py check components` | the catalog against the repo and pacman |
 | `ruff check` | Python lint (`ruff.toml`) |
 | `python tests/check_shell_ui.py` | offscreen QML behaviour: shared controls, keyboard, disabled/busy states, inline selects, grouping, layout copies and backend reply parsing |
+| `python -m unittest tests.test_files_actions` | production FilesActions with real Quickshell child processes, an isolated runtime and a fake backend: FIFO, reply isolation, failure, cancellation and completion reentrancy |
 | `git ls-files '*.sh' \| grep -v ^packages/nvim \| xargs shellcheck -S warning` | shell scripts |
 | `tests/fresh-machine.sh [defaults \| component…]` | clean Arch in podman: setup, doctor, verify, second setup, uninstall (slow) |
 
@@ -81,6 +82,12 @@ component, exercised directly by the offscreen harness (46 QML cases). It
 covers repeated Shift extension/contraction, filtering/removal of selected
 rows and initial grid navigation. The shell was restarted after linking the
 new type and loaded successfully as one supervised instance.
+
+File mutations now have their own FIFO process component. Five isolated
+process tests cover queue ordering and lifecycle; the QML suite also covers
+redo of creation without adding a duplicate history entry and history
+transitions after success, failure or cancellation (48 QML cases). There
+are now 224 Python tests, including the five process tests.
 
 - The agent cannot see the screen unless it takes a screenshot; visual checks
   are the owner's unless asked (token cost).

@@ -54,6 +54,13 @@ def main():
         (config / "ShellSettings.qml").write_text("pragma Singleton\n" + settings)
         # The real selection model has no portal, filesystem or process dependencies.
         shutil.copy(SHELL / "apps/files/FilesSelection.qml", work / "qs/kit/FilesSelection.qml")
+        shutil.copy(SHELL / "apps/files/FilesHistory.qml", work / "qs/kit/FilesHistory.qml")
+        files = (SHELL / "apps/files/FilesService.qml").read_text()
+        (work / "qs/kit/TestFileCreation.qml").write_text(
+            'import QtQuick\nQtObject {\nproperty var calls: []\nproperty var history: []\n'
+            'function act(request, args) { calls = calls.concat([{request: request, args: args}]); }\n'
+            'function record(entry) { history = history.concat([entry]); }\n'
+            + qml_function(files, "createNew") + '\n}\n')
         # Layout logic uses its production functions with a memory-only store.
         bar = work / "qs/bar"
         bar.mkdir()
