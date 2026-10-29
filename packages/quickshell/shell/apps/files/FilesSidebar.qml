@@ -177,7 +177,7 @@ Item {
       x: 0
       width: sideColumn.width
       height: 2
-      radius: 1
+      radius: Theme.pill(height)
       color: Theme.accent
       y: target ? (root.dropAt > root.dragFrom ? target.y + target.height : target.y) - 1 : 0
     }

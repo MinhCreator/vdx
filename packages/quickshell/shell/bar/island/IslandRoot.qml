@@ -146,13 +146,13 @@ KitFrame {
     Rectangle {
       width: parent.width
       height: 4
-      radius: 2
+      radius: Theme.pill(height)
       color: Theme.background3
 
       Rectangle {
         width: parent.width * (PackagesService.stage === "downloading" ? PackagesService.stagePercent : root.staged ? 1 : 0)
         height: parent.height
-        radius: 2
+        radius: Theme.pill(height)
         color: Theme.blue
       }
     }

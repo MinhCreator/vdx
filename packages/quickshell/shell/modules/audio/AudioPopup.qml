@@ -98,7 +98,7 @@ KitFrame {
     // what the microphone hears right now: green, yellow near the top, red at clipping
     Column {
       width: parent.width
-      spacing: 5
+      spacing: Theme.gapHair
 
       KitInfo {
         label: "Level"

@@ -34,7 +34,7 @@ Row {
     anchors.verticalCenter: parent.verticalCenter
     width: 8
     height: 8
-    radius: 4
+    radius: Theme.pill(height)
     color: Theme.red
     opacity: CaptureService.paused ? 0.4 : 1
 
@@ -97,15 +97,15 @@ Row {
     anchors.verticalCenter: parent.verticalCenter
     width: 90
     height: 4
-    radius: 2
+    radius: Theme.pill(height)
     color: Theme.background3
     Rectangle {
       width: parent.width * PackagesService.stagePercent
       height: parent.height
-      radius: 2
+      radius: Theme.pill(height)
       color: Theme.blue
 
-      KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: 2 }
+      KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius }
     }
   }
   KitText { visible: face.updateBar; text: Math.round(PackagesService.stagePercent * 100) + "%"; color: Theme.blue }
@@ -122,15 +122,15 @@ Row {
     anchors.verticalCenter: parent.verticalCenter
     width: 70
     height: 4
-    radius: 2
+    radius: Theme.pill(height)
     color: Theme.background3
     Rectangle {
       width: parent.width * Math.max(0, BackupService.progress) / 100
       height: parent.height
-      radius: 2
+      radius: Theme.pill(height)
       color: Theme.green
 
-      KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: 2 }
+      KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius }
     }
   }
 
@@ -144,7 +144,7 @@ Row {
   Rectangle {
     visible: face.kind === "notice" && ShellSettings.liveNoticeMark === "dot"
     anchors.verticalCenter: parent.verticalCenter
-    width: 8; height: 8; radius: 4
+    width: 8; height: 8; radius: Theme.pill(height)
     color: IslandService.noticeItem?.urgency === "critical" ? Theme.red : Theme.appColour(IslandService.noticeItem?.app)
   }
   Rectangle {
@@ -218,7 +218,7 @@ Row {
       model: 14
       Rectangle {
         required property int index
-        width: 2; height: 14; radius: 1
+        width: 2; height: 14; radius: Theme.pill(height)
         color: index < Math.round(Math.min(1, IslandService.osdLevel) * 14) ? Theme.foreground1 : Theme.background3
       }
     }
@@ -235,11 +235,11 @@ Row {
   Rectangle {
     visible: face.kind === "plugged"
     anchors.verticalCenter: parent.verticalCenter
-    width: 70; height: 4; radius: 2
+    width: 70; height: 4; radius: Theme.pill(height)
     color: Theme.background3
     Rectangle {
-      width: parent.width * BatteryService.capacity / 100; height: parent.height; radius: 2; color: Theme.purple
-      KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: 2 }
+      width: parent.width * BatteryService.capacity / 100; height: parent.height; radius: Theme.pill(height); color: Theme.purple
+      KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius }
     }
   }
   KitText { visible: face.kind === "plugged"; text: String(BatteryService.capacity); color: Theme.purple }

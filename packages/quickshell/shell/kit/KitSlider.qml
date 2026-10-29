@@ -97,7 +97,7 @@ Item {
     width: root.shown * parent.width
     height: 3
     tint: root.fill
-    radius: 1.5
+    radius: Theme.pill(height)
   }
 
   Rectangle {
@@ -130,7 +130,7 @@ Item {
       visible: root.spectrum.length === 0
       width: root.shown * parent.width
       height: parent.height
-      radius: parent.radius
+      radius: Theme.pill(height)
       gradient: Gradient {
         orientation: Gradient.Horizontal
         GradientStop { position: 0; color: root.fill }
@@ -197,7 +197,7 @@ Item {
       anchors.verticalCenter: parent.verticalCenter
       width: 4
       height: 4
-      radius: 2
+      radius: Theme.pill(height)
       color: cx < root.handleX ? Theme.background0 : root.fill
       opacity: 0.8
     }
@@ -255,7 +255,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         width: 3
         height: 3
-        radius: 1.5
+        radius: Theme.pill(height)
         color: Theme.muted
       }
     }
@@ -266,7 +266,7 @@ Item {
       anchors.verticalCenter: parent.verticalCenter
       width: 2
       height: 16
-      radius: 1
+      radius: Theme.pill(height)
       color: root.dimmed ? Theme.gray : root.accented ? Theme.accent : Theme.foreground0
     }
 

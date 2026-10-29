@@ -152,7 +152,7 @@ KitFrame {
         readonly property real percent: modelData.size > 0 ? 100 * modelData.used / modelData.size : 0
 
         width: parent.width
-        spacing: 5
+        spacing: Theme.gapHair
 
         KitInfo {
           label: disk.modelData.mount

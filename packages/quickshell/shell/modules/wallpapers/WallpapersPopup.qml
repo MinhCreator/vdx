@@ -161,7 +161,7 @@ KitFrame {
       gradient: Gradient {
         orientation: Gradient.Horizontal
         GradientStop { position: 0; color: Theme.background0 }
-        GradientStop { position: 1; color: "transparent" }
+        GradientStop { position: 1; color: Theme.clear }
       }
     }
     Rectangle {
@@ -170,7 +170,7 @@ KitFrame {
       visible: !strip.atXEnd
       gradient: Gradient {
         orientation: Gradient.Horizontal
-        GradientStop { position: 0; color: "transparent" }
+        GradientStop { position: 0; color: Theme.clear }
         GradientStop { position: 1; color: Theme.background0 }
       }
     }

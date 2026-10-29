@@ -35,7 +35,7 @@ Rectangle {
     anchors.verticalCenter: parent.verticalCenter
     width: 2
     height: 16
-    radius: 1
+    radius: Theme.pill(height)
     color: row.active ? Theme.foreground0 : Theme.dividerColor
   }
 

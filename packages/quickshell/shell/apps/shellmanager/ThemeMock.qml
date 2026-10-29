@@ -47,7 +47,7 @@ ClippingRectangle {
       spacing: 3 * root.k
       Repeater {
         model: ["red", "yellow", "green"]
-        Rectangle { required property string modelData; width: 5 * root.k; height: width; radius: width / 2; color: root.col(modelData) }
+        Rectangle { required property string modelData; width: 5 * root.k; height: width; radius: Theme.pill(height); color: root.col(modelData) }
       }
     }
 

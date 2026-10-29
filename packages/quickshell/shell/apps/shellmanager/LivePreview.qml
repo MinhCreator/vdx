@@ -32,25 +32,25 @@ Rectangle {
       color: Theme.mix(Theme.background0, Theme.blue, 0.22)
       KitText { anchors.centerIn: parent; text: "N"; color: Theme.blue; font.pixelSize: Theme.fontSize - 2; font.weight: Font.Medium }
     }
-    Rectangle { visible: root.kind === "notice" && ShellSettings.liveNoticeMark === "dot"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: 4; color: Theme.blue; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
+    Rectangle { visible: root.kind === "notice" && ShellSettings.liveNoticeMark === "dot"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: Theme.pill(height); color: Theme.blue; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "notice"; text: "Nikita: скину"; font.pixelSize: Theme.fontSize - 1 }
 
     // low battery
-    Rectangle { visible: root.kind === "battery"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: 4; color: Theme.red; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
+    Rectangle { visible: root.kind === "battery"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: Theme.pill(height); color: Theme.red; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "battery"; text: "9% · 14m"; font.pixelSize: Theme.fontSize - 1 }
 
     // a device connected
-    Rectangle { visible: root.kind === "bluetooth"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: 4; color: Theme.green; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
+    Rectangle { visible: root.kind === "bluetooth"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: Theme.pill(height); color: Theme.green; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "bluetooth"; text: "AirPods 80"; font.pixelSize: Theme.fontSize - 1 }
 
     // recording
-    Rectangle { visible: root.kind === "recording"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: 4; color: Theme.red; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
+    Rectangle { visible: root.kind === "recording"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: Theme.pill(height); color: Theme.red; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "recording"; text: "00:03"; font.pixelSize: Theme.fontSize - 1 }
     Row {
       visible: root.kind === "recording"
       anchors.verticalCenter: parent.verticalCenter
       spacing: 2
-      Repeater { model: root.wave(); Rectangle { required property real modelData; anchors.verticalCenter: parent.verticalCenter; width: 2; height: 14 * modelData; radius: 1; color: Theme.red; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } } }
+      Repeater { model: root.wave(); Rectangle { required property real modelData; anchors.verticalCenter: parent.verticalCenter; width: 2; height: 14 * modelData; radius: Theme.pill(height); color: Theme.red; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } } }
     }
 
     // updates
@@ -58,8 +58,8 @@ Rectangle {
     Rectangle {
       visible: root.kind === "update"
       anchors.verticalCenter: parent.verticalCenter
-      width: 60; height: 3; radius: 2; color: Theme.background3
-      Rectangle { width: parent.width * 0.47; height: parent.height; radius: 2; color: Theme.blue; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
+      width: 60; height: 3; radius: Theme.pill(height); color: Theme.background3
+      Rectangle { width: parent.width * 0.47; height: parent.height; radius: Theme.pill(height); color: Theme.blue; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
     }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "update"; text: "47%"; color: Theme.blue; font.pixelSize: Theme.fontSize - 1 }
 
@@ -68,8 +68,8 @@ Rectangle {
     Rectangle {
       visible: root.kind === "backup"
       anchors.verticalCenter: parent.verticalCenter
-      width: 70; height: 3; radius: 2; color: Theme.background3
-      Rectangle { width: parent.width * 0.46; height: parent.height; radius: 2; color: Theme.green; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
+      width: 70; height: 3; radius: Theme.pill(height); color: Theme.background3
+      Rectangle { width: parent.width * 0.46; height: parent.height; radius: Theme.pill(height); color: Theme.green; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
     }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "backup"; text: "1.2G"; color: Theme.foreground2; font.pixelSize: Theme.fontSize - 1 }
 
@@ -91,7 +91,7 @@ Rectangle {
       visible: root.kind === "music"
       anchors.verticalCenter: parent.verticalCenter
       spacing: 2
-      Repeater { model: [0.45, 1, 0.65, 0.85]; Rectangle { required property real modelData; anchors.verticalCenter: parent.verticalCenter; width: 2; height: 14 * modelData; radius: 1; color: Theme.green; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } } }
+      Repeater { model: [0.45, 1, 0.65, 0.85]; Rectangle { required property real modelData; anchors.verticalCenter: parent.verticalCenter; width: 2; height: 14 * modelData; radius: Theme.pill(height); color: Theme.green; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } } }
     }
 
     // volume and brightness
@@ -100,7 +100,7 @@ Rectangle {
       visible: root.kind === "volume"
       anchors.verticalCenter: parent.verticalCenter
       spacing: 3
-      Repeater { model: 14; Rectangle { required property int index; width: 2; height: 14; radius: 1; color: index < 9 ? Theme.foreground1 : Theme.background3 } }
+      Repeater { model: 14; Rectangle { required property int index; width: 2; height: 14; radius: Theme.pill(height); color: index < 9 ? Theme.foreground1 : Theme.background3 } }
     }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "volume"; text: "62"; font.pixelSize: Theme.fontSize - 1 }
 
@@ -118,8 +118,8 @@ Rectangle {
     Rectangle {
       visible: root.kind === "plugged"
       anchors.verticalCenter: parent.verticalCenter
-      width: 70; height: 3; radius: 2; color: Theme.background3
-      Rectangle { width: parent.width * 0.52; height: parent.height; radius: 2; color: Theme.purple; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
+      width: 70; height: 3; radius: Theme.pill(height); color: Theme.background3
+      Rectangle { width: parent.width * 0.52; height: parent.height; radius: Theme.pill(height); color: Theme.purple; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
     }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "plugged"; text: "52"; color: Theme.purple; font.pixelSize: Theme.fontSize - 1 }
   }

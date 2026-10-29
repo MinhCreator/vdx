@@ -178,7 +178,7 @@ Column {
         x: bandLabel.x + bandLabel.implicitWidth + 6
         y: bandLabel.y + (bandLabel.height - height) / 2
         width: Math.max(16, countText.implicitWidth + 8); height: 16
-        radius: 8
+        radius: Theme.pill(height)
         color: Theme.background2
         KitText {
           id: countText
@@ -305,7 +305,7 @@ Column {
                 anchors { right: parent.right; rightMargin: 4; top: parent.top; topMargin: 4 }
                 width: 7
                 height: 7
-                radius: 2
+                radius: Theme.pill(height)
                 color: Theme.foreground2
               }
 

@@ -49,7 +49,7 @@ KitFrame {
 
     Column {
       width: parent.width
-      spacing: 3
+      spacing: Theme.gapHair
 
       KitText {
         width: parent.width
