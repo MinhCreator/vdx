@@ -96,6 +96,7 @@ Column {
         id: details
         width: pane.width - Theme.gapMedium
         spacing: Theme.sectionGap
+        opacity: paneIn.shown
 
         // heading: icon, name and about; the key that opens it; Reset
         Item {
@@ -242,5 +243,12 @@ Column {
     }
   }
 
-  onSelectedChanged: pane.contentY = 0
+  // the chosen app fades in like a page does (ShellManager's pageIn)
+  QtObject { id: paneIn; property real shown: 1 }
+  NumberAnimation { id: paneAnim; target: paneIn; property: "shown"; from: 0; to: 1; duration: Motion.ms(240); easing.type: Motion.easing }
+
+  onSelectedChanged: {
+    pane.contentY = 0;
+    if (Motion.pages) paneAnim.restart();
+  }
 }

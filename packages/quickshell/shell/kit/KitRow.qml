@@ -5,9 +5,9 @@ import qs.config
 // switch, a button, a value) on the right (children).
 //
 // `wide`: the control is a set of choices or a field — it gets the standard
-// width (Theme.controlWidth, so the right edges line up down a page), and in
-// a narrow place (under Theme.rowStackBelow) it goes under the label, full
-// width. Give a wide KitChoices `stretch: true`.
+// width (Theme.controlWidth, so the right edges line up down a page); a narrow
+// row keeps Theme.rowLabelMin for the label and the control gives way, and under
+// Theme.rowStackBelow it goes under the label, full width. Give a wide KitChoices `stretch: true`.
 //
 // `needs`: what this row waits for, in one phrase ("Island style only", "Needs Live
 // activities on"): the row stays in sight, its control out of reach, the phrase where the
@@ -72,8 +72,7 @@ Item {
       visible: root.hint !== "" || root.needs !== ""
       text: root.needs !== "" ? root.needs : root.hint
       color: root.hintLevel === "warn" ? Theme.yellow : root.hintLevel === "danger" ? Theme.red : Theme.muted
-      elide: root.stacked ? Text.ElideNone : Text.ElideRight
-      wrapMode: root.stacked ? Text.WordWrap : Text.NoWrap
+      wrapMode: Text.WordWrap
       font.pixelSize: Theme.fontSize - 1
     }
   }
@@ -100,6 +99,6 @@ Item {
     when: root.wide && slot.children.length > 0
     target: slot.children.length > 0 ? slot.children[0] : null
     property: "width"
-    value: root.stacked ? root.width : Theme.controlWidth
+    value: root.stacked ? root.width : Math.min(Theme.controlWidth, root.width - Theme.rowLabelMin)
   }
 }
