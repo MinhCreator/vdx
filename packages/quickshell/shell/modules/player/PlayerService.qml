@@ -49,7 +49,10 @@ Singleton {
     : null
   // the music's queue: MPD's, or the one put aside with it; never a station's
   readonly property var musicQueue: musicSource?.parked ? MpdService.parkedQueue : musicSource ? MpdService.queue : []
-  readonly property var radioSource: RadioService.active ? { key: "radio", name: "Radio", mpd: true, playing: MpdService.playing } : null
+  // the radio: on air, or held — paused by the music that took the queue
+  readonly property var radioSource: RadioService.active ? { key: "radio", name: "Radio", mpd: true, playing: MpdService.playing }
+    : RadioService.held ? { key: "radio-held", name: "Radio", held: true, playing: false }
+    : null
   // the apps' players, by their unique id
   readonly property var externals: {
     const list = [];

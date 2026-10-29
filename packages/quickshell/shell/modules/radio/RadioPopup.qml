@@ -9,11 +9,12 @@ KitFrame {
   id: root
 
   readonly property var stations: RadioService.stations
-  readonly property string key: RadioService.active ? RadioService.stationKey : RadioService.lastKey
+  readonly property string key: RadioService.resumeKey
   readonly property int index: Math.max(0, stations.findIndex(s => s.key === key))
   readonly property var station: stations[index] ?? null
   readonly property color tone: Theme.accentFor("modules", Theme.yellow)
   readonly property bool onAir: RadioService.active
+  readonly property bool held: RadioService.held          // pushed aside by the music: paused, play brings it back
 
   signal closeRequested()                      // Modules › Radio › Close after stop
 
@@ -24,7 +25,7 @@ KitFrame {
     icon: "radio"
     iconColor: root.onAir ? root.tone : Theme.foreground0
     title: root.station?.name ?? "Radio"
-    subtitle: !root.onAir ? "OFF" : (MpdService.playing ? "ON AIR" : "PAUSED") + (root.station?.genre ? " · " + root.station.genre.toUpperCase() : "")
+    subtitle: !root.onAir ? (root.held ? "PAUSED" : "OFF") : (MpdService.playing ? "ON AIR" : "PAUSED") + (root.station?.genre ? " · " + root.station.genre.toUpperCase() : "")
 
     KitText {
       anchors.verticalCenter: parent.verticalCenter
@@ -63,17 +64,17 @@ KitFrame {
     KitText {
       id: track
       anchors.verticalCenter: parent.verticalCenter
-      width: parent.width - button.width - (root.onAir ? button.width + parent.spacing : 0) - parent.spacing
+      width: parent.width - button.width - (root.onAir || root.held ? button.width + parent.spacing : 0) - parent.spacing
       elide: Text.ElideRight
       textFormat: Text.PlainText
       text: !root.onAir ? (root.station?.about ?? "") : (MpdService.player.title || root.station?.about || "")
       color: Theme.muted
     }
     KitButton {
-      visible: root.onAir
+      visible: root.onAir || root.held
       icon: "square"
       onClicked: {
-        MpdService.stop();
+        if (root.onAir) MpdService.stop(); else RadioService.release();
         if (ModuleSettings.get("tuner", "closeAfterStop", false)) root.closeRequested();
       }
     }

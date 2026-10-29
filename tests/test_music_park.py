@@ -116,6 +116,27 @@ class MusicScript(unittest.TestCase):
         self.run_script("--files-play", str(music), playing="http://r/love")
         self.assertFalse(self.parked.exists())
 
+    def test_music_over_a_station_holds_the_station(self):
+        music = self.tmp / "music"
+        music.mkdir()
+        (music / "x.mp3").write_text("")
+        self.run_script("--files-play", str(music), playing="http://r/love")
+        self.assertEqual((self.state / "radio-held").read_text(), "love\n")
+        status = self.run_script("--status", playing="http://r/love")
+        self.assertEqual(status["heldRadio"], "love")
+        self.assertTrue(self.run_script("--release-radio")["ok"])
+        self.assertFalse((self.state / "radio-held").exists())
+
+    def test_music_over_music_holds_no_station_and_a_station_clears_the_hold(self):
+        music = self.tmp / "music"
+        music.mkdir()
+        (music / "x.mp3").write_text("")
+        self.run_script("--files-play", str(music))
+        self.assertFalse((self.state / "radio-held").exists())
+        self.run_script("--files-play", str(music), playing="http://r/love")
+        self.run_script("--radio", "love")
+        self.assertFalse((self.state / "radio-held").exists())
+
     def test_on_brings_the_parked_music_back(self):
         self.run_script("--radio", "love")
         self.assertTrue(self.run_script("--on", playing="http://r/love")["ok"])

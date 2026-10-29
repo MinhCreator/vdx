@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell.Services.Mpris
 import qs.modules.mpd
+import qs.modules.radio
 import qs.modules.yandex
 
 // One player as the shell shows it: what a source of PlayerService (`{key, name, playing}` and
@@ -15,15 +16,16 @@ QtObject {
   readonly property bool mpd: source?.mpd ?? false
   readonly property var mpris: source?.mpris ?? null
 
+  readonly property bool held: source?.held ?? false            // the radio the music pushed aside: shown paused
   readonly property bool parked: source?.parked ?? false        // the music a station put aside: shown paused, as it stood
   readonly property bool hasMedia: source !== null
   readonly property bool playing: source?.playing ?? false
   readonly property string name: source?.name ?? ""
-  readonly property bool radio: mpd && MpdService.source === "radio"
-  readonly property string title: parked ? (source.track.title || "—") : mpd ? (MpdService.player.title || MpdService.player.station
+  readonly property bool radio: held || mpd && MpdService.source === "radio"
+  readonly property string title: held ? RadioService.stationName : parked ? (source.track.title || "—") : mpd ? (MpdService.player.title || MpdService.player.station
                                          || MpdService.file.split("/").pop())
                                       : (mpris?.trackTitle ?? "")
-  readonly property string artist: parked ? source.track.artist : mpd ? (radio ? MpdService.player.station : MpdService.player.artist)
+  readonly property string artist: held ? "" : parked ? source.track.artist : mpd ? (radio ? MpdService.player.station : MpdService.player.artist)
                                        : (mpris?.trackArtist ?? "")
   readonly property string cover: parked ? YandexService.parkedCover : mpd ? YandexService.cover : (mpris?.trackArtUrl ?? "")
   // album and year, under the artist
@@ -43,7 +45,8 @@ QtObject {
   readonly property bool canLoop: mpd || (mpris?.loopSupported ?? false)
 
   function togglePlay() {
-    if (parked) MpdService.unpark();
+    if (held) RadioService.setActive(true);
+    else if (parked) MpdService.unpark();
     else if (mpd) MpdService.toggle();
     else if (mpris?.canTogglePlaying) mpris.togglePlaying();
   }

@@ -5,7 +5,7 @@
 # folders (~/Music) in one player.
 #
 #   --status            {service, state, pos, length, elapsed, duration, random, repeat,
-#                        file, title, artist, album, year, source, station, parked}
+#                        file, title, artist, album, year, source, station, parked, heldRadio}
 #                       state: "playing" | "paused" | "stopped"; parked: false, or the music a
 #                       station put aside {pos, elapsed, duration, file, title, artist, album, year, length}
 #   --listen            --status once per MPD event (polls while MPD is down)
@@ -20,6 +20,7 @@
 #   --repeat            cycle repeat: off -> all -> one -> off
 #   --radio KEY         play a station; the music playing or paused is parked first: the whole
 #                       player as it stood (queue, track, place) goes to one file, $PARKED
+#   --release-radio     forget the held station (the radio the music pushed aside)
 #   --unpark            bring the parked music back, at the track and the second it stopped at
 #   --likes             rebuild the likes queue (manager.py --init)
 #   --likes-at FILE     play a liked track by its file; the likes queue loads first when it is not in
@@ -43,6 +44,8 @@ YANDEX_DIR="$HOME/Music/yandex"
 # year, queue: [{pos, file, artist, title}]}; the only record of it (the shell reads it, --unpark
 # restores it), so it outlives a restart of the shell or of MPD
 PARKED="${XDG_STATE_HOME:-$HOME/.local/state}/music-parked.json"
+# the station the music pushed out of the queue (its key): the radio stands paused, --radio brings it back
+HELD="${XDG_STATE_HOME:-$HOME/.local/state}/radio-held"
 
 ok()    { echo '{"ok":true}'; }
 error() { jq -cn --arg e "$1" '{ok:false, error:$e}'; }
@@ -60,9 +63,11 @@ cmd_status() {
         return
     fi
     current=$(mpc current -f $'%file%\t%title%\t%artist%\t%album%\t%date%\t%name%')
+    local held=""
+    [[ -f "$HELD" ]] && held=$(head -1 "$HELD")
     local parked=""
     [[ -f "$PARKED" ]] && parked=$(jq -c '.length = (.queue | length) | del(.queue)' "$PARKED" 2>/dev/null)
-    jq -cn --arg status "$status" --arg current "$current" --argjson parked "${parked:-false}" --slurpfile stations "$STATIONS" '
+    jq -cn --arg status "$status" --arg current "$current" --argjson parked "${parked:-false}" --arg held "$held" --slurpfile stations "$STATIONS" '
         def seconds: split(":") | map(tonumber? // 0) | reduce .[] as $p (0; . * 60 + $p);
         ($status | split("\t")) as $s
         | ($current | split("\t")) as $c
@@ -70,6 +75,7 @@ cmd_status() {
         | {
             service: true,
             parked: $parked,
+            heldRadio: (if $held == "" then false else $held end),
             state: $s[0], pos: ($s[1] | tonumber? // 0), length: ($s[2] | tonumber? // 0),
             elapsed: ($s[3] // "0" | seconds), duration: ($s[4] // "0" | seconds),
             random: ($s[5] == "on"),
@@ -150,13 +156,22 @@ cmd_unpark() {
     ok
 }
 
-# other music takes the queue: the parked music is not coming back
-drop_parked() { rm -f "$PARKED"; }
+# other music takes the queue: the parked music is not coming back, and a station in the queue is held
+drop_parked() {
+    local file key
+    file=$(mpc current -f '%file%' 2>/dev/null)
+    if [[ -n "$file" ]]; then
+        key=$(jq -r --arg f "$file" 'to_entries | map(select(.value.url == $f)) | first | .key // empty' "$STATIONS" 2>/dev/null)
+        if [[ -n "$key" ]]; then mkdir -p "$(dirname "$HELD")"; printf '%s\n' "$key" > "$HELD"; fi
+    fi
+    rm -f "$PARKED"
+}
 
 cmd_radio() {
     local url
     url=$(jq -r --arg k "$1" '.[$k].url // empty' "$STATIONS")
     [[ -z "$url" ]] && { error "unknown station"; return; }
+    rm -f "$HELD"
     mpd_up
     park_music
     mpc -q clear && mpc -q add "$url" && mpc -q play && ok || error "could not start the station"
@@ -265,6 +280,7 @@ case "${1:-}" in
     --repeat)   cmd_repeat ;;
     --radio)    cmd_radio "${2:-}" ;;
     --unpark)   cmd_unpark ;;
+    --release-radio) rm -f "$HELD"; ok ;;
     --likes)    mpd_up; drop_parked; uv run --script "$MANAGER" --init >/dev/null 2>&1 && ok || error "could not load likes" ;;
     --likes-at) cmd_likes_at "${2:-}" ;;
     --likes-refresh) cmd_likes_refresh ;;
