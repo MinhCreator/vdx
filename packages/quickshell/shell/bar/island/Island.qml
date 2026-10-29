@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Hyprland
 import qs.apps.auth
 import qs.apps.keybinds
+import qs.apps.themepicker
 import qs.apps.launcher
 import qs.components
 import qs.config
@@ -40,13 +41,13 @@ Item {
   // the shape, for the bar's input mask
   readonly property Item shape: shape
   // the launcher and the keybinds: a text field takes the keyboard
-  readonly property bool appView: view === "launcher" || view === "keybinds"
+  readonly property bool appView: view === "launcher" || view === "keybinds" || view === "looks"
   // a pinned view takes the keyboard (Escape, the power menu's arrows)
   // (a module's popup has its own grab; an app view its field)
   readonly property bool grabbing: pinned && view !== "compact" && view !== "module" && !appView
   readonly property bool takesKeys: grabbing || (pinned && appView)
   // the launcher or the keybinds dim the screen behind the island (their "Dim the background" option)
-  readonly property bool dimming: appView && (view === "launcher"
+  readonly property bool dimming: appView && view !== "looks" && (view === "launcher"
     ? ModuleSettings.get("launcher", "dim", true) : ModuleSettings.get("keybinds", "dim", true))
 
   function openView(v) {
@@ -121,7 +122,7 @@ Item {
 
   function toggleView(v) {
     if (view === v && pinned) { collapse(); return; }
-    if (v === "launcher" || v === "keybinds") fromHub = view === "hub";
+    if (v === "launcher" || v === "keybinds" || v === "looks") fromHub = view === "hub";
     openView(v);
   }
 
@@ -144,6 +145,7 @@ Item {
     media:   [420, 148],
     notice:  [400, noticeHeight()],
     power:   [434, 86],
+    looks:   [looks.implicitWidth, looks.implicitHeight],
     root:    [420, rootView.implicitHeight],
     module:  [popupContent?.fitWidth ? popupContent.implicitWidth : Math.max(Theme.popupWidth, popupContent?.implicitWidth ?? 0), popupContent?.implicitHeight ?? Theme.islandHeight]
   })
@@ -325,6 +327,17 @@ Item {
       Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
     }
 
+    LooksPanel {
+      id: looks
+      anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+      width: root.sizes.looks[0]
+      height: root.sizes.looks[1]
+      visible: root.shown === "looks" && opacity > 0
+      opacity: root.shown === "looks" ? 1 : 0
+      onCloseAsked: root.collapse()
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
+    }
+
     IslandPower {
       id: power
       anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
@@ -460,6 +473,7 @@ Item {
       else if (RootService.pending && !RootService.running) RootService.cancel();
     }
     lastView = view;
+    if (view === "looks") looks.reset();
     if (view === "power") power.reset();
     if (view === "launcher") islandLauncher.reset();
     if (view === "keybinds") islandKeybinds.reset();

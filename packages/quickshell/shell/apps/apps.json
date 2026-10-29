@@ -14,6 +14,8 @@
     "settings": "apps/lock/LockSettings.qml", "page": "lockscreen" },
   { "id": "overview", "label": "Overview", "icon": "columns", "about": "Workspaces as one scrolling strip",
     "bind": "Overview", "ipc": "overview", "open": "toggle" },
+  { "id": "themepicker", "label": "Theme picker", "icon": "palette", "about": "A theme and a wallpaper, previewed live",
+    "bind": "Theme picker", "ipc": "themepicker", "open": "toggle" },
   { "id": "taskmanager", "label": "Task Manager", "icon": "activity", "about": "Processes, CPU and memory, End / Kill",
     "bind": "Task manager", "ipc": "taskmanager", "open": "toggle",
     "window": { "id": "task-manager", "title": "Task Manager", "width": 780, "height": 640 },

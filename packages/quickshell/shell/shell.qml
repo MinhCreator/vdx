@@ -17,6 +17,7 @@ import qs.apps.launcher
 import qs.apps.lock
 import qs.apps.overview
 import qs.apps.shellmanager
+import qs.apps.themepicker
 import qs.apps.switcher
 import qs.apps.taskmanager
 import qs.bar
@@ -48,6 +49,8 @@ Scope {
   Launcher {}
   Lock {}
   Overview {}
+  WallpaperPreview {}
+  LooksIpc {}
   // Super+Tab: the floating mode's window switcher (Switcher.step)
   Switcher {}
 

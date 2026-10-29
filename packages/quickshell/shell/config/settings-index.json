@@ -2531,6 +2531,12 @@
   "target": "apps:overview"
  },
  {
+  "label": "Theme picker",
+  "hint": "A theme and a wallpaper, previewed live",
+  "where": "Apps",
+  "target": "apps:themepicker"
+ },
+ {
   "label": "Task Manager",
   "hint": "Processes, CPU and memory, End / Kill",
   "where": "Apps",

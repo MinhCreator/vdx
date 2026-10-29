@@ -5,7 +5,7 @@ import qs.config
 // A segmented control: one track, a segment per choice; the one matching
 // `current` is raised (filled, bold), the rest are plain text. Model:
 // [{label, value}]. Takes the width it is given (KitRow wide); a segment is as wide as its label, the spare width shared evenly.
-// Strict: a quiet outlined track, the picked segment a filled plate inset in it.
+// Strict: a quiet outlined track, the picked segment a filled plate inset in it that glides to the next one picked.
 // Material (Appearance › Controls): the Material 3 segmented button — an
 // outlined pill split by hairlines, the picked segment filled with a check.
 Rectangle {
@@ -94,6 +94,18 @@ Rectangle {
     radius: Math.max(0, root.radius - (root.m3 ? 1 : root.inset))
     color: Theme.clear
 
+    // the picked segment's plate: it glides to the one picked, behind the labels
+    Rectangle {
+      readonly property int at: root.model.findIndex(c => c.value === root.current)
+      visible: at >= 0
+      x: root.widths.slice(0, Math.max(0, at)).reduce((a, b) => a + b, 0)
+      width: root.widths[at] ?? 0
+      height: parent.height
+      color: Theme.pickFill
+      Behavior on x { enabled: Motion.controls; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
+      Behavior on width { enabled: Motion.controls; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
+    }
+
     Row {
       id: segments
       anchors.fill: parent
@@ -115,7 +127,7 @@ Rectangle {
           // Only the enclosing track rounds the outside corners; shared
           // edges stay straight in selected and hover states in both styles.
           radius: 0
-          color: selected ? Theme.pickFill : hovered ? Theme.controlHover : Theme.clear
+          color: hovered ? Theme.controlHover : Theme.clear
 
           Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 

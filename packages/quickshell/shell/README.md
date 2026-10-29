@@ -18,6 +18,7 @@ Registry: `apps/apps.json` (read by the Shell Manager, the launcher,
 | Files | Super+E | `files toggle\|open\|close`, `files go\|reveal\|inspect\|duplicates <path>`, `files choose <json>` |
 | Capture | Super+Shift+S · Super+P | `capture open\|stop\|close\|library\|shot <region\|window\|screen>` |
 | Overview | Super+O | `overview toggle` |
+| Theme picker | Super+T | `themepicker toggle` |
 | Task Manager | Ctrl+Shift+Esc | `taskmanager toggle` |
 | Cleaner | Super+X | `cleaner toggle` |
 | Lock screen | Super+Z | `lock lock` |
