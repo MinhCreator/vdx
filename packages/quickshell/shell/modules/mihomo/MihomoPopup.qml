@@ -1,12 +1,15 @@
 import QtQuick
+import qs.components
 import qs.config
 import qs.kit
 
-// Mihomo: the tunnel's state and traffic, provider and server choice, and
-// the actions (ping all, update subscriptions, open the config) in the footer.
+// Mihomo: the tunnel's state and traffic and the choice of a server. The tunnel's
+// switch, the provider and the files are the VPN page of the Shell Manager (the button at the foot).
 KitFrame {
   id: root
 
+  // how many servers show before the list scrolls: VPN › Servers shown
+  readonly property int rows: ModuleSettings.get("mihomo", "serverRows", Theme.visibleRows)
   readonly property bool listed: MihomoService.serviceOn && MihomoService.providers.length > 0
 
   signal closeRequested()
@@ -26,11 +29,6 @@ KitFrame {
       text: MihomoService.nodes.length + " SERVERS"
     }
 
-    KitSwitch {
-      anchors.verticalCenter: parent.verticalCenter
-      checked: MihomoService.serviceOn
-      onToggled: MihomoService.toggleService()
-    }
   }
 
   KitLine {}
@@ -84,7 +82,7 @@ KitFrame {
   // ---- routing ----
   KitText {
     visible: !root.listed
-    text: MihomoService.serviceOn ? "No providers configured." : "Mihomo is off. Switch it on to pick a server."
+    text: MihomoService.serviceOn ? "No providers configured." : "Mihomo is off. Switch it on in the VPN settings."
     color: Theme.muted
     font.pixelSize: Theme.fontSize - 1
   }
@@ -94,14 +92,6 @@ KitFrame {
     visible: root.listed
     spacing: Theme.gapLoose
 
-    KitSelect {
-      label: "Provider"
-      hint: "Subscription in use"
-      model: MihomoService.providers.map(p => ({ label: p.name, value: p.name }))
-      current: MihomoService.provider
-      onPicked: value => MihomoService.provider = value
-    }
-
     KitLabel {
       text: "SERVERS (" + MihomoService.nodes.length + ")"
       value: "PING"
@@ -110,7 +100,7 @@ KitFrame {
     Flickable {
       width: parent.width
       visible: MihomoService.nodes.length > 0
-      height: Math.min(contentHeight, 30 * Theme.visibleRows)
+      height: Math.min(contentHeight, 30 * root.rows)
       contentHeight: servers.implicitHeight
       interactive: contentHeight > height
       clip: true
@@ -179,50 +169,26 @@ KitFrame {
   KitLine {}
 
   // ---- actions ----
-  Item {
+  Row {
     width: parent.width
-    height: 30
+    spacing: Theme.gapMedium
 
-    Row {
-      spacing: Theme.gapMedium
-
-      KitButton {
-        icon: "zap"
-        text: "Ping"
-        busy: MihomoService.pinging
-        disabled: !MihomoService.serviceOn
-        onClicked: MihomoService.pingNodes()
-      }
-
-      KitButton {
-        icon: "refresh"
-        text: "Update"
-        busy: MihomoService.updating
-        disabled: !MihomoService.serviceOn
-        onClicked: MihomoService.runUpdate()
-      }
+    KitButton {
+      id: pingButton
+      icon: "zap"
+      text: "Ping"
+      busy: MihomoService.pinging
+      disabled: !MihomoService.serviceOn
+      onClicked: MihomoService.pingNodes()
     }
 
-    // open in the editor: the provider's subscription, mihomo's config
-    Row {
-      anchors.right: parent.right
-      spacing: Theme.gapMedium
-
-      KitButton {
-        icon: "server"
-        disabled: !root.listed || MihomoService.provider === ""
-        onClicked: {
-          root.closeRequested();
-          MihomoService.openProviderConfig(MihomoService.provider);
-        }
-      }
-
-      KitButton {
-        icon: "sliders"
-        onClicked: {
-          root.closeRequested();
-          MihomoService.openMihomoConfig();
-        }
+    KitButton {
+      width: parent.width - pingButton.width - parent.spacing
+      icon: "sliders"
+      text: "VPN settings"
+      onClicked: {
+        root.closeRequested();
+        ShellIpc.call("shell", "open", ["vpn"]);
       }
     }
   }

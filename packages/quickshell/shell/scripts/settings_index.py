@@ -42,6 +42,7 @@ PAGES = [
     ("power", "Power", ["PowerPage.qml"]),
     ("updates", "Updates", ["UpdatesPage.qml"]),
     ("bluetooth", "Bluetooth", ["BluetoothPage.qml"]),
+    ("vpn", "VPN", ["VpnPage.qml"]),
     ("displays", "Displays", ["DisplaysPage.qml"]),
     ("about", "About", ["AboutPage.qml"]),
 ]

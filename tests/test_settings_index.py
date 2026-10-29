@@ -12,7 +12,7 @@ spec = importlib.util.spec_from_file_location("settings_index", SCRIPT)
 si = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(si)
 
-TABS = {"profile", "themes", "fonts", "icons", "wallpaper", "cursor", "appearance", "animations", "bar", "modules", "windows", "lockscreen", "notifications",
+TABS = {"vpn", "profile", "themes", "fonts", "icons", "wallpaper", "cursor", "appearance", "animations", "bar", "modules", "windows", "lockscreen", "notifications",
         "hub", "live", "network", "sound", "power", "updates", "bluetooth", "displays", "apps", "about"}
 
 # a word typed -> where the task is done

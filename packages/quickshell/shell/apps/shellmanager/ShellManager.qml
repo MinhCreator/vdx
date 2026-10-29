@@ -53,6 +53,7 @@ Rectangle {
     { value: "lockscreen", label: "Lock screen", icon: "lock" },
     { value: "network",    label: "Network",    icon: "wifi",       caption: "SYSTEM" },
     { value: "bluetooth",  label: "Bluetooth",  icon: "bluetooth" },
+    { value: "vpn",        label: "VPN",        icon: "public", module: "mihomo" },
     { value: "sound",      label: "Sound",      icon: "volume" },
     { value: "displays",   label: "Displays",   icon: "monitor" },
     { value: "power",      label: "Power",      icon: "zap" },
@@ -62,7 +63,7 @@ Rectangle {
     { value: "profile",    label: "Profile",    icon: "user",       caption: "SHELL", foot: true },
     { value: "about",      label: "About",      icon: "info",       foot: true }
   ]
-  readonly property var sections: allSections.filter(s => !s.island || Theme.island)
+  readonly property var sections: allSections.filter(s => (!s.island || Theme.island) && (!s.module || BarLayout.installed(s.module)))
 
   // the rail's groups: one button each, the list beside it shows the open group's pages
   readonly property var groups: [
@@ -180,7 +181,7 @@ Rectangle {
   }
 
   function pageFor(value) {
-    return ({ themes: themes, fonts: fonts, icons: icons, wallpaper: wallpaper, cursor: cursor, bar: bar, animations: animations, windows: windows, network: network, sound: sound, power: power, updates: updates, hub: hub, live: live, profile: profile, bluetooth: bluetooth, displays: displays,
+    return ({ themes: themes, fonts: fonts, icons: icons, wallpaper: wallpaper, cursor: cursor, bar: bar, animations: animations, windows: windows, network: network, sound: sound, power: power, updates: updates, hub: hub, live: live, profile: profile, bluetooth: bluetooth, vpn: vpn, displays: displays,
               modules: modules, apps: apps, about: about, lockscreen: lockscreen,
               notifications: notifications })[value] ?? appearance;
   }
@@ -547,6 +548,7 @@ Rectangle {
                                live.visible ? live.implicitHeight : 0,
                                updates.visible ? updates.implicitHeight : 0,
                                bluetooth.visible ? bluetooth.implicitHeight : 0,
+                               vpn.visible ? vpn.implicitHeight : 0,
                                displays.visible ? displays.implicitHeight : 0,
                                about.visible ? about.implicitHeight : 0,
                                lockscreen.visible ? lockscreen.implicitHeight : 0,
@@ -572,6 +574,7 @@ Rectangle {
       LivePage      { id: live;      width: parent.width; visible: root.tab === "live" }
       UpdatesPage   { id: updates;   width: parent.width; visible: root.tab === "updates" }
       BluetoothPage { id: bluetooth; width: parent.width; visible: root.tab === "bluetooth" }
+      VpnPage       { id: vpn;       width: parent.width; visible: root.tab === "vpn" }
       DisplaysPage  { id: displays;  width: parent.width; visible: root.tab === "displays" }
       AboutPage   { id: about;   width: parent.width; visible: root.tab === "about" }
       LockScreenPage { id: lockscreen; width: parent.width; visible: root.tab === "lockscreen" }

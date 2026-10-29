@@ -74,7 +74,7 @@ links, secrets, `/etc`, units, services). `link` also writes
 Settings UI = **Shell Manager** (`apps/shellmanager/`, Super+S). The sidebar is a rail of group
 buttons (LOOK, DESKTOP, SYSTEM) with the shell's own pages (`foot: true`: Profile, About) at its foot, and a list of the open group's pages beside it. Groups, by what the user is after: LOOK Appearance, Themes (also Dark / Light), Fonts, Icons, Cursor, Wallpaper, Motion ·
 DESKTOP Bar (Layout, Look, Monitors; under it, in the Island style only: Hub, Live activities),
-Bar modules, Windows, Lock screen · SYSTEM Network, Hotspot, Bluetooth, Sound, Displays (with the
+Bar modules, Windows, Lock screen · SYSTEM Network, Hotspot, Bluetooth, VPN, Sound, Displays (with the
 night light), Power, Notifications, Apps, Updates · foot: Profile, About. A page header has its group, a
 state line and one or two lines on what the page does; a block has an `about` line (`KitLabel`).
 One home per setting; a setting that waits for something (a style, a switch, a module in the Hub
@@ -94,6 +94,7 @@ names still open the new places (`resolve()` in ShellManager.qml).
 | Displays | Shell Manager › Displays (`DisplaysPage`), `apps/display/` (service, layout), `scripts/display.py` | `hyprctl` | restore at login |
 | Audio | `modules/audio/`, `scripts/audio.sh` | Quickshell Pipewire, `pactl` (ports) | one list entry per port |
 | Bluetooth | `modules/bluetooth/`, `apps/shellmanager/BluetoothPage.qml`, `scripts/bluetooth.sh` | BlueZ | — |
+| VPN | `modules/mihomo/`, `apps/shellmanager/VpnPage.qml`, `scripts/mihomo.sh` | Mihomo | — |
 | Files + picker | `apps/files/`, `scripts/files.py`, `scripts/files_portal.py`, `packages/xdg-portal/` | `xdg-desktop-portal`, `python-gobject`, `udisks2` | the shell's FileChooser portal and `FileManager1` |
 | Lock | `apps/lock/` | Quickshell `WlSessionLock`, PAM | options in `modules.json` › `lock` |
 | Island / hub | `bar/island/` | `ShellSettings.barStyle` | hub = island view from the clock; the Launcher and Keys chips open the launcher and the keybinds (their panels `apps/launcher/LauncherPanel.qml`, `apps/keybinds/KeybindsPanel.qml`) as island views |

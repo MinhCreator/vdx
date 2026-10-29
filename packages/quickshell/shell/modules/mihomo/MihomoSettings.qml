@@ -10,5 +10,19 @@ Column {
   KitLabel { text: "BAR" }
   BarTextRow { module: "mihomo" }
 
+  KitLabel { text: "POPUP" }
+
+  KitRow {
+    wide: true
+    label: "Servers shown"
+    hint: "How many the popup lists before it scrolls"
+
+    KitSegments {
+      model: [{ label: "5", value: 5 }, { label: "8", value: 8 }, { label: "10", value: 10 }, { label: "15", value: 15 }]
+      current: ModuleSettings.get("mihomo", "serverRows", Theme.visibleRows)
+      onPicked: value => ModuleSettings.set("mihomo", "serverRows", value)
+    }
+  }
+
   KitGrouper {}
 }
