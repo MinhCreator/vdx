@@ -122,7 +122,7 @@ Current remaining audit map (baseline tests are not a per-function review):
 | Capture | Recorder, saving and clipboard lifecycles reviewed; real GPU capture and overlays |
 | Bar and Island | Content hosting and popup arbitration reviewed; compositor focus, layout changes and multiple monitors |
 | Lock and authentication | Root completion, password attempts and marker ordering reviewed; real PAM, polkit and Wayland crash/reload scenarios |
-| Device services | First pass of all six services completed; Bluetooth adapter settings are serialized. Wi-Fi saved-network/connection races, Bluetooth device-command serialization, process-launch failures, backend/schema failures and real hardware still need review |
+| Device services | First pass of all six services completed; Bluetooth adapter settings and Wi-Fi saved edits/connection requests are serialized. Bluetooth device-command serialization, process-launch failures, backend/schema failures and hardware edge cases remain |
 | Other apps and background services | Task grouping and tree traversal reviewed; remaining per-function review, navigation, failure states and decomposition |
 | Final verification | Both bar styles, theme/settings combinations and measured performance |
 
@@ -134,11 +134,12 @@ reproduce each suspected bug and commit only after the repository checks pass.
 
 Next focused investigations (suspicions, not confirmed regressions):
 
-1. `modules/wifi/WifiService.qml`: review connection requests while the previous
-   process is starting or stopping. Connection errors are now visible for open
-   and saved networks in both entry points. Speed-test cancellation and stale
-   completion, plus overlapping saved-network edits, are covered; credential
-   cleanup tests cover completed replies, not process-launch failure.
+1. `modules/wifi/WifiService.qml`: review process-start failures and recovery
+   while a connect request is starting or stopping. Connection errors are
+   visible for open and saved networks in both entry points. Speed-test
+   cancellation/stale completion, competing connection paths and overlapping
+   saved-network edits are covered; credential cleanup tests cover completed
+   replies, not process-launch failure.
 2. `modules/bluetooth/BluetoothService.qml`: overlapping device commands,
    discovery lifetime and removed devices. Adapter settings now run FIFO.
    Scan-start replies now reflect `bluetoothctl` output, with fake-backend
