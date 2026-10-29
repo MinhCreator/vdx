@@ -16,7 +16,7 @@ Column {
   readonly property string description: "What the shell does with sound."
   readonly property var jumps: []
 
-  readonly property var resetKeys: ["pauseMusic", "resumeMusic"]
+  readonly property var resetKeys: ["pauseMusic", "resumeMusic", "exclusiveSound"]
   readonly property bool changed: ShellSettings.changed(resetKeys)
   function reset() { ShellSettings.reset(resetKeys); }
 
@@ -30,6 +30,16 @@ Column {
     KitSwitch {
       checked: MpdService.service
       onToggled: MpdService.setOn(!checked)
+    }
+  }
+
+  KitRow {
+    label: "One source at a time"
+    hint: "The music, the radio and an app's media: starting one pauses the rest"
+
+    KitSwitch {
+      checked: ShellSettings.exclusiveSound
+      onToggled: ShellSettings.set("exclusiveSound", !checked)
     }
   }
 

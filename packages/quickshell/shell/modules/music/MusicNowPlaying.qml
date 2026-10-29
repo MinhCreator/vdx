@@ -26,8 +26,7 @@ Column {
   readonly property bool showRemaining: ModuleSettings.get("music", "showRemaining", false)
   // the like belongs to a Yandex track only
   readonly property bool yandexTrack: root.player.mpd && MpdService.source === "likes" && YandexService.trackId !== ""
-  readonly property string detail: root.player.mpd
-    ? [MpdService.player.album, MpdService.player.year].filter(s => s).join(" · ") : ""
+  readonly property string detail: root.player.detail
 
   function clock(seconds) {
     const s = Math.max(0, Math.floor(seconds));

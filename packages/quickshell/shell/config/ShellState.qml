@@ -20,6 +20,7 @@ JsonAdapter {
   property var wallpaperImages: ({})
   property var wallpaperOutputs: ({})
   property bool pauseMusic: false
+  property bool exclusiveSound: true
   property bool resumeMusic: true
   property bool barRightSettings: true
   property bool barFolderDot: true

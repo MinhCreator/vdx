@@ -57,9 +57,31 @@ Singleton {
                                  ?? sources[0] ?? null
   // ---- the families: the music of MPD (no radio), the radio, the media of other apps ----
   // Each shows apart (a live activity, a popup); `current` is only what the keys control.
-  // the music is MPD's, or — while a station has the queue — the track it put aside, paused
+  // What MPD's music was, kept while a station has the queue: the player is frozen as it stood
+  // (track, cover, place, queue). Updated while the music is MPD's own; after a restart of the
+  // shell only what the script noted (title, artist, place) is left.
+  property var frozen: null
+  readonly property var musicNow: MpdService.source !== "radio" && !MpdService.stopped ? {
+    title: MpdService.player.title || MpdService.file.split("/").pop(), artist: MpdService.player.artist ?? "",
+    album: MpdService.player.album ?? "", year: MpdService.player.year ?? "",
+    cover: YandexService.cover, position: MpdService.elapsed, length: MpdService.duration, pos: MpdService.player.pos ?? 0,
+    name: MpdService.source === "files" ? "Files" : "Yandex Music", queue: MpdService.queue } : null
+  onMusicNowChanged: {
+    if (!musicNow) return;
+    // a queue cleared for the station must not wipe the one kept
+    frozen = Object.assign({}, musicNow, { queue: musicNow.queue.length > 0 ? musicNow.queue : (frozen?.queue ?? []) });
+  }
+  readonly property var parkedTrack: {
+    const t = MpdService.parkedTrack;
+    if (!t) return null;
+    return frozen ?? { title: t.title, artist: t.artist, album: "", year: "", cover: "", position: t.elapsed, length: t.duration, pos: t.pos, queue: [] };
+  }
+  // (read from MPD directly, not through `music`: that one reads this)
+  // the music is MPD's, or — while a station has the queue — the frozen player, paused
   readonly property var musicSource: sources.find(s => s.mpd && MpdService.source !== "radio")
-    ?? (MpdService.parked ? { key: "parked", name: "Paused by the radio", parked: true, playing: false, track: MpdService.parkedTrack } : null)
+    ?? (parkedTrack ? { key: "parked", name: "Paused by the radio", parked: true, playing: false, track: parkedTrack } : null)
+  // its queue: MPD's, or the frozen one
+  readonly property var musicQueue: musicSource?.parked ? musicSource.track.queue : MpdService.queue
   readonly property var externals: sources.filter(s => s.mpris)
   property string mediaPicked: ""              // an app's key, chosen in the Media popup
   readonly property var mediaSource: externals.find(s => s.key === mediaPicked)

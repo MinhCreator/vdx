@@ -44,7 +44,7 @@ KitFrame {
     stretch: true
     model: [
       { label: "Now playing", value: "playing" },
-      { label: "Queue (" + MpdService.queue.length + ")", value: "queue" },
+      { label: "Queue (" + PlayerService.musicQueue.length + ")", value: "queue" },
       { label: "Library", value: "library" }
     ].filter(t => t.value !== "queue" || root.hasQueue)
     current: root.shownTab

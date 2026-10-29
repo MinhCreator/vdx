@@ -17,10 +17,12 @@ Column {
 
   readonly property int rowHeight: 38
   readonly property int upNext: 9
-  readonly property int currentPos: MpdService.player.pos ?? 0
+  // while a station has the queue the player is frozen: its queue and place are the kept ones
+  readonly property bool frozen: PlayerService.musicSource?.parked ?? false
+  readonly property int currentPos: frozen ? PlayerService.musicSource.track.pos : (MpdService.player.pos ?? 0)
   readonly property string notice: PlayerService.hasMedia && !PlayerService.mpd ? PlayerService.name + " keeps its own queue" : ""
   readonly property var tracks: {
-    const queue = MpdService.queue;
+    const queue = PlayerService.musicQueue;
     if (!searching) return queue;
     const q = query.trim().toLowerCase();
     return q === "" ? [] : queue.filter(t => (t.artist + " " + t.title).toLowerCase().includes(q));
@@ -158,6 +160,7 @@ Column {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             cursorShape: Qt.PointingHandCursor
             onClicked: mouse => {
+              if (root.frozen) { MpdService.unpark(); return; }       // frozen: a click brings the music back
               if (mouse.button === Qt.RightButton) MpdService.control(["--queue-del", String(row.modelData.pos)]);
               else {
                 MpdService.play(row.modelData.pos);

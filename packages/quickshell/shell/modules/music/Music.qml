@@ -4,6 +4,7 @@ import qs.bar
 import qs.components
 import qs.config
 import qs.kit
+import qs.modules.mpd
 import qs.modules.player
 
 // The music module: what plays now, of any source (PlayerService: Yandex Music,
@@ -24,10 +25,10 @@ Item {
   readonly property string show: ModuleSettings.get("music", "show", "both")
   readonly property string textMode: ModuleSettings.get("music", "text", "content")
   readonly property bool iconOnly: textMode === "icon" || (textMode === "content" && (show === "icon" || maxLength === 0))
-  readonly property string title: (show === "title" ? [PlayerService.title]
-                                 : show === "artist" ? [PlayerService.artist]
-                                 : [PlayerService.artist, PlayerService.title]).filter(s => s).join(" - ")
-  readonly property string text: BarLayout.faceText("music", PlayerService.playing && title !== "" ? title : "Music")
+  readonly property string title: (show === "title" ? [PlayerService.music.title]
+                                 : show === "artist" ? [PlayerService.music.artist]
+                                 : [PlayerService.music.artist, PlayerService.music.title]).filter(s => s).join(" - ")
+  readonly property string text: BarLayout.faceText("music", PlayerService.music.playing && title !== "" ? title : "Music")
 
   implicitWidth: label.implicitWidth
   implicitHeight: label.implicitHeight
@@ -35,10 +36,10 @@ Item {
   KitBarItem {
     id: label
     // the icon marks the idle label only; while playing the track speaks for itself
-    icon: PlayerService.playing && !root.iconOnly ? "" : "music"
+    icon: PlayerService.music.playing && !root.iconOnly ? "" : "music"
     text: root.iconOnly ? "" : root.maxLength > 0 && root.text.length > root.maxLength
       ? root.text.slice(0, root.maxLength - 1) + Theme.ellipsis : root.text
-    tint: PlayerService.playing ? Theme.accentFor("modules", Theme.foreground0) : Theme.gray
+    tint: PlayerService.music.playing ? Theme.accentFor("modules", Theme.foreground0) : Theme.gray
   }
 
   MouseArea {
@@ -46,7 +47,7 @@ Item {
     acceptedButtons: Qt.LeftButton | Qt.MiddleButton
     cursorShape: Qt.PointingHandCursor
     onClicked: mouse => {
-      if (mouse.button === Qt.MiddleButton) PlayerService.togglePlay();
+      if (mouse.button === Qt.MiddleButton) { if (PlayerService.music.hasMedia) PlayerService.music.togglePlay(); else if (MpdService.parked) MpdService.unpark(); }
       else popup.toggle();
     }
   }

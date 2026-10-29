@@ -25,9 +25,12 @@ QtObject {
                                       : (mpris?.trackTitle ?? "")
   readonly property string artist: parked ? source.track.artist : mpd ? (radio ? MpdService.player.station : MpdService.player.artist)
                                        : (mpris?.trackArtist ?? "")
-  readonly property string cover: mpd ? YandexService.cover : (mpris?.trackArtUrl ?? "")
-  readonly property real position: parked ? source.track.elapsed : mpd ? MpdService.elapsed : (mpris?.position ?? 0)
-  readonly property real length: parked ? source.track.duration : mpd ? MpdService.duration : (mpris?.length ?? 0)
+  readonly property string cover: parked ? source.track.cover : mpd ? YandexService.cover : (mpris?.trackArtUrl ?? "")
+  // album and year, under the artist
+  readonly property string detail: parked ? [source.track.album, source.track.year].filter(x => x).join(" · ")
+    : mpd ? [MpdService.player.album, MpdService.player.year].filter(x => x).join(" · ") : ""
+  readonly property real position: parked ? source.track.position : mpd ? MpdService.elapsed : (mpris?.position ?? 0)
+  readonly property real length: parked ? source.track.length : mpd ? MpdService.duration : (mpris?.length ?? 0)
   readonly property bool canNext: mpd ? true : (mpris?.canGoNext ?? false)
   readonly property bool canPrevious: mpd ? true : (mpris?.canGoPrevious ?? false)
   readonly property bool canSeek: length > 0 && (mpd || (mpris?.canSeek ?? false))
