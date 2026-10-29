@@ -18,7 +18,7 @@ KitColumn {
     { key: "families", label: "Families", y: familiesLabel.y },
     { key: "size", label: "Text size", y: sizeLabel.y }
   ].filter(j => tab === "size" ? j.key === "size" : j.key !== "size")
-  readonly property var resetKeys: ["textSize"]
+  readonly property var resetKeys: ["textSize", "inputAlign"]
   readonly property bool changed: ShellSettings.changed(resetKeys)
   function reset() { ShellSettings.reset(resetKeys); }
 
@@ -113,6 +113,7 @@ KitColumn {
         height: 54
         radius: Theme.radiusControl
         color: picked ? Theme.pickFill : area.containsMouse ? Theme.controlHover : Theme.groupFill
+        Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.normal; easing.type: Motion.easing } }
         border.width: activeFocus ? Theme.focusWidth : Theme.frameWidth
         border.color: activeFocus ? Theme.focusRing : Theme.controlLine
         activeFocusOnTab: true
@@ -161,6 +162,10 @@ KitColumn {
   KitRow {
     wide: true; label: "GTK apps text"; hint: "Applied at once, GTK only"
     KitSegments { disabled: DisplayService.busy; model: DisplayService.textScales.map(f => ({ label: Math.round(f * 100) + "%", value: f })); current: DisplayService.textFactor; onPicked: value => DisplayService.setText(value) }
+  }
+  KitRow {
+    wide: true; label: "Input text"; hint: "Where the text stands in a field; Auto: left, a password in the middle"
+    KitSegments { model: [{ label: "Auto", value: "auto" }, { label: "Left", value: "left" }, { label: "Centre", value: "center" }]; current: ShellSettings.inputAlign; onPicked: value => ShellSettings.set("inputAlign", value) }
   }
     KitGrouper {}
   }

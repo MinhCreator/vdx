@@ -33,6 +33,7 @@ cursor cursor
 download download-simple
 eject eject
 external arrow-square-out
+eye eye
 eye-off eye-slash
 file file-text
 folder folder

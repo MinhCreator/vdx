@@ -54,5 +54,9 @@ Column {
     KitGrouper {}
   }
 
+  KitLine {}
+
+  PasswordSection {}
+
   KitGrouper {}
 }

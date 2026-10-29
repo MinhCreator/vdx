@@ -31,6 +31,7 @@ crop crop
 cursor arrow_selector_tool
 download download
 external open_in_new
+eye visibility
 eye-off visibility_off
 file description
 folder folder

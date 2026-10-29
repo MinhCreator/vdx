@@ -11,7 +11,12 @@ Rectangle {
   property string icon: ""             // kit/icons name, before the text
   property alias text: textInput.text
   property alias input: textInput
-  property alias echoMode: textInput.echoMode
+  // the field's own mode; a password has an eye at its right end that shows the text as typed
+  // (the layout stays that of a password while it shows)
+  property int echoMode: TextInput.Normal
+  property bool revealable: true
+  property bool revealed: false
+  readonly property bool eyed: echoMode === TextInput.Password && revealable
   // a masked field stands in the middle by default (lock screen, Wi-Fi); a prompt that
   // reads like a line (polkit) turns it off and the squares start after the prompt
   property bool centerMasked: true
@@ -48,12 +53,40 @@ Rectangle {
     tint: textInput.activeFocus ? Theme.foreground0 : Theme.muted
   }
 
+  // the eye: the same text, shown or hidden
+  Item {
+    id: eye
+    visible: root.eyed
+    anchors { right: parent.right; rightMargin: Theme.gapSmall; verticalCenter: parent.verticalCenter }
+    width: 24
+    height: 24
+    Accessible.role: Accessible.Button
+    Accessible.name: root.revealed ? "Hide the text" : "Show the text"
+    Accessible.onPressAction: root.revealed = !root.revealed
+
+    KitIcon {
+      anchors.centerIn: parent
+      name: root.revealed ? "eye-off" : "eye"
+      size: Theme.iconSmall
+      tint: eyeArea.containsMouse || root.revealed ? Theme.foreground0 : Theme.muted
+      Behavior on tint { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+    }
+    MouseArea {
+      id: eyeArea
+      anchors.fill: parent
+      hoverEnabled: true
+      cursorShape: Qt.PointingHandCursor
+      onClicked: { root.revealed = !root.revealed; textInput.forceActiveFocus(); }
+    }
+  }
+
   TextInput {
     id: textInput
-    // a password stands in the middle of the field: the right margin matches the icon's side
-    readonly property bool masked: echoMode === TextInput.Password
-    readonly property bool centred: masked && root.centerMasked
-    anchors { left: lead.visible ? lead.right : parent.left; leftMargin: lead.visible ? Theme.gapMedium : Theme.gapWide; right: parent.right; rightMargin: centred ? (lead.visible ? lead.width + 18 : Theme.gapWide) : 10; top: parent.top; bottom: parent.bottom }
+    // centred (Text › Input text; a password by default): the right margin matches the icon's side
+    readonly property bool masked: root.echoMode === TextInput.Password
+    readonly property bool centred: root.centerMasked && (ShellSettings.inputAlign === "center" || ShellSettings.inputAlign === "auto" && masked)
+    anchors { left: lead.visible ? lead.right : parent.left; leftMargin: lead.visible ? Theme.gapMedium : Theme.gapWide; right: eye.visible ? eye.left : parent.right; rightMargin: eye.visible ? 4 : centred ? (lead.visible ? lead.width + 18 : Theme.gapWide) : 10; top: parent.top; bottom: parent.bottom }
+    echoMode: root.eyed && root.revealed ? TextInput.Normal : root.echoMode
     verticalAlignment: TextInput.AlignVCenter
     horizontalAlignment: centred ? TextInput.AlignHCenter : TextInput.AlignLeft
     leftPadding: centred ? font.letterSpacing : 0   // the spacing trails every square, the last one too
@@ -99,6 +132,7 @@ Rectangle {
       visible: textInput.text === ""
       text: root.placeholder
       elide: Text.ElideRight
+      horizontalAlignment: textInput.centred ? Text.AlignHCenter : Text.AlignLeft
       color: Theme.muted
     }
   }

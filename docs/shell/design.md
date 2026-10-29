@@ -83,6 +83,8 @@ uses tonal layers and more spacious controls.
   A list over 5 or one that changes (monitors, models, tabs) → `KitSelect`.
   An exact number or text → `KitInput` (Enter). A folder or file → `KitInput` + a
   `Choose…` button (`FilesService.pickFolder` / `pick`, the Files window's
+  A password → `KitInput { echoMode: TextInput.Password }`: it carries its own eye, and where text
+  stands (left, centre) is the user's (Text › Input text), never set per field.
   picker). A long list to preview + Apply → a searchable list and a preview, as
   on Themes. A slider of 3–4 stops is chips.
   On a Settings page the choices are `KitSegments` (one track, the picked segment

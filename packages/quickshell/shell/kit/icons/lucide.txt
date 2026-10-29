@@ -33,6 +33,7 @@ cursor mouse-pointer-2
 download download
 eject eject
 external external-link
+eye eye
 eye-off eye-off
 file file-text
 folder folder
