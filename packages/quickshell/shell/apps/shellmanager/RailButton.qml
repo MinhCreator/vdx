@@ -1,10 +1,9 @@
 import QtQuick
-import QtQuick.Controls as Controls
 import qs.config
 import qs.kit
 
-// An icon button of the Shell Manager's rail: a group, or a page of the shell's own.
-// The name shows as a tooltip.
+// A button of the Shell Manager's rail: a group, or a page of the shell's own.
+// The icon with its name under it, so nothing needs a tooltip.
 Rectangle {
   id: button
 
@@ -14,19 +13,30 @@ Rectangle {
 
   signal clicked()
 
-  width: Theme.navigationHeight + Theme.gapMedium
-  height: width
+  width: 56
+  height: 52
   radius: Theme.radiusControl
   Accessible.role: Accessible.Button
   Accessible.name: label
   color: active ? Theme.pickFill : area.containsMouse ? Theme.controlHover : Theme.clear
   Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.quick } }
 
-  KitIcon {
+  Column {
     anchors.centerIn: parent
-    name: button.icon
-    size: 18
-    tint: button.active ? Theme.foreground0 : Theme.foreground2
+    spacing: Theme.gapTight
+
+    KitIcon {
+      anchors.horizontalCenter: parent.horizontalCenter
+      name: button.icon
+      size: 18
+      tint: button.active ? Theme.foreground0 : Theme.foreground2
+    }
+    KitText {
+      anchors.horizontalCenter: parent.horizontalCenter
+      text: button.label
+      font.pixelSize: Theme.fontSize - 4
+      color: button.active ? Theme.foreground0 : Theme.muted
+    }
   }
 
   MouseArea {
@@ -35,8 +45,5 @@ Rectangle {
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
     onClicked: button.clicked()
-    Controls.ToolTip.visible: containsMouse
-    Controls.ToolTip.delay: 400
-    Controls.ToolTip.text: button.label
   }
 }

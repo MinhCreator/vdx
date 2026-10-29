@@ -19,7 +19,7 @@ KitColumn {
   readonly property bool floating: ws.mode === "floating"
 
   // the window's fixed header shows these; the page under it scrolls
-  readonly property string icon: "tiling"
+  readonly property string icon: "app-window"
   readonly property string title: "Windows"
   readonly property string description: "Window layout and look. Writes Hyprland's config."
 

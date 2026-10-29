@@ -49,7 +49,7 @@ Rectangle {
     { value: "hub",        label: "Hub",        icon: "home",    child: true, island: true },
     { value: "live",       label: "Live activities", icon: "activity", child: true, island: true },
     { value: "modules",    label: "Bar modules", icon: "puzzle" },
-    { value: "windows",    label: "Windows",    icon: "tiling" },
+    { value: "windows",    label: "Windows",    icon: "app-window" },
     { value: "lockscreen", label: "Lock screen", icon: "lock" },
     { value: "network",    label: "Network",    icon: "wifi",       caption: "SYSTEM" },
     { value: "bluetooth",  label: "Bluetooth",  icon: "bluetooth" },
@@ -66,7 +66,7 @@ Rectangle {
 
   // the rail's groups: one button each, the list beside it shows the open group's pages
   readonly property var groups: [
-    { name: "LOOK", icon: "palette" }, { name: "DESKTOP", icon: "laptop" }, { name: "SYSTEM", icon: "cpu" }
+    { name: "LOOK", icon: "palette" }, { name: "DESKTOP", icon: "tiling" }, { name: "SYSTEM", icon: "cpu" }
   ]
   readonly property var footSections: sections.filter(s => s.foot)
   readonly property var navSections: sections.filter(s => !s.foot && groupOf(s.value) === openGroup)
@@ -229,7 +229,7 @@ Rectangle {
     color: Theme.sideFill
 
     // the rail's width; the list and the header start after it
-    readonly property int railWidth: 52
+    readonly property int railWidth: 68
     readonly property int listX: railWidth + Theme.windowPadding
 
     // the window's header, centred between the window's top and its line, which is level with the page's
