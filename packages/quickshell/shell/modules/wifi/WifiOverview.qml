@@ -157,6 +157,14 @@ Column {
         }
       }
     }
+
+    KitText {
+      width: parent.width
+      visible: WifiService.radioOn && WifiService.networks.length === 0
+      text: WifiService.scanning ? "Looking for networks…" : WifiService.scanError || "No networks found. Try rescan."
+      color: WifiService.scanError !== "" ? Theme.red : Theme.muted
+      wrapMode: Text.WordWrap
+    }
   }
 
   KitLine {}
@@ -170,7 +178,8 @@ Column {
       id: rescan
       icon: "refresh"
       text: "Rescan"
-      disabled: !WifiService.radioOn
+      busy: WifiService.scanning
+      disabled: !WifiService.radioOn || WifiService.scanning
       onClicked: WifiService.scan()
     }
 

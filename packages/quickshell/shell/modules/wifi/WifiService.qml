@@ -30,6 +30,8 @@ Singleton {
   readonly property bool connected: radioOn && linkState === "connected"
 
   property var networks: []                    // see `wifi.sh --list`
+  property bool scanning: false
+  property string scanError: ""
 
   // ---- popup ----
   property bool popupOpen: false
@@ -207,7 +209,10 @@ Singleton {
   }
 
   function scan() {
-    if (radioOn && !scanProc.running) scanProc.running = true;
+    if (!radioOn || scanProc.running) return;
+    scanning = true;
+    scanError = "";
+    scanProc.running = true;
   }
 
   // ---- internals ----
@@ -390,7 +395,12 @@ Singleton {
     id: scanProc
     command: ["bash", root.script, "--scan"]
     stdout: StdioCollector {
-      onStreamFinished: root.refreshNetworks()
+      onStreamFinished: {
+        const o = root.parse(text);
+        root.scanError = o?.ok ? "" : (o?.error ?? "could not scan for networks");
+        root.refreshNetworks();
+        root.scanning = false;
+      }
     }
   }
 

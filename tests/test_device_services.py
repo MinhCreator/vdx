@@ -105,6 +105,30 @@ Scope {
         ''')
         self.assertEqual(result, {"first": 1, "retry": 2, "error": "write failed", "busy": True})
 
+    def test_wifi_scan_shows_busy_and_error_then_allows_retry(self):
+        source = (SHELL / "modules/wifi/WifiService.qml").read_text()
+        result = self.evaluate('''
+  property bool radioOn: true
+  property bool scanning: false
+  property string scanError: ""
+  property string text: ""
+  property int calls: 0
+  function parse(text) { return JSON.parse(text); }
+  function refreshNetworks() {}
+  QtObject { id: scanProc; property bool running: false; onRunningChanged: if (running) root.calls++ }
+''' + qml_function(source, "scan") + '''
+  function complete(text) { scanProc.running = false; ''' + handler(source, "scanProc") + ''' }
+''', '''
+          scan(); scan(); const callsDuringScan = calls; const busyDuringScan = scanning;
+          complete(JSON.stringify({ok: false, error: "no network device"}));
+          const errorAfterFailure = scanError;
+          scan(); complete(JSON.stringify({ok: true}));
+          return {callsDuringScan, busyDuringScan, errorAfterFailure, scanError, scanning};
+        ''')
+        self.assertEqual(result, {"callsDuringScan": 1, "busyDuringScan": True,
+                                  "errorAfterFailure": "no network device", "scanError": "",
+                                  "scanning": False})
+
     def test_bluetooth_adapter_failure_discards_dependent_queued_actions(self):
         result = self.bluetooth_adapter('''
           setAdapter(["--alias", "one"]); setAdapter(["--pairable", "on"]);
