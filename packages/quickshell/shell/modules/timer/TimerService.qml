@@ -56,6 +56,8 @@ Singleton {
   }
   function pause() {
     if (!running) return;
+    now = Date.now();
+    if (kind === "countdown" && remaining <= 0) { finish(); return; }
     base = elapsed;
     paused = true;
   }
@@ -69,6 +71,7 @@ Singleton {
   function stop() { kind = ""; paused = false; base = 0; laps = []; }
   function lap() {
     if (kind !== "stopwatch" || !running) return;
+    now = Date.now();
     laps = [elapsed - lapsTotal()].concat(laps);
   }
   function lapsTotal() { return laps.reduce((a, b) => a + b, 0); }
@@ -94,6 +97,7 @@ Singleton {
   }
 
   function finish() {
+    if (kind !== "countdown") return;
     const name = label !== "" ? label : fmt(total, false) + " timer";
     stop();
     ring.command = ["notify-send", "-a", "Timer", "-i", "alarm-symbolic", "Time is up", name];

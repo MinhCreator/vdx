@@ -95,6 +95,10 @@ and nodes, MPD queues/radio stations, Claude sessions and notification lists
 use the array parser. Error objects and malformed replies cannot become list
 models; consumers either clear their list or retain it with a null fallback.
 
+Timer pause and lap actions sample the clock at the action, rather than use
+the previous display tick. Pausing an already-expired countdown completes it;
+completion is guarded so a second callback cannot notify again.
+
 Files selection lives in `apps/files/FilesSelection.qml`, a QtQuick-only
 model tested without the filesystem or portal. FilesService supplies visible
 rows and the picker's single-selection constraint and exposes the existing

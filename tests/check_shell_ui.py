@@ -86,6 +86,14 @@ def main():
             'property bool night: false\nfunction setNight(on) { night = on; }\n'
             + qml_function(brightness, "minutes") + '\n'
             + qml_function(brightness, "checkSchedule") + '\n}\n')
+        timer = (SHELL / "modules/timer/TimerService.qml").read_text()
+        timer_state = timer.split("  // ---- the tick ----")[0]
+        timer_state = timer_state.replace("pragma Singleton\n", "").replace("import Quickshell\n", "").replace("import Quickshell.Io\n", "").replace("Singleton {", "QtObject {")
+        (work / "qs/kit/TestTimerState.qml").write_text(
+            timer_state + qml_function(timer, "finish")
+            + '\n  property QtObject notifications: QtObject { id: ring; property var command: []; '
+            'property int calls: 0; property bool running: false; '
+            'onRunningChanged: if (running) { calls++; running = false; } }\n}\n')
         files = (SHELL / "apps/files/FilesService.qml").read_text()
         (work / "qs/kit/TestFileCreation.qml").write_text(
             'import QtQuick\nQtObject {\nproperty var calls: []\nproperty var history: []\n'

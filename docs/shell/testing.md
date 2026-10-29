@@ -61,7 +61,7 @@ Each area lists the scenarios it touches; these are the shared base.
 
 ### Audit checkpoint (2026-10-30)
 
-Current validation: 272 Python tests and 89 QML cases. Full repository checks
+Current validation: 272 Python tests and 94 QML cases. Full repository checks
 and Python lint pass. These counts include baseline tests; they do not imply
 that every shell function or desktop scenario has been reviewed.
 
@@ -78,6 +78,7 @@ that every shell function or desktop scenario has been reviewed.
 | Lock lifecycle | Production controller with fake storage: restore match/miss, marker repair for a reloaded locked surface, obsolete startup reads, cleanup before a new lock, write/cleanup before unlock, cleanup failure/retry and duplicate callbacks |
 | Brightness | Four fake-backend process tests for slider/wheel ordering, startup overlap and latest gamma/temperature; schedule boundary, manual override and disable/re-enable tests |
 | Task manager | Production grouping/tree functions with synthetic rows: prototype-name collisions, resource aggregation, user/kernel/PID filters and cyclic process trees |
+| Timer | Production state/functions with a fake notification receiver: pause/lap between ticks, pause after expiry and duplicate completion |
 | Lock authentication | Production state model with fake PAM: start/empty/busy/locked guards, password consumption and clearing, start failure, success/failure/error, abort and callbacks after completion |
 
 Process fixtures use temporary runtime/state directories and fake backends.
