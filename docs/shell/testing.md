@@ -61,8 +61,9 @@ Each area lists the scenarios it touches; these are the shared base.
 
 ### Audit checkpoint (2026-10-30)
 
-Current validation: 287 Python tests and 102 QML cases. Full repository checks
-and Python lint pass. These counts include baseline tests; they do not imply
+Current validation: 289 Python tests and 102 QML cases. Full repository checks
+and Python lint pass.
+These counts include baseline tests; they do not imply
 that every shell function or desktop scenario has been reviewed.
 
 | Reviewed area | Automated coverage |
@@ -83,6 +84,7 @@ that every shell function or desktop scenario has been reviewed.
 | Wi-Fi speedtest | Real child-process test cancels a TERM-resistant old request, immediately starts a replacement, and verifies that the late old reply cannot overwrite the newer result; repeated active requests are rejected |
 | Wi-Fi saved settings | Production action guard rejects overlapping edits, preserves the backend error, and permits a retry after completion; page controls disable during the write |
 | Wi-Fi scan UX | Duplicate scans are rejected while active; production completion handler sets and clears error/busy state and allows another scan |
+| Bluetooth scan backend | Fake `bluetoothctl` confirms discovery-start replies succeed and backend rejections remain visible as errors |
 | Device service first pass | Production battery actions reject startup overlap without changing saved limit/profile; audio live state with missing/muted devices; display refresh retains action failure; Bluetooth scan reply errors and adapter action FIFO/failure handling. Five regressions reproduced against the previous code |
 | Device UX first pass | Production Bluetooth and Wi-Fi rows: Space, Return and mouse activation, accessible names, visible focus and action guards. Settings expose Bluetooth action errors; power/audio switches reflect pending/unavailable state; Wi-Fi popup distinguishes scan, empty and error states. Ethernet and hotspot controls reflect pending writes |
 | Wi-Fi connection feedback | Failed connections from open/saved networks now show the service error in both the Wi-Fi popup overview and Network settings; password-entry view continues to show it too |
@@ -136,11 +138,11 @@ Next focused investigations (suspicions, not confirmed regressions):
    cleanup tests cover completed replies, not process-launch failure.
 2. `modules/bluetooth/BluetoothService.qml`: overlapping device commands,
    discovery lifetime and removed devices. Adapter settings now run FIFO.
-   `scripts/bluetooth.sh --scan` currently
-   reports success without checking the controller's result; the new service
-   test covers error replies, not this backend behavior. Continue audio port
-   switching/error recovery, battery restore/write/backend failures and display
-   process-launch failures with fake backends before real hardware checks.
+   Scan-start replies now reflect `bluetoothctl` output, with fake-backend
+   coverage. Continue discovery lifetime and removed devices, plus audio port
+   switching/error recovery, battery restore/write/backend failures and
+   display process-launch failures with fake backends before real hardware
+   checks.
 3. Remaining Files service/portal and apps: enumerate each public action, its
    busy/error/empty states, keyboard focus and cancellation; inspect packages,
    backup, cleaner, VT, clipboard, music and notifications individually.

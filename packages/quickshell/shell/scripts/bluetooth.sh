@@ -75,8 +75,9 @@ cmd_power() {
 }
 
 cmd_scan() {
-  bt --timeout 8 scan on >/dev/null
-  ok
+  local out
+  out=$(bt --timeout 8 scan on)
+  grep -q 'Discovery started' <<<"$out" && ok || error "${out:-could not start bluetooth scan}"
 }
 
 # Pairs with an agent that answers without a PIN (AirPods, most headsets). bluetoothctl
