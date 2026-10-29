@@ -49,7 +49,13 @@ Singleton {
   property string error: ""
 
   // ---- playback ----
+  // something is being started (a track, a folder, a station, the music coming back): the others
+  // that play stop (AudioPause › One source at a time). The state change alone is no sign: a
+  // station replacing playing music leaves MPD "playing" all the way.
+  signal started()
+
   function control(args) {
+    if (["--play", "--on", "--unpark"].includes(args[0])) started();
     Quickshell.execDetached(["bash", root.script].concat(args));
     settle.restart();
   }
@@ -58,7 +64,7 @@ Singleton {
   // can lag (MPD coming up is only noticed by its 2 s poll), and a popup waits on it
   function refresh() { if (needed && !statusProc.running) run(statusProc, ["--status"]); }
 
-  function toggle() { control(["--toggle"]); }
+  function toggle() { if (paused || stopped) started(); control(["--toggle"]); }
   // the popup's switch: MPD itself on (playing what it kept, else the likes) or off
   function setOn(on) {
     if (on) load("on", ["--on"]);
@@ -80,6 +86,7 @@ Singleton {
 
   // Replaces the queue (likes, a station or a folder); errors land in `error`.
   function load(value, args) {
+    started();
     busy = value;
     error = "";
     run(loadProc, args);

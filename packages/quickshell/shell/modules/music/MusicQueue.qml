@@ -20,7 +20,8 @@ Column {
   // while a station has the queue the player is frozen: its queue and place are the kept ones
   readonly property bool frozen: PlayerService.musicSource?.parked ?? false
   readonly property int currentPos: frozen ? PlayerService.musicSource.track.pos : (MpdService.player.pos ?? 0)
-  readonly property string notice: PlayerService.hasMedia && !PlayerService.mpd ? PlayerService.name + " keeps its own queue" : ""
+  // the Queue tab is the music's (MPD, or its frozen player): another app's queue is not shown here
+  readonly property string notice: PlayerService.music.hasMedia ? "" : "Nothing is queued"
   readonly property var tracks: {
     const queue = PlayerService.musicQueue;
     if (!searching) return queue;

@@ -30,13 +30,18 @@ QtObject {
   // and the resume clears the flag before it plays.
   readonly property bool mpdPlaying: MpdService.playing
   readonly property bool mpdStopped: MpdService.stopped
-  onMpdPlayingChanged: {
-    if (!mpdPlaying) return;
-    pausedHere = false;
-    // the music or a station started: the apps' media (a browser, mpv, …) that plays stops (One source at a time)
-    if (exclusive)
+  onMpdPlayingChanged: if (mpdPlaying) pausedHere = false;
+
+  // the music or a station is being started: the apps' media (a browser, mpv, …) that plays stops
+  // (One source at a time); MpdService says so, the state alone misses a station replacing music
+  readonly property Connections starts: Connections {
+    target: MpdService
+    function onStarted() {
+      if (!root.exclusive) return;
+      root.pausedHere = false;
       for (const p of Mpris.players.values)
         if (p.isPlaying && p.canPause) p.pause();
+    }
   }
   onMpdStoppedChanged: pausedHere = false;
 
