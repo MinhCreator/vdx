@@ -15,6 +15,11 @@ Column {
   KitLabel { text: "POPUP" }
 
   KitToggleRow {
+    module: "tuner"; key: "showList"; fallback: true
+    label: "Show the stations"; hint: "A list of them under the dial; off: the dial alone"
+  }
+
+  KitToggleRow {
     module: "tuner"; key: "closeAfterStop"; fallback: false
     label: "Close after stop"; hint: "The popup closes when you stop the station"
   }

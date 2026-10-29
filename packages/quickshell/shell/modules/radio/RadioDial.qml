@@ -20,8 +20,9 @@ Item {
 
   implicitHeight: 48
   clip: true
-  onCurrentChanged: if (!drag.pressed) shown = current
-  Behavior on shown { enabled: Motion.controls && !drag.pressed; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
+  onCurrentChanged: if (!dragging) shown = current
+  property bool dragging: false                // the pointer is carrying the dial: it follows without gliding
+  Behavior on shown { enabled: Motion.controls && !root.dragging; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
 
   function settle(index) {
     const i = Math.max(0, Math.min(count - 1, index));
@@ -65,12 +66,15 @@ Item {
     anchors.fill: parent
     cursorShape: Qt.PointingHandCursor
     onPressed: mouse => { startX = mouse.x; startShown = root.shown; moved = false; }
+    onCanceled: root.dragging = false
     onPositionChanged: mouse => {
       if (!pressed) return;
       if (Math.abs(mouse.x - startX) > 4) moved = true;
+      if (moved) root.dragging = true;
       if (moved) root.shown = Math.max(0, Math.min(root.count - 1, startShown - (mouse.x - startX) / root.stationWidth));
     }
     onReleased: mouse => {
+      root.dragging = false;            // before the settling: the dial glides to the station
       if (moved) root.settle(Math.round(root.shown));
       else root.settle(Math.round(root.shown + (mouse.x - root.width / 2) / root.stationWidth));
     }

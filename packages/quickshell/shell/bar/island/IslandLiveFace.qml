@@ -217,16 +217,16 @@ Row {
     height: 8
     radius: Theme.pill(height)
     color: Theme.yellow
-    opacity: MpdService.playing ? 1 : 0.4
+    opacity: RadioService.active && MpdService.playing ? 1 : 0.4
 
-    KitGlow { z: -1; anchors.fill: parent; target: "live"; lit: MpdService.playing; tint: parent.color; radius: parent.radius }
+    KitGlow { z: -1; anchors.fill: parent; target: "live"; lit: RadioService.active && MpdService.playing; tint: parent.color; radius: parent.radius }
   }
   KitText {
     visible: face.kind === "radio"
     anchors.verticalCenter: parent.verticalCenter
     width: Math.min(implicitWidth, 220)
     elide: Text.ElideRight
-    text: MpdService.player.station ?? "Radio"
+    text: RadioService.stationName || (MpdService.player.station ?? "") || "Radio"
     color: Theme.foreground1
   }
   EqualizerBars {
@@ -236,7 +236,7 @@ Row {
     tone: Theme.yellow
     glowTarget: "live"
     height: 14
-    active: MpdService.playing
+    active: RadioService.active && MpdService.playing
     flatWhenIdle: true
   }
 

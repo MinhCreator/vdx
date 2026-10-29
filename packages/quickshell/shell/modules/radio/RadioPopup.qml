@@ -84,4 +84,90 @@ KitFrame {
       onClicked: root.onAir ? MpdService.toggle() : RadioService.setActive(true)
     }
   }
+
+  // ---- the stations ----
+  // Modules › Radio › Show the stations
+  readonly property bool listShown: ModuleSettings.get("tuner", "showList", true)
+
+  KitLine { visible: root.stations.length > 0 && root.listShown }
+
+  Column {
+    visible: root.stations.length > 0 && root.listShown
+    width: parent.width
+    spacing: Theme.gapMedium
+
+    KitLabel { text: "STATIONS (" + root.stations.length + ")"; value: root.onAir ? "ON AIR" : "" ; valueColor: root.tone }
+
+    Flickable {
+      id: listView
+      width: parent.width
+      height: Math.min(contentHeight, 30 * 5)
+      contentHeight: list.implicitHeight
+      interactive: contentHeight > height
+      clip: true
+      boundsBehavior: Flickable.StopAtBounds
+
+      // the picked one stays in view
+      function reveal(i) {
+        const top = i * 30;
+        if (top < contentY) contentY = top;
+        else if (top + 30 > contentY + height) contentY = top + 30 - height;
+      }
+      Connections { target: dial; function onCurrentChanged() { listView.reveal(dial.current); } }
+
+      Column {
+        id: list
+        width: parent.width
+
+        Repeater {
+          model: root.stations
+
+          Rectangle {
+            id: station
+            required property var modelData
+            required property int index
+
+            readonly property bool picked: index === root.index
+            readonly property bool playing: picked && root.onAir && MpdService.playing
+
+            width: list.width
+            height: 30
+            radius: Theme.radiusControl
+            color: picked ? Theme.background3 : area.containsMouse ? Theme.background1 : Theme.clear
+            Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
+
+            KitText {
+              id: number
+              anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+              width: 22
+              text: String(station.index + 1).padStart(2, "0")
+              color: station.picked ? root.tone : Theme.muted
+              font.pixelSize: Theme.fontSize - 2
+            }
+            KitText {
+              anchors { left: number.right; leftMargin: Theme.gapSmall; right: genre.left; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+              text: station.modelData.name
+              elide: Text.ElideRight
+              color: station.picked || area.containsMouse ? Theme.foreground0 : Theme.foreground2
+              font.weight: station.picked ? Font.ExtraBold : Font.DemiBold
+            }
+            KitText {
+              id: genre
+              anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+              text: station.modelData.genre ?? ""
+              color: Theme.muted
+              font.pixelSize: Theme.fontSize - 2
+            }
+            MouseArea {
+              id: area
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              onClicked: dial.settle(station.index)       // the dial glides there, then the station switches
+            }
+          }
+        }
+      }
+    }
+  }
 }

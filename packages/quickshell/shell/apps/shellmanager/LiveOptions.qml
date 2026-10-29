@@ -90,6 +90,15 @@ Column {
     KitSwitch { checked: ShellSettings.liveRadioPaused; onToggled: ShellSettings.setLook("liveRadioPaused", !checked, "island") }
   }
 
+  Rectangle { visible: root.kind === "radio"; width: parent.width; height: Theme.dividerThickness; color: Theme.dividerColor }
+
+  KitRow {
+    visible: root.kind === "radio"
+    label: "Always show"
+    hint: "The slot keeps the radio even when it is off; a click opens the dial"
+    KitSwitch { checked: ShellSettings.liveRadioAlways; onToggled: ShellSettings.setLook("liveRadioAlways", !checked, "island") }
+  }
+
   Rectangle { visible: root.kind === "music"; width: parent.width; height: Theme.dividerThickness; color: Theme.dividerColor }
 
   KitRow {

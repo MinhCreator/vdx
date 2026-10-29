@@ -80,7 +80,7 @@ Singleton {
       vpn: MihomoService.serviceOn,
       focus: FocusService.on,
       timer: TimerService.active,
-      radio: RadioService.active && (MpdService.playing || ShellSettings.liveRadioPaused),
+      radio: ShellSettings.liveRadioAlways || RadioService.active && (MpdService.playing || ShellSettings.liveRadioPaused),
       media: PlayerService.media.hasMedia && (PlayerService.media.playing || ShellSettings.liveMusicPaused),
       music: ShellSettings.liveMusicAlways || PlayerService.music.hasMedia && (PlayerService.music.playing || ShellSettings.liveMusicPaused),
       notice: noticeItem !== null

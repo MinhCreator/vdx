@@ -17,6 +17,9 @@ Singleton {
   readonly property string stationKey: stations.find(s => s.name === MpdService.player.station)?.key ?? ""
   property string lastKey: ""                  // station the switch resumes
 
+  // the station on air, else the one the switch resumes (its name; "" before the list is read)
+  readonly property string stationName: stations.find(s => s.key === (active ? stationKey : lastKey))?.name ?? ""
+
   // ---- favourites: the station keys starred in the Music window (music.favoriteStations) ----
   readonly property var favorites: ModuleSettings.get("music", "favoriteStations", [])
   readonly property var favoriteStations: stations.filter(s => favorites.includes(s.key))

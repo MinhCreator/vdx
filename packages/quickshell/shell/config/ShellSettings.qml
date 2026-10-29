@@ -67,6 +67,7 @@ Singleton {
   readonly property bool liveRightSettings: look("liveRightSettings", "island")  // a right click on an activity opens its options
   readonly property int liveBatteryBelow: look("liveBatteryBelow", "island") // %, low battery interrupts below this
   readonly property string liveBatteryStay: look("liveBatteryStay", "island") // fixed | 5s
+  readonly property bool liveRadioAlways: look("liveRadioAlways", "island")  // the radio stays in the live slot even when it is off
   readonly property bool liveRadioPaused: look("liveRadioPaused", "island")  // the radio stays in the live slot on pause
   readonly property bool liveMusicPaused: look("liveMusicPaused", "island")  // the music stays in the live slot on pause
   readonly property string liveNoticeMark: look("liveNoticeMark", "island")  // avatar | dot: what marks a message in the live slot
@@ -95,7 +96,7 @@ Singleton {
   }
   readonly property var lookDefaults: ({ barIconGrow: 0, barSeparators: true, barGap: 5, clockOpens: "hover", hubPlayer: true, pillHeight: 0,
     liveEnabled: true, liveBattery: true, liveBluetooth: true,
-    liveRecording: true, liveUpdate: true, liveBackup: true, liveTimer: true, liveRadio: true, liveRadioPaused: true, liveMedia: true, liveVpn: false, liveFocus: true, liveMusic: true, liveMusicPaused: false, liveMusicAlways: false, liveNoticeMark: "avatar",
+    liveRecording: true, liveUpdate: true, liveBackup: true, liveTimer: true, liveRadio: true, liveRadioPaused: true, liveRadioAlways: false, liveMedia: true, liveVpn: false, liveFocus: true, liveMusic: true, liveMusicPaused: false, liveMusicAlways: false, liveNoticeMark: "avatar",
     liveVolume: true, liveMic: true, liveLayout: true, livePlugged: true,
     liveFront: true, liveFocusClick: true, liveFlashMs: 1500, liveNoticeMs: 5000, liveWheel: true, liveRightSettings: true,
     liveBatteryBelow: 20, liveBatteryStay: "fixed", liveOrder: ({}) })
