@@ -38,7 +38,7 @@ plugged() {
 }
 
 cmd_status() {
-    local b
+    local b cycles
     b=$(battery)
     [[ -z "$b" ]] && { echo '{"present":false}'; return; }
     num() { local v; v=$(cat "$b/$1" 2>/dev/null); echo "${v:-0}"; }
@@ -47,6 +47,8 @@ cmd_status() {
     local watts; watts=$(num power_now)
     (( watts )) || watts=$(( $(num current_now) * $(num voltage_now) / 1000000 ))
     watts=${watts#-}
+    cycles=$(cat "$b/cycle_count" 2>/dev/null)
+    cycles=${cycles:-null}
     jq -cn \
         --arg status "$(cat "$b/status" 2>/dev/null)" \
         --argjson capacity "$(num capacity)" \
@@ -55,7 +57,7 @@ cmd_status() {
         --argjson energyFull "$(uwh full)" \
         --argjson energyDesign "$(uwh full_design)" \
         --argjson power "$watts" \
-        --argjson cycles "$(num cycle_count)" \
+        --argjson cycles "$cycles" \
         --argjson threshold "$(cat "$b/charge_control_end_threshold" 2>/dev/null || echo 100)" \
         --argjson limit "$([[ -e "$b/charge_control_end_threshold" ]] && echo true || echo false)" \
         --arg profile "$(cat "$PROFILE" 2>/dev/null)" \

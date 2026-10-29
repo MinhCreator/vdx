@@ -61,7 +61,7 @@ Each area lists the scenarios it touches; these are the shared base.
 
 ### Audit checkpoint (2026-10-30)
 
-Current validation: 290 Python tests and 102 QML cases. Full repository checks
+Current validation: 291 Python tests and 102 QML cases. Full repository checks
 and Python lint pass.
 These counts include baseline tests; they do not imply
 that every shell function or desktop scenario has been reviewed.
@@ -91,6 +91,7 @@ that every shell function or desktop scenario has been reviewed.
 | Wi-Fi connection feedback | Failed connections from open/saved networks now show the service error in both the Wi-Fi popup overview and Network settings; password-entry view continues to show it too |
 | Wi-Fi network row | Production row activates by Space, Return and mouse; exposes the SSID/security to accessibility, highlights keyboard focus and blocks the current, in-flight or unavailable network |
 | Battery empty state | Popup distinguishes initial loading from no battery, suppresses fabricated zero charge/health readings and keeps the power profile control available; capacity label tested against absent/present hardware |
+| Battery detail availability | Health, energy and cycle count show an unknown marker when the backend lacks their source data; real zero cycles remain distinguishable from unavailable data |
 | Lock authentication | Production state model with fake PAM: start/empty/busy/locked guards, password consumption and clearing, start failure, success/failure/error, abort and callbacks after completion |
 
 Process fixtures use temporary runtime/state directories and fake backends.

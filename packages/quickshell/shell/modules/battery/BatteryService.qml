@@ -38,9 +38,13 @@ Singleton {
   readonly property real energyFull: info.energyFull ?? 0      // Wh
   readonly property real energyDesign: info.energyDesign ?? 0  // Wh
   readonly property int cycles: info.cycles ?? 0
+  readonly property string cyclesLabel: info.cycles == null ? "—" : String(cycles)
   readonly property int threshold: info.threshold ?? 100
   readonly property bool limitSupported: info.limit ?? false   // the kernel takes a charge limit
   readonly property int health: energyDesign > 0 ? Math.round(energyFull / energyDesign * 100) : 0
+  readonly property string healthLabel: energyDesign > 0 ? health + "%" : "—"
+  readonly property string energyLabel: energyDesign > 0
+    ? energy.toFixed(1) + " / " + energyDesign.toFixed(1) + " Wh" : "—"
 
   // Minutes until empty (discharging) or until the charge limit (charging); -1 when unknown.
   readonly property int minutesLeft: {

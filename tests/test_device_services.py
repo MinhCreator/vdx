@@ -174,6 +174,31 @@ Scope {
           return [absent, capacityLabel];
         '''), ["—", "42%"])
 
+    def test_battery_details_show_unknown_when_hardware_omits_them(self):
+        source = (SHELL / "modules/battery/BatteryService.qml").read_text()
+        source_lines = source.splitlines()
+        names = ("cycles", "cyclesLabel", "health", "healthLabel", "energyLabel")
+        properties = []
+        for index, line in enumerate(source_lines):
+            if any(" " + name + ":" in line for name in names):
+                properties.append(line)
+                if " energyLabel:" in line:
+                    properties.append(source_lines[index + 1])
+        result = self.evaluate('''
+  property var info: ({cycles: null})
+  property real energy: 0
+  property real energyFull: 0
+  property real energyDesign: 0
+''' + "\n".join(properties), '''
+          const unknown = [cyclesLabel, healthLabel, energyLabel];
+          info = {cycles: 0}; energy = 12; energyFull = 45; energyDesign = 50;
+          return {unknown, known: [cyclesLabel, healthLabel, energyLabel]};
+        ''')
+        self.assertEqual(result, {
+            "unknown": ["—", "—", "—"],
+            "known": ["0", "90%", "12.0 / 50.0 Wh"],
+        })
+
     def test_battery_waits_for_a_valid_status_shape(self):
         source = (SHELL / "modules/battery/BatteryService.qml").read_text()
         callback = handler(source, "statusProc").replace(

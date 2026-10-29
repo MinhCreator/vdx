@@ -86,16 +86,17 @@ KitFrame {
     KitInfo {
       visible: !root.compact
       label: "Health"
-      value: BatteryService.health + "%"
-      valueColor: Theme.qualityColor(BatteryService.health, 80, 60)
+      value: BatteryService.healthLabel
+      valueColor: BatteryService.energyDesign > 0
+        ? Theme.qualityColor(BatteryService.health, 80, 60) : Theme.muted
     }
 
-    KitInfo { visible: !root.compact; label: "Cycles"; value: String(BatteryService.cycles) }
+    KitInfo { visible: !root.compact; label: "Cycles"; value: BatteryService.cyclesLabel }
 
     KitInfo {
       visible: !root.compact
       label: "Energy"
-      value: BatteryService.energy.toFixed(1) + " / " + BatteryService.energyDesign.toFixed(1) + " Wh"
+      value: BatteryService.energyLabel
     }
   }
 
