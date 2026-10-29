@@ -146,12 +146,12 @@ KitFrame {
               KitAppear { target: item; seen: root.seen; key: item.modelData.key }
 
               HoverHandler { id: hover; cursorShape: Qt.PointingHandCursor }
-              // none open: nothing; Notifications › Remove on click takes it out of the centre too
+              // the centre closes; Notifications › Remove on click takes it out of the centre too
               TapHandler {
                 onTapped: {
-                  const opened = NotificationsService.focusApp(item.modelData);
+                  NotificationsService.focusApp(item.modelData);
                   if (ModuleSettings.get("notifications", "removeOnClick", false)) NotificationsService.remove(item.modelData.key);
-                  if (opened) root.closeRequested();
+                  root.closeRequested();
                 }
               }
 
