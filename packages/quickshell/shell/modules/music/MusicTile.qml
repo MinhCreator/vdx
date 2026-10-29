@@ -48,6 +48,7 @@ Rectangle {
       textFormat: Text.PlainText
       elide: Text.ElideRight
       color: root.current || area.containsMouse ? Theme.foreground0 : Theme.foreground2
+      Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.normal; easing.type: Motion.easing } }
       font.weight: root.current ? Font.ExtraBold : Font.DemiBold
     }
 

@@ -68,6 +68,7 @@ BarPopup {
               visible: !row.modelData.isSeparator
               radius: Theme.radiusControl
               color: entry.containsMouse && row.modelData.enabled ? Theme.hoverOn(false) : Theme.clear
+              Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.normal; easing.type: Motion.easing } }
               opacity: row.modelData.enabled ? 1 : 0.4
 
               // implicitWidth is the whole label's, whatever its width

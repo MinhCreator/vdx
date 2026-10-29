@@ -123,7 +123,7 @@ Column {
         }
       }
       onActiveFocusChanged: if (!activeFocus) root.expanded = false
-      anchors.right: parent.right
+      anchors { right: parent.right; verticalCenter: parent.verticalCenter }
       width: root.boxWidth
       height: Theme.controlHeight
       radius: Theme.radiusControl

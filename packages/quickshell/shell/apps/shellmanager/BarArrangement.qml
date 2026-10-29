@@ -89,6 +89,7 @@ Column {
                 height: 28
                 radius: Theme.radiusControl
                 color: faceHover.containsMouse || activeFocus ? Theme.pickFill : Theme.clear
+                Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.normal; easing.type: Motion.easing } }
                 activeFocusOnTab: !separator
                 Accessible.role: Accessible.Button
                 Accessible.name: "Preview " + editor.labelOf(modelData)
@@ -119,6 +120,7 @@ Column {
         icon: "plus"
         Accessible.name: "Add bar"
         color: hovered ? Theme.pickFill : Theme.accentFor("choices", Theme.background3)
+        Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.normal; easing.type: Motion.easing } }
         iconTint: Theme.background0
         onClicked: editor.addBarRequested()
       }

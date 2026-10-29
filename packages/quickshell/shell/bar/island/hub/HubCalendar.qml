@@ -57,6 +57,7 @@ Item {
           height: Theme.controlHeight
           radius: Theme.pill(height)
           color: todayArea.containsMouse ? Theme.controlHover : Theme.clear
+          Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.normal; easing.type: Motion.easing } }
           border.width: Theme.frameWidth
           border.color: Theme.controlLine
           KitText { id: todayLabel; anchors.centerIn: parent; text: "Today"; font.pixelSize: Theme.fontSize - 1 }

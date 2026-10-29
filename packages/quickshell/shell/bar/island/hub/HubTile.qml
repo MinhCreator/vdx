@@ -20,7 +20,8 @@ Rectangle {
 
   implicitHeight: compact ? 84 : 64
   radius: Theme.radiusCard
-  color: area.containsMouse ? Theme.controlHover : Theme.controlFill
+  color: area.containsMouse && !discArea.containsMouse ? Theme.controlHover : Theme.controlFill
+  Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.normal; easing.type: Motion.easing } }
   border.width: Theme.frameWidth
   border.color: Theme.controlLine
 
@@ -31,12 +32,13 @@ Rectangle {
     width: root.compact ? 34 : 40
     height: width
     radius: Theme.pill(height)
-    color: root.on ? Theme.foreground1 : Theme.pickFill
+    color: discArea.containsMouse ? (root.on ? Theme.foreground0 : Theme.background3) : root.on ? Theme.foreground1 : Theme.pickFill
+    Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.normal; easing.type: Motion.easing } }
     scale: discArea.pressed ? 0.94 : 1
     Behavior on scale { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }
 
     KitIcon { anchors.centerIn: parent; name: root.icon; size: root.compact ? 16 : 18; tint: root.on ? Theme.background0 : Theme.foreground2 }
-    MouseArea { id: discArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.toggled() }
+    MouseArea { id: discArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.toggled() }
   }
 
   // the tile's own click: the popup behind it, else the same as the icon's

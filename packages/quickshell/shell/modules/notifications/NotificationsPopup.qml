@@ -102,6 +102,7 @@ KitFrame {
             color: hover.hovered ? Theme.controlHover : Theme.controlFill
             border.width: Theme.frameWidth
             border.color: hover.hovered ? Theme.controlLineHover : Theme.controlLineRest
+            Behavior on border.color { enabled: Motion.controls; ColorAnimation { duration: Motion.normal; easing.type: Motion.easing } }
             Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
           }
 

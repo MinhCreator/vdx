@@ -19,6 +19,7 @@ Item {
     anchors.verticalCenter: parent.verticalCenter
     text: root.text + (root.sorted ? (FilesService.sortDesc ? " ↓" : " ↑") : "")
     color: root.sorted || area.containsMouse ? Theme.foreground1 : Theme.muted
+    Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.normal; easing.type: Motion.easing } }
     font.pixelSize: Theme.fontSize - 2
     font.letterSpacing: 1
     font.weight: Font.DemiBold

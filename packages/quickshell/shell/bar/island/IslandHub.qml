@@ -73,14 +73,21 @@ Item {
   HubCalendar {
     id: calendarPage
     anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.gapGroup }
-    visible: root.calendarOpen
+    // the two pages cross-fade, each sliding a little as it comes or goes
+    opacity: root.calendarOpen ? 1 : 0
+    visible: opacity > 0.001
+    transform: Translate { y: root.calendarOpen ? 0 : 10; Behavior on y { enabled: Motion.on; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } } }
+    Behavior on opacity { enabled: Motion.on; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
     now: root.now
     onBack: root.calendarOpen = false
   }
 
   Column {
     id: column
-    visible: !root.calendarOpen
+    opacity: root.calendarOpen ? 0 : 1
+    visible: opacity > 0.001
+    transform: Translate { y: root.calendarOpen ? -10 : 0; Behavior on y { enabled: Motion.on; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } } }
+    Behavior on opacity { enabled: Motion.on; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
     anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.gapGroup }
     spacing: Theme.sectionGap
 

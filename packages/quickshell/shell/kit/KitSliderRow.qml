@@ -68,9 +68,13 @@ Item {
     height: Math.max(28, slider.implicitHeight + 4)
 
     Rectangle {
-      anchors.fill: parent
-      visible: root.clickable && iconArea.containsMouse
-      radius: Theme.radiusControl
+      anchors.centerIn: parent
+      width: parent.width - 4
+      height: parent.height - 4
+      opacity: root.clickable && iconArea.containsMouse ? 1 : 0
+      visible: opacity > 0.001
+      Behavior on opacity { enabled: Motion.controls; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
+      radius: Theme.radiusFor(height)         // the control's proportion at its own size, not a 36 px button's
       color: Theme.background1
     }
 
@@ -114,7 +118,7 @@ Item {
       bottom: parent.bottom
       bottomMargin: root.plate ? 2 : root.captioned ? 0 : 4
     }
-    width: root.plate && root.captioned ? Math.round(parent.width * 0.58) : implicitWidth
+    width: root.plate && root.captioned ? Math.min(Theme.controlWidth, Math.round(parent.width * 0.58)) : implicitWidth
     plate: root.plate
     text: root.text
     accessibleName: root.accessibleName
