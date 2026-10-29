@@ -79,6 +79,13 @@ def main():
             '    function prepare(directory, screens) { calls = calls.concat([{directory: directory, screens: screens}]); busy = true; }\n'
             '  }\n'
             + qml_function(lock, "lock") + '\n' + qml_function(lock, "shows") + '\n}\n')
+        brightness = (SHELL / "modules/brightness/BrightnessService.qml").read_text()
+        (work / "qs/kit/TestBrightnessSchedule.qml").write_text(
+            'import QtQuick\nQtObject {\nproperty bool ready: true\nproperty var inSchedule: null\n'
+            'property var schedule: ({enabled: true, start: "21:00", end: "07:00"})\n'
+            'property bool night: false\nfunction setNight(on) { night = on; }\n'
+            + qml_function(brightness, "minutes") + '\n'
+            + qml_function(brightness, "checkSchedule") + '\n}\n')
         files = (SHELL / "apps/files/FilesService.qml").read_text()
         (work / "qs/kit/TestFileCreation.qml").write_text(
             'import QtQuick\nQtObject {\nproperty var calls: []\nproperty var history: []\n'

@@ -48,11 +48,15 @@ Singleton {
   function setBrightness(percent) {
     brightness = Math.round(Math.max(1, Math.min(100, percent)));
     pendingSet = brightness;
+    pendingStep = 0;
     flushBacklight();
   }
 
   function stepBrightness(percent) {
-    pendingStep += percent;
+    if (pendingSet >= 0) {
+      pendingSet = Math.round(Math.max(1, Math.min(100, pendingSet + percent)));
+      brightness = pendingSet;
+    } else pendingStep += percent;
     flushBacklight();
   }
 
@@ -61,8 +65,12 @@ Singleton {
   property int pendingSet: -1
   property int pendingStep: 0
   property bool pendingApply: false
+  property bool backlightBusy: false
+  property bool applyBusy: false
 
   function run(proc, args) {
+    if (proc === backlightProc) backlightBusy = true;
+    if (proc === applyProc) applyBusy = true;
     proc.command = ["bash", root.script].concat(args);
     proc.running = true;
   }
@@ -70,7 +78,7 @@ Singleton {
   // One backlight process at a time: a slider drag keeps only the latest
   // value, wheel steps are summed.
   function flushBacklight() {
-    if (backlightProc.running) return;
+    if (backlightBusy) return;
     if (pendingSet >= 0) {
       run(backlightProc, ["--set", String(pendingSet)]);
       pendingSet = -1;
@@ -82,7 +90,7 @@ Singleton {
 
   function apply() {
     if (!ready) return;
-    if (applyProc.running) {
+    if (applyBusy) {
       pendingApply = true;
       return;
     }
@@ -96,9 +104,10 @@ Singleton {
 
   // Switch only when the window is entered or left, so a manual toggle holds
   // until the next boundary.
-  function checkSchedule() {
-    if (!ready || !schedule?.enabled) return;
-    const now = new Date();
+  function checkSchedule(now) {
+    if (!ready) return;
+    if (!schedule?.enabled) { inSchedule = null; return; }
+    now = now ?? new Date();
     const t = now.getHours() * 60 + now.getMinutes();
     const start = minutes(schedule.start);
     const end = minutes(schedule.end);
@@ -118,7 +127,7 @@ Singleton {
     running: true
     repeat: true
     triggeredOnStart: true
-    onTriggered: if (!backlightProc.running) root.run(backlightProc, ["--get"])
+    onTriggered: if (!root.backlightBusy) root.run(backlightProc, ["--get"])
   }
 
   Timer {
@@ -154,12 +163,13 @@ Singleton {
         if (root.available && root.pendingSet < 0) root.brightness = r.brightness;
       }
     }
-    onExited: root.flushBacklight()
+    onExited: { root.backlightBusy = false; root.flushBacklight(); }
   }
 
   Process {
     id: applyProc
     onExited: {
+      root.applyBusy = false;
       if (!root.pendingApply) return;
       root.pendingApply = false;
       root.apply();

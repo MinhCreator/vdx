@@ -78,6 +78,12 @@ pending marker write and successful cleanup before releasing the Wayland lock.
 Cleanup failure leaves the screen locked and allows another unlock attempt.
 There is no detached cleanup that can remove the next lock's marker.
 
+Brightness queues mark work busy before starting a process. Slider values
+supersede older queued wheel steps; wheel input after a queued slider value
+adjusts that value. Night-light application coalesces updates until completion.
+Disabling its schedule resets boundary tracking so re-enabling evaluates the
+current window again, while manual overrides hold within an enabled window.
+
 Files selection lives in `apps/files/FilesSelection.qml`, a QtQuick-only
 model tested without the filesystem or portal. FilesService supplies visible
 rows and the picker's single-selection constraint and exposes the existing
