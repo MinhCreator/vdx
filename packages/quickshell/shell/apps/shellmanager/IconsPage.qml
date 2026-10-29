@@ -13,12 +13,23 @@ Column {
   readonly property string description: "One icon set for the bar, popups and windows."
   readonly property var jumps: []
 
-  readonly property var resetKeys: ["iconSet", "solidIcons"]
+  readonly property var resetKeys: ["iconSet", "solidIcons", "menuIcons"]
   readonly property bool changed: ShellSettings.changed(resetKeys)
   function reset() { ShellSettings.reset(resetKeys); }
 
   KitLabel { text: "ICONS"; about: "One set for everything; Lucide has outline icons only" }
   IconsSection { width: parent.width }
+
+  KitLabel { text: "MENU"; about: "The Shell Manager's page list; the rail's group buttons keep theirs" }
+  KitRow {
+    label: "Icons in the list"
+    hint: "Off: the pages are names only"
+    KitSwitch {
+      accessibleName: "Icons in the list"
+      checked: ShellSettings.menuIcons
+      onToggled: ShellSettings.set("menuIcons", !checked)
+    }
+  }
 
   KitGrouper {}
 }

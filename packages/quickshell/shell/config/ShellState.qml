@@ -7,6 +7,7 @@ JsonAdapter {
   property int version: 0         // schema (scripts/settings_migrate.py stamps it)
   property string iconSet: "material"
   property bool solidIcons: false
+  property bool menuIcons: true
   property string managerStart: "main"
   property string managerTab: "appearance"
   property string font: "JetBrainsMono Nerd Font"

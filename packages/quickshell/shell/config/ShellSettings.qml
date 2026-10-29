@@ -12,6 +12,7 @@ Singleton {
 
   readonly property string iconSet: state.iconSet                 // material | phosphor | lucide (Appearance › Shape)
   readonly property bool solidIcons: state.solidIcons             // Material and Phosphor: the filled twins
+  readonly property bool menuIcons: state.menuIcons               // an icon before each page in the Shell Manager's list
   readonly property string managerStart: state.managerStart        // main | last: the page the Shell Manager opens on
   readonly property string managerTab: state.managerTab            // the page it was left on
   readonly property string font: state.font                       // family, kept in step with fontconfig

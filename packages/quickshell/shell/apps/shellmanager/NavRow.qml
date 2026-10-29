@@ -28,16 +28,28 @@ Rectangle {
   color: active ? Theme.pickFill : area.containsMouse || activeFocus ? Theme.controlHover : Theme.clear
   Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.quick } }
 
+  // a child page hangs off the page above it: a line down the row's left, under the parent's icon
+  Rectangle {
+    visible: row.indent
+    x: Theme.gapLoose + 7
+    y: 0
+    width: 2
+    height: parent.height + Theme.gapHair
+    radius: 1
+    color: Theme.dividerColor
+  }
+
   KitIcon {
     id: icon
-    anchors { left: parent.left; leftMargin: Theme.gapLoose + (row.indent ? Theme.gapWide : 0); verticalCenter: parent.verticalCenter }
+    visible: ShellSettings.menuIcons
+    anchors { left: parent.left; leftMargin: Theme.gapLoose + (row.indent ? Theme.gapWide + 8 : 0); verticalCenter: parent.verticalCenter }
     name: row.entry.icon
     tint: row.active ? Theme.foreground0 : Theme.foreground2
     size: 16
   }
 
   KitText {
-    anchors { left: icon.right; leftMargin: Theme.gapLoose; right: parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
+    anchors { left: ShellSettings.menuIcons ? icon.right : parent.left; leftMargin: ShellSettings.menuIcons ? Theme.gapLoose : Theme.gapLoose + (row.indent ? Theme.gapWide + 8 : 0); right: parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
     text: row.entry.label
     elide: Text.ElideRight
     color: row.active ? Theme.foreground0 : Theme.foreground2

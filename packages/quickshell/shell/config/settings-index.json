@@ -92,6 +92,18 @@
   "target": "icons"
  },
  {
+  "label": "Menu",
+  "hint": "",
+  "where": "Icons",
+  "target": "icons"
+ },
+ {
+  "label": "Icons in the list",
+  "hint": "Off: the pages are names only",
+  "where": "Icons › MENU",
+  "target": "icons"
+ },
+ {
   "label": "Wallpaper",
   "hint": "",
   "where": "",
