@@ -49,8 +49,8 @@ Item {
       detail: TimerService.active ? TimerService.text + (TimerService.paused ? " · paused" : "") : "Not running",
       toggle: () => TimerService.active ? TimerService.togglePause() : root.open("timer") };
     case "mode": return {
-      icon: ThemeService.light ? "sun" : "moon", title: ThemeService.light ? "Light" : "Dark mode", on: !ThemeService.light,
-      detail: ThemeService.light ? "Light theme" : "Dark theme",
+      icon: ThemeService.light ? "sun" : "moon", title: "Dark mode", on: !ThemeService.light,
+      detail: ThemeService.light ? "Off" : "On",
       toggle: () => { if (!ThemeService.busy) ThemeService.setLight(!ThemeService.light); }, noPopup: true };
     }
     return { icon: "grid", title: id, on: false, detail: "", toggle: () => {}, noPopup: true };

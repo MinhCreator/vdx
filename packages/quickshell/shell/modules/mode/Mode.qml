@@ -10,6 +10,9 @@ import qs.kit
 Item {
   id: root
 
+  // a click on a stretched hub chip, off the face: the same as the face's own
+  function activate() { if (!ThemeService.busy) ThemeService.setLight(!ThemeService.light); }
+
   implicitWidth: face.implicitWidth
   implicitHeight: face.implicitHeight
 

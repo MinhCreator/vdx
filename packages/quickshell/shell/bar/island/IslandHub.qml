@@ -428,6 +428,18 @@ Item {
               sourceComponent: root.modules[chip.modelData] ?? null
             }
 
+            // a stretched chip is wider than its module: a click on the rest of it does what the
+            // module does (`activate()`, else its popup); a click on the module itself is its own
+            TapHandler {
+              acceptedButtons: Qt.LeftButton
+              onTapped: eventPoint => {
+                const p = slot.mapFromItem(chip, eventPoint.position.x, eventPoint.position.y);
+                if (slot.contains(p) || !slot.item) return;
+                if (slot.item.activate) slot.item.activate();
+                else slot.item.openPopup?.();
+              }
+            }
+
             TapHandler {
               acceptedButtons: Qt.RightButton
               enabled: ShellSettings.barRightSettings

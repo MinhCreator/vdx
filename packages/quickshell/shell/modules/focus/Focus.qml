@@ -7,6 +7,9 @@ import qs.kit
 Item {
   id: root
 
+  // a click on a stretched hub chip, off the face: the same as the face's own
+  function activate() { FocusService.toggle(); }
+
   implicitWidth: face.implicitWidth
   implicitHeight: face.implicitHeight
 
