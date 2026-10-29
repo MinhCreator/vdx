@@ -81,7 +81,7 @@ Singleton {
                                   || p.cmd.toLowerCase().includes(q)));
     let out;
     if (byProgram) {
-      const by = {};
+      const by = Object.create(null);
       out = [];
       for (const p of list) {
         let r = by[p.name];
@@ -116,12 +116,13 @@ Singleton {
 
   // the pid of a process and of all its descendants (children, their children …)
   function treePids(pid) {
-    const kids = {};
+    const kids = Object.create(null);
     for (const p of procs) (kids[p.ppid] = kids[p.ppid] ?? []).push(p.pid);
-    const out = [], todo = [pid];
+    const out = [], todo = [pid], seen = new Set();
     while (todo.length > 0) {
       const next = todo.pop();
-      if (out.includes(next)) continue;
+      if (seen.has(next)) continue;
+      seen.add(next);
       out.push(next);
       todo.push(...(kids[next] ?? []));
     }

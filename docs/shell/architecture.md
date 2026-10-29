@@ -84,6 +84,11 @@ adjusts that value. Night-light application coalesces updates until completion.
 Disabling its schedule resets boundary tracking so re-enabling evaluates the
 current window again, while manual overrides hold within an enabled window.
 
+Task Manager groups processes in a dictionary without a prototype: process
+names such as `constructor`, `toString` and `__proto__` remain ordinary keys.
+Descendant traversal tracks visited PIDs with a Set to handle cycles and
+avoid repeatedly scanning the accumulated result.
+
 Files selection lives in `apps/files/FilesSelection.qml`, a QtQuick-only
 model tested without the filesystem or portal. FilesService supplies visible
 rows and the picker's single-selection constraint and exposes the existing
