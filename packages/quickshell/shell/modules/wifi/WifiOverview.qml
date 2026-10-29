@@ -46,6 +46,15 @@ Column {
 
   KitLine {}
 
+  KitText {
+    width: parent.width
+    visible: WifiService.connectError !== ""
+    text: WifiService.connectError
+    color: Theme.red
+    wrapMode: Text.WordWrap
+    font.pixelSize: Theme.fontSize - 1
+  }
+
   // ---- connection ----
   Column {
     width: parent.width

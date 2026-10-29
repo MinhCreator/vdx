@@ -100,6 +100,14 @@ KitColumn {
 
     KitLine {}
 
+    KitText {
+      width: parent.width
+      visible: ws.connectError !== ""
+      text: ws.connectError
+      color: Theme.red
+      wrapMode: Text.WordWrap
+    }
+
     // ---- the connection in use: its name and state, actions, facts folded ----
     KitLabel { id: connectionGroup; visible: ws.connected; text: "CONNECTION" }
 

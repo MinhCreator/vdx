@@ -85,6 +85,7 @@ that every shell function or desktop scenario has been reviewed.
 | Wi-Fi scan UX | Duplicate scans are rejected while active; production completion handler sets and clears error/busy state and allows another scan |
 | Device service first pass | Production battery actions reject startup overlap without changing saved limit/profile; audio live state with missing/muted devices; display refresh retains action failure; Bluetooth scan reply errors and adapter action FIFO/failure handling. Five regressions reproduced against the previous code |
 | Device UX first pass | Production Bluetooth and Wi-Fi rows: Space, Return and mouse activation, accessible names, visible focus and action guards. Settings expose Bluetooth action errors; power/audio switches reflect pending/unavailable state; Wi-Fi popup distinguishes scan, empty and error states. Ethernet and hotspot controls reflect pending writes |
+| Wi-Fi connection feedback | Failed connections from open/saved networks now show the service error in both the Wi-Fi popup overview and Network settings; password-entry view continues to show it too |
 | Wi-Fi network row | Production row activates by Space, Return and mouse; exposes the SSID/security to accessibility, highlights keyboard focus and blocks the current, in-flight or unavailable network |
 | Battery empty state | Popup distinguishes initial loading from no battery, suppresses fabricated zero charge/health readings and keeps the power profile control available; capacity label tested against absent/present hardware |
 | Lock authentication | Production state model with fake PAM: start/empty/busy/locked guards, password consumption and clearing, start failure, success/failure/error, abort and callbacks after completion |
@@ -129,9 +130,10 @@ reproduce each suspected bug and commit only after the repository checks pass.
 Next focused investigations (suspicions, not confirmed regressions):
 
 1. `modules/wifi/WifiService.qml`: review connection requests while the previous
-   process is starting or stopping. Speed-test cancellation and stale completion,
-   plus overlapping saved-network edits, are covered; credential cleanup tests
-   cover completed replies, not process-launch failure.
+   process is starting or stopping. Connection errors are now visible for open
+   and saved networks in both entry points. Speed-test cancellation and stale
+   completion, plus overlapping saved-network edits, are covered; credential
+   cleanup tests cover completed replies, not process-launch failure.
 2. `modules/bluetooth/BluetoothService.qml`: overlapping device commands,
    discovery lifetime and removed devices. Adapter settings now run FIFO.
    `scripts/bluetooth.sh --scan` currently
