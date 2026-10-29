@@ -53,6 +53,7 @@ mic mic
 mic-off mic_off
 monitor monitor
 moon dark_mode
+paint-bucket format_color_fill
 music music_note
 package package_2
 palette palette

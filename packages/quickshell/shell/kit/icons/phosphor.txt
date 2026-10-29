@@ -59,6 +59,7 @@ mic microphone
 mic-off microphone-slash
 monitor monitor
 moon moon
+paint-bucket paint-bucket
 more dots-three-vertical
 music music-note
 package package

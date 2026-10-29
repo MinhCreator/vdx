@@ -42,14 +42,14 @@ Item {
       detail: MihomoService.serviceOn ? "On" : "Off",
       toggle: () => MihomoService.toggleService() };
     case "focus": return {
-      icon: "bell-off", title: "Focus", on: FocusService.on, detail: FocusService.on ? "On" : "Off",
+      icon: "moon", title: "Focus", on: FocusService.on, detail: FocusService.on ? "On" : "Off",
       toggle: () => FocusService.toggle(), noPopup: true };
     case "timer": return {
       icon: "clock", title: TimerService.active ? TimerService.title : "Timer", on: TimerService.active,
       detail: TimerService.active ? TimerService.text + (TimerService.paused ? " · paused" : "") : "Not running",
       toggle: () => TimerService.active ? TimerService.togglePause() : root.open("timer") };
     case "mode": return {
-      icon: ThemeService.light ? "sun" : "moon", title: "Dark mode", on: !ThemeService.light,
+      icon: "paint-bucket", title: "Dark mode", on: !ThemeService.light,
       detail: ThemeService.light ? "Off" : "On",
       toggle: () => { if (!ThemeService.busy) ThemeService.setLight(!ThemeService.light); }, noPopup: true };
     }

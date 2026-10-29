@@ -59,6 +59,7 @@ mic mic
 mic-off mic-off
 monitor monitor
 moon moon
+paint-bucket paint-bucket
 more ellipsis-vertical
 music music
 package package

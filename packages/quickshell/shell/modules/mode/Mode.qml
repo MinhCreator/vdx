@@ -18,7 +18,7 @@ Item {
 
   KitBarItem {
     id: face
-    icon: ThemeService.light ? "sun" : "moon"
+    icon: "paint-bucket"
     text: BarLayout.faceText("mode", ThemeService.light ? "Light" : "Dark")
   }
 
