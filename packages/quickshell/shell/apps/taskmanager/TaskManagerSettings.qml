@@ -16,7 +16,7 @@ Column {
 
   KitOptionRow {
     module: "taskmanager"; key: "sortBy"; fallback: "cpu"
-    label: "Sort by"; hint: "Also a click on a column title"
+    label: "Sort by"; hint: "Or click a column title"
     model: [{ label: "CPU", value: "cpu" }, { label: "Memory", value: "mem" }, { label: "Name", value: "name" }]
   }
 

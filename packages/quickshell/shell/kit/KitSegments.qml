@@ -4,7 +4,7 @@ import qs.config
 
 // A segmented control: one track, a segment per choice; the one matching
 // `current` is raised (filled, bold), the rest are plain text. Model:
-// [{label, value}]. Takes the width it is given (KitRow wide) and splits it evenly.
+// [{label, value}]. Takes the width it is given (KitRow wide); a segment is as wide as its label, the spare width shared evenly.
 // Strict: a quiet outlined track, the picked segment a filled plate inset in it.
 // Material (Appearance › Controls): the Material 3 segmented button — an
 // outlined pill split by hairlines, the picked segment filled with a check.
@@ -14,6 +14,37 @@ Rectangle {
   property var model: []
   property var current: null
   property bool disabled: false
+  // each label measured in the font it is drawn in (the picked one is bold: the wider)
+  readonly property int edge: m3 ? 1 : inset
+  readonly property var natural: {
+    const out = [];
+    for (let i = 0; i < sizes.count; i++) out.push(Math.ceil(sizes.objectAt(i).advanceWidth) + 2 * Theme.gapLoose);
+    return out;
+  }
+  readonly property real naturalSum: natural.reduce((a, b) => a + b, 0)
+  // the narrowest the track can be without cutting a label (a row may give the rest to its hint)
+  readonly property real minWidth: Math.min(Theme.controlWidth, naturalSum + 2 * edge)
+  // a segment is as wide as its label needs; the spare width is shared evenly, a shortage cut in proportion
+  readonly property var widths: {
+    const avail = width - 2 * edge;
+    const n = natural.length;
+    if (n === 0 || naturalSum <= 0) return [];
+    return natural.map(w => avail >= naturalSum ? w + (avail - naturalSum) / n : w * avail / naturalSum);
+  }
+
+  Instantiator {
+    id: sizes
+    model: root.model
+
+    TextMetrics {
+      required property var modelData
+      font.family: Theme.fontFamily
+      font.pixelSize: Theme.fontSize
+      font.weight: Theme.pickWeight
+      text: modelData.label
+    }
+  }
+
   activeFocusOnTab: true
   enabled: !disabled && model.length > 0
   Accessible.role: Accessible.Grouping
@@ -77,7 +108,7 @@ Rectangle {
           readonly property bool selected: modelData.value === root.current
           readonly property bool hovered: area.containsMouse && !root.disabled && !selected
 
-          width: segments.width / root.model.length
+          width: root.widths[index] ?? 0
           height: segments.height
           // Only the enclosing track rounds the outside corners; shared
           // edges stay straight in selected and hover states in both styles.

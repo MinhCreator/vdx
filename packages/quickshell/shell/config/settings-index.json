@@ -1643,7 +1643,7 @@
  },
  {
   "label": "Workspaces as",
-  "hint": "How each workspace is drawn",
+  "hint": "How one is drawn",
   "where": "Bar modules › Workspaces › BAR",
   "target": "modules:workspaces"
  },
@@ -2568,7 +2568,7 @@
  },
  {
   "label": "Sort by",
-  "hint": "Also a click on a column title",
+  "hint": "Or click a column title",
   "where": "Apps › Task Manager › LIST",
   "target": "apps:taskmanager"
  },

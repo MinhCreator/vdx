@@ -39,7 +39,7 @@ Rectangle {
   // `island`: only while the island is the bar style
   readonly property var allSections: [
     { value: "appearance", label: "Appearance", icon: "sliders",    caption: "LOOK" },
-    { value: "themes",     label: "Themes",     icon: "palette" },
+    { value: "themes",     label: "Themes",     icon: "brush" },
     { value: "fonts",      label: "Fonts",      icon: "text" },
     { value: "icons",      label: "Icons",      icon: "star" },
     { value: "cursor",     label: "Cursor",     icon: "cursor" },

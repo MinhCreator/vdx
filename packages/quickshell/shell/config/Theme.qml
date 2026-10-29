@@ -179,7 +179,8 @@ QtObject {
   readonly property int focusWidth: 2
   readonly property int navigationHeight: material ? 36 : 34
   readonly property int rowHeight: 40
-  readonly property int groupInset: 12
+  // side inset of a box = the gap above/below its controls (row padding + the row's spare height): one distance all round
+  readonly property int groupInset: settingsRowInset + Math.round((rowHeight - controlHeight) / 2)
   readonly property color groupFill: material ? surfaceContainer : background0
   // Choose the best of the theme's foreground/background on any custom fill.
   function inkOn(fill: color): color {
@@ -248,7 +249,6 @@ QtObject {
   readonly property int controlWidth: 300        // a setting's choices / field (KitRow wide)
   readonly property int buttonWidth: 120         // a setting's action button (text only, right aligned)
   readonly property int rowStackBelow: 420       // a wide KitRow narrower than this puts its control under the label
-  readonly property int rowLabelMin: 170         // a wide KitRow in a narrow place: the room kept for the label, the control gives way
   readonly property int popupGap: 6
   readonly property int frameWidth: material ? 0 : 1          // controls: buttons, selects, fields
   readonly property int windowFrameWidth: 1                   // popup frames, like hypr windows, mako

@@ -5,9 +5,9 @@ import qs.config
 // switch, a button, a value) on the right (children).
 //
 // `wide`: the control is a set of choices or a field — it gets the standard
-// width (Theme.controlWidth, so the right edges line up down a page); a narrow
-// row keeps Theme.rowLabelMin for the label and the control gives way, and under
-// Theme.rowStackBelow it goes under the label, full width. Give a wide KitChoices `stretch: true`.
+// width (Theme.controlWidth, so the right edges line up down a page); in a narrow
+// place (under Theme.rowStackBelow, or with no room for the label) it goes under the
+// label, full width; the hint wraps, never cut. Give a wide KitChoices `stretch: true`.
 //
 // `needs`: what this row waits for, in one phrase ("Island style only", "Needs Live
 // activities on"): the row stays in sight, its control out of reach, the phrase where the
@@ -28,13 +28,27 @@ Item {
   property string needsAction: ""   // the button that fixes it ("Use Island")
   signal needsActed()
 
-  readonly property bool stacked: wide && width < Theme.rowStackBelow
+  // a wide row beside its label: the hint wraps to a second line rather than being cut;
+  // when the label itself has no room, the control goes under them
+  readonly property bool stacked: wide && (width < Theme.rowStackBelow
+    || width - controlW - 12 < labelItem.implicitWidth)
+
+  // the control's width: the standard one, less what a long hint needs to stay on one line,
+  // never under what the control itself needs (`minWidth`; a control without one keeps the standard)
+  readonly property real controlW: {
+    const c = slot.children.length > 0 ? slot.children[0] : null;
+    const least = c && c.minWidth !== undefined ? c.minWidth : Theme.controlWidth;
+    const room = width - 12 - Math.max(labelItem.implicitWidth, hintItem.visible ? hintItem.implicitWidth : 0);
+    return Math.max(least, Math.min(Theme.controlWidth, room));
+  }
 
   default property alias trailing: slot.data
 
   width: parent ? parent.width : 0
   opacity: dimmed ? 0.4 : needs !== "" ? 0.6 : 1
-  implicitHeight: stacked ? text.implicitHeight + Theme.gapWide + slot.height
+  // stacked, the row fills its height, so it keeps the spare height a centred control has: every edge of the box is the same distance from what is in it
+  readonly property int stackPad: Math.round((Theme.rowHeight - Theme.controlHeight) / 2)
+  implicitHeight: stacked ? 2 * stackPad + text.implicitHeight + Theme.gapSmall + slot.height
                           : Math.max(Theme.rowHeight, text.implicitHeight, slot.height)
 
   Column {
@@ -44,7 +58,7 @@ Item {
       right: root.stacked ? parent.right : fix.visible ? fix.left : slot.left
       rightMargin: root.stacked ? 0 : 12
     }
-    y: root.stacked ? 0 : (root.height - height) / 2
+    y: root.stacked ? root.stackPad : (root.height - height) / 2
     spacing: Theme.gapTight
 
     Row {
@@ -52,6 +66,7 @@ Item {
       spacing: Theme.gapMedium
 
       KitText {
+        id: labelItem
         width: Math.min(implicitWidth, parent.width - (tip.visible ? tip.width + parent.spacing : 0))
         text: root.label
         color: root.labelColor
@@ -68,6 +83,7 @@ Item {
     }
 
     KitText {
+      id: hintItem
       width: parent.width
       visible: root.hint !== "" || root.needs !== ""
       text: root.needs !== "" ? root.needs : root.hint
@@ -90,7 +106,7 @@ Item {
     id: slot
     visible: root.needs === ""
     anchors.right: parent.right
-    y: root.stacked ? text.height + Theme.gapWide : (root.height - height) / 2
+    y: root.stacked ? root.stackPad + text.height + Theme.gapSmall : (root.height - height) / 2
     spacing: Theme.gapMedium
   }
 
@@ -99,6 +115,6 @@ Item {
     when: root.wide && slot.children.length > 0
     target: slot.children.length > 0 ? slot.children[0] : null
     property: "width"
-    value: root.stacked ? root.width : Math.min(Theme.controlWidth, root.width - Theme.rowLabelMin)
+    value: root.stacked ? root.width : root.controlW
   }
 }

@@ -82,14 +82,14 @@ Column {
       x: cover.width + root.gap
       y: 0
       width: now.width - x
-      height: Math.max(textColumn.implicitHeight, like.height)
+      height: Math.max(root.coverSize, textColumn.implicitHeight, like.height)
 
       Column {
         id: textColumn
         anchors {
           left: parent.left
           right: raise.left; rightMargin: Theme.gapMedium
-          top: parent.top
+          verticalCenter: parent.verticalCenter
         }
         spacing: Theme.gapHair
 
@@ -124,7 +124,7 @@ Column {
 
       KitButton {
         id: raise
-        anchors { right: like.left; rightMargin: Theme.gapTight; top: parent.top }
+        anchors { right: like.left; rightMargin: Theme.gapTight; verticalCenter: parent.verticalCenter }
         visible: PlayerService.canRaise
         icon: "external"
         onClicked: PlayerService.raise()
@@ -132,7 +132,7 @@ Column {
 
       KitButton {
         id: like
-        anchors { right: parent.right; top: parent.top }
+        anchors { right: parent.right; verticalCenter: parent.verticalCenter }
         visible: root.yandexTrack
         icon: YandexService.isLiked ? "heart-filled" : "heart"
         iconTint: YandexService.isLiked ? Theme.red : Theme.foreground0
