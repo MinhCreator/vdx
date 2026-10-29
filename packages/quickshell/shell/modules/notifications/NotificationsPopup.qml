@@ -59,6 +59,8 @@ KitFrame {
     }
   }
 
+  KitLine {}
+
   KitSegments {
     width: parent.width
     model: [
@@ -277,7 +279,7 @@ KitFrame {
     height: 40
     visible: !list.atYEnd
     gradient: Gradient {
-      GradientStop { position: 0; color: "transparent" }
+      GradientStop { position: 0; color: Theme.clear }
       GradientStop { position: 1; color: Theme.background0 }
     }
   }
