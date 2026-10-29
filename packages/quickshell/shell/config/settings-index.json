@@ -98,6 +98,12 @@
   "target": "icons"
  },
  {
+  "label": "Framed icons",
+  "hint": "A tile around icons in lists",
+  "where": "Icons › MENU",
+  "target": "icons"
+ },
+ {
   "label": "Icons in the list",
   "hint": "Off: the pages are names only",
   "where": "Icons › MENU",

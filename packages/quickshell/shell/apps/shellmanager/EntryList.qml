@@ -100,12 +100,13 @@ Column {
             color: active ? Theme.pickFill : rowArea.containsMouse ? Theme.controlHover : Theme.clear
             Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
-            KitIcon {
+            KitIconTile {
               id: rowIcon
-              anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+              anchors { left: parent.left; leftMargin: ShellSettings.iconTiles ? Theme.gapSmall : Theme.gapLoose; verticalCenter: parent.verticalCenter }
               name: row.modelData.icon
+              active: row.active
+              hovered: rowArea.containsMouse
               tint: row.active ? Theme.foreground0 : row.modelData.link || row.modelData.off ? Theme.muted : Theme.foreground2
-              size: Theme.iconSmall
             }
 
             KitText {

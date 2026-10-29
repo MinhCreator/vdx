@@ -13,7 +13,7 @@ Column {
   readonly property string description: "One icon set for the bar, popups and windows."
   readonly property var jumps: []
 
-  readonly property var resetKeys: ["iconSet", "solidIcons", "menuIcons"]
+  readonly property var resetKeys: ["iconSet", "solidIcons", "menuIcons", "iconTiles"]
   readonly property bool changed: ShellSettings.changed(resetKeys)
   function reset() { ShellSettings.reset(resetKeys); }
 
@@ -21,6 +21,16 @@ Column {
   IconsSection { width: parent.width }
 
   KitLabel { text: "MENU"; about: "The Shell Manager's page list; the rail's group buttons keep theirs" }
+  KitRow {
+    label: "Framed icons"
+    hint: "A tile around icons in lists"
+    KitSwitch {
+      accessibleName: "Framed icons"
+      checked: ShellSettings.iconTiles
+      onToggled: ShellSettings.set("iconTiles", !checked)
+    }
+  }
+
   KitRow {
     label: "Icons in the list"
     hint: "Off: the pages are names only"

@@ -39,13 +39,15 @@ Rectangle {
     color: row.active ? Theme.foreground0 : Theme.dividerColor
   }
 
-  KitIcon {
+  KitIconTile {
     id: icon
     visible: ShellSettings.menuIcons
-    anchors { left: parent.left; leftMargin: Theme.gapLoose + (row.indent ? Theme.gapWide + 8 : 0); verticalCenter: parent.verticalCenter }
+    anchors { left: parent.left; leftMargin: (ShellSettings.iconTiles ? Theme.gapSmall : Theme.gapLoose) + (row.indent ? Theme.gapWide + 8 : 0); verticalCenter: parent.verticalCenter }
     name: row.entry.icon
+    active: row.active
+    hovered: area.containsMouse
     tint: row.active ? Theme.foreground0 : Theme.foreground2
-    size: 16
+    glyph: 16
   }
 
   KitText {
