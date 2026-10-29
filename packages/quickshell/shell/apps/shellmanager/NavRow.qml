@@ -28,15 +28,15 @@ Rectangle {
   color: active ? Theme.pickFill : area.containsMouse || activeFocus ? Theme.controlHover : Theme.clear
   Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.quick } }
 
-  // a child page hangs off the page above it: a line down the row's left, under the parent's icon
+  // a child page carries a short bar at its left (as the slider's mark), bright when it is the open one
   Rectangle {
     visible: row.indent
     x: Theme.gapLoose + 7
-    y: 0
+    anchors.verticalCenter: parent.verticalCenter
     width: 2
-    height: parent.height + Theme.gapHair
+    height: 16
     radius: 1
-    color: Theme.dividerColor
+    color: row.active ? Theme.foreground0 : Theme.dividerColor
   }
 
   KitIcon {
