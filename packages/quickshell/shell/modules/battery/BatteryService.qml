@@ -25,12 +25,14 @@ Singleton {
 
   // ---- battery ----
   property var info: ({})                      // see `battery.sh --status`
+  property bool ready: false
 
   readonly property bool present: info.present ?? false
   readonly property int capacity: info.capacity ?? 0
   readonly property bool plugged: info.plugged ?? false
   readonly property bool charging: info.status === "Charging"
   readonly property bool discharging: info.status === "Discharging"
+  readonly property string capacityLabel: present ? capacity + "%" : "—"
   readonly property real power: info.power ?? 0                // W
   readonly property real energy: info.energy ?? 0              // Wh
   readonly property real energyFull: info.energyFull ?? 0      // Wh
@@ -154,7 +156,7 @@ Singleton {
     stdout: StdioCollector {
       onStreamFinished: {
         const o = Reply.parse(text, "battery.sh", null);
-        if (o) root.info = o;
+        if (typeof o?.present === "boolean") { root.info = o; root.ready = true; }
       }
     }
   }

@@ -61,7 +61,7 @@ Each area lists the scenarios it touches; these are the shared base.
 
 ### Audit checkpoint (2026-10-30)
 
-Current validation: 283 Python tests and 98 QML cases. Full repository checks
+Current validation: 285 Python tests and 98 QML cases. Full repository checks
 and Python lint pass. These counts include baseline tests; they do not imply
 that every shell function or desktop scenario has been reviewed.
 
@@ -83,6 +83,7 @@ that every shell function or desktop scenario has been reviewed.
 | Wi-Fi speedtest | Real child-process test cancels a TERM-resistant old request, immediately starts a replacement, and verifies that the late old reply cannot overwrite the newer result; repeated active requests are rejected |
 | Device service first pass | Production battery actions reject startup overlap without changing saved limit/profile; audio live state with missing/muted devices; display refresh retains action failure; Bluetooth scan reply errors and adapter action FIFO/failure handling. Five regressions reproduced against the previous code |
 | Device UX first pass | Production Bluetooth device row: Space, Return and mouse activation; another device busy or power off prevents activation. Settings expose Bluetooth action errors; power/audio switches reflect pending/unavailable state |
+| Battery empty state | Popup distinguishes initial loading from no battery, suppresses fabricated zero charge/health readings and keeps the power profile control available; capacity label tested against absent/present hardware |
 | Lock authentication | Production state model with fake PAM: start/empty/busy/locked guards, password consumption and clearing, start failure, success/failure/error, abort and callbacks after completion |
 
 Process fixtures use temporary runtime/state directories and fake backends.

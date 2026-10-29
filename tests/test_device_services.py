@@ -113,6 +113,34 @@ Scope {
           return {count: calls.length, threshold: state.threshold, busy: busy};
         '''), {"count": 2, "threshold": 80, "busy": 80})
 
+    def test_battery_capacity_label_distinguishes_missing_hardware(self):
+        source = (SHELL / "modules/battery/BatteryService.qml").read_text()
+        label = next(line for line in source.splitlines() if "property string capacityLabel:" in line)
+        self.assertEqual(self.evaluate('''
+  property bool present: false
+  property int capacity: 0
+''' + label, '''
+          const absent = capacityLabel; present = true; capacity = 42;
+          return [absent, capacityLabel];
+        '''), ["—", "42%"])
+
+    def test_battery_waits_for_a_valid_status_shape(self):
+        source = (SHELL / "modules/battery/BatteryService.qml").read_text()
+        callback = handler(source, "statusProc").replace(
+            'Reply.parse(text, "battery.sh", null)', "JSON.parse(text)")
+        result = self.evaluate('''
+  property var info: ({})
+  property bool ready: false
+  property string text: ""
+  function parse(text) { return JSON.parse(text); }
+  function complete(text) ''' + callback, '''
+          complete(JSON.stringify({ok: false, error: "backend missing"}));
+          const afterError = ready;
+          complete(JSON.stringify({present: false}));
+          return {afterError, ready, info};
+        ''')
+        self.assertEqual(result, {"afterError": False, "ready": True, "info": {"present": False}})
+
     def test_audio_missing_devices_are_not_live(self):
         source = (SHELL / "modules/audio/AudioService.qml").read_text()
         live = next(line for line in source.splitlines() if "readonly property bool live:" in line)

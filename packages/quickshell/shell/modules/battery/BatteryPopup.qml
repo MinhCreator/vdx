@@ -14,7 +14,9 @@ KitFrame {
   readonly property bool compact: ModuleSettings.get("battery", "compact", false)
   readonly property string timeLeft: BatteryService.minutesLeft < 0 ? "—"
     : Math.floor(BatteryService.minutesLeft / 60) + ":" + String(BatteryService.minutesLeft % 60).padStart(2, "0")
-  readonly property string summary: BatteryService.charging ? "CHARGING · " + timeLeft + " TO " + BatteryService.threshold + "%"
+  readonly property string summary: !BatteryService.ready ? "CHECKING BATTERY"
+    : !BatteryService.present ? "NO BATTERY FOUND"
+    : BatteryService.charging ? "CHARGING · " + timeLeft + " TO " + BatteryService.threshold + "%"
     : BatteryService.discharging ? "DISCHARGING · " + timeLeft + " LEFT"
     : BatteryService.plugged ? "PLUGGED IN" + (BatteryService.limitSupported ? " · LIMIT " + BatteryService.threshold + "%" : "")
     : "IDLE"
@@ -22,16 +24,16 @@ KitFrame {
     : BatteryService.capacity <= BatteryService.warning ? Theme.yellow : Theme.green
   // ---- header ----
   KitHeader {
-    icon: BatteryService.saver ? "battery-saver" : BatteryService.charging ? "battery-bolt"
+    icon: !BatteryService.present ? "battery-full" : BatteryService.saver ? "battery-saver" : BatteryService.charging ? "battery-bolt"
       : BatteryService.plugged ? "battery-plugged" : BatteryService.levelIcon
-    iconColor: BatteryService.capacity <= BatteryService.critical && !BatteryService.plugged ? Theme.red : Theme.foreground0
+    iconColor: !BatteryService.present ? Theme.muted : BatteryService.capacity <= BatteryService.critical && !BatteryService.plugged ? Theme.red : Theme.foreground0
     title: "Battery"
     subtitle: root.summary
 
     KitBadge {
       anchors.verticalCenter: parent.verticalCenter
-      text: BatteryService.capacity + "%"
-      tint: root.levelColor
+      text: !BatteryService.ready ? "…" : BatteryService.capacityLabel
+      tint: BatteryService.ready && BatteryService.present ? root.levelColor : Theme.muted
     }
 
     // the power saver: a quiet profile, slower and cooler
@@ -47,10 +49,27 @@ KitFrame {
 
   KitLine {}
 
+  KitText {
+    width: parent.width
+    visible: BatteryService.ready && !BatteryService.present
+    text: "No battery was found on this computer."
+    color: Theme.muted
+    wrapMode: Text.WordWrap
+  }
+
+  KitText {
+    width: parent.width
+    visible: !BatteryService.ready
+    text: "Checking battery status…"
+    color: Theme.muted
+    wrapMode: Text.WordWrap
+  }
+
   // ---- charge ----
   Column {
     width: parent.width
     spacing: Theme.gapMedium
+    visible: BatteryService.present
 
     KitLabel {
       text: "CHARGE"
@@ -80,7 +99,7 @@ KitFrame {
     }
   }
 
-  KitLine {}
+  KitLine { visible: BatteryService.present }
 
   KitText {
     width: parent.width
