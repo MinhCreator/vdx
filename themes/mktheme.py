@@ -26,6 +26,13 @@ GRUVBOX = dict(background0="202020", background1="32302f", background2="3c3836",
 EXTRA = {"282828": "background0", "ebdbb2": "foreground0", "ffffff": "foreground1"}
 
 THEMES = {
+    "default": dict(
+        title="Default — near-black, white accent, cool grey",
+        background0="161618", background1="1e1e21", background2="27272b", background3="34343a",
+        foreground0="e6e6e9", foreground1="ffffff", foreground2="b4b4ba", gray="4a4a52",
+        muted="84848c", dim="3c3c42", red="f07178", orange="f4a261", yellow="e9d16c",
+        green="7fd1a8", aqua="5fc4d4", blue="6aa7f0", purple="b39ddb", bright="a0a0a8",
+        frame="84848c", frame_active="f2f2f4"),
     "graphite": dict(
         title="Graphite — near-black monochrome, light gray frames",
         background0="0e0e0e", background1="171717", background2="1f1f1f", background3="2c2c2c",
@@ -130,6 +137,9 @@ def _l(title, bg, fg, gray, muted, dim, red, orange, yellow, green, aqua, blue, 
 
 
 LIGHT = {
+    "default": _l("Default Light — white paper, cool grey, near-black text",
+                  ["f7f7f8", "eeeef0", "e4e4e7", "d6d6db"], ["1c1c1f", "000000", "46464d"], "a0a0a8", "62626a", "c2c2c8",
+                  "c4384a", "c2671c", "9a7b0f", "2f8a5a", "1f8a99", "2f6fc4", "7b5cc0", "7c7c84", "5e5e66", "1c1c1f"),
     "gruvbox": _l("Gruvbox Light — warm paper, dark brown ink",
                   ["fbf1c7", "f2e5bc", "ebdbb2", "d5c4a1"], ["3c3836", "282828", "504945"], "a89984", "6f6259", "c9b99a",
                   "c14a4a", "c35e0a", "b47109", "6c782e", "4c7a5d", "45707a", "945e80", "7c6f64", "7c6f64", "45707a"),
