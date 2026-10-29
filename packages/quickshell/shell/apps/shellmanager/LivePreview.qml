@@ -100,7 +100,6 @@ Rectangle {
     // focus
     KitIcon { visible: root.kind === "focus"; glowTarget: "live"; anchors.verticalCenter: parent.verticalCenter; name: "moon"; size: 16; tint: Theme.purple }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "focus"; text: "Focus"; font.pixelSize: Theme.fontSize - 1 }
-    KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "focus"; text: "Do not disturb"; color: Theme.muted; font.pixelSize: Theme.fontSize - 1 }
 
     // music: the cover, the name, the sound
     Rectangle { visible: root.kind === "music"; anchors.verticalCenter: parent.verticalCenter; width: 16; height: 16; radius: Theme.pill(width); color: Theme.background3

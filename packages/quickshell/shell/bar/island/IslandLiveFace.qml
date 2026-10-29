@@ -261,7 +261,6 @@ Row {
   // focus: do not disturb is on
   KitIcon { visible: face.kind === "focus"; glowTarget: "live"; name: "moon"; size: 16; tint: Theme.purple; anchors.verticalCenter: parent.verticalCenter }
   KitText { visible: face.kind === "focus"; text: "Focus"; color: Theme.foreground1 }
-  KitText { visible: face.kind === "focus"; text: "Do not disturb"; color: Theme.muted }
 
   // volume and brightness: the level as a ruler while it changes
   KitIcon { visible: face.kind === "volume"; name: IslandService.osdIcon; size: 14; tint: IslandService.osdMuted ? Theme.red : Theme.foreground2; anchors.verticalCenter: parent.verticalCenter }
