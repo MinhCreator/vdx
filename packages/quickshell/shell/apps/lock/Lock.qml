@@ -16,12 +16,11 @@ Scope {
   id: root
 
   readonly property string user: ModuleSettings.get("profile", "name", "") || Quickshell.env("USER")
-  property bool busy: false
-  property string error: ""
-  property string pending: ""
+  readonly property bool busy: authentication.busy
+  readonly property string error: authentication.error
   // the password typed so far, shared by every monitor: keys go to the one
   // Hyprland focuses, the field may show on another
-  property string typed: ""
+  property alias typed: authentication.typed
   // the monitor in use when it locked (Monitors › Focused)
   property string focusedScreen: ""
 
@@ -35,12 +34,17 @@ Scope {
     return name === want;
   }
 
-  function tryUnlock(password) {
-    if (busy || password === "") return;
-    busy = true;
-    error = "";
-    pending = password;
-    pam.start();
+  function tryUnlock(password) { authentication.tryUnlock(password); }
+
+  LockAuthentication {
+    id: authentication
+    context: pam
+    locked: sessionLock.locked
+    onVerified: {
+      // Schedule marker cleanup before releasing the session lock.
+      Quickshell.execDetached(["rm", "-rf", root.snapshotDir]);
+      sessionLock.locked = false;
+    }
   }
 
   // ---- snapshot ----
@@ -154,21 +158,9 @@ Scope {
 
   PamContext {
     id: pam
-    onPamMessage: {
-      if (responseRequired) { respond(root.pending); root.pending = ""; }
-    }
-    onCompleted: result => {
-      root.busy = false;
-      // the marker goes before the unlock, detached: a shell that dies right after
-      // unlocking must not leave one behind (the next start would lock again)
-      if (result === PamResult.Success) {
-        Quickshell.execDetached(["rm", "-rf", root.snapshotDir]);
-        sessionLock.locked = false;
-        root.error = "";
-      }
-      else root.error = "Wrong password";
-    }
-    onError: e => { root.busy = false; root.error = "PAM error"; }
+    onPamMessage: authentication.answer()
+    onCompleted: result => authentication.complete(result === PamResult.Success)
+    onError: authentication.fail()
   }
 
   WlSessionLock {
@@ -180,7 +172,6 @@ Scope {
       if (!locked) { cleanup.running = true; return; }
       mark.running = true;
       root.focusedScreen = Hyprland.focusedMonitor?.name ?? "";
-      root.typed = "";
       devices.running = true;
     }
 

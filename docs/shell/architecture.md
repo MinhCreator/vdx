@@ -56,6 +56,13 @@ and error before publishing idle, then resets its state before `finished`.
 Listeners may submit or cancel another action immediately; the old completion
 must not modify that request's state or report its tag as the old result.
 
+`apps/lock/LockAuthentication.qml` owns the shared password fields and PAM
+attempt state. Lock supplies the real PAM context and responds to verification;
+the QtQuick-only model checks start failure, consumes the pending password
+before responding, clears password strings on completion/error or lock-state
+change, and aborts an attempt when leaving its lock state. Callbacks without
+an active attempt cannot verify or change the error. Tests use a fake context.
+
 Files selection lives in `apps/files/FilesSelection.qml`, a QtQuick-only
 model tested without the filesystem or portal. FilesService supplies visible
 rows and the picker's single-selection constraint and exposes the existing
