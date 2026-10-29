@@ -85,6 +85,10 @@ Item {
     moved(dragValue);
   }
 
+  // set once: whether it sits in a Settings box (a walk up, not a binding)
+  property bool boxed: false
+  Component.onCompleted: boxed = Theme.boxed(parent)
+
   implicitWidth: 120
   implicitHeight: m3 ? 28 : flat ? 36 : 18
   opacity: enabled ? 1 : 0.4
@@ -234,13 +238,17 @@ Item {
     visible: root.flat
     anchors.fill: parent
     radius: Theme.radiusControl
-    color: Theme.controlFill
+    // the track is a control plate with its frame (it sat on the box's own tone and
+    // vanished in a Settings row); the fill is a step brighter than a picked segment
+    color: Theme.fillOn(root.boxed)
+    border.width: Theme.frameWidth
+    border.color: Theme.controlLineRest
 
     // square: the track's corners cut it, so the left end is rounded, the right is flat
     Rectangle {
       width: Math.max(root.plateEdge, 0)
       height: parent.height
-      color: root.dimmed ? Theme.controlHover : Theme.pickFill
+      color: root.dimmed ? Theme.controlHover : Theme.mix(Theme.pickFill, Theme.foreground0, 0.14)
     }
 
     // the stops still to come: a dot each, none under the fill

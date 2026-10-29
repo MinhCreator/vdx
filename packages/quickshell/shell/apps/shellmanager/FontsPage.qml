@@ -74,6 +74,7 @@ KitColumn {
     KitButton {
       text: root.armed === root.selected ? "Confirm install" : root.chosen?.installed ? "Apply" : "Install & use"
       icon: root.chosen?.installed ? "check" : "download"
+      iconTint: root.chosen?.installed ? Theme.green : Theme.foreground0
       disabled: !root.chosen || root.selected === FontService.current
       busy: FontService.busy
       onClicked: root.apply()
@@ -136,7 +137,7 @@ KitColumn {
           z: 1
           anchors { right: parent.right; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
           spacing: Theme.gapSmall
-          KitIcon { anchors.verticalCenter: parent.verticalCenter; name: family.inUse ? "check" : family.modelData.installed ? "text" : "download"; size: Theme.iconSmall; tint: Theme.foreground2 }
+          KitIcon { anchors.verticalCenter: parent.verticalCenter; name: family.inUse ? "check" : family.modelData.installed ? "text" : "download"; size: Theme.iconSmall; tint: family.inUse ? Theme.green : Theme.foreground2 }
           KitButton {
             visible: family.picked && !family.inUse
             text: root.armed === root.selected ? "Confirm" : family.modelData.installed ? "Apply" : "Install"

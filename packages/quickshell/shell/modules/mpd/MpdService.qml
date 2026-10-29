@@ -49,7 +49,12 @@ Singleton {
   // ---- playback ----
   function control(args) {
     Quickshell.execDetached(["bash", root.script].concat(args));
+    settle.restart();
   }
+
+  // the state is read again once a command has had time to land: the stream of events
+  // can lag (MPD coming up is only noticed by its 2 s poll), and a popup waits on it
+  function refresh() { if (needed && !statusProc.running) run(statusProc, ["--status"]); }
 
   function toggle() { control(["--toggle"]); }
   // the popup's switch: MPD itself on (playing what it kept, else the likes) or off
@@ -106,6 +111,20 @@ Singleton {
     onTriggered: root.elapsed = Math.min(root.duration, root.elapsed + 1)
   }
 
+  Timer { id: settle; interval: 500; onTriggered: root.refresh() }
+
+  Process {
+    id: statusProc
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const o = root.parse(text);
+        if (!o) return;
+        root.player = o;
+        root.elapsed = o.elapsed ?? 0;
+      }
+    }
+  }
+
   Timer {
     id: listenRestart
     interval: root.restartMs
@@ -143,6 +162,7 @@ Singleton {
         root.busy = null;
         if (!o?.ok) root.error = o?.error ?? "could not start playback";
         root.refreshQueue();
+        root.refresh();
       }
     }
   }

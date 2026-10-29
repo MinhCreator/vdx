@@ -1504,7 +1504,7 @@
  },
  {
   "label": "Focus",
-  "hint": "Do not disturb is on; a click ends it",
+  "hint": "Do not disturb is on",
   "where": "Live activities › LIVE ACTIVITIES",
   "target": "live"
  },

@@ -42,7 +42,7 @@ Item {
       detail: MihomoService.serviceOn ? "On" : "Off",
       toggle: () => MihomoService.toggleService() };
     case "focus": return {
-      icon: "moon", title: "Focus", on: FocusService.on, detail: FocusService.on ? "Do not disturb" : "Off",
+      icon: "bell-off", title: "Focus", on: FocusService.on, detail: FocusService.on ? "On" : "Off",
       toggle: () => FocusService.toggle(), noPopup: true };
     case "timer": return {
       icon: "clock", title: TimerService.active ? TimerService.title : "Timer", on: TimerService.active,

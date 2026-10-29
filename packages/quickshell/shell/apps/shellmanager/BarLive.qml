@@ -52,7 +52,7 @@ Column {
       backup: { label: "Backup", hint: "Progress of a backup" },
       timer: { label: "Timer", hint: "The time left, or the stopwatch; a click opens it" },
       vpn: { label: "VPN", hint: "Which server and the ping" },
-      focus: { label: "Focus", hint: "Do not disturb is on; a click ends it" },
+      focus: { label: "Focus", hint: "Do not disturb is on" },
       radio: { label: "Radio", hint: "The station on air; a click opens the dial" },
       music: { label: "Music", hint: "The playing track of Yandex Music or your files" },
       media: { label: "Media", hint: "What plays in other apps: a browser, Spotify, mpv" }

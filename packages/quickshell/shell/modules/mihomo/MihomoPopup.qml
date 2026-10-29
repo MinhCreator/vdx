@@ -3,8 +3,8 @@ import qs.components
 import qs.config
 import qs.kit
 
-// Mihomo: the tunnel's state and traffic and the choice of a server. The tunnel's
-// switch, the provider and the files are the VPN page of the Shell Manager (the button at the foot).
+// Mihomo: the tunnel's switch, its state and traffic and the choice of a server. The provider
+// and the files are the VPN page of the Shell Manager (the button at the foot).
 KitFrame {
   id: root
 
@@ -29,6 +29,11 @@ KitFrame {
       text: MihomoService.nodes.length + " SERVERS"
     }
 
+    KitSwitch {
+      anchors.verticalCenter: parent.verticalCenter
+      checked: MihomoService.serviceOn
+      onToggled: MihomoService.toggleService()
+    }
   }
 
   KitLine {}
@@ -82,7 +87,7 @@ KitFrame {
   // ---- routing ----
   KitText {
     visible: !root.listed
-    text: MihomoService.serviceOn ? "No providers configured." : "Mihomo is off. Switch it on in the VPN settings."
+    text: MihomoService.serviceOn ? "No providers configured." : "Mihomo is off. Switch it on above."
     color: Theme.muted
     font.pixelSize: Theme.fontSize - 1
   }

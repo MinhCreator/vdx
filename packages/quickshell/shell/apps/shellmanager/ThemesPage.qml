@@ -217,6 +217,7 @@ Flow {
           id: applyButton
           anchors.right: parent.right
           icon: "check"
+          iconTint: Theme.green
           text: "Apply"
           busy: ThemeService.busy
           disabled: !root.changed || root.shown.length === 0

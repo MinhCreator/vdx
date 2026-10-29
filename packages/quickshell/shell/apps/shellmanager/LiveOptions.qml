@@ -11,7 +11,7 @@ Column {
   property string kind: ""
 
   // what a kind has to set: the rows below read this to know whether to offer the opening
-  readonly property bool any: kind === "notice" || kind === "battery" || kind === "music" || kind === "media" || kind === "radio"
+  readonly property bool any: kind === "notice" || kind === "battery" || kind === "music" || kind === "media" || kind === "radio" || kind === "focus"
 
   width: parent ? parent.width : 0
   spacing: Theme.settingsRowInset          // the box's own row rhythm: a gap each side of a hairline
@@ -74,6 +74,13 @@ Column {
     label: "Show on pause"
     hint: "The track stays in the slot while paused"
     KitSwitch { checked: ShellSettings.liveMusicPaused; onToggled: ShellSettings.setLook("liveMusicPaused", !checked, "island") }
+  }
+
+  KitRow {
+    visible: root.kind === "focus"
+    label: "Turn off on click"
+    hint: "A click on the activity ends Focus"
+    KitSwitch { checked: ShellSettings.liveFocusClick; onToggled: ShellSettings.setLook("liveFocusClick", !checked, "island") }
   }
 
   KitRow {

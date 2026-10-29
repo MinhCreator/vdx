@@ -114,6 +114,7 @@ KitColumn {
 
     KitButton {
       icon: root.cursorRow && !root.cursorRow.installed ? "download" : "check"
+      iconTint: root.cursorRow && !root.cursorRow.installed ? Theme.foreground0 : Theme.green
       text: "Apply"
       busy: CursorService.busy
       disabled: root.cursorRow === null || (root.cursorMode === "custom" && !root.cursorCustomValid)
@@ -249,7 +250,7 @@ KitColumn {
             anchors.centerIn: parent
             visible: !card.working && (card.inUse || !card.modelData.installed)
             name: card.inUse ? "check" : "download"
-            tint: Theme.foreground2
+            tint: card.inUse ? Theme.green : Theme.foreground2
             size: Theme.iconSmall
           }
         }
