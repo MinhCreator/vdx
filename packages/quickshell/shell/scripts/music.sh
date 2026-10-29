@@ -51,15 +51,17 @@ cmd_status() {
         return
     fi
     current=$(mpc current -f $'%file%\t%title%\t%artist%\t%album%\t%date%\t%name%')
-    local parked=0
-    [[ -f "$PARKED" ]] && parked=1
+    local parked=""
+    [[ -f "$PARKED" ]] && parked=$(head -1 "$PARKED")
     jq -cn --arg status "$status" --arg current "$current" --arg parked "$parked" --slurpfile stations "$STATIONS" '
         def seconds: split(":") | map(tonumber? // 0) | reduce .[] as $p (0; . * 60 + $p);
         ($status | split("\t")) as $s
         | ($current | split("\t")) as $c
         | ($stations[0] // {} | to_entries | map(select(.value.url == ($c[0] // ""))) | first) as $station
         | {
-            service: true, parked: ($parked == "1"),
+            service: true,
+            parked: (if $parked == "" then false else ($parked | split("\t")) as $p
+                     | {pos: ($p[0] | tonumber? // 1), elapsed: ($p[1] | tonumber? // 0), title: ($p[2] // ""), artist: ($p[3] // ""), duration: ($p[4] | tonumber? // 0)} end),
             state: $s[0], pos: ($s[1] | tonumber? // 0), length: ($s[2] | tonumber? // 0),
             elapsed: ($s[3] // "0" | seconds), duration: ($s[4] // "0" | seconds),
             random: ($s[5] == "on"),
@@ -108,13 +110,18 @@ park_music() {
     mpc -q rm _parked 2>/dev/null
     mpc -q save _parked || return
     mkdir -p "$(dirname "$PARKED")"
-    mpc status $'%songpos%\t%currenttime%' | head -1 | awk -F'\t' '{ n = split($2, t, ":"); s = 0; for (i = 1; i <= n; i++) s = s * 60 + t[i]; print $1 "\t" s }' > "$PARKED"
+    # "pos<TAB>seconds<TAB>title<TAB>artist<TAB>length in seconds": where it stopped and what it was
+    local place track
+    place=$(mpc status $'%songpos%\t%currenttime%\t%totaltime%' | head -1)
+    track=$(mpc current -f $'%title%\t%artist%')
+    awk -F'\t' -v track="$track" 'function sec(x,   n, t, i, s) { n = split(x, t, ":"); s = 0; for (i = 1; i <= n; i++) s = s * 60 + t[i]; return s }
+        { print $1 "\t" sec($2) "\t" track "\t" sec($3) }' <<<"$place" > "$PARKED"
 }
 
 cmd_unpark() {
     local pos secs
     [[ -f "$PARKED" ]] || { error "no music was put aside"; return; }
-    IFS=$'\t' read -r pos secs < "$PARKED"
+    IFS=$'\t' read -r pos secs _ < "$PARKED"
     mpd_up
     mpc -q clear && mpc -q load _parked || { error "could not bring the music back"; return; }
     mpc -q play "${pos:-1}" && mpc -q seek "${secs:-0}" 2>/dev/null

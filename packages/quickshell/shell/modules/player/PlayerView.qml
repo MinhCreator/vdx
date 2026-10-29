@@ -15,18 +15,19 @@ QtObject {
   readonly property bool mpd: source?.mpd ?? false
   readonly property var mpris: source?.mpris ?? null
 
+  readonly property bool parked: source?.parked ?? false        // the music a station put aside: shown paused
   readonly property bool hasMedia: source !== null
   readonly property bool playing: source?.playing ?? false
   readonly property string name: source?.name ?? ""
   readonly property bool radio: mpd && MpdService.source === "radio"
-  readonly property string title: mpd ? (MpdService.player.title || MpdService.player.station
+  readonly property string title: parked ? (source.track.title || "—") : mpd ? (MpdService.player.title || MpdService.player.station
                                          || MpdService.file.split("/").pop())
                                       : (mpris?.trackTitle ?? "")
-  readonly property string artist: mpd ? (radio ? MpdService.player.station : MpdService.player.artist)
+  readonly property string artist: parked ? source.track.artist : mpd ? (radio ? MpdService.player.station : MpdService.player.artist)
                                        : (mpris?.trackArtist ?? "")
   readonly property string cover: mpd ? YandexService.cover : (mpris?.trackArtUrl ?? "")
-  readonly property real position: mpd ? MpdService.elapsed : (mpris?.position ?? 0)
-  readonly property real length: mpd ? MpdService.duration : (mpris?.length ?? 0)
+  readonly property real position: parked ? source.track.elapsed : mpd ? MpdService.elapsed : (mpris?.position ?? 0)
+  readonly property real length: parked ? source.track.duration : mpd ? MpdService.duration : (mpris?.length ?? 0)
   readonly property bool canNext: mpd ? true : (mpris?.canGoNext ?? false)
   readonly property bool canPrevious: mpd ? true : (mpris?.canGoPrevious ?? false)
   readonly property bool canSeek: length > 0 && (mpd || (mpris?.canSeek ?? false))
@@ -39,7 +40,8 @@ QtObject {
   readonly property bool canLoop: mpd || (mpris?.loopSupported ?? false)
 
   function togglePlay() {
-    if (mpd) MpdService.toggle();
+    if (parked) MpdService.unpark();
+    else if (mpd) MpdService.toggle();
     else if (mpris?.canTogglePlaying) mpris.togglePlaying();
   }
   function next() { if (mpd) MpdService.next(); else if (mpris?.canGoNext) mpris.next(); }

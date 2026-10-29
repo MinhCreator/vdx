@@ -16,7 +16,8 @@ FAKE_MPC = """#!/bin/bash
 echo "mpc $*" >> "$FAKE_LOG"
 case "$*" in
   "current -f %file%") echo "$FAKE_FILE" ;;
-  status\\ *) printf '3\\t1:05\\n' ;;
+  current\\ -f\\ *) printf 'Song\\tBand\\n' ;;
+  status\\ *) printf '3\\t1:05\\t3:20\\n' ;;
 esac
 exit 0
 """
@@ -49,7 +50,7 @@ class Park(unittest.TestCase):
     def test_station_parks_the_music_and_unpark_restores_it(self):
         self.assertTrue(self.run_script("--radio", "love")["ok"])
         self.assertIn("mpc -q save _parked", self.calls())
-        self.assertEqual((self.state / "music-parked").read_text(), "3\t65\n")
+        self.assertEqual((self.state / "music-parked").read_text(), "3\t65\tSong\tBand\t200\n")
         self.assertTrue(self.run_script("--unpark")["ok"])
         self.assertIn("mpc -q load _parked", self.calls())
         self.assertIn("mpc -q play 3", self.calls())

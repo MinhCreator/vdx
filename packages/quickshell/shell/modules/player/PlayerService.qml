@@ -57,7 +57,9 @@ Singleton {
                                  ?? sources[0] ?? null
   // ---- the families: the music of MPD (no radio), the radio, the media of other apps ----
   // Each shows apart (a live activity, a popup); `current` is only what the keys control.
-  readonly property var musicSource: sources.find(s => s.mpd && MpdService.source !== "radio") ?? null
+  // the music is MPD's, or — while a station has the queue — the track it put aside, paused
+  readonly property var musicSource: sources.find(s => s.mpd && MpdService.source !== "radio")
+    ?? (MpdService.parked ? { key: "parked", name: "Paused by the radio", parked: true, playing: false, track: MpdService.parkedTrack } : null)
   readonly property var externals: sources.filter(s => s.mpris)
   property string mediaPicked: ""              // an app's key, chosen in the Media popup
   readonly property var mediaSource: externals.find(s => s.key === mediaPicked)
