@@ -5,6 +5,7 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import qs.components
 import qs.config
+import qs.apps.capture
 import "../../kit/reply.js" as Reply
 
 // Notification history on top of mako (scripts/notifications.sh). mako keeps
@@ -50,6 +51,11 @@ Singleton {
   // digits key that matches the class. Older history rows have no desktop entry.
   // False when the app has no window open.
   function focusApp(item) {
+    // Capture is the shell's own app: its notices open its library
+    if ((item.app ?? "").toLowerCase() === "capture") {
+      CaptureService.openLibrary();
+      return true;
+    }
     Hyprland.refreshToplevels();
     const key = s => (s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
     const names = [item.desktop, item.app].map(key).filter(s => s !== "");
