@@ -70,6 +70,14 @@ bound the process group, including children that ignore TERM. A separate
 session lock; repeated requests while preparing are ignored. An old worker
 still stopping causes the next request to lock immediately without waiting.
 
+`LockLifecycle.qml` orders marker writes, cleanup and unlock. Startup reads
+carry a generation so a new lock request or verification supersedes an old
+result. An already-locked surface after reload repairs its marker instead
+of clearing it. New locks wait for any existing cleanup; verification waits for a
+pending marker write and successful cleanup before releasing the Wayland lock.
+Cleanup failure leaves the screen locked and allows another unlock attempt.
+There is no detached cleanup that can remove the next lock's marker.
+
 Files selection lives in `apps/files/FilesSelection.qml`, a QtQuick-only
 model tested without the filesystem or portal. FilesService supplies visible
 rows and the picker's single-selection constraint and exposes the existing

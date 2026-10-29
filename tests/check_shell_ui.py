@@ -65,6 +65,7 @@ def main():
         shutil.copy(SHELL / "apps/capture/CaptureSavePanel.qml", work / "qs/kit/CaptureSavePanel.qml")
         shutil.copy(SHELL / "components/PopupContentHost.qml", work / "qs/kit/PopupContentHost.qml")
         shutil.copy(SHELL / "apps/lock/LockAuthentication.qml", work / "qs/kit/LockAuthentication.qml")
+        shutil.copy(SHELL / "apps/lock/LockLifecycle.qml", work / "qs/kit/LockLifecycle.qml")
         lock = (SHELL / "apps/lock/Lock.qml").read_text()
         (work / "qs/kit/TestLockRouting.qml").write_text(
             'import QtQuick\nimport TestQuickshell\nimport qs.config\nQtObject {\n'
@@ -72,6 +73,7 @@ def main():
             '  property string focusedScreen: "HDMI-A-1"\n'
             '  readonly property string screenOption: ModuleSettings.get("lock", "screen", "all")\n'
             '  property QtObject session: QtObject { id: sessionLock; property bool locked: false }\n'
+            '  property QtObject lifecycleState: QtObject { id: lifecycle; function requestLock() { return true; } }\n'
             '  property QtObject snapshots: QtObject {\n'
             '    id: preparation\n    property bool busy: false\n    property var calls: []\n'
             '    function prepare(directory, screens) { calls = calls.concat([{directory: directory, screens: screens}]); busy = true; }\n'

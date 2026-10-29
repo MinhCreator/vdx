@@ -16,7 +16,7 @@ Scope {
   id: root
 
   readonly property string user: ModuleSettings.get("profile", "name", "") || Quickshell.env("USER")
-  readonly property bool busy: authentication.busy
+  readonly property bool busy: authentication.busy || lifecycle.unlocking
   readonly property string error: authentication.error
   // the password typed so far, shared by every monitor: keys go to the one
   // Hyprland focuses, the field may show on another
@@ -34,17 +34,25 @@ Scope {
     return name === want;
   }
 
-  function tryUnlock(password) { authentication.tryUnlock(password); }
+  function tryUnlock(password) { if (!busy) authentication.tryUnlock(password); }
 
   LockAuthentication {
     id: authentication
     context: pam
     locked: sessionLock.locked
-    onVerified: {
-      // Schedule marker cleanup before releasing the session lock.
-      Quickshell.execDetached(["rm", "-rf", root.snapshotDir]);
-      sessionLock.locked = false;
+    onVerified: lifecycle.verified()
+  }
+
+  LockLifecycle {
+    id: lifecycle
+    context: sessionLock
+    storage: QtObject {
+      function readMarker() { readMark.running = true; }
+      function writeMarker() { mark.running = true; }
+      function clearMarker() { cleanup.running = true; }
     }
+    onRetryLock: root.lock()
+    onFailed: message => authentication.error = message
   }
 
   // ---- snapshot ----
@@ -58,6 +66,7 @@ Scope {
   function lock() {
     console.warn("lock: asked for (ipc call lock lock)" + (sessionLock.locked || preparation.busy ? ", already locking" : ""));
     if (sessionLock.locked || preparation.busy) return;
+    if (!lifecycle.requestLock()) return;
     if (ModuleSettings.get("lock", "background", "solid") !== "blur") { sessionLock.locked = true; return; }
     preparation.prepare(snapshotDir, Quickshell.screens.map(s => s.name));
   }
@@ -67,7 +76,11 @@ Scope {
     onReady: sessionLock.locked = true
   }
 
-  Process { id: cleanup; command: ["rm", "-rf", root.snapshotDir] }
+  Process {
+    id: cleanup
+    command: ["rm", "-rf", root.snapshotDir]
+    onExited: code => lifecycle.cleared(code === 0)
+  }
 
   // ---- after a crash ----
   // Locked, a marker in the runtime dir holds this Hyprland session's
@@ -84,6 +97,7 @@ Scope {
     id: mark
     command: ["bash", "-c", "umask 077; mkdir -p \"$(dirname \"$1\")\" && printf '%s\\n' \"$2\" > \"$1\"",
               "lock", root.marker, root.session]
+    onExited: lifecycle.marked()
   }
 
   // exit 0: the marker is this session's
@@ -92,8 +106,8 @@ Scope {
     command: ["bash", "-c", "[ -n \"$2\" ] && [ \"$(cat \"$1\" 2>/dev/null)\" = \"$2\" ]", "lock", root.marker, root.session]
     onExited: code => {
       console.warn("lock: marker of this session " + (code === 0 ? "found, locking again after a restart" : "not found"));
-      if (code === 0) sessionLock.locked = true;
-      else { persist.locked = false; cleanup.running = true; }
+      lifecycle.restored(code === 0);
+      persist.locked = sessionLock.locked;
     }
   }
 
@@ -104,13 +118,13 @@ Scope {
     property bool locked: false
 
     onLoaded: {
-      if (!started) { started = true; readMark.running = true; }
+      if (!started) { started = true; lifecycle.restore(); }
       // the flag can outlive an unlock: only the marker (kept while locked) says the screen was
       // really locked, else every reload would lock a free screen again
-      else if (locked) readMark.running = true;
+      else if (locked) lifecycle.restore();
       // not locked before, not now (WlSessionLock is Reloadable: whatever
       // it carried over is put right)
-      else { sessionLock.locked = false; cleanup.running = true; }
+      else { sessionLock.locked = false; lifecycle.cleanup(); }
     }
   }
 
@@ -167,8 +181,8 @@ Scope {
     onLockedChanged: {
       console.warn("lock: sessionLock.locked -> " + locked);
       persist.locked = locked;
-      if (!locked) { cleanup.running = true; return; }
-      mark.running = true;
+      if (!locked) return;
+      lifecycle.locked();
       root.focusedScreen = Hyprland.focusedMonitor?.name ?? "";
       devices.running = true;
     }
