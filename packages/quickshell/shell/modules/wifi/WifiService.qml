@@ -378,8 +378,8 @@ Singleton {
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
-        root.connectingSsid = "";
         connectProc.environment = {};
+        root.connectingSsid = "";
         root.connectStatus = o?.ok ? "ok" : "error";
         root.connectError = o?.ok ? "" : (o?.error ?? "could not connect");
         if (o?.ok) root.password = "";
@@ -472,6 +472,7 @@ Singleton {
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
+        hiddenProc.environment = {};
         root.hiddenBusy = false;
         root.hiddenError = o?.ok ? "" : (o?.error ?? "could not connect");
         root.refresh();
@@ -519,6 +520,7 @@ Singleton {
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
+        hotspotActionProc.environment = {};
         root.hotspotBusy = false;
         root.hotspotError = o?.ok ? "" : (o?.error ?? "could not change the hotspot");
         root.refreshHotspot();

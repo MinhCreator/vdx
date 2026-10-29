@@ -61,7 +61,7 @@ Each area lists the scenarios it touches; these are the shared base.
 
 ### Audit checkpoint (2026-10-30)
 
-Current validation: 272 Python tests and 94 QML cases. Full repository checks
+Current validation: 274 Python tests and 94 QML cases. Full repository checks
 and Python lint pass. These counts include baseline tests; they do not imply
 that every shell function or desktop scenario has been reviewed.
 
@@ -79,6 +79,7 @@ that every shell function or desktop scenario has been reviewed.
 | Brightness | Four fake-backend process tests for slider/wheel ordering, startup overlap and latest gamma/temperature; schedule boundary, manual override and disable/re-enable tests |
 | Task manager | Production grouping/tree functions with synthetic rows: prototype-name collisions, resource aggregation, user/kernel/PID filters and cyclic process trees |
 | Timer | Production state/functions with a fake notification receiver: pause/lap between ticks, pause after expiry and duplicate completion |
+| Wi-Fi credentials | Three production completion handlers clear the process password environment before publishing idle, for successful and failed replies; no network commands run |
 | Lock authentication | Production state model with fake PAM: start/empty/busy/locked guards, password consumption and clearing, start failure, success/failure/error, abort and callbacks after completion |
 
 Process fixtures use temporary runtime/state directories and fake backends.
@@ -111,6 +112,38 @@ Current remaining audit map (baseline tests are not a per-function review):
 | Device services | Brightness queue and schedule reviewed; audio, network, Bluetooth, battery, displays and remaining brightness/device failures |
 | Other apps and background services | Task grouping and tree traversal reviewed; remaining per-function review, navigation, failure states and decomposition |
 | Final verification | Both bar styles, theme/settings combinations and measured performance |
+
+### Resume here
+
+Continue on `redesign/strict-style`; inspect `git status` and recent commits
+before changing anything. The broad refactor is unfinished. Keep changes small,
+reproduce each suspected bug and commit only after the repository checks pass.
+
+Next focused investigations (suspicions, not confirmed regressions):
+
+1. `modules/wifi/WifiService.qml`: speed-test cancellation followed immediately
+   by a new measurement; reject stale completion and handle cancellation before
+   process startup. Review repeated saved-network mutations and connection
+   requests while the previous process is starting or stopping. Credential
+   cleanup tests cover completed replies, not process-launch failure.
+2. `modules/bluetooth/BluetoothService.qml`: overlapping adapter/device commands,
+   discovery lifetime, removed devices and error recovery. Then audit audio,
+   battery and display services with fake backends before real hardware checks.
+3. Remaining Files service/portal and apps: enumerate each public action, its
+   busy/error/empty states, keyboard focus and cancellation; inspect packages,
+   backup, cleaner, VT, clipboard, music and notifications individually.
+4. Lock: verify marker write failure and startup failure handling, then owner-led
+   PAM/polkit/Wayland crash/reload tests. Current fake-context coverage does not
+   establish correctness of the real lock protocol.
+5. Finish the manual matrix above and measure idle/popup CPU, process count and
+   reload behavior before deciding on further decomposition or optimization.
+
+Do not open keyboard-grabbing overlays while the owner is typing or run real
+root/device/network mutations merely to exercise a test. New production files
+must be linked before consumers reference them. Use the existing fake-backend
+fixtures and `tests/qml_runtime.py`; QML case totals include harness lifecycle
+cases. Run `./install.py check`, `ruff check`, inspect the staged diff for
+secrets, update these coverage notes, and report those results before committing.
 
 - The agent cannot see the screen unless it takes a screenshot; visual checks
   are the owner's unless asked (token cost).
