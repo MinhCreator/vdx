@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import qs.apps.auth
 import qs.apps.backup
 import qs.apps.capture
 import qs.apps.packages
@@ -67,7 +68,7 @@ Singleton {
                && (ShellSettings.liveBatteryStay === "fixed" || batShown),
       bluetooth: btShown && BluetoothService.mainDevice !== null,
       recording: CaptureService.recording,
-      update: PackagesService.busy,
+      update: PackagesService.busy || RootService.running,
       backup: BackupService.busy && BackupService.jobKind === "run",
       vpn: MihomoService.serviceOn,
       music: hasMedia && (playing || ShellSettings.liveMusicPaused),

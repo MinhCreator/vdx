@@ -22,10 +22,16 @@ Scope {
     id: agent
   }
 
+  // the island's root view asks the password itself for our own action
+  Binding { target: RootService; property: "flow"; value: root.asking && root.ours && Theme.island ? root.flow : null }
+
   readonly property var flow: agent.flow
   readonly property bool asking: agent.isActive && flow !== null && !flow.isCompleted
   readonly property bool ours: RootService.pending
-  readonly property bool shown: asking || ours
+  // in the island style the confirmation and the running look are the island's
+  // own view (bar/island/IslandRoot); this panel keeps the password, and the
+  // confirmation for the solid bar
+  readonly property bool shown: Theme.island ? (asking && !ours) : (asking || ours)
 
   function submit() {
     if (!flow || !flow.isResponseRequired) return;
@@ -36,6 +42,7 @@ Scope {
   function cancel() {
     password.text = "";
     if (asking) flow.cancelAuthenticationRequest();
+    else if (RootService.running) RootService.stop();
     else RootService.cancel();
   }
 
@@ -86,7 +93,7 @@ Scope {
 
         // ---- what happens (ours) ----
         Column {
-          visible: root.ours
+          visible: root.ours && !Theme.island
           width: parent.width
           spacing: Theme.gapWide
 
@@ -178,7 +185,6 @@ Scope {
             KitButton {
               icon: "x"
               text: "Cancel"
-              disabled: RootService.running && !root.asking
               onClicked: root.cancel()
             }
 

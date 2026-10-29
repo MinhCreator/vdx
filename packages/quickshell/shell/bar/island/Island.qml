@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import qs.apps.auth
 import qs.apps.keybinds
 import qs.apps.launcher
 import qs.components
@@ -143,6 +144,7 @@ Item {
     media:   [420, 148],
     notice:  [400, noticeHeight()],
     power:   [434, 86],
+    root:    [420, rootView.implicitHeight],
     module:  [popupContent?.fitWidth ? popupContent.implicitWidth : Math.max(Theme.popupWidth, popupContent?.implicitWidth ?? 0), popupContent?.implicitHeight ?? Theme.islandHeight]
   })
   readonly property var size: sizes[shown]
@@ -312,6 +314,17 @@ Item {
       onBack: root.appBack()
     }
 
+    // a root action to confirm, or running (RootService)
+    IslandRoot {
+      id: rootView
+      onCloseAsked: root.collapse()
+      anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+      width: root.sizes.root[0]
+      visible: root.shown === "root" && opacity > 0
+      opacity: root.shown === "root" ? 1 : 0
+      Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.quick; easing.type: Motion.easing } }
+    }
+
     IslandPower {
       id: power
       anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
@@ -416,8 +429,37 @@ Item {
     }
   }
 
+  // ---- root actions ----
+  // a request opens as a view on the focused monitor's island; Run folds it
+  // into the live chip, the end closes it; leaving it unanswered cancels
+  readonly property bool onFocused: bar.screen?.name === Hypr.focusedScreen?.name
+  Connections {
+    target: RootService
+    function onPendingChanged() {
+      if (RootService.pending && root.onFocused && !RootService.auto) root.openView("root");
+      else if (!RootService.pending && root.view === "root") root.collapse();
+    }
+    function onRunningChanged() { if (RootService.running) foldTimer.restart(); }
+    function onAskingChanged() {
+      if (RootService.asking && root.onFocused && root.view !== "root") root.openView("root");
+      else if (!RootService.asking) foldTimer.restart();
+    }
+  }
+  // running without a password to ask (it comes within a moment): the view folds into the live chip
+  Timer {
+    id: foldTimer
+    interval: 350
+    onTriggered: if (RootService.running && !RootService.asking && root.view === "root") root.collapse()
+  }
+
   // ---- keys ----
+  property string lastView: "compact"
   onViewChanged: {
+    if (lastView === "root" && view !== "root") {
+      if (RootService.asking) RootService.stop();
+      else if (RootService.pending && !RootService.running) RootService.cancel();
+    }
+    lastView = view;
     if (view === "power") power.reset();
     if (view === "launcher") islandLauncher.reset();
     if (view === "keybinds") islandKeybinds.reset();
@@ -429,6 +471,10 @@ Item {
     focus: root.grabbing
     Keys.onPressed: event => {
       if (event.key === Qt.Key_Escape) root.collapse();
+      else if (root.view === "root") {
+        if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) && RootService.pending && !RootService.running) RootService.run();
+        else return;
+      }
       else if (root.view === "power") power.key(event.key);
       else if (root.view !== "media") return;
       else if (event.key === Qt.Key_Space) IslandService.togglePlay();

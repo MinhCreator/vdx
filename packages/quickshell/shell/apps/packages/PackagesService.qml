@@ -162,7 +162,7 @@ Singleton {
 
   Timer {
     id: progressTimer
-    interval: 1000
+    interval: 500
     repeat: true
     running: root.stage === "downloading"
     onTriggered: progressProc.running = true
@@ -228,7 +228,7 @@ Singleton {
       onStreamFinished: {
         const r = root.parse(text);
         if (!r.ok) { root.endStage(false, r.error); return; }
-        if (!RootService.request("Packages", planProc.plan.title, r.steps, r.script, planProc.plan.tag)) {
+        if (!RootService.request("Packages", planProc.plan.title, r.steps, r.script, planProc.plan.tag, planProc.plan.tag === "packages-install" && ModuleSettings.get("packages", "autoInstall", false))) {
           root.endStage(false, "another root action is waiting");
         }
       }

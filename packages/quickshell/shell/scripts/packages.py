@@ -4,7 +4,7 @@ object per command.
 
     packages.py updates             {"ok", "pacman": [{name, from, to, desc, size, repo}], "aur": [{name, from, to, desc, repo}], "aurError"}
                                     size: the download of the new version, in bytes (0 when unknown)
-    packages.py progress <name=ver>… {"ok", "bytes"}: what the cache holds of those versions, .part included
+    packages.py progress <name=ver>… {"ok", "bytes"}: what the cache holds of those versions, and what a running download has so far
     packages.py plan-download <name>… the steps to download them (pacman -Syw) and one script
     packages.py plan-install <name>…  the steps to install them from the cache (pacman -S) and one script
     packages.py installed           {"ok", "packages": [{name, version, desc, size, date, aur, repo, explicit, apps}]}
@@ -92,15 +92,27 @@ def download_sizes(names):
 
 def progress(args):
     # bytes of the cached files of name=version, finished or still downloading (.part)
-    total = 0
+    # (the downloading ones are read from the root script's copy, see WATCH)
+    sizes = {}
+    watched = {}
+    if WATCH.is_file():
+        for line in WATCH.read_text().splitlines():
+            size, _, fname = line.partition(" ")
+            if size.isdigit():
+                watched[fname.removesuffix(".part")] = int(size)
     for a in args:
         name, _, ver = a.partition("=")
         if not NAME.fullmatch(name) or not re.fullmatch(r"[A-Za-z0-9:._+~-]+", ver):
             fail(f"bad package: {a}")
         pat = re.compile(rf"^{re.escape(name)}-{re.escape(ver)}-[^-]+\.pkg\.tar(\.\w+)?(\.part)?$")
         if CACHE.is_dir():
-            total += sum(f.stat().st_size for f in CACHE.iterdir() if pat.match(f.name) and f.is_file())
-    return {"ok": True, "bytes": total}
+            for f in CACHE.iterdir():
+                if pat.match(f.name) and f.is_file():
+                    sizes[f.name.removesuffix(".part")] = f.stat().st_size
+        for fname, size in watched.items():
+            if pat.match(fname):
+                sizes[fname] = max(size, sizes.get(fname, 0))
+    return {"ok": True, "bytes": sum(sizes.values())}
 
 
 def size_bytes(text):
@@ -276,9 +288,21 @@ def plan_names(names, label, what, template):
 
 # the repo updates in the shell: download first (confirmed in the auth panel),
 # then install from the cache (a second confirmation)
+# pacman downloads into download-*/ dirs only the alpm user can read: the root
+# script copies the sizes of what is there into a readable file (WATCH) while
+# it runs; the watcher ends with the script's shell, also when it is killed
+WATCH = Path("/run/vdx-progress")
+WATCHER = (f"( while kill -0 $$ 2>/dev/null; do "
+           f"find {CACHE} -mindepth 2 -maxdepth 2 -type f -printf '%s %f\\n' > {WATCH}.tmp 2>/dev/null; "
+           f"chmod 644 {WATCH}.tmp; mv -f {WATCH}.tmp {WATCH}; sleep 0.5; done; rm -f {WATCH} ) &\n")
+
+
 def plan_download(names):
-    return plan_names(names, "Download {n} packages", "pacman -Syw: into the cache, nothing installed",
+    plan = plan_names(names, "Download {n} packages", "pacman -Syw: into the cache, nothing installed",
                       "pacman -Syw --noconfirm -- {names}")
+    if plan["ok"]:
+        plan["script"] = WATCHER + plan["script"]
+    return plan
 
 
 def plan_install(names):

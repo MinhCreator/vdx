@@ -22,26 +22,47 @@ Singleton {
   property var steps: []                    // [{label, what, command}]
   property string script: ""
   property string tag: ""
+  property var flow: null                   // polkit asks our action for the password (set by AuthPrompt)
+  readonly property bool asking: flow !== null
+  property bool auto: false                 // runs at once, no confirmation (the caller was told to)
+  property bool stopped: false              // stop() was asked for the running one
+  readonly property string pidFile: "/run/vdx-root.pid"
 
   signal finished(string tag, bool ok, string error)
 
   // false when another request is still open
-  function request(source, title, steps, script, tag) {
+  function request(source, title, steps, script, tag, immediate) {
     if (pending || running) return false;
     root.source = source;
     root.title = title;
     root.steps = steps;
     root.script = script;
     root.tag = tag ?? "";
+    auto = immediate === true;
     pending = true;
+    if (auto) run();
     return true;
   }
 
   function run() {
     if (!pending || running) return;
     running = true;
-    proc.command = ["pkexec", "/bin/bash", "-c", script];
+    stopped = false;
+    // the root shell writes its pid first: stop() finds it by that
+    proc.command = ["pkexec", "/bin/bash", "-c", "echo $$ > " + pidFile + "\n" + script];
     proc.running = true;
+  }
+
+  // Cancels a running action: the root shell is held, its children get TERM
+  // (pacman stops cleanly), then it goes. A second pkexec, so with the keep
+  // rule no password; `finished` then says "cancelled".
+  function stop() {
+    if (asking) { flow.cancelAuthenticationRequest(); return; }
+    if (!running || stopped) return;
+    stopped = true;
+    stopProc.command = ["pkexec", "/bin/bash", "-c",
+      "p=$(cat " + pidFile + ") || exit 1; kill -STOP $p; pkill -TERM -P $p; kill -KILL $p"];
+    stopProc.running = true;
   }
 
   function cancel() {
@@ -56,9 +77,13 @@ Singleton {
     onExited: code => {
       root.running = false;
       root.pending = false;
-      const msg = code === 126 || code === 127 ? "not authorized — cancelled or a wrong password"
+      const msg = root.stopped ? "cancelled"
+                : code === 126 || code === 127 ? "not authorized — cancelled or a wrong password"
                 : code === 0 ? "" : (err.text.trim().split("\n").pop() || "failed").slice(0, 160);
-      root.finished(root.tag, code === 0, msg);
+      root.finished(root.tag, code === 0 && !root.stopped, msg);
+      root.stopped = false;
     }
   }
+
+  Process { id: stopProc }
 }

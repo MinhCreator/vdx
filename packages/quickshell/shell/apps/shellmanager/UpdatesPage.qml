@@ -14,10 +14,9 @@ Column {
   readonly property string icon: "package"
   readonly property string title: "Updates"
   readonly property string description: "When the shell looks for updates, and how careful it is."
-  readonly property string subtitle: PackagesService.count > 0 ? PackagesService.count + " WAITING" : "UP TO DATE"
   readonly property var jumps: []
 
-  readonly property var resetKeys: ["checkOnOpen", "interval", "aur", "confirm"]
+  readonly property var resetKeys: ["checkOnOpen", "interval", "aur", "autoInstall", "confirm"]
   readonly property bool changed: ModuleSettings.changed("packages", resetKeys)
   function reset() { ModuleSettings.reset("packages", resetKeys); }
 
@@ -32,6 +31,12 @@ Column {
   }
 
   KitToggleRow { module: "packages"; key: "aur"; label: "Include the AUR"; hint: "Counted and listed with the repos" }
+
+  KitLine {}
+
+  KitLabel { text: "INSTALLING" }
+
+  KitToggleRow { module: "packages"; key: "autoInstall"; label: "Install right after the download"; hint: "Off: the install asks once more, after the download" }
 
   KitLine {}
 

@@ -1,7 +1,9 @@
 import QtQuick
 import QtQuick.Effects
+import qs.apps.auth
 import qs.apps.backup
 import qs.apps.capture
+import qs.apps.packages
 import qs.config
 import qs.kit
 import qs.modules.battery
@@ -80,9 +82,29 @@ Row {
     }
   }
 
-  // update
+  // update: the download's progress, else what runs
   KitIcon { visible: face.kind === "update"; name: "download"; tint: Theme.blue; size: 14; anchors.verticalCenter: parent.verticalCenter }
-  KitText { visible: face.kind === "update"; text: "Updating packages"; color: Theme.blue }
+  readonly property bool updateBar: face.kind === "update" && PackagesService.stage === "downloading"
+  Rectangle {
+    visible: face.updateBar
+    anchors.verticalCenter: parent.verticalCenter
+    width: 90
+    height: 4
+    radius: 2
+    color: Theme.background3
+    Rectangle {
+      width: parent.width * PackagesService.stagePercent
+      height: parent.height
+      radius: 2
+      color: Theme.blue
+    }
+  }
+  KitText { visible: face.updateBar; text: Math.round(PackagesService.stagePercent * 100) + "%"; color: Theme.blue }
+  KitText {
+    visible: face.kind === "update" && !face.updateBar
+    text: PackagesService.stage === "installing" ? "Installing packages" : PackagesService.busy ? "Updating packages" : RootService.title
+    color: Theme.blue
+  }
 
   // backup: BKP and its progress
   KitText { visible: face.kind === "backup"; text: "BKP"; color: Theme.foreground1; font.letterSpacing: 1 }

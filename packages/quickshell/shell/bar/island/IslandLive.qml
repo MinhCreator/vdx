@@ -1,4 +1,5 @@
 import QtQuick
+import qs.apps.auth
 import qs.bar
 import qs.components
 import qs.config
@@ -115,6 +116,8 @@ Item {
         // a click brings the app up (else the centre), a middle click dismisses
         if (mouse.button === Qt.LeftButton) IslandService.activate(IslandService.noticeItem);
         IslandService.dismissLiveNotice();
+      } else if (root.kind === "update" && mouse.button === Qt.LeftButton && (RootService.pending || RootService.running)) {
+        IslandService.requested("root", Hypr.focusedScreen?.name ?? "");
       } else if (mouse.button === Qt.MiddleButton) { if (root.kind === "music") IslandService.togglePlay(); }
       else BarLayout.openModule(IslandService.liveTarget[root.kind]);
     }
