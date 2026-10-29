@@ -67,21 +67,26 @@ Singleton {
 
   function cancel() {
     if (!pending || running) return;
+    const completedTag = tag;
     pending = false;
-    finished(tag, false, "cancelled");
+    finished(completedTag, false, "cancelled");
   }
 
   Process {
     id: proc
     stderr: StdioCollector { id: err }
     onExited: code => {
-      root.running = false;
-      root.pending = false;
-      const msg = root.stopped ? "cancelled"
+      const completedTag = root.tag;
+      const cancelled = root.stopped;
+      const msg = cancelled ? "cancelled"
                 : code === 126 || code === 127 ? "not authorized — cancelled or a wrong password"
                 : code === 0 ? "" : (err.text.trim().split("\n").pop() || "failed").slice(0, 160);
-      root.finished(root.tag, code === 0 && !root.stopped, msg);
+      // Publish idle only after the old result is captured. A listener may
+      // submit and even stop the next request synchronously from finished().
       root.stopped = false;
+      root.pending = false;
+      root.running = false;
+      root.finished(completedTag, code === 0 && !cancelled, msg);
     }
   }
 

@@ -61,64 +61,36 @@ Each area lists the scenarios it touches; these are the shared base.
 
 ### Audit checkpoint (2026-10-29)
 
-The first refactoring pass covers shared reply parsing, select activation and
-pending states, launcher search/navigation, and Files selection/picker rules.
-The offscreen harness runs again after removing references to the retired
-custom colour field and updating its isolated settings/layout hosts.
+Current validation: 256 Python tests and 60 QML cases. Full repository checks
+and Python lint pass. These counts include baseline tests; they do not imply
+that every shell function or desktop scenario has been reviewed.
 
-Validation: 219 Python tests and 44 QML test cases pass; shell, syntax,
-components, Hyprland and Python lint checks pass. Shell Manager Bar and
-Appearance were visually inspected at the existing window size. Navigation
-to Themes, Fonts, Cursor, Files settings, Network, Sound, Notifications, Hub,
-Live and About produced no new QML errors. This is a page-loading check,
-not a test of every action on those pages.
+| Reviewed area | Automated coverage |
+|---|---|
+| Shared controls / Launcher | Object-only backend replies; select activation and pending states; literal search, query cancellation and navigation bounds |
+| Files | Production selection model: Shift extension/contraction, visible-row pruning and single picker selection; FIFO mutations and cancellation; history changes only after success and creation redo without duplicate entries |
+| Capture | Recorder lifecycle with real child processes; late callbacks and countdown cancellation; save/discard backend and failures, replacement confirmation, busy/error/edit panel states and tracked clipboard completion |
+| Popup hosting | Repeated attachment, switching popups, restoration of borrowed items, unrelated host children, leaving Island style, host and source destruction |
+| Popup arbitration | Production manager with isolated monitor/settings: reactive ownership, fallback, disconnected screens, duplicate registration, teardown, module close preference and capture hold |
+| Root actions | Six process tests: pending cancellation, overlap rejection, backend/authorization errors, error reset and listeners starting or cancelling the next request during completion |
 
-Still required for a full audit: per-function review of the remaining apps
-and services; capture/lock/portal lifecycles; real device and multiple-monitor
-scenarios; rendering in both styles and themes; performance measurement and
-decomposition of the largest services (especially FilesService). Passing the
-baseline checks does not establish coverage of these scenarios.
-
-The next pass isolates file selection in the production `FilesSelection`
-component, exercised directly by the offscreen harness (46 QML cases). It
-covers repeated Shift extension/contraction, filtering/removal of selected
-rows and initial grid navigation. The shell was restarted after linking the
-new type and loaded successfully as one supervised instance.
-
-File mutations now have their own FIFO process component. Five isolated
-process tests cover queue ordering and lifecycle; the QML suite also covers
-redo of creation without adding a duplicate history entry and history
-transitions after success, failure or cancellation (48 QML cases). There
-are now 224 Python tests, including the five process tests.
-
-Capture's recording process is isolated and covered by six additional process
-tests (230 Python tests in total). No desktop recording or keyboard-grabbing
-overlay is started by them. Late still callbacks during closing and the
-countdown's final settling interval are guarded in the service. Screen-copy
-rendering and the real GPU encoder still require a live scenario.
-
-Save as now has a separately tested panel and model. Eleven backend tests and
-eight model/process tests cover saving and failures; the shared UI suite checks
-the actual panel's busy controls, error layout and editing after a replacement
-prompt. One more process test covers the tracked clipboard phase. Totals:
-250 Python tests and 49 QML cases. The real keyboard-grabbing
-Save as window is not opened by these tests.
-
-Popup content hosting is shared by Island and child bars. A direct component
-test checks repeated attachment, restoration of all borrowed items, unrelated
-host children, switching between popups, leaving Island style, and host
-destruction while a popup is open, and deletion of the source popup (51 QML
-cases).
-Compositor focus and rendering during an actual style switch remain manual.
-
-Popup arbitration tests use the production manager with an isolated focused
-monitor and settings store. They cover focus/fallback ownership, reactive
-registration/removal, disconnected screens, duplicate registration, switching
-popups, module close preferences, capture hold and explicit teardown. The
-production `BarPopup` destruction handler runs in a lightweight fixture:
+Process fixtures use temporary runtime/state directories and fake backends.
+RootService's fake `pkexec` never executes the supplied command. Capture tests
+start no desktop recording or keyboard-grabbing overlay. The production
+`BarPopup` destruction handler runs in a lightweight fixture because
 Quickshell's offscreen platform cannot instantiate a real `PanelWindow`.
-Totals: 250 Python tests and 60 QML cases. Real compositor focus and monitor
-hotplug remain manual scenarios.
+The UI harness uses memory-only settings and production named-look accessors.
+
+Manual checks completed: Shell Manager Bar and Appearance at the existing
+window size; navigation to Themes, Fonts, Cursor, Files settings, Network,
+Sound, Notifications, Hub, Live and About without new QML errors. This checks
+page loading, not every action. New production types were linked and the
+supervised shell restarted; subsequent edits loaded without QML errors.
+
+Still manual: compositor focus and monitor hotplug, rendering during a style
+switch, real GPU capture and screen-copy rendering, save overlays, real
+polkit and lock-screen lifecycles, and real devices. Passing the automated
+checks does not cover these scenarios.
 
 Current remaining audit map (baseline tests are not a per-function review):
 
@@ -128,7 +100,7 @@ Current remaining audit map (baseline tests are not a per-function review):
 | Files | Selection, mutation queue and history reviewed; remaining service, portal and real USB scenarios |
 | Capture | Recorder, saving and clipboard lifecycles reviewed; real GPU capture and overlays |
 | Bar and Island | Content hosting and popup arbitration reviewed; compositor focus, layout changes and multiple monitors |
-| Lock and authentication | Full lifecycle and failure scenarios remain |
+| Lock and authentication | Root action completion/reentrancy reviewed; lock, real polkit and remaining failure scenarios |
 | Device services | Audio, network, Bluetooth, battery, brightness and display review remains |
 | Other apps and background services | Per-function review, navigation, failure states and decomposition remain |
 | Final verification | Both bar styles, theme/settings combinations and measured performance |

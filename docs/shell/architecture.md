@@ -51,6 +51,11 @@ so owner bindings react directly. `BarPopup` closes before destruction and
 unregisters regardless of whether it has an IPC target; removal also clears
 its active-popup state and cached underline on the same bar.
 
+`apps/auth/RootService.qml` captures a completed action's tag, cancellation
+and error before publishing idle, then resets its state before `finished`.
+Listeners may submit or cancel another action immediately; the old completion
+must not modify that request's state or report its tag as the old result.
+
 Files selection lives in `apps/files/FilesSelection.qml`, a QtQuick-only
 model tested without the filesystem or portal. FilesService supplies visible
 rows and the picker's single-selection constraint and exposes the existing
