@@ -40,6 +40,13 @@ until the supervisor's new `qs` locks again (marker in
 | Config | `config/` (`Theme`, `Colors`, `Motion`, `Format`, `Paths`, `ShellSettings`, `ModuleSettings`) | tokens and settings stores | — |
 | Components | `components/` (`Hypr`, `ShellIpc`, `PopupManager`, `PopupCatcher`, `ScrimWindow`, …) | Hyprland helpers, the shell's own IPC, popup arbitration | — |
 
+Files selection lives in `apps/files/FilesSelection.qml`, a QtQuick-only
+model tested without the filesystem or portal. FilesService supplies visible
+rows and the picker's single-selection constraint and exposes the existing
+selection API. `anchor` is the current row used for scrolling; `rangeStart`
+keeps the original row while Shift extends or shrinks a range. Filtering or
+removing rows prunes their selection so file actions target visible items.
+
 ## Themes
 
 `themes/gruvbox/` is the source; `themes/mktheme.py <name>` generates every

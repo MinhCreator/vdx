@@ -44,6 +44,8 @@ Window mode: `windowmode set tiling|floating|scrolling`.
 - The list: folders as tiles above a table of files (checkboxes, ⋮ menu,
   Type / Size / Modified), the path as crumbs (Ctrl+L types one); typing a
   letter jumps to a name.
+- Shift-click and Shift-arrow extend or shrink a range from its original
+  row. Filtering clears selections of rows no longer shown.
 - Keys: F1 lists them; Ctrl+G list, grid, columns; Ctrl+T terminal here; F2
   on several files renames them by a pattern.
 - The file chooser of every app (`xdg-desktop-portal`): Save lists the

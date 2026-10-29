@@ -325,39 +325,24 @@ Singleton {
   }
 
   // ---- selection ----
-  property var selection: []         // paths
-  property string anchor: ""         // the row a range starts from
-  readonly property var selected: shown.filter(e => selection.includes(e.path))
-
-  // mode: "single" (a click), "toggle" (ctrl), "range" (shift, from the anchor)
-  function select(p, mode) {
-    // a picker that takes one file or folder (its request has no `multiple`) selects one row
-    if (picker && !picker.multiple) mode = "single";
-    if (mode === "toggle") {
-      selection = selection.includes(p) ? selection.filter(s => s !== p) : selection.concat([p]);
-    } else if (mode === "range" && anchor !== "") {
-      const paths = rows.map(e => e.path);
-      const a = paths.indexOf(anchor), b = paths.indexOf(p);
-      selection = a < 0 || b < 0 ? [p] : paths.slice(Math.min(a, b), Math.max(a, b) + 1);
-    } else {
-      selection = [p];
-    }
-    anchor = p;
+  property alias selection: selectionState.selection
+  property alias anchor: selectionState.anchor
+  readonly property var selected: {
+    const picked = new Set(selection);
+    return rows.filter(e => picked.has(e.path));
   }
 
-  function selectAll() {
-    const paths = rows.map(e => e.path);
-    selection = picker && !picker.multiple ? paths.slice(0, 1) : paths;
+  FilesSelection {
+    id: selectionState
+    rows: root.rows
+    single: root.picker !== null && !root.picker.multiple
   }
 
-  // the keys: `delta` rows (a grid's row is `columns` long), a range with shift
+  // Public API used by every view; the selection model owns the behaviour.
+  function select(p, mode) { selectionState.select(p, mode); }
+  function selectAll() { selectionState.selectAll(); }
   property int columns: 1
-  function step(delta, extend) {
-    const paths = rows.map(e => e.path);
-    if (paths.length === 0) return;
-    const i = Math.max(0, Math.min(paths.length - 1, paths.indexOf(anchor) + delta));
-    select(paths[i], extend ? "range" : "single");
-  }
+  function step(delta, extend) { selectionState.step(delta, extend); }
 
   onSelectionChanged: updatePreview()
 

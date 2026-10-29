@@ -76,6 +76,12 @@ scenarios; rendering in both styles and themes; performance measurement and
 decomposition of the largest services (especially FilesService). Passing the
 baseline checks does not establish coverage of these scenarios.
 
+The next pass isolates file selection in the production `FilesSelection`
+component, exercised directly by the offscreen harness (46 QML cases). It
+covers repeated Shift extension/contraction, filtering/removal of selected
+rows and initial grid navigation. The shell was restarted after linking the
+new type and loaded successfully as one supervised instance.
+
 - The agent cannot see the screen unless it takes a screenshot; visual checks
   are the owner's unless asked (token cost).
 - Overlays that grab the keyboard are not tested while the owner types.

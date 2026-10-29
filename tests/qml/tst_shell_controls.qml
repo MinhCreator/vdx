@@ -40,13 +40,14 @@ Item {
   }
   SignalSpy { id: clicks; target: button; signalName: "clicked" }
   SignalSpy { id: selections; target: select; signalName: "picked" }
-  TestFileSelection { id: fileSelection }
+  FilesSelection { id: fileSelection }
   TestCase {
     name: "ShellControls"
     when: windowShown
     function init() { ShellSettings.motion = false; }
     function test_file_selection_missing_anchor() {
-      fileSelection.picker = null;
+      fileSelection.single = false;
+      fileSelection.selection = [];
       fileSelection.rows = [{path: "/a"}, {path: "/b"}, {path: "/c"}];
       fileSelection.anchor = "/deleted";
       fileSelection.select("/b", "range");
@@ -57,17 +58,47 @@ Item {
     }
     function test_file_picker_selection_limit() {
       fileSelection.rows = [{path: "/a"}, {path: "/b"}];
-      fileSelection.picker = {multiple: false};
+      fileSelection.single = true;
       fileSelection.selectAll();
       compare(fileSelection.selection, ["/a"]);
       fileSelection.select("/b", "toggle");
       compare(fileSelection.selection, ["/b"]);
-      fileSelection.picker = {multiple: true};
+      fileSelection.single = false;
       fileSelection.selectAll();
       compare(fileSelection.selection, ["/a", "/b"]);
       fileSelection.rows = [];
       fileSelection.selectAll();
       compare(fileSelection.selection, []);
+    }
+    function test_file_shift_selection_extends_and_shrinks() {
+      fileSelection.single = false;
+      fileSelection.rows = [{path: "/a"}, {path: "/b"}, {path: "/c"}, {path: "/d"}];
+      fileSelection.select("/b", "single");
+      fileSelection.step(1, true);
+      compare(fileSelection.selection, ["/b", "/c"]);
+      fileSelection.step(1, true);
+      compare(fileSelection.selection, ["/b", "/c", "/d"]);
+      fileSelection.step(-1, true);
+      compare(fileSelection.selection, ["/b", "/c"]);
+      fileSelection.select("/a", "range");
+      compare(fileSelection.selection, ["/a", "/b"]);
+      fileSelection.select("/d", "single");
+      fileSelection.select("/b", "range");
+      compare(fileSelection.selection, ["/b", "/c", "/d"]);
+    }
+    function test_file_selection_tracks_visible_rows() {
+      fileSelection.single = false;
+      fileSelection.rows = [{path: "/a"}, {path: "/b"}];
+      fileSelection.selectAll();
+      fileSelection.rows = [{path: "/b"}];
+      compare(fileSelection.selection, ["/b"]);
+      fileSelection.rows = [];
+      compare(fileSelection.selection, []);
+      fileSelection.rows = [{path: "/x"}, {path: "/y"}, {path: "/z"}];
+      fileSelection.step(3, false);
+      compare(fileSelection.selection, ["/x"]);
+      fileSelection.select("/not-visible", "single");
+      compare(fileSelection.selection, ["/x"]);
     }
     function test_backend_reply_contract_data() {
       return ["null", "[]", "true", "42", '"text"', "", "bad JSON"].map(value => ({tag: value || "empty", value: value}));

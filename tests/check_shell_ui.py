@@ -52,12 +52,8 @@ def main():
         look_defaults = source[start:end]
         settings = settings.replace("QtObject {", "QtObject {\n  id: state\n" + look_defaults + "\n" + qml_function(source, "look") + "\n" + qml_function(source, "setLook"), 1)
         (config / "ShellSettings.qml").write_text("pragma Singleton\n" + settings)
-        # File selection uses the real service functions without its portal or I/O.
-        files = (SHELL / "apps/files/FilesService.qml").read_text()
-        (work / "qs/kit/TestFileSelection.qml").write_text(
-            "import QtQuick\nQtObject {\nproperty var rows: []\nproperty var selection: []\n"
-            "property string anchor: \"\"\nproperty var picker: null\n"
-            + qml_function(files, "select") + "\n" + qml_function(files, "selectAll") + "\n}\n")
+        # The real selection model has no portal, filesystem or process dependencies.
+        shutil.copy(SHELL / "apps/files/FilesSelection.qml", work / "qs/kit/FilesSelection.qml")
         # Layout logic uses its production functions with a memory-only store.
         bar = work / "qs/bar"
         bar.mkdir()
