@@ -124,7 +124,7 @@ Item {
         IslandService.requested("root", Hypr.focusedScreen?.name ?? "");
       } else if (root.kind === "focus") {
         FocusService.toggle();     // no popup behind it: a click ends the mode
-      } else if (mouse.button === Qt.MiddleButton) { if (root.kind === "music") IslandService.togglePlay(); }
+      } else if (mouse.button === Qt.MiddleButton) { if (root.kind === "music" || root.kind === "media") IslandService.toggleLive(root.kind); }
       else BarLayout.openModule(IslandService.liveTarget[root.kind]);
     }
     onWheel: w => IslandService.liveStep(w.angleDelta.y < 0 ? 1 : -1)

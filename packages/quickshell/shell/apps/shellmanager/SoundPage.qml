@@ -1,6 +1,8 @@
 import QtQuick
+import qs.bar
 import qs.config
 import qs.kit
+import qs.modules.mpd
 
 // Sound: what the shell does with sound. For now the music that pauses while another app
 // plays sound (it was Bar modules › Audio › AUTO-PAUSE, same keys); the volume itself
@@ -19,6 +21,17 @@ Column {
   function reset() { ShellSettings.reset(resetKeys); }
 
   KitLabel { text: "MUSIC"; about: "Any player that reports playing over MPRIS counts: browsers, mpv, Spotify" }
+
+  KitRow {
+    visible: BarLayout.installed("files")
+    label: "Music service"
+    hint: "MPD for the local music and Yandex Music; off stops the playback too"
+
+    KitSwitch {
+      checked: MpdService.service
+      onToggled: MpdService.setOn(!checked)
+    }
+  }
 
   KitRow {
     label: "Pause on other sound"

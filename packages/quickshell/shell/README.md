@@ -87,7 +87,7 @@ Each lives in `modules/<id>/`; its popup opens with
 `player`: `music` is its window).
 
 Workspaces, Music, Themes, Tray, Mode, Wallpapers, Equalizer, Clock,
-Brightness, Audio, Wi-Fi, Bluetooth, Mihomo, Battery, Language, AI, Shell,
+Brightness, Audio, Wi-Fi, Bluetooth, Mihomo, Radio, Media, Timer, Battery, Language, AI, Shell,
 Notifications, Capture, Clipboard, System, Task Manager, Cleaner, Backups,
 VirusTotal, Packages, Display, Windows, Chat, Folder.
 
@@ -110,7 +110,7 @@ size, gap, separators and hub opening.
   equalizer).
 - **The live slot** (`IslandLive`, between the clock and RIGHT) shows what
   runs, only while it does, in three kinds: Asks (low battery, a connected
-  device), Held (recording, update, backup, timer, VPN, Focus, music) and Flash (the mic, the
+  device), Held (recording, update, backup, timer, VPN, Focus, radio, music, media) and Flash (the mic, the
   layout, the cable). The wheel over it pages through them with a
   slide, and it stays on the one paged to (nothing pages back by itself); one shows whole in the pill (activities never fold);
   a click on the music opens the

@@ -8,7 +8,7 @@ import qs.kit
 // MPD's queue, whatever plays it (the likes, the files, a playlist): two lines per
 // track, nine rows visible, then it scrolls. It scrolls itself so the current track
 // sits on top. A click plays a track, a right click takes it out; the search button
-// swaps the list for matches. Radio and an MPRIS player have no queue here: a line says so.
+// swaps the list for matches. An MPRIS player has no queue here: a line says so.
 Column {
   id: root
 
@@ -18,8 +18,7 @@ Column {
   readonly property int rowHeight: 38
   readonly property int upNext: 9
   readonly property int currentPos: MpdService.player.pos ?? 0
-  readonly property string notice: PlayerService.radio ? "Radio is on air — there is no queue"
-    : PlayerService.hasMedia && !PlayerService.mpd ? PlayerService.name + " keeps its own queue" : ""
+  readonly property string notice: PlayerService.hasMedia && !PlayerService.mpd ? PlayerService.name + " keeps its own queue" : ""
   readonly property var tracks: {
     const queue = MpdService.queue;
     if (!searching) return queue;

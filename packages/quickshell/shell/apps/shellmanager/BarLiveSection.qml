@@ -34,6 +34,7 @@ Column {
       readonly property string missing: key === "vpn" && !BarLayout.installed("mihomo") ? "Not installed"
         : key === "backup" && !BarLayout.installed("backup") ? "Not installed"
         : key === "battery" && !BatteryService.present ? "No battery in this machine"
+        : key === "radio" && !BarLayout.installed("radio") ? "Not installed"
         : key === "music" && !BarLayout.installed("music") ? "Not installed" : ""
 
       label: root.info[key]?.label ?? key

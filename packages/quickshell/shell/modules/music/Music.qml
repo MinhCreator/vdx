@@ -7,7 +7,7 @@ import qs.kit
 import qs.modules.player
 
 // The music module: what plays now, of any source (PlayerService: Yandex Music,
-// the local files and the radio of MPD, any MPRIS player). Idle: grey "Music".
+// the local files of MPD). Idle: grey "Music".
 // Click opens the popup, middle click plays or pauses.
 Item {
   id: root
@@ -66,6 +66,7 @@ Item {
       id: content
       anchors.fill: parent
       onOpenWindow: popup.visible = false
+      onCloseRequested: popup.visible = false
     }
   }
 }

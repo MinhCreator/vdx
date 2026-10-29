@@ -1,24 +1,32 @@
 import QtQuick
 import Quickshell.Widgets
+import qs.bar
 import qs.config
 import qs.kit
 import qs.modules.mpd
 import qs.modules.player
 import qs.modules.yandex
 
-// The track that plays, of any source (PlayerService): the cover, the title, artist
-// and album, the like (a Yandex track only), the timeline and the transport. Several
-// players running: a choice of them on top. Nothing playing says so.
+// The track that plays in one player (`player`, a PlayerView: the music of MPD, or the
+// media of other apps): the cover, the title, artist and album, the like (a Yandex
+// track only), the timeline and the transport. Nothing playing: an empty player.
 Column {
   id: root
+
+  property var player: PlayerService.music
+  // nothing playing: an empty player, or (`emptyPlayer` off) a line saying so
+  property bool emptyPlayer: true
+  signal pickRequested()
+  signal closeRequested()                      // Modules › Music › Close after stop
+  property string emptyText: ""
 
   readonly property int coverSize: YandexService.coverSize
   readonly property int gap: Theme.gapWide
   // the timeline's right end: the total, or the time left (Modules › Music)
   readonly property bool showRemaining: ModuleSettings.get("music", "showRemaining", false)
   // the like belongs to a Yandex track only
-  readonly property bool yandexTrack: PlayerService.mpd && MpdService.source === "likes" && YandexService.trackId !== ""
-  readonly property string detail: PlayerService.mpd
+  readonly property bool yandexTrack: root.player.mpd && MpdService.source === "likes" && YandexService.trackId !== ""
+  readonly property string detail: root.player.mpd
     ? [MpdService.player.album, MpdService.player.year].filter(s => s).join(" · ") : ""
 
   function clock(seconds) {
@@ -31,17 +39,17 @@ Column {
 
 
   KitText {
-    visible: !PlayerService.hasMedia
+    visible: !root.player.hasMedia && !root.emptyPlayer
     width: parent.width
     wrapMode: Text.WordWrap
     color: Theme.muted
     font.pixelSize: Theme.fontSize - 1
-    text: "Nothing is playing. Pick something in Library."
+    text: root.emptyText
   }
 
   Item {
     id: now
-    visible: PlayerService.hasMedia
+    visible: root.player.hasMedia || root.emptyPlayer
     width: parent.width
     // the row of the cover and the text, the timeline, the transport
     height: Math.max(root.coverSize, info.height) + root.gap + timeline.height + root.gap + transport.height
@@ -60,7 +68,7 @@ Column {
 
       Image {
         anchors { fill: parent; margins: 1 }
-        source: PlayerService.cover
+        source: root.player.cover
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
         sourceSize { width: root.coverSize * 2; height: root.coverSize * 2 }
@@ -68,8 +76,8 @@ Column {
 
       KitIcon {
         anchors.centerIn: parent
-        visible: PlayerService.cover === ""
-        name: PlayerService.radio ? "radio" : "music"
+        visible: root.player.cover === ""
+        name: "music"
         tint: Theme.gray
         size: Theme.iconLarge
       }
@@ -95,7 +103,7 @@ Column {
 
         KitText {
           width: parent.width
-          text: PlayerService.title || "—"
+          text: root.player.title || "—"
           textFormat: Text.PlainText
           elide: Text.ElideRight
           font.weight: Font.ExtraBold
@@ -104,7 +112,7 @@ Column {
 
         KitText {
           width: parent.width
-          text: PlayerService.artist || "—"
+          text: root.player.artist || "—"
           textFormat: Text.PlainText
           elide: Text.ElideRight
           color: Theme.foreground2
@@ -125,9 +133,9 @@ Column {
       KitButton {
         id: raise
         anchors { right: like.left; rightMargin: Theme.gapTight; verticalCenter: parent.verticalCenter }
-        visible: PlayerService.canRaise
+        visible: root.player.canRaise
         icon: "external"
-        onClicked: PlayerService.raise()
+        onClicked: root.player.raise()
       }
 
       KitButton {
@@ -151,9 +159,9 @@ Column {
       KitSlider {
         id: slider
         width: parent.width
-        enabled: PlayerService.canSeek
-        value: PlayerService.length > 0 ? PlayerService.position / PlayerService.length : 0
-        onReleased: value => PlayerService.seek(value)
+        enabled: root.player.canSeek
+        value: root.player.length > 0 ? root.player.position / root.player.length : 0
+        onReleased: value => root.player.seek(value)
       }
 
       Item {
@@ -162,17 +170,17 @@ Column {
 
         KitText {
           id: elapsed
-          text: root.clock(slider.pressed ? slider.dragValue * PlayerService.length : PlayerService.position)
+          text: root.clock(slider.pressed ? slider.dragValue * root.player.length : root.player.position)
           color: Theme.muted
           font.pixelSize: Theme.fontSize - 2
         }
 
         KitText {
           anchors.right: parent.right
-          visible: PlayerService.length > 0
+          visible: root.player.length > 0
           text: root.showRemaining
-            ? "-" + root.clock(PlayerService.length - (slider.pressed ? slider.dragValue * PlayerService.length : PlayerService.position))
-            : root.clock(PlayerService.length)
+            ? "-" + root.clock(root.player.length - (slider.pressed ? slider.dragValue * root.player.length : root.player.position))
+            : root.clock(root.player.length)
           color: Theme.muted
           font.pixelSize: Theme.fontSize - 2
         }
@@ -190,47 +198,53 @@ Column {
 
       KitButton {
         anchors.left: parent.left
-        visible: PlayerService.canShuffle
+        visible: root.player.canShuffle
         icon: "shuffle"
-        selected: PlayerService.shuffleOn
-        iconTint: PlayerService.shuffleOn ? Theme.foreground0 : Theme.gray
-        onClicked: PlayerService.toggleShuffle()
+        selected: root.player.shuffleOn
+        iconTint: root.player.shuffleOn ? Theme.foreground0 : Theme.gray
+        onClicked: root.player.toggleShuffle()
       }
 
       Row {
         anchors.centerIn: parent
         spacing: Theme.gapMedium
 
-        KitButton { icon: "skip-back"; disabled: !PlayerService.canPrevious; onClicked: PlayerService.prev() }
+        KitButton { icon: "skip-back"; disabled: !root.player.canPrevious; onClicked: root.player.prev() }
 
         KitButton {
           width: 52
-          icon: PlayerService.playing ? "pause" : "play"
+          icon: root.player.playing ? "pause" : "play"
           selected: true
-          onClicked: PlayerService.togglePlay()
+          // nothing playing: the likes start (never what MPD kept — that may be the radio — nor
+          // another app's sound); without Yandex Music the Library opens to pick from
+          onClicked: {
+            if (root.player.hasMedia) root.player.togglePlay();
+            else if (BarLayout.installed("yandex")) YandexService.setActive(true);
+            else root.pickRequested();
+          }
         }
 
-        KitButton { icon: "skip-forward"; disabled: !PlayerService.canNext; onClicked: PlayerService.next() }
+        KitButton { icon: "skip-forward"; disabled: !root.player.canNext; onClicked: root.player.next() }
+
+        // MPD only: stops the music and closes the player; MPD itself keeps running
+        KitButton {
+          visible: root.player.mpd
+          icon: "square"
+          onClicked: {
+            MpdService.stop();
+            if (ModuleSettings.get("music", "closeAfterStop", false)) root.closeRequested();
+          }
+        }
       }
 
       KitButton {
         anchors.right: parent.right
-        visible: PlayerService.canLoop
-        icon: PlayerService.loop === "one" ? "repeat-1" : "repeat"
-        selected: PlayerService.loop !== "off"
-        iconTint: PlayerService.loop !== "off" ? Theme.foreground0 : Theme.gray
-        onClicked: PlayerService.cycleLoop()
+        visible: root.player.canLoop
+        icon: root.player.loop === "one" ? "repeat-1" : "repeat"
+        selected: root.player.loop !== "off"
+        iconTint: root.player.loop !== "off" ? Theme.foreground0 : Theme.gray
+        onClicked: root.player.cycleLoop()
       }
     }
-  }
-
-  // several players: the one to show, as a list (any number fits), the popup's width at the foot
-  KitSelect {
-    visible: PlayerService.sources.length > 1
-    width: parent.width
-    boxWidth: width
-    model: PlayerService.sources.map(s => ({ label: s.name, value: s.key, note: s.playing ? "playing" : "" }))
-    current: PlayerService.current?.key ?? ""
-    onPicked: value => PlayerService.picked = value
   }
 }

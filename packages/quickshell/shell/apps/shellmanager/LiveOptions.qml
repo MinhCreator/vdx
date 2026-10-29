@@ -11,7 +11,7 @@ Column {
   property string kind: ""
 
   // what a kind has to set: the rows below read this to know whether to offer the opening
-  readonly property bool any: kind === "notice" || kind === "battery" || kind === "music"
+  readonly property bool any: kind === "notice" || kind === "battery" || kind === "music" || kind === "media" || kind === "radio"
 
   width: parent ? parent.width : 0
   spacing: Theme.settingsRowInset          // the box's own row rhythm: a gap each side of a hairline
@@ -70,10 +70,17 @@ Column {
   }
 
   KitRow {
-    visible: root.kind === "music"
+    visible: root.kind === "music" || root.kind === "media"
     label: "Show on pause"
     hint: "The track stays in the slot while paused"
     KitSwitch { checked: ShellSettings.liveMusicPaused; onToggled: ShellSettings.setLook("liveMusicPaused", !checked, "island") }
+  }
+
+  KitRow {
+    visible: root.kind === "radio"
+    label: "Show on pause"
+    hint: "The station stays in the slot while paused"
+    KitSwitch { checked: ShellSettings.liveRadioPaused; onToggled: ShellSettings.setLook("liveRadioPaused", !checked, "island") }
   }
 
   Rectangle { visible: root.kind === "music"; width: parent.width; height: Theme.dividerThickness; color: Theme.dividerColor }

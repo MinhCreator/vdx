@@ -52,6 +52,17 @@ Rectangle {
       spacing: 2
       Repeater { model: root.wave(); Rectangle { required property real modelData; anchors.verticalCenter: parent.verticalCenter; width: 2; height: 14 * modelData; radius: Theme.pill(height); color: Theme.red; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } } }
     }
+    // the round buttons of the live face: pause (dim) and stop (red)
+    Repeater {
+      model: root.kind === "recording" ? [{ stop: false }, { stop: true }] : []
+      Rectangle {
+        required property var modelData
+        anchors.verticalCenter: parent.verticalCenter
+        width: 18; height: 18; radius: Theme.pill(height)
+        color: modelData.stop ? Theme.red : Theme.background3
+        KitIcon { anchors.centerIn: parent; name: parent.modelData.stop ? "square" : "pause"; size: 10; tint: parent.modelData.stop ? Theme.background0 : Theme.foreground1 }
+      }
+    }
 
     // updates
     KitIcon { visible: root.kind === "update"; glowTarget: "live"; name: "download"; size: 12; tint: Theme.blue; anchors.verticalCenter: parent.verticalCenter }
@@ -82,6 +93,10 @@ Rectangle {
     KitIcon { visible: root.kind === "timer"; glowTarget: "live"; anchors.verticalCenter: parent.verticalCenter; name: "clock"; size: 16; tint: Theme.orange }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "timer"; text: "13:12"; color: Theme.orange; font.pixelSize: Theme.fontSize - 1 }
 
+    // radio
+    Rectangle { visible: root.kind === "radio"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: Theme.pill(height); color: Theme.green; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
+    KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "radio"; text: "Love Radio"; font.pixelSize: Theme.fontSize - 1 }
+
     // focus
     KitIcon { visible: root.kind === "focus"; glowTarget: "live"; anchors.verticalCenter: parent.verticalCenter; name: "moon"; size: 16; tint: Theme.purple }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "focus"; text: "Focus"; font.pixelSize: Theme.fontSize - 1 }
@@ -96,6 +111,17 @@ Rectangle {
       anchors.verticalCenter: parent.verticalCenter
       spacing: 2
       Repeater { model: [0.45, 1, 0.65, 0.85]; Rectangle { required property real modelData; anchors.verticalCenter: parent.verticalCenter; width: 2; height: 14 * modelData; radius: Theme.pill(height); color: Theme.green; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } } }
+    }
+
+    // media: another app's sound — the app's icon, the title, the sound
+    Rectangle { visible: root.kind === "media"; anchors.verticalCenter: parent.verticalCenter; width: 16; height: 16; radius: Theme.pill(width); color: Theme.background3
+      KitIcon { anchors.centerIn: parent; name: "video"; size: 9; tint: Theme.foreground2 } }
+    KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "media"; text: "Lo-fi stream"; font.pixelSize: Theme.fontSize - 1; width: Math.min(implicitWidth, 80); elide: Text.ElideRight }
+    Row {
+      visible: root.kind === "media"
+      anchors.verticalCenter: parent.verticalCenter
+      spacing: 2
+      Repeater { model: [0.8, 0.4, 1, 0.55]; Rectangle { required property real modelData; anchors.verticalCenter: parent.verticalCenter; width: 2; height: 14 * modelData; radius: Theme.pill(height); color: Theme.orange; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } } }
     }
 
     // volume and brightness

@@ -13,6 +13,9 @@ import qs.modules.bluetooth
 import qs.modules.mihomo
 import qs.modules.equalizer
 import qs.modules.focus
+import qs.modules.mpd
+import qs.modules.player
+import qs.modules.radio
 import qs.modules.timer
 
 // One face of the pill's live slot (IslandLive): what the activity `kind` shows.
@@ -23,7 +26,9 @@ Row {
   property int coverSize: 18                   // a badge (cover, avatar): the chip's height less its inset on both sides
   property int badgeRadius: 4                  // concentric with the chip
   // an activity that starts with a badge sits it the same inset from the chip's left, top and bottom
-  readonly property bool badged: kind === "music" || kind === "notice" && ShellSettings.liveNoticeMark === "avatar"   // a dot sits as far from the rim as the right side
+  readonly property bool track: kind === "music" || kind === "media"
+  readonly property var player: kind === "media" ? PlayerService.media : PlayerService.music
+  readonly property bool badged: track || kind === "notice" && ShellSettings.liveNoticeMark === "avatar"   // a dot sits as far from the rim as the right side
 
   anchors.verticalCenter: parent.verticalCenter
   spacing: 8
@@ -204,6 +209,36 @@ Row {
   KitText { visible: face.kind === "vpn"; text: MihomoService.current; color: Theme.foreground2; width: Math.min(implicitWidth, 110); elide: Text.ElideRight }
   KitText { visible: face.kind === "vpn" && MihomoService.currentDelay > 0; text: String(MihomoService.currentDelay); color: Theme.muted }
 
+  // radio: the station on air, the sound
+  Rectangle {
+    visible: face.kind === "radio"
+    anchors.verticalCenter: parent.verticalCenter
+    width: 8
+    height: 8
+    radius: Theme.pill(height)
+    color: Theme.green
+    opacity: MpdService.playing ? 1 : 0.4
+
+    KitGlow { z: -1; anchors.fill: parent; target: "live"; lit: MpdService.playing; tint: parent.color; radius: parent.radius }
+  }
+  KitText {
+    visible: face.kind === "radio"
+    anchors.verticalCenter: parent.verticalCenter
+    width: Math.min(implicitWidth, 220)
+    elide: Text.ElideRight
+    text: MpdService.player.station ?? "Radio"
+    color: Theme.foreground1
+  }
+  EqualizerBars {
+    visible: face.kind === "radio"
+    anchors.verticalCenter: parent.verticalCenter
+    barCount: 4
+    tone: Theme.green
+    glowTarget: "live"
+    height: 14
+    active: MpdService.playing
+  }
+
   // timer: the ring of what is left (a stopwatch: the clock), the time
   TimerRing {
     visible: face.kind === "timer" && TimerService.kind === "countdown"
@@ -264,9 +299,9 @@ Row {
   }
   KitText { visible: face.kind === "plugged"; text: String(BatteryService.capacity); color: Theme.purple }
 
-  // music: the cover, the track and the sound
+  // music and media: the cover, the track and the sound
   Item {
-    visible: face.kind === "music"
+    visible: face.track
     anchors.verticalCenter: parent.verticalCenter
     width: face.coverSize
     height: face.coverSize
@@ -275,7 +310,7 @@ Row {
       id: cover
       anchors.fill: parent
       visible: false
-      source: IslandService.cover
+      source: face.player.cover
       fillMode: Image.PreserveAspectCrop
       asynchronous: true
     }
@@ -296,18 +331,18 @@ Row {
     Rectangle { anchors.fill: parent; radius: face.badgeRadius; color: Theme.background3; z: -1 }
   }
   KitText {
-    visible: face.kind === "music"
+    visible: face.track
     anchors.verticalCenter: parent.verticalCenter
     width: Math.min(implicitWidth, 260)
     elide: Text.ElideRight
-    text: !IslandService.hasMedia ? "Nothing playing" : IslandService.title + (IslandService.artist !== "" ? " · " + IslandService.artist : "")
+    text: !face.player.hasMedia ? "Nothing playing" : face.player.title + (face.player.artist !== "" ? " · " + face.player.artist : "")
     color: Theme.foreground1
   }
   EqualizerBars {
-    visible: face.kind === "music"
+    visible: face.track
     anchors.verticalCenter: parent.verticalCenter
     barCount: 4
-    tone: Theme.green
+    tone: face.kind === "media" ? Theme.orange : Theme.green
     glowTarget: "live"
     height: 14
   }

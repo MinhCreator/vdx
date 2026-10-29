@@ -4,13 +4,11 @@ import qs.bar
 import qs.config
 import qs.kit
 import qs.modules.mpd
-import qs.modules.radio
 import qs.modules.yandex
 
 // Quick picks as tiles, only the sources installed: Yandex Music's likes (one wide
-// tile), the local folders of Modules › Music (a click plays the folder, recursively)
-// and the favourite radio stations (starred in the Music window), two to a row.
-// "Open Music" at the foot opens the window for the rest (playlists, every station).
+// tile) and the local folders of Modules › Music (a click plays the folder, recursively),
+// two to a row. "Open Music" at the foot opens the window for the rest (playlists).
 Column {
   id: root
 
@@ -18,7 +16,6 @@ Column {
 
   readonly property bool yandexOn: BarLayout.installed("yandex")
   readonly property bool filesOn: BarLayout.installed("files")
-  readonly property bool radioOn: BarLayout.installed("radio")
   readonly property var folders: ModuleSettings.get("music", "folders", ["~/Music"])
   readonly property real half: Math.floor((width - Theme.gapMedium) / 2)
 
@@ -29,7 +26,7 @@ Column {
   spacing: Theme.gapWide
 
   KitText {
-    visible: !root.yandexOn && !root.filesOn && !root.radioOn
+    visible: !root.yandexOn && !root.filesOn
     width: parent.width
     text: "Install mpd to play music here"
     color: Theme.muted
@@ -96,49 +93,8 @@ Column {
     }
   }
 
-  // ---- radio: the favourites ----
-  Column {
-    visible: root.radioOn
-    width: parent.width
-    spacing: Theme.gapMedium
-
-    KitLabel {
-      text: "RADIO"
-      value: RadioService.favoriteStations.length > 0 ? "FAVOURITES" : ""
-    }
-
-    KitText {
-      visible: RadioService.favoriteStations.length === 0
-      width: parent.width
-      text: "Star stations in the Music window"
-      color: Theme.muted
-      wrapMode: Text.WordWrap
-      font.pixelSize: Theme.fontSize - 1
-    }
-
-    Flow {
-      width: parent.width
-      spacing: Theme.gapMedium
-
-      Repeater {
-        model: root.radioOn ? RadioService.favoriteStations : []
-
-        MusicTile {
-          required property var modelData
-          width: root.half
-          icon: "radio"
-          text: modelData.name
-          caption: modelData.genre ?? ""
-          current: RadioService.active && RadioService.stationKey === modelData.key
-          busy: MpdService.busy === modelData.key
-          onClicked: if (!current) RadioService.play(modelData.key)
-        }
-      }
-    }
-  }
-
   KitButton {
-    visible: root.yandexOn || root.filesOn || root.radioOn
+    visible: root.yandexOn || root.filesOn
     width: parent.width
     icon: "external"
     text: "Open Music"

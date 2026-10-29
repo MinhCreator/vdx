@@ -35,6 +35,11 @@ KitColumn {
   KitLabel { text: "PLAYER" }
 
   KitToggleRow {
+    module: "music"; key: "closeAfterStop"; fallback: false
+    label: "Close after stop"; hint: "The popup closes when you stop the music"
+  }
+
+  KitToggleRow {
     module: "music"; key: "showRemaining"; fallback: false
     label: "Time left"; hint: "The timeline counts down"
   }

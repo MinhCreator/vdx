@@ -13,6 +13,8 @@ import qs.modules.audio
 import qs.modules.battery
 import qs.modules.bluetooth
 import qs.modules.focus
+import qs.modules.mpd
+import qs.modules.radio
 import qs.modules.timer
 import qs.modules.language
 import qs.modules.mihomo
@@ -48,6 +50,8 @@ Singleton {
   readonly property bool hasMedia: PlayerService.hasMedia
   readonly property bool playing: PlayerService.playing
   readonly property bool radio: PlayerService.radio
+  // whose popup the current player belongs to: the radio's, MPD's music, or another app's media
+  readonly property string family: PlayerService.radio ? "radio" : PlayerService.mpd ? "music" : "media"
   readonly property string title: PlayerService.title
   readonly property string artist: PlayerService.artist
   readonly property string cover: PlayerService.cover
@@ -55,6 +59,8 @@ Singleton {
   readonly property real length: PlayerService.length
 
   function togglePlay() { PlayerService.togglePlay(); }
+  // a live activity's own player: the music's or the other apps'
+  function toggleLive(kind) { (kind === "media" ? PlayerService.media : PlayerService.music).togglePlay(); }
   function next() { PlayerService.next(); }
   function prev() { PlayerService.prev(); }
   function seek(fraction) { PlayerService.seek(fraction); }
@@ -74,7 +80,9 @@ Singleton {
       vpn: MihomoService.serviceOn,
       focus: FocusService.on,
       timer: TimerService.active,
-      music: ShellSettings.liveMusicAlways || hasMedia && (playing || ShellSettings.liveMusicPaused),
+      radio: RadioService.active && (MpdService.playing || ShellSettings.liveRadioPaused),
+      media: PlayerService.media.hasMedia && (PlayerService.media.playing || ShellSettings.liveMusicPaused),
+      music: ShellSettings.liveMusicAlways || PlayerService.music.hasMedia && (PlayerService.music.playing || ShellSettings.liveMusicPaused),
       notice: noticeItem !== null
     };
     if (flashKind !== "") on[flashKind] = true;
@@ -115,7 +123,7 @@ Singleton {
   readonly property bool pluggedNow: BatteryService.plugged
   onPluggedNowChanged: if (pluggedNow) flash("plugged")
   // the module a click on an activity opens (BarLayout.openModule)
-  readonly property var liveTarget: ({ timer: "timer", music: "music", vpn: "mihomo", battery: "battery", bluetooth: "bluetooth", update: "packages", backup: "backup" })
+  readonly property var liveTarget: ({ timer: "timer", radio: "tuner", media: "media", music: "music", vpn: "mihomo", battery: "battery", bluetooth: "bluetooth", update: "packages", backup: "backup" })
   property int liveIndex: 0
   // paging with the wheel stays: nothing switches the pill back by itself
   readonly property string live: activities[Math.min(liveIndex, activities.length - 1)] ?? ""

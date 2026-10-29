@@ -55,66 +55,55 @@ Singleton {
                                  ?? sources.find(s => s.playing)
                                  ?? sources.find(s => s.mpd)
                                  ?? sources[0] ?? null
-  readonly property bool mpd: current?.mpd ?? false
-  readonly property var mpris: current?.mpris ?? null
+  // ---- the families: the music of MPD (no radio), the radio, the media of other apps ----
+  // Each shows apart (a live activity, a popup); `current` is only what the keys control.
+  readonly property var musicSource: sources.find(s => s.mpd && MpdService.source !== "radio") ?? null
+  readonly property var externals: sources.filter(s => s.mpris)
+  property string mediaPicked: ""              // an app's key, chosen in the Media popup
+  readonly property var mediaSource: externals.find(s => s.key === mediaPicked)
+                                     ?? externals.find(s => s.playing) ?? externals[0] ?? null
+  readonly property PlayerView music: PlayerView { source: root.musicSource }
+  readonly property PlayerView media: PlayerView { source: root.mediaSource }
+  readonly property PlayerView view: PlayerView { id: cur; source: root.current }
 
-  // ---- what the current player shows ----
-  readonly property bool hasMedia: current !== null
-  readonly property bool playing: current?.playing ?? false
-  readonly property string name: current?.name ?? ""
-  readonly property bool radio: mpd && MpdService.source === "radio"
-  readonly property string title: mpd ? (MpdService.player.title || MpdService.player.station
-                                         || MpdService.file.split("/").pop())
-                                      : (mpris?.trackTitle ?? "")
-  readonly property string artist: mpd ? (radio ? MpdService.player.station : MpdService.player.artist)
-                                       : (mpris?.trackArtist ?? "")
-  readonly property string cover: mpd ? YandexService.cover : (mpris?.trackArtUrl ?? "")
-  readonly property real position: mpd ? MpdService.elapsed : (mpris?.position ?? 0)
-  readonly property real length: mpd ? MpdService.duration : (mpris?.length ?? 0)
-  readonly property bool canNext: mpd ? true : (mpris?.canGoNext ?? false)
-  readonly property bool canPrevious: mpd ? true : (mpris?.canGoPrevious ?? false)
-  readonly property bool canSeek: length > 0 && (mpd || (mpris?.canSeek ?? false))
-  readonly property bool canRaise: !mpd && (mpris?.canRaise ?? false)
-  readonly property bool shuffleOn: mpd ? MpdService.player.random === true : (mpris?.shuffle ?? false)
-  readonly property bool canShuffle: mpd || (mpris?.shuffleSupported ?? false)
-  readonly property string loop: mpd ? (MpdService.player.repeat ?? "off")
-                                     : mpris?.loopState === MprisLoopState.Track ? "one"
-                                     : mpris?.loopState === MprisLoopState.Playlist ? "all" : "off"
-  readonly property bool canLoop: mpd || (mpris?.loopSupported ?? false)
+  // ---- what the keys control (the current player) ----
+  property alias mpd: cur.mpd
+  property alias mpris: cur.mpris
+  property alias hasMedia: cur.hasMedia
+  property alias playing: cur.playing
+  property alias name: cur.name
+  property alias radio: cur.radio
+  property alias title: cur.title
+  property alias artist: cur.artist
+  property alias cover: cur.cover
+  property alias position: cur.position
+  property alias length: cur.length
+  property alias canNext: cur.canNext
+  property alias canPrevious: cur.canPrevious
+  property alias canSeek: cur.canSeek
+  property alias canRaise: cur.canRaise
+  property alias shuffleOn: cur.shuffleOn
+  property alias canShuffle: cur.canShuffle
+  property alias loop: cur.loop
+  property alias canLoop: cur.canLoop
 
   // ---- actions: the current player ----
   function togglePlay() {
     if (!current) YandexService.setActive(true);     // nothing running: the likes
-    else if (mpd) MpdService.toggle();
-    else if (mpris?.canTogglePlaying) mpris.togglePlaying();
+    else cur.togglePlay();
   }
-  function next() { if (mpd) MpdService.next(); else if (mpris?.canGoNext) mpris.next(); }
-  function prev() { if (mpd) MpdService.prev(); else if (mpris?.canGoPrevious) mpris.previous(); }
-  function seek(fraction) {
-    if (!canSeek) return;
-    if (mpd) MpdService.seek(fraction);
-    else mpris.position = fraction * length;
-  }
-  function toggleShuffle() {
-    if (mpd) MpdService.toggleRandom();
-    else if (mpris?.shuffleSupported) mpris.shuffle = !mpris.shuffle;
-  }
-  // off -> all -> one -> off for MPD; the MPRIS loop states in their order
-  function cycleLoop() {
-    if (mpd) MpdService.cycleRepeat();
-    else if (mpris?.loopSupported) {
-      const s = mpris.loopState;
-      mpris.loopState = s === MprisLoopState.None ? MprisLoopState.Playlist
-                      : s === MprisLoopState.Playlist ? MprisLoopState.Track : MprisLoopState.None;
-    }
-  }
-  function raise() { if (canRaise) mpris.raise(); }
+  function next() { cur.next(); }
+  function prev() { cur.prev(); }
+  function seek(fraction) { cur.seek(fraction); }
+  function toggleShuffle() { cur.toggleShuffle(); }
+  function cycleLoop() { cur.cycleLoop(); }
+  function raise() { cur.raise(); }
 
-  // an MPRIS position is read, not pushed: ask for it while playing
+  // an MPRIS position is read, not pushed: ask for it while something plays
   Timer {
-    running: root.hasMedia && !root.mpd && root.playing
+    running: root.sources.some(s => s.mpris && s.playing)
     interval: root.positionMs
     repeat: true
-    onTriggered: root.mpris?.positionChanged()
+    onTriggered: { for (const s of root.externals) if (s.playing) s.mpris.positionChanged(); }
   }
 }
