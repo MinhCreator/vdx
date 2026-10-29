@@ -73,6 +73,15 @@ def main():
             'pragma Singleton\nimport QtQuick\nQtObject {\n'
             'property bool powered: true\nproperty string busyMac: ""\nproperty var calls: []\n'
             'function toggleDevice(device) { calls = calls.concat([device.mac]); }\n}\n')
+        shutil.copy(SHELL / "modules/wifi/SignalBars.qml", work / "qs/kit/SignalBars.qml")
+        network_row = (SHELL / "modules/wifi/NetworkRow.qml").read_text()
+        (work / "qs/kit/TestNetworkRow.qml").write_text(
+            network_row.replace("WifiService", "TestWifiService"))
+        (work / "qs/kit/TestWifiService.qml").write_text(
+            'pragma Singleton\nimport QtQuick\nQtObject {\n'
+            'property bool connected: false\nproperty bool radioOn: true\n'
+            'property string ssid: ""\nproperty string connectingSsid: ""\nproperty var calls: []\n'
+            'function connectTo(network) { calls = calls.concat([network.ssid]); }\n}\n')
         lock = (SHELL / "apps/lock/Lock.qml").read_text()
         (work / "qs/kit/TestLockRouting.qml").write_text(
             'import QtQuick\nimport TestQuickshell\nimport qs.config\nQtObject {\n'

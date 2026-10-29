@@ -13,12 +13,34 @@ Rectangle {
 
   readonly property bool current: WifiService.connected && modelData.ssid === WifiService.ssid
   readonly property bool connecting: WifiService.connectingSsid === modelData.ssid
+  readonly property bool available: WifiService.radioOn && !current && WifiService.connectingSsid === ""
+  activeFocusOnTab: true
+  enabled: available
+  Accessible.role: Accessible.Button
+  Accessible.name: modelData.ssid + (modelData.secure ? ", secured network" : ", open network")
+      + (current ? ", connected" : "")
+  Accessible.onPressAction: activate()
+  Keys.onSpacePressed: event => { if (!event.isAutoRepeat) activate(); }
+  Keys.onReturnPressed: event => { if (!event.isAutoRepeat) activate(); }
+
+  function activate() {
+    if (available) WifiService.connectTo(modelData);
+  }
 
   height: 30
   color: current ? Theme.background3 : hover.hovered ? Theme.background1 : Theme.clear
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
   HoverHandler { id: hover }
+
+  Rectangle {
+    anchors.fill: parent
+    radius: parent.radius
+    color: Theme.clear
+    border.width: Theme.focusWidth
+    border.color: Theme.focusRing
+    visible: root.activeFocus
+  }
 
   KitText {
     id: name
@@ -44,7 +66,7 @@ Rectangle {
   MouseArea {
     anchors.fill: parent
     cursorShape: root.current ? Qt.ArrowCursor : Qt.PointingHandCursor
-    onClicked: WifiService.connectTo(root.modelData)
+    onClicked: { root.forceActiveFocus(); root.activate(); }
   }
 
   KitIcon {

@@ -48,8 +48,8 @@ Scope {
   QtObject { id: speedtestTimeout; property bool running: false; function restart() { running = true; } function stop() { running = false; } }
 ''' + measure + stop + finish + factory + '''
   Timer { interval: 10; running: true; onTriggered: root.measure() }
-  Timer { interval: 60; running: true; onTriggered: { root.stopSpeedtest(); root.measure(); } }
-  Timer { interval: 500; running: true; onTriggered: {
+  Timer { interval: 150; running: true; onTriggered: { root.stopSpeedtest(); root.measure(); } }
+  Timer { interval: 750; running: true; onTriggered: {
     console.warn("WIFI_SPEEDTEST_RESULT:" + JSON.stringify({
       result: root.speedtest, error: root.speedtestError,
       busy: root.speedtestBusy, active: root.activeSpeedtest !== null
