@@ -61,7 +61,7 @@ Each area lists the scenarios it touches; these are the shared base.
 
 ### Audit checkpoint (2026-10-30)
 
-Current validation: 285 Python tests and 98 QML cases. Full repository checks
+Current validation: 286 Python tests and 98 QML cases. Full repository checks
 and Python lint pass. These counts include baseline tests; they do not imply
 that every shell function or desktop scenario has been reviewed.
 
@@ -81,6 +81,7 @@ that every shell function or desktop scenario has been reviewed.
 | Timer | Production state/functions with a fake notification receiver: pause/lap between ticks, pause after expiry and duplicate completion |
 | Wi-Fi credentials | Three production completion handlers clear the process password environment before publishing idle, for successful and failed replies; no network commands run |
 | Wi-Fi speedtest | Real child-process test cancels a TERM-resistant old request, immediately starts a replacement, and verifies that the late old reply cannot overwrite the newer result; repeated active requests are rejected |
+| Wi-Fi saved settings | Production action guard rejects overlapping edits, preserves the backend error, and permits a retry after completion; page controls disable during the write |
 | Device service first pass | Production battery actions reject startup overlap without changing saved limit/profile; audio live state with missing/muted devices; display refresh retains action failure; Bluetooth scan reply errors and adapter action FIFO/failure handling. Five regressions reproduced against the previous code |
 | Device UX first pass | Production Bluetooth device row: Space, Return and mouse activation; another device busy or power off prevents activation. Settings expose Bluetooth action errors; power/audio switches reflect pending/unavailable state |
 | Battery empty state | Popup distinguishes initial loading from no battery, suppresses fabricated zero charge/health readings and keeps the power profile control available; capacity label tested against absent/present hardware |
@@ -125,10 +126,10 @@ reproduce each suspected bug and commit only after the repository checks pass.
 
 Next focused investigations (suspicions, not confirmed regressions):
 
-1. `modules/wifi/WifiService.qml`: review repeated saved-network mutations and
-   connection requests while the previous process is starting or stopping.
-   Speed-test cancellation and stale completion are covered; credential cleanup
-   tests cover completed replies, not process-launch failure.
+1. `modules/wifi/WifiService.qml`: review connection requests while the previous
+   process is starting or stopping. Speed-test cancellation and stale completion,
+   plus overlapping saved-network edits, are covered; credential cleanup tests
+   cover completed replies, not process-launch failure.
 2. `modules/bluetooth/BluetoothService.qml`: overlapping device commands,
    discovery lifetime and removed devices. Adapter settings now run FIFO.
    `scripts/bluetooth.sh --scan` currently

@@ -94,6 +94,7 @@ Singleton {
   // ---- Network settings ----
   property var saved: []                       // see wifi.sh --saved
   property var details: null                   // see wifi.sh --details
+  property bool savedBusy: false
   property string saveError: ""
   property string hiddenError: ""
   property bool hiddenBusy: false
@@ -102,6 +103,8 @@ Singleton {
   function refreshDetails() { if (connected) detailsProc.running = true; }
 
   function setSaved(uuid, key, value, extra) {
+    if (savedBusy) return;
+    savedBusy = true;
     saveError = "";
     run(setSavedProc, ["--set", uuid, key, value, extra ?? ""]);
   }
@@ -479,6 +482,7 @@ Singleton {
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
+        root.savedBusy = false;
         root.saveError = o?.ok ? "" : (o?.error ?? "could not change the network");
         root.refreshSaved();
       }

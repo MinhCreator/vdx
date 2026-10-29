@@ -234,6 +234,7 @@ KitColumn {
 
       KitSwitch {
         checked: root.chosen?.autoconnect ?? false
+        disabled: ws.savedBusy
         onToggled: ws.setSaved(root.chosen.uuid, "autoconnect", root.chosen.autoconnect ? "no" : "yes")
       }
     }
@@ -245,6 +246,7 @@ KitColumn {
       hint: "Higher joins first"
 
       KitSegments {
+        disabled: ws.savedBusy
         model: [{ label: "Low", value: -10 }, { label: "Normal", value: 0 }, { label: "High", value: 10 }]
         current: root.chosen?.priority ?? 0
         onPicked: value => ws.setSaved(root.chosen.uuid, "priority", String(value))
@@ -252,6 +254,7 @@ KitColumn {
     }
 
     KitSelect {
+      disabled: ws.savedBusy
       visible: root.chosen !== null
       label: "DNS"
       hint: "Applies at the next connect"
@@ -267,6 +270,7 @@ KitColumn {
       hint: "Yes: apps save data"
 
       KitSegments {
+        disabled: ws.savedBusy
         model: [{ label: "Auto", value: "unknown" }, { label: "Yes", value: "yes" }, { label: "No", value: "no" }]
         current: root.chosen?.metered ?? "unknown"
         onPicked: value => ws.setSaved(root.chosen.uuid, "metered", value)

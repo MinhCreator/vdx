@@ -83,6 +83,28 @@ Scope {
         self.assertEqual(result, {"first": expected_calls[:1], "second": expected_calls,
                                   "calls": expected_calls, "queue": [], "busy": False})
 
+    def test_wifi_saved_settings_reject_overlap_and_allow_retry_after_reply(self):
+        source = (SHELL / "modules/wifi/WifiService.qml").read_text()
+        result = self.evaluate('''
+  property bool savedBusy: false
+  property string saveError: ""
+  property string text: ""
+  property var calls: []
+  QtObject { id: setSavedProc; property var command: []; property bool running: false }
+  function run(proc, args) { calls = calls.concat([args]); }
+  function parse(text) { return JSON.parse(text); }
+  function refreshSaved() {}
+''' + qml_function(source, "setSaved") + '''
+  function complete(text) ''' + handler(source, "setSavedProc"), '''
+          setSaved("fixture", "priority", "10"); setSaved("fixture", "metered", "yes");
+          const first = calls.length;
+          complete(JSON.stringify({ok: false, error: "write failed"}));
+          const failed = saveError;
+          setSaved("fixture", "metered", "no");
+          return {first, retry: calls.length, error: failed, busy: savedBusy};
+        ''')
+        self.assertEqual(result, {"first": 1, "retry": 2, "error": "write failed", "busy": True})
+
     def test_bluetooth_adapter_failure_discards_dependent_queued_actions(self):
         result = self.bluetooth_adapter('''
           setAdapter(["--alias", "one"]); setAdapter(["--pairable", "on"]);
