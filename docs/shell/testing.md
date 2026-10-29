@@ -14,11 +14,15 @@ commit", "Before a push"): [repo/commits.md](../repo/commits.md) — not repeate
 | `./install.py check hypr` | `Hyprland --verify-config` with and without `machine/` |
 | `./install.py check components` | the catalog against the repo and pacman |
 | `ruff check` | Python lint (`ruff.toml`) |
+| `python tests/check_shell_ui.py` | offscreen QML behaviour: shared controls, keyboard, disabled/busy states, inline selects, grouping, layout copies and backend reply parsing |
 | `git ls-files '*.sh' \| grep -v ^packages/nvim \| xargs shellcheck -S warning` | shell scripts |
 | `tests/fresh-machine.sh [defaults \| component…]` | clean Arch in podman: setup, doctor, verify, second setup, uninstall (slow) |
 
-No QML behaviour tests exist. Logic that can live in a backend script (or a
-pure JS file) SHOULD go there so a `tests/test_*.py` can cover it.
+The QML harness uses an isolated, memory-only settings store and substitutes
+Quickshell's clipping rectangle. It does not verify GPU rendering, compositor
+focus, hardware, or real system actions. It runs separately from unittest.
+Logic that can live in a backend script or a pure JS file SHOULD go there so
+it can be tested independently.
 
 ## Shell runtime checks (manual)
 
@@ -51,6 +55,26 @@ Each area lists the scenarios it touches; these are the shared base.
 | Settings lifecycle | reset to default; migration from an old state file (copy of `by-shell/<id>/`); two settings that affect one feature changed in both orders |
 
 ## Known limits
+
+### Audit checkpoint (2026-10-29)
+
+The first refactoring pass covers shared reply parsing, select activation and
+pending states, launcher search/navigation, and Files selection/picker rules.
+The offscreen harness runs again after removing references to the retired
+custom colour field and updating its isolated settings/layout hosts.
+
+Validation: 219 Python tests and 44 QML test cases pass; shell, syntax,
+components, Hyprland and Python lint checks pass. Shell Manager Bar and
+Appearance were visually inspected at the existing window size. Navigation
+to Themes, Fonts, Cursor, Files settings, Network, Sound, Notifications, Hub,
+Live and About produced no new QML errors. This is a page-loading check,
+not a test of every action on those pages.
+
+Still required for a full audit: per-function review of the remaining apps
+and services; capture/lock/portal lifecycles; real device and multiple-monitor
+scenarios; rendering in both styles and themes; performance measurement and
+decomposition of the largest services (especially FilesService). Passing the
+baseline checks does not establish coverage of these scenarios.
 
 - The agent cannot see the screen unless it takes a screenshot; visual checks
   are the owner's unless asked (token cost).

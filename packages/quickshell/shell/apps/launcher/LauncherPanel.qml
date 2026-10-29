@@ -50,7 +50,14 @@ KitFrame {
     tab = tabs[(i + d + tabs.length) % tabs.length].value;
   }
 
-  onTabChanged: { current = 0; if (tab === "files") filesTimer.restart(); }
+  onTabsChanged: if (!tabs.some(t => t.value === tab)) tab = tabs[0].value
+  onItemsChanged: current = Math.max(0, Math.min(current, items.length - 1))
+  onTabChanged: {
+    current = 0;
+    filesTimer.stop();
+    if (tab === "files") filesTimer.restart();
+    else ls.searchFiles("");
+  }
   onQueryChanged: { current = 0; if (tab === "files") filesTimer.restart(); }
   onCurrentChanged: list.positionViewAtIndex(current, ListView.Contain)
 
@@ -69,7 +76,7 @@ KitFrame {
     input.Keys.onPressed: event => {
       const k = event.key;
       if (k === Qt.Key_Escape) root.back();
-      else if (k === Qt.Key_Down) root.current = Math.min(root.current + 1, root.items.length - 1);
+      else if (k === Qt.Key_Down) root.current = Math.max(0, Math.min(root.current + 1, root.items.length - 1));
       else if (k === Qt.Key_Up) root.current = Math.max(root.current - 1, 0);
       else if (k === Qt.Key_Return || k === Qt.Key_Enter) root.runAt(root.current);
       else if (k === Qt.Key_Backtab || (k === Qt.Key_Tab && (event.modifiers & Qt.ShiftModifier))) root.step(-1);

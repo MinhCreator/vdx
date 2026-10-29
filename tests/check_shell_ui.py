@@ -18,6 +18,17 @@ ROOT = Path(__file__).resolve().parent.parent
 SHELL = ROOT / "packages/quickshell/shell"
 
 
+def qml_function(source, name):
+    """Extract a production function for a host without system side effects."""
+    start = source.index("  function " + name + "(")
+    brace = source.index("{", start)
+    depth, end = 1, brace + 1
+    while depth:
+        depth += (source[end] == "{") - (source[end] == "}")
+        end += 1
+    return source[start:end]
+
+
 def main():
     runner = shutil.which("qmltestrunner") or "/usr/lib/qt6/bin/qmltestrunner"
     with tempfile.TemporaryDirectory(prefix="shell-ui-") as tmp:
@@ -36,22 +47,24 @@ def main():
         settings = settings.replace("import Quickshell.Io", "").replace("JsonAdapter {", "QtObject {")
         # Exercise the production named-shape accessors against isolated settings.
         source = (SHELL / "config/ShellSettings.qml").read_text()
-        def function(name):
-            start = source.index("  function " + name + "(")
-            brace = source.index("{", start)
-            depth, end = 1, brace + 1
-            while depth:
-                depth += (source[end] == "{") - (source[end] == "}")
-                end += 1
-            return source[start:end]
-        look_defaults = next(line for line in source.splitlines() if "property var lookDefaults:" in line)
-        settings = settings.replace("QtObject {", "QtObject {\n  id: state\n" + look_defaults + "\n" + function("look") + "\n" + function("setLook"), 1)
+        start = source.index("  readonly property var lookDefaults:")
+        end = source.index("\n  // animations", start)
+        look_defaults = source[start:end]
+        settings = settings.replace("QtObject {", "QtObject {\n  id: state\n" + look_defaults + "\n" + qml_function(source, "look") + "\n" + qml_function(source, "setLook"), 1)
         (config / "ShellSettings.qml").write_text("pragma Singleton\n" + settings)
+        # File selection uses the real service functions without its portal or I/O.
+        files = (SHELL / "apps/files/FilesService.qml").read_text()
+        (work / "qs/kit/TestFileSelection.qml").write_text(
+            "import QtQuick\nQtObject {\nproperty var rows: []\nproperty var selection: []\n"
+            "property string anchor: \"\"\nproperty var picker: null\n"
+            + qml_function(files, "select") + "\n" + qml_function(files, "selectAll") + "\n}\n")
         # Layout logic uses its production functions with a memory-only store.
         bar = work / "qs/bar"
         bar.mkdir()
         layout = (SHELL / "bar/BarLayout.qml").read_text().split("  // written by `./install.py link`;")[0]
         layout = layout.replace("import Quickshell\n", "import TestQuickshell\n").replace("import Quickshell.Io\n", "").replace("Singleton {", "QtObject {")
+        # Popup IPC is outside these memory-only layout tests.
+        layout = layout.replace("import qs.components\n", "")
         layout += """  property QtObject store: QtObject {
           id: state
           property var zones: null

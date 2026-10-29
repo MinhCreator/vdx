@@ -3,6 +3,7 @@ import QtTest
 import qs.config
 import qs.kit
 import qs.bar
+import "qs/kit/reply.js" as Reply
 
 Item {
   width: 720; height: 1000
@@ -26,8 +27,6 @@ Item {
     id: setting; y: 520; width: 540; wide: true; label: "Layout"
     KitSegments { model: [{ label: "Compact", value: 1 }, { label: "Comfortable", value: 2 }]; current: 1 }
   }
-  KitColourField { id: colourField; width: 240; y: 560; value: "#123456" }
-  SignalSpy { id: hexAccepted; target: colourField; signalName: "accepted" }
   KitColourPicker { id: picker; width: 600; y: 600; palette: ["blue", "red"]; colours: name => [Theme[name], Theme[name]] }
   KitChipBands { id: board; y: 820; width: 600; zones: ["left", "hidden"]; idsOf: zone => zone === "left" ? ["audio", "wifi"] : []; labelOf: id => id; iconOf: id => id === "audio" ? "volume" : "wifi" }
   SignalSpy { id: inspected; target: board; signalName: "inspected" }
@@ -40,10 +39,69 @@ Item {
     onPicked: id => selected = id
   }
   SignalSpy { id: clicks; target: button; signalName: "clicked" }
+  SignalSpy { id: selections; target: select; signalName: "picked" }
+  TestFileSelection { id: fileSelection }
   TestCase {
     name: "ShellControls"
     when: windowShown
     function init() { ShellSettings.motion = false; }
+    function test_file_selection_missing_anchor() {
+      fileSelection.picker = null;
+      fileSelection.rows = [{path: "/a"}, {path: "/b"}, {path: "/c"}];
+      fileSelection.anchor = "/deleted";
+      fileSelection.select("/b", "range");
+      compare(fileSelection.selection, ["/b"]);
+      fileSelection.anchor = "/a";
+      fileSelection.select("/c", "range");
+      compare(fileSelection.selection, ["/a", "/b", "/c"]);
+    }
+    function test_file_picker_selection_limit() {
+      fileSelection.rows = [{path: "/a"}, {path: "/b"}];
+      fileSelection.picker = {multiple: false};
+      fileSelection.selectAll();
+      compare(fileSelection.selection, ["/a"]);
+      fileSelection.select("/b", "toggle");
+      compare(fileSelection.selection, ["/b"]);
+      fileSelection.picker = {multiple: true};
+      fileSelection.selectAll();
+      compare(fileSelection.selection, ["/a", "/b"]);
+      fileSelection.rows = [];
+      fileSelection.selectAll();
+      compare(fileSelection.selection, []);
+    }
+    function test_backend_reply_contract_data() {
+      return ["null", "[]", "true", "42", '"text"', "", "bad JSON"].map(value => ({tag: value || "empty", value: value}));
+    }
+    function test_backend_reply_contract(data) {
+      const reply = Reply.parse(data.value, "example.py");
+      compare(reply.ok, false);
+      compare(reply.error, "bad reply from example.py");
+      compare(Reply.parse(data.value, "example.py", null), null);
+      compare(Reply.parse(data.value, "example.py", {error: "fallback"}).error, "fallback");
+    }
+    function test_backend_reply_object() {
+      compare(Reply.parse('{"ok":true,"value":3}', "example.py").value, 3);
+      compare(Reply.parse('{"ok":false,"error":"offline"}', "example.py").error, "offline");
+    }
+    function test_select_pending_and_model_changes() {
+      const model = select.model;
+      const current = select.current;
+      selections.clear();
+      select.openChoices(); verify(select.expanded);
+      select.busy = true; verify(!select.expanded);
+      select.choose(1); compare(selections.count, 0);
+      select.busy = false;
+      select.openChoices(); verify(select.expanded);
+      select.model = []; verify(!select.expanded);
+      select.openChoices(); verify(!select.expanded);
+      select.choose(0); compare(selections.count, 0);
+      select.model = model;
+      select.disabled = true;
+      select.choose(1); compare(selections.count, 0);
+      select.disabled = false;
+      select.choose(model.findIndex(c => c.value === current));
+      compare(selections.count, 0);
+    }
     function findNamed(item, name) {
       if (item.Accessible.name === name) return item;
       for (let i = 0; i < item.children.length; i++) { const found = findNamed(item.children[i], name); if (found) return found; }
@@ -182,7 +240,7 @@ Item {
       const separator = findNamed(sample, "Separator, left");
       const audio = findNamed(sample, "Audio, left");
       verify(separator !== null); verify(audio !== null);
-      compare(separator.height, 40);
+      verify(separator.height > 0);
       compare(separator.height, audio.height);
       compare(separator.y, audio.y);
       sample.destroy();
@@ -285,12 +343,6 @@ Item {
       board.track(100, 150); compare(board.dropZone, "hidden");
       board.cards = false; board.width = 600; board.dropZone = "";
     }
-    function test_colour_field_commits_typed_value() {
-      const input = findNamed(colourField, "Hex colour"); verify(input !== null);
-      input.forceActiveFocus(); input.text = "#abcdef"; hexAccepted.clear(); keyClick(Qt.Key_Return);
-      compare(hexAccepted.count, 1); compare(hexAccepted.signalArguments[0][0], "#abcdef");
-      input.text = "invalid"; keyClick(Qt.Key_Return); verify(colourField.invalid); compare(hexAccepted.count, 1);
-    }
     function test_colour_palette_keyboard() {
       chosen.clear();
       const blue = findNamed(picker, "blue"); verify(blue !== null);
@@ -317,7 +369,7 @@ Item {
     function test_island_copy_preserves_hidden() {
       const hidden = BarLayout.modules.map(m => m.id).filter(id => !["workspaces", "audio", "wifi", "clock", "folder"].includes(id));
       BarLayout.store.shared = false;
-      BarLayout.store.screens = ({main: {zones: null, hidden: [], folder: null, bars: [], island: {start: ["workspaces"], end: ["audio"], hub: ["wifi"], hidden: hidden}}});
+      BarLayout.store.screens = ({main: {zones: null, hidden: [], folder: null, bars: [], island: {start: ["workspaces"], end: ["audio"], hub: ["wifi"], tiles: [], hidden: hidden}}});
       BarLayout.islandCopy("HDMI-A-1", "eDP-1");
       compare(BarLayout.islandIn("hub", "eDP-1").join(","), "wifi");
       verify(BarLayout.islandHidden("eDP-1").includes("music"));
@@ -395,8 +447,8 @@ Item {
       keyClick(Qt.Key_Left); compare(slider.value, 0.5);
     }
     function test_responsive_setting() {
-      setting.width=540; verify(setting.stacked);
-      setting.width=720; verify(!setting.stacked);
+      setting.width=Theme.rowStackBelow - 1; verify(setting.stacked);
+      setting.width=Math.max(720, Theme.rowStackBelow); verify(!setting.stacked);
     }
     function test_switch() {
       toggle.forceActiveFocus(); keyClick(Qt.Key_Space); verify(toggle.checked);

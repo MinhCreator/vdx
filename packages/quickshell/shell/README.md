@@ -164,11 +164,11 @@ All in Shell Manager › Appearance.
 - **Style**: Strict (quiet outlined controls) or Material 3 (tonal surfaces, spacious
   filled controls). Appearance shows both choices as cards; corners remain a
   separate preference. The shared kit supports keyboard focus and activation.
-- **Accent**: off (monochrome), one colour or a gradient, typed as hex or
-  picked. It applies only where switched on: switches, sliders, choices,
+- **Accent**: off (monochrome), or one named colour from the theme's palette.
+  It applies only where switched on: switches, sliders, choices,
   workspaces, dropdowns, bar modules, the window border (Hyprland's focused
-  frame, via `~/.local/state/dotfiles/accent.lua`). A gradient runs across
-  fills; text and outlines take the first colour.
+  frame, via `~/.local/state/dotfiles/accent.lua`). Older custom colours and
+  gradients remain readable from imported settings.
 - **Glow**: off by default; a soft halo (`KitGlow`) behind bright elements, each
   in its own colour, with a strength. Targets: switches, sliders, workspaces,
   live activities, status dots; switch each off under Appearance › Glow.
@@ -239,20 +239,21 @@ kit's keyboard, disabled-state, contrast and responsive-row checks offscreen.
 Its Quickshell clipping substitute does not verify GPU rendering; check the
 live shell too.
 
-Bar settings separate General, Modules and Hub. General combines visual
-Solid / Island mode cards with appearance and monitor settings. Click a module to choose its destination and order, or
+Bar settings separate Layout, Look and Monitors; Hub and Live activities have
+their own pages. Layout selects Solid / Island and arranges modules. Click a module to choose its destination and order, or
 drag it between zones. Available modules have their own searchable bank.
 The main layouts and appearance values are kept independently for Solid and
 Island; child bars retain the existing shared model.
 
-Hub settings include a layout preview, opening/player options, width, avatar
+Hub settings include opening/player options, width
 and the blocks list, where each quick slider (volume, microphone, brightness, night-light warmth, software dimming) is a block of its own with its own switch (warmth shows with night mode, or always).
 Volume and brightness are shown by default unless overridden. Sliders sit
 above a divider. Module layout offers compact semantic groups (the default), equal two-column
-grid tiles and content-sized chips; the preview follows the selection. The profile
+grid tiles and content-sized chips. The profile
 shows the user's initial or chosen image and current system uptime.
 
-Appearance has Style, Accent, Glow, Wallpaper and Shape tabs with previews. Fonts
+Appearance has Interface, Accent and Glow tabs; Interface includes corners.
+Wallpaper is a separate page. Fonts
 and Cursor use searchable lists and a single preview, with explicit Apply.
-The colour picker supports a horizontal hue strip, keyboard adjustments,
-validated HEX and named palette choices. Scrollbars hide while idle.
+The colour picker offers named palette choices with keyboard activation.
+Scrollbars hide while idle.

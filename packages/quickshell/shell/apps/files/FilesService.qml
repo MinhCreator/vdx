@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
+import "../../kit/reply.js" as Reply
 
 // The file manager's state (scripts/files.py): the folder shown and its
 // history, the entries sorted and filtered, the selection, the cut or copied
@@ -337,14 +338,17 @@ Singleton {
     } else if (mode === "range" && anchor !== "") {
       const paths = rows.map(e => e.path);
       const a = paths.indexOf(anchor), b = paths.indexOf(p);
-      selection = paths.slice(Math.min(a, b), Math.max(a, b) + 1);
+      selection = a < 0 || b < 0 ? [p] : paths.slice(Math.min(a, b), Math.max(a, b) + 1);
     } else {
       selection = [p];
     }
     anchor = p;
   }
 
-  function selectAll() { selection = rows.map(e => e.path); }
+  function selectAll() {
+    const paths = rows.map(e => e.path);
+    selection = picker && !picker.multiple ? paths.slice(0, 1) : paths;
+  }
 
   // the keys: `delta` rows (a grid's row is `columns` long), a range with shift
   property int columns: 1
@@ -755,7 +759,7 @@ Singleton {
   }
 
   function parse(text) {
-    try { return JSON.parse(text); } catch (e) { return { ok: false, error: "bad reply from files.py" }; }
+    return Reply.parse(text, "files.py");
   }
 
   Component.onCompleted: run(placesProc, ["places"], "")
@@ -881,7 +885,8 @@ Singleton {
         const o = root.parse(text);
         root.error = o.ok ? "" : o.error;
         if (o.ok && mountProc.asked.open && o.mount) root.go(o.mount);
-        if (o.ok && mountProc.asked.mount && root.path.startsWith(mountProc.asked.mount)) root.go(root.home);
+        const mount = mountProc.asked.mount;
+        if (o.ok && mount && (root.path === mount || root.path.startsWith(mount.replace(/\/+$/, "") + "/"))) root.go(root.home);
         root.refreshDevices();
         root.refreshVolumes();
       }

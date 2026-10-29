@@ -19,6 +19,7 @@ Singleton {
   property bool open: false
   property var files: []                    // [path] of the last search
   property bool searching: false
+  property string fileQuery: ""
 
   // ---- tabs: every tab, the order the Shell Manager's Launcher page sets, the hidden ones ----
   readonly property var allTabs: [
@@ -67,9 +68,12 @@ Singleton {
 
   // ---- files ----
   function searchFiles(q) {
-    if (q.length < 2) { files = []; return; }
+    fileQuery = q;
     filesProc.running = false;
-    filesProc.command = ["fd", "--max-results", "60", "--ignore-case", "--hidden", "--exclude", ".git", "--exclude", ".cache", q, home];
+    files = [];
+    searching = false;
+    if (q.length < 2) return;
+    filesProc.command = ["fd", "--max-results", "60", "--ignore-case", "--hidden", "--fixed-strings", "--print0", "--exclude", ".git", "--exclude", ".cache", "--", q, home];
     searching = true;
     filesProc.running = true;
   }
@@ -80,7 +84,13 @@ Singleton {
 
   Process {
     id: filesProc
-    stdout: StdioCollector { onStreamFinished: { root.files = text.split("\n").filter(l => l !== ""); root.searching = false; } }
+    stdout: StdioCollector {
+      onStreamFinished: {
+        if (root.fileQuery.length < 2) return;
+        root.files = text.split("\u0000").filter(l => l !== "");
+        root.searching = false;
+      }
+    }
   }
 
   // ---- the shell's own apps (apps/apps.json); keys from the live binds ----

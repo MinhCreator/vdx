@@ -23,9 +23,14 @@ Column {
   property bool expanded: false
   property int highlighted: -1
   function openChoices() {
-    if (disabled || busy) return;
+    if (disabled || busy || !model.length) return;
     highlighted = Math.max(0, model.findIndex(c => c.value === current));
     expanded = !expanded;
+  }
+  function choose(index) {
+    if (disabled || busy || !model[index]) return;
+    if (model[index].value !== current) picked(model[index].value);
+    expanded = false;
   }
   function moveChoice(step) {
     if (disabled || busy || !model.length) return;
@@ -76,6 +81,8 @@ Column {
   z: expanded ? 10 : 0
 
   onDisabledChanged: if (disabled) expanded = false
+  onBusyChanged: if (busy) expanded = false
+  onModelChanged: expanded = false
 
   Item {
     id: row
@@ -117,10 +124,7 @@ Column {
       Keys.onEscapePressed: root.expanded = false
       Keys.onReturnPressed: {
         if (!root.expanded) root.openChoices();
-        else if (!root.disabled && !root.busy && root.model[root.highlighted]) {
-          root.picked(root.model[root.highlighted].value);
-          root.expanded = false;
-        }
+        else root.choose(root.highlighted);
       }
       // a click focuses it (the keys work) but draws no ring: the ring is for Tab
       property bool byMouse: false
@@ -287,8 +291,7 @@ Column {
               hoverEnabled: true
               cursorShape: Qt.PointingHandCursor
               onClicked: {
-                if (!option.active) root.picked(option.modelData.value);
-                root.expanded = false;
+                root.choose(option.index);
               }
             }
           }

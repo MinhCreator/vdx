@@ -101,19 +101,19 @@ uses tonal layers and more spacious controls.
 - Colour rules (the look has one exception, the accent):
   1. Default: colour is state only. Green ok, yellow / orange attention, red error.
      Everything else is shades of the theme (`Theme.foreground*`, `background*`, `gray`).
-  2. Accent: the user's own colour (Appearance › Accent: one colour or a
-     gradient, `Theme.accent` / `Theme.accentEnd`). Off by default. It takes only the
+  2. Accent: the user's palette colour (Appearance › Accent: one named colour,
+     `Theme.accent` / `Theme.accentEnd`). Off by default. It takes only the
      places of APPLIES TO (`Theme.accentOn(key)` / `accentFor(key, fallback)`); a new place gets a key there, never a literal colour.
   3. A warning colour is never replaced by the accent: a load, a low battery, an error, a mute keep theirs.
      The active state of a module (on, playing, charging, connected) is the accent's place
      `modules` (APPLIES TO › Bar modules): `Theme.accentFor("modules", <its colour>)`. Its colour
      options then show a note and are disabled (`KitSwatches { disabled }`).
-  4. A gradient is a `Gradient` from `accent` to `accentEnd`; a text, a dot or an outline
-     takes `accent` alone.
+  4. Legacy imported gradients remain readable: a `Gradient` runs from `accent`
+     to `accentEnd`; text, dots and outlines take `accent` alone.
   Glow (Appearance › Glow) is separate: a bright element gets a `KitGlow` in its own
   colour, keyed by a Glow target (`Theme.glowOn(key)`); never a hand-made shadow.
-  No hex in QML — `Theme.*` only (a custom colour is picked on the spectrum or typed in Shell Manager and
-  kept in settings). Dimmed screens use `Theme.scrim`.
+  No hex in QML — `Theme.*` only. Legacy custom colours remain in settings.
+  Dimmed screens use `Theme.scrim`.
 - Text: secondary text (hints, captions, times) is `Theme.muted`, lifted to
   4.5:1 on the highest normal control surface in every theme; `gray` is for frames, ticks, icons and
   inactive text only. Sizes are `Theme.fontSize ± n` (Fonts › Text size,
@@ -172,12 +172,11 @@ Pages by the user's area; the look follows macOS System Settings.
   `Theme.controlHover`. Apps and Bar modules use `EntryList`; a new list copies it.
 - A pick list longer than a few rows is a page of cards, not a long select; a
   `KitSelect` shows `maxRows` and scrolls, a choice's `note` says its state.
-- MUST — colour: `KitColourPicker` has a saturation × brightness plane,
-  horizontal hue strip, validated HEX input, selected-colour sample and named
-  palette chips. Below 440 px, the exact-value pane stacks below the plane.
-  Arrow keys adjust the plane and hue; palette chips accept Space / Enter.
-  Invalid HEX is visible and never applied. In nested editors the picker uses
-  the full section width, rather than a narrow trailing-control slot. Window frames (off | theme | accent) are
+- MUST — colour: `KitColourPicker` presents named palette chips which wrap
+  to the available width and accept Space / Enter. It uses the full section
+  width rather than a narrow trailing-control slot. Custom values and gradients
+  from older settings remain readable, but the picker chooses solid palette
+  colours. Window frames (off | theme | accent) are
   in Windows › Look.
 - A caption over a slider (an app's name, a device) sits `gapMedium` above it;
   never `gapTight`.
@@ -237,7 +236,7 @@ Pages by the user's area; the look follows macOS System Settings.
 - MUST — body text uses Normal, action labels Medium, selected items DemiBold.
   Large page titles use Medium. Avoid ExtraBold for routine selection.
 - MUST — shared control height is 34 in Strict, 36 in Material; setting rows
-  at least 40, navigation 34 / 36. Wide settings stack below 560 px of
+  at least 40, navigation 34 / 36. Wide settings stack below `Theme.rowStackBelow` (420 px) of
   available row width. Use `Theme.rowHeight` / `navigationHeight` instead of
   copying these values into pages.
 - MUST — Material settings groups use `Theme.groupFill` without outlines;
@@ -252,16 +251,12 @@ Pages by the user's area; the look follows macOS System Settings.
 
 ## Settings navigation and previews
 
-- Appearance separates Style, Accent, Wallpaper and Shape. Accent and Shape
-  preview real kit controls; Wallpaper previews a small desktop.
-- Bar separates General, Modules and Hub. General contains visual Solid /
-  Island mode cards, appearance and monitor settings. The module inspector offers destination and order
-  controls as an alternative to drag. Available modules are searchable.
-  Both bar tabs show a compact preview with representative module faces;
-  narrow previews use compact icons and overflow counts. General is read-only,
-  while Modules allows positioning, adding and removing child bars.
-- Hub has a dedicated preview pane and General / Content groups. On wide pages a full-size preview sits to the right of the settings. It uses
-  labelled sample values and never controls system devices. Hub appearance
+- Appearance separates Interface, Accent and Glow. Interface includes corners;
+  Wallpaper has its own page.
+- Bar separates Layout, Look and Monitors. Layout selects Solid / Island and
+  arranges modules; the module inspector offers destination and order controls
+  as an alternative to drag. Available modules are searchable.
+- Hub and Live activities have their own pages. Hub appearance
   options always address the Island settings, even when Solid is active.
 - Fonts and Cursor use searchable rows and one preview. Picking a row does
   not apply it. Downloads and changes use an explicit action. Themes applies
