@@ -5,10 +5,10 @@ import qs.modules.mpd
 import qs.modules.player
 import qs.kit
 
-// The music's queue (PlayerService.musicQueue: MPD's, or the one a station put aside; never a
-// station's or another app's): two lines per track, nine rows visible, then it scrolls. It scrolls
-// itself so the current track sits on top. A click plays a track, a right click takes it out
-// (frozen: a click brings the music back); the search button swaps the list for matches.
+// The music's queue (PlayerService.musicQueue: MPD's; never a station's or another app's): two
+// lines per track, nine rows visible, then it scrolls. It scrolls itself so the current track sits
+// on top. A click plays a track, a right click takes it out; the search button swaps the list for
+// matches.
 Column {
   id: root
 
@@ -17,10 +17,8 @@ Column {
 
   readonly property int rowHeight: 38
   readonly property int upNext: 9
-  // while a station has the queue the player is frozen: its queue and place are the kept ones
-  readonly property bool frozen: PlayerService.music.parked
-  readonly property int currentPos: frozen ? MpdService.parkedTrack.pos : (MpdService.player.pos ?? 0)
-  // the Queue tab is the music's (MPD, or its frozen player): another app's queue is not shown here
+  readonly property int currentPos: MpdService.player.pos ?? 0
+  // the Queue tab is the music's: a station's or another app's queue is not shown here
   readonly property string notice: PlayerService.music.hasMedia ? "" : "Nothing is queued"
   readonly property var tracks: {
     const queue = PlayerService.musicQueue;
@@ -161,7 +159,6 @@ Column {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             cursorShape: Qt.PointingHandCursor
             onClicked: mouse => {
-              if (root.frozen) { MpdService.unpark(); return; }       // frozen: a click brings the music back
               if (mouse.button === Qt.RightButton) MpdService.control(["--queue-del", String(row.modelData.pos)]);
               else {
                 MpdService.play(row.modelData.pos);

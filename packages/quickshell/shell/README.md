@@ -71,13 +71,9 @@ of every tab.
 Three players, each with its own bar module, popup and live activity: the music
 (`music`: MPD playing the likes or the local files), the radio (`tuner`: MPD
 playing a station) and the media of other apps (`media`: MPRIS). The music's popup:
-Now playing, its Queue and the Library (likes, folders). MPD has one queue: a
-station parks the music — the whole player as it stood, in
-`~/.local/state/music-parked.json` — and the Music popup keeps showing it, paused;
-play brings it back at the same track and second. The other way round, music
-that takes the queue from a station holds the station (`~/.local/state/radio-held`): the
-radio stands paused and its play brings the station back. Sound › One source at a time: a
-player that starts pauses the others. Options: Shell Manager › Bar modules › Music.
+Now playing (an empty player when nothing plays), its Queue and the Library (likes, folders). MPD
+has one queue: a station and the music replace each other, nothing is kept. Sound › One source at
+a time: a player that starts pauses the others. Options: Shell Manager › Bar modules › Music.
 
 ### Backups
 
@@ -191,9 +187,7 @@ kept as `settings-before-reset.json`).
 
 State: `~/.local/state/quickshell/by-shell/<id>/` (`settings.json`,
 `modules.json`, `layout.json`, …), `~/.local/state/dotfiles/`
-(`window-mode`, `windows.json`, `shell-apps.json`) `~/.local/state/music-parked.json`
-(the music a station put aside) and `~/.local/state/radio-held` (the station the music
-pushed out), both `scripts/music.sh`.
+(`window-mode`, `windows.json`, `shell-apps.json`).
 
 Files you may edit by hand:
 

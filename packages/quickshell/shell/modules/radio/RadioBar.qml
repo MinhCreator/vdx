@@ -22,9 +22,9 @@ Item {
   KitBarItem {
     id: face
     icon: "radio"
-    text: BarLayout.faceText("tuner", RadioService.active ? (MpdService.player.station ?? "") : RadioService.held ? RadioService.stationName : "")
-    tint: RadioService.active || RadioService.held ? Theme.accentFor("modules", Theme.yellow) : Theme.gray
-    opacity: RadioService.held || RadioService.active && !MpdService.playing ? 0.6 : 1
+    text: BarLayout.faceText("tuner", RadioService.active ? (MpdService.player.station ?? "") : "")
+    tint: RadioService.active ? Theme.accentFor("modules", Theme.yellow) : Theme.gray
+    opacity: RadioService.active && !MpdService.playing ? 0.6 : 1
   }
 
   MouseArea {

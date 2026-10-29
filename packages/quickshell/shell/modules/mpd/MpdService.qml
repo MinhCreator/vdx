@@ -38,14 +38,6 @@ Singleton {
   readonly property bool playing: player.state === "playing"
   readonly property bool paused: player.state === "paused"
   readonly property bool stopped: !service || player.state === "stopped" || source === ""
-  // The music a station put aside, frozen as it stood: {pos, elapsed, duration, file, title, artist,
-  // album, year, length}, and its queue. The script's file is the only record of it (`music.sh
-  // --radio` writes it, `--unpark` restores and removes it), so it survives a reload of the shell.
-  readonly property var parkedTrack: player.parked || null
-  readonly property bool parked: parkedTrack !== null
-  property var parkedQueue: []                 // [{pos, artist, title}] (`music.sh --parked-queue`)
-  readonly property string parkedKey: parked ? parkedTrack.file + "\n" + parkedTrack.pos + "\n" + parkedTrack.length : ""
-  onParkedKeyChanged: refreshQueue()
   readonly property string source: player.source ?? ""     // likes | radio | files | ""
   readonly property string file: player.file ?? ""
   readonly property real duration: player.duration ?? 0
@@ -70,7 +62,6 @@ Singleton {
     if (on) load("on", ["--on"]);
     else control(["--off"]);
   }
-  function unpark() { load("parked", ["--unpark"]); }
   function pause() { control(["--pause"]); }
   function stop() { control(["--stop"]); }
   function next() { control(["--next"]); }
@@ -98,11 +89,9 @@ Singleton {
 
   function addFile(file, next) { control([next ? "--files-next" : "--files-add", file]); }
 
-  // the queue as MPD has it now, and the parked one (the popups and the window ask when they show)
+  // the queue as MPD has it now (the popups and the window ask when they show)
   function refreshQueue() {
     if (!queueProc.running) run(queueProc, ["--queue"]);
-    if (!parked) parkedQueue = [];
-    else if (!parkedQueueProc.running) run(parkedQueueProc, ["--parked-queue"]);
   }
 
   // ---- internals ----
@@ -162,13 +151,6 @@ Singleton {
     id: queueProc
     stdout: StdioCollector {
       onStreamFinished: root.queue = root.parse(text) ?? []
-    }
-  }
-
-  Process {
-    id: parkedQueueProc
-    stdout: StdioCollector {
-      onStreamFinished: root.parkedQueue = root.parked ? (root.parse(text) ?? []) : []
     }
   }
 

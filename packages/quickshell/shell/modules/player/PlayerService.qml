@@ -8,9 +8,8 @@ import qs.modules.radio
 import qs.modules.yandex
 
 // The shell's three players, each with its own popup, bar module and live activity:
-//   music  MPD playing its own music (the Yandex likes, the local files); while a station has
-//          MPD's one queue, the music it put aside, frozen as it stood (MpdService.parkedTrack)
-//   radio  MPD playing a station (RadioService)
+//   music  MPD playing its own music (the Yandex likes, the local files)
+//   radio  MPD playing a station (RadioService). MPD has one queue: one replaces the other
 //   media  the other apps, over MPRIS (a browser, mpv, Spotify)
 // `view` is the one the keys, the hub's card and the island control: the one that plays (the
 // radio, the music, the media), else a paused one in the same order.
@@ -41,17 +40,15 @@ Singleton {
     return true;
   }
 
-  // ---- the sources: {key, name, playing} and mpd, parked or mpris ----
+  // ---- the sources: {key, name, playing} and mpd or mpris ----
   readonly property bool mpdMusic: !MpdService.stopped && MpdService.source !== "radio"
   readonly property var musicSource: mpdMusic
     ? { key: "mpd", name: MpdService.source === "files" ? "Files" : "Yandex Music", mpd: true, playing: MpdService.playing }
-    : MpdService.parked ? { key: "parked", name: "Paused by the radio", parked: true, playing: false, track: MpdService.parkedTrack }
     : null
-  // the music's queue: MPD's, or the one put aside with it; never a station's
-  readonly property var musicQueue: musicSource?.parked ? MpdService.parkedQueue : musicSource ? MpdService.queue : []
-  // the radio: on air, or held — paused by the music that took the queue
+  // the music's queue; a station's is not one
+  readonly property var musicQueue: musicSource ? MpdService.queue : []
+  // the radio: on air (MPD has one queue: music and a station replace each other)
   readonly property var radioSource: RadioService.active ? { key: "radio", name: "Radio", mpd: true, playing: MpdService.playing }
-    : RadioService.held ? { key: "radio-held", name: "Radio", held: true, playing: false }
     : null
   // the apps' players, by their unique id
   readonly property var externals: {
