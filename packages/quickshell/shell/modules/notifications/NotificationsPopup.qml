@@ -150,8 +150,10 @@ KitFrame {
               TapHandler {
                 onTapped: {
                   NotificationsService.focusApp(item.modelData);
-                  if (ModuleSettings.get("notifications", "removeOnClick", false)) NotificationsService.remove(item.modelData.key);
+                  const key = item.modelData.key;
                   root.closeRequested();
+                  // last: removing the row ends this handler's context
+                  if (ModuleSettings.get("notifications", "removeOnClick", false)) NotificationsService.remove(key);
                 }
               }
 
