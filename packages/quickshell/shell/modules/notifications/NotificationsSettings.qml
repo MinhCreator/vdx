@@ -48,6 +48,8 @@ KitColumn {
 
   KitToggleRow { module: "notifications"; key: "closeOnClear"; fallback: false; label: "Close after Clear all"; hint: "Off: the centre stays open" }
 
+  KitToggleRow { module: "notifications"; key: "removeOnClick"; fallback: false; label: "Remove on click"; hint: "A click on a notification takes it out of the centre" }
+
   KitLine {}
 
   KitLabel { text: "UNSEEN"; about: "The mark for what you have not looked at yet" }
