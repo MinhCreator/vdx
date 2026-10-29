@@ -39,7 +39,7 @@ Item {
       toggle: () => BluetoothService.togglePower() };
     case "mihomo": return {
       icon: "public", title: "VPN", on: MihomoService.serviceOn,
-      detail: MihomoService.serviceOn ? (MihomoService.current || "On") : "Off",
+      detail: MihomoService.serviceOn ? "On" : "Off",
       toggle: () => MihomoService.toggleService() };
     case "focus": return {
       icon: "moon", title: "Focus", on: FocusService.on, detail: FocusService.on ? "Do not disturb" : "Off",

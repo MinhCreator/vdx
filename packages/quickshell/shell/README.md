@@ -112,7 +112,7 @@ size, gap, separators and hub opening.
   runs, only while it does, in three kinds: Asks (low battery, a connected
   device), Held (recording, update, backup, timer, VPN, Focus, radio, music, media) and Flash (the mic, the
   layout, the cable). The wheel over it pages through them with a
-  slide, and it stays on the one paged to (nothing pages back by itself); one shows whole in the pill (activities never fold);
+  slide, and it stays on the one paged to (nothing pages back by itself; Bar › Live › New one comes forward lets an activity that starts take the pill first); one shows whole in the pill (activities never fold);
   a click on the music opens the
   Music popup (a middle click plays / pauses). Bar › Live: each activity on or
   off, the row order in its kind is the priority (drag a row), the low battery

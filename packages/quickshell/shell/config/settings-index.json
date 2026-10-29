@@ -1568,6 +1568,12 @@
   "target": "live"
  },
  {
+  "label": "New one comes forward",
+  "hint": "An activity that starts takes the pill; then scroll to the others",
+  "where": "Live activities › BEHAVIOUR",
+  "target": "live"
+ },
+ {
   "label": "Right click opens options",
   "hint": "On a live activity: its settings here",
   "where": "Live activities › BEHAVIOUR",

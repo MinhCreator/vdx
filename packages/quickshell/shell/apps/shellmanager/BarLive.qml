@@ -96,6 +96,11 @@ Column {
       KitSwitch { checked: ShellSettings.liveWheel; onToggled: ShellSettings.setLook("liveWheel", !checked, "island") }
     }
     KitRow {
+      label: "New one comes forward"
+      hint: "An activity that starts takes the pill; then scroll to the others"
+      KitSwitch { checked: ShellSettings.liveFront; onToggled: ShellSettings.setLook("liveFront", !checked, "island") }
+    }
+    KitRow {
       label: "Right click opens options"
       hint: "On a live activity: its settings here"
       KitSwitch { checked: ShellSettings.liveRightSettings; onToggled: ShellSettings.setLook("liveRightSettings", !checked, "island") }

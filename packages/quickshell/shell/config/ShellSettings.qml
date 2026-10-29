@@ -61,6 +61,7 @@ Singleton {
   // inside its section (the priority), how long a flash stays
   readonly property int liveNoticeMs: look("liveNoticeMs", "island")  // a notification's line stays this long (0: until read)
   readonly property int liveFlashMs: look("liveFlashMs", "island")          // a flash stays this long
+  readonly property bool liveFront: look("liveFront", "island")    // an activity that starts takes the pill
   readonly property bool liveWheel: look("liveWheel", "island")
   readonly property bool liveRightSettings: look("liveRightSettings", "island")  // a right click on an activity opens its options
   readonly property int liveBatteryBelow: look("liveBatteryBelow", "island") // %, low battery interrupts below this
@@ -95,7 +96,7 @@ Singleton {
     liveEnabled: true, liveBattery: true, liveBluetooth: true,
     liveRecording: true, liveUpdate: true, liveBackup: true, liveTimer: true, liveRadio: true, liveRadioPaused: true, liveMedia: true, liveVpn: false, liveFocus: true, liveMusic: true, liveMusicPaused: false, liveMusicAlways: false, liveNoticeMark: "avatar",
     liveVolume: true, liveMic: true, liveLayout: true, livePlugged: true,
-    liveFlashMs: 1500, liveNoticeMs: 5000, liveWheel: true, liveRightSettings: true,
+    liveFront: true, liveFlashMs: 1500, liveNoticeMs: 5000, liveWheel: true, liveRightSettings: true,
     liveBatteryBelow: 20, liveBatteryStay: "fixed", liveOrder: ({}) })
   // animations (Shell Manager › Animations; Motion reads them)
   readonly property bool motion: state.motion                     // all of them on / off

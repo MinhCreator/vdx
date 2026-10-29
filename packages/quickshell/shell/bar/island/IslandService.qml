@@ -127,6 +127,16 @@ Singleton {
   property int liveIndex: 0
   // paging with the wheel stays: nothing switches the pill back by itself
   readonly property string live: activities[Math.min(liveIndex, activities.length - 1)] ?? ""
+  // a new activity takes the pill (Bar › Live › New one comes forward); paging goes on from there
+  property var seenKinds: []
+  onActivitiesChanged: {
+    const added = activities.filter(k => !seenKinds.includes(k));
+    seenKinds = activities;
+    if (ready && ShellSettings.liveFront && added.length > 0 && !added.includes(flashKind)) {
+      liveIndex = activities.indexOf(added[added.length - 1]);
+      liveDir = 1;
+    }
+  }
   property int liveDir: 1                      // the last step: 1 next, -1 back (the slide's way)
 
   function liveStep(delta) {
