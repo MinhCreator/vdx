@@ -34,7 +34,7 @@ Rectangle {
   // set once: whether it sits in a Settings box (a walk up, not a binding)
   property bool boxed: false
   Component.onCompleted: boxed = Theme.boxed(parent)
-  color: Theme.material ? (textInput.activeFocus || hover.hovered ? Theme.hoverOn(boxed) : Theme.fillOn(boxed)) : (textInput.activeFocus || hover.hovered ? Theme.controlHover : Theme.controlFill)
+  color: textInput.activeFocus || hover.hovered ? Theme.hoverOn(boxed) : Theme.fillOn(boxed)
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
   border.width: textInput.activeFocus && !Theme.material ? Theme.focusWidth : Theme.frameWidth
   border.color: textInput.activeFocus ? Theme.focusRing : hover.hovered ? Theme.controlLineHover : Theme.controlLineRest

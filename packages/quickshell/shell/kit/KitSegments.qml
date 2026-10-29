@@ -14,6 +14,8 @@ Rectangle {
   property var model: []
   property var current: null
   property bool disabled: false
+  property bool boxed: false
+  Component.onCompleted: boxed = Theme.boxed(parent)
   // each label measured in the font it is drawn in (the picked one is bold: the wider)
   readonly property int edge: m3 ? 1 : inset
   readonly property var natural: {
@@ -72,7 +74,7 @@ Rectangle {
   implicitWidth: Theme.controlWidth
   implicitHeight: Theme.controlHeight
   radius: Theme.radiusControl
-  color: m3 ? Theme.clear : Theme.controlFill
+  color: m3 ? Theme.clear : Theme.fillOn(boxed)
   border.width: m3 ? 1 : Theme.frameWidth
   border.color: Theme.controlLineRest
   opacity: disabled ? 0.4 : 1

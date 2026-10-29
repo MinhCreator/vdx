@@ -33,6 +33,8 @@ Rectangle {
   Keys.onReturnPressed: event => { if (!disabled && !event.isAutoRepeat) toggled(); }
 
   signal toggled()
+  property bool boxed: false
+  Component.onCompleted: boxed = Theme.boxed(parent)
 
   implicitWidth: m3 ? 44 : 38
   implicitHeight: m3 ? 24 : 20
@@ -45,12 +47,12 @@ Rectangle {
     orientation: Gradient.Horizontal
     GradientStop {
       position: 0
-      color: root.accented ? Theme.accent : root.checked ? Theme.foreground0 : root.m3 ? root.trackColor : Theme.background1
+      color: root.accented ? Theme.accent : root.checked ? Theme.foreground0 : root.m3 ? root.trackColor : Theme.fillOn(root.boxed)
       Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
     }
     GradientStop {
       position: 1
-      color: root.accented ? Theme.accentEnd : root.checked ? Theme.foreground0 : root.m3 ? root.trackColor : Theme.background1
+      color: root.accented ? Theme.accentEnd : root.checked ? Theme.foreground0 : root.m3 ? root.trackColor : Theme.fillOn(root.boxed)
       Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
     }
   }

@@ -148,8 +148,9 @@ QtObject {
       for (const k of p.data ?? []) if (k.isKitGrouper) return true;
     return false;
   }
-  function fillOn(boxed) { return boxed && material ? surfaceHigh : controlFill; }
-  function hoverOn(boxed) { return boxed && material ? surfaceHighest : controlHover; }
+  // Strict: the box is a raised card, so a control in it is plated one step above the card
+  function fillOn(boxed) { return !boxed ? controlFill : material ? surfaceHigh : mix(background0, foreground0, 0.085); }
+  function hoverOn(boxed) { return !boxed ? controlHover : material ? surfaceHighest : mix(background0, foreground0, 0.12); }
   readonly property color popupFrame: material ? outlineVariant : controlLineHover
   // Strict: a control's frame is a quiet line, lighter under the pointer or
   // while open; the picked one is filled one step up in a bold weight.
@@ -157,11 +158,11 @@ QtObject {
   function mix(a: color, b: color, t: real): color {
     return Qt.rgba(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t, 1);
   }
-  readonly property color controlLine: material ? outline : mix(background0, foreground0, 0.14)
+  readonly property color controlLine: material ? outline : mix(background0, foreground0, 0.12)
   // at rest a control's frame is fainter still: the frame answers the pointer, it does not shout
-  readonly property color controlLineRest: material ? outline : mix(background0, foreground0, 0.06)
+  readonly property color controlLineRest: material ? outline : mix(background0, foreground0, 0.07)
   readonly property color controlLineHover: material ? onSurfaceVariant : mix(background0, foreground0, 0.28)
-  readonly property color pickFill: material ? secondaryContainer : mix(background0, foreground0, 0.11)
+  readonly property color pickFill: material ? secondaryContainer : mix(background0, foreground0, 0.14)
   readonly property int pickWeight: Font.DemiBold
   // a window's side pane (Shell Manager's sidebar): Strict sets it a shade under the page
   readonly property color sideFill: material ? surfaceContainer : mix(background0, foreground0, 0.025)
@@ -181,7 +182,7 @@ QtObject {
   readonly property int rowHeight: 40
   // side inset of a box = the gap above/below its controls (row padding + the row's spare height): one distance all round
   readonly property int groupInset: settingsRowInset + Math.round((rowHeight - controlHeight) / 2)
-  readonly property color groupFill: material ? surfaceContainer : background0
+  readonly property color groupFill: material ? surfaceContainer : mix(background0, foreground0, 0.04)   // Strict: a raised card, as Material
   // Choose the best of the theme's foreground/background on any custom fill.
   function inkOn(fill: color): color {
     return contrast(foreground0, fill) >= contrast(background0, fill) ? foreground0 : background0;

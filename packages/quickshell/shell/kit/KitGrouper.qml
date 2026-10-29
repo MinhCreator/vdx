@@ -10,7 +10,7 @@ import qs.config
 // outer one to look again. A child with `property bool kitUnboxed: true` (a
 // preview, a board of chips) stands on the page; a title that is not a
 // KitLabel says `readonly property bool isKitLabel: true`. Sliders take the
-// row layout (`rowStyle`). Strict frames the box in a quiet line.
+// row layout (`rowStyle`). Strict: a raised card in a faint line.
 // Put it last: it is 1×1 (a Column hides a zero-size child, and its drawing
 // with it), placed at the end and taken back with a negative bottom padding;
 // it draws behind the rows in the column's coordinates.
@@ -192,7 +192,7 @@ Item {
       radius: Theme.radiusCard
       color: Theme.groupFill
       border.width: Theme.material ? 0 : Theme.hairline
-      border.color: Theme.controlLine
+      border.color: Theme.controlLineRest
     }
   }
 

@@ -27,11 +27,11 @@ uses tonal layers and more spacious controls.
   under the pointer, focused or open), its fill `Theme.controlFill` /
   `controlHover`, a popup's frame `Theme.popupFrame`. Never a literal 1.
   Picked (a choice, a segment, a nav row): `Theme.pickFill` + `Theme.pickWeight`.
-  Strict: faint 1 px frames over a barely lifted tonal fill (`controlFill`); `KitSegments` is an outlined track
+  Strict: a Settings box is a raised card (`groupFill`, a faint `controlLineRest` frame) and the controls in it are plates one step above it (`fillOn(boxed)`, a faint 1 px frame); `KitSegments` is an outlined track
   with the picked segment a plate inset 3 px, no check; `KitSwitch` off is an
   outlined dark track with a grey knob, on a light track with a dark knob; a
   field has no prompt, a thin cursor, an optional `icon` (search); a Settings
-  group's box is framed in `controlLine` on the page surface; a window's sidebar
+  group's box is a raised card; a window's sidebar
   is `Theme.sideFill`. In both styles a Shell Manager page header
   (`KitHeader { page: true }`) is a large title with no icon.
   An outline drawn in either style (a well, a preview, a card at rest) is
@@ -241,7 +241,7 @@ Pages by the user's area; the look follows macOS System Settings.
   available row width. Use `Theme.rowHeight` / `navigationHeight` instead of
   copying these values into pages.
 - MUST — Material settings groups use `Theme.groupFill` without outlines;
-  Strict groups use the page surface with quiet outlines. Nested controls use
+  Strict groups are raised cards in a faint outline. Nested controls use
   `fillOn` / `hoverOn`; lines use `outlineVariant`.
 - MUST — text/handles placed on a custom solid accent use `Theme.inkOn(fill)`;
   gradient handles use `Theme.inkOnGradient(first, last)`. The latter chooses
@@ -276,9 +276,9 @@ Pages by the user's area; the look follows macOS System Settings.
 
 - Dense instrument-panel typography, quiet thin frames and low-contrast tonal
   steps. Preserve the selected theme palette rather than hardcoding black.
-- Resting controls and hub chips have no fill; media cards use the same
-  outlined surface. Hover adds a small neutral lift, selection a slightly
-  stronger one. Material retains its tonal containers.
+- Layers: page, a raised card per group, a control plate in the card; each a
+  small tonal step, rows divided by hairlines. Hover adds a neutral lift,
+  selection a stronger one. Material retains its tonal containers.
 - Accent marks selection and meaningful readings, never a whole decorative
   panel. Normal status colours remain semantic.
 - Every KitSelect expands inline and reserves space before the next item;
