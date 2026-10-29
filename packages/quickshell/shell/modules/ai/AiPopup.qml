@@ -74,7 +74,6 @@ KitFrame {
       limits: ClaudeService.limits
       fetchedAt: ClaudeService.fetchedAt
       error: ClaudeService.error
-      warning: ClaudeService.warning
     }
 
     KitLine { visible: !root.compact }
@@ -164,7 +163,6 @@ KitFrame {
     limits: CodexService.limits
     fetchedAt: CodexService.fetchedAt
     error: CodexService.error
-    warning: ClaudeService.warning
     stamp: "As of Codex's last answer, "
   }
 

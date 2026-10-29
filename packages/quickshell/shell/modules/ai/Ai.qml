@@ -7,7 +7,7 @@ import qs.kit
 
 // Robot icon and the percent of the chosen plan limit, Claude's or Codex's
 // (Modules › AI › Limit);
-// yellow / red when that limit is running out.
+// the icon takes the limit's colour (green, yellow, orange, red) unless Modules › AI › Colour the icon is off.
 Item {
   id: root
 
@@ -30,9 +30,7 @@ Item {
     id: label
     icon: "bot"
     text: BarLayout.faceText("ai", root.percent >= 0 ? root.percent + "%" : "--")
-    tint: root.percent >= ClaudeService.critical ? Theme.red
-         : root.percent >= ClaudeService.warning ? Theme.yellow
-         : Theme.foreground0
+    tint: ModuleSettings.get("ai", "tint", true) && root.percent >= 0 ? ClaudeService.limitColor(root.percent) : Theme.foreground0
   }
 
   MouseArea {

@@ -2254,6 +2254,12 @@
   "target": "modules:ai"
  },
  {
+  "label": "Colour the icon",
+  "hint": "Green, yellow, orange or red with the limit",
+  "where": "Bar modules › AI › BAR",
+  "target": "modules:ai"
+ },
+ {
   "label": "Compact popup",
   "hint": "Hides today's tokens and the sessions: the limits only",
   "where": "Bar modules › AI › BAR",

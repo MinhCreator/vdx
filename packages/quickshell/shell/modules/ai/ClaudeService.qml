@@ -15,8 +15,9 @@ Singleton {
   // ---- tuning ----
   readonly property int usagePollMs: 300000  // plan limits poll (API)
   readonly property int localPollMs: 30000   // today's tokens + sessions, popup open
-  readonly property int warning: 75          // %, bar icon yellow
-  readonly property int critical: 90         // %, bar icon red
+  readonly property int fair: 50             // %, a limit above it is yellow
+  readonly property int warning: 75          // %, above it orange
+  readonly property int critical: 90         // %, from it red
   readonly property string script: Paths.scriptsDir + "/claude.sh"
 
   property var usage: ({})                     // last good `claude.sh --usage`
@@ -30,6 +31,11 @@ Singleton {
   readonly property var limits: usage.limits ?? []
   readonly property int busy: sessions.filter(s => s.status === "busy").length
   readonly property bool refreshing: usageProc.running || todayProc.running
+
+  // one set of colours for a limit, in the popup's bars and the bar's icon
+  function limitColor(percent) {
+    return percent >= critical ? Theme.red : percent > warning ? Theme.orange : percent > fair ? Theme.yellow : Theme.green;
+  }
 
   function popupShown() {
     popupOpen = true;

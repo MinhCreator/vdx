@@ -10,7 +10,6 @@ Column {
   property var limits: []
   property real fetchedAt: 0      // ms, 0 before any
   property string error: ""
-  property int warning: 75        // %, the bar turns yellow here
   property string stamp: "Updated "
 
   readonly property var labels: ({
@@ -41,7 +40,7 @@ Column {
     Column {
       required property var modelData
 
-      readonly property color tint: Theme.qualityColor(modelData.percent, root.warning - 25, root.warning)
+      readonly property color tint: ClaudeService.limitColor(modelData.percent)
 
       width: parent.width
       spacing: 5

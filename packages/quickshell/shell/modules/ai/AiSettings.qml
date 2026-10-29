@@ -27,6 +27,11 @@ KitColumn {
   }
 
   KitToggleRow {
+    module: "ai"; key: "tint"; fallback: true
+    label: "Colour the icon"; hint: "Green, yellow, orange or red with the limit"
+  }
+
+  KitToggleRow {
     module: "ai"; key: "compact"; fallback: false
     label: "Compact popup"; hint: "Hides today's tokens and the sessions: the limits only"
   }
