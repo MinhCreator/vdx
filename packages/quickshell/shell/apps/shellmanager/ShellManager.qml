@@ -229,7 +229,7 @@ Rectangle {
     color: Theme.sideFill
 
     // the rail's width; the list and the header start after it
-    readonly property int railWidth: 68
+    readonly property int railWidth: 52
     readonly property int listX: railWidth + Theme.windowPadding
 
     // the window's header, centred between the window's top and its line, which is level with the page's
