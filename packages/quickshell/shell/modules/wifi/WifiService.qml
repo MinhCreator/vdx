@@ -60,6 +60,7 @@ Singleton {
   property bool speedtestBusy: false
   property var speedtest: null                 // see `wifi.sh --speedtest`
   property string speedtestError: ""
+  property var activeSpeedtest: null
 
   // ---- lifecycle ----
   function popupShown() {
@@ -153,11 +154,19 @@ Singleton {
   }
 
   function measure() {
+    if (!popupOpen || speedtestBusy) return;
     speedtest = null;
     speedtestError = "";
     speedtestBusy = true;
     speedtestTimeout.restart();
-    run(speedtestProc, ["--speedtest"]);
+    const request = speedtestFactory.createObject(root);
+    if (!request) {
+      stopSpeedtest();
+      speedtestError = "could not start speedtest";
+      return;
+    }
+    activeSpeedtest = request;
+    request.running = true;
   }
 
   // ---- actions ----
@@ -230,9 +239,25 @@ Singleton {
   }
 
   function stopSpeedtest() {
+    const request = activeSpeedtest;
+    activeSpeedtest = null;
     speedtestBusy = false;
-    speedtestProc.running = false;
+    if (request) request.running = false;
     speedtestTimeout.stop();
+  }
+
+  function finishSpeedtest(request, text) {
+    if (activeSpeedtest !== request) {
+      Qt.callLater(request.destroy);
+      return;
+    }
+    activeSpeedtest = null;
+    speedtestBusy = false;
+    speedtestTimeout.stop();
+    const o = parse(text);
+    speedtest = o?.ok ? o : null;
+    speedtestError = o?.ok ? "" : (o?.error ?? "speedtest failed");
+    Qt.callLater(request.destroy);
   }
 
   // ---- events ----
@@ -528,15 +553,13 @@ Singleton {
     }
   }
 
-  Process {
-    id: speedtestProc
-    stdout: StdioCollector {
-      onStreamFinished: {
-        if (!root.speedtestBusy) return;   // cancelled
-        const o = root.parse(text);
-        root.stopSpeedtest();
-        root.speedtest = o?.ok ? o : null;
-        root.speedtestError = o?.ok ? "" : (o?.error ?? "speedtest failed");
+  Component {
+    id: speedtestFactory
+    Process {
+      id: request
+      command: ["bash", root.script, "--speedtest"]
+      stdout: StdioCollector {
+        onStreamFinished: root.finishSpeedtest(request, text)
       }
     }
   }

@@ -61,7 +61,7 @@ Each area lists the scenarios it touches; these are the shared base.
 
 ### Audit checkpoint (2026-10-30)
 
-Current validation: 280 Python tests and 98 QML cases. Full repository checks
+Current validation: 281 Python tests and 98 QML cases. Full repository checks
 and Python lint pass. These counts include baseline tests; they do not imply
 that every shell function or desktop scenario has been reviewed.
 
@@ -80,6 +80,7 @@ that every shell function or desktop scenario has been reviewed.
 | Task manager | Production grouping/tree functions with synthetic rows: prototype-name collisions, resource aggregation, user/kernel/PID filters and cyclic process trees |
 | Timer | Production state/functions with a fake notification receiver: pause/lap between ticks, pause after expiry and duplicate completion |
 | Wi-Fi credentials | Three production completion handlers clear the process password environment before publishing idle, for successful and failed replies; no network commands run |
+| Wi-Fi speedtest | Real child-process test cancels a TERM-resistant old request, immediately starts a replacement, and verifies that the late old reply cannot overwrite the newer result; repeated active requests are rejected |
 | Device service first pass | Production battery actions reject startup overlap without changing saved limit/profile; audio live state with missing/muted devices; display refresh retains action failure; Bluetooth scan reply errors. Five regression failures reproduced against the previous code |
 | Device UX first pass | Production Bluetooth device row: Space, Return and mouse activation; another device busy or power off prevents activation. Settings expose Bluetooth action errors; power/audio switches reflect pending/unavailable state |
 | Lock authentication | Production state model with fake PAM: start/empty/busy/locked guards, password consumption and clearing, start failure, success/failure/error, abort and callbacks after completion |
@@ -123,11 +124,10 @@ reproduce each suspected bug and commit only after the repository checks pass.
 
 Next focused investigations (suspicions, not confirmed regressions):
 
-1. `modules/wifi/WifiService.qml`: speed-test cancellation followed immediately
-   by a new measurement; reject stale completion and handle cancellation before
-   process startup. Review repeated saved-network mutations and connection
-   requests while the previous process is starting or stopping. Credential
-   cleanup tests cover completed replies, not process-launch failure.
+1. `modules/wifi/WifiService.qml`: review repeated saved-network mutations and
+   connection requests while the previous process is starting or stopping.
+   Speed-test cancellation and stale completion are covered; credential cleanup
+   tests cover completed replies, not process-launch failure.
 2. `modules/bluetooth/BluetoothService.qml`: overlapping adapter/device commands,
    discovery lifetime and removed devices. `scripts/bluetooth.sh --scan` currently
    reports success without checking the controller's result; the new service
