@@ -71,8 +71,9 @@ links, secrets, `/etc`, units, services). `link` also writes
 | Export / import / reset | one bundle of the three files and the Windows page's (`windows.json`, `window-mode`) | `scripts/settings_io.py`, About › Settings | import migrates; import and reset stop the shell, write (old files `.bak`), start it again; `tests/test_settings_io.py` |
 | Dotfiles state | `~/.local/state/dotfiles/` | installer + shell | `components.json` (modules not installed), `accent.lua`, `window-mode`, `shell-apps.json` |
 
-Settings UI = **Shell Manager** (`apps/shellmanager/`, Super+S). The sidebar, by what the
-user is after: LOOK Appearance, Themes (also Dark / Light), Fonts, Icons, Cursor, Wallpaper, Motion ·
+Settings UI = **Shell Manager** (`apps/shellmanager/`, Super+S). The sidebar is a rail of group
+buttons (LOOK, DESKTOP, SYSTEM) with the shell's own pages (`foot: true`: Profile, Apps, Updates,
+About) at its foot, and a list of the open group's pages beside it. Groups, by what the user is after: LOOK Appearance, Themes (also Dark / Light), Fonts, Icons, Cursor, Wallpaper, Motion ·
 DESKTOP Bar (Layout, Look, Monitors; under it, in the Island style only: Hub, Live activities),
 Bar modules, Windows, Lock screen, Notifications · SYSTEM Network, Hotspot, Bluetooth, Sound,
 Displays (with the night light), Power · SHELL Apps, Updates, About. A page header has its group, a

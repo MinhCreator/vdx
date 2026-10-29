@@ -1,0 +1,42 @@
+import QtQuick
+import QtQuick.Controls as Controls
+import qs.config
+import qs.kit
+
+// An icon button of the Shell Manager's rail: a group, or a page of the shell's own.
+// The name shows as a tooltip.
+Rectangle {
+  id: button
+
+  property string icon: ""
+  property string label: ""
+  property bool active: false
+
+  signal clicked()
+
+  width: Theme.navigationHeight + Theme.gapMedium
+  height: width
+  radius: Theme.radiusControl
+  Accessible.role: Accessible.Button
+  Accessible.name: label
+  color: active ? Theme.pickFill : area.containsMouse ? Theme.controlHover : Theme.clear
+  Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.quick } }
+
+  KitIcon {
+    anchors.centerIn: parent
+    name: button.icon
+    size: 18
+    tint: button.active ? Theme.foreground0 : Theme.foreground2
+  }
+
+  MouseArea {
+    id: area
+    anchors.fill: parent
+    hoverEnabled: true
+    cursorShape: Qt.PointingHandCursor
+    onClicked: button.clicked()
+    Controls.ToolTip.visible: containsMouse
+    Controls.ToolTip.delay: 400
+    Controls.ToolTip.text: button.label
+  }
+}

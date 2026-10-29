@@ -44,6 +44,7 @@ Rectangle {
   }
 
   // `caption` opens a group in the sidebar
+  // `foot`: a button at the rail's foot, outside the groups (the shell's own pages)
   // `child`: a page that belongs to the one above it (the island's Hub and Live activities), a plain row;
   // `island`: only while the island is the bar style
   readonly property var allSections: [
@@ -66,12 +67,23 @@ Rectangle {
     { value: "sound",      label: "Sound",      icon: "volume" },
     { value: "displays",   label: "Displays",   icon: "monitor" },
     { value: "power",      label: "Power",      icon: "zap" },
-    { value: "profile",    label: "Profile",    icon: "user",       caption: "SHELL" },
-    { value: "apps",       label: "Apps",       icon: "list" },
-    { value: "updates",    label: "Updates",    icon: "package" },
-    { value: "about",      label: "About",      icon: "info" }
+    { value: "profile",    label: "Profile",    icon: "user",       caption: "SHELL", foot: true },
+    { value: "apps",       label: "Apps",       icon: "list",     foot: true },
+    { value: "updates",    label: "Updates",    icon: "package",  foot: true },
+    { value: "about",      label: "About",      icon: "info",     foot: true }
   ]
   readonly property var sections: allSections.filter(s => !s.island || Theme.island)
+
+  // the rail's groups: one button each, the list beside it shows the open group's pages
+  readonly property var groups: [
+    { name: "LOOK", icon: "palette" }, { name: "DESKTOP", icon: "layout" }, { name: "SYSTEM", icon: "monitor" }
+  ]
+  readonly property var footSections: sections.filter(s => s.foot)
+  readonly property var navSections: sections.filter(s => !s.foot && groupOf(s.value) === openGroup)
+  property string openGroup: "LOOK"
+  function openGroupOf(name) {
+    if (groupOf(tab) !== name) tab = sections.find(s => !s.foot && groupOf(s.value) === name).value;
+  }
 
   // the sidebar group a page sits in (LOOK, DESKTOP, ...): the crumb over its title
   function groupOf(tab) {
@@ -151,8 +163,6 @@ Rectangle {
     onActivated: searchField.text = ""
   }
 
-  // the open section's group links, unfolded by a second click on it
-  property bool navOpen: false
   readonly property bool dialogOpen: windowDialog.visible
 
   // another page, at one of its groups or (Shell apps) at one app: the
@@ -224,20 +234,24 @@ Rectangle {
   Rectangle {
     id: sidebar
     // the list's width plus the window's frame on its left: the labels keep their room
-    width: Theme.sideWidth + Theme.windowPadding
+    width: railWidth + Theme.sideWidth + Theme.windowPadding
     height: parent.height
     color: Theme.sideFill
+
+    // the rail's width; the list and the header start after it
+    readonly property int railWidth: 52
+    readonly property int listX: railWidth + Theme.windowPadding
 
     // the window's header, centred between the window's top and its line, which is level with the page's
     KitLine {
       id: brandLine
-      x: Theme.windowPadding
+      x: sidebar.listX
       y: header.y + pageLine.y
-      width: parent.width - Theme.windowPadding
+      width: parent.width - sidebar.listX
     }
 
     KitHeader {
-      x: Theme.windowPadding
+      x: sidebar.listX
       y: (brandLine.y - height) / 2
       width: brandLine.width
       icon: "settings"
@@ -248,7 +262,7 @@ Rectangle {
     // the search, first in the list: typing swaps the sections for results
     KitInput {
       id: searchField
-      x: Theme.windowPadding
+      x: sidebar.listX
       y: brandLine.y + brandLine.height + Theme.gapGroup
       width: nav.width
       icon: "search"
@@ -258,13 +272,56 @@ Rectangle {
       onKeyPassed: key => root.picked = Math.max(0, Math.min(root.results.length - 1, root.picked + (key === Qt.Key_Down ? 1 : -1)))
     }
 
-    // the sections scroll when their group links outgrow the window
+    // the rail: a button per group, the shell's own pages at its foot
+    Item {
+      id: rail
+      width: sidebar.railWidth
+      height: parent.height
+
+      KitLine { vertical: true; anchors { right: parent.right; top: parent.top; bottom: parent.bottom } }
+
+      Column {
+        x: (rail.width - width) / 2
+        y: Theme.windowPadding
+        spacing: Theme.gapHair
+
+        Repeater {
+          model: root.groups
+          RailButton {
+            required property var modelData
+            icon: modelData.icon
+            label: modelData.name
+            active: root.openGroup === modelData.name && !root.searching
+            onClicked: root.openGroupOf(modelData.name)
+          }
+        }
+      }
+
+      Column {
+        x: (rail.width - width) / 2
+        anchors { bottom: parent.bottom; bottomMargin: Theme.windowPadding }
+        spacing: Theme.gapHair
+
+        Repeater {
+          model: root.footSections
+          RailButton {
+            required property var modelData
+            icon: modelData.icon
+            label: modelData.label
+            active: root.tab === modelData.value
+            onClicked: root.tab = modelData.value
+          }
+        }
+      }
+    }
+
+    // the open group's pages
     Flickable {
       id: nav
       Controls.ScrollBar.vertical: KitScrollBar {}
-      x: Theme.windowPadding
+      x: sidebar.listX
       y: searchField.y + searchField.height + (Theme.material ? Theme.gapMedium : Theme.gapGroup)
-      width: parent.width - 2 * Theme.windowPadding
+      width: parent.width - sidebar.listX - Theme.windowPadding
       height: parent.height - y - Theme.windowPadding
       visible: !root.searching
       contentHeight: navColumn.implicitHeight
@@ -272,168 +329,31 @@ Rectangle {
       interactive: contentHeight > height
       boundsBehavior: Flickable.StopAtBounds
 
-    Column {
-      id: navColumn
-      width: nav.width - Theme.gapMedium
-      spacing: Theme.gapHair
+      Column {
+        id: navColumn
+        width: nav.width - Theme.gapMedium
+        spacing: Theme.gapHair
 
-      Repeater {
-        model: root.sections
+        KitText {
+          x: Theme.gapLoose
+          text: root.openGroup
+          color: Theme.muted
+          font.pixelSize: Theme.fontSize - 2
+          font.weight: Font.DemiBold
+        }
 
-        Column {
-          id: section
-
-          required property var modelData
-          required property int index
-
-          readonly property bool active: modelData.value === root.tab
-          // the chevron (and the unfolding) only where the page has tabs to choose from
-          readonly property bool hasJumps: root.pageFor(modelData.value).jumps.length > 0 && (root.pageFor(modelData.value).tabs ?? []).length > 1
-          readonly property bool unfolded: active && root.navOpen
-          // a group after the first starts a gap of gapMedium between the groups' captions
-          readonly property int lead: index > 0 ? Theme.gapMedium : 0
-          readonly property bool child: !!modelData.child
-
-          width: parent.width
-          spacing: Theme.gapTight
-
-          // the group's caption, above its first section: its text sits on the top of the
-          // box, so the first caption starts where the page's label does
-          Item {
-            width: section.width
-            height: section.lead + captionText.implicitHeight + Theme.gapHair
-            visible: !!section.modelData.caption
-
-            KitText {
-              id: captionText
-              anchors { left: parent.left; leftMargin: Theme.gapLoose; top: parent.top; topMargin: section.lead }
-              text: section.modelData.caption ?? ""
-              color: Theme.muted
-              font.pixelSize: Theme.fontSize - 2
-              font.weight: Font.DemiBold
-            }
-          }
-
-          Rectangle {
-            radius: Theme.radiusControl
-            id: item
-            width: parent.width
-            height: Theme.navigationHeight
-            activeFocusOnTab: true
-            Accessible.role: Accessible.Button
-            Accessible.name: section.modelData.label
-            Accessible.description: section.active ? "Current page" : ""
-            function activate() {
-              if (section.active) root.navOpen = !root.navOpen;
-              else root.tab = section.modelData.value;
-            }
-            Accessible.onPressAction: activate()
-            Keys.onReturnPressed: activate()
-            Keys.onSpacePressed: activate()
-            border.width: activeFocus ? Theme.focusWidth : 0
-            border.color: Theme.focusRing
-            color: section.active ? Theme.pickFill : itemArea.containsMouse || activeFocus ? Theme.controlHover : Theme.clear
-            Behavior on color { enabled: Motion.pages; ColorAnimation { duration: Motion.quick } }
-
-            KitIcon {
-              id: itemIcon
-              anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
-              name: section.modelData.icon
-              tint: section.active ? Theme.foreground0 : Theme.foreground2
-              size: 16
-            }
-
-            KitText {
-              anchors { left: itemIcon.right; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
-              text: section.modelData.label
-              color: section.active ? Theme.foreground0 : Theme.foreground2
-              font.weight: section.active ? Theme.pickWeight : Font.Normal
-            }
-
-            // the open section with groups: a second click unfolds them
-            KitIcon {
-              anchors { right: parent.right; rightMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
-              visible: section.active && section.hasJumps
-              name: "chevron-down"
-              size: Theme.iconSmall
-              tint: Theme.foreground2
-              rotation: section.unfolded ? 180 : 0
-              Behavior on rotation { enabled: Motion.pages; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
-            }
-
-            MouseArea {
-              id: itemArea
-              anchors.fill: parent
-              hoverEnabled: true
-              cursorShape: section.active && !section.hasJumps ? Qt.ArrowCursor : Qt.PointingHandCursor
-              onClicked: item.activate()
-            }
-          }
-
-          // the open page's groups: a click scrolls there. A second click on
-          // the open section unfolds them; another section folds them away.
-          Item {
-            width: section.width
-            height: section.unfolded ? subs.implicitHeight : 0
-            opacity: section.unfolded ? 1 : 0
-            clip: true
-
-            Behavior on height { enabled: Motion.pages; NumberAnimation { duration: Motion.ms(220); easing.type: Motion.easing } }
-            Behavior on opacity { enabled: Motion.pages; NumberAnimation { duration: Motion.ms(220) } }
-
-            Column {
-              id: subs
-              width: parent.width
-              spacing: Theme.gapTight
-
-              Repeater {
-                model: root.pageFor(section.modelData.value).jumps
-
-                Rectangle {
-                  radius: Theme.radiusControl
-                  id: sub
-
-                  required property var modelData
-
-                  readonly property bool here: section.active && modelData.key === root.currentJump
-
-                  width: subs.width
-                  height: Theme.controlHeight
-                  color: subArea.containsMouse ? Theme.background1 : Theme.clear
-                  Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
-
-                  // where the page is, as a thin line beside the name
-                  Rectangle {
-                    radius: Theme.pill(width)
-                    anchors { left: parent.left; leftMargin: 17; top: parent.top; bottom: parent.bottom; margins: 5 }
-                    width: 2
-                    color: sub.here ? Theme.foreground2 : Theme.background3
-                  }
-
-                  KitText {
-                    anchors { left: parent.left; leftMargin: 36; right: parent.right; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
-                    text: sub.modelData.label
-                    elide: Text.ElideRight
-                    color: sub.here || subArea.containsMouse ? Theme.foreground0 : Theme.muted
-                    Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
-                    font.weight: sub.here ? Theme.pickWeight : Font.Normal
-                    font.pixelSize: Theme.fontSize - 1
-                  }
-
-                  MouseArea {
-                    id: subArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: root.jumpTo(sub.modelData)
-                  }
-                }
-              }
-            }
+        Repeater {
+          model: root.navSections
+          NavRow {
+            required property var modelData
+            entry: modelData
+            current: root.tab
+            width: navColumn.width
+            indent: !!modelData.child
+            onPicked: root.tab = modelData.value
           }
         }
       }
-    }
     }
 
   }
@@ -673,6 +593,7 @@ Rectangle {
     ShellSettings.set("managerTab", tab);   // kept for Shell apps › Shell Manager › Last page
     page.contentY = 0;
     pinnedJump = "";
-    navOpen = false;
+    const g = groupOf(tab);
+    if (groups.some(x => x.name === g)) openGroup = g;
   }
 }
