@@ -12,8 +12,8 @@ spec = importlib.util.spec_from_file_location("settings_index", SCRIPT)
 si = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(si)
 
-TABS = {"themes", "fonts", "icons", "wallpaper", "cursor", "appearance", "animations", "bar", "modules", "windows", "lockscreen", "notifications",
-        "bar", "hub", "live", "network", "hotspot", "sound", "power", "updates", "bluetooth", "displays", "apps", "about"}
+TABS = {"profile", "themes", "fonts", "icons", "wallpaper", "cursor", "appearance", "animations", "bar", "modules", "windows", "lockscreen", "notifications",
+        "bar", "hub", "live", "network", "sound", "power", "updates", "bluetooth", "displays", "apps", "about"}
 
 # a word typed -> where the task is done
 JOURNEYS = {
@@ -44,7 +44,7 @@ JOURNEYS = {
     "island": "bar",
     "solid": "bar",
     "wifi": "network",
-    "hotspot": "hotspot",
+    "hotspot": "network",
     "ethernet": "network",
     "dark mode": "themes",
     "shortcut": "apps:keybinds",

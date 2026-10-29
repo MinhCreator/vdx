@@ -11,7 +11,6 @@ KitSettingsWorkspace {
   readonly property string icon: "sun"
   readonly property string title: "Appearance"
   readonly property string description: "The colour, shape and style of the shell."
-  readonly property string subtitle: "Make the shell feel like yours"
   property string tab: "style"
   readonly property var jumps: [
     { key: "style", label: "Interface", y: 0 },

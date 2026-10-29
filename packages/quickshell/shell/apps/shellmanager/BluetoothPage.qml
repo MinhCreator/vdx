@@ -21,7 +21,6 @@ KitColumn {
   readonly property string icon: "bluetooth"
   readonly property string title: "Bluetooth"
   readonly property string description: "This computer's adapter and the devices it knows."
-  readonly property string subtitle: !bt.powered ? "OFF" : bt.mainDevice ? bt.mainDevice.name.toUpperCase() : "NOT CONNECTED"
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [

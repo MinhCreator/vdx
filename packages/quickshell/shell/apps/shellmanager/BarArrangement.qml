@@ -45,7 +45,7 @@ Column {
   signal addSeparatorRequested()
   signal barChanged(string id, string side, string place)
   signal barRemoved(string id)
-  spacing: 12
+  spacing: Theme.gapWide
 
   FontMetrics { id: previewMetrics; font.family: Theme.fontFamily; font.pixelSize: Theme.fontSize - 2; font.weight: Theme.fontWeight }
   function nameWidth(id) { return String(id).startsWith("sep-") ? 10 : Math.ceil(previewMetrics.advanceWidth(labelOf(id))) + 24; }
@@ -63,7 +63,7 @@ Column {
       id: previewBars
       x: 10; y: 10
       width: parent.width - 20
-      spacing: 8
+      spacing: Theme.gapMedium
       Repeater {
         model: editor.strips
         Rectangle {

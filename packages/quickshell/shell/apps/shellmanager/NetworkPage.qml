@@ -4,15 +4,15 @@ import qs.kit
 import qs.modules.wifi
 
 // Network, a tab each for Wi-Fi (the radio, the connection in use, the saved
-// networks, a hidden network to join) and the wired connection. The hotspot has a page of its own.
+// networks, a hidden network to join), the wired connection and the hotspot.
 // Each group has the same order: its switch or state first, then the settings,
 // then the facts.
 KitColumn {
   id: root
 
-  property string tab: "wifi"                 // wifi | ethernet
+  property string tab: "wifi"                 // wifi | ethernet | hotspot
   // the tabs the window's header shows
-  readonly property var tabs: [{ label: "Wi-Fi", value: "wifi" }, { label: "Ethernet", value: "ethernet" }]
+  readonly property var tabs: [{ label: "Wi-Fi", value: "wifi" }, { label: "Ethernet", value: "ethernet" }, { label: "Hotspot", value: "hotspot" }]
 
   readonly property var ws: WifiService
   readonly property var eth: ws.ethernet
@@ -38,8 +38,7 @@ KitColumn {
   // the window's fixed header shows these; the page under it scrolls
   readonly property string icon: "wifi"
   readonly property string title: "Network"
-  readonly property string description: "Wi-Fi and wired connections."
-  readonly property string subtitle: !ws.radioOn ? "OFF" : ws.connected ? ws.ssid.toUpperCase() : "NOT CONNECTED"
+  readonly property string description: "Wi-Fi, wired connections and sharing this computer's connection."
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   // (only the open tab's: the others are not on the page)
@@ -52,7 +51,7 @@ KitColumn {
 
   // a link from another page (a module's Open) lands on the tab that holds the group
   function jump(key) {
-    tab = key === "ethernet" ? key : "wifi";
+    tab = key === "ethernet" || key === "hotspot" ? key : "wifi";
   }
 
   spacing: Theme.gapGroup
@@ -295,7 +294,6 @@ KitColumn {
       visible: root.showJoin
       wide: true
       label: "Name"
-      hint: "A hidden one is typed here"
 
       KitInput {
         id: newName
@@ -307,7 +305,8 @@ KitColumn {
       visible: root.showJoin
       wide: true
       label: "Password"
-      hint: "Empty: an open network"
+      hint: "Empty: an open network, not encrypted"
+      hintLevel: "warn"
 
       KitInput {
         id: newPass
@@ -340,6 +339,12 @@ KitColumn {
     page: root
     width: parent.width
     visible: root.tab === "ethernet"
+  }
+
+  NetworkHotspot {
+    page: root
+    width: parent.width
+    visible: root.tab === "hotspot"
   }
 
   KitGrouper {}

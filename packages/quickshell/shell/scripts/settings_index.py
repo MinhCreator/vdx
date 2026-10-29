@@ -33,11 +33,11 @@ PAGES = [
     ("cursor", "Cursor", ["CursorPage.qml"]),
     ("animations", "Motion", ["AnimationsPage.qml"]),
     ("bar", "Bar", ["BarPage.qml"]),
-    ("hub", "Hub", ["HubPage.qml"]),
+    ("profile", "Profile", ["ProfilePage.qml"]),
+    ("hub", "Hub", ["HubPage.qml", "HubBlocksList.qml"]),
     ("live", "Live activities", ["LivePage.qml"]),
     ("windows", "Windows", ["WindowsPage.qml"]),
     ("network", "Network", ["NetworkPage.qml"]),
-    ("hotspot", "Hotspot", ["HotspotPage.qml"]),
     ("sound", "Sound", ["SoundPage.qml"]),
     ("power", "Power", ["PowerPage.qml"]),
     ("updates", "Updates", ["UpdatesPage.qml"]),
@@ -62,6 +62,7 @@ ALIASES = {
     "Same bar everywhere": ["per monitor", "monitors"],
     "Add a rule": ["app colour", "avatar colour", "notification colour"],
     "Hub width": ["wider", "narrower", "size"],
+    "Blocks": ["sliders", "tiles", "player", "calendar", "volume", "brightness"],
     "Show the clock": ["hide the clock", "time"],
     "Music": ["player", "song", "track"],
     "VPN": ["mihomo", "proxy"],
@@ -155,7 +156,7 @@ def build() -> list:
     out += entries_of(SHELL / "modules/notifications/NotificationsSettings.qml", "Notifications", "notifications")
     out += entries_of(SHELL / "modules/notifications/NotificationsColours.qml", "Notifications", "notifications")
     out += entries_of(SM / "BarLive.qml", "Live activities", "live")
-    out += entries_of(SM / "NetworkHotspot.qml", "Hotspot", "hotspot")
+    out += entries_of(SM / "NetworkHotspot.qml", "Network › Hotspot", "network")
     out += entries_of(SM / "NetworkEthernet.qml", "Network › Ethernet", "network")
     out += entries_of(SM / "WindowOptions.qml", "Windows", "windows")
     out.append({"label": "Bar text", "hint": "Content, name or icon only, for each bar module", "where": "Bar modules", "target": "modules"})

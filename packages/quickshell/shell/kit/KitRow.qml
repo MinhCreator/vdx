@@ -18,6 +18,9 @@ Item {
 
   property string label: ""
   property string hint: ""
+  property string tip: ""           // an explanation behind an info mark: a tooltip, the row stays one line
+  property string tipLevel: "info"  // KitTip: info | ok | warn | danger
+  property string hintLevel: "info" // warn | danger tint the hint: a caveat the reader must see, so it is never a tooltip
   property color labelColor: Theme.foreground0
   property bool wide: false
   property bool dimmed: false       // its option is unavailable (the adapter is off)
@@ -44,18 +47,31 @@ Item {
     y: root.stacked ? 0 : (root.height - height) / 2
     spacing: Theme.gapTight
 
-    KitText {
+    Row {
       width: parent.width
-      text: root.label
-      color: root.labelColor
-      elide: Text.ElideRight
+      spacing: Theme.gapMedium
+
+      KitText {
+        width: Math.min(implicitWidth, parent.width - (tip.visible ? tip.width + parent.spacing : 0))
+        text: root.label
+        color: root.labelColor
+        elide: Text.ElideRight
+      }
+
+      KitTip {
+        id: tip
+        visible: root.tip !== ""
+        anchors.verticalCenter: parent.verticalCenter
+        text: root.tip
+        level: root.tipLevel
+      }
     }
 
     KitText {
       width: parent.width
       visible: root.hint !== "" || root.needs !== ""
       text: root.needs !== "" ? root.needs : root.hint
-      color: Theme.muted
+      color: root.hintLevel === "warn" ? Theme.yellow : root.hintLevel === "danger" ? Theme.red : Theme.muted
       elide: root.stacked ? Text.ElideNone : Text.ElideRight
       wrapMode: root.stacked ? Text.WordWrap : Text.NoWrap
       font.pixelSize: Theme.fontSize - 1

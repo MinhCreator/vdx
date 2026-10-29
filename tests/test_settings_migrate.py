@@ -81,6 +81,12 @@ class Migrate(unittest.TestCase):
         self.assertEqual((self.dir / "modules.json").read_text(), "[1, 2]")
         self.assertFalse((self.dir / "layout.json").exists())
 
+    def test_the_hub_picture_is_the_profiles(self):
+        self.write("modules.json", {"version": 8, "values": {"hub": {"avatar": "/home/u/me.jpg", "width": 420}}})
+        self.run_it()
+        self.assertEqual(self.read("modules.json")["values"],
+                         {"hub": {"width": 420}, "profile": {"avatar": "/home/u/me.jpg"}})
+
     def test_bookmarks_become_the_sidebar_and_frames_go(self):
         self.write("modules.json", {"values": {"files": {"bookmarks": [{"name": "src", "path": "/home/u/src"}],
                                                          "frames": True, "view": "list"}}})

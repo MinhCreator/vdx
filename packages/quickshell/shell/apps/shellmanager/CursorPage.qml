@@ -40,7 +40,6 @@ KitColumn {
   readonly property string icon: "cursor"
   readonly property string title: "Cursor"
   readonly property string description: "The pointer's theme, colour and size."
-  readonly property string subtitle: cursorLabel(CursorService.base).toUpperCase() + " · " + CursorService.mode.toUpperCase() + " · " + CursorService.size
   readonly property var jumps: [
     { key: "preview", label: "Preview", y: previewLabel.y },
     { key: "style", label: "Style", y: styleLabel.y },

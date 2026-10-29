@@ -14,7 +14,7 @@ QML keeps reading the old shapes too (a live reload runs without this)."""
 import hashlib, json, os, sys
 from pathlib import Path
 
-VERSION = 8
+VERSION = 9
 FILES = ("settings.json", "modules.json", "layout.json")
 RENAMED = {"claude": "ai", "plugins": "shell", "player": "music", "yandex": "music", "radio": "music"}   # module ids that changed (BarLayout.renamed)
 
@@ -172,7 +172,20 @@ def to_8(name: str, data: dict) -> None:
         data["barDotColor"] = "theme"
 
 
-MIGRATIONS = {0: to_1, 1: to_2, 2: to_3, 3: to_4, 4: to_5, 5: to_6, 6: to_7, 7: to_8}          # n -> the step from version n to n + 1
+def to_9(name: str, data: dict) -> None:
+    """Version 9: the hub's picture is the profile's (Shell Manager › Profile)."""
+    if name != "modules.json":
+        return
+    values = data.get("values")
+    hub = values.get("hub") if isinstance(values, dict) else None
+    if isinstance(hub, dict) and "avatar" in hub:
+        avatar = hub.pop("avatar")
+        profile = values.setdefault("profile", {})
+        if isinstance(profile, dict):
+            profile.setdefault("avatar", avatar)
+
+
+MIGRATIONS = {0: to_1, 1: to_2, 2: to_3, 3: to_4, 4: to_5, 5: to_6, 6: to_7, 7: to_8, 8: to_9}          # n -> the step from version n to n + 1
 
 
 def migrate(name: str, data: dict) -> dict:

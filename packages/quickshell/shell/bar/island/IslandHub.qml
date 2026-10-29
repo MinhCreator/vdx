@@ -31,8 +31,9 @@ Item {
   readonly property real preferredWidth: ModuleSettings.get("hub", "width", 400)
   // the player card is also the way into the Music popup, so it shows with nothing playing too
   readonly property bool hasPlayer: ShellSettings.hubPlayer
-  readonly property string userName: Quickshell.env("USER") || "User"
-  readonly property string avatarPath: ModuleSettings.get("hub", "avatar", "")
+  readonly property string userName: ModuleSettings.get("profile", "name", "") || Quickshell.env("USER") || "User"
+  readonly property string avatarPath: ModuleSettings.get("profile", "avatar", ModuleSettings.get("hub", "avatar", ""))
+  readonly property string subtitleMode: ModuleSettings.get("hub", "subtitle", "both")
   function uptime(seconds) {
     if (seconds <= 0) return "Uptime —";
     const days = Math.floor(seconds / 86400), hours = Math.floor(seconds % 86400 / 3600), minutes = Math.floor(seconds % 3600 / 60);
@@ -114,7 +115,8 @@ Item {
         KitText { width: parent.width; text: root.userName; font.weight: Font.Medium; elide: Text.ElideRight }
         KitText {
           width: parent.width
-          text: root.uptime(SysmonService.uptime) + " · " + Qt.formatDateTime(root.now, "d MMM")
+          visible: root.subtitleMode !== "none"
+          text: (root.subtitleMode === "both" ? root.uptime(SysmonService.uptime) + " · " : "") + Qt.formatDateTime(root.now, "d MMM")
           color: Theme.muted
           font.pixelSize: Theme.fontSize - 1
           elide: Text.ElideRight

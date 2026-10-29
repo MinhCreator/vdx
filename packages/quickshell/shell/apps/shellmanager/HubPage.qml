@@ -1,11 +1,10 @@
 import QtQuick
-import qs.apps.files
 import qs.bar
 import qs.config
 import qs.kit
 
 // Hub (the Island style): the panel that opens from the clock — when it opens, how wide it
-// is, its tiles and what it holds. It was the Bar page's Hub tab; its keys are the same.
+// is, its tiles and what it holds (the picture and name are Profile's). It was the Bar page's Hub tab; its keys are the same.
 Column {
   id: root
   readonly property Item previewItem: null
@@ -14,7 +13,6 @@ Column {
   readonly property string icon: "layout"
   readonly property string title: "Hub"
   readonly property string description: "The panel that opens from the island's clock."
-  readonly property string subtitle: Theme.island ? "ISLAND · " + ModuleSettings.get("hub", "tileColumns", 2) + " TILES PER ROW" : "ISLAND STYLE ONLY"
   readonly property var jumps: []
 
   // the hub's own keys, and the two looks it keeps beside them
@@ -95,12 +93,16 @@ Column {
     spacing: Theme.sectionGap
     visible: Theme.island
 
-    KitLabel { text: "LOOK" }
+    KitLabel { text: "HEADER" }
     KitRow {
-      label: "Picture"
-      hint: ModuleSettings.get("hub", "avatar", "").split("/").pop() || "None: your initial"
-      KitButton { text: "Choose…"; onClicked: FilesService.pick("Choose a hub picture", FilesService.home, false, ["image/*"], path => { if (path) ModuleSettings.set("hub", "avatar", path); }) }
-      KitButton { visible: ModuleSettings.get("hub", "avatar", "") !== ""; icon: "x"; Accessible.name: "Clear the picture"; onClicked: ModuleSettings.set("hub", "avatar", "") }
+      wide: true
+      label: "Under the name"
+      hint: "Both: uptime and the date"
+      KitSegments {
+        model: [{ label: "Both", value: "both" }, { label: "Date", value: "date" }, { label: "None", value: "none" }]
+        current: ModuleSettings.get("hub", "subtitle", "both")
+        onPicked: value => ModuleSettings.set("hub", "subtitle", value)
+      }
     }
     KitGrouper {}
   }

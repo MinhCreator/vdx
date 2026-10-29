@@ -8,10 +8,9 @@ Column {
   id: root
   readonly property Item previewItem: null
 
-  readonly property string icon: "grid"
+  readonly property string icon: "star"
   readonly property string title: "Icons"
   readonly property string description: "One icon set for the bar, popups and windows."
-  readonly property string subtitle: ShellSettings.iconSet.toUpperCase() + " · " + (ShellSettings.solidIcons ? "SOLID" : "OUTLINE")
   readonly property var jumps: []
 
   readonly property var resetKeys: ["iconSet", "solidIcons"]

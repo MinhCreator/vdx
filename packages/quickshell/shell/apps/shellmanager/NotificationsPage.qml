@@ -15,7 +15,6 @@ Column {
   readonly property string icon: "bell"
   readonly property string title: "Notifications"
   readonly property string description: "How notifications arrive and look."
-  readonly property string subtitle: Theme.island && ModuleSettings.get("notifications", "appear", "card") === "live" ? "AS A LIVE ACTIVITY" : toast === 0 ? "CARDS STAY" : "CARDS " + toast + " S"
   readonly property int toast: ModuleSettings.get("notifications", "toastSeconds", 5)
   readonly property var jumps: []
 

@@ -96,3 +96,4 @@ hard-drive hard_drive
 usb usb
 eject eject
 thermometer device_thermostat
+user person

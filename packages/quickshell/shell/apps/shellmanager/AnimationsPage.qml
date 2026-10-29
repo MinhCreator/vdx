@@ -12,11 +12,9 @@ Column {
 
 
   // the window's fixed header shows these; the page under it scrolls
-  readonly property string icon: "zap"
+  readonly property string icon: "gauge"
   readonly property string title: "Motion"
   readonly property string description: "How the shell moves. Off, everything snaps in place."
-  readonly property string subtitle: !ShellSettings.motion ? "OFF"
-    : ShellSettings.motionSpeed.toUpperCase() + " · POPUPS " + ShellSettings.motionPopups.toUpperCase()
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   // the header's Reset: these ShellSettings keys back to their defaults

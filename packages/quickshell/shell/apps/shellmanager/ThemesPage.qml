@@ -16,7 +16,6 @@ Flow {
   readonly property string icon: "palette"
   readonly property string title: "Themes"
   readonly property string description: "Whole sets of colours. Pick one to try it, Apply to keep it."
-  readonly property string subtitle: (ThemeService.current || "—").toUpperCase() + " · " + ThemeService.bases.length + " THEMES · " + (ThemeService.light ? "LIGHT" : "DARK")
   readonly property var jumps: []
 
   // the theme in the preview; Apply makes it the active one

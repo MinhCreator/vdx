@@ -3,7 +3,8 @@ import qs.config
 
 // Popup header: an icon, a bold title and a small-caps subtitle with " · "
 // between its parts; badges / buttons / a switch on the right (children).
-// `page`: a window page's own header — in Strict a large title, no icon.
+// `page`: a window page's own header — in Strict a large title, no icon; its `description`
+// is the tooltip of an info mark beside the title.
 Item {
   id: root
 
@@ -58,12 +59,26 @@ Item {
       font.letterSpacing: 1
     }
 
-    KitText {
+    Row {
       width: parent.width
-      text: root.title
-      elide: Text.ElideRight
-      font.pixelSize: Theme.fontSize + (root.large ? 9 : 3)
-      font.weight: root.large ? Font.Medium : Font.DemiBold
+      spacing: Theme.gapWide
+
+      KitText {
+        width: Math.min(implicitWidth, parent.width - (descTip.visible ? descTip.width + parent.spacing : 0))
+        text: root.title
+        elide: Text.ElideRight
+        font.pixelSize: Theme.fontSize + (root.large ? 9 : 3)
+        font.weight: root.large ? Font.Medium : Font.DemiBold
+      }
+
+      // a page: what it is for, in a tooltip
+      KitTip {
+        id: descTip
+        visible: root.large && root.description !== ""
+        anchors.verticalCenter: parent.verticalCenter
+        size: Theme.fontSize + 3
+        text: root.description
+      }
     }
 
     KitText {
@@ -74,16 +89,6 @@ Item {
       elide: Text.ElideRight
       font.pixelSize: Theme.fontSize - 2
       font.letterSpacing: 0.6
-    }
-
-    KitText {
-      width: parent.width
-      visible: root.large && root.description !== ""
-      text: root.description
-      color: Theme.foreground2
-      wrapMode: Text.WordWrap
-      font.pixelSize: Theme.fontSize - 1
-      topPadding: Theme.gapTight
     }
   }
 

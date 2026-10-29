@@ -95,6 +95,8 @@ Item {
     if (!col.visible) return;   // hidden, every child reads invisible: done when it shows
     const out = [], hair = [], surfaces = [], dividers = [];
     let run = null;
+    let last = "";          // what came before: "label", "box" (a boxed row), "free" (an unboxed item), "line"
+    let title = null;       // the label just seen, until the next item
     const close = () => { if (run) out.push({ y: run.top - root.padY, h: run.bottom - run.top + 2 * root.padY }); run = null; };
 
     // `data`, not `children`: a page may shadow `children`; non-visual objects have no `visible`
@@ -115,23 +117,31 @@ Item {
         }
         if (!c.visible || c.height <= 0 || c.width <= 0 && !c.isKitLabel) return;
         if (c.isKitLabel) {
-          surfaces.push({ top: dy + c.y, bottom: dy + c.y + c.height });
+          // a box's edge lies padY beyond its rows; beside an unboxed item the caption gives the
+          // same back, so the gap above and below a title is one standard whatever is next to it
+          c.trimTop = last === "free" ? root.padY : 0;
+          c.trimBottom = 0;
+          surfaces.push({ top: dy + c.y - c.trimTop, bottom: dy + c.y + c.height + c.trimBottom });
           close();
           c.x = root.padX;
           c.width = parent.width - 2 * root.padX;
+          last = "label"; title = c;
           return;
         }
         const inner = sectionOf(c);
         if (inner) { c.x = 0; c.width = parent.width; walk(inner, dy + c.y + (inner === c ? 0 : inner.y)); return; }
         if (c.kitUnboxed) {
           close(); c.x = 0; c.width = parent.width;
-          if (c.isKitLine) dividers.push({ item: c, y: dy + c.y });
-          else surfaces.push({ top: dy + c.y, bottom: c.kitCaption ? captionBottom(c.kitCaption, col) : dy + c.y + c.height });
+          if (c.isKitLine) { dividers.push({ item: c, y: dy + c.y }); last = "line"; }
+          else if (last === "label" && title) { title.trimBottom = root.padY; last = "free"; }
+          else last = "free";
+          if (!c.isKitLine) surfaces.push({ top: dy + c.y, bottom: c.kitCaption ? captionBottom(c.kitCaption, col) : dy + c.y + c.height });
           return;
         }
         c.x = root.padX;
         c.width = parent.width - 2 * root.padX;
         if (c.rowStyle !== undefined) c.rowStyle = true;
+        last = "box";
         const top = dy + c.y, bottom = top + c.height;
         if (run) { hair.push(top - root.padY); run.bottom = bottom; }
         else run = { top: top, bottom: bottom };

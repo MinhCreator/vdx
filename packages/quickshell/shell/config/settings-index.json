@@ -224,6 +224,29 @@
   "target": "bar"
  },
  {
+  "label": "Style",
+  "hint": "",
+  "where": "Bar",
+  "target": "bar"
+ },
+ {
+  "label": "Clock",
+  "hint": "",
+  "where": "Bar",
+  "target": "bar"
+ },
+ {
+  "label": "Layout",
+  "hint": "",
+  "where": "Bar",
+  "target": "bar:layout",
+  "aliases": [
+   "add module",
+   "arrange",
+   "order"
+  ]
+ },
+ {
   "label": "Look",
   "hint": "",
   "where": "Bar",
@@ -244,7 +267,7 @@
  {
   "label": "Bar style",
   "hint": "",
-  "where": "Bar",
+  "where": "Bar › STYLE",
   "target": "bar",
   "aliases": [
    "island",
@@ -256,13 +279,13 @@
  {
   "label": "Monitor",
   "hint": "The one Layout and Monitors edit",
-  "where": "Bar",
+  "where": "Bar › STYLE",
   "target": "bar"
  },
  {
   "label": "Show the clock",
   "hint": "Off: the pill shows only its modules",
-  "where": "Bar",
+  "where": "Bar › CLOCK",
   "target": "bar",
   "aliases": [
    "hide the clock",
@@ -329,6 +352,36 @@
   "target": "bar:monitor"
  },
  {
+  "label": "Profile",
+  "hint": "",
+  "where": "",
+  "target": "profile"
+ },
+ {
+  "label": "Picture",
+  "hint": "",
+  "where": "Profile",
+  "target": "profile"
+ },
+ {
+  "label": "Name",
+  "hint": "",
+  "where": "Profile",
+  "target": "profile"
+ },
+ {
+  "label": "Picture",
+  "hint": "",
+  "where": "Profile › PICTURE",
+  "target": "profile"
+ },
+ {
+  "label": "Name",
+  "hint": "Empty: your login name",
+  "where": "Profile › NAME",
+  "target": "profile"
+ },
+ {
   "label": "Hub",
   "hint": "",
   "where": "",
@@ -347,7 +400,7 @@
   "target": "hub"
  },
  {
-  "label": "Look",
+  "label": "Header",
   "hint": "",
   "where": "Hub",
   "target": "hub"
@@ -382,9 +435,29 @@
   "target": "hub"
  },
  {
-  "label": "Picture",
+  "label": "Under the name",
+  "hint": "Both: uptime and the date",
+  "where": "Hub › HEADER",
+  "target": "hub"
+ },
+ {
+  "label": "Blocks",
   "hint": "",
-  "where": "Hub › LOOK",
+  "where": "Hub",
+  "target": "hub",
+  "aliases": [
+   "sliders",
+   "tiles",
+   "player",
+   "calendar",
+   "volume",
+   "brightness"
+  ]
+ },
+ {
+  "label": "Clock and day",
+  "hint": "The date, the clock and the settings and power buttons",
+  "where": "Hub › BLOCKS",
   "target": "hub"
  },
  {
@@ -622,13 +695,13 @@
  },
  {
   "label": "Name",
-  "hint": "A hidden one is typed here",
+  "hint": "",
   "where": "Network › OTHER",
   "target": "network:new"
  },
  {
   "label": "Password",
-  "hint": "Empty: an open network",
+  "hint": "Empty: an open network, not encrypted",
   "where": "Network › OTHER",
   "target": "network:new"
  },
@@ -637,12 +710,6 @@
   "hint": "",
   "where": "Network › OTHER",
   "target": "network:new"
- },
- {
-  "label": "Hotspot",
-  "hint": "",
-  "where": "",
-  "target": "hotspot"
  },
  {
   "label": "Sound",
@@ -716,6 +783,12 @@
   "target": "updates"
  },
  {
+  "label": "Installing",
+  "hint": "",
+  "where": "Updates",
+  "target": "updates"
+ },
+ {
   "label": "Safety",
   "hint": "",
   "where": "Updates",
@@ -743,6 +816,12 @@
   "label": "Include the AUR",
   "hint": "Counted and listed with the repos",
   "where": "Updates › CHECKING",
+  "target": "updates"
+ },
+ {
+  "label": "Install right after the download",
+  "hint": "Off: the install asks once more, after the download",
+  "where": "Updates › INSTALLING",
   "target": "updates"
  },
  {
@@ -1367,32 +1446,32 @@
  {
   "label": "Hotspot",
   "hint": "",
-  "where": "Hotspot",
-  "target": "hotspot"
+  "where": "Network › Hotspot",
+  "target": "network"
  },
  {
   "label": "Hotspot",
   "hint": "",
-  "where": "Hotspot › HOTSPOT",
-  "target": "hotspot"
+  "where": "Network › Hotspot › HOTSPOT",
+  "target": "network"
  },
  {
   "label": "Name",
   "hint": "The network the phones see",
-  "where": "Hotspot › HOTSPOT",
-  "target": "hotspot"
+  "where": "Network › Hotspot › HOTSPOT",
+  "target": "network"
  },
  {
   "label": "Password",
   "hint": "8 characters or more",
-  "where": "Hotspot › HOTSPOT",
-  "target": "hotspot"
+  "where": "Network › Hotspot › HOTSPOT",
+  "target": "network"
  },
  {
   "label": "Channel",
   "hint": "Auto picks a free one",
-  "where": "Hotspot › HOTSPOT",
-  "target": "hotspot"
+  "where": "Network › Hotspot › HOTSPOT",
+  "target": "network"
  },
  {
   "label": "Ethernet",

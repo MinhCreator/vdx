@@ -25,7 +25,6 @@ KitColumn {
   readonly property string icon: "monitor"
   readonly property string title: "Displays"
   readonly property string description: "Monitors, their modes and the night light."
-  readonly property string subtitle: ds.monitors.length + (ds.monitors.length === 1 ? " MONITOR" : " MONITORS")
   readonly property var jumps: [
     { key: "arrange", label: "Arrange", y: arrangeLabel.y },
     { key: "monitor", label: "Monitor", y: monitorLabel.y }

@@ -97,3 +97,4 @@ wifi-off wifi-slash
 x x
 zap lightning
 thermometer thermometer
+user user

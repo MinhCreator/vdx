@@ -18,7 +18,6 @@ Column {
   readonly property string icon: "puzzle"
   readonly property string title: "Bar modules"
   readonly property string description: "What each bar module shows and how its popup behaves."
-  readonly property string subtitle: listed.length + " MODULES · " + listed.filter(p => !!optionsOf(p)).length + " WITH OPTIONS"
 
   // its own list does the job of the sidebar's group links
   readonly property var jumps: []

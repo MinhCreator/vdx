@@ -12,7 +12,6 @@ Column {
   readonly property string icon: "volume"
   readonly property string title: "Sound"
   readonly property string description: "What the shell does with sound."
-  readonly property string subtitle: ShellSettings.pauseMusic ? "MUSIC PAUSES FOR OTHER SOUND" : "MUSIC KEEPS PLAYING"
   readonly property var jumps: []
 
   readonly property var resetKeys: ["pauseMusic", "resumeMusic"]

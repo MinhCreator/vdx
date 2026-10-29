@@ -22,7 +22,6 @@ KitColumn {
   readonly property string icon: "app-window"
   readonly property string title: "Windows"
   readonly property string description: "Window layout and look. Writes Hyprland's config."
-  readonly property string subtitle: mode.label.toUpperCase()
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [

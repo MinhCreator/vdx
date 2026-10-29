@@ -12,7 +12,6 @@ Column {
   readonly property string icon: "zap"
   readonly property string title: "Power"
   readonly property string description: "Power profile and battery charge limit."
-  readonly property string subtitle: !BatteryService.present ? "NO BATTERY" : BatteryService.profile !== "" ? BatteryService.profile.toUpperCase() + " · " + BatteryService.capacity + "%" : BatteryService.capacity + "%"
   readonly property var jumps: []
 
   readonly property bool changed: false

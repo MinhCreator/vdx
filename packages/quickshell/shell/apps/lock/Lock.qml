@@ -15,7 +15,7 @@ import qs.config
 Scope {
   id: root
 
-  readonly property string user: Quickshell.env("USER")
+  readonly property string user: ModuleSettings.get("profile", "name", "") || Quickshell.env("USER")
   property bool busy: false
   property string error: ""
   property string pending: ""

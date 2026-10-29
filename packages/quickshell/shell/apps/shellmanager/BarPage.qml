@@ -16,7 +16,6 @@ KitSettingsWorkspace {
   readonly property string icon: "layout"
   readonly property string title: "Bar"
   readonly property string description: "The bar's style, content, look and screens."
-  readonly property string subtitle: "Arrange your desktop controls"
   property string tab: "layout"
   property string screenName: BarLayout.mainScreen()
   property string selectedModule: ""
@@ -174,10 +173,10 @@ KitSettingsWorkspace {
   settings: Component {
     Column {
       width: parent.width
-      topPadding: Theme.settingsRowInset   // the first box reaches above its row
       // the style decides what the rest of the page has: it sits above every tab
       Column {
         width: parent.width
+        KitLabel { text: "STYLE" }
         KitRow {
           label: "Bar style"
           hint: (root.island ? "One pill with a hub and live activities" : "A strip along the screen edge")
@@ -201,26 +200,31 @@ KitSettingsWorkspace {
       Column {
         property bool kitUnboxed: true
         width: parent.width
-        spacing: 12
+        spacing: Theme.gapWide
         visible: root.tab === "layout"
-        KitRow {
+        Column {
+          width: parent.width
           visible: root.island
-          label: "Show the clock"
-          hint: "Off: the pill shows only its modules"
-          KitSwitch { checked: BarLayout.islandClock(root.screenName); onToggled: BarLayout.setIslandClock(root.screenName, !checked) }
+          KitLabel { text: "CLOCK" }
+          KitRow {
+            label: "Show the clock"
+            hint: "Off: the pill shows only its modules"
+            KitSwitch { checked: BarLayout.islandClock(root.screenName); onToggled: BarLayout.setIslandClock(root.screenName, !checked) }
+          }
+          KitGrouper {}
         }
         Item {
           width: parent.width
           height: 44
-          Column {
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: 2
-            KitText { text: "Layout"; font.weight: Font.Medium }
-            KitText { text: "Drag modules between rows."; color: Theme.muted; font.pixelSize: Theme.fontSize - 2 }
+          KitLabel {
+            anchors { left: parent.left; right: layoutActions.left; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
+            text: "LAYOUT"
+            about: "Drag modules between rows"
           }
           Row {
+            id: layoutActions
             anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-            spacing: 8
+            spacing: Theme.gapMedium
             KitButton { text: "Undo"; visible: root.undoStack.length > 0; onClicked: root.undo() }
             KitButton { icon: "plus"; text: "Separator"; onClicked: { const zone = root.island ? "end" : "right"; root.drop(root.newSeparator, zone, root.ids(zone).length); } }
             KitResetButton {
