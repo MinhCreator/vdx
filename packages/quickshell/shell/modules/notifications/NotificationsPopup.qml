@@ -248,7 +248,8 @@ KitFrame {
                 Rectangle {
                   visible: item.hasBody
                   width: parent.width
-                  height: visible ? bodyText.implicitHeight + 2 * Theme.gapMedium : 0
+                  implicitHeight: bodyText.implicitHeight + 2 * Theme.gapMedium
+                  height: implicitHeight
                   radius: Theme.radiusControl
                   color: Theme.fillOn(true)
 
