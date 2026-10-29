@@ -44,7 +44,7 @@ Rectangle {
     { value: "icons",      label: "Icons",      icon: "star" },
     { value: "cursor",     label: "Cursor",     icon: "cursor" },
     { value: "wallpaper",  label: "Wallpaper",  icon: "image" },
-    { value: "animations", label: "Motion",     icon: "play" },
+    { value: "animations", label: "Motion",     icon: "curve" },
     { value: "bar",        label: "Bar",        icon: "menu",     caption: "DESKTOP" },
     { value: "hub",        label: "Hub",        icon: "home",    child: true, island: true },
     { value: "live",       label: "Live activities", icon: "activity", child: true, island: true },

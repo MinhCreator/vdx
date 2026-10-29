@@ -98,3 +98,5 @@ usb usb
 eject eject
 thermometer device_thermostat
 user person
+curve (drawn here: an easing curve, no Material twin)
+bell-off notifications_off

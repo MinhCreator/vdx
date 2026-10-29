@@ -12,7 +12,7 @@ KitFrame {
   readonly property var media: PlayerService.media
 
   KitHeader {
-    icon: "video"
+    icon: "play"
     iconColor: root.media.hasMedia ? Theme.foreground0 : Theme.muted
     title: "Media"
     subtitle: !root.media.hasMedia ? "NOTHING PLAYING"

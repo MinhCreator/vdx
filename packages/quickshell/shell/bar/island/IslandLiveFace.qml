@@ -259,7 +259,7 @@ Row {
   }
 
   // focus: do not disturb is on
-  KitIcon { visible: face.kind === "focus"; glowTarget: "live"; name: "moon"; size: 16; tint: Theme.purple; anchors.verticalCenter: parent.verticalCenter }
+  KitIcon { visible: face.kind === "focus"; glowTarget: "live"; name: "bell-off"; size: 16; tint: Theme.purple; anchors.verticalCenter: parent.verticalCenter }
   KitText { visible: face.kind === "focus"; text: "Focus"; color: Theme.foreground1 }
 
   // volume and brightness: the level as a ruler while it changes

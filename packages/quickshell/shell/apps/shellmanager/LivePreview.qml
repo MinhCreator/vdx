@@ -98,7 +98,7 @@ Rectangle {
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "radio"; text: "Love Radio"; font.pixelSize: Theme.fontSize - 1 }
 
     // focus
-    KitIcon { visible: root.kind === "focus"; glowTarget: "live"; anchors.verticalCenter: parent.verticalCenter; name: "moon"; size: 16; tint: Theme.purple }
+    KitIcon { visible: root.kind === "focus"; glowTarget: "live"; anchors.verticalCenter: parent.verticalCenter; name: "bell-off"; size: 16; tint: Theme.purple }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "focus"; text: "Focus"; font.pixelSize: Theme.fontSize - 1 }
 
     // music: the cover, the name, the sound
@@ -114,7 +114,7 @@ Rectangle {
 
     // media: another app's sound — the app's icon, the title, the sound
     Rectangle { visible: root.kind === "media"; anchors.verticalCenter: parent.verticalCenter; width: 16; height: 16; radius: Theme.pill(width); color: Theme.background3
-      KitIcon { anchors.centerIn: parent; name: "video"; size: 9; tint: Theme.foreground2 } }
+      KitIcon { anchors.centerIn: parent; name: "play"; size: 9; tint: Theme.foreground2 } }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "media"; text: "Lo-fi stream"; font.pixelSize: Theme.fontSize - 1; width: Math.min(implicitWidth, 80); elide: Text.ElideRight }
     Row {
       visible: root.kind === "media"

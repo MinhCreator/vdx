@@ -99,3 +99,5 @@ x x
 zap lightning
 thermometer thermometer
 user user
+curve (drawn here: an easing curve)
+bell-off bell-slash

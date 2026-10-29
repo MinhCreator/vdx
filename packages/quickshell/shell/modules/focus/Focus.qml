@@ -12,7 +12,7 @@ Item {
 
   KitBarItem {
     id: face
-    icon: "moon"
+    icon: "bell-off"
     text: BarLayout.faceText("focus", FocusService.on ? "Focus" : "")
     tint: FocusService.on ? Theme.accentFor("modules", Theme.purple) : Theme.gray
   }

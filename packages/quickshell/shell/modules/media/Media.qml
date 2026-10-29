@@ -24,7 +24,7 @@ Item {
 
   KitBarItem {
     id: face
-    icon: "video"
+    icon: "play"
     text: BarLayout.faceText("media", root.media.playing ? root.media.title : "")
     tint: root.media.playing ? Theme.accentFor("modules", Theme.foreground0) : Theme.gray
   }
