@@ -34,6 +34,8 @@ Singleton {
   // ---- state of the work ----
   property string busyMac: ""                  // device with a connect, pair or forget in flight
   property bool scanning: false
+  property bool adapterBusy: false
+  property var adapterQueue: []
   property string actionError: ""
 
   // ---- lifecycle ----
@@ -65,9 +67,21 @@ Singleton {
   }
 
   // ---- adapter and devices settings ----
-  function setAdapter(args) { run(adapterProc, args); }
-  function setTrusted(device, on) { run(adapterProc, ["--trust", device.mac, on ? "on" : "off"]); }
-  function setBlocked(device, on) { run(adapterProc, ["--block", device.mac, on ? "on" : "off"]); }
+  function setAdapter(args) {
+    adapterQueue = adapterQueue.concat([args.slice()]);
+    flushAdapter();
+  }
+
+  function flushAdapter() {
+    if (adapterBusy || adapterQueue.length === 0) return;
+    const args = adapterQueue[0];
+    adapterQueue = adapterQueue.slice(1);
+    adapterBusy = true;
+    actionError = "";
+    run(adapterProc, args);
+  }
+  function setTrusted(device, on) { setAdapter(["--trust", device.mac, on ? "on" : "off"]); }
+  function setBlocked(device, on) { setAdapter(["--block", device.mac, on ? "on" : "off"]); }
 
   // ---- internals ----
   function run(proc, args) {
@@ -178,7 +192,19 @@ Singleton {
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
-        root.actionError = o?.ok ? "" : (o?.error ?? "bluetooth.sh failed");
+        if (!o?.ok) {
+          root.adapterQueue = [];
+          root.actionError = o?.error ?? "bluetooth.sh failed";
+          root.adapterBusy = false;
+          root.refresh();
+          return;
+        }
+        root.adapterBusy = false;
+        if (root.adapterQueue.length > 0) {
+          root.flushAdapter();
+          return;
+        }
+        root.actionError = "";
         root.refresh();
       }
     }

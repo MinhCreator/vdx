@@ -53,6 +53,45 @@ Scope {
                                  for name in ("apply", "setThreshold", "setProfile", "setSaver"))
         return self.evaluate(definitions, action)
 
+    def bluetooth_adapter(self, action):
+        source = (SHELL / "modules/bluetooth/BluetoothService.qml").read_text()
+        definitions = '''
+  property bool adapterBusy: false
+  property var adapterQueue: []
+  property string actionError: ""
+  property var calls: []
+  property string text: ""
+  QtObject { id: adapterProc; property bool running: false }
+  function run(proc, args) { calls = calls.concat([args]); }
+  function parse(text) { return JSON.parse(text); }
+  function refresh() {}
+'''
+        definitions += "\n".join(qml_function(source, name)
+                                 for name in ("setAdapter", "flushAdapter"))
+        definitions += "\nfunction complete(text) " + handler(source, "adapterProc")
+        return self.evaluate(definitions, action)
+
+    def test_bluetooth_adapter_actions_run_in_fifo_order(self):
+        result = self.bluetooth_adapter('''
+          setAdapter(["--alias", "one"]); setAdapter(["--pairable", "on"]);
+          const first = calls.slice();
+          complete(JSON.stringify({ok: true})); const second = calls.slice();
+          complete(JSON.stringify({ok: true}));
+          return {first, second, calls, queue: adapterQueue, busy: adapterBusy};
+        ''')
+        expected_calls = [["--alias", "one"], ["--pairable", "on"]]
+        self.assertEqual(result, {"first": expected_calls[:1], "second": expected_calls,
+                                  "calls": expected_calls, "queue": [], "busy": False})
+
+    def test_bluetooth_adapter_failure_discards_dependent_queued_actions(self):
+        result = self.bluetooth_adapter('''
+          setAdapter(["--alias", "one"]); setAdapter(["--pairable", "on"]);
+          complete(JSON.stringify({ok: false, error: "adapter unavailable"}));
+          return {calls, queue: adapterQueue, busy: adapterBusy, error: actionError};
+        ''')
+        self.assertEqual(result, {"calls": [["--alias", "one"]], "queue": [],
+                                  "busy": False, "error": "adapter unavailable"})
+
     def test_battery_rejects_overlap_before_process_start_without_saving_rejected_limit(self):
         result = self.battery('''
           setProfile("performance"); setThreshold(60);

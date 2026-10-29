@@ -61,7 +61,7 @@ Each area lists the scenarios it touches; these are the shared base.
 
 ### Audit checkpoint (2026-10-30)
 
-Current validation: 281 Python tests and 98 QML cases. Full repository checks
+Current validation: 283 Python tests and 98 QML cases. Full repository checks
 and Python lint pass. These counts include baseline tests; they do not imply
 that every shell function or desktop scenario has been reviewed.
 
@@ -81,7 +81,7 @@ that every shell function or desktop scenario has been reviewed.
 | Timer | Production state/functions with a fake notification receiver: pause/lap between ticks, pause after expiry and duplicate completion |
 | Wi-Fi credentials | Three production completion handlers clear the process password environment before publishing idle, for successful and failed replies; no network commands run |
 | Wi-Fi speedtest | Real child-process test cancels a TERM-resistant old request, immediately starts a replacement, and verifies that the late old reply cannot overwrite the newer result; repeated active requests are rejected |
-| Device service first pass | Production battery actions reject startup overlap without changing saved limit/profile; audio live state with missing/muted devices; display refresh retains action failure; Bluetooth scan reply errors. Five regression failures reproduced against the previous code |
+| Device service first pass | Production battery actions reject startup overlap without changing saved limit/profile; audio live state with missing/muted devices; display refresh retains action failure; Bluetooth scan reply errors and adapter action FIFO/failure handling. Five regressions reproduced against the previous code |
 | Device UX first pass | Production Bluetooth device row: Space, Return and mouse activation; another device busy or power off prevents activation. Settings expose Bluetooth action errors; power/audio switches reflect pending/unavailable state |
 | Lock authentication | Production state model with fake PAM: start/empty/busy/locked guards, password consumption and clearing, start failure, success/failure/error, abort and callbacks after completion |
 
@@ -112,7 +112,7 @@ Current remaining audit map (baseline tests are not a per-function review):
 | Capture | Recorder, saving and clipboard lifecycles reviewed; real GPU capture and overlays |
 | Bar and Island | Content hosting and popup arbitration reviewed; compositor focus, layout changes and multiple monitors |
 | Lock and authentication | Root completion, password attempts and marker ordering reviewed; real PAM, polkit and Wayland crash/reload scenarios |
-| Device services | First pass of all six services completed; fixes covered above. Network/Bluetooth command serialization, process-launch failures, backend/schema failures and real hardware still need review |
+| Device services | First pass of all six services completed; Bluetooth adapter settings are serialized. Wi-Fi saved-network/connection races, Bluetooth device-command serialization, process-launch failures, backend/schema failures and real hardware still need review |
 | Other apps and background services | Task grouping and tree traversal reviewed; remaining per-function review, navigation, failure states and decomposition |
 | Final verification | Both bar styles, theme/settings combinations and measured performance |
 
@@ -128,8 +128,9 @@ Next focused investigations (suspicions, not confirmed regressions):
    connection requests while the previous process is starting or stopping.
    Speed-test cancellation and stale completion are covered; credential cleanup
    tests cover completed replies, not process-launch failure.
-2. `modules/bluetooth/BluetoothService.qml`: overlapping adapter/device commands,
-   discovery lifetime and removed devices. `scripts/bluetooth.sh --scan` currently
+2. `modules/bluetooth/BluetoothService.qml`: overlapping device commands,
+   discovery lifetime and removed devices. Adapter settings now run FIFO.
+   `scripts/bluetooth.sh --scan` currently
    reports success without checking the controller's result; the new service
    test covers error replies, not this backend behavior. Continue audio port
    switching/error recovery, battery restore/write/backend failures and display

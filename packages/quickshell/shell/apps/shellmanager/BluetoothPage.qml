@@ -55,7 +55,7 @@ KitColumn {
     dimmed: !bt.powered
 
     KitInput {
-      enabled: bt.powered
+      enabled: bt.powered && !bt.adapterBusy
       text: root.adapter.alias
       placeholder: "name"
       onAccepted: bt.setAdapter(["--alias", text])
@@ -69,7 +69,7 @@ KitColumn {
 
     KitSwitch {
       checked: root.adapter.discoverable
-      disabled: !bt.powered
+      disabled: !bt.powered || bt.adapterBusy
       onToggled: bt.setAdapter(["--discoverable", root.adapter.discoverable ? "off" : "on"])
     }
   }
@@ -81,6 +81,7 @@ KitColumn {
     hint: "Then hidden again"
 
     KitSegments {
+      disabled: bt.adapterBusy
       model: [{ label: "Forever", value: 0 }, { label: "2 min", value: 120 }, { label: "5 min", value: 300 }]
       current: root.adapter.timeout
       onPicked: value => bt.setAdapter(["--discoverable-timeout", String(value)])
@@ -94,7 +95,7 @@ KitColumn {
 
     KitSwitch {
       checked: root.adapter.pairable
-      disabled: !bt.powered
+      disabled: !bt.powered || bt.adapterBusy
       onToggled: bt.setAdapter(["--pairable", root.adapter.pairable ? "off" : "on"])
     }
   }
