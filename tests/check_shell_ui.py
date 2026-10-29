@@ -56,6 +56,7 @@ def main():
         shutil.copy(SHELL / "apps/files/FilesSelection.qml", work / "qs/kit/FilesSelection.qml")
         shutil.copy(SHELL / "apps/files/FilesHistory.qml", work / "qs/kit/FilesHistory.qml")
         shutil.copy(SHELL / "apps/capture/CaptureSavePanel.qml", work / "qs/kit/CaptureSavePanel.qml")
+        shutil.copy(SHELL / "components/PopupContentHost.qml", work / "qs/kit/PopupContentHost.qml")
         files = (SHELL / "apps/files/FilesService.qml").read_text()
         (work / "qs/kit/TestFileCreation.qml").write_text(
             'import QtQuick\nQtObject {\nproperty var calls: []\nproperty var history: []\n'

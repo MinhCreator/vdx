@@ -104,6 +104,26 @@ prompt. One more process test covers the tracked clipboard phase. Totals:
 250 Python tests and 49 QML cases. The real keyboard-grabbing
 Save as window is not opened by these tests.
 
+Popup content hosting is shared by Island and child bars. A direct component
+test checks repeated attachment, restoration of all borrowed items, unrelated
+host children, switching between popups, leaving Island style, and host
+destruction while a popup is open, and deletion of the source popup (51 QML
+cases).
+Compositor focus and rendering during an actual style switch remain manual.
+
+Current remaining audit map (baseline tests are not a per-function review):
+
+| Area | Status / remaining work |
+|---|---|
+| Shared controls and Launcher | Reviewed paths covered; complete action and focus review remains |
+| Files | Selection, mutation queue and history reviewed; remaining service, portal and real USB scenarios |
+| Capture | Recorder, saving and clipboard lifecycles reviewed; real GPU capture and overlays |
+| Bar and Island | Content hosting reviewed; popup arbitration, focus, layout changes and multiple monitors |
+| Lock and authentication | Full lifecycle and failure scenarios remain |
+| Device services | Audio, network, Bluetooth, battery, brightness and display review remains |
+| Other apps and background services | Per-function review, navigation, failure states and decomposition remain |
+| Final verification | Both bar styles, theme/settings combinations and measured performance |
+
 - The agent cannot see the screen unless it takes a screenshot; visual checks
   are the owner's unless asked (token cost).
 - Overlays that grab the keyboard are not tested while the owner types.

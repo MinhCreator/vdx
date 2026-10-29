@@ -20,22 +20,13 @@ Rectangle {
   readonly property bool hostsPopups: Theme.island
 
   // ---- a module's popup ----
-  property var popup: null                     // the BarPopup whose content is in here
-  property Item popupContent: null             // its root item (a KitFrame)
+  readonly property var popup: host.popup // the BarPopup whose content is in here
+  readonly property Item popupContent: host.content // its root item (a KitFrame)
   property bool popupShown: false
 
   function showPopup(p) {
     restoreTimer.stop();
-    if (popup !== p) {
-      restore();
-      const from = p.contentItem.children;
-      const kids = [];
-      for (let i = 0; i < from.length; i++) kids.push(from[i]);
-      kids.forEach(k => k.parent = host);
-      popup = p;
-      popupContent = kids[0] ?? null;
-      if (popupContent && popupContent.inIsland !== undefined) popupContent.inIsland = true;
-    }
+    host.attach(p);
     popupShown = true;
     popupSlot.forceActiveFocus();
   }
@@ -47,16 +38,7 @@ Rectangle {
   }
 
   // the content goes home once the pill has folded
-  function restore() {
-    if (!popup) return;
-    const from = host.children;
-    const kids = [];
-    for (let i = 0; i < from.length; i++) kids.push(from[i]);
-    kids.forEach(k => k.parent = popup.contentItem);
-    if (popupContent && popupContent.inIsland !== undefined) popupContent.inIsland = false;
-    popup = null;
-    popupContent = null;
-  }
+  function restore() { host.release(); }
 
   Timer {
     id: restoreTimer
@@ -135,8 +117,9 @@ Rectangle {
     Behavior on opacity { enabled: Motion.island; NumberAnimation { duration: Motion.normal } }
     Keys.onEscapePressed: if (root.popup) root.popup.visible = false
 
-    Item {
+    PopupContentHost {
       id: host
+      available: Theme.island
       width: parent.width
       height: parent.height
     }

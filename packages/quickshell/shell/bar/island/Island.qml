@@ -63,8 +63,8 @@ Item {
   }
 
   // ---- module popups ----
-  property var popup: null                     // the BarPopup whose content is in the island
-  property Item popupContent: null             // its root item (a KitFrame)
+  readonly property var popup: moduleHost.popup // the BarPopup whose content is in the island
+  readonly property Item popupContent: moduleHost.content // its root item (a KitFrame)
 
   // opened from the hub: Escape goes back there instead of closing
   property bool fromHub: false
@@ -72,16 +72,7 @@ Item {
   function showPopup(p) {
     restoreTimer.stop();
     fromHub = view === "hub";
-    if (popup !== p) {
-      restore();
-      const from = p.contentItem.children;
-      const kids = [];
-      for (let i = 0; i < from.length; i++) kids.push(from[i]);
-      kids.forEach(k => k.parent = moduleHost);
-      popup = p;
-      popupContent = kids[0] ?? null;
-      if (popupContent && popupContent.inIsland !== undefined) popupContent.inIsland = true;
-    }
+    moduleHost.attach(p);
     flash = "";
     view = "module";
     pinned = true;
@@ -103,16 +94,7 @@ Item {
   }
 
   // the content goes home once it has faded out
-  function restore() {
-    if (!popup) return;
-    const from = moduleHost.children;
-    const kids = [];
-    for (let i = 0; i < from.length; i++) kids.push(from[i]);
-    kids.forEach(k => k.parent = popup.contentItem);
-    if (popupContent && popupContent.inIsland !== undefined) popupContent.inIsland = false;
-    popup = null;
-    popupContent = null;
-  }
+  function restore() { moduleHost.release(); }
 
   Timer {
     id: restoreTimer
@@ -280,8 +262,9 @@ Item {
       Keys.onEscapePressed: root.fromHub ? root.backToHub() : root.collapse()
       // the content's children land here (showPopup)
 
-      Item {
+      PopupContentHost {
         id: moduleHost
+        available: Theme.island
         width: parent.width
         height: root.popupContent?.implicitHeight ?? 0
       }

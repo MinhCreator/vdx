@@ -47,6 +47,60 @@ Item {
     name: "ShellControls"
     when: windowShown
     function init() { ShellSettings.motion = false; }
+    function test_popup_content_host_lifecycle() {
+      const owner = Qt.createQmlObject('import QtQuick; Item {}', parent);
+      const home = Qt.createQmlObject('import QtQuick; Item {}', owner);
+      const first = Qt.createQmlObject('import QtQuick; Item { property bool inIsland: false }', home);
+      const second = Qt.createQmlObject('import QtQuick; Item {}', home);
+      const popup = Qt.createQmlObject('import QtQuick; QtObject { property Item contentItem; property bool visible: true }', owner);
+      popup.contentItem = home;
+      const host = Qt.createQmlObject('import QtQuick; import qs.kit; PopupContentHost {}', parent);
+      const decoration = Qt.createQmlObject('import QtQuick; Item {}', host);
+      host.attach(popup);
+      compare(first.parent, host); compare(second.parent, host);
+      compare(host.content, first); verify(first.inIsland);
+      host.attach(popup);
+      compare(host.content, first);
+      host.release();
+      compare(first.parent, home); compare(second.parent, home);
+      compare(decoration.parent, host); verify(!first.inIsland);
+      compare(host.popup, null);
+      const otherHome = Qt.createQmlObject('import QtQuick; Item {}', owner);
+      const otherItem = Qt.createQmlObject('import QtQuick; Item { property bool inIsland: false }', otherHome);
+      const otherPopup = Qt.createQmlObject('import QtQuick; QtObject { property Item contentItem }', owner);
+      otherPopup.contentItem = otherHome;
+      host.attach(popup);
+      host.attach(otherPopup);
+      compare(first.parent, home); verify(!first.inIsland);
+      compare(otherItem.parent, host); verify(otherItem.inIsland);
+      host.attach(popup);
+      compare(otherItem.parent, otherHome); verify(!otherItem.inIsland);
+      host.available = false;
+      compare(first.parent, home); verify(!popup.visible); verify(!first.inIsland);
+      host.attach(popup); compare(host.popup, null);
+      host.available = true;
+      popup.visible = true;
+      host.attach(popup);
+      host.destroy();
+      wait(1);
+      compare(first.parent, home); compare(second.parent, home);
+      verify(!first.inIsland); verify(!popup.visible);
+      owner.destroy();
+    }
+    function test_popup_content_source_destroyed() {
+      const owner = Qt.createQmlObject('import QtQuick; Item {}', parent);
+      const home = Qt.createQmlObject('import QtQuick; Item {}', owner);
+      Qt.createQmlObject('import QtQuick; Item { property bool inIsland: false }', home);
+      const popup = Qt.createQmlObject('import QtQuick; QtObject { property Item contentItem }', owner);
+      popup.contentItem = home;
+      const host = Qt.createQmlObject('import QtQuick; import qs.kit; PopupContentHost {}', parent);
+      host.attach(popup);
+      owner.destroy();
+      wait(1);
+      host.release();
+      compare(host.content, null); compare(host.popup, null);
+      host.destroy();
+    }
     function test_capture_save_panel_pending_and_retry() {
       const sample = Qt.createQmlObject([
         'import QtQuick; import qs.kit;',

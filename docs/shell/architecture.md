@@ -40,6 +40,11 @@ until the supervisor's new `qs` locks again (marker in
 | Config | `config/` (`Theme`, `Colors`, `Motion`, `Format`, `Paths`, `ShellSettings`, `ModuleSettings`) | tokens and settings stores | — |
 | Components | `components/` (`Hypr`, `ShellIpc`, `PopupManager`, `PopupCatcher`, `ScrimWindow`, …) | Hyprland helpers, the shell's own IPC, popup arbitration | — |
 
+Island and child bars borrow popup items through
+`components/PopupContentHost.qml`. It restores only the items it moved, keeps
+other host children in place, and returns the content and closes the popup
+when the host is destroyed or Island hosting is disabled by a style change.
+
 Files selection lives in `apps/files/FilesSelection.qml`, a QtQuick-only
 model tested without the filesystem or portal. FilesService supplies visible
 rows and the picker's single-selection constraint and exposes the existing
