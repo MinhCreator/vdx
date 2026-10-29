@@ -56,15 +56,22 @@ KitColumn {
 
   spacing: Theme.gapGroup
 
+  // the page opens first, the system is asked a moment later: the replies (and the scan) landing in one
+  // burst while the page builds and fades in made it stutter
   onVisibleChanged: {
-    if (visible) {
-      ws.popupShown();
-      ws.refreshSaved();
-      ws.refreshDetails();
-      ws.refreshEthernet();
-      ws.refreshHotspot();
-    } else {
+    if (visible) loadSoon.restart();
+    else {
+      loadSoon.stop();
       ws.popupHidden();
+    }
+  }
+
+  Timer {
+    id: loadSoon
+    interval: 300
+    onTriggered: {
+      ws.popupShown();      // status, networks, dns, details, ethernet, hotspot and a scan
+      ws.refreshSaved();
     }
   }
 
