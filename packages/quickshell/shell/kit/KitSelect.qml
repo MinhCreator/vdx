@@ -122,14 +122,17 @@ Column {
           root.expanded = false;
         }
       }
-      onActiveFocusChanged: if (!activeFocus) root.expanded = false
+      // a click focuses it (the keys work) but draws no ring: the ring is for Tab
+      property bool byMouse: false
+      readonly property bool ring: activeFocus && !byMouse
+      onActiveFocusChanged: { if (!activeFocus) { root.expanded = false; byMouse = false; } }
       anchors { right: parent.right; verticalCenter: parent.verticalCenter }
       width: root.boxWidth
       height: Theme.controlHeight
       radius: Theme.radiusControl
       color: boxArea.containsMouse && !root.disabled ? Theme.hoverOn(root.boxed) : Theme.fillOn(root.boxed)
-      border.width: box.activeFocus && !Theme.material ? Theme.focusWidth : Theme.frameWidth
-      border.color: box.activeFocus ? Theme.focusRing : root.expanded ? Theme.accentFor("selects", Theme.controlLineHover)
+      border.width: box.ring && !Theme.material ? Theme.focusWidth : Theme.frameWidth
+      border.color: box.ring ? Theme.focusRing : root.expanded ? Theme.accentFor("selects", Theme.controlLineHover)
         : boxArea.containsMouse ? Theme.controlLineHover : Theme.controlLineRest
       opacity: root.disabled ? 0.4 : 1
 
@@ -172,7 +175,7 @@ Column {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: root.disabled ? Qt.ArrowCursor : Qt.PointingHandCursor
-        onClicked: { box.forceActiveFocus(Qt.MouseFocusReason); root.openChoices(); }
+        onClicked: { box.forceActiveFocus(Qt.MouseFocusReason); box.byMouse = true; root.openChoices(); }
       }
     }
   }

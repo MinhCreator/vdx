@@ -26,11 +26,13 @@ Rectangle {
   readonly property real naturalSum: natural.reduce((a, b) => a + b, 0)
   // the narrowest the track can be without cutting a label (a row may give the rest to its hint)
   readonly property real minWidth: Math.min(Theme.controlWidth, naturalSum + 2 * edge)
-  // a segment is as wide as its label needs; the spare width is shared evenly, a shortage cut in proportion
+  // equal segments while every label fits its share; else each is as wide as its label needs, the spare width shared evenly, a shortage cut in proportion
   readonly property var widths: {
     const avail = width - 2 * edge;
     const n = natural.length;
     if (n === 0 || naturalSum <= 0) return [];
+    // every label fits an equal share: the segments are equal
+    if (avail >= n * Math.max.apply(null, natural)) return natural.map(() => avail / n);
     return natural.map(w => avail >= naturalSum ? w + (avail - naturalSum) / n : w * avail / naturalSum);
   }
 
@@ -68,6 +70,10 @@ Rectangle {
 
   signal picked(var value)
 
+  // a click focuses it (the keys work) but draws no ring: the ring is for Tab
+  property bool byMouse: false
+  onActiveFocusChanged: if (!activeFocus) byMouse = false
+
   readonly property bool m3: Theme.material
   readonly property int inset: m3 ? 0 : 3
 
@@ -83,7 +89,7 @@ Rectangle {
     anchors { fill: parent; margins: -3 }
     radius: Theme.radiusFor(height)
     color: Theme.clear
-    visible: root.activeFocus
+    visible: root.activeFocus && !root.byMouse
     border.width: Theme.focusWidth
     border.color: Theme.focusRing
   }
@@ -172,6 +178,7 @@ Rectangle {
             onClicked: {
               if (root.disabled) return;
               root.forceActiveFocus(Qt.MouseFocusReason);
+              root.byMouse = true;
               if (!segment.selected) root.picked(segment.modelData.value);
             }
           }
