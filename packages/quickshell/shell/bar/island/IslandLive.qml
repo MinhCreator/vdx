@@ -3,6 +3,7 @@ import qs.apps.auth
 import qs.bar
 import qs.components
 import qs.config
+import qs.modules.focus
 
 // The pill's live slot: the running activity (IslandService.live), only while
 // something runs. The wheel pages through them: the shown one slides up and
@@ -21,7 +22,7 @@ Item {
   readonly property Item frontFace: front === 0 ? faceA : faceB
   readonly property Item backFace: front === 0 ? faceB : faceA
 
-  clip: true
+  clip: sliding        // only while a step slides: a halo (Appearance › Glow) must not be cut to the slot
   // the activity sits in a chip of its own, always whole: concentric with the
   // pill — the same gap (`edge`) to the pill's rim above and below, its corners
   // the pill's less that gap; a cover inside sits `inset` from the chip's rim
@@ -105,19 +106,24 @@ Item {
 
   // the wheel pages; a click opens what the activity is about (IslandService.liveTarget:
   // the module's popup, else its options); on a notification it brings its
-  // app up; a middle click plays or pauses the music, dismisses a notification
-  readonly property bool clickable: kind === "notice" || IslandService.liveTarget[kind] !== undefined
+  // app up; a middle click plays or pauses the music, dismisses a notification; a right click
+  // opens the activity's own options in the Shell Manager (as on a bar module)
+  readonly property bool clickable: kind === "notice" || kind === "focus" || IslandService.liveTarget[kind] !== undefined
   MouseArea {
     anchors.fill: parent
-    acceptedButtons: root.clickable ? Qt.LeftButton | Qt.MiddleButton : Qt.NoButton
+    acceptedButtons: Qt.RightButton | (root.clickable ? Qt.LeftButton | Qt.MiddleButton : Qt.NoButton)
     cursorShape: root.clickable ? Qt.PointingHandCursor : Qt.ArrowCursor
     onClicked: mouse => {
-      if (root.kind === "notice") {
+      if (mouse.button === Qt.RightButton) {
+        if (ShellSettings.liveRightSettings) ShellIpc.call("shell", "open", ["live:" + root.kind]);
+      } else if (root.kind === "notice") {
         // a click brings the app up (else the centre), a middle click dismisses
         if (mouse.button === Qt.LeftButton) IslandService.activate(IslandService.noticeItem);
         IslandService.dismissLiveNotice();
       } else if (root.kind === "update" && mouse.button === Qt.LeftButton && (RootService.pending || RootService.running)) {
         IslandService.requested("root", Hypr.focusedScreen?.name ?? "");
+      } else if (root.kind === "focus") {
+        FocusService.toggle();     // no popup behind it: a click ends the mode
       } else if (mouse.button === Qt.MiddleButton) { if (root.kind === "music") IslandService.togglePlay(); }
       else BarLayout.openModule(IslandService.liveTarget[root.kind]);
     }

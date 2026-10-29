@@ -5,7 +5,7 @@ import qs.kit
 // A key as a keycap: Keybinds lists binds with them, Shell apps the key that
 // opens each app.
 Rectangle {
-  radius: Theme.radiusControl
+  radius: Theme.radiusFor(height)
   property alias text: keyText.text
 
   width: Math.max(26, keyText.implicitWidth + 14)

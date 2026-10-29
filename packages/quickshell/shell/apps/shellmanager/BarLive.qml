@@ -8,6 +8,8 @@ import qs.kit
 Column {
   id: root
 
+  function jump(kind) { for (const s of [asks, held, flash]) s.jump(kind); }
+
   Column {
     width: parent.width
 
@@ -25,6 +27,7 @@ Column {
   BarLiveSection {
     width: parent.width
     visible: ShellSettings.liveEnabled
+    id: asks
     section: "asks"
     title: "ASKS"
     info: ({
@@ -39,6 +42,7 @@ Column {
   BarLiveSection {
     width: parent.width
     visible: ShellSettings.liveEnabled
+    id: held
     section: "held"
     title: "HELD"
     about: "They stay while the job runs; drag a row to set who takes the pill first"
@@ -47,6 +51,7 @@ Column {
       update: { label: "Updates", hint: "Progress of an update run" },
       backup: { label: "Backup", hint: "Progress of a backup" },
       vpn: { label: "VPN", hint: "Which server and the ping" },
+      focus: { label: "Focus", hint: "Do not disturb is on; a click ends it" },
       music: { label: "Music", hint: "The playing track and its sound" }
     })
   }
@@ -56,6 +61,7 @@ Column {
   BarLiveSection {
     width: parent.width
     visible: ShellSettings.liveEnabled
+    id: flash
     section: "flash"
     title: "FLASH"
     info: ({
@@ -85,6 +91,11 @@ Column {
       label: "Wheel pages through them"
       hint: "Scrolling over the pill moves between running activities"
       KitSwitch { checked: ShellSettings.liveWheel; onToggled: ShellSettings.setLook("liveWheel", !checked, "island") }
+    }
+    KitRow {
+      label: "Right click opens options"
+      hint: "On a live activity: its settings here"
+      KitSwitch { checked: ShellSettings.liveRightSettings; onToggled: ShellSettings.setLook("liveRightSettings", !checked, "island") }
     }
     KitGrouper {}
   }

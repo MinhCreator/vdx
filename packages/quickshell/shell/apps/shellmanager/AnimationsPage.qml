@@ -111,6 +111,9 @@ Column {
     wide: true
     label: "Bar popups"
     hint: "How a popup comes in under the bar"
+    needs: Theme.island ? "Solid style only" : ""
+    needsAction: "Use Solid"
+    onNeedsActed: ShellSettings.set("barStyle", "solid")
 
     KitSegments {
       disabled: !ShellSettings.motion

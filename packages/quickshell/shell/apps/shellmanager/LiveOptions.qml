@@ -28,6 +28,20 @@ Column {
     }
   }
 
+  Rectangle { visible: root.kind === "notice"; width: parent.width; height: Theme.dividerThickness; color: Theme.dividerColor }
+
+  KitRow {
+    visible: root.kind === "notice"
+    label: "Marked by"
+    hint: "The app's avatar, or just a coloured dot"
+    wide: true
+    KitSegments {
+      model: [{label: "Avatar", value: "avatar"}, {label: "Dot", value: "dot"}]
+      current: ShellSettings.liveNoticeMark
+      onPicked: value => ShellSettings.setLook("liveNoticeMark", value, "island")
+    }
+  }
+
   KitRow {
     visible: root.kind === "battery"
     label: "Shows below"
@@ -60,5 +74,14 @@ Column {
     label: "Show on pause"
     hint: "The track stays in the slot while paused"
     KitSwitch { checked: ShellSettings.liveMusicPaused; onToggled: ShellSettings.setLook("liveMusicPaused", !checked, "island") }
+  }
+
+  Rectangle { visible: root.kind === "music"; width: parent.width; height: Theme.dividerThickness; color: Theme.dividerColor }
+
+  KitRow {
+    visible: root.kind === "music"
+    label: "Always show"
+    hint: "The slot stays even when no player is running"
+    KitSwitch { checked: ShellSettings.liveMusicAlways; onToggled: ShellSettings.setLook("liveMusicAlways", !checked, "island") }
   }
 }

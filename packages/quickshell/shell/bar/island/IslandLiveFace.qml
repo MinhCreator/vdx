@@ -1,15 +1,18 @@
 import QtQuick
 import QtQuick.Effects
+import Quickshell.Widgets
 import qs.apps.auth
 import qs.apps.backup
 import qs.apps.capture
 import qs.apps.packages
+import qs.components
 import qs.config
 import qs.kit
 import qs.modules.battery
 import qs.modules.bluetooth
 import qs.modules.mihomo
 import qs.modules.equalizer
+import qs.modules.focus
 
 // One face of the pill's live slot (IslandLive): what the activity `kind` shows.
 Row {
@@ -19,7 +22,7 @@ Row {
   property int coverSize: 18                   // a badge (cover, avatar): the chip's height less its inset on both sides
   property int badgeRadius: 4                  // concentric with the chip
   // an activity that starts with a badge sits it the same inset from the chip's left, top and bottom
-  readonly property bool badged: kind === "music" || kind === "notice"
+  readonly property bool badged: kind === "music" || kind === "notice" && ShellSettings.liveNoticeMark === "avatar"   // a dot sits as far from the rim as the right side
 
   anchors.verticalCenter: parent.verticalCenter
   spacing: 8
@@ -34,6 +37,8 @@ Row {
     radius: 4
     color: Theme.red
     opacity: CaptureService.paused ? 0.4 : 1
+
+    KitGlow { z: -1; anchors.fill: parent; target: "live"; lit: !CaptureService.paused; tint: parent.color; radius: parent.radius }
   }
   KitText {
     visible: face.kind === "recording"
@@ -47,6 +52,7 @@ Row {
     anchors.verticalCenter: parent.verticalCenter
     barCount: 7
     tone: Theme.red
+    glowTarget: "live"
     height: 16
     active: !CaptureService.paused
   }
@@ -63,6 +69,7 @@ Row {
       radius: Theme.pill(height)
       color: stop ? Theme.red : Theme.background3
       opacity: area.containsMouse ? 0.85 : 1
+      Behavior on opacity { enabled: Motion.controls; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
       Accessible.role: Accessible.Button
       Accessible.name: stop ? "Stop recording" : CaptureService.paused ? "Resume recording" : "Pause recording"
 
@@ -83,7 +90,7 @@ Row {
   }
 
   // update: the download's progress, else what runs
-  KitIcon { visible: face.kind === "update"; name: "download"; tint: Theme.blue; size: 14; anchors.verticalCenter: parent.verticalCenter }
+  KitIcon { visible: face.kind === "update"; glowTarget: "live"; name: "download"; tint: Theme.blue; size: 14; anchors.verticalCenter: parent.verticalCenter }
   readonly property bool updateBar: face.kind === "update" && PackagesService.stage === "downloading"
   Rectangle {
     visible: face.updateBar
@@ -97,6 +104,8 @@ Row {
       height: parent.height
       radius: 2
       color: Theme.blue
+
+      KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: 2 }
     }
   }
   KitText { visible: face.updateBar; text: Math.round(PackagesService.stagePercent * 100) + "%"; color: Theme.blue }
@@ -120,6 +129,8 @@ Row {
       height: parent.height
       radius: 2
       color: Theme.green
+
+      KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: 2 }
     }
   }
 
@@ -131,14 +142,28 @@ Row {
 
   // a notification, as a line: the app's initial, "app: summary"
   Rectangle {
-    visible: face.kind === "notice"
+    visible: face.kind === "notice" && ShellSettings.liveNoticeMark === "dot"
+    anchors.verticalCenter: parent.verticalCenter
+    width: 8; height: 8; radius: 4
+    color: IslandService.noticeItem?.urgency === "critical" ? Theme.red : Theme.appColour(IslandService.noticeItem?.app)
+  }
+  Rectangle {
+    visible: face.kind === "notice" && ShellSettings.liveNoticeMark === "avatar"
     anchors.verticalCenter: parent.verticalCenter
     width: face.coverSize
     height: face.coverSize
     radius: face.badgeRadius
     readonly property color tone: IslandService.noticeItem?.urgency === "critical" ? Theme.red : Theme.appColour(IslandService.noticeItem?.app)
     color: Theme.mix(Theme.background0, tone, 0.22)
-    KitText { anchors.centerIn: parent; text: (IslandService.noticeItem?.app ?? "").slice(0, 1).toUpperCase(); color: parent.tone; font.pixelSize: Theme.fontSize - 2; font.weight: Font.Medium }
+    readonly property string appIcon: Hypr.iconOfApp(IslandService.noticeItem?.desktop, IslandService.noticeItem?.app)
+    // the app's own icon; an app with none gets its initial
+    IconImage {
+      anchors.centerIn: parent
+      implicitSize: parent.width - 4
+      source: parent.appIcon
+      visible: parent.appIcon !== ""
+    }
+    KitText { anchors.centerIn: parent; visible: parent.appIcon === ""; text: (IslandService.noticeItem?.app ?? "").slice(0, 1).toUpperCase(); color: parent.tone; font.pixelSize: Theme.fontSize - 2; font.weight: Font.Medium }
   }
   KitText {
     visible: face.kind === "notice"
@@ -155,7 +180,7 @@ Row {
   }
 
   // low battery: the level in red, the time left
-  KitIcon { visible: face.kind === "battery"; name: BatteryService.levelIcon; size: 16; tint: Theme.red; anchors.verticalCenter: parent.verticalCenter }
+  KitIcon { visible: face.kind === "battery"; glowTarget: "live"; name: BatteryService.levelIcon; size: 16; tint: Theme.red; anchors.verticalCenter: parent.verticalCenter }
   KitText { visible: face.kind === "battery"; text: "Battery"; color: Theme.foreground1 }
   KitText { visible: face.kind === "battery"; text: BatteryService.capacity + "%"; color: Theme.red }
   KitText {
@@ -165,7 +190,7 @@ Row {
   }
 
   // a device that connected: its name, the charge
-  KitIcon { visible: face.kind === "bluetooth"; name: "bluetooth"; size: 16; tint: Theme.blue; anchors.verticalCenter: parent.verticalCenter }
+  KitIcon { visible: face.kind === "bluetooth"; glowTarget: "live"; name: "bluetooth"; size: 16; tint: Theme.blue; anchors.verticalCenter: parent.verticalCenter }
   KitText { visible: face.kind === "bluetooth"; text: BluetoothService.mainDevice?.name ?? ""; color: Theme.foreground1 }
   KitText {
     visible: face.kind === "bluetooth" && BluetoothService.mainDevice?.battery != null
@@ -177,6 +202,11 @@ Row {
   KitText { visible: face.kind === "vpn"; text: "VPN"; color: Theme.foreground1; font.letterSpacing: 1 }
   KitText { visible: face.kind === "vpn"; text: MihomoService.current; color: Theme.foreground2; width: Math.min(implicitWidth, 110); elide: Text.ElideRight }
   KitText { visible: face.kind === "vpn" && MihomoService.currentDelay > 0; text: String(MihomoService.currentDelay); color: Theme.muted }
+
+  // focus: do not disturb is on
+  KitIcon { visible: face.kind === "focus"; glowTarget: "live"; name: "moon"; size: 16; tint: Theme.purple; anchors.verticalCenter: parent.verticalCenter }
+  KitText { visible: face.kind === "focus"; text: "Focus"; color: Theme.foreground1 }
+  KitText { visible: face.kind === "focus"; text: "Do not disturb"; color: Theme.muted }
 
   // volume and brightness: the level as a ruler while it changes
   KitIcon { visible: face.kind === "volume"; name: IslandService.osdIcon; size: 14; tint: IslandService.osdMuted ? Theme.red : Theme.foreground2; anchors.verticalCenter: parent.verticalCenter }
@@ -196,18 +226,21 @@ Row {
   KitText { visible: face.kind === "volume"; text: Math.round(IslandService.osdLevel * 100); color: Theme.foreground1 }
 
   // flashes: the mic, the layout, the cable
-  KitIcon { visible: face.kind === "mic"; name: IslandService.micMuted ? "mic-off" : "mic"; size: 14; tint: IslandService.micMuted ? Theme.red : Theme.green; anchors.verticalCenter: parent.verticalCenter }
+  KitIcon { visible: face.kind === "mic"; glowTarget: "live"; name: IslandService.micMuted ? "mic-off" : "mic"; size: 14; tint: IslandService.micMuted ? Theme.red : Theme.green; anchors.verticalCenter: parent.verticalCenter }
   KitText { visible: face.kind === "mic"; text: IslandService.micMuted ? "Muted" : "Mic on"; color: Theme.foreground1 }
   KitText { visible: face.kind === "layout"; text: Format.layout(IslandService.layoutFrom) || IslandService.layoutFrom; color: Theme.muted }
   KitText { visible: face.kind === "layout"; text: "→"; color: Theme.dim }
   KitText { visible: face.kind === "layout"; text: Format.layout(IslandService.layoutNow) || IslandService.layoutNow; color: Theme.foreground1; font.weight: Font.Medium }
-  KitIcon { visible: face.kind === "plugged"; name: "zap"; size: 14; tint: Theme.purple; anchors.verticalCenter: parent.verticalCenter }
+  KitIcon { visible: face.kind === "plugged"; glowTarget: "live"; name: "zap"; size: 14; tint: Theme.purple; anchors.verticalCenter: parent.verticalCenter }
   Rectangle {
     visible: face.kind === "plugged"
     anchors.verticalCenter: parent.verticalCenter
     width: 70; height: 4; radius: 2
     color: Theme.background3
-    Rectangle { width: parent.width * BatteryService.capacity / 100; height: parent.height; radius: 2; color: Theme.purple }
+    Rectangle {
+      width: parent.width * BatteryService.capacity / 100; height: parent.height; radius: 2; color: Theme.purple
+      KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: 2 }
+    }
   }
   KitText { visible: face.kind === "plugged"; text: String(BatteryService.capacity); color: Theme.purple }
 
@@ -247,7 +280,7 @@ Row {
     anchors.verticalCenter: parent.verticalCenter
     width: Math.min(implicitWidth, 260)
     elide: Text.ElideRight
-    text: IslandService.title + (IslandService.artist !== "" ? " · " + IslandService.artist : "")
+    text: !IslandService.hasMedia ? "Nothing playing" : IslandService.title + (IslandService.artist !== "" ? " · " + IslandService.artist : "")
     color: Theme.foreground1
   }
   EqualizerBars {
@@ -255,6 +288,7 @@ Row {
     anchors.verticalCenter: parent.verticalCenter
     barCount: 4
     tone: Theme.green
+    glowTarget: "live"
     height: 14
   }
 }

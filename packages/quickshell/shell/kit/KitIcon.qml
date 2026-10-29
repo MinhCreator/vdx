@@ -17,6 +17,11 @@ Item {
   property color tint: Theme.foreground0
   property int size: Theme.fontSize + 3
   property bool solid: ShellSettings.solidIcons
+  property string glowTarget: ""          // a Glow target (Appearance › Glow): the icon gets a halo
+
+  // 0..1: the halo fades in and out with Glow, as KitGlow's does
+  property real glowAmount: glowTarget !== "" && Theme.glowOn(glowTarget) ? 1 : 0
+  Behavior on glowAmount { enabled: Motion.controls; NumberAnimation { duration: Motion.slow; easing.type: Motion.easing } }
 
   // the battery glyphs are wide and short, so drawn alone they look smaller
   // than the others: their box is a third larger, the glyph's height matches
@@ -42,5 +47,11 @@ Item {
     source: image
     colorization: 1
     colorizationColor: root.tint
+    autoPaddingEnabled: root.glowTarget !== ""
+    shadowEnabled: root.glowAmount > 0.001
+    shadowColor: root.tint
+    shadowBlur: 0.4
+    shadowOpacity: Theme.glowLevel * 0.6 * root.glowAmount
+    shadowScale: 1
   }
 }

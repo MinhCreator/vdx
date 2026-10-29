@@ -25,34 +25,41 @@ Rectangle {
     spacing: 8
 
     // messages
-    Rectangle { visible: root.kind === "notice"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: 4; color: Theme.blue }
+    Rectangle {
+      visible: root.kind === "notice" && ShellSettings.liveNoticeMark === "avatar"
+      anchors.verticalCenter: parent.verticalCenter
+      width: 20; height: 20; radius: Theme.pill(width)
+      color: Theme.mix(Theme.background0, Theme.blue, 0.22)
+      KitText { anchors.centerIn: parent; text: "N"; color: Theme.blue; font.pixelSize: Theme.fontSize - 2; font.weight: Font.Medium }
+    }
+    Rectangle { visible: root.kind === "notice" && ShellSettings.liveNoticeMark === "dot"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: 4; color: Theme.blue; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "notice"; text: "Nikita: скину"; font.pixelSize: Theme.fontSize - 1 }
 
     // low battery
-    Rectangle { visible: root.kind === "battery"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: 4; color: Theme.red }
+    Rectangle { visible: root.kind === "battery"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: 4; color: Theme.red; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "battery"; text: "9% · 14m"; font.pixelSize: Theme.fontSize - 1 }
 
     // a device connected
-    Rectangle { visible: root.kind === "bluetooth"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: 4; color: Theme.green }
+    Rectangle { visible: root.kind === "bluetooth"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: 4; color: Theme.green; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "bluetooth"; text: "AirPods 80"; font.pixelSize: Theme.fontSize - 1 }
 
     // recording
-    Rectangle { visible: root.kind === "recording"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: 4; color: Theme.red }
+    Rectangle { visible: root.kind === "recording"; anchors.verticalCenter: parent.verticalCenter; width: 8; height: 8; radius: 4; color: Theme.red; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "recording"; text: "00:03"; font.pixelSize: Theme.fontSize - 1 }
     Row {
       visible: root.kind === "recording"
       anchors.verticalCenter: parent.verticalCenter
       spacing: 2
-      Repeater { model: root.wave(); Rectangle { required property real modelData; anchors.verticalCenter: parent.verticalCenter; width: 2; height: 14 * modelData; radius: 1; color: Theme.red } }
+      Repeater { model: root.wave(); Rectangle { required property real modelData; anchors.verticalCenter: parent.verticalCenter; width: 2; height: 14 * modelData; radius: 1; color: Theme.red; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } } }
     }
 
     // updates
-    KitIcon { visible: root.kind === "update"; name: "download"; size: 12; tint: Theme.blue; anchors.verticalCenter: parent.verticalCenter }
+    KitIcon { visible: root.kind === "update"; glowTarget: "live"; name: "download"; size: 12; tint: Theme.blue; anchors.verticalCenter: parent.verticalCenter }
     Rectangle {
       visible: root.kind === "update"
       anchors.verticalCenter: parent.verticalCenter
       width: 60; height: 3; radius: 2; color: Theme.background3
-      Rectangle { width: parent.width * 0.47; height: parent.height; radius: 2; color: Theme.blue }
+      Rectangle { width: parent.width * 0.47; height: parent.height; radius: 2; color: Theme.blue; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
     }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "update"; text: "47%"; color: Theme.blue; font.pixelSize: Theme.fontSize - 1 }
 
@@ -62,7 +69,7 @@ Rectangle {
       visible: root.kind === "backup"
       anchors.verticalCenter: parent.verticalCenter
       width: 70; height: 3; radius: 2; color: Theme.background3
-      Rectangle { width: parent.width * 0.46; height: parent.height; radius: 2; color: Theme.green }
+      Rectangle { width: parent.width * 0.46; height: parent.height; radius: 2; color: Theme.green; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
     }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "backup"; text: "1.2G"; color: Theme.foreground2; font.pixelSize: Theme.fontSize - 1 }
 
@@ -70,6 +77,11 @@ Rectangle {
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "vpn"; text: "VPN"; font.pixelSize: Theme.fontSize - 3; font.letterSpacing: 1 }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "vpn"; text: "Finland"; font.pixelSize: Theme.fontSize - 1 }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "vpn"; text: "483"; color: Theme.foreground2; font.pixelSize: Theme.fontSize - 1 }
+
+    // focus
+    KitIcon { visible: root.kind === "focus"; glowTarget: "live"; anchors.verticalCenter: parent.verticalCenter; name: "moon"; size: 16; tint: Theme.purple }
+    KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "focus"; text: "Focus"; font.pixelSize: Theme.fontSize - 1 }
+    KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "focus"; text: "Do not disturb"; color: Theme.muted; font.pixelSize: Theme.fontSize - 1 }
 
     // music: the cover, the name, the sound
     Rectangle { visible: root.kind === "music"; anchors.verticalCenter: parent.verticalCenter; width: 16; height: 16; radius: Theme.pill(width); color: Theme.background3
@@ -79,7 +91,7 @@ Rectangle {
       visible: root.kind === "music"
       anchors.verticalCenter: parent.verticalCenter
       spacing: 2
-      Repeater { model: [0.45, 1, 0.65, 0.85]; Rectangle { required property real modelData; anchors.verticalCenter: parent.verticalCenter; width: 2; height: 14 * modelData; radius: 1; color: Theme.green } }
+      Repeater { model: [0.45, 1, 0.65, 0.85]; Rectangle { required property real modelData; anchors.verticalCenter: parent.verticalCenter; width: 2; height: 14 * modelData; radius: 1; color: Theme.green; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } } }
     }
 
     // volume and brightness
@@ -93,7 +105,7 @@ Rectangle {
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "volume"; text: "62"; font.pixelSize: Theme.fontSize - 1 }
 
     // microphone
-    KitIcon { visible: root.kind === "mic"; name: "mic-off"; size: 13; tint: Theme.red; anchors.verticalCenter: parent.verticalCenter }
+    KitIcon { visible: root.kind === "mic"; glowTarget: "live"; name: "mic-off"; size: 13; tint: Theme.red; anchors.verticalCenter: parent.verticalCenter }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "mic"; text: "Muted"; font.pixelSize: Theme.fontSize - 1 }
 
     // keyboard layout
@@ -102,12 +114,12 @@ Rectangle {
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "layout"; text: "RU"; font.pixelSize: Theme.fontSize - 1; font.weight: Font.Medium }
 
     // the cable
-    KitIcon { visible: root.kind === "plugged"; name: "zap"; size: 12; tint: Theme.purple; anchors.verticalCenter: parent.verticalCenter }
+    KitIcon { visible: root.kind === "plugged"; glowTarget: "live"; name: "zap"; size: 12; tint: Theme.purple; anchors.verticalCenter: parent.verticalCenter }
     Rectangle {
       visible: root.kind === "plugged"
       anchors.verticalCenter: parent.verticalCenter
       width: 70; height: 3; radius: 2; color: Theme.background3
-      Rectangle { width: parent.width * 0.52; height: parent.height; radius: 2; color: Theme.purple }
+      Rectangle { width: parent.width * 0.52; height: parent.height; radius: 2; color: Theme.purple; KitGlow { z: -1; anchors.fill: parent; target: "live"; tint: parent.color; radius: parent.radius } }
     }
     KitText { anchors.verticalCenter: parent.verticalCenter; visible: root.kind === "plugged"; text: "52"; color: Theme.purple; font.pixelSize: Theme.fontSize - 1 }
   }

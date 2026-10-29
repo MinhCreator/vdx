@@ -57,8 +57,8 @@ QtObject {
   // the unseen dot (Bar › Notifications dot colour): a name of the choices;
   // "theme" (and anything else) is the theme's own text colour
   function notifyDot(name) {
-    return name === "red" ? red : name === "yellow" ? yellow : name === "green" ? green
-         : name === "blue" ? blue : foreground0;
+    return name === "red" ? red : name === "orange" ? orange : name === "yellow" ? yellow : name === "green" ? green
+         : name === "aqua" ? aqua : name === "blue" ? blue : name === "purple" ? purple : foreground0;
   }
 
   // one corner for every track cover: a preview is a card's corner (design.md: radiusCard — tiles, previews, cards)
@@ -110,6 +110,9 @@ QtObject {
   readonly property color accentEnd: accentGradient ? accentColour(ShellSettings.accentStops[1] ?? "theme", 1) : accent
   // what takes the accent: a target key of Appearance › Accent (off by default)
   function accentOn(key) { return ShellSettings.accent && ShellSettings.accentWhere[key] === true; }
+  // the glow: a target glows unless switched off (Appearance › Glow)
+  readonly property real glowLevel: ShellSettings.glowStrength / 100
+  function glowOn(key) { return ShellSettings.glow && ShellSettings.glowWhere[key] !== false; }
   function accentFor(key, fallback) { return accentOn(key) ? accent : fallback; }
 
   // ---- type and bar metrics ----

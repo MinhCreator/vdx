@@ -74,6 +74,12 @@
   "target": "fonts:size"
  },
  {
+  "label": "Input text",
+  "hint": "Where the text stands in a field; Auto: left, a password in the middle",
+  "where": "Fonts › TEXT SIZE",
+  "target": "fonts:size"
+ },
+ {
   "label": "Icons",
   "hint": "",
   "where": "",
@@ -759,6 +765,12 @@
   "target": "power"
  },
  {
+  "label": "Graphics",
+  "hint": "",
+  "where": "Power",
+  "target": "power"
+ },
+ {
   "label": "Power profile",
   "hint": "",
   "where": "Power › PROFILE",
@@ -768,6 +780,12 @@
   "label": "Charge limit",
   "hint": "The battery stops charging here",
   "where": "Power › CHARGE",
+  "target": "power"
+ },
+ {
+  "label": "GPU",
+  "hint": "",
+  "where": "Power › GRAPHICS",
   "target": "power"
  },
  {
@@ -1397,6 +1415,12 @@
   ]
  },
  {
+  "label": "Focus",
+  "hint": "Do not disturb is on; a click ends it",
+  "where": "Live activities › LIVE ACTIVITIES",
+  "target": "live"
+ },
+ {
   "label": "Music",
   "hint": "The playing track and its sound",
   "where": "Live activities › LIVE ACTIVITIES",
@@ -1440,6 +1464,12 @@
  {
   "label": "Wheel pages through them",
   "hint": "Scrolling over the pill moves between running activities",
+  "where": "Live activities › BEHAVIOUR",
+  "target": "live"
+ },
+ {
+  "label": "Right click opens options",
+  "hint": "On a live activity: its settings here",
   "where": "Live activities › BEHAVIOUR",
   "target": "live"
  },

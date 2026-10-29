@@ -2,8 +2,8 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// Battery: charge and health, then the GPU mode (the profile and the charge limit
-// are in Settings › Power).
+// Battery: charge and health, then the power saver switch (the profile, the charge limit
+// and the GPU mode are in Settings › Power).
 KitFrame {
   id: root
 
@@ -15,10 +15,6 @@ KitFrame {
     : "IDLE"
   readonly property color levelColor: BatteryService.capacity <= BatteryService.critical ? Theme.red
     : BatteryService.capacity <= BatteryService.warning ? Theme.yellow : Theme.green
-  // supergfxctl reports "Unknown" when nothing is pending
-  readonly property string gpuNext: BatteryService.gpuPending === "Unknown" ? "" : BatteryService.gpuPending
-  readonly property bool gpuPending: gpuNext !== "" && gpuNext !== BatteryService.gpuMode
-    && !/no action/i.test(BatteryService.gpuAction)
   // ---- header ----
   KitHeader {
     icon: BatteryService.saver ? "battery-saver" : BatteryService.charging ? "battery-bolt"
@@ -69,26 +65,16 @@ KitFrame {
 
   KitLine {}
 
-  // ---- power settings ----
-  Column {
+  // ---- power saver ----
+  KitRow {
     width: parent.width
-    spacing: Theme.gapLoose
-
-    KitLabel { text: "GRAPHICS" }
-
-    KitSelect {
-      id: gpu
-      visible: BatteryService.gpuMode !== ""
-      label: "GPU"
-      hint: root.gpuPending ? (BatteryService.gpuAction || "Reboot required").toLowerCase().replace(/^./, c => c.toUpperCase()) : "Graphics mode"
-      hintColor: root.gpuPending ? Theme.orange : Theme.muted
-      model: [
-        { label: "Integrated", value: "Integrated" },
-        { label: "Hybrid",     value: "Hybrid" }
-      ]
-      current: root.gpuNext || BatteryService.gpuMode
-      busy: model.some(c => c.value === BatteryService.busy)
-      onPicked: value => BatteryService.setGpuMode(value)
+    visible: BatteryService.profiles.length > 0
+    label: "Power saver"
+    hint: "Quiet profile, slower and cooler"
+    KitSwitch {
+      accessibleName: "Power saver"
+      checked: BatteryService.saver
+      onToggled: BatteryService.setSaver(!BatteryService.saver)
     }
   }
 

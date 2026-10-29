@@ -27,7 +27,10 @@ Column {
     onActed: ShellSettings.set("barStyle", "island")
   }
 
-  BarLive { width: parent.width; visible: Theme.island }
+  // `shell open live:<kind>`: the activity's options unfold
+  function jump(kind) { liveBlocks.jump(kind); }
+
+  BarLive { id: liveBlocks; width: parent.width; visible: Theme.island }
 
   KitGrouper {}
 }

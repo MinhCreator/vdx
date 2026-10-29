@@ -109,7 +109,7 @@ size, gap, separators and hub opening.
   equalizer).
 - **The live slot** (`IslandLive`, between the clock and RIGHT) shows what
   runs, only while it does, in three kinds: Asks (low battery, a connected
-  device), Held (recording, update, backup, VPN, music) and Flash (the mic, the
+  device), Held (recording, update, backup, VPN, Focus, music) and Flash (the mic, the
   layout, the cable). The wheel over it pages through them with a
   slide; a new one, or one paged to, shows whole in the pill (activities never fold);
   a click on the music opens the
@@ -166,6 +166,9 @@ All in Shell Manager › Appearance.
   workspaces, dropdowns, bar modules, the window border (Hyprland's focused
   frame, via `~/.local/state/dotfiles/accent.lua`). A gradient runs across
   fills; text and outlines take the first colour.
+- **Glow**: off by default; a soft halo (`KitGlow`) behind bright elements, each
+  in its own colour, with a strength. Targets: switches, sliders, workspaces,
+  live activities, status dots; switch each off under Appearance › Glow.
 - **Shape › Corners**: sharp, or round with one radius — popups, controls,
   the island, Hyprland's windows and mako follow, and the icons switch to
   Material Symbols Rounded.
@@ -246,7 +249,7 @@ above a divider. Module layout offers compact semantic groups (the default), equ
 grid tiles and content-sized chips; the preview follows the selection. The profile
 shows the user's initial or chosen image and current system uptime.
 
-Appearance has Style, Accent, Wallpaper and Shape tabs with previews. Fonts
+Appearance has Style, Accent, Glow, Wallpaper and Shape tabs with previews. Fonts
 and Cursor use searchable lists and a single preview, with explicit Apply.
 The colour picker supports a horizontal hue strip, keyboard adjustments,
 validated HEX and named palette choices. Scrollbars hide while idle.

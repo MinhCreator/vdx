@@ -3,15 +3,15 @@ import qs.config
 import qs.kit
 import qs.modules.battery
 
-// Power: the platform profile and the charge limit (it was the Battery module's popup
-// only). The writes are the service's, the same as the popup's.
+// Power: the platform profile, the charge limit and the GPU mode (they were the Battery
+// module's popup only). The writes are the service's, the same as the popup's.
 Column {
   id: root
   readonly property Item previewItem: null
 
   readonly property string icon: "zap"
   readonly property string title: "Power"
-  readonly property string description: "Power profile and battery charge limit."
+  readonly property string description: "Power profile, battery charge limit and GPU mode."
   readonly property var jumps: []
 
   readonly property bool changed: false
@@ -62,6 +62,36 @@ Column {
         model: BatteryService.limits.map(v => ({ label: v + "%", value: v }))
         current: BatteryService.threshold
         onPicked: value => BatteryService.setThreshold(value)
+      }
+    }
+    KitGrouper {}
+  }
+
+  KitLine { visible: BatteryService.gpuMode !== "" }
+
+  Column {
+    id: gpu
+    width: parent.width
+    spacing: Theme.sectionGap
+    visible: BatteryService.gpuMode !== ""
+
+    // supergfxctl reports "Unknown" when nothing is pending
+    readonly property string gpuNext: BatteryService.gpuPending === "Unknown" ? "" : BatteryService.gpuPending
+    readonly property bool gpuPending: gpuNext !== "" && gpuNext !== BatteryService.gpuMode
+      && !/no action/i.test(BatteryService.gpuAction)
+
+    KitLabel { text: "GRAPHICS" }
+    KitRow {
+      label: "GPU"
+      hint: gpu.gpuPending ? (BatteryService.gpuAction || "Reboot required").toLowerCase().replace(/^./, c => c.toUpperCase()) : "Graphics mode"
+      wide: true
+      KitSegments {
+        model: [
+          { label: "Integrated", value: "Integrated" },
+          { label: "Hybrid",     value: "Hybrid" }
+        ]
+        current: gpu.gpuNext || BatteryService.gpuMode
+        onPicked: value => BatteryService.setGpuMode(value)
       }
     }
     KitGrouper {}

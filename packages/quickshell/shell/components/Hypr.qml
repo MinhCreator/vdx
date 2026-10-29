@@ -21,6 +21,12 @@ Singleton {
   // minimized windows wait on special:minimized (hypr/components/windowmode.lua)
   function minimized(t) { return t.workspace?.name === "special:minimized"; }
   // its app's icon path, "" when the icon theme has none
+  // the icon of an app by its desktop id or name ("" when it has none)
+  function iconOfApp(desktop, app) {
+    const e = DesktopEntries.heuristicLookup(desktop || app || "");
+    return e ? Quickshell.iconPath(e.icon, true) : "";
+  }
+
   function iconOf(t) {
     const e = DesktopEntries.heuristicLookup(classOf(t));
     return Quickshell.iconPath(e?.icon ?? classOf(t).toLowerCase(), true);

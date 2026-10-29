@@ -31,6 +31,9 @@ JsonAdapter {
   property bool accentGradient: false
   property var accentCustom: ["", ""]
   property var accentWhere: ({})
+  property bool glow: false
+  property int glowStrength: 60
+  property var glowWhere: ({})
   property bool passwordDots: false
   property int cornerRadius: 12
   property bool cornerSplit: false

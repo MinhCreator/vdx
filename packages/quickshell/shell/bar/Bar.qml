@@ -124,7 +124,7 @@ PanelWindow {
   // otherwise the bar never does
   WlrLayershell.keyboardFocus: PopupManager.current || (islandItem?.takesKeys ?? false)
     ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
-  color: Theme.island ? "transparent" : Theme.background0
+  color: Theme.island || morphing ? "transparent" : Theme.background0
 
   mask: Theme.island ? islandMask : null
 
@@ -379,5 +379,69 @@ PanelWindow {
       modules: root.modules
       onSettings: id => root.openSettings(id)
     }
+  }
+
+  // ---- solid ⇄ island ----
+  // Switching the style: a plate in the bar's colour stretches between the strip and the
+  // pill (the strip shrinks into the pill, the pill spreads into the strip), then fades to
+  // show the new bar. `morph` is 1 at the strip, 0 at the pill. Off with Animations › Bar.
+  property bool morphing: false
+  property real morph: 1
+  property rect pillRect: Qt.rect(width / 2 - 60, Theme.islandTop, 120, Theme.islandHeight)
+
+  // the pill as it last was (it is gone in the strip)
+  function samplePill() {
+    const shape = islandItem?.shape;
+    if (!Theme.island || !shape || shape.width <= 0) return;
+    const p = shape.mapToItem(root.contentItem, 0, 0);
+    pillRect = Qt.rect(p.x, p.y, shape.width, shape.height);
+  }
+  Connections {
+    target: root.islandItem?.shape ?? null
+    ignoreUnknownSignals: true
+    function onWidthChanged() { root.samplePill(); }
+    function onHeightChanged() { root.samplePill(); }
+    function onXChanged() { root.samplePill(); }
+  }
+  onIslandItemChanged: Qt.callLater(samplePill)
+
+  Connections {
+    target: Theme
+    function onIslandChanged() {
+      if (!Motion.bar) return;
+      root.samplePill();
+      morphAnim.stop();
+      root.morphing = true;
+      plate.opacity = 1;
+      root.morph = Theme.island ? 1 : 0;
+      morphAnim.from = root.morph;
+      morphAnim.to = Theme.island ? 0 : 1;
+      morphAnim.restart();
+      fadeAnim.restart();
+    }
+  }
+
+  NumberAnimation { id: morphAnim; target: root; property: "morph"; duration: Motion.ms(420); easing.type: Easing.InOutCubic }
+  SequentialAnimation {
+    id: fadeAnim
+    PauseAnimation { duration: Motion.ms(300) }
+    NumberAnimation { target: plate; property: "opacity"; to: 0; duration: Motion.ms(200); easing.type: Motion.easing }
+    ScriptAction { script: root.morphing = false }
+  }
+
+  Rectangle {
+    id: plate
+    z: 100
+    visible: root.morphing
+    readonly property rect pill: root.pillRect
+    readonly property real m: root.morph
+    x: pill.x * (1 - m)
+    y: pill.y * (1 - m)
+    width: pill.width + (root.width - pill.width) * m
+    height: pill.height + (Theme.barHeight - pill.height) * m
+    radius: Math.min(height / 2, Theme.islandRadius) * (1 - m)
+    color: Theme.background0
+    border.width: Theme.islandFrameWidth * (1 - m)
+    border.color: Theme.background2
   }
 }

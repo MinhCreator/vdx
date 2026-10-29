@@ -4,15 +4,15 @@ import qs.config
 import qs.kit
 
 // Hyprland workspaces across all outputs; special workspaces are hidden.
-// Drawn as digits, squares, dots or dashes (Modules › Workspaces). Focused
+// Drawn as digits, squares, dots, dashes or pills (Modules › Workspaces). Focused
 // and visible workspaces are highlighted; a click activates. Colours fade
 // and a new workspace opens up (Motion.bar).
 Row {
   id: root
 
   readonly property string style: ModuleSettings.get("workspaces", "style", "numbers")
-  // the shape styles draw no text: a square, a dot or a dash each
-  readonly property bool shape: style === "squares" || style === "dots" || style === "dashes"
+  // the shape styles draw no text: a square, a dot, a dash or a pill each
+  readonly property bool shape: style === "squares" || style === "dots" || style === "dashes" || style === "pills"
 
   spacing: shape ? 4 : 0
 
@@ -49,10 +49,13 @@ Row {
 
       visible: !modelData.name.startsWith("special")
       readonly property color tone: area.containsMouse
-        ? (highlighted ? Theme.accentFor("modules", Theme.yellow) : Theme.foreground0)
+        ? (highlighted ? Theme.accentFor("modules", Theme.foreground0) : Theme.foreground0)
         : (highlighted ? Theme.accentFor("modules", Theme.foreground1) : Theme.gray)
 
-      implicitWidth: (root.shape ? (root.style === "dashes" ? 14 : 10) : Math.max(label.implicitWidth, Theme.workspaceMinWidth) + 4) * grow
+      // pills: the focused / visible one stretches into a bar, the rest are dots
+      readonly property real shapeWidth: root.style === "dashes" ? 12 : root.style === "pills" ? (highlighted ? 16 : 6) : 8
+
+      implicitWidth: (root.shape ? shapeWidth + 2 : Math.max(label.implicitWidth, Theme.workspaceMinWidth) + 4) * grow
       implicitHeight: label.implicitHeight
 
       // a new workspace opens up from nothing and fades in (Motion.bar)
@@ -62,18 +65,30 @@ Row {
       NumberAnimation { id: growIn; target: workspace; property: "grow"; from: 0; to: 1; duration: Motion.normal; easing.type: Motion.easing }
 
       // the shapes: a filled one for the focused / visible, an outline for the
-      // rest (dots are round); dashes are always filled, in the tone
+      // rest (dots are round); dashes and pills are always filled, in the tone
+      KitGlow {
+        z: -1
+        anchors.centerIn: parent
+        width: workspace.shapeWidth
+        height: root.style === "dashes" ? 2 : root.style === "pills" ? 6 : 8
+        target: "workspaces"
+        lit: root.shape && workspace.highlighted
+        tint: Theme.accentFor("modules", Theme.foreground0)
+        radius: root.style === "dots" ? 4 : root.style === "pills" ? 3 : 0
+      }
+
       Rectangle {
         anchors.centerIn: parent
         visible: root.shape
-        width: root.style === "dashes" ? 12 : 8
-        height: root.style === "dashes" ? 2 : 8
-        radius: root.style === "dots" ? 4 : 0
-        color: root.style === "dashes" || workspace.highlighted ? workspace.tone : Qt.rgba(workspace.tone.r, workspace.tone.g, workspace.tone.b, 0)
-        border.width: root.style === "dashes" || workspace.highlighted ? 0 : Theme.hairline
+        width: workspace.shapeWidth
+        height: root.style === "dashes" ? 2 : root.style === "pills" ? 6 : 8
+        radius: root.style === "dots" ? 4 : root.style === "pills" ? 3 : 0
+        color: root.style === "dashes" || root.style === "pills" || workspace.highlighted ? workspace.tone : Qt.rgba(workspace.tone.r, workspace.tone.g, workspace.tone.b, 0)
+        border.width: root.style === "dashes" || root.style === "pills" || workspace.highlighted ? 0 : Theme.hairline
         border.color: workspace.tone
 
         Behavior on color { enabled: Motion.bar; ColorAnimation { duration: Motion.slow; easing.type: Motion.tint } }
+        Behavior on width { enabled: Motion.bar; NumberAnimation { duration: Motion.normal; easing.type: Motion.easing } }
       }
 
       KitText {

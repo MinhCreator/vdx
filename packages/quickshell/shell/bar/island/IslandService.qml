@@ -71,7 +71,8 @@ Singleton {
       update: PackagesService.busy || RootService.running,
       backup: BackupService.busy && BackupService.jobKind === "run",
       vpn: MihomoService.serviceOn,
-      music: hasMedia && (playing || ShellSettings.liveMusicPaused),
+      focus: FocusService.on,
+      music: ShellSettings.liveMusicAlways || hasMedia && (playing || ShellSettings.liveMusicPaused),
       notice: noticeItem !== null
     };
     if (flashKind !== "") on[flashKind] = true;

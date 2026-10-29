@@ -19,7 +19,11 @@ Column {
 
   KitLabel { text: root.title; about: root.about }
 
+  // `live:<kind>` from a right click on the pill: unfold that activity's options
+  function jump(kind) { if (kinds.includes(kind)) list.open = kind; }
+
   KitReorderList {
+    id: list
     width: root.width
     keys: root.kinds
     onOrdered: list => ShellSettings.liveSetOrder(root.section, list)

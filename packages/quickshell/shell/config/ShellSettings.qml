@@ -26,7 +26,7 @@ Singleton {
   readonly property bool resumeMusic: state.resumeMusic           // ...and resumes once that sound stops
   readonly property bool barRightSettings: state.barRightSettings // a right click on a bar module opens its options
   readonly property bool barFolderDot: state.barFolderDot         // a dot on the Folder for unseen notices
-  readonly property string barDotColor: state.barDotColor         // theme | red | yellow | green | blue: that dot's colour
+  readonly property string barDotColor: state.barDotColor         // theme | red | orange | yellow | green | aqua | blue | purple: that dot's colour
   readonly property bool material: state.material                 // controls filled, no frames (Appearance › Controls)
   // the accent (Appearance › Accent): two stops, the first the colour, the second
   // the gradient's end when accentGradient is on. A stop is a colour name (theme =
@@ -37,6 +37,10 @@ Singleton {
   readonly property var accentStops: state.accentStops
   readonly property var accentCustom: Array.isArray(state.accentCustom) ? state.accentCustom : ["", ""]
   readonly property var accentWhere: state.accentWhere            // target key -> true: what takes the accent
+  // the glow (Appearance › Glow): a halo behind bright elements; glowWhere: target key -> false when switched off
+  readonly property bool glow: state.glow
+  readonly property int glowStrength: state.glowStrength          // 0..100
+  readonly property var glowWhere: state.glowWhere
   readonly property bool passwordDots: state.passwordDots         // legacy import compatibility; password fields always use dots
   readonly property string corners: state.corners                 // sharp | round: the whole shell's corners
   readonly property int cornerRadius: state.cornerRadius          // px, a popup's corner while round (Theme scales the rest)
@@ -56,12 +60,15 @@ Singleton {
   readonly property int liveNoticeMs: look("liveNoticeMs", "island")  // a notification's line stays this long (0: until read)
   readonly property int liveFlashMs: look("liveFlashMs", "island")          // a flash stays this long
   readonly property bool liveWheel: look("liveWheel", "island")
+  readonly property bool liveRightSettings: look("liveRightSettings", "island")  // a right click on an activity opens its options
   readonly property int liveBatteryBelow: look("liveBatteryBelow", "island") // %, low battery interrupts below this
   readonly property string liveBatteryStay: look("liveBatteryStay", "island") // fixed | 5s
   readonly property bool liveMusicPaused: look("liveMusicPaused", "island")  // the music stays in the live slot on pause
+  readonly property string liveNoticeMark: look("liveNoticeMark", "island")  // avatar | dot: what marks a message in the live slot
+  readonly property bool liveMusicAlways: look("liveMusicAlways", "island")  // the music stays in the live slot with no player at all
   readonly property var liveSections: ({
     asks:  ["notice", "battery", "bluetooth"],
-    held:  ["recording", "update", "backup", "vpn", "music"],
+    held:  ["recording", "update", "backup", "vpn", "focus", "music"],
     flash: ["volume", "mic", "layout", "plugged"]
   })
   readonly property bool liveEnabled: look("liveEnabled", "island")  // the master switch: off, nothing shows in the live slot
@@ -83,9 +90,9 @@ Singleton {
   }
   readonly property var lookDefaults: ({ barIconGrow: 0, barSeparators: true, barGap: 5, clockOpens: "hover", hubPlayer: true, pillHeight: 0,
     liveEnabled: true, liveBattery: true, liveBluetooth: true,
-    liveRecording: true, liveUpdate: true, liveBackup: true, liveVpn: false, liveMusic: true, liveMusicPaused: false,
+    liveRecording: true, liveUpdate: true, liveBackup: true, liveVpn: false, liveFocus: true, liveMusic: true, liveMusicPaused: false, liveMusicAlways: false, liveNoticeMark: "avatar",
     liveVolume: true, liveMic: true, liveLayout: true, livePlugged: true,
-    liveFlashMs: 1500, liveNoticeMs: 5000, liveWheel: true,
+    liveFlashMs: 1500, liveNoticeMs: 5000, liveWheel: true, liveRightSettings: true,
     liveBatteryBelow: 20, liveBatteryStay: "fixed", liveOrder: ({}) })
   // animations (Shell Manager › Animations; Motion reads them)
   readonly property bool motion: state.motion                     // all of them on / off

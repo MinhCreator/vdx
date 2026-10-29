@@ -200,7 +200,7 @@ KitSettingsWorkspace {
       Column {
         property bool kitUnboxed: true
         width: parent.width
-        spacing: Theme.gapWide
+        spacing: Theme.settingsRowInset   // a section's own bottom padding is the other half of the standard gap
         visible: root.tab === "layout"
         Column {
           width: parent.width
@@ -213,48 +213,50 @@ KitSettingsWorkspace {
           }
           KitGrouper {}
         }
-        Item {
+        // its own group: the caption takes the same inset as the other sections' (KitGrouper)
+        Column {
           width: parent.width
-          height: 44
-          KitLabel {
-            anchors { left: parent.left; right: layoutActions.left; rightMargin: Theme.gapMedium; verticalCenter: parent.verticalCenter }
-            text: "LAYOUT"
-            about: "Drag modules between rows"
+          KitLabel { text: "LAYOUT"; about: "Drag modules between rows" }
+          BarArrangement {
+            id: editor
+            showOverview: false
+            showAvailable: true
+            width: parent.width
+            scope: root.screenName
+            island: root.island
+            clockVisible: BarLayout.islandClock(root.screenName)
+            extraZones: root.children.map(b => "bar:" + b.id)
+            extraBars: root.children
+            onDraggingChanged: root.arranging = dragging
+            selectedId: root.selectedModule
+            idsOf: zone => root.ids(zone)
+            labelOf: id => BarLayout.isSeparator(id) ? "Separator" : root.module(id)?.label ?? id
+            iconOf: id => BarLayout.isSeparator(id) ? "layout" : BarLayout.icon(id)
+            tileOf: id => root.island && BarLayout.isTile(id)
+            accepts: (id, zone) => root.canPlace(id, zone)
+            zoneLabel: zone => root.zoneLabel(zone)
+            scrollViewport: root.viewport
+            onSelected: id => root.selectModule(id)
+            onMoved: (id, zone, index) => root.drop(id, zone, index)
+            onRemoved: id => root.removeModule(id)
           }
-          Row {
-            id: layoutActions
-            anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-            spacing: Theme.gapMedium
-            KitButton { text: "Undo"; visible: root.undoStack.length > 0; onClicked: root.undo() }
-            KitButton { icon: "plus"; text: "Separator"; onClicked: { const zone = root.island ? "end" : "right"; root.drop(root.newSeparator, zone, root.ids(zone).length); } }
-            KitResetButton {
-              changed: root.island ? BarLayout.islandCustomized(root.screenName) : BarLayout.customized(root.screenName)
-              onReset: { root.remember(); root.island ? BarLayout.islandReset(root.screenName) : BarLayout.reset(root.screenName); }
+          Item {
+            property bool kitUnboxed: true    // KitGrouper: the buttons stand on the page, not a row
+            width: parent.width
+            height: layoutButtons.height
+            Row {
+              id: layoutButtons
+              anchors.right: parent.right
+              spacing: Theme.gapMedium
+              KitButton { text: "Undo"; visible: root.undoStack.length > 0; onClicked: root.undo() }
+              KitButton { icon: "plus"; text: "Separator"; onClicked: { const zone = root.island ? "end" : "right"; root.drop(root.newSeparator, zone, root.ids(zone).length); } }
+              KitResetButton {
+                changed: root.island ? BarLayout.islandCustomized(root.screenName) : BarLayout.customized(root.screenName)
+                onReset: { root.remember(); root.island ? BarLayout.islandReset(root.screenName) : BarLayout.reset(root.screenName); }
+              }
             }
           }
-        }
-        BarArrangement {
-          id: editor
-          showOverview: false
-          showAvailable: true
-          width: parent.width
-          scope: root.screenName
-          island: root.island
-          clockVisible: BarLayout.islandClock(root.screenName)
-          extraZones: root.children.map(b => "bar:" + b.id)
-          extraBars: root.children
-          onDraggingChanged: root.arranging = dragging
-          selectedId: root.selectedModule
-          idsOf: zone => root.ids(zone)
-          labelOf: id => BarLayout.isSeparator(id) ? "Separator" : root.module(id)?.label ?? id
-          iconOf: id => BarLayout.isSeparator(id) ? "layout" : BarLayout.icon(id)
-          tileOf: id => root.island && BarLayout.isTile(id)
-          accepts: (id, zone) => root.canPlace(id, zone)
-          zoneLabel: zone => root.zoneLabel(zone)
-          scrollViewport: root.viewport
-          onSelected: id => root.selectModule(id)
-          onMoved: (id, zone, index) => root.drop(id, zone, index)
-          onRemoved: id => root.removeModule(id)
+          KitGrouper {}
         }
       }
       Column {
@@ -291,6 +293,9 @@ KitSettingsWorkspace {
         KitRow {
           label: "Separator lines"
           hint: "Between neighbouring modules"
+          needs: root.island ? "Solid style only" : ""
+          needsAction: "Use Solid"
+          onNeedsActed: ShellSettings.set("barStyle", "solid")
           KitSwitch { checked: ShellSettings.barSeparators; onToggled: ShellSettings.setLook("barSeparators", !checked) }
         }
         KitLine {}

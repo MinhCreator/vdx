@@ -15,16 +15,17 @@ KitSettingsWorkspace {
   readonly property var jumps: [
     { key: "style", label: "Interface", y: 0 },
     { key: "accent", label: "Accent", y: 0 },
+    { key: "glow", label: "Glow", y: 0 },
     { key: "shape", label: "Shape", y: 0 }
   ]
   function jump(key) {
-    tab = key === "accent" ? "accent" : "style";
+    tab = key === "accent" || key === "glow" ? key : "style";
   }
-  readonly property var resetKeys: ["corners", "cornerRadius", "cornerSplit", "cornerRadii", "material", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere"]
+  readonly property var resetKeys: ["corners", "cornerRadius", "cornerSplit", "cornerRadii", "material", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere", "glow", "glowStrength", "glowWhere"]
   readonly property bool changed: ShellSettings.changed(resetKeys)
   function reset() { ShellSettings.reset(resetKeys); }
 
-  sections: [{label: "Interface", value: "style"}, {label: "Accent", value: "accent"}]
+  sections: [{label: "Interface", value: "style"}, {label: "Accent", value: "accent"}, {label: "Glow", value: "glow"}]
   current: tab
   onPicked: value => tab = value
 
@@ -53,6 +54,7 @@ KitSettingsWorkspace {
         KitGrouper {}
       }
       AccentSection { width: parent.width; visible: root.tab === "accent" }
+      GlowSection { width: parent.width; visible: root.tab === "glow" }
       KitGrouper {}
     }
   }

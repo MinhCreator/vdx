@@ -89,7 +89,8 @@ Singleton {
           colors[name] = roleColors;
         }
         root.colors = colors;
-        root.themes = names;
+        // the default theme leads the list, the rest keep their order
+        root.themes = names.filter(n => n === "default").concat(names.filter(n => n !== "default"));
         root.current = (active ?? "").trim();
         Theme.live = colors[root.current] ?? ({});
         if (!root.busy) uncover.restart();

@@ -1,6 +1,7 @@
 import QtQuick
 import qs.bar.island
 import qs.config
+import qs.kit
 
 // The sound as thin bars (EqualizerService.levels): live while it plays, a
 // flat dim row when paused. While visible it keeps the service running. The
@@ -12,6 +13,7 @@ Row {
   property int barWidth: 2
   property int barCount: EqualizerService.bars      // fewer bars take their levels evenly from the 12
   property bool active: IslandService.playing    // live bars, else a dim flat row
+  property string glowTarget: ""                 // a Glow target; the live activity's bars: "live"
   property var tone: null                       // one colour for all, over the module's own
 
   // the colour of bar i: the gradient's step at its place
@@ -49,6 +51,8 @@ Row {
       height: Math.max(width, root.height * (EqualizerService.levels[Math.floor((index + 0.5) * EqualizerService.bars / root.barCount)] ?? 0))
 
       Behavior on height { enabled: Motion.bar; NumberAnimation { duration: Motion.ms(70) } }
+
+      KitGlow { z: -1; anchors.fill: parent; target: root.glowTarget; lit: root.active && root.glowTarget !== ""; tint: parent.color; radius: parent.radius }
     }
   }
 }

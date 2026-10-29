@@ -110,6 +110,8 @@ uses tonal layers and more spacious controls.
      options then show a note and are disabled (`KitSwatches { disabled }`).
   4. A gradient is a `Gradient` from `accent` to `accentEnd`; a text, a dot or an outline
      takes `accent` alone.
+  Glow (Appearance › Glow) is separate: a bright element gets a `KitGlow` in its own
+  colour, keyed by a Glow target (`Theme.glowOn(key)`); never a hand-made shadow.
   No hex in QML — `Theme.*` only (a custom colour is picked on the spectrum or typed in Shell Manager and
   kept in settings). Dimmed screens use `Theme.scrim`.
 - Text: secondary text (hints, captions, times) is `Theme.muted`, lifted to

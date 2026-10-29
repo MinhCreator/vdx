@@ -15,7 +15,8 @@ Column {
       { label: "Digits", value: "numbers" },
       { label: "Squares", value: "squares" },
       { label: "Dots", value: "dots" },
-      { label: "Dashes", value: "dashes" }
+      { label: "Dashes", value: "dashes" },
+      { label: "Pills", value: "pills" }
     ]
   }
 

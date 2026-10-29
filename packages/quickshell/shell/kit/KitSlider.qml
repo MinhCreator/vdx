@@ -89,6 +89,17 @@ Item {
   implicitHeight: m3 ? 28 : flat ? 36 : 18
   opacity: enabled ? 1 : 0.4
 
+  KitGlow {
+    z: -1
+    target: "sliders"
+    lit: !root.m3 && !root.flat && root.spectrum.length === 0 && !root.dimmed && root.shown > 0
+    anchors.verticalCenter: parent.verticalCenter
+    width: root.shown * parent.width
+    height: 3
+    tint: root.fill
+    radius: 1.5
+  }
+
   Rectangle {
     visible: !root.m3 && !root.flat
     anchors.verticalCenter: parent.verticalCenter

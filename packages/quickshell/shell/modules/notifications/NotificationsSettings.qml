@@ -68,7 +68,7 @@ KitColumn {
     enabled: ShellSettings.barFolderDot; dimmed: !enabled
 
     KitSwatches {
-      model: ["blue", "green", "yellow", "red", "theme"]
+      model: ["blue", "purple", "aqua", "green", "yellow", "orange", "red", "theme"]
       picked: ShellSettings.barDotColor === "light" ? "theme" : ShellSettings.barDotColor
       colours: name => [Theme.notifyDot(name), Theme.notifyDot(name)]
       onChosen: name => ShellSettings.set("barDotColor", name)
