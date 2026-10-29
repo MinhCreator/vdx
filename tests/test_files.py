@@ -37,6 +37,20 @@ class Files(unittest.TestCase):
     def path(self, name):
         return str(self.home / name)
 
+    def test_devices_accepts_legacy_label_bytes(self):
+        bindir = self.home / "bin"
+        bindir.mkdir()
+        lsblk = bindir / "lsblk"
+        payload = (b'{"blockdevices":[{"path":"/dev/sda1","type":"part",'
+                   b'"fstype":"vfat","rm":true,"label":"\x8c_2000"}]}')
+        lsblk.write_text("#!" + sys.executable + "\nimport sys\nsys.stdout.buffer.write(" + repr(payload) + ")\n")
+        lsblk.chmod(0o755)
+        self.env["PATH"] = str(bindir) + os.pathsep + self.env["PATH"]
+        result, code = self.call("devices")
+        self.assertEqual(code, 0)
+        self.assertEqual(result["devices"][0]["path"], "/dev/sda1")
+        self.assertTrue(result["devices"][0]["name"].endswith("_2000"))
+
     def test_list_tells_kinds_and_hides_nothing(self):
         o, code = self.call("list", self.path("src"))
         self.assertEqual(code, 0)

@@ -28,6 +28,8 @@ def fail(msg):
 
 def run(args, timeout=10):
     try:
-        return subprocess.run(args, capture_output=True, text=True, timeout=timeout)
+        # Device labels and other system output may contain legacy, non-UTF-8 bytes.
+        # Keep the reply readable instead of crashing every consumer of that output.
+        return subprocess.run(args, capture_output=True, text=True, errors="replace", timeout=timeout)
     except (OSError, subprocess.TimeoutExpired):
         return None
