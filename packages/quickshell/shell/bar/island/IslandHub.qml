@@ -55,11 +55,22 @@ Item {
   onVisibleChanged: if (!visible) calendarOpen = false
   implicitHeight: (calendarOpen ? calendarPage.implicitHeight : column.implicitHeight) + 2 * Theme.gapGroup
 
-  // the Music module is on no bar; it lives here for its popup (the player card opens it)
+  // the player modules are on no bar; they live here for their popups (the player card opens
+  // the one of what plays: the radio, the music, another app's media)
   Loader {
     id: musicHost
     visible: false
     sourceComponent: root.modules["music"] ?? null
+  }
+  Loader {
+    id: mediaHost
+    visible: false
+    sourceComponent: root.modules["media"] ?? null
+  }
+  Loader {
+    id: tunerHost
+    visible: false
+    sourceComponent: root.modules["tuner"] ?? null
   }
 
   Timer {
@@ -157,6 +168,14 @@ Item {
         active: HubBlocks.shown(modelData) && root.wants(modelData)
         visible: active
         sourceComponent: root.blockOf(modelData)
+
+        // a right click on a block: its options on the Hub page (the chips and the tiles
+        // answer for themselves: their module's options)
+        TapHandler {
+          acceptedButtons: Qt.RightButton
+          enabled: ShellSettings.barRightSettings && modelData !== "tiles" && modelData !== "modules"
+          onTapped: root.settings("hub:" + modelData)
+        }
       }
     }
   }
@@ -191,6 +210,7 @@ Item {
         width: parent.width
         ids: root.tileIds
         modules: root.modules
+        onSettings: id => root.settings("hubchip:" + id)
       }
   }
 
@@ -209,11 +229,11 @@ Item {
 
         function clock(s) { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
 
-        // a click on the card (not its buttons) opens the Music popup, as the module's did
+        // a click on the card (not its buttons) opens the popup of what plays
         MouseArea {
           anchors.fill: parent
           cursorShape: Qt.PointingHandCursor
-          onClicked: musicHost.item?.openPopup()
+          onClicked: (IslandService.family === "radio" ? tunerHost : IslandService.family === "music" ? musicHost : mediaHost).item?.openPopup()
         }
 
         IslandCover {
@@ -368,7 +388,7 @@ Item {
             TapHandler {
               acceptedButtons: Qt.RightButton
               enabled: ShellSettings.barRightSettings
-              onTapped: root.settings(chip.modelData)
+              onTapped: root.settings("hubchip:" + chip.modelData)
             }
           }
         }

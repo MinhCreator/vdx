@@ -28,6 +28,16 @@ PanelWindow {
   // a module's options in the Shell Manager (a right click on it): an app's
   // module too, on its page under Bar modules (notifications: its own page)
   function openSettings(id) {
+    // the hub's own: "hub" and "hub:<block>" open its page (a block's options unfolded);
+    // "hubchip:<module>" is a chip or a tile, the module's options, else the hub page
+    if (id === "hub" || id.startsWith("hub:")) { ShellIpc.call("shell", "open", [id]); return; }
+    if (id.startsWith("hubchip:")) {
+      const mod = id.slice(8);
+      const known = ShellAppsService.entries.find(a => a.module === mod);
+      const hasPage = known ? !!known.moduleSettings : !!BarLayout.modules.find(p => p.id === mod)?.settings;
+      ShellIpc.call("shell", "open", [hasPage ? "modules:" + mod : "hub"]);
+      return;
+    }
     const app = ShellAppsService.entries.find(a => a.module === id) ?? null;
     const has = app ? !!app.moduleSettings : !!BarLayout.modules.find(p => p.id === id)?.settings;
     if (has) ShellIpc.call("shell", "open", ["modules:" + id]);

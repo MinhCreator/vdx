@@ -8,6 +8,8 @@ import qs.kit
 Column {
   id: root
 
+  function jump(key) { list.open = key; }
+
   signal arrange()                              // the Hub row of Layout
 
   KitLabel { text: "BLOCKS"; about: "Drag a row to move it on the hub; the switch shows or hides it" }
@@ -24,6 +26,7 @@ Column {
   }
 
   KitReorderList {
+    id: list
     width: root.width
     keys: HubBlocks.order
     onOrdered: list => HubBlocks.setOrder(list)

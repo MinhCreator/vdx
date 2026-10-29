@@ -17,6 +17,7 @@ Rectangle {
 
   signal toggled()
   signal opened()
+  signal context()                             // a right click: the options of what it shows
 
   implicitHeight: compact ? 84 : 64
   radius: Theme.radiusCard
@@ -49,6 +50,12 @@ Rectangle {
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
     onClicked: root.canOpen ? root.opened() : root.toggled()
+  }
+
+  TapHandler {
+    acceptedButtons: Qt.RightButton
+    enabled: ShellSettings.barRightSettings
+    onTapped: root.context()
   }
 
   Column {

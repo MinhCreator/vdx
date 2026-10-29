@@ -78,6 +78,7 @@
   "text"
  ],
  "modules/music/MusicSettings.qml": [
+  "closeAfterStop",
   "closeOnPlay",
   "folders",
   "hiddenPlayers",

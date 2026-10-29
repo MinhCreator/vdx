@@ -109,7 +109,9 @@ Column {
 
   KitLine { visible: Theme.island }
 
-  HubBlocksList { width: parent.width; visible: Theme.island; onArrange: root.navigate("bar", "hubzone") }
+  function jump(target) { blocks.jump(target); }
+
+  HubBlocksList { id: blocks; width: parent.width; visible: Theme.island; onArrange: root.navigate("bar", "hubzone") }
 
   KitLine { visible: Theme.island }
 

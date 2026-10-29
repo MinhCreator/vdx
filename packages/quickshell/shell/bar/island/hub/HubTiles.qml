@@ -16,6 +16,7 @@ import qs.modules.wifi
 Item {
   id: root
 
+  signal settings(string id)                    // a right click on a tile
   property var ids: []                          // tile modules, in order
   property var modules: ({})                    // Bar's module id -> Component
   readonly property int columns: ModuleSettings.get("hub", "tileColumns", 2)
@@ -37,7 +38,7 @@ Item {
                                           : BluetoothService.powered ? "No device" : "Off",
       toggle: () => BluetoothService.togglePower() };
     case "mihomo": return {
-      icon: "shield", title: "VPN", on: MihomoService.serviceOn,
+      icon: "public", title: "VPN", on: MihomoService.serviceOn,
       detail: MihomoService.serviceOn ? (MihomoService.current || "On") : "Off",
       toggle: () => MihomoService.toggleService() };
     case "focus": return {
@@ -89,6 +90,7 @@ Item {
         canOpen: !s.noPopup
         onToggled: s.toggle()
         onOpened: root.open(modelData)
+        onContext: root.settings(modelData)
       }
     }
   }

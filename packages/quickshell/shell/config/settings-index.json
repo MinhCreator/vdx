@@ -753,6 +753,12 @@
   ]
  },
  {
+  "label": "Music service",
+  "hint": "MPD for the local music and Yandex Music; off stops the playback too",
+  "where": "Sound › MUSIC",
+  "target": "sound"
+ },
+ {
   "label": "Pause on other sound",
   "hint": "Pauses the local music (MPD) while another app plays",
   "where": "Sound › MUSIC",
@@ -967,6 +973,64 @@
   "hint": "Looks for 8 s",
   "where": "Bluetooth › NEARBY",
   "target": "bluetooth:nearby"
+ },
+ {
+  "label": "VPN",
+  "hint": "",
+  "where": "",
+  "target": "vpn",
+  "aliases": [
+   "mihomo",
+   "proxy"
+  ]
+ },
+ {
+  "label": "Tunnel",
+  "hint": "",
+  "where": "VPN",
+  "target": "vpn:tunnel"
+ },
+ {
+  "label": "Subscription",
+  "hint": "",
+  "where": "VPN",
+  "target": "vpn:subscription"
+ },
+ {
+  "label": "Files",
+  "hint": "",
+  "where": "VPN",
+  "target": "vpn:files"
+ },
+ {
+  "label": "Mihomo",
+  "hint": "The proxy service: off, nothing goes through it",
+  "where": "VPN › TUNNEL",
+  "target": "vpn:tunnel"
+ },
+ {
+  "label": "Provider",
+  "hint": "The subscription the servers come from",
+  "where": "VPN › SUBSCRIPTION",
+  "target": "vpn:subscription"
+ },
+ {
+  "label": "Update subscriptions",
+  "hint": "Fetches the server lists again",
+  "where": "VPN › SUBSCRIPTION",
+  "target": "vpn:subscription"
+ },
+ {
+  "label": "Subscription",
+  "hint": "The provider's file",
+  "where": "VPN › FILES",
+  "target": "vpn:files"
+ },
+ {
+  "label": "Mihomo config",
+  "hint": "The proxy's own settings",
+  "where": "VPN › FILES",
+  "target": "vpn:files"
  },
  {
   "label": "Displays",
@@ -1323,6 +1387,12 @@
   "target": "notifications"
  },
  {
+  "label": "Remove on click",
+  "hint": "A click on a notification takes it out of the centre",
+  "where": "Notifications › CENTRE",
+  "target": "notifications"
+ },
+ {
   "label": "Dot while tucked away",
   "hint": "On the Folder or the island's pill when the bell is not on the bar",
   "where": "Notifications › UNSEEN",
@@ -1439,8 +1509,14 @@
   "target": "live"
  },
  {
+  "label": "Radio",
+  "hint": "The station on air; a click opens the dial",
+  "where": "Live activities › LIVE ACTIVITIES",
+  "target": "live"
+ },
+ {
   "label": "Music",
-  "hint": "The playing track and its sound",
+  "hint": "The playing track of Yandex Music or your files",
   "where": "Live activities › LIVE ACTIVITIES",
   "target": "live",
   "aliases": [
@@ -1448,6 +1524,12 @@
    "song",
    "track"
   ]
+ },
+ {
+  "label": "Media",
+  "hint": "What plays in other apps: a browser, Spotify, mpv",
+  "where": "Live activities › LIVE ACTIVITIES",
+  "target": "live"
  },
  {
   "label": "Volume and brightness",
@@ -1704,6 +1786,12 @@
   "label": "Max length",
   "hint": "Longer ones end with …",
   "where": "Bar modules › Music › BAR",
+  "target": "modules:music"
+ },
+ {
+  "label": "Close after stop",
+  "hint": "The popup closes when you stop the music",
+  "where": "Bar modules › Music › PLAYER",
   "target": "modules:music"
  },
  {
@@ -2041,6 +2129,18 @@
   "target": "modules:mihomo"
  },
  {
+  "label": "Popup",
+  "hint": "",
+  "where": "Bar modules › VPN",
+  "target": "modules:mihomo"
+ },
+ {
+  "label": "Servers shown",
+  "hint": "How many the popup lists before it scrolls",
+  "where": "Bar modules › VPN › POPUP",
+  "target": "modules:mihomo"
+ },
+ {
   "label": "Battery",
   "hint": "Charge, limit, power profile, GPU",
   "where": "Bar modules",
@@ -2074,6 +2174,18 @@
   "hint": "Countdown and stopwatch",
   "where": "Bar modules",
   "target": "modules:timer"
+ },
+ {
+  "label": "Media",
+  "hint": "What plays in other apps",
+  "where": "Bar modules",
+  "target": "modules:media"
+ },
+ {
+  "label": "Radio",
+  "hint": "Internet radio dial",
+  "where": "Bar modules",
+  "target": "modules:tuner"
  },
  {
   "label": "Focus",
