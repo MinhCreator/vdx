@@ -111,6 +111,15 @@ destruction while a popup is open, and deletion of the source popup (51 QML
 cases).
 Compositor focus and rendering during an actual style switch remain manual.
 
+Popup arbitration tests use the production manager with an isolated focused
+monitor and settings store. They cover focus/fallback ownership, reactive
+registration/removal, disconnected screens, duplicate registration, switching
+popups, module close preferences, capture hold and explicit teardown. The
+production `BarPopup` destruction handler runs in a lightweight fixture:
+Quickshell's offscreen platform cannot instantiate a real `PanelWindow`.
+Totals: 250 Python tests and 60 QML cases. Real compositor focus and monitor
+hotplug remain manual scenarios.
+
 Current remaining audit map (baseline tests are not a per-function review):
 
 | Area | Status / remaining work |
@@ -118,7 +127,7 @@ Current remaining audit map (baseline tests are not a per-function review):
 | Shared controls and Launcher | Reviewed paths covered; complete action and focus review remains |
 | Files | Selection, mutation queue and history reviewed; remaining service, portal and real USB scenarios |
 | Capture | Recorder, saving and clipboard lifecycles reviewed; real GPU capture and overlays |
-| Bar and Island | Content hosting reviewed; popup arbitration, focus, layout changes and multiple monitors |
+| Bar and Island | Content hosting and popup arbitration reviewed; compositor focus, layout changes and multiple monitors |
 | Lock and authentication | Full lifecycle and failure scenarios remain |
 | Device services | Audio, network, Bluetooth, battery, brightness and display review remains |
 | Other apps and background services | Per-function review, navigation, failure states and decomposition remain |

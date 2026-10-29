@@ -115,7 +115,10 @@ PopupWindow {
     enabled: root.ipcTarget !== "" && PopupManager.ipcOwner(root.ipcTarget) === root
     function toggle(): void { root.toggle(); }
   }
-  Component.onDestruction: if (ipcTarget !== "") PopupManager.removeIpc(ipcTarget, root)
+  Component.onDestruction: {
+    if (visible) visible = false;
+    PopupManager.unregister(root);
+  }
 
   // hidden, not closed, while the capture overlay's still copy stands in for it
   Binding {

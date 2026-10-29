@@ -18,15 +18,19 @@ ROOT = Path(__file__).resolve().parent.parent
 SHELL = ROOT / "packages/quickshell/shell"
 
 
-def qml_function(source, name):
-    """Extract a production function for a host without system side effects."""
-    start = source.index("  function " + name + "(")
+def qml_block(source, marker):
+    """Extract a production block for a host without system side effects."""
+    start = source.index(marker)
     brace = source.index("{", start)
     depth, end = 1, brace + 1
     while depth:
         depth += (source[end] == "{") - (source[end] == "}")
         end += 1
     return source[start:end]
+
+
+def qml_function(source, name):
+    return qml_block(source, "  function " + name + "(")
 
 
 def main():
@@ -50,6 +54,9 @@ def main():
         start = source.index("  readonly property var lookDefaults:")
         end = source.index("\n  // animations", start)
         look_defaults = source[start:end]
+        look_properties = "\n".join(line for line in source.splitlines()
+                                    if line.startswith("  readonly property ") and ": look(" in line)
+        look_defaults += "\n" + look_properties
         settings = settings.replace("QtObject {", "QtObject {\n  id: state\n" + look_defaults + "\n" + qml_function(source, "look") + "\n" + qml_function(source, "setLook"), 1)
         (config / "ShellSettings.qml").write_text("pragma Singleton\n" + settings)
         # The real selection model has no portal, filesystem or process dependencies.
@@ -81,14 +88,26 @@ def main():
         }
 """
         (bar / "BarLayout.qml").write_text(layout)
+        components = work / "qs/components"
+        components.mkdir()
+        manager = (SHELL / "components/PopupManager.qml").read_text()
+        (components / "PopupManager.qml").write_text(manager.replace("import Quickshell.Hyprland", "import TestQuickshell"))
+        popup = (SHELL / "bar/BarPopup.qml").read_text()
+        (components / "TestPopupLifetime.qml").write_text(
+            'import QtQuick\nQtObject {\n  id: root\n'
+            '  property bool visible: false\n  property var bar: ({screen: {name: "one"}})\n'
+            '  property var probe: null\n'
+            '  onVisibleChanged: if (!visible && probe) probe.closed++\n'
+            + qml_block(popup, "  Component.onDestruction:") + '\n}\n')
         fake = work / "TestQuickshell"
         fake.mkdir()
-        (fake / "qmldir").write_text("module TestQuickshell\nsingleton Quickshell 1.0 Quickshell.qml\n")
+        (fake / "qmldir").write_text("module TestQuickshell\nsingleton Quickshell 1.0 Quickshell.qml\nsingleton Hyprland 1.0 Hyprland.qml\n")
         (fake / "Quickshell.qml").write_text('pragma Singleton\nimport QtQuick\nQtObject { property var screens: [{name: "HDMI-A-1"}, {name: "eDP-1"}] }\n')
-        (config / "ModuleSettings.qml").write_text('pragma Singleton\nimport QtQuick\nQtObject { function get(module, key, fallback) { return fallback; } }\n')
+        (fake / "Hyprland.qml").write_text('pragma Singleton\nimport QtQuick\nQtObject { property var focusedMonitor: null }\n')
+        (config / "ModuleSettings.qml").write_text('pragma Singleton\nimport QtQuick\nQtObject { property var values: ({}); function get(module, key, fallback) { return values[module + "/" + key] ?? fallback; } }\n')
         state_file = config / "ShellSettings.qml"
         state_file.write_text(state_file.read_text().replace("id: state", "id: state\n  function set(key, value) { state[key] = value; }", 1))
-        for folder in (config, work / "qs/kit", bar):
+        for folder in (config, work / "qs/kit", bar, components):
             entries = ["module qs." + folder.name]
             for file in sorted(folder.glob("*.qml")):
                 prefix = "singleton " if "pragma Singleton" in file.read_text() else ""
@@ -98,7 +117,8 @@ def main():
         widgets.mkdir(parents=True)
         (widgets / "qmldir").write_text("module Quickshell.Widgets\nClippingRectangle 1.0 ClippingRectangle.qml\n")
         (widgets / "ClippingRectangle.qml").write_text("import QtQuick\nRectangle { clip: true }\n")
-        shutil.copy(ROOT / "tests/qml/tst_shell_controls.qml", work)
+        for test in (ROOT / "tests/qml").glob("tst_*.qml"):
+            shutil.copy(test, work)
         env = dict(os.environ, QT_QPA_PLATFORM="offscreen", QT_QUICK_BACKEND="software")
         return subprocess.run([runner, "-input", tmp, "-import", tmp], env=env).returncode
 

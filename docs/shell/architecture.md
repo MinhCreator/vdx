@@ -45,6 +45,12 @@ Island and child bars borrow popup items through
 other host children in place, and returns the content and closes the popup
 when the host is destroyed or Island hosting is disabled by a style change.
 
+`PopupManager` selects one IPC owner per target, preferring the focused
+monitor and skipping bars without a screen. Registry updates replace the map
+so owner bindings react directly. `BarPopup` closes before destruction and
+unregisters regardless of whether it has an IPC target; removal also clears
+its active-popup state and cached underline on the same bar.
+
 Files selection lives in `apps/files/FilesSelection.qml`, a QtQuick-only
 model tested without the filesystem or portal. FilesService supplies visible
 rows and the picker's single-selection constraint and exposes the existing
