@@ -26,5 +26,10 @@ KitColumn {
     onPicked: value => ModuleSettings.set("ai", "limit", value)
   }
 
+  KitToggleRow {
+    module: "ai"; key: "compact"; fallback: false
+    label: "Compact popup"; hint: "Hides today's tokens and the sessions: the limits only"
+  }
+
   KitGrouper {}
 }

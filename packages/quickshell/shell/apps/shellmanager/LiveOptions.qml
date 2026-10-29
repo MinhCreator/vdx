@@ -70,10 +70,17 @@ Column {
   }
 
   KitRow {
-    visible: root.kind === "music" || root.kind === "media"
+    visible: root.kind === "music"
     label: "Show on pause"
     hint: "The track stays in the slot while paused"
     KitSwitch { checked: ShellSettings.liveMusicPaused; onToggled: ShellSettings.setLook("liveMusicPaused", !checked, "island") }
+  }
+
+  KitRow {
+    visible: root.kind === "media"
+    label: "Show on pause"
+    hint: "The app's track stays in the slot while paused"
+    KitSwitch { checked: ShellSettings.liveMediaPaused; onToggled: ShellSettings.setLook("liveMediaPaused", !checked, "island") }
   }
 
   KitRow {

@@ -24,6 +24,7 @@ Singleton {
   readonly property var wallpaperImages: state.wallpaperImages     // theme -> picture (WallpaperService.pathOf)
   readonly property string wallpaperColor: state.wallpaperColor   // #rrggbb, for custom
   readonly property var wallpaperOutputs: state.wallpaperOutputs   // theme -> {output: picture}: monitors with their own
+  readonly property bool exclusiveSound: state.exclusiveSound     // one source at a time: the music, the radio, an app's media — starting one pauses the rest
   readonly property bool pauseMusic: state.pauseMusic             // MPD pauses while another app plays sound
   readonly property bool resumeMusic: state.resumeMusic           // ...and resumes once that sound stops
   readonly property bool barRightSettings: state.barRightSettings // a right click on a bar module opens its options
@@ -69,6 +70,7 @@ Singleton {
   readonly property string liveBatteryStay: look("liveBatteryStay", "island") // fixed | 5s
   readonly property bool liveRadioAlways: look("liveRadioAlways", "island")  // the radio stays in the live slot even when it is off
   readonly property bool liveRadioPaused: look("liveRadioPaused", "island")  // the radio stays in the live slot on pause
+  readonly property bool liveMediaPaused: look("liveMediaPaused", "island")  // another app's media stays in the live slot on pause
   readonly property bool liveMusicPaused: look("liveMusicPaused", "island")  // the music stays in the live slot on pause
   readonly property string liveNoticeMark: look("liveNoticeMark", "island")  // avatar | dot: what marks a message in the live slot
   readonly property bool liveMusicAlways: look("liveMusicAlways", "island")  // the music stays in the live slot with no player at all
@@ -96,7 +98,7 @@ Singleton {
   }
   readonly property var lookDefaults: ({ barIconGrow: 0, barSeparators: true, barGap: 5, clockOpens: "hover", hubPlayer: true, pillHeight: 0,
     liveEnabled: true, liveBattery: true, liveBluetooth: true,
-    liveRecording: true, liveUpdate: true, liveBackup: true, liveTimer: true, liveRadio: true, liveRadioPaused: true, liveRadioAlways: false, liveMedia: true, liveVpn: false, liveFocus: true, liveMusic: true, liveMusicPaused: false, liveMusicAlways: false, liveNoticeMark: "avatar",
+    liveRecording: true, liveUpdate: true, liveBackup: true, liveTimer: true, liveRadio: true, liveRadioPaused: true, liveRadioAlways: false, liveMedia: true, liveMediaPaused: false, liveVpn: false, liveFocus: true, liveMusic: true, liveMusicPaused: false, liveMusicAlways: false, liveNoticeMark: "avatar",
     liveVolume: true, liveMic: true, liveLayout: true, livePlugged: true,
     liveFront: true, liveFocusClick: true, liveFlashMs: 1500, liveNoticeMs: 5000, liveWheel: true, liveRightSettings: true,
     liveBatteryBelow: 20, liveBatteryStay: "fixed", liveOrder: ({}) })

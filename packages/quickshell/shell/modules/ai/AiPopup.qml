@@ -8,6 +8,8 @@ KitFrame {
   id: root
 
   property string tab: "claude"
+  // Modules › AI › Compact popup: the limits only, no today's tokens and no sessions
+  readonly property bool compact: ModuleSettings.get("ai", "compact", false)
 
   function shortPath(path) {
     return path.replace(/^\/home\/[^/]+/, "~");
@@ -75,10 +77,11 @@ KitFrame {
       warning: ClaudeService.warning
     }
 
-    KitLine {}
+    KitLine { visible: !root.compact }
 
     Column {
       width: parent.width
+      visible: !root.compact
       spacing: Theme.gapSmall
 
       KitLabel { text: "TODAY"; value: (ClaudeService.today.messages ?? 0) + " MESSAGES" }
@@ -89,10 +92,11 @@ KitFrame {
       KitInfo { label: "Cache write"; value: Format.humanCount(ClaudeService.today.cache_write ?? 0) }
     }
 
-    KitLine {}
+    KitLine { visible: !root.compact }
 
     Column {
       width: parent.width
+      visible: !root.compact
       spacing: Theme.gapMedium
 
       KitLabel {
