@@ -60,7 +60,7 @@ Singleton {
 
   // A connected device is disconnected, any other one connected (paired first if new).
   function toggleDevice(device) {
-    if (busyMac !== "" || !powered) return;
+    if (busyMac !== "" || adapterBusy || adapterQueue.length > 0 || !powered) return;
     busyMac = device.mac;
     actionError = "";
     run(deviceProc, [device.connected ? "--disconnect" : "--connect", device.mac]);
@@ -73,7 +73,7 @@ Singleton {
   }
 
   function flushAdapter() {
-    if (adapterBusy || adapterQueue.length === 0) return;
+    if (adapterBusy || busyMac !== "" || adapterQueue.length === 0) return;
     const args = adapterQueue[0];
     adapterQueue = adapterQueue.slice(1);
     adapterBusy = true;
@@ -247,6 +247,7 @@ Singleton {
       root.busyMac = "";
       root.actionError = "could not start bluetooth device request";
       root.refresh();
+      root.flushAdapter();
     }
     stdout: StdioCollector {
       onStreamFinished: {
@@ -254,6 +255,7 @@ Singleton {
         root.busyMac = "";
         root.actionError = o?.ok ? "" : (o?.error ?? "bluetooth.sh failed");
         root.refresh();
+        root.flushAdapter();
       }
     }
   }

@@ -62,6 +62,7 @@ Scope {
         definitions = '''
   property bool adapterBusy: false
   property var adapterQueue: []
+  property string busyMac: ""
   property string actionError: ""
   property var calls: []
   property string text: ""
@@ -86,6 +87,44 @@ Scope {
         expected_calls = [["--alias", "one"], ["--pairable", "on"]]
         self.assertEqual(result, {"first": expected_calls[:1], "second": expected_calls,
                                   "calls": expected_calls, "queue": [], "busy": False})
+
+    def test_bluetooth_device_and_adapter_commands_are_serialized(self):
+        source = (SHELL / "modules/bluetooth/BluetoothService.qml").read_text()
+        definitions = '''
+  property bool powered: true
+  property string busyMac: ""
+  property bool adapterBusy: false
+  property var adapterQueue: []
+  property string actionError: ""
+  property string text: ""
+  property var calls: []
+  QtObject { id: adapterProc; property bool running: false }
+  QtObject { id: deviceProc; property bool running: false }
+  function run(proc, args) { calls = calls.concat([args]); }
+  function parse(text) { return JSON.parse(text); }
+  function refresh() {}
+'''
+        definitions += "\n".join(qml_function(source, name)
+                                  for name in ("toggleDevice", "setAdapter", "flushAdapter"))
+        definitions += "\nfunction completeDevice(text) " + handler(source, "deviceProc")
+        definitions += "\nfunction completeAdapter(text) " + handler(source, "adapterProc")
+        result = self.evaluate(definitions, '''
+          toggleDevice({mac: "A", connected: false});
+          setAdapter(["--block", "A", "on"]);
+          toggleDevice({mac: "B", connected: false});
+          const whileDeviceRuns = calls.slice();
+          completeDevice(JSON.stringify({ok: true}));
+          const whileAdapterRuns = calls.slice();
+          toggleDevice({mac: "B", connected: false});
+          const whileAdapterBusy = calls.slice();
+          completeAdapter(JSON.stringify({ok: true}));
+          return {whileDeviceRuns, whileAdapterRuns, whileAdapterBusy, calls,
+                  queued: adapterQueue.length, device: busyMac, adapterBusy};
+        ''')
+        expected = [["--connect", "A"], ["--block", "A", "on"]]
+        self.assertEqual(result, {"whileDeviceRuns": expected[:1], "whileAdapterRuns": expected,
+                                  "whileAdapterBusy": expected, "calls": expected, "queued": 0,
+                                  "device": "", "adapterBusy": False})
 
     def test_wifi_saved_settings_reject_overlap_and_allow_retry_after_reply(self):
         source = (SHELL / "modules/wifi/WifiService.qml").read_text()
