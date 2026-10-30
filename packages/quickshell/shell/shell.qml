@@ -52,7 +52,7 @@ Scope {
   Overview {}
   WallpaperPreview {}
   LooksIpc {}
-  // Super+Tab: the floating mode's window switcher (Switcher.step)
+  // Alt+Tab: the floating mode's window switcher (Switcher.step)
   Switcher {}
 
   // the polkit agent: password requests slide down from under the bar

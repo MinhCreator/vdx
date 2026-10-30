@@ -17,12 +17,11 @@ Registry: `apps/apps.json` (read by the Shell Manager, the launcher,
 | Keybinds | Super+B | `keybinds toggle\|open\|close` |
 | Files | Super+E | `files toggle\|open\|close`, `files go\|reveal\|inspect\|duplicates <path>`, `files choose <json>` |
 | Capture | Super+Shift+S | `capture open\|stop\|close\|library\|shot <region\|window\|screen>` |
-| Overview | (no key) | `overview toggle` |
 | Theme picker | Super+T | `themepicker toggle` |
 | Task Manager | Ctrl+Shift+Esc | `taskmanager toggle` |
 | Cleaner | Super+X | `cleaner toggle` |
 | Lock screen | Super+Z | `lock lock` |
-| Window switcher | Super+Tab (floating mode) | `switcher toggle\|open\|close` |
+| Window switcher | Alt+Tab (floating mode) | `switcher toggle\|open\|close` |
 | Music | — | `music toggle\|open\|close`, `music go <yandex\|files\|radio>` |
 | Backups | — | `backup toggle\|open\|close` |
 | Clipboard | — | `clipboard toggle` |
@@ -33,6 +32,14 @@ Registry: `apps/apps.json` (read by the Shell Manager, the launcher,
 | Root prompt | — | the polkit agent: asks before every root action |
 
 Window mode: `windowmode set tiling|floating|scrolling`.
+
+Overview is a function of the shell, not an app (no registry entry): Super+Tab in
+every window mode, `overview toggle|open|close`; its options are in Shell Manager › Windows ›
+Overview. Every workspace with windows is a row on the dimmed wallpaper. The wheel
+held down pans, the wheel turned scrolls (Shift: sideways, Ctrl: zoom). Super + left
+drag takes a window to another workspace; near an edge the canvas scrolls by itself.
+Floating has a task view instead (the workspaces as a strip, the chosen one's windows
+in a grid).
 
 ### Files
 

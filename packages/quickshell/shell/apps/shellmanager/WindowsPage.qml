@@ -10,8 +10,8 @@ import qs.modules.windows
 KitColumn {
   id: root
   property string tab: "layout"
-  readonly property var tabs: [{ label: "Layout", value: "layout" }, { label: "Look", value: "look" }]
-  function jump(key) { tab = key === "look" ? "look" : "layout"; }
+  readonly property var tabs: [{ label: "Layout", value: "layout" }, { label: "Look", value: "look" }, { label: "Overview", value: "overview" }]
+  function jump(key) { tab = key === "look" || key === "overview" ? key : "layout"; }
 
   readonly property var ws: WindowsService
   readonly property var o: WindowsService.opts
@@ -26,7 +26,8 @@ KitColumn {
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   readonly property var jumps: [
     { key: "layout", label: "Layout", y: layoutGroup.y },
-    { key: "look",   label: "Look",   y: lookGroup.y }
+    { key: "look",   label: "Look",   y: lookGroup.y },
+    { key: "overview", label: "Overview", y: overviewGroup.y }
   ].filter(j => j.key === tab)
 
   function pct(v) { return Math.round(v * 100) + "%"; }
@@ -103,7 +104,7 @@ KitColumn {
   KitRow {
     visible: root.floating
     label: "Switcher"
-    hint: "Super + Tab: this workspace's windows"
+    hint: "Alt + Tab: this workspace's windows"
 
     KitSwitch {
       checked: root.o.switcher
@@ -153,7 +154,7 @@ KitColumn {
   spacing: Theme.sectionGap
 
     width: parent.width
-    visible: root.tab !== "layout"
+    visible: root.tab === "look"
   // ---- look ----
   KitLine {}
 
@@ -215,6 +216,26 @@ KitColumn {
     hint: "In Appearance › Shape"
     target: "appearance:shape"
   }
+
+    KitGrouper {}
+  }
+  // ---- overview: Super + Tab, every window mode (ModuleSettings "overview") ----
+  Column {
+    spacing: Theme.sectionGap
+    width: parent.width
+    visible: root.tab === "overview"
+
+    KitLabel { id: overviewGroup; text: "OVERVIEW" }
+
+    KitToggleRow { module: "overview"; key: "previews"; label: "Window previews"; hint: "Pictures of the windows; off shows their icons" }
+    KitToggleRow { module: "overview"; key: "names"; label: "Window names"; hint: "The app's name on each window" }
+    KitToggleRow { module: "overview"; key: "dim"; label: "Dim other workspaces"; hint: "Only the one in the middle is bright" }
+
+    KitOptionRow {
+      module: "overview"; key: "wheel"; fallback: "normal"
+      label: "Wheel speed"; hint: "How far a notch scrolls"
+      model: [{ label: "Slow", value: "slow" }, { label: "Normal", value: "normal" }, { label: "Fast", value: "fast" }]
+    }
 
     KitGrouper {}
   }

@@ -520,6 +520,12 @@
   "target": "windows:look"
  },
  {
+  "label": "Overview",
+  "hint": "",
+  "where": "Windows",
+  "target": "windows:overview"
+ },
+ {
   "label": "Mode",
   "hint": "",
   "where": "Windows › LAYOUT",
@@ -551,7 +557,7 @@
  },
  {
   "label": "Switcher",
-  "hint": "Super + Tab: this workspace's windows",
+  "hint": "Alt + Tab: this workspace's windows",
   "where": "Windows › LAYOUT",
   "target": "windows:layout"
  },
@@ -602,6 +608,30 @@
   "hint": "In Appearance › Shape",
   "where": "Windows › LOOK",
   "target": "windows:look"
+ },
+ {
+  "label": "Window previews",
+  "hint": "Pictures of the windows; off shows their icons",
+  "where": "Windows › OVERVIEW",
+  "target": "windows:overview"
+ },
+ {
+  "label": "Window names",
+  "hint": "The app's name on each window",
+  "where": "Windows › OVERVIEW",
+  "target": "windows:overview"
+ },
+ {
+  "label": "Dim other workspaces",
+  "hint": "Only the one in the middle is bright",
+  "where": "Windows › OVERVIEW",
+  "target": "windows:overview"
+ },
+ {
+  "label": "Wheel speed",
+  "hint": "How far a notch scrolls",
+  "where": "Windows › OVERVIEW",
+  "target": "windows:overview"
  },
  {
   "label": "Network",
@@ -2755,12 +2785,6 @@
   "hint": "Switches the keyboard when it opens",
   "where": "Apps › Keybinds › OPENING",
   "target": "apps:keybinds"
- },
- {
-  "label": "Overview",
-  "hint": "Workspaces as one scrolling strip",
-  "where": "Apps",
-  "target": "apps:overview"
  },
  {
   "label": "Theme picker",

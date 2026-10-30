@@ -10,7 +10,7 @@ local mainMod = "SUPER"
 local function bind(group, keys, action, what, opts)
 	opts = opts or {}
 	opts.description = group .. " · " .. what
-	hl.bind(keys, action, opts)
+	return hl.bind(keys, action, opts)
 end
 
 -- apps
@@ -29,7 +29,9 @@ bind("Shell", mainMod .. " + B", hl.dsp.exec_cmd("qs -c shell ipc call keybinds 
 bind("Shell", "CTRL + SHIFT + Escape", hl.dsp.exec_cmd("qs -c shell ipc call taskmanager toggle"), "Task manager")
 bind("Shell", mainMod .. " + X", hl.dsp.exec_cmd("qs -c shell ipc call cleaner toggle"), "Cleaner")
 bind("Shell", mainMod .. " + T", hl.dsp.exec_cmd("qs -c shell ipc call themepicker toggle"), "Theme picker")
--- Super + Tab (the window switcher) is the floating mode's: modes/floating.lua
+-- the overview (apps/overview): every workspace and its windows, laid out by the window mode;
+-- Alt + Tab (the window switcher) is the floating mode's: modes/floating.lua
+bind("Shell", mainMod .. " + TAB", hl.dsp.exec_cmd("qs -c shell ipc call overview toggle"), "Overview")
 
 -- screenshots (both copy to the clipboard)
 -- capture tool: freezes the screens, the toolbar picks region / window / screen,
@@ -43,8 +45,17 @@ bind("Windows", mainMod .. " + F", hl.dsp.window.fullscreen(), "Fullscreen")
 bind("Windows", mainMod .. " + N", function() MinimizeWindow() end, "Minimize")
 
 -- mouse
-bind("Windows", mainMod .. " + mouse:272", hl.dsp.window.drag(), "Drag", { mouse = true })
-bind("Windows", mainMod .. " + mouse:273", hl.dsp.window.resize(), "Resize", { mouse = true })
+local mouseBinds = {
+	bind("Windows", mainMod .. " + mouse:272", hl.dsp.window.drag(), "Drag", { mouse = true }),
+	bind("Windows", mainMod .. " + mouse:273", hl.dsp.window.resize(), "Resize", { mouse = true }),
+}
+
+-- The overview (apps/overview) drags windows with Super + the left button itself. The
+-- binds above are the compositor's and would act on the windows under it, so they are off
+-- while it is open (it switches them: MouseBinds(false), back on closing and at start).
+function MouseBinds(on)
+	for _, b in ipairs(mouseBinds) do b:set_enabled(on) end
+end
 
 -- Super + H / J / K / L and the wheel are the window mode's:
 -- components/modes/<mode>.lua (focus, or placing a floating window)

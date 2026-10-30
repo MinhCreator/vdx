@@ -90,7 +90,7 @@ Singleton {
       property bool shadows: true
       property bool taskbar: true             // floating: the taskbar along the bottom
       property string taskbarShape: "strip"   // floating taskbar: strip | island (a pill, as the island)
-      property bool switcher: true            // floating: Super+Tab is the window switcher
+      property bool switcher: true            // floating: Alt+Tab is the window switcher
     }
   }
 
