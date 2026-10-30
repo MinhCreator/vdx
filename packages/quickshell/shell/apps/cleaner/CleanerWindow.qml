@@ -12,7 +12,7 @@ FloatingWindow {
 
   title: "Cleaner"
   visible: false
-  implicitWidth: 760
+  implicitWidth: 940
   implicitHeight: 620
   color: Theme.background0
 

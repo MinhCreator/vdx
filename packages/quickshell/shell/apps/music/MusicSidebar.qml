@@ -26,7 +26,7 @@ Item {
     Column {
       id: column
       width: side.width
-      spacing: Theme.gapTight
+      spacing: Theme.gapHair
 
       KitChoices {
         width: column.width

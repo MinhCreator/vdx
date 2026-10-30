@@ -73,15 +73,31 @@ Rectangle {
   readonly property int colCpu: 70
   readonly property int colMem: 90
 
+  // ---- sidebar: Programs / Processes ----
+  KitSidebar {
+    id: side
+    anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
+    icon: "activity"
+    title: "Task Manager"
+    subtitle: "CTRL + SHIFT + ESC"
+    lineY: head.y + headerRow.height + Theme.sectionGap
+    model: [{ label: "Programs", value: "programs", icon: "app-window" }, { label: "Processes", value: "processes", icon: "list" }]
+    current: root.tm.tab
+    onPicked: value => { root.tm.tab = value; root.tm.selected = ""; root.armed = ""; }
+  }
+
+  KitLine { vertical: true; anchors { left: side.right; top: parent.top; bottom: parent.bottom } }
+
   // ---- top: header, meters, column titles ----
   Column {
     id: head
-    anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.windowPadding; topMargin: Theme.windowPadding - Theme.headerInset }
+    anchors { left: side.right; right: parent.right; top: parent.top; margins: Theme.windowPadding; topMargin: Theme.windowPadding - Theme.headerInset }
     spacing: Theme.sectionGap
 
     KitHeader {
-      icon: "activity"
-      title: "Task Manager"
+      id: headerRow
+      icon: root.tm.tab === "programs" ? "app-window" : "list"
+      title: root.tm.tab === "programs" ? "Programs" : "Processes"
       subtitle: root.tm.rows.length + (root.tm.grouped ? " PROGRAMS · " : " SHOWN · ") + root.tm.procs.length
         + " PROCESSES · EVERY " + root.tm.refreshMs / 1000 + "S"
 
@@ -92,12 +108,6 @@ Rectangle {
         text: root.tm.query
         onTextEdited: root.tm.query = text
       }
-    }
-
-    KitChoices {
-      model: [{ label: "Programs", value: "programs" }, { label: "Processes", value: "processes" }]
-      current: root.tm.tab
-      onPicked: value => { root.tm.tab = value; root.tm.selected = ""; root.armed = ""; }
     }
 
     KitLine {}
@@ -177,7 +187,7 @@ Rectangle {
   // ---- table ----
   ListView {
     id: list
-    anchors { left: parent.left; right: parent.right; top: head.bottom; bottom: foot.top
+    anchors { left: side.right; right: parent.right; top: head.bottom; bottom: foot.top
               leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: Theme.gapSmall; bottomMargin: Theme.gapSmall }
     clip: true
     boundsBehavior: Flickable.StopAtBounds
@@ -261,7 +271,7 @@ Rectangle {
   // ---- foot: the selected row and its actions ----
   Column {
     id: foot
-    anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
+    anchors { left: side.right; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
     spacing: Theme.sectionGap
 
     KitLine {}

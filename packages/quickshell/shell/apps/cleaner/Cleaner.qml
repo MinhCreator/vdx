@@ -2,7 +2,7 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// The cleaner's content: a header with Basic / AI, the list scrolling under
+// The cleaner's content: a sidebar with Basic / AI, a header, the list scrolling under
 // it, and a foot with what the click will free and the button.
 //   Basic — categories in two groups, YOUR FILES (emptied at once) and
 //   SYSTEM (root: one password, asked by the shell's panel), each with its
@@ -32,24 +32,32 @@ Rectangle {
 
   Timer { id: disarm; interval: 3000; onTriggered: root.armed = false }
 
+  // ---- sidebar: Basic / AI ----
+  KitSidebar {
+    id: side
+    anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
+    icon: "brush"
+    title: "Cleaner"
+    subtitle: "SUPER + X"
+    lineY: head.y + head.height - Theme.dividerThickness
+    model: [{ label: "Basic", value: "basic", icon: "list" }].concat(root.cs.aiOn ? [{ label: "AI", value: "ai", icon: "bot" }] : [])
+    current: root.tab
+    onPicked: value => root.tab = value
+  }
+
+  KitLine { vertical: true; anchors { left: side.right; top: parent.top; bottom: parent.bottom } }
+
   // ---- header ----
   Column {
     id: head
-    anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.windowPadding; topMargin: Theme.windowPadding - Theme.headerInset }
+    anchors { left: side.right; right: parent.right; top: parent.top; margins: Theme.windowPadding; topMargin: Theme.windowPadding - Theme.headerInset }
     spacing: Theme.sectionGap
 
     KitHeader {
-      icon: "brush"
-      title: "Cleaner"
+      icon: root.tab === "ai" ? "bot" : "list"
+      title: root.tab === "ai" ? "AI" : "Basic"
       subtitle: (root.cs.categories.length === 0 ? "SCANNING…" : Format.shortSize(root.cs.total).toUpperCase() + " CAN GO")
         + (root.tab === "ai" && root.cs.suggestions.length > 0 ? " · " + root.cs.suggestions.length + " SUGGESTIONS" : "")
-
-      KitChoices {
-        visible: root.cs.aiOn
-        model: [{ label: "Basic", value: "basic", icon: "list" }, { label: "AI", value: "ai", icon: "bot" }]
-        current: root.tab
-        onPicked: value => root.tab = value
-      }
 
       KitButton {
         icon: "refresh"
@@ -64,7 +72,7 @@ Rectangle {
   // ---- list ----
   Flickable {
     id: list
-    anchors { left: parent.left; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: 14 }
+    anchors { left: side.right; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: 14 }
     contentHeight: (root.tab === "ai" ? ai.implicitHeight : basic.implicitHeight) + 14
     clip: true
     boundsBehavior: Flickable.StopAtBounds
@@ -210,7 +218,7 @@ Rectangle {
   // ---- foot ----
   Column {
     id: foot
-    anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
+    anchors { left: side.right; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
     spacing: Theme.sectionGap
 
     KitLine {}

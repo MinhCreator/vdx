@@ -32,16 +32,20 @@ Rectangle {
   color: current ? Theme.pickFill : area.containsMouse ? Theme.controlHover : Theme.clear
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
-  KitIcon {
+  // the icon is the Shell Manager's (NavRow): bare or framed by Appearance › Icons, or off
+  KitIconTile {
     id: glyph
-    anchors { left: parent.left; leftMargin: Theme.gapLoose; verticalCenter: parent.verticalCenter }
+    visible: ShellSettings.menuIcons
+    anchors { left: parent.left; leftMargin: ShellSettings.iconTiles ? Theme.gapSmall : Theme.gapLoose; verticalCenter: parent.verticalCenter }
     name: root.icon
-    size: Theme.iconSmall
+    active: root.current
+    hovered: area.containsMouse
     tint: root.current ? Theme.foreground0 : Theme.foreground2
+    glyph: 16
   }
 
   KitText {
-    anchors { left: glyph.right; leftMargin: Theme.gapMedium; right: hintText.left; rightMargin: Theme.gapSmall; verticalCenter: parent.verticalCenter }
+    anchors { left: ShellSettings.menuIcons ? glyph.right : parent.left; leftMargin: Theme.gapLoose; right: hintText.left; rightMargin: Theme.gapSmall; verticalCenter: parent.verticalCenter }
     text: root.text
     elide: Text.ElideRight
     color: root.current ? Theme.foreground0 : Theme.foreground2

@@ -2,8 +2,8 @@ import QtQuick
 import qs.config
 import qs.kit
 
-// The backups' content: a header with the three tabs (Overview, Snapshots,
-// Setup), the page under it, and a foot with what the last action did — or
+// The backups' content: a sidebar with the pages (Overview, Snapshots,
+// Setup, Restore), the page's header and the page under it, and a foot with what the last action did — or
 // the running backup, with its cancel.
 Rectangle {
   id: root
@@ -27,22 +27,36 @@ Rectangle {
     return "LAST " + bs.agoText(bs.last?.ts).toUpperCase() + (bs.last && !bs.last.ok ? " · FAILED" : "");
   }
 
+  // ---- sidebar: the pages ----
+  KitSidebar {
+    id: side
+    anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
+    icon: "shield"
+    title: "Backups"
+    subtitle: "RESTIC"
+    lineY: head.y + head.height - Theme.dividerThickness
+    model: [
+      { label: "Overview", value: "overview", icon: "layout" },
+      { label: "Snapshots", value: "snapshots", icon: "history" },
+      { label: "Setup", value: "setup", icon: "settings" },
+      { label: "Restore", value: "restore", icon: "rotate-ccw" }
+    ]
+    current: root.tab
+    onPicked: value => root.tab = value
+  }
+
+  KitLine { vertical: true; anchors { left: side.right; top: parent.top; bottom: parent.bottom } }
+
   // ---- header ----
   Column {
     id: head
-    anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.windowPadding; topMargin: Theme.windowPadding - Theme.headerInset }
+    anchors { left: side.right; right: parent.right; top: parent.top; margins: Theme.windowPadding; topMargin: Theme.windowPadding - Theme.headerInset }
     spacing: Theme.sectionGap
 
     KitHeader {
-      icon: "shield"
-      title: "Backups"
+      icon: root.tab === "snapshots" ? "history" : root.tab === "setup" ? "settings" : root.tab === "restore" ? "rotate-ccw" : "layout"
+      title: root.tab === "snapshots" ? "Snapshots" : root.tab === "setup" ? "Setup" : root.tab === "restore" ? "Restore" : "Overview"
       subtitle: root.subtitle()
-
-      KitChoices {
-        model: [{ label: "Overview", value: "overview" }, { label: "Snapshots", value: "snapshots" }, { label: "Setup", value: "setup" }, { label: "Restore", value: "restore" }]
-        current: root.tab
-        onPicked: value => root.tab = value
-      }
     }
 
     KitLine {}
@@ -50,30 +64,30 @@ Rectangle {
 
   // ---- pages ----
   BackupOverview {
-    anchors { left: parent.left; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: Theme.gapGroup }
+    anchors { left: side.right; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: Theme.gapGroup }
     visible: root.tab === "overview"
     onOpenSetup: root.tab = "setup"
   }
 
   BackupSnapshots {
-    anchors { left: parent.left; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: Theme.gapGroup }
+    anchors { left: side.right; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: Theme.gapGroup }
     visible: root.tab === "snapshots"
   }
 
   BackupRestore {
-    anchors { left: parent.left; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: Theme.gapGroup }
+    anchors { left: side.right; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: Theme.gapGroup }
     visible: root.tab === "restore"
   }
 
   BackupSetup {
-    anchors { left: parent.left; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: Theme.gapGroup }
+    anchors { left: side.right; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: Theme.gapGroup }
     visible: root.tab === "setup"
   }
 
   // ---- foot ----
   Column {
     id: foot
-    anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
+    anchors { left: side.right; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
     spacing: Theme.sectionGap
 
     KitLine {}

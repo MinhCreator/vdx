@@ -86,26 +86,35 @@ Rectangle {
     return ps.count > 0 ? ps.count + " UPDATES · " + ps.pickedUpdates.length + " PICKED" : "UP TO DATE";
   }
 
+  // ---- sidebar: the tabs ----
+  KitSidebar {
+    id: side
+    anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
+    icon: "package"
+    title: "Packages"
+    subtitle: "PACMAN · AUR"
+    lineY: head.y + head.height - Theme.dividerThickness
+    model: [
+      { label: "Updates", value: "updates", icon: "download", hint: root.ps.count > 0 ? String(root.ps.count) : "" },
+      { label: "Installed", value: "installed", icon: "list" },
+      { label: "Cache", value: "cache", icon: "folder" }
+    ]
+    current: root.tab
+    onPicked: value => root.tab = value
+  }
+
+  KitLine { vertical: true; anchors { left: side.right; top: parent.top; bottom: parent.bottom } }
+
   // ---- header ----
   Column {
     id: head
-    anchors { left: parent.left; right: parent.right; top: parent.top; margins: Theme.windowPadding; topMargin: Theme.windowPadding - Theme.headerInset }
+    anchors { left: side.right; right: parent.right; top: parent.top; margins: Theme.windowPadding; topMargin: Theme.windowPadding - Theme.headerInset }
     spacing: Theme.sectionGap
 
     KitHeader {
-      icon: "package"
-      title: "Packages"
+      icon: root.tab === "installed" ? "list" : root.tab === "cache" ? "folder" : "download"
+      title: root.tab === "installed" ? "Installed" : root.tab === "cache" ? "Cache" : "Updates"
       subtitle: root.subtitle()
-
-      KitChoices {
-        model: [
-          { label: "Updates", value: "updates", icon: "download" },
-          { label: "Installed", value: "installed", icon: "list" },
-          { label: "Cache", value: "cache", icon: "folder" }
-        ]
-        current: root.tab
-        onPicked: value => root.tab = value
-      }
 
       KitButton {
         icon: "refresh"
@@ -120,7 +129,7 @@ Rectangle {
   // ---- list ----
   Flickable {
     id: list
-    anchors { left: parent.left; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: 14; bottomMargin: 14 }
+    anchors { left: side.right; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: 14; bottomMargin: 14 }
     contentHeight: (root.tab === "updates" ? updates : root.tab === "installed" ? installed : cacheList).implicitHeight
     clip: true
     boundsBehavior: Flickable.StopAtBounds
@@ -154,7 +163,7 @@ Rectangle {
   // ---- foot ----
   Column {
     id: foot
-    anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
+    anchors { left: side.right; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
     spacing: Theme.sectionGap
 
     KitLine {}

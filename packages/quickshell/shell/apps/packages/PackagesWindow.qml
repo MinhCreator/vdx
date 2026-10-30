@@ -12,7 +12,7 @@ FloatingWindow {
 
   title: "Packages"
   visible: false
-  implicitWidth: 820
+  implicitWidth: 960
   implicitHeight: 620
   color: Theme.background0
 

@@ -12,7 +12,7 @@ FloatingWindow {
 
   title: "Task Manager"
   visible: false
-  implicitWidth: 780
+  implicitWidth: 980
   implicitHeight: 640
   color: Theme.background0
 

@@ -65,6 +65,13 @@ uses tonal layers and more spacious controls.
   `Theme.settingsRowInset` (6 px); they are not header separator spacing.
 - Popup: `KitHeader` → `KitLine` → groups separated by `KitLine` → footer.
   No backgrounds under groups.
+- Sidebar: an app window with several pages (Backups, Cleaner, Packages, Task Manager,
+  Files, Music) shows them in a sidebar, not as tabs in the header: `KitSidebar` (brand
+  header, a line level with the page header's, rows of `KitSideRow`) at the left, the page
+  at `side.right` with its own `KitHeader` (the page's icon and name). Rows are 4 px apart
+  (`gapHair`), their icon is `KitIconTile` (bare or framed by Appearance › Icons, off with
+  Shell Manager's menu icons), the picked row `pickFill`. A window with one page and no
+  tabs has none.
 - Window: the frame is `Theme.windowPadding` (24) on every side and nothing else:
   the header sits at `windowPadding - Theme.headerInset`, a footer at
   `bottomMargin: Theme.windowPadding`. A `KitFrame` window sets `headerInset`
@@ -82,7 +89,7 @@ uses tonal layers and more spacious controls.
   shares, blur) → `KitSliderRow`, value on the right, snapped to its step.
   A list over 5 or one that changes (monitors, models, tabs) → `KitSelect`.
   An exact number or text → `KitInput` (Enter). A folder or file → `KitInput` + a
-  `Choose…` button (`FilesService.pickFolder` / `pick`, the Files window's
+  `Choose…` button (`FilesService.pickFolder` / `pick`, the file picker's own window's
   A password → `KitInput { echoMode: TextInput.Password }`: it carries its own eye, and where text
   stands (left, centre) is the user's (Text › Input text), never set per field.
   picker). A long list to preview + Apply → a searchable list and a preview, as

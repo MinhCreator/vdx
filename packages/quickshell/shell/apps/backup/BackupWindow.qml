@@ -13,7 +13,7 @@ FloatingWindow {
 
   title: "Backups"
   visible: false
-  implicitWidth: 900
+  implicitWidth: 1060
   implicitHeight: 640
   color: Theme.background0
 

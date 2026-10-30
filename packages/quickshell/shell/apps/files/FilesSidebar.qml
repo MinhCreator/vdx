@@ -12,10 +12,10 @@ Item {
 
   required property var files   // the Files window
   // the stored list, each row with its place in it ("at"), by section
-  readonly property var placeItems: FilesService.sidebarItems.map((i, at) => Object.assign({ at: at }, i)).filter(i => i.kind !== "folder")
-  readonly property var pinnedItems: FilesService.sidebarItems.map((i, at) => Object.assign({ at: at }, i)).filter(i => i.kind === "folder")
-  readonly property var usbDevices: FilesService.showDevices ? FilesService.devices.filter(d => d.removable) : []
-  readonly property var otherDevices: FilesService.showDevices ? FilesService.devices.filter(d => !d.removable) : []
+  readonly property var placeItems: files.svc.sidebarItems.map((i, at) => Object.assign({ at: at }, i)).filter(i => i.kind !== "folder")
+  readonly property var pinnedItems: files.svc.sidebarItems.map((i, at) => Object.assign({ at: at }, i)).filter(i => i.kind === "folder")
+  readonly property var usbDevices: files.svc.showDevices ? files.svc.devices.filter(d => d.removable) : []
+  readonly property var otherDevices: files.svc.showDevices ? files.svc.devices.filter(d => !d.removable) : []
   readonly property int visiblePlaces: placeItems.filter(i => !i.hidden).length
 
   // the row being dragged (its place in the stored list, its section), and the row a drop would land beside
@@ -47,7 +47,7 @@ Item {
   }
 
   function drop() {
-    if (dragFrom >= 0 && dropAt >= 0 && dropAt !== dragFrom) FilesService.moveSidebar(dragFrom, dropAt);
+    if (dragFrom >= 0 && dropAt >= 0 && dropAt !== dragFrom) files.svc.moveSidebar(dragFrom, dropAt);
     dragFrom = -1;
     dropAt = -1;
   }
@@ -55,18 +55,18 @@ Item {
   function rowMenu(item) {
     const pinned = item.kind === "folder";
     return [
-      { label: "Open", run: () => FilesService.go(item.path) },
-      pinned ? { label: "Unpin", run: () => FilesService.unpin(item.path) }
-             : { label: "Hide from the sidebar", run: () => FilesService.unpin(item.path) },
+      { label: "Open", run: () => files.svc.go(item.path) },
+      pinned ? { label: "Unpin", run: () => files.svc.unpin(item.path) }
+             : { label: "Hide from the sidebar", run: () => files.svc.unpin(item.path) },
     ];
   }
 
   function deviceMenu(d) {
     return [
-      { label: "Open", disabled: d.mount === "", run: () => FilesService.go(d.mount) },
-      { label: "Mount", disabled: d.mount !== "", run: () => FilesService.mountDevice(d, false) },
-      { label: "Unmount", disabled: d.mount === "", run: () => FilesService.unmountDevice(d) },
-      { label: "Properties", run: () => FilesService.deviceProperties(d) },
+      { label: "Open", disabled: d.mount === "", run: () => files.svc.go(d.mount) },
+      { label: "Mount", disabled: d.mount !== "", run: () => files.svc.mountDevice(d, false) },
+      { label: "Unmount", disabled: d.mount === "", run: () => files.svc.unmountDevice(d) },
+      { label: "Properties", run: () => files.svc.deviceProperties(d) },
     ];
   }
 
@@ -80,7 +80,7 @@ Item {
     Column {
       id: sideColumn
       width: sidebar.width
-      spacing: Theme.gapTight
+      spacing: Theme.gapHair
 
       KitSideCaption { text: "PLACES"; visible: root.visiblePlaces > 0 }
 
@@ -94,10 +94,10 @@ Item {
           draggable: true
           icon: ({ computer: "monitor", trash: "trash", recent: "history", starred: "star" })[modelData.kind]
               ?? (modelData.kind === "place" ? root.files.placeIcon(modelData.name) : "folder")
-          hint: modelData.kind === "starred" && FilesService.starred.length > 0 ? FilesService.starred.length + "" : ""
+          hint: modelData.kind === "starred" && files.svc.starred.length > 0 ? files.svc.starred.length + "" : ""
           text: modelData.name
-          current: FilesService.path === modelData.path
-          onClicked: FilesService.go(modelData.path)
+          current: files.svc.path === modelData.path
+          onClicked: files.svc.go(modelData.path)
           onRightClicked: at => root.files.menuAt(at, root.rowMenu(modelData))
           onDragged: sceneY => { root.dragFrom = modelData.at; root.dragKind = "place"; root.dropAt = root.rowAt(sceneY); }
           onDropped: sceneY => { root.dropAt = root.rowAt(sceneY); root.drop(); }
@@ -116,8 +116,8 @@ Item {
           draggable: true
           icon: "folder"
           text: modelData.name
-          current: FilesService.path === modelData.path
-          onClicked: FilesService.go(modelData.path)
+          current: files.svc.path === modelData.path
+          onClicked: files.svc.go(modelData.path)
           onRightClicked: at => root.files.menuAt(at, root.rowMenu(modelData))
           onDragged: sceneY => { root.dragFrom = modelData.at; root.dragKind = "folder"; root.dropAt = root.rowAt(sceneY); }
           onDropped: sceneY => { root.dropAt = root.rowAt(sceneY); root.drop(); }
@@ -145,9 +145,9 @@ Item {
           text: modelData.name
           hint: modelData.mount !== "" ? "" : modelData.size
           action: modelData.mount !== "" ? "eject" : "power"
-          current: modelData.mount !== "" && FilesService.path.startsWith(modelData.mount)
-          onClicked: modelData.mount !== "" ? FilesService.go(modelData.mount) : FilesService.mountDevice(modelData, true)
-          onActioned: modelData.mount !== "" ? FilesService.unmountDevice(modelData) : FilesService.mountDevice(modelData, false)
+          current: modelData.mount !== "" && files.svc.path.startsWith(modelData.mount)
+          onClicked: modelData.mount !== "" ? files.svc.go(modelData.mount) : files.svc.mountDevice(modelData, true)
+          onActioned: modelData.mount !== "" ? files.svc.unmountDevice(modelData) : files.svc.mountDevice(modelData, false)
           onRightClicked: at => root.files.menuAt(at, root.deviceMenu(modelData))
         }
       }
@@ -163,8 +163,8 @@ Item {
           icon: "hard-drive"
           text: modelData.name
           hint: modelData.mount !== "" ? "" : modelData.size
-          current: modelData.mount !== "" && FilesService.path.startsWith(modelData.mount)
-          onClicked: modelData.mount !== "" ? FilesService.go(modelData.mount) : FilesService.mountDevice(modelData, true)
+          current: modelData.mount !== "" && files.svc.path.startsWith(modelData.mount)
+          onClicked: modelData.mount !== "" ? files.svc.go(modelData.mount) : files.svc.mountDevice(modelData, true)
           onRightClicked: at => root.files.menuAt(at, root.deviceMenu(modelData))
         }
       }
