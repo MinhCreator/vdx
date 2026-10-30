@@ -73,7 +73,7 @@ that every shell function or desktop scenario has been reviewed.
 | Shared controls / Launcher | Object-only backend replies; select activation and pending states; literal search, query cancellation and navigation bounds |
 | Files | Production selection model: Shift extension/contraction, visible-row pruning and single picker selection; FIFO mutations and cancellation; history changes only after success and creation redo without duplicate entries; folder-list process-start failure clears loading and reports an error |
 | Packages | Update-check and installed-list process-start failures clear busy state and report an error |
-| Capture | Recorder lifecycle with real child processes; late callbacks and countdown cancellation; save/discard backend and failures, replacement confirmation, busy/error/edit panel states and tracked clipboard completion |
+| Capture | Recorder lifecycle with real child processes; late callbacks and countdown cancellation; save/discard backend and failures, replacement confirmation, busy/error/edit panel states and tracked clipboard completion; file-operation process-start failures preserve the request and clear busy state |
 | Popup hosting | Repeated attachment, switching popups, restoration of borrowed items, unrelated host children, leaving Island style, host and source destruction |
 | Popup arbitration | Production manager with isolated monitor/settings: reactive ownership, fallback, disconnected screens, duplicate registration, teardown, module close preference and capture hold |
 | Root actions | Six process tests: pending cancellation, overlap rejection, backend/authorization errors, error reset and listeners starting or cancelling the next request during completion |

@@ -75,6 +75,15 @@ Scope {
   Process {
     id: worker
     stdout: StdioCollector { id: output }
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.overwritePath = "";
+      root.error = "Could not start the capture file operation";
+      root.busy = false;
+    }
     onExited: code => {
       const result = Reply.parse(output.text, "capture.py");
       if (code === 0 && result.ok) {
