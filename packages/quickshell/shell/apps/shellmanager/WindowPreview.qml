@@ -4,13 +4,18 @@ import qs.kit
 
 // A small monitor with the window as it will open: its size and spot at
 // scale, the bar along the top; at the cursor — a pointer the window is
-// centred on; tiled — the window takes its half of the screen.
+// centred on; tiled — the window takes its half of the screen. `pickable`:
+// the screen is nine zones to click, the window goes to the one picked.
 Rectangle {
   radius: Theme.radiusCard
   id: root
 
   property var app: null
   property var settings: ({})
+  property bool pickable: false
+
+  readonly property var zones: ["top-left", "top", "top-right", "left", "center", "right", "bottom-left", "bottom", "bottom-right"]
+  signal picked(string spot)
 
   readonly property real k: width / ShellAppsService.screenW
   readonly property bool tiled: settings.mode === "tiled"
@@ -26,15 +31,6 @@ Rectangle {
   border.width: Theme.frameWidth
   border.color: Theme.gray
   clip: true
-
-  // the bar
-  Rectangle {
-    x: Theme.frameWidth
-    y: Theme.frameWidth
-    width: parent.width - 2 * Theme.frameWidth
-    height: Math.max(3, Theme.barHeight * root.k)
-    color: Theme.background0
-  }
 
   // the window
   Rectangle {
@@ -57,9 +53,9 @@ Rectangle {
                                 : (root.height - root.winH) / 2
 
     x: root.tiled ? root.width / 2 + 2 : Math.max(0, Math.min(root.width - root.winW, wantX))
-    y: root.tiled ? barBottom + 3 : Math.max(0, Math.min(root.height - root.winH, wantY))
+    y: root.tiled ? 3 : Math.max(0, Math.min(root.height - root.winH, wantY))
     width: root.tiled ? root.width / 2 - 5 : root.winW
-    height: root.tiled ? root.height - barBottom - 6 : root.winH
+    height: root.tiled ? root.height - 6 : root.winH
     color: Theme.background0
     border.width: Theme.frameWidth
     border.color: Theme.frame
@@ -69,12 +65,41 @@ Rectangle {
     Behavior on width { enabled: Motion.pages; NumberAnimation { duration: Motion.ms(160); easing.type: Motion.easing } }
     Behavior on height { enabled: Motion.pages; NumberAnimation { duration: Motion.ms(160); easing.type: Motion.easing } }
 
-    // its title strip
+    // a skeleton of its content: title, a sidebar, lines of text
     Rectangle {
       x: 4; y: 4
-      width: Math.max(0, parent.width * 0.4)
+      width: Math.max(0, parent.width * 0.35)
       height: 3
+      radius: 1
       color: Theme.foreground2
+    }
+    Rectangle {
+      visible: parent.width > 40 && parent.height > 28
+      x: 4; y: 11
+      width: Math.max(0, parent.width * 0.22)
+      height: Math.max(0, parent.height - 15)
+      radius: 2
+      color: Theme.background2
+    }
+    Column {
+      visible: parent.width > 40 && parent.height > 28
+      x: parent.width * 0.22 + 9
+      y: 11
+      width: Math.max(0, parent.width * 0.78 - 13)
+      spacing: 3
+      clip: true
+      height: Math.max(0, parent.height - 15)
+
+      Repeater {
+        model: [1, 0.7, 0.85, 0.5, 0.9, 0.6]
+        Rectangle {
+          required property real modelData
+          width: parent.width * modelData
+          height: 3
+          radius: 1
+          color: Theme.background3
+        }
+      }
     }
   }
 
@@ -97,5 +122,52 @@ Rectangle {
     y: root.pointerY - 2
     name: "cursor"
     size: Theme.iconSmall
+  }
+
+  // the nine zones, under the bar; the hovered one is lit, the window's own is not
+  Grid {
+    id: zoneGrid
+    visible: root.pickable && !root.tiled
+    x: Theme.frameWidth
+    y: Theme.frameWidth
+    width: root.width - 2 * Theme.frameWidth
+    height: root.height - 2 * Theme.frameWidth
+    columns: 3
+
+    Repeater {
+      model: root.zones
+
+      Item {
+        id: zone
+        required property string modelData
+        width: zoneGrid.width / 3
+        height: zoneGrid.height / 3
+
+        // flush with its neighbours; only the screen's own corners are round
+        Rectangle {
+          anchors.fill: parent
+          readonly property int r: Math.max(0, root.radius - Theme.frameWidth)
+          readonly property int col: root.zones.indexOf(zone.modelData) % 3
+          readonly property int row: Math.floor(root.zones.indexOf(zone.modelData) / 3)
+          topLeftRadius: row === 0 && col === 0 ? r : 0
+          topRightRadius: row === 0 && col === 2 ? r : 0
+          bottomLeftRadius: row === 2 && col === 0 ? r : 0
+          bottomRightRadius: row === 2 && col === 2 ? r : 0
+          color: area.containsMouse && root.settings.position !== zone.modelData ? Qt.alpha(Theme.foreground0, 0.07) : Theme.clear
+          Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick; easing.type: Motion.tint } }
+        }
+
+        MouseArea {
+          id: area
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: root.settings.position === zone.modelData ? Qt.ArrowCursor : Qt.PointingHandCursor
+          Accessible.role: Accessible.Button
+          Accessible.name: "Place window " + zone.modelData.replace("-", " ")
+          Accessible.onPressAction: root.picked(zone.modelData)
+          onClicked: if (root.settings.position !== zone.modelData) root.picked(zone.modelData)
+        }
+      }
+    }
   }
 }

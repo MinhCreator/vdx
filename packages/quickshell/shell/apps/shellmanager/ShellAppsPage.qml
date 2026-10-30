@@ -213,36 +213,41 @@ Column {
             }
           }
 
-          Loader {
+          // opens and closes by revealing: the height and the fade follow `shown`; the options
+          // keep their final layout inside, so the group boxes never stretch
+          Item {
             id: windowOptions
+            property bool kitUnboxed: true
+            property real shown: 0
+            property bool snapping: false
             width: parent.width
-            property bool retainedForClose: false
-            active: root.window !== null && (root.setupOpen || retainedForClose)
+            height: Math.round(optionsLoader.height * shown)
             visible: height > 0
-            height: root.setupOpen ? implicitHeight : 0
-            opacity: root.setupOpen ? 1 : 0
+            opacity: shown
             clip: true
-            Behavior on height {
-              enabled: Motion.controls
-              NumberAnimation { duration: Motion.normal; easing.type: Motion.easing }
+
+            Behavior on shown {
+              enabled: Motion.controls && !windowOptions.snapping
+              NumberAnimation { duration: Motion.normal; easing.type: Motion.morph }
             }
-            Behavior on opacity {
-              enabled: Motion.controls
-              NumberAnimation { duration: Motion.normal; easing.type: Motion.easing }
+
+            function snap(value) { snapping = true; shown = value; snapping = false; }
+
+            Connections {
+              target: root
+              function onSetupOpenChanged() { windowOptions.shown = root.setupOpen && root.window !== null ? 1 : 0; }
+              function onSelectedChanged() { windowOptions.snap(0); }
             }
-            onActiveChanged: {
-              if (active) retainedForClose = true;
-              else Qt.callLater(() => appOptionsGrouper.relayout());
-            }
-            onHeightChanged: {
-              if (!root.setupOpen && height <= 0 && retainedForClose)
-                retainedForClose = false;
-            }
-            sourceComponent: WindowOptions {
-              app: root.window
-              ipc: root.window.ipc
-              labelled: true
-              showPreview: true
+
+            Loader {
+              id: optionsLoader
+              width: parent.width
+              active: root.window !== null && (root.setupOpen || windowOptions.shown > 0)
+              sourceComponent: WindowOptions {
+                app: root.window
+                labelled: false
+                showPreview: true
+              }
             }
           }
 

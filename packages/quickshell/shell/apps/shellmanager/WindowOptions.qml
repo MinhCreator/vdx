@@ -7,19 +7,19 @@ import qs.kit
 // How one of the shell's windows opens (Shell apps › WINDOW): a small monitor
 // with the window as it will open and a button to open it, then Window
 // (floating / tiled) and, floating, Size (its own, a preset share of the
-// screen, custom pixels) and Position (one of nine spots, at the cursor,
-// custom x, y). Choices apply at once, numbers on Enter; it shows the next
+// screen, custom pixels) and Position (a screen map, at the pointer, custom
+// x, y). Choices apply at once, numbers on Enter; it shows the next
 // time the window opens.
 KitColumn {
   id: root
 
   required property var app                 // ShellAppsService.windows entry
-  required property string ipc              // its IPC target: Open it
   property bool showPreview: true
   property bool labelled: true              // its WINDOW label (a dialog has a header)
 
   readonly property var s: app.settings
   readonly property bool floating: s.mode !== "tiled"
+  readonly property bool screenSpot: s.position !== "cursor" && s.position !== "custom"
   readonly property var px: ShellAppsService.sizeOf(app, s)
 
   // the numbers being typed, until Enter
@@ -38,37 +38,30 @@ KitColumn {
     value: root.floating ? ("FLOATING · " + root.px[0] + " × " + root.px[1]) : "TILED"
   }
 
-  // the window as it will open
-  Flow {
+  // the window as it will open, the whole width, its caption under it
+  Column {
     visible: root.showPreview
     property bool kitUnboxed: true
     width: parent.width
-    spacing: 18
+    spacing: Theme.gapMedium
 
     WindowPreview {
-      width: Math.min(220, parent.width)
+      width: parent.width
       app: root.app
       settings: root.s
+      pickable: root.floating && root.screenSpot
+      onPicked: spot => root.set({ position: spot })
     }
 
-    Column {
-      width: parent.width < 400 ? parent.width : parent.width - 220 - parent.spacing
-      spacing: Theme.gapMedium
-
-      KitText {
-        width: parent.width
-        text: root.app.id === "shell-manager" ? "Close and reopen this window to see it." : "Shows the next time the window opens."
-        color: Theme.muted
-        wrapMode: Text.WordWrap
-        font.pixelSize: Theme.fontSize - 2
-      }
-
-      KitButton {
-        visible: root.app.id !== "shell-manager"
-        icon: "external"
-        text: "Open it"
-        onClicked: ShellIpc.call(root.ipc, "open")
-      }
+    KitText {
+      width: parent.width
+      horizontalAlignment: Text.AlignHCenter
+      text: root.app.id === "shell-manager" ? "Close and reopen this window to see it."
+          : root.floating && root.screenSpot ? "Click the screen to place the window. It shows the next time the window opens."
+          : "Shows the next time the window opens."
+      color: Theme.muted
+      wrapMode: Text.WordWrap
+      font.pixelSize: Theme.fontSize - 2
     }
   }
 
@@ -129,27 +122,14 @@ KitColumn {
     wide: true
     label: "Position"
     hint: root.s.position === "cursor" ? "Centred on the pointer"
-        : root.s.position === "custom" ? "From the screen's top-left" : root.s.position.charAt(0).toUpperCase() + root.s.position.slice(1).replace("-", " ") + " of the screen"
+        : root.s.position === "custom" ? "Exact screen coordinates"
+        : root.s.position === "center" ? "Centre of the screen"
+        : root.s.position.replace("-", " ") + " of the screen"
 
-    // a spot of the screen, or the pointer, or your own
-    Item {
-      implicitWidth: 278
-      implicitHeight: Math.max(grid.implicitHeight, positionChoices.implicitHeight)
-
-      PositionGrid {
-        id: grid
-        anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-        current: root.s.position
-        onPicked: spot => root.set({ position: spot })
-      }
-
-      KitSegments {
-        id: positionChoices
-        anchors { left: grid.right; leftMargin: Theme.gapLoose; right: parent.right; verticalCenter: parent.verticalCenter }
-        model: [{ label: "Pointer", value: "cursor" }, { label: "Custom", value: "custom" }]
-        current: root.s.position
-        onPicked: value => root.set({ position: value })
-      }
+    KitSegments {
+      model: [{ label: "Screen", value: "screen" }, { label: "Pointer", value: "cursor" }, { label: "Custom", value: "custom" }]
+      current: root.screenSpot ? "screen" : root.s.position
+      onPicked: value => root.set({ position: value === "screen" ? (ShellAppsService.spots[root.s.position] ? root.s.position : "center") : value })
     }
   }
 
