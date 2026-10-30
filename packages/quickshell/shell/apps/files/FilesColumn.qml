@@ -10,6 +10,8 @@ import qs.kit
 Rectangle {
   id: root
 
+  required property var svc
+
   property string folder: ""          // the folder listed; "" shows nothing
   property string highlight: ""       // the path of the row that is current
   property string title: ""           // a caption: PARENT, or the selected folder's name
@@ -25,7 +27,7 @@ Rectangle {
   onFolderChanged: {
     if (proc.running) proc.running = false;
     rowsModel = [];
-    if (folder !== "") { proc.command = ["python3", FilesService.script, "list", folder]; proc.running = true; }
+    if (folder !== "") { proc.command = ["python3", root.svc.script, "list", folder]; proc.running = true; }
   }
 
   property var rowsModel: []
@@ -34,9 +36,9 @@ Rectangle {
     id: proc
     stdout: StdioCollector {
       onStreamFinished: {
-        const o = FilesService.parse(text);
+        const o = root.svc.parse(text);
         if (!o.ok) { root.rowsModel = []; return; }
-        root.rowsModel = FilesService.columnRows(o.entries);
+        root.rowsModel = root.svc.columnRows(o.entries);
       }
     }
   }

@@ -19,39 +19,16 @@ FloatingWindow {
 
   // Hyprland closing the window (Super+C) hides it but leaves FloatingWindow's
   // own visible set, so the next `visible = true` would do nothing: reset it.
-  // a picker is more compact than the browser: Hyprland's rule sets the size at every
-  // show, so the picker's size is set once the window is up
-  function resizeTo(w, h) {
-    Hypr.call('hl.dispatch(hl.dsp.window.resize({ x = ' + w + ', y = ' + h + ', window = "title:^(Files)$" }))');
-  }
-
   onVisibleChanged: {
     FilesService.active = visible;
-    if (visible && FilesService.picker) Qt.callLater(() => resizeTo(FilesService.pickerDims[0], FilesService.pickerDims[1]));
     if (visible) FilesService.open();
-    else {
-      // a picker closed by the window (Hyprland's close) answers the portal as cancelled
-      if (FilesService.picker) FilesService.finishPick([], 1);
-      visible = false;
-    }
-  }
-
-  // the picker is done (answered, or replaced): the window gives way
-  Connections {
-    target: FilesService
-    function onPickerDone() { root.visible = false; }
-    // a setting of the shell asks for a folder: the window comes up as the picker
-    function onPickRequested() { root.visible = true; }
-    // a request while the browser is already up does not show the window again: the size is set here too
-    function onPickerChanged() {
-      if (FilesService.picker) Qt.callLater(() => root.resizeTo(FilesService.pickerDims[0], FilesService.pickerDims[1]));
-    }
+    else visible = false;
   }
 
   Loader {
     anchors.fill: parent
     active: root.visible
-    sourceComponent: Component { Files { anchors.fill: parent; onCloseRequested: root.visible = false } }
+    sourceComponent: Component { Files { anchors.fill: parent; svc: FilesService; onCloseRequested: root.visible = false } }
   }
 
   IpcHandler {
@@ -83,9 +60,7 @@ FloatingWindow {
       root.visible = true;
     }
     // the file-chooser portal's request (scripts/files_portal.py), as JSON
-    function choose(request: string): void {
-      FilesService.choose(request);
-      root.visible = true;
-    }
+    // answered by the file picker's window (FilePickerWindow), not this one
+    function choose(request: string): void { FilesService.choose(request); }
   }
 }

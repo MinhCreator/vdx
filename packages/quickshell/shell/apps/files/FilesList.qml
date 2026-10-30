@@ -13,34 +13,36 @@ Item {
   property alias listView: list
   property alias gridView: grid
   // the list's own rows: the files only while the folders stand above as tiles
-  readonly property var listModel: files.tiles ? FilesService.shown.filter(e => e.kind !== "dir") : FilesService.shown
-  readonly property var folders: files.tiles ? FilesService.shown.filter(e => e.kind === "dir") : []
-  readonly property int rowH: FilesService.rowHeight
+  readonly property var listModel: files.tiles ? files.svc.shown.filter(e => e.kind !== "dir") : files.svc.shown
+  readonly property var folders: files.tiles ? files.svc.shown.filter(e => e.kind === "dir") : []
+  readonly property int rowH: files.svc.rowHeight
   // the icon's slot in a row: a thumbnail takes the same, so the names line up
   readonly property int slot: Math.min(rowH - 10, 24)
-  readonly property int allRows: FilesService.rows.length
-  readonly property int picked: FilesService.selection.length
+  readonly property int allRows: files.svc.rows.length
+  readonly property int picked: files.svc.selection.length
 
   // the Columns view: the parent folder on the left, the selected folder on the right
   FilesColumn {
+    svc: root.files.svc
     id: parentCol
-    visible: files.columnsView && FilesService.canUp
+    visible: files.columnsView && files.svc.canUp
     anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
     width: files.parentW
-    folder: visible ? FilesService.parentOf(FilesService.path) : ""
-    highlight: FilesService.path
+    folder: visible ? files.svc.parentOf(files.svc.path) : ""
+    highlight: files.svc.path
     title: "PARENT"
-    onOpened: p => FilesService.go(p)
+    onOpened: p => files.svc.go(p)
   }
 
   FilesColumn {
+    svc: root.files.svc
     id: childCol
     visible: files.columnsView && files.selectedDir
     anchors { right: parent.right; top: parent.top; bottom: parent.bottom }
     width: files.childW
-    folder: visible ? FilesService.selected[0].path : ""
-    title: visible ? FilesService.selected[0].name.toUpperCase() : ""
-    onOpened: p => FilesService.go(p)
+    folder: visible ? files.svc.selected[0].path : ""
+    title: visible ? files.svc.selected[0].name.toUpperCase() : ""
+    onOpened: p => files.svc.go(p)
   }
 
   // the strips beside the side columns: drag one to widen its column
@@ -52,7 +54,7 @@ Item {
     height: root.height
     reference: root
     onDragged: x => files.parentW = Math.max(120, Math.min(320, x - width / 2))
-    onFinished: FilesService.setOption("parentWidth", files.parentW)
+    onFinished: files.svc.setOption("parentWidth", files.parentW)
   }
 
   FilesSplit {
@@ -63,7 +65,7 @@ Item {
     height: root.height
     reference: root
     onDragged: x => files.childW = Math.max(140, Math.min(340, root.width - x - width / 2))
-    onFinished: FilesService.setOption("childWidth", files.childW)
+    onFinished: files.svc.setOption("childWidth", files.childW)
   }
 
   Item {
@@ -76,16 +78,16 @@ Item {
 
     // nothing here: under the Up row
     KitText {
-      anchors { top: parent.top; topMargin: Theme.gapGroup + (FilesService.canUp && !FilesService.searching ? root.rowH : 0); horizontalCenter: parent.horizontalCenter }
-      visible: FilesService.shown.length === 0 && !FilesService.loading
-      text: FilesService.error !== "" ? FilesService.error
-          : FilesService.dupes ? "No file here has a copy."
-          : FilesService.searching || FilesService.query.trim() !== "" ? "Nothing matches \"" + FilesService.query.trim() + "\""
-          : FilesService.inTrash ? "The trash is empty."
-          : FilesService.atRecent ? "No file opened lately."
-          : FilesService.atStarred ? "Nothing starred: right click › Star."
+      anchors { top: parent.top; topMargin: Theme.gapGroup + (files.svc.canUp && !files.svc.searching ? root.rowH : 0); horizontalCenter: parent.horizontalCenter }
+      visible: files.svc.shown.length === 0 && !files.svc.loading
+      text: files.svc.error !== "" ? files.svc.error
+          : files.svc.dupes ? "No file here has a copy."
+          : files.svc.searching || files.svc.query.trim() !== "" ? "Nothing matches \"" + files.svc.query.trim() + "\""
+          : files.svc.inTrash ? "The trash is empty."
+          : files.svc.atRecent ? "No file opened lately."
+          : files.svc.atStarred ? "Nothing starred: right click › Star."
           : "This folder is empty."
-      color: FilesService.error !== "" ? Theme.red : Theme.muted
+      color: files.svc.error !== "" ? Theme.red : Theme.muted
       font.pixelSize: Theme.fontSize - 1
     }
 
@@ -106,7 +108,7 @@ Item {
         // where the table's box starts: its captions
         readonly property real boxTop: captions.y
 
-        FilesUp { height: active ? root.rowH : 0 }
+        FilesUp { svc: root.files.svc; height: active ? root.rowH : 0 }
 
         // ---- the folders, as tiles ----
         Item {
@@ -153,15 +155,15 @@ Item {
           // over the NAME caption (it starts at 0 and would take the click: a sort, not a select)
           FilesCheck {
             z: 1
-            visible: FilesService.checkboxes && !files.picker
+            visible: files.svc.checkboxes && !files.picker
             x: Theme.gapWide
             anchors.verticalCenter: parent.verticalCenter
             checked: root.allRows > 0 && root.picked === root.allRows
             partial: root.picked > 0
-            onToggled: { if (root.picked > 0) FilesService.selection = []; else FilesService.selectAll(); }
+            onToggled: { if (root.picked > 0) files.svc.selection = []; else files.svc.selectAll(); }
           }
 
-          FilesCaption {
+          FilesCaption { svc: root.files.svc;
             x: 0
             width: captions.c.nameEnd
             height: parent.height
@@ -169,7 +171,7 @@ Item {
             text: "NAME"
             key: "name"
           }
-          FilesCaption {
+          FilesCaption { svc: root.files.svc;
             visible: !!captions.c.kind
             x: captions.c.kind ? captions.c.kind.x : 0
             width: captions.c.kind ? captions.c.kind.w : 0
@@ -177,7 +179,7 @@ Item {
             text: "TYPE"
             key: ""
           }
-          FilesCaption {
+          FilesCaption { svc: root.files.svc;
             visible: !!captions.c.size
             x: captions.c.size ? captions.c.size.x : 0
             width: captions.c.size ? captions.c.size.w : 0
@@ -186,14 +188,14 @@ Item {
             text: "SIZE"
             key: "size"
           }
-          FilesCaption {
+          FilesCaption { svc: root.files.svc;
             visible: !!captions.c.date
             x: captions.c.date ? captions.c.date.x : 0
             width: captions.c.date ? captions.c.date.w : 0
             height: parent.height
             alignRight: true
-            text: FilesService.inTrash ? "DELETED" : FilesService.atRecent ? "OPENED" : "MODIFIED"
-            key: FilesService.inTrash || FilesService.atRecent ? "" : "mtime"
+            text: files.svc.inTrash ? "DELETED" : files.svc.atRecent ? "OPENED" : "MODIFIED"
+            key: files.svc.inTrash || files.svc.atRecent ? "" : "mtime"
           }
 
           // the column separators, down the captions and every row
@@ -215,7 +217,7 @@ Item {
               if (startX === 0 && startSize === 0) { startX = x; startSize = files.sizeWidth; }
               files.sizeWidth = Math.max(48, Math.min(200, startSize - (x - startX)));
             }
-            onFinished: { startX = 0; startSize = 0; FilesService.setOption("sizeWidth", files.sizeWidth); }
+            onFinished: { startX = 0; startSize = 0; files.svc.setOption("sizeWidth", files.sizeWidth); }
           }
 
           FilesSplit {
@@ -230,7 +232,7 @@ Item {
               if (startX === 0 && startDate === 0) { startX = x; startDate = files.dateWidth; }
               files.dateWidth = Math.max(80, Math.min(220, startDate - (x - startX)));
             }
-            onFinished: { startX = 0; startDate = 0; FilesService.setOption("dateWidth", files.dateWidth); }
+            onFinished: { startX = 0; startDate = 0; files.svc.setOption("dateWidth", files.dateWidth); }
           }
 
           KitLine { anchors.bottom: parent.bottom; x: Theme.gapWide; width: parent.width - 2 * Theme.gapWide; sectionBreak: false;  }
@@ -258,7 +260,7 @@ Item {
         required property var modelData
         required property int index
 
-        readonly property bool picked: FilesService.selection.includes(modelData.path)
+        readonly property bool picked: files.svc.selection.includes(modelData.path)
         readonly property bool editing: files.renaming === modelData.path
         readonly property bool header: modelData.kind === "group"
         readonly property bool hovered: hover.containsMouse || dots.containsMouse
@@ -290,8 +292,8 @@ Item {
           Drag.active: hover.drag.active
           Drag.dragType: Drag.Automatic
           Drag.supportedActions: Qt.CopyAction
-          Drag.mimeData: { "text/uri-list": (row.picked ? FilesService.selection : [row.modelData.path])
-                            .map(p => FilesService.fileUri(p)).join("\r\n") }
+          Drag.mimeData: { "text/uri-list": (row.picked ? files.svc.selection : [row.modelData.path])
+                            .map(p => files.svc.fileUri(p)).join("\r\n") }
         }
 
         MouseArea {
@@ -304,7 +306,7 @@ Item {
           onClicked: mouse => {
             if (row.header) {
               if (mouse.button === Qt.RightButton) files.menuAt(mapToItem(null, mouse.x, mouse.y), files.groupMenu(row.modelData));
-              else FilesService.toggleGroup(row.modelData.group);
+              else files.svc.toggleGroup(row.modelData.group);
               return;
             }
             if (mouse.button === Qt.RightButton) files.contextMenu(row.modelData, mapToItem(null, mouse.x, mouse.y));
@@ -321,19 +323,19 @@ Item {
         }
 
         FilesCheck {
-          visible: FilesService.checkboxes && !row.header && !files.picker
+          visible: files.svc.checkboxes && !row.header && !files.picker
           x: Theme.gapWide
           anchors.verticalCenter: parent.verticalCenter
           checked: row.picked
           shown: row.hovered || root.picked > 0
-          onToggled: FilesService.select(row.modelData.path, "toggle")
+          onToggled: files.svc.select(row.modelData.path, "toggle")
         }
 
         KitIcon {
           id: icon
           x: files.nameX + (root.slot - width) / 2
           anchors.verticalCenter: parent.verticalCenter
-          visible: !row.header && !(row.modelData.kind === "image" && FilesService.thumbnails)
+          visible: !row.header && !(row.modelData.kind === "image" && files.svc.thumbnails)
           name: files.iconFor(row.modelData.kind)
           size: Theme.iconSmall + 2
           tint: row.modelData.link ? Theme.muted : Theme.foreground0
@@ -343,7 +345,7 @@ Item {
         Image {
           x: files.nameX
           anchors.verticalCenter: parent.verticalCenter
-          visible: row.modelData.kind === "image" && FilesService.thumbnails
+          visible: row.modelData.kind === "image" && files.svc.thumbnails
           width: root.slot
           height: width
           source: visible ? files.fileUrl(row.modelData.path) : ""
@@ -355,11 +357,11 @@ Item {
         KitText {
           id: name
           x: row.header ? Theme.gapWide : files.nameX + root.slot + Theme.gapMedium
-          width: row.c.nameEnd - x - (FilesService.isStarred(row.modelData.path) ? 22 : 0)
+          width: row.c.nameEnd - x - (files.svc.isStarred(row.modelData.path) ? 22 : 0)
           anchors.verticalCenter: parent.verticalCenter
           visible: !row.editing
-          text: row.header ? (FilesService.isCollapsed(row.modelData.group) ? "▸ " : "▾ ") + row.modelData.name
-              : FilesService.shownName(row.modelData) + (row.modelData.link ? " →" : "")
+          text: row.header ? (files.svc.isCollapsed(row.modelData.group) ? "▸ " : "▾ ") + row.modelData.name
+              : files.svc.shownName(row.modelData) + (row.modelData.link ? " →" : "")
           elide: Text.ElideRight
           font.weight: row.header || row.picked ? Font.ExtraBold : Theme.fontWeight
           color: row.header ? Theme.muted : Theme.foreground0
@@ -367,18 +369,18 @@ Item {
 
         // a search, the recent files, duplicates: the folder each is in, after the name
         KitText {
-          visible: !row.header && !row.editing && (FilesService.searching || FilesService.virtual) && !FilesService.inTrash
+          visible: !row.header && !row.editing && (files.svc.searching || files.svc.virtual) && !files.svc.inTrash
           x: name.x + name.contentWidth + Theme.gapMedium
           width: Math.max(0, row.c.nameEnd - x)
           anchors.verticalCenter: parent.verticalCenter
-          text: FilesService.parentOf(row.modelData.path).replace(FilesService.home, "~")
+          text: files.svc.parentOf(row.modelData.path).replace(files.svc.home, "~")
           elide: Text.ElideMiddle
           color: Theme.muted
           font.pixelSize: Theme.fontSize - 2
         }
 
         KitIcon {
-          visible: !row.header && FilesService.isStarred(row.modelData.path)
+          visible: !row.header && files.svc.isStarred(row.modelData.path)
           x: row.c.nameEnd - 18
           anchors.verticalCenter: parent.verticalCenter
           name: "star"
@@ -428,8 +430,8 @@ Item {
           anchors.verticalCenter: parent.verticalCenter
           horizontalAlignment: Text.AlignRight
           // while the trash is entered, the folder's rows are still there for a moment: no deleted date yet
-          text: FilesService.inTrash ? (row.modelData.deleted ?? "").replace("T", " ")
-              : FilesService.atRecent && row.modelData.visited ? files.when(Date.parse(row.modelData.visited) / 1000)
+          text: files.svc.inTrash ? (row.modelData.deleted ?? "").replace("T", " ")
+              : files.svc.atRecent && row.modelData.visited ? files.when(Date.parse(row.modelData.visited) / 1000)
               : files.when(row.modelData.mtime)
           elide: Text.ElideLeft
           color: Theme.muted
@@ -438,7 +440,7 @@ Item {
 
         // ⋮: the row's menu
         Rectangle {
-          visible: FilesService.rowActions && !row.header
+          visible: files.svc.rowActions && !row.header
           anchors { right: parent.right; rightMargin: Theme.gapSmall; verticalCenter: parent.verticalCenter }
           width: 24
           height: 24
@@ -466,22 +468,22 @@ Item {
       visible: files.grid
       anchors.fill: parent
       clip: true
-      model: FilesService.shown
-      readonly property int size: ({ small: 104, medium: 128, large: 164 })[FilesService.gridSize] ?? 128
+      model: files.svc.shown
+      readonly property int size: ({ small: 104, medium: 128, large: 164 })[files.svc.gridSize] ?? 128
       // the cards fill the width: as many as fit, stretched to it
       cellWidth: Math.floor(width / Math.max(1, Math.floor(width / size)))
       cellHeight: size + 8
       boundsBehavior: Flickable.StopAtBounds
-      header: FilesUp { height: active ? root.rowH : 0 }
-      onWidthChanged: FilesService.columns = Math.max(1, Math.floor(width / size))
+      header: FilesUp { svc: root.files.svc; height: active ? root.rowH : 0 }
+      onWidthChanged: files.svc.columns = Math.max(1, Math.floor(width / size))
 
       delegate: Item {
         id: cell
 
         required property var modelData
 
-        readonly property bool picked: FilesService.selection.includes(modelData.path)
-        readonly property bool image: modelData.kind === "image" && FilesService.thumbnails
+        readonly property bool picked: files.svc.selection.includes(modelData.path)
+        readonly property bool image: modelData.kind === "image" && files.svc.thumbnails
         readonly property int art: grid.size - 56
 
         width: grid.cellWidth
@@ -501,8 +503,8 @@ Item {
             Drag.active: cellArea.drag.active
             Drag.dragType: Drag.Automatic
             Drag.supportedActions: Qt.CopyAction
-            Drag.mimeData: { "text/uri-list": (cell.picked ? FilesService.selection : [cell.modelData.path])
-                              .map(p => FilesService.fileUri(p)).join("\r\n") }
+            Drag.mimeData: { "text/uri-list": (cell.picked ? files.svc.selection : [cell.modelData.path])
+                              .map(p => files.svc.fileUri(p)).join("\r\n") }
           }
 
           MouseArea {
@@ -551,7 +553,7 @@ Item {
 
           KitText {
             anchors { left: parent.left; right: parent.right; top: well.bottom; topMargin: Theme.gapSmall; leftMargin: Theme.gapMedium; rightMargin: Theme.gapMedium }
-            text: FilesService.shownName(cell.modelData)
+            text: files.svc.shownName(cell.modelData)
             horizontalAlignment: Text.AlignHCenter
             elide: Text.ElideMiddle
             font.pixelSize: Theme.fontSize - 1
@@ -583,7 +585,7 @@ Item {
       anchors.fill: parent
       z: -1
       keys: ["text/uri-list"]
-      onDropped: drop => files.dropped(drop.urls ?? [], FilesService.path)
+      onDropped: drop => files.dropped(drop.urls ?? [], files.svc.path)
     }
   }
 }

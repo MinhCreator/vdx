@@ -113,7 +113,7 @@ def main():
             + '\n  property QtObject notifications: QtObject { id: ring; property var command: []; '
             'property int calls: 0; property bool running: false; '
             'onRunningChanged: if (running) { calls++; running = false; } }\n}\n')
-        files = (SHELL / "apps/files/FilesService.qml").read_text()
+        files = (SHELL / "apps/files/FilesState.qml").read_text()
         (work / "qs/kit/TestFileCreation.qml").write_text(
             'import QtQuick\nQtObject {\nproperty var calls: []\nproperty var history: []\n'
             'function act(request, args) { calls = calls.concat([{request: request, args: args}]); }\n'

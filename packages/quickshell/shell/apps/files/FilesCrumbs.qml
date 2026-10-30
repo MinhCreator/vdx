@@ -8,16 +8,18 @@ import qs.kit
 Item {
   id: root
 
+  required property var svc
+
   signal done()                          // the field gave the keys back (Enter or Escape)
 
-  readonly property bool editing: FilesService.pathBar === "field" || field.input.activeFocus
+  readonly property bool editing: root.svc.pathBar === "field" || field.input.activeFocus
   implicitHeight: Theme.controlHeight
 
   // the crumbs: [{name, path}] from Home (or the root) down to the folder shown
   readonly property var crumbs: {
-    const p = FilesService.path;
-    if (FilesService.virtual) return [{ name: FilesService.title, path: p }];
-    const home = FilesService.home;
+    const p = root.svc.path;
+    if (root.svc.virtual) return [{ name: root.svc.title, path: p }];
+    const home = root.svc.home;
     const inHome = p === home || p.startsWith(home + "/");
     const list = [inHome ? { name: "Home", path: home } : { name: "Root", path: "/" }];
     const rest = inHome ? p.slice(home.length) : p;
@@ -30,7 +32,7 @@ Item {
   }
 
   function edit() {
-    field.text = FilesService.virtual ? "" : FilesService.path;
+    field.text = root.svc.virtual ? "" : root.svc.path;
     field.input.forceActiveFocus();
     field.input.selectAll();
   }
@@ -43,16 +45,16 @@ Item {
     passKeys: [Qt.Key_Escape]
     text: ""
     onAccepted: {
-      const typed = text.trim().replace(/^~(?=\/|$)/, FilesService.home);
-      if (typed.startsWith("/")) FilesService.go(typed);
+      const typed = text.trim().replace(/^~(?=\/|$)/, root.svc.home);
+      if (typed.startsWith("/")) root.svc.go(typed);
       root.done();
     }
     onKeyPassed: root.done()
     Connections {
-      target: FilesService
-      function onPathChanged() { if (!field.input.activeFocus) field.text = FilesService.pathBar === "field" && !FilesService.virtual ? FilesService.path : ""; }
+      target: root.svc
+      function onPathChanged() { if (!field.input.activeFocus) field.text = root.svc.pathBar === "field" && !root.svc.virtual ? root.svc.path : ""; }
     }
-    Component.onCompleted: text = FilesService.pathBar === "field" && !FilesService.virtual ? FilesService.path : ""
+    Component.onCompleted: text = root.svc.pathBar === "field" && !root.svc.virtual ? root.svc.path : ""
   }
 
   // the empty end of the bar: a click types a path
@@ -112,7 +114,7 @@ Item {
               KitIcon {
                 visible: crumb.index === 0
                 anchors.verticalCenter: parent.verticalCenter
-                name: crumb.modelData.path === FilesService.home ? "home" : FilesService.virtual ? root.placeIcon() : "server"
+                name: crumb.modelData.path === root.svc.home ? "home" : root.svc.virtual ? root.placeIcon() : "server"
                 size: Theme.iconSmall
                 tint: crumb.last ? Theme.foreground0 : Theme.foreground2
               }
@@ -130,7 +132,7 @@ Item {
               anchors.fill: parent
               hoverEnabled: true
               cursorShape: crumb.last ? Qt.ArrowCursor : Qt.PointingHandCursor
-              onClicked: if (!crumb.last) FilesService.go(crumb.modelData.path)
+              onClicked: if (!crumb.last) root.svc.go(crumb.modelData.path)
             }
           }
         }
@@ -139,6 +141,6 @@ Item {
   }
 
   function placeIcon() {
-    return FilesService.atComputer ? "monitor" : FilesService.inTrash ? "trash" : FilesService.atRecent ? "history" : "star";
+    return root.svc.atComputer ? "monitor" : root.svc.inTrash ? "trash" : root.svc.atRecent ? "history" : "star";
   }
 }

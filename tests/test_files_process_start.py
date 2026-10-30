@@ -14,7 +14,7 @@ from tests.qml_runtime import SHELL, run_quickshell
 @unittest.skipUnless(shutil.which("qs"), "Quickshell is not installed")
 class FilesProcessStart(unittest.TestCase):
     def test_failed_folder_query_clears_loading_and_reports_error(self):
-        source = (SHELL / "apps/files/FilesService.qml").read_text()
+        source = (SHELL / "apps/files/FilesState.qml").read_text()
         process = qml_block(source, "Process {\n    id: listProc")
         process = process.replace(
             "id: listProc",

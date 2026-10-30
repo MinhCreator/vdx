@@ -10,7 +10,7 @@ Rectangle {
   required property var files     // the Files window
   required property var entry
 
-  readonly property bool picked: FilesService.selection.includes(entry.path)
+  readonly property bool picked: files.svc.selection.includes(entry.path)
   readonly property bool hovered: area.containsMouse || more.containsMouse
 
   height: 40
@@ -67,7 +67,7 @@ Rectangle {
     width: 26
     height: 26
     radius: Theme.radiusFor(height)
-    visible: FilesService.rowActions
+    visible: files.svc.rowActions
     opacity: root.hovered || root.picked ? 1 : 0
     color: more.containsMouse ? Theme.hoverOn(true) : Theme.clear
     Behavior on opacity { enabled: Motion.controls; NumberAnimation { duration: Motion.quick } }

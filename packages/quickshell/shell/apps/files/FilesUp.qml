@@ -8,8 +8,10 @@ import qs.kit
 Rectangle {
   id: root
 
+  required property var svc
+
   // there only where a folder is above (and no search runs): no blank row at the root or in the trash
-  readonly property bool active: FilesService.canUp && !FilesService.searching
+  readonly property bool active: root.svc.canUp && !root.svc.searching
   width: parent ? parent.width : 0
   height: active ? 28 : 0
   opacity: active ? 1 : 0
@@ -18,7 +20,7 @@ Rectangle {
   Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
 
   // the '..' sits in the icon column, the hint in the name column (after the box to tick, when there is one)
-  readonly property int iconX: Theme.gapWide + (FilesService.checkboxes && !FilesService.picker ? 16 + Theme.gapWide : 0)
+  readonly property int iconX: Theme.gapWide + (root.svc.checkboxes && !root.svc.picker ? 16 + Theme.gapWide : 0)
   KitText {
     id: dots
     anchors { left: parent.left; leftMargin: root.iconX; verticalCenter: parent.verticalCenter }
@@ -39,6 +41,6 @@ Rectangle {
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
     enabled: root.active
-    onDoubleClicked: FilesService.up()
+    onDoubleClicked: root.svc.up()
   }
 }

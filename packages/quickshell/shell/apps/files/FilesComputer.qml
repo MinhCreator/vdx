@@ -10,10 +10,10 @@ Rectangle {
 
   required property var files   // the Files window
 
-  readonly property bool asGrid: FilesService.computerView === "grid"
+  readonly property bool asGrid: files.svc.computerView === "grid"
   // the storage in the sort's order: by name, or by size (the largest first)
-  readonly property var storage: FilesService.volumes.slice().sort((a, b) =>
-    FilesService.computerSort === "size" ? b.total - a.total : a.name.localeCompare(b.name))
+  readonly property var storage: files.svc.volumes.slice().sort((a, b) =>
+    files.svc.computerSort === "size" ? b.total - a.total : a.name.localeCompare(b.name))
   readonly property int barWidth: 140       // the list's fixed columns: the used bar, the space text
   readonly property int spaceWidth: 180
   readonly property int rowH: 48
@@ -35,15 +35,15 @@ Rectangle {
     return d.mount !== "" ? Format.humanSize(d.free) + " free of " + Format.humanSize(d.total) : "";
   }
   function open(d) {
-    if (d.mount !== "") FilesService.go(d.mount);
-    else FilesService.mountDevice(d, true);
+    if (d.mount !== "") files.svc.go(d.mount);
+    else files.svc.mountDevice(d, true);
   }
   function menu(d, at) {
     root.files.menuAt(at, [
-      { label: "Open", disabled: d.mount === "", run: () => FilesService.go(d.mount) },
-      { label: "Mount", disabled: d.mount !== "", run: () => FilesService.mountDevice(d, false) },
-      { label: "Unmount", disabled: d.mount === "", run: () => FilesService.unmountDevice(d) },
-      { label: "Properties", run: () => FilesService.deviceProperties(d) },
+      { label: "Open", disabled: d.mount === "", run: () => files.svc.go(d.mount) },
+      { label: "Mount", disabled: d.mount !== "", run: () => files.svc.mountDevice(d, false) },
+      { label: "Unmount", disabled: d.mount === "", run: () => files.svc.unmountDevice(d) },
+      { label: "Properties", run: () => files.svc.deviceProperties(d) },
     ]);
   }
 
@@ -174,9 +174,9 @@ Rectangle {
           width: parent.width
           height: 34
 
-          FilesCaption { x: 0; width: box.spaceX; height: parent.height; textX: Theme.gapWide + Theme.iconSmall + 2 + Theme.gapMedium; text: "NAME" }
-          FilesCaption { x: box.spaceX; width: root.spaceWidth; height: parent.height; alignRight: true; text: "FREE OF TOTAL" }
-          FilesCaption { x: box.barX; width: root.barWidth; height: parent.height; textX: 0; text: "USED" }
+          FilesCaption { svc: root.files.svc; x: 0; width: box.spaceX; height: parent.height; textX: Theme.gapWide + Theme.iconSmall + 2 + Theme.gapMedium; text: "NAME" }
+          FilesCaption { svc: root.files.svc; x: box.spaceX; width: root.spaceWidth; height: parent.height; alignRight: true; text: "FREE OF TOTAL" }
+          FilesCaption { svc: root.files.svc; x: box.barX; width: root.barWidth; height: parent.height; textX: 0; text: "USED" }
 
           Repeater {
             model: box.seps

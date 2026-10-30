@@ -7,17 +7,19 @@ import qs.kit
 Item {
   id: root
 
+  required property var svc
+
   property string text: ""
   property string key: ""
   property bool alignRight: false
   property real textX: 0
 
-  readonly property bool sorted: key !== "" && FilesService.sortBy === key
+  readonly property bool sorted: key !== "" && root.svc.sortBy === key
 
   KitText {
     x: root.alignRight ? root.width - width : root.textX
     anchors.verticalCenter: parent.verticalCenter
-    text: root.text + (root.sorted ? (FilesService.sortDesc ? " ↓" : " ↑") : "")
+    text: root.text + (root.sorted ? (root.svc.sortDesc ? " ↓" : " ↑") : "")
     color: root.sorted || area.containsMouse ? Theme.foreground1 : Theme.muted
     Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.normal; easing.type: Motion.easing } }
     font.pixelSize: Theme.fontSize - 2
@@ -31,6 +33,6 @@ Item {
     enabled: root.key !== ""
     hoverEnabled: true
     cursorShape: root.key !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
-    onClicked: FilesService.sortOn(root.key)
+    onClicked: root.svc.sortOn(root.key)
   }
 }

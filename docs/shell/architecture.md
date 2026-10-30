@@ -99,15 +99,21 @@ Timer pause and lap actions sample the clock at the action, rather than use
 the previous display tick. Pausing an already-expired countdown completes it;
 completion is guarded so a second callback cannot notify again.
 
+`FilesState` is one window's file state; `FilesService` is the singleton holding the browser's
+(Files, Super+E, and what settings pages read). The file picker is `FilePickerWindow` with a
+`FilesState` of its own: it opens with the file manager up or not, and neither takes the other's
+folder or selection. Requests (the portal's `ipc call files choose`, a "Choose…") reach it as
+`FilesService.pickAsked`. The Files UI reads the state it is given (`svc`), never the singleton.
+
 Files selection lives in `apps/files/FilesSelection.qml`, a QtQuick-only
-model tested without the filesystem or portal. FilesService supplies visible
+model tested without the filesystem or portal. FilesState supplies visible
 rows and the picker's single-selection constraint and exposes the existing
 selection API. `anchor` is the current row used for scrolling; `rangeStart`
 keeps the original row while Shift extends or shrinks a range. Filtering or
 removing rows prunes their selection so file actions target visible items.
 
 `apps/files/FilesActions.qml` owns file mutations, their progress and replies.
-It queues every submitted action in FIFO order; FilesService's latest-request
+It queues every submitted action in FIFO order; FilesState's latest-request
 queue is reserved for replaceable reads. Each mutation clears its reply before
 starting, and the completion callback runs before the next action starts.
 Undo/redo stays disabled until the mutation queue has drained. Portal replies

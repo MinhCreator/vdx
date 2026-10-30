@@ -41,6 +41,7 @@ Scope {
   PackagesWindow {}
   ClipboardWindow {}
   FilesWindow {}
+  FilePickerWindow {}
   BackupWindow {}
   CaptureWindow {}
   MusicWindow {}

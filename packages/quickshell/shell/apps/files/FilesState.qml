@@ -1,18 +1,17 @@
-pragma Singleton
-
 import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.config
 import "../../kit/reply.js" as Reply
 
-// The file manager's state (scripts/files.py): the folder shown and its
+// The file manager's state (scripts/files.py), one per window: FilesService is the browser's,
+// the file picker's window makes its own, so the two never share a folder or a selection: the folder shown and its
 // history, the entries sorted and filtered, the selection, the cut or copied
 // paths, the places, bookmarks, devices (udisks2), the preview of a text file,
 // and the picker of the file-chooser portal (scripts/files_portal.py runs
 // here, kept by the shell). The trash is a list of its own (`trashPath`, not a
 // folder). Options: Shell Manager › Shell apps › Files (ModuleSettings "files").
-Singleton {
+Scope {
   id: root
 
   readonly property string script: Paths.scriptsDir + "/files.py"
@@ -667,15 +666,16 @@ Singleton {
   // {id, mode: open|save, title, multiple, directory, filter: [patterns], folder, name, onPick}
   // id is the portal's request ("" for the shell's own); onPick(path) is the shell's answer ("" when cancelled)
   property var picker: null
-  property string pickerReturn: ""
   signal pickerDone()
-  signal pickRequested()
+  // a request for a picker (the portal, or a setting of the shell): the picker's window takes it
+  // up with its own state, `begin(request, onPick)`
+  signal pickAsked(var request, var onPick)
 
   // the shell's IPC: the portal's request as JSON
   function choose(json) {
     const r = parse(json);
     if (!r.id) return;
-    begin({
+    pickAsked({
       // the title comes from another program: plain text, a short one
       id: r.id, mode: r.mode, title: String(r.title || "").replace(/<[^>]*>/g, "").slice(0, 80)
                                       || (r.mode === "save" ? "Save File" : r.directory ? "Select Folder" : "Open File"),
@@ -688,14 +688,12 @@ Singleton {
   // a folder (or a file, of the filter's patterns) for a setting of the shell ("Choose…"): the window
   // shows the picker and onPick gets the path
   function pick(title, start, directory, filter, onPick) {
-    begin({ id: "", mode: "open", title: title, multiple: false, directory: directory, filter: filter, folder: start || home, name: "" }, onPick);
-    pickRequested();
+    pickAsked({ id: "", mode: "open", title: title, multiple: false, directory: directory, filter: filter, folder: start || home, name: "" }, onPick);
   }
   function pickFolder(title, start, onPick) { pick(title, start, true, [], onPick); }
 
   function begin(request, onPick) {
     if (picker) finishPick([], 1);
-    pickerReturn = path || home;
     request.onPick = onPick;
     picker = request;
     selection = [];
@@ -711,7 +709,6 @@ Singleton {
     if (asked.onPick) asked.onPick(response === 0 && paths.length > 0 ? paths[0] : "");
     else answerProc.submit({ done: "answered" }, ["answer", asked.id, JSON.stringify({ response: response, paths: paths })]);
     picker = null;
-    go(pickerReturn);
     pickerDone();
   }
 

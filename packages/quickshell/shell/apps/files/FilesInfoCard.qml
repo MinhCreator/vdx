@@ -6,16 +6,18 @@ import qs.kit
 KitFrame {
   id: root
 
+  required property var svc
+
   KitHeader {
     icon: "info"
-    title: FilesService.panel ? FilesService.panel.title : ""
-    subtitle: FilesService.panel ? FilesService.panel.subtitle : ""
+    title: root.svc.panel ? root.svc.panel.title : ""
+    subtitle: root.svc.panel ? root.svc.panel.subtitle : ""
   }
 
   KitLine {}
 
   Repeater {
-    model: FilesService.panel ? FilesService.panel.rows : []
+    model: root.svc.panel ? root.svc.panel.rows : []
 
     Row {
       required property var modelData
