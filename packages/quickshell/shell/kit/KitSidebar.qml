@@ -29,7 +29,7 @@ Rectangle {
     id: brand
     x: Theme.windowPadding
     y: Theme.windowPadding - Theme.headerInset
-    width: root.width - Theme.windowPadding
+    width: root.width - 2 * Theme.windowPadding
     icon: root.icon
     title: root.title
     subtitle: root.subtitle
@@ -39,13 +39,13 @@ Rectangle {
     id: line
     x: Theme.windowPadding
     y: root.lineY
-    width: root.width - Theme.windowPadding
+    width: root.width - 2 * Theme.windowPadding
   }
 
   Column {
     x: Theme.windowPadding
     y: line.y + line.height + Theme.gapGroup
-    width: root.width - Theme.windowPadding
+    width: root.width - 2 * Theme.windowPadding
     spacing: Theme.gapHair
 
     Repeater {
