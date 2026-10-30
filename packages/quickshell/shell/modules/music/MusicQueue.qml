@@ -58,13 +58,6 @@ Column {
       text: root.searching ? "SEARCH" : "UP NEXT FROM #" + root.currentPos
     }
 
-    // re-read the queue
-    KitButton {
-      anchors { right: searchButton.left; rightMargin: Theme.gapMedium }
-      icon: "refresh"
-      onClicked: MpdService.refreshQueue()
-    }
-
     KitButton {
       id: searchButton
       anchors.right: parent.right
