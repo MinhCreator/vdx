@@ -753,7 +753,17 @@ Singleton {
     id: listProc
     property var next: null
     property var asked: null
-    onRunningChanged: root.resume(listProc)
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) started = false;
+      else if (listProc.asked === root.path) {
+        root.loading = false;
+        root.error = "could not start folder listing";
+      }
+      root.resume(listProc);
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         if (listProc.asked !== root.path) return;

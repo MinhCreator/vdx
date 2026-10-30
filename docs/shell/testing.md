@@ -71,7 +71,7 @@ that every shell function or desktop scenario has been reviewed.
 | Live device smoke check (2026-10-30) | Read-only backend status succeeded for battery, PipeWire, Wi-Fi, Bluetooth and Hyprland displays; Wi-Fi scan populated three networks and the Bluetooth popup rendered the paired AirPods state. No connection, volume, power or display settings were changed |
 | List reply compatibility | Eight production consumer handlers with populated/empty arrays, error objects, null and malformed JSON; separate object/list parser contracts |
 | Shared controls / Launcher | Object-only backend replies; select activation and pending states; literal search, query cancellation and navigation bounds |
-| Files | Production selection model: Shift extension/contraction, visible-row pruning and single picker selection; FIFO mutations and cancellation; history changes only after success and creation redo without duplicate entries |
+| Files | Production selection model: Shift extension/contraction, visible-row pruning and single picker selection; FIFO mutations and cancellation; history changes only after success and creation redo without duplicate entries; folder-list process-start failure clears loading and reports an error |
 | Capture | Recorder lifecycle with real child processes; late callbacks and countdown cancellation; save/discard backend and failures, replacement confirmation, busy/error/edit panel states and tracked clipboard completion |
 | Popup hosting | Repeated attachment, switching popups, restoration of borrowed items, unrelated host children, leaving Island style, host and source destruction |
 | Popup arbitration | Production manager with isolated monitor/settings: reactive ownership, fallback, disconnected screens, duplicate registration, teardown, module close preference and capture hold |
@@ -160,9 +160,8 @@ Next focused investigations (suspicions, not confirmed regressions):
    battery permission/hardware behavior and
    display backend/schema failures with fake backends before real hardware
    checks.
-3. Remaining Files service/portal and apps: enumerate each public action, its
-   busy/error/empty states, keyboard focus and cancellation; inspect packages,
-   backup, cleaner, VT, clipboard, music and notifications individually.
+3. Files folder-list startup failure is covered. Remaining Files portal and
+   real USB scenarios are manual; other apps still need focused review.
 4. Lock: verify marker write failure and startup failure handling, then owner-led
    PAM/polkit/Wayland crash/reload tests. Current fake-context coverage does not
    establish correctness of the real lock protocol.
