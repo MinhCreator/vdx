@@ -14,6 +14,48 @@ from tests.qml_runtime import SHELL, run_quickshell
 
 @unittest.skipUnless(shutil.which("qs"), "Quickshell is not installed")
 class WifiSpeedtest(unittest.TestCase):
+    def test_process_start_failure_clears_busy_immediately(self):
+        source = (SHELL / "modules/wifi/WifiService.qml").read_text()
+        measure = qml_function(source, "measure")
+        stop = qml_function(source, "stopSpeedtest")
+        finish = qml_function(source, "finishSpeedtest")
+        factory = qml_block(source, "Component {\n    id: speedtestFactory").replace(
+            'command: ["bash", root.script, "--speedtest"]',
+            'command: ["/no/such/wifi-speedtest-backend"]')
+        with tempfile.TemporaryDirectory(prefix="shell-wifi-speedtest-start-") as tmp:
+            root = Path(tmp)
+            (root / "shell.qml").write_text('''import QtQuick
+import Quickshell
+import Quickshell.Io
+Scope {
+  id: root
+  property string script: "unused"
+  property bool popupOpen: true
+  property bool speedtestBusy: false
+  property var speedtest: null
+  property string speedtestError: ""
+  property var activeSpeedtest: null
+  function parse(text) { return JSON.parse(text); }
+  QtObject { id: speedtestTimeout; function restart() {} function stop() {} }
+''' + measure + stop + finish + factory + '''
+  Timer { interval: 10; running: true; onTriggered: root.measure() }
+  Timer { interval: 150; running: true; onTriggered: {
+    console.warn("WIFI_SPEEDTEST_START_RESULT:" + JSON.stringify({
+      busy: root.speedtestBusy, error: root.speedtestError,
+      active: root.activeSpeedtest !== null
+    }));
+    Qt.quit();
+  } }
+}
+''')
+            output = run_quickshell(root, timeout=4)
+            results = [line.split("WIFI_SPEEDTEST_START_RESULT:", 1)[1]
+                       for line in output.splitlines() if "WIFI_SPEEDTEST_START_RESULT:" in line]
+            self.assertEqual(len(results), 1, output)
+            self.assertEqual(json.loads(results[0]), {
+                "busy": False, "error": "could not start speedtest", "active": False,
+            }, output)
+
     def test_cancelled_process_cannot_publish_over_replacement(self):
         source = (SHELL / "modules/wifi/WifiService.qml").read_text()
         measure = qml_function(source, "measure")

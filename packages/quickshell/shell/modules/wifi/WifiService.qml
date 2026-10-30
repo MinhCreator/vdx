@@ -695,6 +695,14 @@ Singleton {
     Process {
       id: request
       command: ["bash", root.script, "--speedtest"]
+      property bool started: false
+      onStarted: started = true
+      onRunningChanged: {
+        if (running) return;
+        if (started) { started = false; return; }
+        root.finishSpeedtest(request,
+          JSON.stringify({ok: false, error: "could not start speedtest"}));
+      }
       stdout: StdioCollector {
         onStreamFinished: root.finishSpeedtest(request, text)
       }

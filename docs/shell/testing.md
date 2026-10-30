@@ -82,7 +82,7 @@ that every shell function or desktop scenario has been reviewed.
 | Task manager | Production grouping/tree functions with synthetic rows: prototype-name collisions, resource aggregation, user/kernel/PID filters and cyclic process trees |
 | Timer | Production state/functions with a fake notification receiver: pause/lap between ticks, pause after expiry and duplicate completion |
 | Wi-Fi credentials | Three production completion handlers clear the process password environment before publishing idle, for successful and failed replies; connection and hidden-network process-start failures also clear credentials and busy state |
-| Wi-Fi speedtest | Real child-process test cancels a TERM-resistant old request, immediately starts a replacement, and verifies that the late old reply cannot overwrite the newer result; repeated active requests are rejected |
+| Wi-Fi speedtest | Real child-process test cancels a TERM-resistant old request, immediately starts a replacement, and verifies that the late old reply cannot overwrite the newer result; failed process starts clear busy state immediately; repeated active requests are rejected |
 | Wi-Fi saved settings | Production action guard rejects overlapping edits, preserves the backend error, and permits a retry after completion; page controls disable during the write |
 | Wi-Fi connection actions | Nearby, saved, password and hidden-network joins share one busy guard; overlapping requests are rejected in both directions and controls reflect pending work |
 | Wi-Fi scan UX | Duplicate scans are rejected while active; production completion handler sets and clears error/busy state and allows another scan |
@@ -142,8 +142,8 @@ Next focused investigations (suspicions, not confirmed regressions):
    replies and connection process-launch failure; scan, radio, DNS, saved
    network, Ethernet and hotspot action process-launch failures now recover;
    Wi-Fi status and network-list startup/schema errors preserve state and
-   surface an error. Review remaining read-only process starts and cancellation
-   cases.
+   surface an error; speedtest process-start failure clears busy state.
+   Review remaining read-only process starts and cancellation cases.
 2. `modules/bluetooth/BluetoothService.qml`: discovery lifetime and removed
    devices. Adapter settings now run FIFO and serialize with device actions;
    power, scan, adapter and device actions recover from process-start failures.
