@@ -133,22 +133,20 @@ KitColumn {
 
     // a spot of the screen, or the pointer, or your own
     Item {
-      implicitWidth: 240
+      implicitWidth: 278
       implicitHeight: Math.max(grid.implicitHeight, positionChoices.implicitHeight)
-      readonly property int spacing: Theme.gapLoose
 
       PositionGrid {
         id: grid
-        anchors.verticalCenter: parent.verticalCenter
+        anchors { left: parent.left; verticalCenter: parent.verticalCenter }
         current: root.s.position
         onPicked: spot => root.set({ position: spot })
       }
 
-      KitChoices {
+      KitSegments {
         id: positionChoices
         anchors { left: grid.right; leftMargin: Theme.gapLoose; right: parent.right; verticalCenter: parent.verticalCenter }
-        stretch: true
-        model: [{ label: "Cursor", value: "cursor" }, { label: "Custom", value: "custom" }]
+        model: [{ label: "Pointer", value: "cursor" }, { label: "Custom", value: "custom" }]
         current: root.s.position
         onPicked: value => root.set({ position: value })
       }

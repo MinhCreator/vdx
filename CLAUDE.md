@@ -15,6 +15,8 @@ files your change touches, not all of them. In short:
   the component that needs it, a new file must be owned by one (`links`).
 - Hardware comes from `.machine.toml` (`./install.py machine`), never assumed:
   `/etc` files use `@KEY@` placeholders, machine-specific fixes are quirks.
+- Every feature must account for CPU and memory: scope work to actual use,
+  lazily create hidden UI, and avoid idle polling or duplicated state.
 - An installer change comes with a test in `tests/`; `./install.py check`
   (incl. `components`, `tests`, `hypr`) is green before a commit. A change
   to what `setup` does is also run on a clean Arch: `tests/fresh-machine.sh`.

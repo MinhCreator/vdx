@@ -97,6 +97,9 @@ Read it before any visual work.
 
 ## Work
 
+- Every feature MUST account for CPU, memory and startup cost. Load hidden UI on
+  demand; run timers, processes and listeners only while their work is needed.
+  Measure expensive paths before and after changes.
 - New file: `./install.py link`, then restart. Edits reload live, except
   `IpcHandler` functions.
 - Restart: `kill <pid>` (`qs list --all`; a TERM also ends its supervisor), then

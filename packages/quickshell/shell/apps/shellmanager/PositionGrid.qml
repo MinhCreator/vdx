@@ -1,10 +1,8 @@
 import QtQuick
 import qs.config
 
-// Nine spots of the screen as a 3 × 3 grid of small cells (top-left …
-// bottom-right, the middle one the centre): the chosen one is filled, a click
-// picks another. `current` is a spot name or anything else (none filled).
-Grid {
+// A tiny screen map: its 3 × 3 cells pick the window's anchor point.
+Item {
   id: root
 
   property string current: ""
@@ -12,34 +10,52 @@ Grid {
 
   signal picked(string spot)
 
-  columns: 3
-  spacing: 3
+  implicitWidth: 108
+  implicitHeight: 56
 
-  Repeater {
-    model: root.spots
+  Rectangle {
+    anchors.fill: parent
+    radius: Theme.radiusControl
+    color: Theme.background1
+    border.width: Theme.frameWidth
+    border.color: Theme.controlLineRest
+  }
 
-    Rectangle {
-      radius: Theme.radiusControl
-      id: cell
+  Grid {
+    id: cells
+    anchors.centerIn: parent
+    columns: 3
+    spacing: 4
 
-      required property string modelData
+    Repeater {
+      model: root.spots
 
-      readonly property bool active: modelData === root.current
+      Rectangle {
+        radius: Theme.radiusControl
+        id: cell
 
-      width: 24
-      height: 9
-      color: active ? Theme.foreground2 : area.containsMouse ? Theme.background3 : Theme.background1
-      Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick } }
-      border.width: Theme.frameWidth
-      border.color: active ? Theme.foreground2 : Theme.gray
+        required property string modelData
 
-      MouseArea {
-        id: area
-        anchors.fill: parent
-        anchors.margins: -1
-        hoverEnabled: true
-        cursorShape: cell.active ? Qt.ArrowCursor : Qt.PointingHandCursor
-        onClicked: if (!cell.active) root.picked(cell.modelData)
+        readonly property bool active: modelData === root.current
+
+        width: 27
+        height: 11
+        color: active ? Theme.pickFill : area.containsMouse ? Theme.background3 : Theme.background0
+        Behavior on color { enabled: Motion.controls; ColorAnimation { duration: Motion.quick; easing.type: Motion.easing } }
+        border.width: active ? Theme.focusWidth : Theme.frameWidth
+        border.color: active ? Theme.focusRing : area.containsMouse ? Theme.controlLineHover : Theme.controlLineRest
+
+        MouseArea {
+          id: area
+          anchors.fill: parent
+          anchors.margins: -1
+          hoverEnabled: true
+          cursorShape: cell.active ? Qt.ArrowCursor : Qt.PointingHandCursor
+          Accessible.role: Accessible.Button
+          Accessible.name: cell.modelData.replace("-", " ")
+          Accessible.onPressAction: if (!cell.active) root.picked(cell.modelData)
+          onClicked: if (!cell.active) root.picked(cell.modelData)
+        }
       }
     }
   }

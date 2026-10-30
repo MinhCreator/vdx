@@ -208,13 +208,36 @@ Column {
               width: Theme.buttonWidth
               icon: "app-window"
               text: root.setupOpen ? "Close" : "Set up"
+              selected: root.setupOpen
               onClicked: root.setupOpen = !root.setupOpen
             }
           }
 
           Loader {
+            id: windowOptions
             width: parent.width
-            active: root.setupOpen && root.window !== null
+            property bool retainedForClose: false
+            active: root.window !== null && (root.setupOpen || retainedForClose)
+            visible: height > 0
+            height: root.setupOpen ? implicitHeight : 0
+            opacity: root.setupOpen ? 1 : 0
+            clip: true
+            Behavior on height {
+              enabled: Motion.controls
+              NumberAnimation { duration: Motion.normal; easing.type: Motion.easing }
+            }
+            Behavior on opacity {
+              enabled: Motion.controls
+              NumberAnimation { duration: Motion.normal; easing.type: Motion.easing }
+            }
+            onActiveChanged: {
+              if (active) retainedForClose = true;
+              else Qt.callLater(() => appOptionsGrouper.relayout());
+            }
+            onHeightChanged: {
+              if (!root.setupOpen && height <= 0 && retainedForClose)
+                retainedForClose = false;
+            }
             sourceComponent: WindowOptions {
               app: root.window
               ipc: root.window.ipc
@@ -232,7 +255,7 @@ Column {
             source: active ? Quickshell.shellPath(root.entry.settings) : ""
           }
 
-          KitGrouper {}
+          KitGrouper { id: appOptionsGrouper }
         }
 
         // its bar module's options are in Bar modules (05), a group of its own

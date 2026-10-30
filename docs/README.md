@@ -7,6 +7,7 @@ and agents. A rule that is in the way is changed in its file.
 
 | Need | File |
 |---|---|
+| Performance requirements for new features | [AGENTS.md](../AGENTS.md) |
 | Where things live, what the installer does with each | [repo/layout.md](repo/layout.md) |
 | `./install.py` commands | [repo/commands.md](repo/commands.md) |
 | Components (`components.toml`), who owns a file | [repo/components.md](repo/components.md) |
