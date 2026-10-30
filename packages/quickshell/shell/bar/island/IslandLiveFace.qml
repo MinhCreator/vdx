@@ -264,7 +264,7 @@ Row {
   KitText { visible: face.kind === "focus"; text: "Focus"; color: Theme.foreground1 }
 
   // volume and brightness: the level as a ruler while it changes
-  KitIcon { visible: face.kind === "volume"; name: IslandService.osdIcon; size: 14; tint: IslandService.osdMuted ? Theme.red : IslandService.osdLoud ? Theme.orange : Theme.foreground2; anchors.verticalCenter: parent.verticalCenter }
+  KitIcon { visible: face.kind === "volume"; name: IslandService.osdIcon; size: 14; tint: IslandService.osdMuted ? Theme.red : IslandService.osdLoud ? Theme.red : Theme.foreground2; anchors.verticalCenter: parent.verticalCenter }
   Row {
     visible: face.kind === "volume"
     anchors.verticalCenter: parent.verticalCenter
@@ -274,11 +274,11 @@ Row {
       Rectangle {
         required property int index
         width: 2; height: 14; radius: Theme.pill(height)
-        color: index < Math.round(Math.min(1, IslandService.osdLevel) * 14) ? (IslandService.osdLoud ? Theme.orange : Theme.foreground1) : Theme.background3
+        color: index < Math.round(Math.min(1, IslandService.osdLevel) * 14) ? (IslandService.osdLoud ? Theme.red : Theme.foreground1) : Theme.background3
       }
     }
   }
-  KitText { visible: face.kind === "volume"; text: Math.round(IslandService.osdLevel * 100); color: IslandService.osdLoud ? Theme.orange : Theme.foreground1 }
+  KitText { visible: face.kind === "volume"; text: Math.round(IslandService.osdLevel * 100); color: IslandService.osdLoud ? Theme.red : Theme.foreground1 }
 
   // flashes: the mic, the layout, the cable
   KitIcon { visible: face.kind === "mic"; glowTarget: "live"; name: IslandService.micMuted ? "mic-off" : "mic"; size: 14; tint: IslandService.micMuted ? Theme.red : Theme.green; anchors.verticalCenter: parent.verticalCenter }

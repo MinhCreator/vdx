@@ -151,7 +151,7 @@ Singleton {
   // ---- osd ----
   property string osdKind: ""                  // volume | brightness
   readonly property real osdLevel: osdKind === "volume" ? AudioService.volume / 100 : BrightnessService.brightness / 100
-  // past 100 %: the sink is boosted, shown orange
+  // past 100 %: the sink is boosted, shown red
   readonly property bool osdLoud: osdKind === "volume" && !osdMuted && osdLevel > 1.0
   readonly property bool osdMuted: osdKind === "volume" && AudioService.muted
   readonly property string osdIcon: osdKind === "brightness" ? "sun" : osdMuted || AudioService.volume === 0 ? "volume-x" : "volume"
