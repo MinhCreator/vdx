@@ -24,6 +24,7 @@ Rectangle {
   property string tab: "appearance"
 
   Component.onCompleted: {
+    SettingsIndex.load();
     if (ShellSettings.managerOpen && ShellSettings.managerStart === "last")
       tab = resolve(ShellSettings.managerTab).tab;
   }
@@ -117,35 +118,11 @@ Rectangle {
   }
 
   // ---- search ----
-  // the sidebar's search (the field over the sections): every page's rows from
-  // config/settings-index.json (scripts/settings_index.py, rebuilt with the
-  // pages); a label match before a hint or place one, a pick opens its place
+  // the sidebar's search (the field over the sections): every page's rows
+  // (SettingsIndex); a pick opens its place
   readonly property bool searching: searchField.text.trim() !== ""
-  property var index: []
   property int picked: 0
-  // letters and digits only, lower case: "wifi" finds "Wi-Fi", "dark mode" finds "Dark  mode"
-  function norm(s) { return (s ?? "").toLowerCase().replace(/[^a-z0-9а-яё]+/g, ""); }
-  // the words of a text, lower case: a hint matches by whole-word starts ("scan" finds "Scan files",
-  // not "…ing a scan…" inside a word), so a hint or a place does not match every row near it
-  function words(s) { return (s ?? "").toLowerCase().split(/[^a-z0-9а-яё]+/).filter(w => w !== ""); }
-  function wordsMatch(text, q) {
-    const w = words(text);
-    const tokens = words(q);
-    return tokens.length > 0 && tokens.every(t => w.some(x => x.startsWith(t)));
-  }
-  readonly property var results: {
-    const q = norm(searchField.text);
-    if (q === "") return [];
-    const raw = searchField.text;
-    const aliased = e => (e.aliases ?? []).some(a => norm(a).includes(q));
-    const first = index.filter(e => norm(e.label).includes(q));
-    const second = index.filter(e => !first.includes(e) && aliased(e));
-    const then = index.filter(e => !first.includes(e) && !second.includes(e) && wordsMatch(e.hint, raw));
-    // the page or group named (a place) only when nothing else answers
-    const place = first.length + second.length + then.length > 0 ? []
-      : index.filter(e => wordsMatch(e.where, raw));
-    return first.concat(second, then, place).slice(0, 30);
-  }
+  readonly property var results: SettingsIndex.search(searchField.text)
   onResultsChanged: picked = 0
 
   function search(words) {
@@ -157,12 +134,6 @@ Rectangle {
     if (!e) return;
     const [tab, target] = e.target.split(":");
     navigate(tab, target ?? "");
-  }
-
-  FileView {
-    path: Quickshell.shellDir + "/config/settings-index.json"
-    printErrors: false
-    onLoaded: { try { root.index = JSON.parse(text()); } catch (e) { root.index = []; } }
   }
 
   Shortcut {

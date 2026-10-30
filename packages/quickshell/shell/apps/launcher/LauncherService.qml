@@ -108,6 +108,16 @@ Singleton {
     { icon: "refresh", title: "Restart shell", hint: "Quickshell starts again", run: () => FontService.restartShell() }
   ])
 
+  // a typed text also finds the shell's settings (SettingsIndex, as the Shell Manager's search):
+  // a pick opens the Shell Manager at that place
+  function shellSettings(q) {
+    if (q === "") return [];
+    SettingsIndex.load();
+    const own = shellItems.map(i => i.title);
+    return SettingsIndex.search(q).filter(e => !own.includes(e.label)).map(e => ({ icon: "sliders", title: e.label,
+      hint: e.where !== "" ? e.where : "Settings", run: () => exec(ipc("shell", "open", e.target)) }));
+  }
+
   readonly property var modeItems: WindowsService.modes.map(m => ({ icon: m.icon, title: m.label, hint: "Window mode",
                                                                    run: () => WindowsService.setMode(m.value) }))
 
