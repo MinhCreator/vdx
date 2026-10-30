@@ -9,8 +9,7 @@ import qs.kit
 // Shell apps: the shell's own apps (ShellAppsService.entries) — the list on
 // the left, the chosen one on the right: its name, what it is and the key
 // that opens it; then its own options page (values in ModuleSettings, Reset
-// brings the defaults back), how its window opens (one line; the options in
-// WindowDialog, for the apps with a window of their own) and its module in
+// brings the defaults back), its window options inline and its module in
 // the bar (shown, where, its own options). Each pane scrolls on its own.
 Column {
   id: root
@@ -26,6 +25,7 @@ Column {
   // an app with a page of its own (Lock screen) is set there, not here
   readonly property var listed: ShellAppsService.entries.filter(e => !e.page && e.listed !== false).sort((a, b) => a.label.localeCompare(b.label))
   property string selected: listed[0]?.id ?? ""
+  property bool setupOpen: false
   readonly property var entry: listed.find(e => e.id === selected) ?? null
   // its window's settings (shellapps.py), when it has one
   readonly property var window: entry?.window ? (ShellAppsService.windows.find(a => a.id === entry.window.id) ?? null) : null
@@ -45,9 +45,6 @@ Column {
 
   // another page, scrolled to one of its groups (ShellManager.navigate)
   signal navigate(string tab, string target)
-  // how its window opens: the dialog over the Shell Manager
-  signal windowSetup(string id)
-
   // another page (or `ipc call shell open apps`) may name an app, or its
   // bar module's id; a module's id opens the app on its bar-module tab.
   // "<id>:bar" (Modules' Open) names the bar-module tab even when the module
@@ -199,7 +196,7 @@ Column {
           visible: ShellAppsService.installed(root.entry)
           spacing: Theme.sectionGap
 
-          // one line: how it opens now; the options in a dialog (WindowDialog)
+          // One-line summary; expand the full editor here in the app's settings.
           KitRow {
             visible: root.window !== null
             label: "Window"
@@ -210,8 +207,19 @@ Column {
             KitButton {
               width: Theme.buttonWidth
               icon: "app-window"
-              text: "Set up"
-              onClicked: root.windowSetup(root.window.id)
+              text: root.setupOpen ? "Close" : "Set up"
+              onClicked: root.setupOpen = !root.setupOpen
+            }
+          }
+
+          Loader {
+            width: parent.width
+            active: root.setupOpen && root.window !== null
+            sourceComponent: WindowOptions {
+              app: root.window
+              ipc: root.window.ipc
+              labelled: true
+              showPreview: true
             }
           }
 
@@ -262,6 +270,7 @@ Column {
   NumberAnimation { id: paneAnim; target: paneIn; property: "shown"; from: 0; to: 1; duration: Motion.ms(240); easing.type: Motion.easing }
 
   onSelectedChanged: {
+    setupOpen = false;
     pane.contentY = 0;
     if (Motion.pages) paneAnim.restart();
   }

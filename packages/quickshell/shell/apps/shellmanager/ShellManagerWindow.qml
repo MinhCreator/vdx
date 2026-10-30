@@ -33,7 +33,7 @@ FloatingWindow {
 
   Shortcut {
     sequences: [StandardKey.Cancel]
-    enabled: !manager.item?.dialogOpen && !manager.item?.searching && !(manager.item?.currentPage?.arranging ?? false)   // Escape closes the dialog or the search first
+    enabled: !manager.item?.dialogOpen && !manager.item?.searching && !(manager.item?.currentPage?.arranging ?? false)   // Escape closes the inline editor or the search first
     onActivated: ShellSettings.managerOpen = false
   }
 

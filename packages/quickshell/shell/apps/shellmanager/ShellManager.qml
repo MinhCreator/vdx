@@ -171,7 +171,7 @@ Rectangle {
     onActivated: searchField.text = ""
   }
 
-  readonly property bool dialogOpen: windowDialog.visible
+  readonly property bool dialogOpen: currentPage?.setupOpen ?? false
 
   // another page, at one of its groups or (Shell apps) at one app: the
   // pages' links between each other (an app's bar module and back)
@@ -545,7 +545,6 @@ Rectangle {
         target: pageContent.item
         ignoreUnknownSignals: true
         function onNavigate(t, k) { root.navigate(t, k); }
-        function onWindowSetup(id) { windowDialog.appId = id; }
       }
 
       function pageComponent(value) {
@@ -582,13 +581,6 @@ Rectangle {
       Component { id: notificationsComponent; NotificationsPage { width: pages.width } }
       Component { id: modulesComponent; ModulesPage { width: pages.width; height: page.height - pages.y } }
     }
-  }
-
-  // over everything: how a shell window opens (Shell apps)
-  WindowDialog {
-    id: windowDialog
-    anchors.fill: parent
-    z: 10
   }
 
   QtObject { id: pageIn; property real shown: 1 }
