@@ -298,6 +298,41 @@ Scope {
                 "error": "could not start saved network query",
             }, output)
 
+    def test_failed_ethernet_and_hotspot_queries_are_visible(self):
+        source = (SHELL / "modules/wifi/WifiService.qml").read_text()
+        for process_id, error_property, expected in (
+                ("ethernetProc", "ethernetError", "could not start wired connection query"),
+                ("hotspotProc", "hotspotError", "could not start hotspot query")):
+            with self.subTest(process=process_id), tempfile.TemporaryDirectory(
+                    prefix="shell-wifi-read-start-") as tmp:
+                root = Path(tmp)
+                process = qml_block(source, f"Process {{\n    id: {process_id}")
+                process = process.replace(
+                    f'command: ["bash", root.script, "--{process_id.removesuffix("Proc").lower()}"]',
+                    f'command: ["/no/such/{process_id}-backend"]')
+                process = process.replace(
+                    f'id: {process_id}',
+                    f'id: {process_id}\n    running: true', 1)
+                (root / "shell.qml").write_text('''import QtQuick
+import Quickshell
+import Quickshell.Io
+Scope {
+  id: root
+  property string ethernetError: ""
+  property string hotspotError: ""
+  ''' + process + '''
+  Timer { interval: 100; running: true; onTriggered: {
+    console.warn("WIFI_READ_START_RESULT:" + JSON.stringify(root.''' + error_property + '''));
+    Qt.quit();
+  } }
+}
+''')
+                output = run_quickshell(root)
+                results = [line.split("WIFI_READ_START_RESULT:", 1)[1]
+                           for line in output.splitlines() if "WIFI_READ_START_RESULT:" in line]
+                self.assertEqual(len(results), 1, output)
+                self.assertEqual(json.loads(results[0]), expected, output)
+
     def test_failed_scan_start_clears_busy_and_reports_error(self):
         source = (SHELL / "modules/wifi/WifiService.qml").read_text()
         process = qml_block(source, "Process {\n    id: scanProc")

@@ -146,8 +146,9 @@ Next focused investigations (suspicions, not confirmed regressions):
    Wi-Fi status and network-list startup/schema errors preserve state and
    surface an error; speedtest process-start failure clears busy state.
    Access-point detail queries clear stale data after a failed start or invalid
-   schema; saved-profile query launch failures preserve rows and show an error.
-   Review remaining read-only process starts and cancellation cases.
+   schema; saved-profile query launch failures preserve rows and show an error;
+   Ethernet and hotspot query launch/backend failures are visible. This pass
+   closes the Wi-Fi read-only-query review; continue with Bluetooth discovery.
 2. `modules/bluetooth/BluetoothService.qml`: discovery lifetime and removed
    devices. Adapter settings now run FIFO and serialize with device actions;
    power, scan, adapter and device actions recover from process-start failures.

@@ -690,10 +690,18 @@ Singleton {
   Process {
     id: ethernetProc
     command: ["bash", root.script, "--ethernet"]
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.ethernetError = "could not start wired connection query";
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
         root.ethernet = o?.ok ? o : null;
+        root.ethernetError = o?.ok ? "" : (o?.error ?? "could not read wired connection");
       }
     }
   }
@@ -722,10 +730,18 @@ Singleton {
   Process {
     id: hotspotProc
     command: ["bash", root.script, "--hotspot"]
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.hotspotError = "could not start hotspot query";
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
         root.hotspot = o?.ok ? o : null;
+        root.hotspotError = o?.ok ? "" : (o?.error ?? "could not read hotspot");
       }
     }
   }
