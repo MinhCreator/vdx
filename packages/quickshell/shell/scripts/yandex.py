@@ -58,16 +58,29 @@ def tracks(c: Client, ids: list) -> list[dict]:
     return [track(t) for t in c.tracks(ids)] if ids else []
 
 
+def cached_cover(track_id: str) -> str | None:
+    """The cover file when it is already downloaded: no client, no network."""
+    path = CACHE / f"{track_id}.jpg"
+    return str(path) if path.is_file() and path.stat().st_size > 0 else None
+
+
 def cover(c: Client, track_id: str) -> str:
     """The track's 400 px cover, downloaded once; the path of the file."""
     path = CACHE / f"{track_id}.jpg"
-    if not path.is_file() or path.stat().st_size == 0:
+    if not cached_cover(track_id):
         found = c.tracks([track_id])
         uri = found[0].cover_uri if found else None
         if not uri:
             raise ValueError("no cover")
         CACHE.mkdir(parents=True, exist_ok=True)
-        data = urllib.request.urlopen("https://" + uri.replace("%%", "400x400"), timeout=10).read()
+        url = "https://" + uri.replace("%%", "400x400")
+        for attempt in range(3):   # the CDN now and then drops a TLS handshake
+            try:
+                data = urllib.request.urlopen(url, timeout=10).read()
+                break
+            except OSError:
+                if attempt == 2:
+                    raise
         path.write_bytes(data)
     return str(path)
 
@@ -79,6 +92,9 @@ def playlist(c: Client, kind: str):
 def main() -> None:
     command, args = (sys.argv[1] if len(sys.argv) > 1 else ""), sys.argv[2:]
     try:
+        if command == "--cover" and len(args) == 1 and (hit := cached_cover(args[0])):
+            out({"ok": True, "path": hit})
+            return
         c = client()
         if command == "--likes":
             state = json.loads((HOME / "state.json").read_text()).get("ids", {}) if (HOME / "state.json").exists() else {}
