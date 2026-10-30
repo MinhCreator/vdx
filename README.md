@@ -29,9 +29,12 @@
 - **An installer** — a wizard picks what goes on the machine, detects the
   hardware, links the configs file by file and keeps them healthy.
 
-## Themes
+## Gallery
 
-<img src="docs/media/settings-themes.webp" alt="Shell Manager themes" width="640">
+| | |
+|:---:|:---:|
+| <img src="docs/media/themes.png" alt="Theme list and live preview" width="640"><br>Themes | <img src="docs/media/appearance.png" alt="Shell appearance settings" width="640"><br>Appearance |
+| <img src="docs/media/bar.png" alt="Bar layout and modules" width="640"><br>Bar layout | <img src="docs/media/apps.png" alt="Built-in shell apps" width="640"><br>Built-in apps |
 
 ## Install
 
