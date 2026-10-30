@@ -75,6 +75,7 @@ that every shell function or desktop scenario has been reviewed.
 | Packages | Update-check and installed-list process-start failures clear busy state and report an error |
 | Backup | Status-query process-start failure replaces the loading label with an unavailable state and reports the error |
 | Capture | Recorder lifecycle with real child processes; late callbacks and countdown cancellation; save/discard backend and failures, replacement confirmation, busy/error/edit panel states and tracked clipboard completion; file-operation process-start failures preserve the request and clear busy state |
+| Clipboard | History and action process-start failures are reported in the popup |
 | Popup hosting | Repeated attachment, switching popups, restoration of borrowed items, unrelated host children, leaving Island style, host and source destruction |
 | Popup arbitration | Production manager with isolated monitor/settings: reactive ownership, fallback, disconnected screens, duplicate registration, teardown, module close preference and capture hold |
 | Root actions | Six process tests: pending cancellation, overlap rejection, backend/authorization errors, error reset and listeners starting or cancelling the next request during completion |

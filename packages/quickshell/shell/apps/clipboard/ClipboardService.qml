@@ -61,6 +61,13 @@ Singleton {
 
   Process {
     id: listProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.error = "could not start clipboard history query";
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const list = root.parse(text, null);
@@ -72,6 +79,13 @@ Singleton {
 
   Process {
     id: actionProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.error = "could not start clipboard action";
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text, { ok: false, error: "no answer" });
