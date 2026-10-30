@@ -18,6 +18,20 @@ Column {
 
   KitLine {}
 
+  KitLabel { text: "UPDATING" }
+
+  KitToggleRow {
+    module: "packages"; key: "noConfirm"; label: "Update without asking"
+    hint: "Skips the confirmation panel for the download and the install"
+  }
+
+  KitToggleRow {
+    module: "packages"; key: "notify"; fallback: true
+    label: "Notify when done"; hint: "A notification: all updated, or what failed"
+  }
+
+  KitLine {}
+
   KitLabel { text: "LIST" }
 
   KitOptionRow {

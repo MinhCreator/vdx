@@ -228,7 +228,7 @@ Singleton {
       onStreamFinished: {
         const r = root.parse(text);
         if (!r.ok) { root.endStage(false, r.error); return; }
-        if (!RootService.request("Packages", planProc.plan.title, r.steps, r.script, planProc.plan.tag, planProc.plan.tag === "packages-install" && ModuleSettings.get("packages", "autoInstall", false))) {
+        if (!RootService.request("Packages", planProc.plan.title, r.steps, r.script, planProc.plan.tag, root.skipPanel(planProc.plan.tag))) {
           root.endStage(false, "another root action is waiting");
         }
       }
@@ -237,10 +237,24 @@ Singleton {
 
   // the end of a stage (or of a failed plan): the flags off, the message, the lists again
   function endStage(ok, text) {
+    if (opt("notify", true) && text !== "Download cancelled" && text !== "Install cancelled")
+      notify(ok, text);
     stage = "";
     busy = false;
     done(ok, text);
     freshen(true);
+  }
+
+  // the update stages run without the confirmation panel when the options say so
+  function skipPanel(tag) {
+    if (tag === "packages-install" && opt("autoInstall", false)) return true;
+    return opt("noConfirm", false) && (tag === "packages-install" || tag === "packages-download");
+  }
+
+  function notify(ok, text) {
+    Quickshell.execDetached(["notify-send", "-a", "Packages", "-u", ok ? "normal" : "critical",
+      ok ? "Updates installed" : "Update failed",
+      ok ? "All updates are installed (" + stageList.length + " packages)." : text]);
   }
 
   Connections {
