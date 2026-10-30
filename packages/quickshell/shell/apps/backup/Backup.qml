@@ -3,7 +3,7 @@ import qs.config
 import qs.kit
 
 // The backups' content: a sidebar with the pages (Overview, Snapshots,
-// Setup, Restore), the page's header and the page under it, and a foot with what the last action did — or
+// Settings), the page's header and the page under it, and a foot with what the last action did — or
 // the running backup, with its cancel.
 Rectangle {
   id: root
@@ -11,12 +11,12 @@ Rectangle {
   color: Theme.background0
 
   readonly property var bs: BackupService
-  property string tab: bs.configured ? "overview" : "setup"
+  property string tab: "overview"
 
   // a shell part (the bar module's Guide button) asks for a tab
   Connections {
     target: BackupService
-    function onTabRequestChanged() { if (BackupService.tabRequest !== "") root.tab = BackupService.tabRequest; }
+    function onTabRequestChanged() { if (BackupService.tabRequest !== "") root.tab = BackupService.tabRequest === "restore" ? "snapshots" : BackupService.tabRequest; }
   }
 
   function subtitle() {
@@ -38,8 +38,7 @@ Rectangle {
     model: [
       { label: "Overview", value: "overview", icon: "layout" },
       { label: "Snapshots", value: "snapshots", icon: "history" },
-      { label: "Setup", value: "setup", icon: "settings" },
-      { label: "Restore", value: "restore", icon: "rotate-ccw" }
+      { label: "Settings", value: "settings", icon: "settings" }
     ]
     current: root.tab
     onPicked: value => root.tab = value
@@ -54,8 +53,8 @@ Rectangle {
     spacing: Theme.sectionGap
 
     KitHeader {
-      icon: root.tab === "snapshots" ? "history" : root.tab === "setup" ? "settings" : root.tab === "restore" ? "rotate-ccw" : "layout"
-      title: root.tab === "snapshots" ? "Snapshots" : root.tab === "setup" ? "Setup" : root.tab === "restore" ? "Restore" : "Overview"
+      icon: root.tab === "snapshots" ? "history" : root.tab === "settings" ? "settings" : "layout"
+      title: root.tab === "snapshots" ? "Snapshots" : root.tab === "settings" ? "Settings" : "Overview"
       subtitle: root.subtitle()
     }
 
@@ -66,7 +65,7 @@ Rectangle {
   BackupOverview {
     anchors { left: side.right; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: Theme.gapGroup }
     visible: root.tab === "overview"
-    onOpenSetup: root.tab = "setup"
+    onOpenSettings: root.tab = "settings"
   }
 
   BackupSnapshots {
@@ -74,19 +73,15 @@ Rectangle {
     visible: root.tab === "snapshots"
   }
 
-  BackupRestore {
+  BackupSettings {
     anchors { left: side.right; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: Theme.gapGroup }
-    visible: root.tab === "restore"
-  }
-
-  BackupSetup {
-    anchors { left: side.right; right: parent.right; top: head.bottom; bottom: foot.top; leftMargin: Theme.windowPadding; rightMargin: Theme.windowPadding; topMargin: Theme.gapGroup }
-    visible: root.tab === "setup"
+    visible: root.tab === "settings"
   }
 
   // ---- foot ----
   Column {
     id: foot
+    visible: root.bs.busy || root.bs.message !== "" || (root.bs.loaded && !root.bs.resticFound)
     anchors { left: side.right; right: parent.right; bottom: parent.bottom; margins: Theme.windowPadding; bottomMargin: Theme.windowPadding }
     spacing: Theme.sectionGap
 
@@ -106,7 +101,7 @@ Rectangle {
           ? (root.bs.jobKind === "run" ? "Backing up · " + (root.bs.progress >= 0 ? root.bs.progress + "%" : "starting") : "Working…")
           : root.bs.message !== "" ? root.bs.message
           : root.bs.loaded && !root.bs.resticFound ? "restic is not installed: pacman -S restic"
-          : "the last action's result shows here"
+          : ""
       }
 
       KitButton {

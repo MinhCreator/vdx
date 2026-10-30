@@ -439,6 +439,8 @@ def cmd_run(a):
         if code not in (0, 3):
             text = explain(subprocess.CompletedProcess([], code, "", err))
             record(False, text, a.auto)
+            if cfg["notify"]:
+                notify("Backup failed", text)
             raise Failure(text)
         size = int((summary or {}).get("total_bytes_processed", 0))
         message = f"Backed up {size_text(size)}"
@@ -447,7 +449,7 @@ def cmd_run(a):
             message += f" · {skipped} root-only files left out" if skipped else " · some files could not be read"
         pruned = prune(cfg) if cfg["keep"]["on"] else None
         record(True, message, a.auto, snapshot=(summary or {}).get("snapshot_id", "")[:8], size=size, partial=code == 3)
-        if cfg["notify"] and a.auto:
+        if cfg["notify"]:
             notify("Backup done" if code == 0 else "Backup done, with gaps", message)
         return {"ok": True, "snapshot": (summary or {}).get("snapshot_id", "")[:8], "size": size,
                 "partial": code == 3, "pruned": pruned, "message": message}
@@ -845,7 +847,7 @@ def cmd_schedule(a):
     elif running:
         message = f"Automatic backups {a.mode} at {cfg['schedule']['time']}"
     else:
-        message = f"Saved: {a.mode} at {cfg['schedule']['time']}. It starts once a repository is set in Setup"
+        message = f"Saved: {a.mode} at {cfg['schedule']['time']}. It starts once a repository is set in Settings"
     return {"ok": True, "config": cfg, "running": running, "message": message}
 
 
@@ -870,7 +872,7 @@ def build_parser():
     s.set_defaults(func=cmd_config)
 
     s = sub.add_parser("run", help="back up now")
-    s.add_argument("--auto", action="store_true", help="from the timer: tag auto, notify when done")
+    s.add_argument("--auto", action="store_true", help="from the timer: tag auto")
     s.set_defaults(func=cmd_run)
 
     sub.add_parser("snapshots", help="every snapshot").set_defaults(func=cmd_snapshots)

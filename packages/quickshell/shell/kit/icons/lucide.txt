@@ -22,6 +22,7 @@ brush paintbrush
 camera camera
 check check
 chevron-down chevron-down
+chevron-up chevron-up
 chevron-right chevron-right
 circle circle
 clipboard clipboard

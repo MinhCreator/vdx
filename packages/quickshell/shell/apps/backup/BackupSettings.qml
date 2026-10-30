@@ -3,9 +3,10 @@ import qs.apps.files
 import qs.config
 import qs.kit
 
-// Setup: the repository and its password, how many snapshots are kept, the
-// time of the timed runs, the folders beyond the three sources, and the
-// patterns left out. Every change is saved by backup.py at once.
+// Settings, in the Settings look (groups in boxes, segments, short hints): the
+// repository and its password, the timed runs, how many snapshots are kept,
+// the folders beyond the three sources and the patterns left out. Every change
+// is saved by backup.py at once.
 Item {
   id: root
 
@@ -18,13 +19,10 @@ Item {
   readonly property bool timerOn: mode !== "off"
   readonly property string scheduleText: !timerOn ? "Off" : (mode === "weekly" ? "every Monday" : "every day") + " at " + time
 
-  // whole hours, as the timer takes them: "03:00" steps by one hour, wrapping at midnight
-  function hourStep(t, by) {
-    const h = (parseInt(t.split(":")[0], 10) + by + 24) % 24;
-    return (h < 10 ? "0" : "") + h + ":00";
-  }
-  function hourBefore(t) { return hourStep(t, -1); }
-  function hourAfter(t) { return hourStep(t, 1); }
+  // whole hours; a time set some other way stays in the list
+  readonly property var timeChoices: ["01:00", "03:00", "06:00", "12:00", "18:00", "22:00"]
+      .concat(["01:00", "03:00", "06:00", "12:00", "18:00", "22:00"].indexOf(time) < 0 ? [time] : [])
+      .sort().map(t => ({ label: t, value: t }))
   // the repository's drive: the mounted disk its folder is on, else custom
   readonly property int aiCount: bs.aiSuggestions.filter(sug => bs.aiPicked[sug.path]).length
 
@@ -47,22 +45,9 @@ Item {
         value: bs.configured ? "SET" : "NOT SET"
       }
 
-      KitText {
-        visible: !bs.configured
-        width: parent.width
-        wrapMode: Text.WordWrap
-        color: Theme.yellow
-        font.pixelSize: Theme.fontSize - 2
-        text: "No repository yet: nothing can be backed up until you set one here."
-      }
-
-      BackupNote {
-        text: "Keep the backups on another disk: one you unplug between runs, or a NAS. Not on this computer's own disk: if it dies, the backups die with it."
-      }
-
       KitRow {
-        label: "Any folder"
-        hint: "Picked in the Files window"
+        label: "Folder"
+        hint: bs.configured ? (bs.config.repo ?? "") : "Another disk or a NAS, not this one"
 
         KitButton {
           width: Theme.buttonWidth
@@ -91,8 +76,8 @@ Item {
       }
 
       KitRow {
-        label: "Show it"
-        hint: "It encrypts every snapshot"
+        label: "Password"
+        hint: "Without it nothing can be restored"
 
         KitButton {
           width: Theme.buttonWidth
@@ -115,10 +100,6 @@ Item {
         }
       }
 
-      BackupNote {
-        text: "Stored in a file here, so timed runs can use it. Without the password nothing can be restored: keep a copy in your password manager."
-      }
-
       KitInput {
         visible: bs.revealed !== ""
         text: bs.revealed
@@ -130,30 +111,16 @@ Item {
 
       // ---- automatic backups: set here, run by a systemd timer ----
       KitLabel {
-        text: "AUTOMATIC BACKUPS"
+        text: "SCHEDULE"
         value: root.scheduleText.toUpperCase()
-      }
-
-      BackupNote {
-        text: "Runs a backup by itself while the computer is on. A run that was missed while it was off happens at the next start."
-      }
-
-      KitText {
-        visible: root.timerOn && !bs.configured
-        width: parent.width
-        wrapMode: Text.WordWrap
-        color: Theme.yellow
-        font.pixelSize: Theme.fontSize - 2
-        text: "No repository yet: the time is saved, and the timer starts once a repository is set above."
       }
 
       KitRow {
         label: "Run by itself"
-        hint: "Off: only when you press Back up"
+        hint: root.timerOn && !bs.configured ? "Starts once a repository is set" : "Off: only on Back up"
         wide: true
 
-        KitChoices {
-          stretch: true
+        KitSegments {
           disabled: bs.busy
           model: [{ label: "Off", value: "off" }, { label: "Every day", value: "daily" }, { label: "Every week", value: "weekly" }]
           current: root.mode
@@ -164,38 +131,23 @@ Item {
       KitRow {
         visible: root.timerOn
         label: "Start time"
-        hint: root.mode === "weekly" ? "Mondays at this time" : "Every day at this time"
+        hint: root.mode === "weekly" ? "On Mondays" : "Every day"
+        wide: true
 
-        KitButton {
-          anchors.verticalCenter: parent.verticalCenter
-          icon: "arrow-left"
+        KitSegments {
           disabled: bs.busy
-          onClicked: bs.setSchedule(root.mode, root.hourBefore(root.time))
-        }
-
-        KitText {
-          anchors.verticalCenter: parent.verticalCenter
-          width: 56
-          horizontalAlignment: Text.AlignHCenter
-          font.weight: Font.ExtraBold
-          text: root.time
-        }
-
-        KitButton {
-          anchors.verticalCenter: parent.verticalCenter
-          icon: "arrow-right"
-          disabled: bs.busy
-          onClicked: bs.setSchedule(root.mode, root.hourAfter(root.time))
+          model: root.timeChoices
+          current: root.time
+          onPicked: value => bs.setSchedule(root.mode, value)
         }
       }
 
       KitRow {
-        visible: root.timerOn
         label: "Notify when it ends"
-        hint: "Only for the automatic runs"
+        hint: "Done, or what went wrong"
 
         KitSwitch {
-          anchors.verticalCenter: parent.verticalCenter
+          accessibleName: "Notify when it ends"
           checked: bs.config.notify === true
           disabled: bs.busy
           onToggled: bs.setConfig({ "notify": !checked })
@@ -212,10 +164,10 @@ Item {
 
       KitRow {
         label: "Remove old snapshots"
-        hint: "The newest by these counts, after a backup"
+        hint: "After a backup, by these counts"
 
         KitSwitch {
-          anchors.verticalCenter: parent.verticalCenter
+          accessibleName: "Remove old snapshots"
           checked: root.keep.on === true
           disabled: bs.busy
           onToggled: bs.setConfig({ "keep": { "on": !checked } })
@@ -227,8 +179,7 @@ Item {
         label: "Daily"
         wide: true
 
-        KitChoices {
-          stretch: true
+        KitSegments {
           disabled: bs.busy
           model: [3, 7, 14, 30].map(n => ({ label: n + " days", value: n }))
           current: root.keep.daily ?? null
@@ -241,8 +192,7 @@ Item {
         label: "Weekly"
         wide: true
 
-        KitChoices {
-          stretch: true
+        KitSegments {
           disabled: bs.busy
           model: [2, 4, 8].map(n => ({ label: n + " weeks", value: n }))
           current: root.keep.weekly ?? null
@@ -255,8 +205,7 @@ Item {
         label: "Monthly"
         wide: true
 
-        KitChoices {
-          stretch: true
+        KitSegments {
           disabled: bs.busy
           model: [3, 6, 12].map(n => ({ label: n + " months", value: n }))
           current: root.keep.monthly ?? null
@@ -270,10 +219,6 @@ Item {
       KitLabel {
         text: "EXTRA FOLDERS"
         value: root.extra.length > 0 ? root.extra.length + " ADDED" : "NONE"
-      }
-
-      BackupNote {
-        text: "Folders backed up besides home, /etc and the lists: type a full path such as /mnt/storage/Projects and press Enter. A folder that is not there stops the next run with its name."
       }
 
       Repeater {
@@ -297,23 +242,13 @@ Item {
         }
       }
 
-      Row {
-        width: parent.width
-        spacing: Theme.gapMedium
-
-        KitInput {
-          width: parent.width - chooseExtra.width - parent.spacing
-          placeholder: "/an/absolute/path · Enter adds it"
-          onAccepted: {
-            const path = text.trim();
-            if (path === "") return;
-            bs.setConfig({ "extra": root.extra.concat([path]) });
-            text = "";
-          }
-        }
+      KitRow {
+        label: "Add a folder"
+        hint: "Besides home and /etc · a missing one stops a run"
 
         KitButton {
-          id: chooseExtra
+          width: Theme.buttonWidth
+          anchors.verticalCenter: parent.verticalCenter
           icon: "folder"
           text: "Choose…"
           disabled: bs.busy
@@ -322,16 +257,22 @@ Item {
         }
       }
 
+      KitInput {
+        placeholder: "/an/absolute/path · Enter adds it"
+        onAccepted: {
+          const path = text.trim();
+          if (path === "") return;
+          bs.setConfig({ "extra": root.extra.concat([path]) });
+          text = "";
+        }
+      }
+
       KitLine {}
 
       // ---- left out ----
       KitLabel {
         text: "LEFT OUT"
-        value: root.excludes.length + " PATTERNS"
-      }
-
-      BackupNote {
-        text: "A full path leaves that path out; a bare name (node_modules) leaves out every file and folder of that name."
+        value: root.excludes.length > 0 ? root.excludes.length + " ADDED" : "NONE"
       }
 
       Repeater {
@@ -353,6 +294,11 @@ Item {
             onClicked: bs.setConfig({ "excludes": root.excludes.filter((_, i) => i !== index) })
           }
         }
+      }
+
+      KitRow {
+        label: "Add a pattern"
+        hint: "A path, or a name for every match"
       }
 
       KitInput {
@@ -377,7 +323,7 @@ Item {
       KitRow {
         visible: bs.claude
         label: "Suggest what to leave out"
-        hint: "Looks at your biggest folders"
+        hint: "Sees folder names and sizes only"
 
         KitButton {
           width: Theme.buttonWidth
@@ -388,11 +334,6 @@ Item {
           disabled: bs.busy
           onClicked: bs.analyze()
         }
-      }
-
-      BackupNote {
-        visible: bs.claude
-        text: "Claude sees folder names and sizes, never their contents. Yellow: less sure, have a look."
       }
 
       Repeater {
@@ -406,7 +347,7 @@ Item {
           labelColor: modelData.risk === "medium" ? Theme.yellow : Theme.foreground0
 
           KitSwitch {
-            anchors.verticalCenter: parent.verticalCenter
+            accessibleName: modelData.shown
             checked: bs.aiPicked[modelData.path] === true
             disabled: bs.busy
             onToggled: bs.aiPick(modelData.path, !checked)
@@ -414,14 +355,22 @@ Item {
         }
       }
 
-      KitButton {
-        width: Theme.buttonWidth
+      KitRow {
         visible: root.aiCount > 0
-        icon: "check"
-        text: "Leave out " + root.aiCount
-        disabled: bs.busy
-        onClicked: bs.aiApply()
+        label: "Leave out the picked"
+        hint: root.aiCount + " picked · yellow: less sure"
+
+        KitButton {
+          width: Theme.buttonWidth
+          anchors.verticalCenter: parent.verticalCenter
+          icon: "check"
+          text: "Leave out"
+          disabled: bs.busy
+          onClicked: bs.aiApply()
+        }
       }
+
+      KitGrouper {}
     }
   }
 }

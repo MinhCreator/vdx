@@ -106,6 +106,15 @@ class Backup(unittest.TestCase):
         self.assertEqual(reply["snapshot"], "abcdef12")
         self.assertIn("Backed up", reply["message"])
 
+    def test_a_manual_run_notifies_when_notify_is_on(self):
+        self.setup_repo()
+        log = Path(self.tmp.name) / "notified"
+        send = self.bin / "notify-send"
+        send.write_text(f'#!/bin/sh\necho "$@" >> {log}\n')
+        send.chmod(send.stat().st_mode | stat.S_IXUSR)
+        subprocess.run([sys.executable, str(SCRIPT), "--json", "run"], capture_output=True, text=True, env=self.env)
+        self.assertIn("Backup done", log.read_text())
+
     def test_snapshots_list_and_last_run(self):
         self.setup_repo()
         self.cli("run")

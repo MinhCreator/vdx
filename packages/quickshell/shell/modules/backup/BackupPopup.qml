@@ -39,7 +39,7 @@ KitFrame {
 
   KitRow {
     label: bs.last ? (bs.last.ok ? "Last backup" : "Last backup failed") : "No backup yet"
-    hint: bs.last ? bs.last.message : bs.configured ? "Press Back up" : "Choose a place in Setup"
+    hint: bs.last ? bs.last.message : bs.configured ? "Press Back up" : "Set it up in the window"
     labelColor: bs.last && !bs.last.ok ? Theme.red : Theme.foreground0
 
     KitButton {
@@ -62,7 +62,7 @@ KitFrame {
       icon: "rotate-ccw"
       text: "Guide"
       width: BackupService.buttonWidth
-      onClicked: root.openTab("restore")
+      onClicked: root.openTab("snapshots")
     }
   }
 }

@@ -97,7 +97,7 @@ a time: a player that starts pauses the others. Options: Shell Manager › Bar m
 ### Backups
 
 Encrypted restic snapshots of home, `/etc` and the package list. The bar module
-`backup` shows the last backup, Back up and the restore guide; in a terminal:
+`backup` shows the last backup, Back up and a link to the restore guide; in a terminal:
 `backup status|run|snapshots|restore|guide …` (`scripts/backup.py`).
 
 ## Bar modules

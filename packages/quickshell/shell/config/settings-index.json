@@ -2943,6 +2943,12 @@
   "target": "apps:packages"
  },
  {
+  "label": "Updating",
+  "hint": "",
+  "where": "Apps › Packages",
+  "target": "apps:packages"
+ },
+ {
   "label": "List",
   "hint": "",
   "where": "Apps › Packages",
@@ -2952,6 +2958,18 @@
   "label": "Opens on",
   "hint": "The tab shown first",
   "where": "Apps › Packages › OPENING",
+  "target": "apps:packages"
+ },
+ {
+  "label": "Update without asking",
+  "hint": "Skips the confirmation panel for the download and the install",
+  "where": "Apps › Packages › UPDATING",
+  "target": "apps:packages"
+ },
+ {
+  "label": "Notify when done",
+  "hint": "A notification: all updated, or what failed",
+  "where": "Apps › Packages › UPDATING",
   "target": "apps:packages"
  },
  {

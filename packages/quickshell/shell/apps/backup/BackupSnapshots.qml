@@ -38,21 +38,29 @@ Item {
       width: parent.width
       spacing: Theme.sectionGap
 
-      BackupNote {
+      KitRow {
         visible: !bs.configured
-        text: "No repository yet, so there are no snapshots. Set one up in Setup; the backups show here after the first run."
+        label: "No repository yet"
+        hint: "Set one up on Overview"
+
+        KitButton {
+          width: Theme.buttonWidth
+          anchors.verticalCenter: parent.verticalCenter
+          icon: "layout"
+          text: "Open"
+          onClicked: bs.showTab("overview")
+        }
       }
 
-      KitButton {
-        visible: !bs.configured
-        icon: "settings"
-        text: "Open Setup"
-        onClicked: bs.showTab("setup")
+      KitLabel {
+        visible: bs.configured
+        text: "SNAPSHOTS"
+        value: bs.snapshots.length > 0 ? bs.snapshots.length + " SAVED" : "NONE"
       }
 
       KitRow {
-        label: "Snapshots"
-        hint: bs.snapshots.length > 0 ? "Newest first · pick one to browse it" : "Each backup adds one"
+        label: bs.snapshots.length > 0 ? "Newest first" : "No snapshot yet"
+        hint: bs.snapshots.length > 0 ? "Pick one to browse it" : "Back up from Overview"
         visible: bs.configured
 
         KitButton {
@@ -61,11 +69,6 @@ Item {
           busy: bs.listing
           onClicked: bs.loadSnapshots()
         }
-      }
-
-      BackupNote {
-        visible: bs.configured && bs.snapshots.length === 0 && !bs.listing
-        text: "No snapshot yet. Back up from Overview."
       }
 
       Repeater {
@@ -235,6 +238,12 @@ Item {
           }
         }
       }
+
+      KitLine {}
+
+      BackupGuide { width: parent.width }
+
+      KitGrouper {}
     }
   }
 }

@@ -50,7 +50,7 @@
     "window": { "id": "file-picker", "title": "Choose file", "width": 760, "height": 540 } },
   { "id": "backup", "label": "Backups", "icon": "shield", "about": "Encrypted backups and restore",
     "ipc": "backup", "open": "toggle",
-    "window": { "id": "backup", "title": "Backups", "width": 1060, "height": 640 }, "module": "backup", "moduleSettings": "apps/backup/BackupBarSettings.qml" },
+    "window": { "id": "backup", "title": "Backups", "width": 840, "height": 640 }, "module": "backup", "moduleSettings": "apps/backup/BackupBarSettings.qml" },
   { "id": "capture", "label": "Capture", "icon": "camera", "about": "Screenshots and recordings",
     "ipc": "capture", "open": "library",
     "window": { "id": "capture", "title": "Capture", "width": 760, "height": 600 },
