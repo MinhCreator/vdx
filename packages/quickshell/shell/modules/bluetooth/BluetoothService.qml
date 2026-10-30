@@ -154,6 +154,12 @@ Singleton {
           root.devices = [];
           return;
         }
+        if (typeof o.powered !== "boolean" || typeof o.discovering !== "boolean" ||
+            !Array.isArray(o.devices) || !o.adapter || typeof o.adapter !== "object" ||
+            Array.isArray(o.adapter)) {
+          root.error = "bad bluetooth status reply";
+          return;
+        }
         root.error = "";
         if (!root.toggling) root.powered = o.powered;
         root.discovering = o.discovering;

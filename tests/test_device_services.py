@@ -88,6 +88,28 @@ Scope {
         self.assertEqual(result, {"first": expected_calls[:1], "second": expected_calls,
                                   "calls": expected_calls, "queue": [], "busy": False})
 
+    def test_bluetooth_status_rejects_malformed_device_list(self):
+        source = (SHELL / "modules/bluetooth/BluetoothService.qml").read_text()
+        callback = handler(source, "statusProc").replace(
+            'Reply.parse(text, "bluetooth.sh", null)', "JSON.parse(text)")
+        result = self.evaluate('''
+  property string error: ""
+  property bool powered: true
+  property bool discovering: true
+  property var adapter: ({alias: "old"})
+  property var devices: [{mac: "old-device"}]
+  property bool toggling: false
+  property string text: ""
+  function parse(text) { return JSON.parse(text); }
+  function complete(text) ''' + callback, '''
+          complete(JSON.stringify({ok: true}));
+          return {error, powered, discovering, adapter, devices};
+        ''')
+        self.assertEqual(result, {
+            "error": "bad bluetooth status reply", "powered": True, "discovering": True,
+            "adapter": {"alias": "old"}, "devices": [{"mac": "old-device"}],
+        })
+
     def test_bluetooth_device_and_adapter_commands_are_serialized(self):
         source = (SHELL / "modules/bluetooth/BluetoothService.qml").read_text()
         definitions = '''
