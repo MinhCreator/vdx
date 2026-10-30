@@ -83,7 +83,7 @@ that every shell function or desktop scenario has been reviewed.
 | Timer | Production state/functions with a fake notification receiver: pause/lap between ticks, pause after expiry and duplicate completion |
 | Wi-Fi credentials | Three production completion handlers clear the process password environment before publishing idle, for successful and failed replies; connection and hidden-network process-start failures also clear credentials and busy state |
 | Wi-Fi speedtest | Real child-process test cancels a TERM-resistant old request, immediately starts a replacement, and verifies that the late old reply cannot overwrite the newer result; failed process starts clear busy state immediately; repeated active requests are rejected |
-| Wi-Fi saved settings | Production action guard rejects overlapping edits, preserves the backend error, and permits a retry after completion; refreshes requested during an older list query are retried after it ends; page controls disable during the write |
+| Wi-Fi saved settings | Production action guard rejects overlapping edits, preserves the backend error, and permits a retry after completion; refreshes requested during an older list query are retried after it ends; page controls disable during the write; failed saved-profile queries preserve rows and show an error |
 | Wi-Fi connection actions | Nearby, saved, password and hidden-network joins share one busy guard; disconnect backend and process-start failures are visible; overlapping join requests are rejected in both directions and controls reflect pending work; failed access-point detail queries clear stale details |
 | Wi-Fi scan UX | Duplicate scans are rejected while active; production completion handler sets and clears error/busy state and allows another scan |
 | Bluetooth scan backend | Fake `bluetoothctl` confirms discovery-start replies succeed, backend rejections remain visible as errors, and scan uses the intended 8-second timeout |
@@ -146,7 +146,8 @@ Next focused investigations (suspicions, not confirmed regressions):
    Wi-Fi status and network-list startup/schema errors preserve state and
    surface an error; speedtest process-start failure clears busy state.
    Access-point detail queries clear stale data after a failed start or invalid
-   schema. Review remaining read-only process starts and cancellation cases.
+   schema; saved-profile query launch failures preserve rows and show an error.
+   Review remaining read-only process starts and cancellation cases.
 2. `modules/bluetooth/BluetoothService.qml`: discovery lifetime and removed
    devices. Adapter settings now run FIFO and serialize with device actions;
    power, scan, adapter and device actions recover from process-start failures.

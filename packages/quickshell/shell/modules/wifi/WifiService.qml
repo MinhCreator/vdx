@@ -98,6 +98,8 @@ Singleton {
 
   // ---- Network settings ----
   property var saved: []                       // see wifi.sh --saved
+  property bool savedLoaded: false
+  property string savedError: ""
   property bool savedRefreshPending: false
   property var details: null                   // see wifi.sh --details
   property bool savedBusy: false
@@ -580,12 +582,23 @@ Singleton {
     onRunningChanged: {
       if (running) return;
       if (started) { started = false; return; }
+      root.savedError = "could not start saved network query";
       if (root.savedRefreshPending) savedRefresh.restart();
     }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
-        if (o?.ok) root.saved = o.saved;
+        if (o?.ok && Array.isArray(o.saved) && o.saved.every(profile => profile &&
+            typeof profile.uuid === "string" && typeof profile.ssid === "string" &&
+            typeof profile.active === "boolean" && typeof profile.autoconnect === "boolean" &&
+            typeof profile.priority === "number" && typeof profile.metered === "string" &&
+            typeof profile.dns === "string")) {
+          root.saved = o.saved;
+          root.savedLoaded = true;
+          root.savedError = "";
+        } else {
+          root.savedError = o?.error ?? "bad saved network reply";
+        }
         if (root.savedRefreshPending) savedRefresh.restart();
       }
     }

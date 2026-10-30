@@ -496,6 +496,8 @@ Scope {
   property bool savedRefreshPending: false
   property int restartCount: 0
   property var saved: []
+  property bool savedLoaded: false
+  property string savedError: ""
   property string text: ""
   function parse(text) { return JSON.parse(text); }
   QtObject { id: savedProc; property bool running: true }
@@ -506,7 +508,8 @@ Scope {
           refreshSaved();
           const pending = savedRefreshPending;
           savedProc.running = false;
-          complete(JSON.stringify({ok: true, saved: [{ssid: "stale"}]}));
+          complete(JSON.stringify({ok: true, saved: [{uuid: "u", ssid: "stale",
+            active: false, autoconnect: true, priority: 0, metered: "unknown", dns: ""}]}));
           const scheduled = restartCount;
           fireSavedRefresh();
           return {pending, scheduled, pendingAfterRetry: savedRefreshPending,
@@ -514,7 +517,9 @@ Scope {
 ''')
         self.assertEqual(result, {
             "pending": True, "scheduled": 1, "pendingAfterRetry": False,
-            "queryRunningAgain": True, "saved": [{"ssid": "stale"}],
+            "queryRunningAgain": True, "saved": [{"uuid": "u", "ssid": "stale",
+                "active": False, "autoconnect": True, "priority": 0,
+                "metered": "unknown", "dns": ""}],
         })
 
     def test_wifi_disconnect_reports_backend_failure_and_clears_after_success(self):

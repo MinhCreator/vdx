@@ -261,6 +261,43 @@ Scope {
             self.assertEqual(len(results), 1, output)
             self.assertIsNone(json.loads(results[0]), output)
 
+    def test_failed_saved_network_start_preserves_rows_and_reports_error(self):
+        source = (SHELL / "modules/wifi/WifiService.qml").read_text()
+        process = qml_block(source, "Process {\n    id: savedProc")
+        process = process.replace(
+            'command: ["bash", root.script, "--saved"]',
+            'command: ["/no/such/wifi-saved-backend"]')
+        process = process.replace("id: savedProc", "id: savedProc\n    running: true", 1)
+        with tempfile.TemporaryDirectory(prefix="shell-wifi-saved-start-") as tmp:
+            root = Path(tmp)
+            (root / "shell.qml").write_text('''import QtQuick
+import Quickshell
+import Quickshell.Io
+Scope {
+  id: root
+  property var saved: [{ssid: "last-good"}]
+  property string savedError: ""
+  property bool savedRefreshPending: false
+  function parse(text) { return JSON.parse(text); }
+  QtObject { id: savedRefresh; function restart() {} }
+  ''' + process + '''
+  Timer { interval: 100; running: true; onTriggered: {
+    console.warn("WIFI_SAVED_START_RESULT:" + JSON.stringify({
+      saved: root.saved, error: root.savedError
+    }));
+    Qt.quit();
+  } }
+}
+''')
+            output = run_quickshell(root)
+            results = [line.split("WIFI_SAVED_START_RESULT:", 1)[1]
+                       for line in output.splitlines() if "WIFI_SAVED_START_RESULT:" in line]
+            self.assertEqual(len(results), 1, output)
+            self.assertEqual(json.loads(results[0]), {
+                "saved": [{"ssid": "last-good"}],
+                "error": "could not start saved network query",
+            }, output)
+
     def test_failed_scan_start_clears_busy_and_reports_error(self):
         source = (SHELL / "modules/wifi/WifiService.qml").read_text()
         process = qml_block(source, "Process {\n    id: scanProc")

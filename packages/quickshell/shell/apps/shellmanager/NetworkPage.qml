@@ -184,6 +184,14 @@ KitColumn {
     // ---- saved networks ----
     KitLabel { id: savedGroup; text: "SAVED"; value: root.inRange.length + " IN RANGE · " + ws.saved.length + " SAVED" }
 
+    KitText {
+      visible: ws.savedError !== ""
+      width: parent.width
+      text: ws.savedError
+      color: Theme.red
+      wrapMode: Text.WordWrap
+    }
+
     KitRow {
       visible: ws.saved.length > 0
       wide: true
@@ -197,7 +205,7 @@ KitColumn {
     }
 
     KitEmptyState {
-      visible: ws.saved.length === 0
+      visible: ws.savedLoaded && ws.savedError === "" && ws.saved.length === 0
       icon: "wifi"
       title: "No saved networks"
       hint: "Join a network from the Wi-Fi popup or by name below"
