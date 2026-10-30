@@ -46,8 +46,9 @@ QtObject {
     storage.writeMarker();
   }
 
-  function marked() {
+  function marked(ok) {
     marking = false;
+    if (!ok) failed("Could not save lock recovery state. The session remains locked.");
     if (cleanupPending) cleanup();
   }
 

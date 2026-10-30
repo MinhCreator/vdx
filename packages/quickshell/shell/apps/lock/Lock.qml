@@ -97,7 +97,7 @@ Scope {
     id: mark
     command: ["bash", "-c", "umask 077; mkdir -p \"$(dirname \"$1\")\" && printf '%s\\n' \"$2\" > \"$1\"",
               "lock", root.marker, root.session]
-    onExited: lifecycle.marked()
+    onExited: code => lifecycle.marked(code === 0)
   }
 
   // exit 0: the marker is this session's

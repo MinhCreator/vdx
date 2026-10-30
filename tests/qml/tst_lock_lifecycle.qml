@@ -1,6 +1,6 @@
 import QtQuick
 import QtTest
-import qs.kit
+import "../../packages/quickshell/shell/apps/lock"
 
 TestCase {
   name: "LockLifecycle"
@@ -43,7 +43,7 @@ TestCase {
     state.restored(false);
     verify(session.locked); verify(state.marking);
     compare(disk.calls, ["read", "write"]);
-    state.marked(); verify(!state.cleaning);
+    state.marked(true); verify(!state.cleaning);
   }
 
   function test_new_lock_supersedes_both_results_of_startup_read() {
@@ -53,7 +53,7 @@ TestCase {
       state.restore(); verify(state.requestLock());
       state.restored(found);
       verify(!session.locked); compare(disk.calls, ["read"]);
-      session.locked = true; state.locked(); state.marked();
+      session.locked = true; state.locked(); state.marked(true);
       compare(disk.calls, ["read", "write"]);
       session.locked = false;
     }
@@ -74,7 +74,7 @@ TestCase {
     state.locked(); state.verified();
     verify(session.locked); verify(state.unlocking);
     compare(disk.calls, ["write"]);
-    state.marked(); compare(disk.calls, ["write", "clear"]);
+    state.marked(true); compare(disk.calls, ["write", "clear"]);
     verify(session.locked);
     state.cleared(true);
     verify(!session.locked); verify(!state.unlocking);
@@ -92,6 +92,15 @@ TestCase {
     compare(failures.count, 1);
     state.verified(); state.cleared(true);
     verify(!session.locked);
+  }
+
+  function test_marker_write_failure_reports_error_and_keeps_lock() {
+    const state = lifecycle();
+    session.locked = true;
+    state.locked(); state.marked(false);
+    verify(session.locked); verify(!state.marking);
+    compare(failures.count, 1);
+    compare(failures.signalArguments[0][0], "Could not save lock recovery state. The session remains locked.");
   }
 
   function test_verification_invalidates_stale_restore_and_ignores_duplicates() {

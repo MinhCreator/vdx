@@ -124,7 +124,7 @@ Current remaining audit map (baseline tests are not a per-function review):
 | Files | Selection, mutation queue and history reviewed; remaining service, portal and real USB scenarios |
 | Capture | Recorder, saving and clipboard lifecycles reviewed; real GPU capture and overlays |
 | Bar and Island | Content hosting and popup arbitration reviewed; compositor focus, layout changes and multiple monitors |
-| Lock and authentication | Root completion, password attempts and marker ordering reviewed; real PAM, polkit and Wayland crash/reload scenarios |
+| Lock and authentication | Root completion, password attempts, marker ordering and marker-write failure reporting covered; real PAM, polkit and Wayland crash/reload scenarios remain manual |
 | Device services | First pass of all six services completed; Bluetooth adapter/device commands and Wi-Fi saved edits/connection requests are serialized. Bluetooth power, scan, adapter and device actions recover from process-start failure; malformed Bluetooth device lists preserve the last valid state and valid snapshots remove absent devices; audio port changes report process and command failures; battery status and action process starts recover, status backend errors are visible, sysfs writes return success/failure replies, and saver restores the prior profile; display query/action starts and malformed replies recover. Bluetooth discovery timing and real adapter/device removal behavior, battery permission/hardware behavior, listener launch failures in other services, remaining backend/schema failures and hardware edge cases remain |
 | Other apps and background services | Task grouping and tree traversal reviewed; remaining per-function review, navigation, failure states and decomposition |
 | Final verification | Both bar styles, theme/settings combinations and measured performance |
@@ -165,8 +165,8 @@ Next focused investigations (suspicions, not confirmed regressions):
    checks.
 3. Files folder-list startup failure is covered. Remaining Files portal and
    real USB scenarios are manual; other apps still need focused review.
-4. Lock: verify marker write failure and startup failure handling, then owner-led
-   PAM/polkit/Wayland crash/reload tests. Current fake-context coverage does not
+4. Lock: marker write failure is covered with a fake storage adapter. Owner-led
+   PAM/polkit/Wayland crash/reload tests remain; fake-context coverage does not
    establish correctness of the real lock protocol.
 5. Finish the manual matrix above and measure idle/popup CPU, process count and
    reload behavior before deciding on further decomposition or optimization.
