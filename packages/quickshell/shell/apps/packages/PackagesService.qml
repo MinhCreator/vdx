@@ -270,6 +270,14 @@ Singleton {
   Process {
     id: checkProc
     command: ["python3", root.script, "updates"]
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.checking = false;
+      root.done(false, "could not start package update check");
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const r = root.parse(text);
@@ -286,6 +294,14 @@ Singleton {
   Process {
     id: installedProc
     command: ["python3", root.script, "installed"]
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.loading = false;
+      root.done(false, "could not start installed package query");
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const r = root.parse(text);
