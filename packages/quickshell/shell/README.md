@@ -16,8 +16,8 @@ Registry: `apps/apps.json` (read by the Shell Manager, the launcher,
 | Launcher (system menu) | Alt+Space | `launcher toggle` |
 | Keybinds | Super+B | `keybinds toggle\|open\|close` |
 | Files | Super+E | `files toggle\|open\|close`, `files go\|reveal\|inspect\|duplicates <path>`, `files choose <json>` |
-| Capture | Super+Shift+S · Super+P | `capture open\|stop\|close\|library\|shot <region\|window\|screen>` |
-| Overview | Super+O | `overview toggle` |
+| Capture | Super+Shift+S | `capture open\|stop\|close\|library\|shot <region\|window\|screen>` |
+| Overview | (no key) | `overview toggle` |
 | Theme picker | Super+T | `themepicker toggle` |
 | Task Manager | Ctrl+Shift+Esc | `taskmanager toggle` |
 | Cleaner | Super+X | `cleaner toggle` |
@@ -61,7 +61,7 @@ Window mode: `windowmode set tiling|floating|scrolling`.
 The screens freeze as they are (popups and the island included); a toolbar at
 the bottom picks what (R region, W window or popup, S screen), how (Tab: shot
 or recording), the sound, the pointer (C) and a delay. The same key again
-cancels or stops a recording. Super+P shoots the focused screen at once. The
+cancels or stops a recording. The
 bar module is a button for the same and shows a recording; `capture library`
 opens the saved captures.
 

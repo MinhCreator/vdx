@@ -71,8 +71,7 @@ Without the wizard: `./install.py components set <name>…`, then
 | `Super + B` | every key, searchable |
 | `Super + Q` | terminal |
 | `Super + E` | Files |
-| `Super + O` | Overview |
-| `Super + Shift + S` · `Super + P` | capture a part · the whole screen |
+| `Super + Shift + S` | capture |
 | `Ctrl + Shift + Esc` | Task Manager |
 | `Super + Z` | lock |
 

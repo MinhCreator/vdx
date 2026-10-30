@@ -1,5 +1,5 @@
 # zsh — set the output volume: `volume 50%`, `volume +5%`
 volume() {
     local spec="${1:?usage: volume 50% | +5% | -5%}"
-    wpctl set-volume @DEFAULT_AUDIO_SINK@ "$spec"
+    wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ "$spec"
 }
