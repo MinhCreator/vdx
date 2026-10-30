@@ -1,6 +1,6 @@
 import QtQuick
 import QtTest
-import "../../packages/quickshell/shell/apps/lock"
+import qs.kit
 
 TestCase {
   name: "LockLifecycle"
