@@ -98,6 +98,7 @@ Singleton {
 
   // ---- Network settings ----
   property var saved: []                       // see wifi.sh --saved
+  property bool savedRefreshPending: false
   property var details: null                   // see wifi.sh --details
   property bool savedBusy: false
   property string saveError: ""
@@ -105,7 +106,14 @@ Singleton {
   property bool hiddenBusy: false
   readonly property bool connectionBusy: connectingSsid !== "" || hiddenBusy
 
-  function refreshSaved() { if (radioOn) savedProc.running = true; }
+  function refreshSaved() {
+    if (!radioOn) return;
+    if (savedProc.running) {
+      savedRefreshPending = true;
+      return;
+    }
+    savedProc.running = true;
+  }
   function refreshDetails() { if (connected) detailsProc.running = true; }
 
   function setSaved(uuid, key, value, extra) {
@@ -355,6 +363,16 @@ Singleton {
   }
 
   Timer {
+    id: savedRefresh
+    interval: 0
+    onTriggered: {
+      if (!root.savedRefreshPending) return;
+      root.savedRefreshPending = false;
+      root.refreshSaved();
+    }
+  }
+
+  Timer {
     id: connectClear
     interval: Theme.popupStatusMs
     onTriggered: {
@@ -554,10 +572,18 @@ Singleton {
   Process {
     id: savedProc
     command: ["bash", root.script, "--saved"]
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      if (root.savedRefreshPending) savedRefresh.restart();
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
         if (o?.ok) root.saved = o.saved;
+        if (root.savedRefreshPending) savedRefresh.restart();
       }
     }
   }

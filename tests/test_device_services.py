@@ -486,6 +486,37 @@ Scope {
             "networks": [], "networkError": "",
         })
 
+    def test_wifi_saved_refresh_is_retried_when_old_query_finishes(self):
+        source = (SHELL / "modules/wifi/WifiService.qml").read_text()
+        complete = handler(source, "savedProc")
+        timer = qml_block(source, "Timer {\n    id: savedRefresh")
+        timer_callback = qml_block(timer, "onTriggered:").split(":", 1)[1]
+        result = self.evaluate('''
+  property bool radioOn: true
+  property bool savedRefreshPending: false
+  property int restartCount: 0
+  property var saved: []
+  property string text: ""
+  function parse(text) { return JSON.parse(text); }
+  QtObject { id: savedProc; property bool running: true }
+  QtObject { id: savedRefresh; function restart() { root.restartCount++; } }
+  ''' + qml_function(source, "refreshSaved") + '''
+  function complete(text) ''' + complete + '''
+  function fireSavedRefresh() ''' + timer_callback, '''
+          refreshSaved();
+          const pending = savedRefreshPending;
+          savedProc.running = false;
+          complete(JSON.stringify({ok: true, saved: [{ssid: "stale"}]}));
+          const scheduled = restartCount;
+          fireSavedRefresh();
+          return {pending, scheduled, pendingAfterRetry: savedRefreshPending,
+                  queryRunningAgain: savedProc.running, saved};
+''')
+        self.assertEqual(result, {
+            "pending": True, "scheduled": 1, "pendingAfterRetry": False,
+            "queryRunningAgain": True, "saved": [{"ssid": "stale"}],
+        })
+
     def test_wifi_connection_paths_cannot_overlap(self):
         source = (SHELL / "modules/wifi/WifiService.qml").read_text()
         result = self.evaluate('''
