@@ -12,7 +12,7 @@ from tests.qml_runtime import SHELL, run_quickshell
 
 
 CONSUMERS = [
-    ("modules/wifi/WifiService.qml", "id: networksProc", "networks", False),
+    ("modules/wifi/WifiService.qml", "id: networksProc", "networks", True),
     ("modules/wifi/WifiService.qml", 'path: Quickshell.shellDir + "/modules/wifi/dns_providers.json"', "dnsProviders", False),
     ("modules/mpd/MpdService.qml", "id: queueProc", "queue", False),
     ("modules/radio/RadioService.qml", "id: stationsProc", "stations", False),
@@ -49,6 +49,7 @@ class ListReplies(unittest.TestCase):
       id: root
       property string text: ''' + json.dumps(payload) + '''
       property var ''' + field + ''': [{old: true}]
+      property string networkError: ""
       property string provider: ""
       property string currentProvider: ""
       function refreshNodes() {}
@@ -79,7 +80,8 @@ Scope {
             return json.loads(lines[0])
 
     def test_valid_arrays_reach_all_list_consumers(self):
-        rows = [{"name": "first", "ssid": "network", "key": "station", "pos": 1}]
+        rows = [{"name": "first", "ssid": "network", "key": "station", "pos": 1,
+                 "signal": 75, "secure": True, "active": False, "saved": True}]
         self.assertEqual(self.consume(json.dumps(rows)), [rows] * len(CONSUMERS))
 
     def test_empty_arrays_reach_each_consumer(self):

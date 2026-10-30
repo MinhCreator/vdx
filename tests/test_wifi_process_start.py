@@ -42,6 +42,41 @@ Scope {
             self.assertEqual(len(results), 1, output)
             self.assertEqual(json.loads(results[0]), "could not start Wi-Fi status query", output)
 
+    def test_failed_network_list_start_is_visible_and_preserves_rows(self):
+        source = (SHELL / "modules/wifi/WifiService.qml").read_text()
+        process = qml_block(source, "Process {\n    id: networksProc")
+        process = process.replace(
+            'command: ["bash", root.script, "--list"]',
+            'command: ["/no/such/wifi-list-backend"]')
+        process = process.replace("id: networksProc", "id: networksProc\n    running: true", 1)
+        with tempfile.TemporaryDirectory(prefix="shell-wifi-list-start-") as tmp:
+            root = Path(tmp)
+            (root / "shell.qml").write_text('''import QtQuick
+import Quickshell
+import Quickshell.Io
+Scope {
+  id: root
+  property var networks: [{ssid: "last-good"}]
+  property string networkError: ""
+  function refreshNetworks() {}
+  ''' + process + '''
+  Timer { interval: 100; running: true; onTriggered: {
+    console.warn("WIFI_LIST_START_RESULT:" + JSON.stringify({
+      networks: root.networks, error: root.networkError
+    }));
+    Qt.quit();
+  } }
+}
+''')
+            output = run_quickshell(root)
+            results = [line.split("WIFI_LIST_START_RESULT:", 1)[1]
+                       for line in output.splitlines() if "WIFI_LIST_START_RESULT:" in line]
+            self.assertEqual(len(results), 1, output)
+            self.assertEqual(json.loads(results[0]), {
+                "networks": [{"ssid": "last-good"}],
+                "error": "could not start Wi-Fi network query",
+            }, output)
+
     def test_radio_backend_failure_restores_state_and_shows_reply_error(self):
         source = (SHELL / "modules/wifi/WifiService.qml").read_text()
         callback = qml_block(source[source.index("id: radioProc"):], "onStreamFinished:").split(

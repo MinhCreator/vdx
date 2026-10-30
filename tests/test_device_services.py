@@ -458,6 +458,34 @@ Scope {
             "ipAddress": "", "gateway": "", "statusError": "",
         })
 
+    def test_wifi_network_list_preserves_data_on_malformed_reply(self):
+        source = (SHELL / "modules/wifi/WifiService.qml").read_text()
+        callback = handler(source, "networksProc").replace(
+            "Reply.parseList(text, null)", "parseList(text)")
+        result = self.evaluate('''
+  property var networks: [{ssid: "known-network"}]
+  property string networkError: ""
+  property string text: ""
+  function parseList(text) {
+    try { const value = JSON.parse(text); return Array.isArray(value) ? value : null; }
+    catch (error) { return null; }
+  }
+  function complete(text) ''' + callback, '''
+          complete("not json");
+          const malformed = {networks, networkError};
+          complete("[null]");
+          const badEntry = {networks, networkError};
+          complete("[]");
+          return {malformed, badEntry, networks, networkError};
+        ''')
+        self.assertEqual(result, {
+            "malformed": {"networks": [{"ssid": "known-network"}],
+                          "networkError": "bad Wi-Fi network list"},
+            "badEntry": {"networks": [{"ssid": "known-network"}],
+                         "networkError": "bad Wi-Fi network list"},
+            "networks": [], "networkError": "",
+        })
+
     def test_wifi_connection_paths_cannot_overlap(self):
         source = (SHELL / "modules/wifi/WifiService.qml").read_text()
         result = self.evaluate('''

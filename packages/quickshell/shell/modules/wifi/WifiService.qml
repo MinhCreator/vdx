@@ -32,6 +32,7 @@ Singleton {
   readonly property bool connected: radioOn && linkState === "connected"
 
   property var networks: []                    // see `wifi.sh --list`
+  property string networkError: ""
   property bool scanning: false
   property string scanError: ""
 
@@ -404,8 +405,26 @@ Singleton {
   Process {
     id: networksProc
     command: ["bash", root.script, "--list"]
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.networkError = "could not start Wi-Fi network query";
+    }
     stdout: StdioCollector {
-      onStreamFinished: root.networks = Reply.parseList(text)
+      onStreamFinished: {
+        const list = Reply.parseList(text, null);
+        if (!Array.isArray(list) || !list.every(network => network &&
+            typeof network.ssid === "string" && typeof network.signal === "number" &&
+            typeof network.secure === "boolean" && typeof network.active === "boolean" &&
+            typeof network.saved === "boolean")) {
+          root.networkError = "bad Wi-Fi network list";
+          return;
+        }
+        root.networks = list;
+        root.networkError = "";
+      }
     }
   }
 

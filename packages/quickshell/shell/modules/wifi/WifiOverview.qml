@@ -48,8 +48,9 @@ Column {
 
   KitText {
     width: parent.width
-    visible: WifiService.statusError !== "" || WifiService.radioError !== "" || WifiService.connectError !== ""
-    text: WifiService.statusError || WifiService.radioError || WifiService.connectError
+    visible: WifiService.statusError !== "" || WifiService.networkError !== "" ||
+             WifiService.radioError !== "" || WifiService.connectError !== ""
+    text: WifiService.statusError || WifiService.networkError || WifiService.radioError || WifiService.connectError
     color: Theme.red
     wrapMode: Text.WordWrap
     font.pixelSize: Theme.fontSize - 1
@@ -170,8 +171,8 @@ Column {
     KitText {
       width: parent.width
       visible: WifiService.radioOn && WifiService.networks.length === 0
-      text: WifiService.scanning ? "Looking for networks…" : WifiService.scanError || "No networks found. Try rescan."
-      color: WifiService.scanError !== "" ? Theme.red : Theme.muted
+      text: WifiService.scanning ? "Looking for networks…" : WifiService.networkError || WifiService.scanError || "No networks found. Try rescan."
+      color: WifiService.networkError !== "" || WifiService.scanError !== "" ? Theme.red : Theme.muted
       wrapMode: Text.WordWrap
     }
   }
