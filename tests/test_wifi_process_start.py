@@ -13,6 +13,35 @@ from tests.qml_runtime import SHELL, run_quickshell
 
 @unittest.skipUnless(shutil.which("qs"), "Quickshell is not installed")
 class WifiProcessStart(unittest.TestCase):
+    def test_failed_status_start_is_visible(self):
+        source = (SHELL / "modules/wifi/WifiService.qml").read_text()
+        process = qml_block(source, "Process {\n    id: statusProc")
+        process = process.replace(
+            'command: ["bash", root.script, "--status"]',
+            'command: ["/no/such/wifi-status-backend"]')
+        process = process.replace("id: statusProc", "id: statusProc\n    running: true", 1)
+        with tempfile.TemporaryDirectory(prefix="shell-wifi-status-start-") as tmp:
+            root = Path(tmp)
+            (root / "shell.qml").write_text('''import QtQuick
+import Quickshell
+import Quickshell.Io
+Scope {
+  id: root
+  property string statusError: ""
+  function parse(text) { return JSON.parse(text); }
+  ''' + process + '''
+  Timer { interval: 100; running: true; onTriggered: {
+    console.warn("WIFI_STATUS_START_RESULT:" + JSON.stringify(root.statusError));
+    Qt.quit();
+  } }
+}
+''')
+            output = run_quickshell(root)
+            results = [line.split("WIFI_STATUS_START_RESULT:", 1)[1]
+                       for line in output.splitlines() if "WIFI_STATUS_START_RESULT:" in line]
+            self.assertEqual(len(results), 1, output)
+            self.assertEqual(json.loads(results[0]), "could not start Wi-Fi status query", output)
+
     def test_radio_backend_failure_restores_state_and_shows_reply_error(self):
         source = (SHELL / "modules/wifi/WifiService.qml").read_text()
         callback = qml_block(source[source.index("id: radioProc"):], "onStreamFinished:").split(

@@ -28,6 +28,7 @@ Singleton {
   property string ssid: ""
   property string ipAddress: ""
   property string gateway: ""
+  property string statusError: ""
   readonly property bool connected: radioOn && linkState === "connected"
 
   property var networks: []                    // see `wifi.sh --list`
@@ -374,15 +375,28 @@ Singleton {
   Process {
     id: statusProc
     command: ["bash", root.script, "--status"]
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.statusError = "could not start Wi-Fi status query";
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
-        if (!o) return;
+        if (!o || (o.radio !== "on" && o.radio !== "off") ||
+            typeof o.state !== "string" || typeof o.ssid !== "string" ||
+            typeof o.ip !== "string" || typeof o.gateway !== "string") {
+          root.statusError = o?.error ?? "bad Wi-Fi status reply";
+          return;
+        }
         if (!root.toggling) root.radioOn = o.radio === "on";
         root.linkState = o.state;
         root.ssid = o.ssid;
         root.ipAddress = o.ip;
         root.gateway = o.gateway;
+        root.statusError = "";
       }
     }
   }

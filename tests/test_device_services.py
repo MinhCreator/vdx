@@ -427,6 +427,37 @@ Scope {
         ''')
         self.assertEqual(result, {"failure": "scan failed", "error": "", "busy": False})
 
+    def test_wifi_status_rejects_malformed_reply_and_recovers(self):
+        source = (SHELL / "modules/wifi/WifiService.qml").read_text()
+        callback = handler(source, "statusProc").replace(
+            'Reply.parse(text, "wifi.sh", null)', "JSON.parse(text)")
+        result = self.evaluate('''
+  property bool radioOn: true
+  property bool toggling: false
+  property string linkState: "connected"
+  property string ssid: "old-network"
+  property string ipAddress: "192.0.2.5"
+  property string gateway: "192.0.2.1"
+  property string statusError: ""
+  property string text: ""
+  function parse(text) { return JSON.parse(text); }
+  function complete(text) ''' + callback, '''
+          complete(JSON.stringify({radio: "on"}));
+          const malformed = {radioOn, linkState, ssid, ipAddress, gateway, statusError};
+          complete(JSON.stringify({radio: "off", state: "unavailable", ssid: "",
+                                   ip: "", gateway: ""}));
+          return {malformed, radioOn, linkState, ssid, ipAddress, gateway, statusError};
+        ''')
+        self.assertEqual(result, {
+            "malformed": {
+                "radioOn": True, "linkState": "connected", "ssid": "old-network",
+                "ipAddress": "192.0.2.5", "gateway": "192.0.2.1",
+                "statusError": "bad Wi-Fi status reply",
+            },
+            "radioOn": False, "linkState": "unavailable", "ssid": "",
+            "ipAddress": "", "gateway": "", "statusError": "",
+        })
+
     def test_wifi_connection_paths_cannot_overlap(self):
         source = (SHELL / "modules/wifi/WifiService.qml").read_text()
         result = self.evaluate('''
