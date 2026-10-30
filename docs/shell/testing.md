@@ -87,7 +87,7 @@ that every shell function or desktop scenario has been reviewed.
 | Wi-Fi connection actions | Nearby, saved, password and hidden-network joins share one busy guard; overlapping requests are rejected in both directions and controls reflect pending work |
 | Wi-Fi scan UX | Duplicate scans are rejected while active; production completion handler sets and clears error/busy state and allows another scan |
 | Bluetooth scan backend | Fake `bluetoothctl` confirms discovery-start replies succeed and backend rejections remain visible as errors |
-| Device service first pass | Battery sysfs profile writes succeed and threshold write failures return JSON errors; production battery actions reject startup overlap without changing saved limit/profile, restore the prior profile after saver mode, expose backend rejection and permit retry, and clear busy state on process-start failure; battery status errors and query-start failures leave loading state; audio live state with missing/muted devices, failed port changes and successful re-selection after failure; display query/action process-start recovery, malformed status/action replies and retained action failures; Bluetooth scan reply errors, malformed status-list recovery, removed devices disappear on the next valid snapshot, adapter action FIFO/failure handling, serialized adapter/device commands and all four action-process start failures. Five regressions reproduced against the previous code |
+| Device service first pass | Battery sysfs profile writes succeed and threshold write failures return JSON errors; production battery actions reject startup overlap without changing saved limit/profile, restore the prior profile after saver mode, expose backend rejection and permit retry, and clear busy state on process-start failure; battery status errors and query-start failures leave loading state; audio live state with missing/muted devices, failed port changes and successful re-selection after failure; display query/action process-start recovery, malformed status/action replies and retained action failures; Wi-Fi scan process-start recovery; Bluetooth scan reply errors, malformed status-list recovery, removed devices disappear on the next valid snapshot, adapter action FIFO/failure handling, serialized adapter/device commands and all four action-process start failures. Five regressions reproduced against the previous code |
 | Device UX first pass | Production Bluetooth and Wi-Fi rows: Space, Return and mouse activation, accessible names, visible focus and action guards. Settings expose Bluetooth action errors; power/audio switches reflect pending/unavailable state; Wi-Fi popup distinguishes scan, empty and error states. Ethernet and hotspot controls reflect pending writes |
 | Wi-Fi connection feedback | Failed connections from open/saved networks now show the service error in both the Wi-Fi popup overview and Network settings; password-entry view continues to show it too |
 | Wi-Fi network row | Production row activates by Space, Return and mouse; exposes the SSID/security to accessibility, highlights keyboard focus and blocks the current, in-flight or unavailable network |
@@ -139,8 +139,9 @@ Next focused investigations (suspicions, not confirmed regressions):
    visible for open and saved networks in both entry points. Speed-test
    cancellation/stale completion, competing connection paths and overlapping
    saved-network edits are covered; credential cleanup tests cover completed
-   replies and connection process-launch failure; other action process-launch
-   failures remain unreviewed.
+   replies and connection process-launch failure; scan process-launch failure
+   now clears its busy state; other action process-launch failures remain
+   unreviewed.
 2. `modules/bluetooth/BluetoothService.qml`: discovery lifetime and removed
    devices. Adapter settings now run FIFO and serialize with device actions;
    power, scan, adapter and device actions recover from process-start failures.

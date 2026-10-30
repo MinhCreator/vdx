@@ -396,6 +396,15 @@ Singleton {
   Process {
     id: scanProc
     command: ["bash", root.script, "--scan"]
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.scanning = false;
+      root.scanError = "could not start Wi-Fi scan";
+      root.refreshNetworks();
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
