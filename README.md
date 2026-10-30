@@ -1,8 +1,4 @@
 <p align="center">
-  <img src="docs/media/banner.webp" alt="vdx" width="640">
-</p>
-
-<p align="center">
   <b>A whole desktop for Arch Linux and Hyprland.</b><br>
   Its own shell, apps and settings, one theme across every program,<br>
   and an installer that puts it on a machine.
@@ -14,8 +10,6 @@
   <img alt="Quickshell" src="https://img.shields.io/badge/shell-Quickshell-d79921?style=flat-square">
   <img alt="MIT" src="https://img.shields.io/badge/license-MIT-98971a?style=flat-square">
 </p>
-
-https://github.com/user-attachments/assets/4a7dac16-6943-4acf-9627-7ff15657b959
 
 ## What it is
 
@@ -35,22 +29,9 @@ https://github.com/user-attachments/assets/4a7dac16-6943-4acf-9627-7ff15657b959
 - **An installer** — a wizard picks what goes on the machine, detects the
   hardware, links the configs file by file and keeps them healthy.
 
-## Gallery
+## Themes
 
-| | |
-|:---:|:---:|
-| <img src="docs/media/desktop-dark.webp" alt="Desktop, dark"> | <img src="docs/media/desktop-light.webp" alt="Desktop, light"> |
-| Desktop · Gruvbox dark | Desktop · Gruvbox light |
-| <img src="docs/media/hub.webp" alt="Island hub"> | <img src="docs/media/hub-kanagawa.webp" alt="Hub over Kanagawa"> |
-| The island's hub: the track, quick chips, modules | The same hub in Kanagawa |
-| <img src="docs/media/popup-wifi.webp" alt="Wi-Fi popup"> | <img src="docs/media/popup-music.webp" alt="Music popup"> |
-| Wi-Fi: networks, DNS, a speed test | Music: what plays, the queue, the library |
-| <img src="docs/media/settings-appearance.webp" alt="Appearance"> | <img src="docs/media/settings-themes.webp" alt="Themes"> |
-| Shell Manager › Appearance | Shell Manager › Themes |
-| <img src="docs/media/settings-bar.webp" alt="Bar settings"> | <img src="docs/media/launcher.webp" alt="Launcher"> |
-| Shell Manager › Bar | The launcher: apps, files, shell, power |
-| <img src="docs/media/files.webp" alt="Files"> | <img src="docs/media/music.webp" alt="Music"> |
-| Files | Music: Yandex Music, local folders, radio |
+<img src="docs/media/settings-themes.webp" alt="Shell Manager themes" width="640">
 
 ## Install
 
