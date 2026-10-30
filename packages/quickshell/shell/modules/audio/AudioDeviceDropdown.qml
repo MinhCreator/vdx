@@ -11,6 +11,6 @@ KitSelect {
   boxWidth: width
 
   model: entries.map(e => ({ label: e.label, value: e.key }))
-  disabled: entries.length === 0
+  disabled: entries.length === 0 || AudioService.portBusy
   onPicked: value => AudioService.select(entries.find(e => e.key === value))
 }

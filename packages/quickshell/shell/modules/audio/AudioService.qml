@@ -30,6 +30,9 @@ Singleton {
   // Ports per device ({port, type, active, list} by node name, see audio.sh):
   // short device names ("Speakers", "Headphones") and the headphones state.
   property var ports: ({})
+  property bool portBusy: false
+  property string portError: ""
+  property string portErrorTarget: ""
   readonly property bool headphones: (ports[sink?.name]?.type ?? "").startsWith("Head")
 
   // Device lists for the popup: one entry per port, so the built-in card shows
@@ -94,12 +97,15 @@ Singleton {
   }
 
   function select(entry) {
-    if (!entry) return;
+    if (!entry || portBusy) return;
     const sink = entry.node.type === PwNodeType.AudioSink;
     if (sink) setSink(entry.node); else setSource(entry.node);
+    portError = "";
+    portErrorTarget = sink ? "output" : "input";
     if (entry.port !== "") {
-      Quickshell.execDetached(["pactl", sink ? "set-sink-port" : "set-source-port", entry.node.name, entry.port]);
-      portRefresh.restart();
+      portBusy = true;
+      portActionProc.command = ["pactl", sink ? "set-sink-port" : "set-source-port", entry.node.name, entry.port];
+      portActionProc.running = true;
     }
   }
 
@@ -126,6 +132,24 @@ Singleton {
 
   PwObjectTracker {
     objects: [root.sink, root.source].concat(root.streams)
+  }
+
+  Process {
+    id: portActionProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.portBusy = false;
+      root.portError = "could not start changing the audio port";
+      portRefresh.restart();
+    }
+    onExited: exitCode => {
+      root.portBusy = false;
+      root.portError = exitCode === 0 ? "" : "could not change the audio port";
+      portRefresh.restart();
+    }
   }
 
   Process {

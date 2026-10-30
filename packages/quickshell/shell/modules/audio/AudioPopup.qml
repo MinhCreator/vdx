@@ -66,6 +66,15 @@ KitFrame {
       onExpandedChanged: if (expanded) input.expanded = false
     }
 
+    KitText {
+      width: parent.width
+      visible: AudioService.portError !== "" && AudioService.portErrorTarget === "output"
+      text: AudioService.portError
+      color: Theme.red
+      wrapMode: Text.WordWrap
+      font.pixelSize: Theme.fontSize - 1
+    }
+
     AudioVolumeRow {
       node: AudioService.sink
       iconOn: root.headphones ? "headphones" : "volume"
@@ -89,6 +98,15 @@ KitFrame {
       entries: AudioService.inputs
       current: AudioService.inputKey
       onExpandedChanged: if (expanded) output.expanded = false
+    }
+
+    KitText {
+      width: parent.width
+      visible: AudioService.portError !== "" && AudioService.portErrorTarget === "input"
+      text: AudioService.portError
+      color: Theme.red
+      wrapMode: Text.WordWrap
+      font.pixelSize: Theme.fontSize - 1
     }
 
     AudioVolumeRow {
