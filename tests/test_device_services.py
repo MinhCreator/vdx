@@ -302,6 +302,35 @@ Scope {
         ''')
         self.assertEqual(result, {"retained": "apply failed", "cleared": "", "applied": 0, "busy": True})
 
+    def test_display_rejects_malformed_status_and_action_replies(self):
+        source = (SHELL / "apps/display/DisplayService.qml").read_text()
+        result = self.evaluate('''
+  property string listError: ""
+  property string actionError: ""
+  property bool busy: true
+  property string working: "text"
+  property var pending: 1.2
+  property var monitors: [{name: "old-monitor"}]
+  property real textFactor: 1
+  property var textScales: [1]
+  property string text: ""
+  property int appliedCount: 0
+  function applied() { appliedCount++; }
+  function refresh() {}
+  function parse(text) { return JSON.parse(text); }
+  function completeList(text) ''' + handler(source, "listProc") + '''
+  function completeAction(text) ''' + handler(source, "actProc"), '''
+          completeList(JSON.stringify({ok: true}));
+          const list = {error: listError, monitors: monitors};
+          completeAction(JSON.stringify({}));
+          return {list, actionError, busy, working, pending, appliedCount};
+        ''')
+        self.assertEqual(result, {
+            "list": {"error": "bad display status reply", "monitors": [{"name": "old-monitor"}]},
+            "actionError": "display action failed", "busy": False, "working": "",
+            "pending": None, "appliedCount": 0,
+        })
+
     def test_bluetooth_scan_reports_failure_and_clears_error_on_success(self):
         source = (SHELL / "modules/bluetooth/BluetoothService.qml").read_text()
         result = self.evaluate('''

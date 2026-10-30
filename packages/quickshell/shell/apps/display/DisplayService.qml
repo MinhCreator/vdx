@@ -90,7 +90,14 @@ Singleton {
     stdout: StdioCollector {
       onStreamFinished: {
         const r = root.parse(text);
-        if (!r.ok) { root.listError = r.error; return; }
+        if (r?.ok !== true) {
+          root.listError = r?.error ?? "could not read displays";
+          return;
+        }
+        if (!Array.isArray(r.monitors) || typeof r.text !== "number" || !Array.isArray(r.textScales)) {
+          root.listError = "bad display status reply";
+          return;
+        }
         root.listError = "";
         root.monitors = r.monitors;
         root.textFactor = r.text;
@@ -116,10 +123,10 @@ Singleton {
         const r = root.parse(text);
         root.working = "";
         root.pending = null;
-        root.actionError = r.ok ? "" : r.error;
+        root.actionError = r?.ok === true ? "" : (r?.error ?? "display action failed");
         root.refresh();
         root.busy = false;
-        if (r.ok) root.applied();
+        if (r?.ok === true) root.applied();
       }
     }
   }
