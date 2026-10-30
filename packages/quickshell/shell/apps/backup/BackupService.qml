@@ -28,6 +28,7 @@ Singleton {
   property bool resticFound: true
   property bool claude: false               // the claude command is there: the AI analysis is offered
   property bool loaded: false
+  property string loadError: ""
 
   function refresh() {
     if (!statusProc.running) statusProc.running = true;
@@ -36,16 +37,29 @@ Singleton {
   Process {
     id: statusProc
     command: ["python3", root.script, "--json", "status"]
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.loadError = "could not start backup status query";
+      root.done(false, root.loadError);
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const r = Reply.parse(text, "backup.py");
-        if (!r.ok) { root.done(false, r.error); return; }
+        if (!r.ok) {
+          root.loadError = r.error;
+          root.done(false, r.error);
+          return;
+        }
         root.config = r.config;
         root.last = r.last;
         root.configured = r.configured;
         root.resticFound = r.restic;
         root.claude = r.claude === true;
         root.loaded = true;
+        root.loadError = "";
       }
     }
   }

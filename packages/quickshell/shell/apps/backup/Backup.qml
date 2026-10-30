@@ -20,6 +20,7 @@ Rectangle {
   }
 
   function subtitle() {
+    if (bs.loadError !== "") return "STATUS UNAVAILABLE";
     if (!bs.loaded) return "LOADING…";
     if (!bs.resticFound) return "RESTIC IS NOT INSTALLED";
     if (!bs.configured) return "NOT SET UP";
