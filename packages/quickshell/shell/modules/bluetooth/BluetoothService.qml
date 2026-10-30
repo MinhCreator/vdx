@@ -165,6 +165,15 @@ Singleton {
 
   Process {
     id: powerProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.toggling = false;
+      root.actionError = "could not start bluetooth power request";
+      root.refresh();
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
@@ -177,6 +186,14 @@ Singleton {
 
   Process {
     id: scanProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.scanning = false;
+      root.actionError = "could not start bluetooth scan";
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
@@ -189,6 +206,16 @@ Singleton {
 
   Process {
     id: adapterProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.adapterQueue = [];
+      root.adapterBusy = false;
+      root.actionError = "could not start bluetooth settings request";
+      root.refresh();
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
@@ -212,6 +239,15 @@ Singleton {
 
   Process {
     id: deviceProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.busyMac = "";
+      root.actionError = "could not start bluetooth device request";
+      root.refresh();
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);

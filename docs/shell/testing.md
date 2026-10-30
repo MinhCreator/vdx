@@ -87,7 +87,7 @@ that every shell function or desktop scenario has been reviewed.
 | Wi-Fi connection actions | Nearby, saved, password and hidden-network joins share one busy guard; overlapping requests are rejected in both directions and controls reflect pending work |
 | Wi-Fi scan UX | Duplicate scans are rejected while active; production completion handler sets and clears error/busy state and allows another scan |
 | Bluetooth scan backend | Fake `bluetoothctl` confirms discovery-start replies succeed and backend rejections remain visible as errors |
-| Device service first pass | Production battery actions reject startup overlap without changing saved limit/profile; audio live state with missing/muted devices; display refresh retains action failure; Bluetooth scan reply errors and adapter action FIFO/failure handling. Five regressions reproduced against the previous code |
+| Device service first pass | Production battery actions reject startup overlap without changing saved limit/profile; audio live state with missing/muted devices; display refresh retains action failure; Bluetooth scan reply errors, adapter action FIFO/failure handling and all four action-process start failures. Five regressions reproduced against the previous code |
 | Device UX first pass | Production Bluetooth and Wi-Fi rows: Space, Return and mouse activation, accessible names, visible focus and action guards. Settings expose Bluetooth action errors; power/audio switches reflect pending/unavailable state; Wi-Fi popup distinguishes scan, empty and error states. Ethernet and hotspot controls reflect pending writes |
 | Wi-Fi connection feedback | Failed connections from open/saved networks now show the service error in both the Wi-Fi popup overview and Network settings; password-entry view continues to show it too |
 | Wi-Fi network row | Production row activates by Space, Return and mouse; exposes the SSID/security to accessibility, highlights keyboard focus and blocks the current, in-flight or unavailable network |
@@ -122,7 +122,7 @@ Current remaining audit map (baseline tests are not a per-function review):
 | Capture | Recorder, saving and clipboard lifecycles reviewed; real GPU capture and overlays |
 | Bar and Island | Content hosting and popup arbitration reviewed; compositor focus, layout changes and multiple monitors |
 | Lock and authentication | Root completion, password attempts and marker ordering reviewed; real PAM, polkit and Wayland crash/reload scenarios |
-| Device services | First pass of all six services completed; Bluetooth adapter settings and Wi-Fi saved edits/connection requests are serialized. Bluetooth device-command serialization, process-launch failures, backend/schema failures and hardware edge cases remain |
+| Device services | First pass of all six services completed; Bluetooth adapter settings and Wi-Fi saved edits/connection requests are serialized. Bluetooth power, scan, adapter and device actions recover from process-start failure; device-command serialization, status/listener launch failures, backend/schema failures and hardware edge cases remain |
 | Other apps and background services | Task grouping and tree traversal reviewed; remaining per-function review, navigation, failure states and decomposition |
 | Final verification | Both bar styles, theme/settings combinations and measured performance |
 
@@ -142,9 +142,10 @@ Next focused investigations (suspicions, not confirmed regressions):
    replies and connection process-launch failure; other action process-launch
    failures remain unreviewed.
 2. `modules/bluetooth/BluetoothService.qml`: overlapping device commands,
-   discovery lifetime and removed devices. Adapter settings now run FIFO.
-   Scan-start replies now reflect `bluetoothctl` output, with fake-backend
-   coverage. Continue discovery lifetime and removed devices, plus audio port
+   discovery lifetime and removed devices. Adapter settings now run FIFO;
+   power, scan, adapter and device actions recover from process-start failures.
+   Scan-start replies reflect `bluetoothctl` output, with fake-backend coverage.
+   Continue discovery lifetime and removed devices, plus audio port
    switching/error recovery, battery restore/write/backend failures and
    display process-launch failures with fake backends before real hardware
    checks.
