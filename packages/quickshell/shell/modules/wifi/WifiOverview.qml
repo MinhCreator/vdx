@@ -49,8 +49,10 @@ Column {
   KitText {
     width: parent.width
     visible: WifiService.statusError !== "" || WifiService.networkError !== "" ||
-             WifiService.radioError !== "" || WifiService.connectError !== ""
-    text: WifiService.statusError || WifiService.networkError || WifiService.radioError || WifiService.connectError
+             WifiService.radioError !== "" || WifiService.connectError !== "" ||
+             WifiService.disconnectError !== ""
+    text: WifiService.statusError || WifiService.networkError || WifiService.radioError ||
+          WifiService.connectError || WifiService.disconnectError
     color: Theme.red
     wrapMode: Text.WordWrap
     font.pixelSize: Theme.fontSize - 1

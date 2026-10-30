@@ -13,6 +13,35 @@ from tests.qml_runtime import SHELL, run_quickshell
 
 @unittest.skipUnless(shutil.which("qs"), "Quickshell is not installed")
 class WifiProcessStart(unittest.TestCase):
+    def test_failed_disconnect_start_is_visible(self):
+        source = (SHELL / "modules/wifi/WifiService.qml").read_text()
+        process = qml_block(source, "Process {\n    id: disconnectProc")
+        process = process.replace("id: disconnectProc", '''id: disconnectProc
+    command: ["/no/such/wifi-disconnect-backend"]
+    running: true''', 1)
+        with tempfile.TemporaryDirectory(prefix="shell-wifi-disconnect-start-") as tmp:
+            root = Path(tmp)
+            (root / "shell.qml").write_text('''import QtQuick
+import Quickshell
+import Quickshell.Io
+Scope {
+  id: root
+  property string disconnectError: ""
+  function parse(text) { return JSON.parse(text); }
+  function refresh() {}
+  ''' + process + '''
+  Timer { interval: 100; running: true; onTriggered: {
+    console.warn("WIFI_DISCONNECT_START_RESULT:" + JSON.stringify(root.disconnectError));
+    Qt.quit();
+  } }
+}
+''')
+            output = run_quickshell(root)
+            results = [line.split("WIFI_DISCONNECT_START_RESULT:", 1)[1]
+                       for line in output.splitlines() if "WIFI_DISCONNECT_START_RESULT:" in line]
+            self.assertEqual(len(results), 1, output)
+            self.assertEqual(json.loads(results[0]), "could not start disconnect request", output)
+
     def test_failed_status_start_is_visible(self):
         source = (SHELL / "modules/wifi/WifiService.qml").read_text()
         process = qml_block(source, "Process {\n    id: statusProc")

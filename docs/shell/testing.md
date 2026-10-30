@@ -84,7 +84,7 @@ that every shell function or desktop scenario has been reviewed.
 | Wi-Fi credentials | Three production completion handlers clear the process password environment before publishing idle, for successful and failed replies; connection and hidden-network process-start failures also clear credentials and busy state |
 | Wi-Fi speedtest | Real child-process test cancels a TERM-resistant old request, immediately starts a replacement, and verifies that the late old reply cannot overwrite the newer result; failed process starts clear busy state immediately; repeated active requests are rejected |
 | Wi-Fi saved settings | Production action guard rejects overlapping edits, preserves the backend error, and permits a retry after completion; refreshes requested during an older list query are retried after it ends; page controls disable during the write |
-| Wi-Fi connection actions | Nearby, saved, password and hidden-network joins share one busy guard; overlapping requests are rejected in both directions and controls reflect pending work |
+| Wi-Fi connection actions | Nearby, saved, password and hidden-network joins share one busy guard; disconnect backend and process-start failures are visible; overlapping join requests are rejected in both directions and controls reflect pending work |
 | Wi-Fi scan UX | Duplicate scans are rejected while active; production completion handler sets and clears error/busy state and allows another scan |
 | Bluetooth scan backend | Fake `bluetoothctl` confirms discovery-start replies succeed and backend rejections remain visible as errors |
 | Device service first pass | Battery sysfs profile writes succeed and threshold write failures return JSON errors; production battery actions reject startup overlap without changing saved limit/profile, restore the prior profile after saver mode, expose backend rejection and permit retry, and clear busy state on process-start failure; battery status errors and query-start failures leave loading state; audio live state with missing/muted devices, failed port changes and successful re-selection after failure; display query/action process-start recovery, malformed status/action replies and retained action failures; Wi-Fi status and network-list queries recover from process-start/malformed replies while preserving the last valid data, plus scan, radio, DNS, saved-network, Ethernet and hotspot action process-start recovery; radio backend rejection restores the previous state and is visible; Bluetooth scan reply errors, malformed status-list recovery, removed devices disappear on the next valid snapshot, adapter action FIFO/failure handling, serialized adapter/device commands and all four action-process start failures. Five regressions reproduced against the previous code |
@@ -141,6 +141,7 @@ Next focused investigations (suspicions, not confirmed regressions):
    saved-network edits are covered; credential cleanup tests cover completed
    replies and connection process-launch failure; scan, radio, DNS, saved
    network, Ethernet and hotspot action process-launch failures now recover;
+   disconnect replies and launch failures are visible;
    saved-network refreshes coalesce across a query that overlaps an edit;
    Wi-Fi status and network-list startup/schema errors preserve state and
    surface an error; speedtest process-start failure clears busy state.

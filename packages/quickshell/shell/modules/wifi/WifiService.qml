@@ -159,8 +159,11 @@ Singleton {
 
   function disconnectNetwork() {
     if (!connected) return;
+    disconnectError = "";
     run(disconnectProc, ["--disconnect"]);
   }
+
+  property string disconnectError: ""
 
   function connectHidden(name, pw) {
     if (connectionBusy || name === "") return;
@@ -622,8 +625,20 @@ Singleton {
 
   Process {
     id: disconnectProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.disconnectError = "could not start disconnect request";
+      root.refresh();
+    }
     stdout: StdioCollector {
-      onStreamFinished: root.refresh()
+      onStreamFinished: {
+        const o = root.parse(text);
+        root.disconnectError = o?.ok ? "" : (o?.error ?? "could not disconnect");
+        root.refresh();
+      }
     }
   }
 

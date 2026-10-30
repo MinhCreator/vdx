@@ -517,6 +517,23 @@ Scope {
             "queryRunningAgain": True, "saved": [{"ssid": "stale"}],
         })
 
+    def test_wifi_disconnect_reports_backend_failure_and_clears_after_success(self):
+        source = (SHELL / "modules/wifi/WifiService.qml").read_text()
+        result = self.evaluate('''
+  property string disconnectError: ""
+  property string text: ""
+  function parse(text) { return JSON.parse(text); }
+  function refresh() {}
+  function complete(text) ''' + handler(source, "disconnectProc"), '''
+          complete(JSON.stringify({ok: false, error: "connection is already gone"}));
+          const failed = disconnectError;
+          complete(JSON.stringify({ok: true}));
+          return {failed, cleared: disconnectError};
+        ''')
+        self.assertEqual(result, {
+            "failed": "connection is already gone", "cleared": "",
+        })
+
     def test_wifi_connection_paths_cannot_overlap(self):
         source = (SHELL / "modules/wifi/WifiService.qml").read_text()
         result = self.evaluate('''
