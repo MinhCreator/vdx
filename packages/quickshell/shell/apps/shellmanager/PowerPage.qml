@@ -97,5 +97,25 @@ Column {
     KitGrouper {}
   }
 
+  KitLine { visible: BatteryService.present }
+
+  // the action itself is the lock app's (apps/lock/Lock.qml reads ModuleSettings "power" › lid)
+  Column {
+    width: parent.width
+    spacing: Theme.sectionGap
+    visible: BatteryService.present
+
+    KitLabel { text: "LID" }
+    KitSelect {
+      width: parent.width
+      label: "Lid closed"; hint: "Anything but Suspend is handled by the shell"
+      model: [{ label: "Suspend", value: "suspend" }, { label: "Lock", value: "lock" }, { label: "Lock and hibernate", value: "hibernate" },
+              { label: "Shut down", value: "poweroff" }, { label: "Do nothing", value: "nothing" }]
+      current: ModuleSettings.get("power", "lid", "suspend")
+      onPicked: value => ModuleSettings.set("power", "lid", value)
+    }
+    KitGrouper {}
+  }
+
   KitGrouper {}
 }

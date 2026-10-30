@@ -62,6 +62,19 @@ KitColumn {
 
   KitLine {}
 
+  // ---- session ----
+  KitLabel { text: "SESSION" }
+
+  KitSelect {
+    width: parent.width
+    label: "Lock after"; hint: "Minutes without input"
+    model: [{ label: "Never", value: 0 }].concat([1, 5, 10, 15, 30].map(v => ({ label: v + " min", value: v })))
+    current: root.opt("autoLock", 0)
+    onPicked: value => ModuleSettings.set("lock", "autoLock", value)
+  }
+
+  KitLine {}
+
   // ---- on screen ----
   KitLabel { text: "ON SCREEN" }
 

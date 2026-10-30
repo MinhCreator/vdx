@@ -801,6 +801,12 @@
   "target": "power"
  },
  {
+  "label": "Lid",
+  "hint": "",
+  "where": "Power",
+  "target": "power"
+ },
+ {
   "label": "Power profile",
   "hint": "",
   "where": "Power › PROFILE",
@@ -816,6 +822,12 @@
   "label": "GPU",
   "hint": "",
   "where": "Power › GRAPHICS",
+  "target": "power"
+ },
+ {
+  "label": "Lid closed",
+  "hint": "Anything but Suspend is handled by the shell",
+  "where": "Power › LID",
   "target": "power"
  },
  {
@@ -1267,6 +1279,12 @@
   "target": "lockscreen"
  },
  {
+  "label": "Session",
+  "hint": "",
+  "where": "Lock screen",
+  "target": "lockscreen"
+ },
+ {
   "label": "On screen",
   "hint": "",
   "where": "Lock screen",
@@ -1306,6 +1324,12 @@
   "label": "Monitors",
   "hint": "Focused: the one in use",
   "where": "Lock screen › WHERE",
+  "target": "lockscreen"
+ },
+ {
+  "label": "Lock after",
+  "hint": "Minutes without input",
+  "where": "Lock screen › SESSION",
   "target": "lockscreen"
  },
  {

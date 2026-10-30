@@ -128,6 +128,35 @@ Scope {
     }
   }
 
+  // ---- idle ----
+  // Auto-lock: the compositor's idle notice (ext-idle-notify), asked for only
+  // while a delay is set and the screen is free; it respects what inhibits idle (a video).
+  readonly property int autoLockMinutes: ModuleSettings.get("lock", "autoLock", 0)
+
+  IdleMonitor {
+    enabled: root.autoLockMinutes > 0 && !sessionLock.locked
+    timeout: root.autoLockMinutes * 60
+    onIsIdleChanged: if (isIdle) root.lock()
+  }
+
+  // ---- lid ----
+  // The lid is Hyprland's switch bind (`ipc call lock lid`). Anything but
+  // Suspend (logind's own) takes the lid from logind with an inhibitor held
+  // while the shell runs; the screen then locks, sleeps or does nothing as set.
+  readonly property string lidAction: ModuleSettings.get("power", "lid", "suspend")
+
+  function lid() {
+    const a = root.lidAction;
+    if (a === "lock") root.lock();
+    else if (a === "suspend" || a === "hibernate") { root.lock(); Quickshell.execDetached(["systemctl", a]); }
+    else if (a === "poweroff") Quickshell.execDetached(["systemctl", "poweroff"]);
+  }
+
+  Process {
+    running: root.lidAction !== "suspend"
+    command: ["systemd-inhibit", "--what=handle-lid-switch", "--who=shell", "--why=Lid action set in Lock screen", "--mode=block", "sleep", "infinity"]
+  }
+
   // ---- power ----
   function power(action) {
     Quickshell.execDetached(["systemctl", action]);
@@ -196,5 +225,6 @@ Scope {
   IpcHandler {
     target: "lock"
     function lock(): void { root.lock(); }
+    function lid(): void { root.lid(); }
   }
 }

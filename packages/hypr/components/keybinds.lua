@@ -20,6 +20,8 @@ bind("Apps", "ALT + space", hl.dsp.exec_cmd("qs -c shell ipc call launcher toggl
 bind("Apps", mainMod .. " + Z", hl.dsp.exec_cmd("qs -c shell ipc call lock lock"), "Lock the screen")
 -- the shell's lock screen: if the shell dies while locked, started again it locks anew
 hl.config({ misc = { allow_session_lock_restore = true } })
+-- the lid: the shell does what Lock screen › Lid closed says (logind is held back by the shell)
+hl.bind("switch:on:Lid Switch", hl.dsp.exec_cmd("qs -c shell ipc call lock lid"), { locked = true })
 
 -- shell
 bind("Shell", mainMod .. " + S", hl.dsp.exec_cmd("qs -c shell ipc call shell toggle"), "Shell Manager")
