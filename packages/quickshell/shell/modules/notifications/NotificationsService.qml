@@ -6,6 +6,7 @@ import Quickshell.Io
 import qs.components
 import qs.config
 import qs.apps.capture
+import qs.apps.shellmanager
 import "../../kit/reply.js" as Reply
 
 // Notification history on top of mako (scripts/notifications.sh). mako keeps
@@ -56,6 +57,9 @@ Singleton {
   // "org.telegram.desktop" and "Telegram Desktop" both reduce to a letters-and-
   // digits key that matches the class. Older history rows have no desktop entry.
   // False when the app has no window open.
+  // A click on a notification brings up its app: its window when one is open
+  // (by class, or by a shell app's window title), else the shell app of that
+  // name (apps.json: "Backup" → Backups) is opened. false: no app is known.
   function focusApp(item) {
     // Capture is the shell's own app: its notices open its library
     if ((item.app ?? "").toLowerCase() === "capture") {
@@ -65,15 +69,28 @@ Singleton {
     Hyprland.refreshToplevels();
     const key = s => (s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
     const names = [item.desktop, item.app].map(key).filter(s => s !== "");
+    const entry = shellApp(key(item.app), key);
+    const title = key(entry?.window?.title);
     const win = Hyprland.toplevels.values.find(t => {
       const cls = key(Hypr.classOf(t));
+      if (title !== "" && key(t.title) === title) return true;
       return cls !== "" && names.some(n => n === cls || cls.endsWith(n) || n.endsWith(cls));
     });
-    if (!win) return false;
-    if (Hypr.minimized(win)) Hypr.call("RestoreWindow(\"" + Hypr.addr(win) + "\")");
-    // the pointer stays where it is (FocusWindow: a plain focus warps it to the window)
-    Hypr.call("FocusWindow(\"" + Hypr.addr(win) + "\")");
+    if (win) {
+      if (Hypr.minimized(win)) Hypr.call("RestoreWindow(\"" + Hypr.addr(win) + "\")");
+      // the pointer stays where it is (FocusWindow: a plain focus warps it to the window)
+      Hypr.call("FocusWindow(\"" + Hypr.addr(win) + "\")");
+      return true;
+    }
+    if (!entry) return false;
+    ShellAppsService.run(entry);
     return true;
+  }
+
+  // the shell app a notification's app name stands for: its id or label, the label in the plural
+  function shellApp(name, key) {
+    if (name === "") return null;
+    return ShellAppsService.entries.find(e => e.ipc && (key(e.id) === name || key(e.label) === name || key(e.label) === name + "s")) ?? null;
   }
 
   // One row per notification: its mako id within one mako run (`epoch`; a
