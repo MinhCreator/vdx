@@ -5,7 +5,7 @@ import qs.kit
 // Animations: how the shell moves (Motion reads these, ShellSettings keeps
 // them). GENERAL — all on / off, the speed, a sample that plays at it; PARTS —
 // each part of the shell on its own: bar popups (fade, slide, grow), the
-// underline under an open module, panels, controls, the bar, these pages and
+// underline under an open module, panels, controls, the bar, these pages, their tabs and
 // the lock screen.
 Column {
   id: root
@@ -18,7 +18,7 @@ Column {
 
   // groups for the Shell Manager's sidebar: a click scrolls to `y`
   // the header's Reset: these ShellSettings keys back to their defaults
-  readonly property var resetKeys: ["motion", "motionSpeed", "motionPopups", "underlineAnimation", "motionPanels", "motionControls", "motionBar", "motionPages", "motionIsland", "motionLock"]
+  readonly property var resetKeys: ["motion", "motionSpeed", "motionPopups", "underlineAnimation", "motionPanels", "motionControls", "motionBar", "motionPages", "motionTabs", "motionIsland", "motionLock"]
   readonly property bool changed: ShellSettings.changed(resetKeys)
   function reset() { ShellSettings.reset(resetKeys); }
 
@@ -146,6 +146,7 @@ Column {
       { key: "motionControls", label: "Controls",    hint: "Hovers, switches, rows, level bars" },
       { key: "motionBar",      label: "Bar",         hint: "Workspaces and colours" },
       { key: "motionPages",    label: "Pages",       hint: "This window's pages and sidebar" },
+      { key: "motionTabs",     label: "Tabs",        hint: "The sections of a page fade in" },
       { key: "motionIsland",   label: "Island",      hint: "Morphs between its views" },
       { key: "motionLock",     label: "Lock screen", hint: "Comes in, shakes on a wrong password" }
     ]

@@ -4,7 +4,7 @@ import qs.config
 // Rectangular switch with a square knob (round corners: a pill and a disc):
 // off, an outlined dark track with a grey knob on the left; on, a light track
 // with a dark knob on the right. With the accent on
-// Switches (Appearance › Accent), an on switch fills with the accent,
+// Switches (Appearance › Colours), an on switch fills with the accent,
 // a gradient from its first colour to its second.
 // Material (Appearance › Controls): the Material 3 switch — off, an outlined
 // track with a small grey handle; on, a filled track with a large handle and a

@@ -14,18 +14,18 @@ KitSettingsWorkspace {
   property string tab: "style"
   readonly property var jumps: [
     { key: "style", label: "Interface", y: 0 },
-    { key: "accent", label: "Accent", y: 0 },
+    { key: "accent", label: "Colours", y: 0 },
     { key: "glow", label: "Glow", y: 0 },
     { key: "shape", label: "Shape", y: 0 }
   ]
   function jump(key) {
     tab = key === "accent" || key === "glow" ? key : "style";
   }
-  readonly property var resetKeys: ["corners", "cornerRadius", "cornerSplit", "cornerRadii", "material", "accent", "accentStops", "accentGradient", "accentCustom", "accentWhere", "glow", "glowStrength", "glowWhere"]
+  readonly property var resetKeys: ["corners", "cornerRadius", "cornerSplit", "cornerRadii", "material", "accent", "accentStops", "accentGradient", "accentCustom", "customColours", "shareColours", "customColoursMax", "accentWhere", "glow", "glowStrength", "glowWhere"]
   readonly property bool changed: ShellSettings.changed(resetKeys)
   function reset() { ShellSettings.reset(resetKeys); }
 
-  sections: [{label: "Interface", value: "style"}, {label: "Accent", value: "accent"}, {label: "Glow", value: "glow"}]
+  sections: [{label: "Interface", value: "style"}, {label: "Colours", value: "accent"}, {label: "Glow", value: "glow"}]
   current: tab
   onPicked: value => tab = value
 

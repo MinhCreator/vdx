@@ -24,7 +24,7 @@ KitColumn {
   property bool pickerOpen: false
 
   // the custom colour's palette: the dots of the picker, as the accent's
-  readonly property var palette: ["red", "orange", "yellow", "green", "aqua", "blue", "purple"]
+  readonly property var palette: Theme.colourSet
   function colourOf(name) { return Theme.accentColour(name); }
   function hexOf(name) { return Colour.hexOfColour(colourOf(name)); }
   // the palette name in use, "" for a colour of your own
@@ -58,13 +58,13 @@ KitColumn {
   }
 
   // ---- custom: a colour of your own, typed (live, Enter not needed) or picked from the palette ----
-  KitColourPicker {
+  KitColourRow {
     visible: page.customWallpaper
-    width: parent.width
-    palette: root.palette
-    picked: root.pickedName
-    colours: name => [root.colourOf(name), root.colourOf(name)]
-    onChosen: name => ShellSettings.set("wallpaperColor", root.hexOf(name))
+    label: "Colour"
+    names: root.palette
+    picked: root.pickedName !== "" ? root.pickedName : ShellSettings.wallpaperColor
+    colours: name => root.colourOf(name)
+    onChosen: value => ShellSettings.set("wallpaperColor", value.startsWith("#") ? value : root.hexOf(value))
   }
 
   // ---- image: the active theme's folder first, the user's, then the shared one ----

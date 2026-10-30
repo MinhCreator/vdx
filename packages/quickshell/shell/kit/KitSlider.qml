@@ -18,11 +18,11 @@ Item {
   property color tint: Theme.foreground0
   property var snaps: []
   property bool ticks: true              // false: the stops still snap, no marks
-  property var spectrum: []              // colours laid along the track, instead of the fill
+  property var spectrum: []              // colours laid along the track as a smooth ramp, instead of the fill
   property bool plate: false             // Strict, in a Settings row: a tonal bar, a mark at the end of the fill
   property string text: ""               // a plate carries its reading inside, at the right
 
-  // the default tint takes the accent (Appearance › Accent › Sliders); a
+  // the default tint takes the accent (Appearance › Colours › Sliders); a
   // state colour passed in (a load, a battery) keeps its own
   readonly property bool accented: !dimmed && tint === Theme.foreground0 && Theme.accentOn("sliders")
   readonly property color fill: dimmed ? Theme.gray : accented ? Theme.accent : tint
@@ -37,7 +37,7 @@ Item {
   function letGo(v) { held = v; holdTimer.restart(); released(v); }
   readonly property real knobSize: m3 ? 4 : 12
   readonly property bool m3: Theme.material && spectrum.length === 0
-  readonly property bool flat: plate && !m3 && spectrum.length === 0     // the plate is drawn
+  readonly property bool flat: plate && !m3                          // the plate is drawn (a spectrum lights its fill)
   readonly property real plateEdge: shown * width
   readonly property real track: 12            // Material: the track's height
   readonly property real gap: 5               // Material: the space on each side of the handle
@@ -119,13 +119,17 @@ Item {
       width: parent.width
       height: parent.height
       Repeater {
-        model: root.spectrum
+        model: Math.max(root.spectrum.length - 1, 0)
 
         Rectangle {
-          required property color modelData
-          width: parent.width / root.spectrum.length
+          required property int index
+          width: parent.width / (root.spectrum.length - 1)
           height: parent.height
-          color: modelData
+          gradient: Gradient {
+            orientation: Gradient.Horizontal
+            GradientStop { position: 0; color: root.spectrum[index] }
+            GradientStop { position: 1; color: root.spectrum[index + 1] }
+          }
         }
       }
     }
@@ -246,9 +250,38 @@ Item {
 
     // square: the track's corners cut it, so the left end is rounded, the right is flat
     Rectangle {
+      visible: root.spectrum.length === 0
       width: Math.max(root.plateEdge, 0)
       height: parent.height
       color: root.dimmed ? Theme.controlHover : Theme.mix(Theme.pickFill, Theme.foreground0, 0.14)
+    }
+
+    // a spectrum lights the fill: the ramp lies over the whole plate, the fill shows its left part
+    Item {
+      visible: root.spectrum.length > 0
+      width: Math.max(root.plateEdge, 0)
+      height: parent.height
+      clip: true
+
+      Row {
+        width: root.width
+        height: parent.height
+
+        Repeater {
+          model: Math.max(root.spectrum.length - 1, 0)
+
+          Rectangle {
+            required property int index
+            width: root.width / (root.spectrum.length - 1)
+            height: parent.height
+            gradient: Gradient {
+              orientation: Gradient.Horizontal
+              GradientStop { position: 0; color: root.spectrum[index] }
+              GradientStop { position: 1; color: root.spectrum[index + 1] }
+            }
+          }
+        }
+      }
     }
 
     // the stops still to come: a dot each, none under the fill

@@ -33,6 +33,9 @@ JsonAdapter {
   property var accentStops: ["blue", "purple"]
   property bool accentGradient: false
   property var accentCustom: ["", ""]
+  property var customColours: []
+  property bool shareColours: false
+  property int customColoursMax: 3
   property var accentWhere: ({})
   property bool glow: false
   property int glowStrength: 60
@@ -48,6 +51,7 @@ JsonAdapter {
   property bool motionControls: true
   property bool motionBar: true
   property bool motionPages: true
+  property bool motionTabs: true
   property bool motionLock: true
   property bool motionIsland: true
 }

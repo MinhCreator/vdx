@@ -11,7 +11,13 @@ Item {
   property string current: ""
   property Component settings
   signal picked(string value)
-  onCurrentChanged: controls.contentY = 0
+  // a section comes in as a page does (ShellManager's pageIn): a fade
+  QtObject { id: sectionIn; property real shown: 1 }
+  NumberAnimation { id: sectionAnim; target: sectionIn; property: "shown"; from: 0; to: 1; duration: Motion.ms(240); easing.type: Motion.easing }
+  onCurrentChanged: {
+    controls.contentY = 0;
+    if (Motion.tabs) sectionAnim.restart();
+  }
 
   Flickable {
     id: controls
@@ -26,6 +32,7 @@ Item {
       id: settingsLoader
       width: controls.width - Theme.gapMedium
       sourceComponent: root.settings
+      opacity: sectionIn.shown
       height: item ? item.implicitHeight : 0
     }
   }

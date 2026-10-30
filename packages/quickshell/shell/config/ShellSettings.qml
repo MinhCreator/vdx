@@ -31,7 +31,7 @@ Singleton {
   readonly property bool barFolderDot: state.barFolderDot         // a dot on the Folder for unseen notices
   readonly property string barDotColor: state.barDotColor         // theme | red | orange | yellow | green | aqua | blue | purple: that dot's colour
   readonly property bool material: state.material                 // controls filled, no frames (Appearance › Controls)
-  // the accent (Appearance › Accent): two stops, the first the colour, the second
+  // the accent (Appearance › Colours): two stops, the first the colour, the second
   // the gradient's end when accentGradient is on. A stop is a colour name (theme =
   // the theme's frame colour | red | … | purple) or "custom", its colour in
   // accentCustom (one #rrggbb per stop, "" until one is typed)
@@ -39,6 +39,15 @@ Singleton {
   readonly property bool accentGradient: state.accentGradient
   readonly property var accentStops: state.accentStops
   readonly property var accentCustom: Array.isArray(state.accentCustom) ? state.accentCustom : ["", ""]
+  // the user's own colours (#rrggbb, at most customColoursMax): the accent's picker always offers them, the other colour
+  // choices only with shareColours (Appearance › Colours › Share own colours)
+  readonly property var customColours: Array.isArray(state.customColours) ? state.customColours : []
+  readonly property bool shareColours: state.shareColours
+  readonly property int customColoursMax: state.customColoursMax   // how many own colours (Appearance › Colours › Own colours)
+  function addCustomColour(hex) {
+    if (customColours.length < customColoursMax && !customColours.includes(hex)) set("customColours", customColours.concat([hex]));
+  }
+  function removeCustomColour(hex) { set("customColours", customColours.filter(c => c !== hex)); }
   readonly property var accentWhere: state.accentWhere            // target key -> true: what takes the accent
   // the glow (Appearance › Glow): a halo behind bright elements; glowWhere: target key -> false when switched off
   readonly property bool glow: state.glow
@@ -110,6 +119,7 @@ Singleton {
   readonly property bool motionControls: state.motionControls     // buttons, switches, selects, level bars
   readonly property bool motionBar: state.motionBar               // workspaces, bar values
   readonly property bool motionPages: state.motionPages           // Shell Manager pages and sidebar
+  readonly property bool motionTabs: state.motionTabs             // the sections of a page (Interface / Colours / Glow)
   readonly property bool motionIsland: state.motionIsland         // the island morphing between its views
   readonly property bool motionLock: state.motionLock             // the lock screen coming in, a wrong password
 

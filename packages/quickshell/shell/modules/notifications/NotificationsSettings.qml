@@ -64,17 +64,14 @@ KitColumn {
     }
   }
 
-  KitRow {
+  KitColourRow {
     label: "Dot colour"
     hint: "Theme: the text colour"
     enabled: ShellSettings.barFolderDot; dimmed: !enabled
-
-    KitSwatches {
-      model: ["blue", "purple", "aqua", "green", "yellow", "orange", "red", "theme"]
-      picked: ShellSettings.barDotColor === "light" ? "theme" : ShellSettings.barDotColor
-      colours: name => [Theme.notifyDot(name), Theme.notifyDot(name)]
-      onChosen: name => ShellSettings.set("barDotColor", name)
-    }
+    names: Theme.colourSet
+    picked: ShellSettings.barDotColor === "light" ? "theme" : ShellSettings.barDotColor
+    colours: name => Theme.notifyDot(name)
+    onChosen: value => ShellSettings.set("barDotColor", value)
   }
 
   KitLine {}

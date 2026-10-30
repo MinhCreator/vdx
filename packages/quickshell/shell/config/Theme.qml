@@ -57,6 +57,7 @@ QtObject {
   // the unseen dot (Bar › Notifications dot colour): a name of the choices;
   // "theme" (and anything else) is the theme's own text colour
   function notifyDot(name) {
+    if (name.startsWith("#")) return name;     // an own colour
     return name === "red" ? red : name === "orange" ? orange : name === "yellow" ? yellow : name === "green" ? green
          : name === "aqua" ? aqua : name === "blue" ? blue : name === "purple" ? purple : foreground0;
   }
@@ -64,9 +65,13 @@ QtObject {
   // one corner for every track cover: a preview is a card's corner (design.md: radiusCard — tiles, previews, cards)
   function coverRadius(size: real): real { return radiusCard; }
 
+  // the starting set of every colour choice, left to right: the theme's own colour first
+  readonly property var colourSet: ["theme", "red", "orange", "yellow", "green", "aqua", "blue", "purple"]
+
   // the colours an app can be given (Notifications › App colours), by name
   readonly property var appPalette: ["blue", "green", "yellow", "orange", "purple", "aqua", "red"]
   function paletteColour(name: string): color {
+    if (name.startsWith("#")) return name;     // an own colour
     return ({ blue: blue, green: green, yellow: yellow, orange: orange, purple: purple, aqua: aqua, red: red })[name] ?? foreground0;
   }
   // the colour an app gets with no rule: stable for a name, never the red of an urgent one
@@ -86,19 +91,21 @@ QtObject {
 
   // the equalizer's colours (Modules › Equalizer): one colour, or a [from, to] gradient across its bars
   function equalizerColours(name) {
-    // Appearance › Accent, APPLIES TO Bar modules: the accent takes the bars whatever the choice
+    // Appearance › Colours, APPLIES TO Bar modules: the accent takes the bars whatever the choice
     if (accentOn("modules")) return [accent, accentEnd];
+    if (name.startsWith("#")) return [name, name];   // an own colour
     const pair = { sea: ["blue", "green"], sunset: ["yellow", "red"] }[name];
     if (pair) return [notifyDot(pair[0]), notifyDot(pair[1])];
     const one = name === "theme" ? frame : notifyDot(name);
     return [one, one];
   }
 
-  // ---- accent (Appearance › Accent) ----
+  // ---- accent (Appearance › Colours) ----
   // A stop by name: "theme" is the theme's frame colour (the accent that follows
   // the theme), "custom" the typed one. slot: the stop it is for (0 the colour,
   // 1 the gradient's end): a custom colour has one per stop
   function accentColour(name, slot) {
+    if (name.startsWith("#")) return name; // an own colour (Accent › Colour)
     if (name === "custom") return frame; // Legacy imported colours fall back to the theme.
     if (name === "theme") return frame;
     return { red: red, orange: orange, yellow: yellow, green: green, aqua: aqua, blue: blue, purple: purple }[name] ?? foreground0;
@@ -108,7 +115,7 @@ QtObject {
   // always be a Gradient from `accent` to `accentEnd`
   readonly property color accent: accentColour(ShellSettings.accentStops[0] ?? "theme", 0)
   readonly property color accentEnd: accentGradient ? accentColour(ShellSettings.accentStops[1] ?? "theme", 1) : accent
-  // what takes the accent: a target key of Appearance › Accent (off by default)
+  // what takes the accent: a target key of Appearance › Colours (off by default)
   function accentOn(key) { return ShellSettings.accent && ShellSettings.accentWhere[key] === true; }
   // the glow: a target glows unless switched off (Appearance › Glow)
   readonly property real glowLevel: ShellSettings.glowStrength / 100

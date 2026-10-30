@@ -27,7 +27,7 @@ Item {
     id: setting; y: 520; width: 540; wide: true; label: "Layout"
     KitSegments { model: [{ label: "Compact", value: 1 }, { label: "Comfortable", value: 2 }]; current: 1 }
   }
-  KitColourPicker { id: picker; width: 600; y: 600; palette: ["blue", "red"]; colours: name => [Theme[name], Theme[name]] }
+  KitColourRow { id: picker; width: 600; y: 600; names: ["theme", "red"]; customs: ["#112233"]; picked: "#112233"; colours: name => "#ff0000" }
   KitChipBands { id: board; y: 820; width: 600; zones: ["left", "hidden"]; idsOf: zone => zone === "left" ? ["audio", "wifi"] : []; labelOf: id => id; iconOf: id => id === "audio" ? "volume" : "wifi" }
   SignalSpy { id: inspected; target: board; signalName: "inspected" }
   SignalSpy { id: drops; target: board; signalName: "dropped" }
@@ -511,21 +511,16 @@ Item {
       board.track(100, 150); compare(board.dropZone, "hidden");
       board.cards = false; board.width = 600; board.dropZone = "";
     }
-    function test_colour_palette_keyboard() {
-      chosen.clear();
-      const blue = findNamed(picker, "blue"); verify(blue !== null);
-      blue.forceActiveFocus(); keyClick(Qt.Key_Return);
-      compare(chosen.count, 1); compare(chosen.signalArguments[0][0], "blue");
-      chosen.clear(); picker.selectPalette("custom"); compare(chosen.count, 0);
+    function test_colour_row_strip() {
+      compare(picker.editing, false);
+      picker.startEditing();
+      compare(picker.editing, true);
+      verify(/^#[0-9a-f]{6}$/.test(picker.draft));
+      picker.editing = false;
     }
-    function test_colour_palette_wraps() {
-      const previousWidth = picker.width;
-      picker.width = 50; picker.forceLayout();
-      const blue = findNamed(picker, "blue");
-      const red = findNamed(picker, "red");
-      verify(blue.y !== red.y);
-      verify(picker.implicitHeight <= 100);
-      picker.width = previousWidth;
+    function test_colour_row_resolves_names_and_own() {
+      compare(String(picker.colourOf("red")), "#ff0000");
+      compare(picker.colourOf("#112233"), "#112233");
     }
     function test_filtered_selection_stays_in_list() {
       entries.query = ""; entries.selected = "ai";

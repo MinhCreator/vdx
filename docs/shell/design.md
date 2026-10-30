@@ -108,7 +108,7 @@ uses tonal layers and more spacious controls.
 - Colour rules (the look has one exception, the accent):
   1. Default: colour is state only. Green ok, yellow / orange attention, red error.
      Everything else is shades of the theme (`Theme.foreground*`, `background*`, `gray`).
-  2. Accent: the user's palette colour (Appearance › Accent: one named colour,
+  2. Accent: the user's palette colour (Appearance › Colours: one named colour,
      `Theme.accent` / `Theme.accentEnd`). Off by default. It takes only the
      places of APPLIES TO (`Theme.accentOn(key)` / `accentFor(key, fallback)`); a new place gets a key there, never a literal colour.
   3. A warning colour is never replaced by the accent: a load, a low battery, an error, a mute keep theirs.
@@ -179,11 +179,12 @@ Pages by the user's area; the look follows macOS System Settings.
   `Theme.controlHover`. Apps and Bar modules use `EntryList`; a new list copies it.
 - A pick list longer than a few rows is a page of cards, not a long select; a
   `KitSelect` shows `maxRows` and scrolls, a choice's `note` says its state.
-- MUST — colour: `KitColourPicker` presents named palette chips which wrap
-  to the available width and accept Space / Enter. It uses the full section
-  width rather than a narrow trailing-control slot. Custom values and gradients
-  from older settings remain readable, but the picker chooses solid palette
-  colours. Window frames (off | theme | accent) are
+- MUST — colour: every colour choice starts with `Theme.colourSet` (the theme's
+  own colour first, then red … purple), as small dots. A choice that takes the
+  user's own colours is `KitColourRow`: they sit right of a divider, at most the Own colours limit, a
+  cross over one on hover removes it, the plus dot (last on the right) turns the row
+  into a strip (hue plate, shade plate, preview, tick). Custom values and gradients
+  from older settings remain readable. Window frames (off | theme | accent) are
   in Windows › Look.
 - A caption over a slider (an app's name, a device) sits `gapMedium` above it;
   never `gapTight`.
@@ -215,8 +216,8 @@ Pages by the user's area; the look follows macOS System Settings.
 - MUST — reset: two-step, `KitResetButton` (`Reset` → `Sure?` for 3 s, then
   back), right of the page's or item's header; disabled while nothing differs
   from the defaults.
-- MUST — colour choice: named colours → `KitSwatches`; a free colour →
-  `KitColourPicker`.
+- MUST — colour choice: named colours → `KitSwatches`; named plus the user's
+  own → `KitColourRow`.
 - MUST — error: a failed apply shows red `KitText` under the group that failed,
   wrapped, `Theme.fontSize - 1`; it clears on the next success.
 - MUST — pending: an apply that runs (install, reload) shows `busy` on its

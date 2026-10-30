@@ -142,13 +142,13 @@ KitColumn {
     }
   }
 
-  KitColourPicker {
+  KitColourRow {
     visible: root.cursorMode === "custom"
-    width: parent.width
-    palette: ["red", "orange", "yellow", "green", "aqua", "blue", "purple"]
-    picked: palette.find(name => Colour.hexOfColour(Theme.accentColour(name)).slice(1) === root.cursorCustom) ?? ""
-    colours: name => [Theme.accentColour(name), Theme.accentColour(name)]
-    onChosen: name => root.cursorCustom = Colour.hexOfColour(Theme.accentColour(name)).slice(1)
+    label: "Colour"
+    names: Theme.colourSet
+    picked: Theme.colourSet.find(name => Colour.hexOfColour(Theme.accentColour(name)).slice(1) === root.cursorCustom) ?? "#" + root.cursorCustom
+    colours: name => Theme.accentColour(name)
+    onChosen: value => root.cursorCustom = value.startsWith("#") ? value.slice(1) : Colour.hexOfColour(Theme.accentColour(value)).slice(1)
   }
 
   KitRow {

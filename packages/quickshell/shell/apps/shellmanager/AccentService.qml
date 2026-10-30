@@ -5,7 +5,7 @@ import qs.components
 import qs.config
 
 // Accent outside the shell: the focused window's border in Hyprland (Appearance
-// › Accent › Window border), now, and ~/.local/state/dotfiles/accent.lua
+// › Colours › Window border), now, and ~/.local/state/dotfiles/accent.lua
 // for its next start, read by hypr/components/appearance.lua. Off: the frame
 // colour again.
 Singleton {

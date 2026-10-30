@@ -16,7 +16,7 @@ KitColumn {
     { value: "modules",    label: "Bar modules",   hint: "Active states, the equalizer; not warnings" },
     { value: "window",     label: "Window frames", hint: "The focused window's frame" }
   ]
-  readonly property string selected: names.includes(ShellSettings.accentStops[0]) ? ShellSettings.accentStops[0] : "theme"
+  readonly property string selected: names.includes(ShellSettings.accentStops[0]) || ShellSettings.customColours.includes(ShellSettings.accentStops[0]) ? ShellSettings.accentStops[0] : "theme"
   function choose(name) {
     ShellSettings.set("accentStops", [name, name]);
     ShellSettings.set("accentGradient", false);
@@ -24,23 +24,42 @@ KitColumn {
   function setTarget(key, on) {
     ShellSettings.set("accentWhere", Object.assign({}, ShellSettings.accentWhere, { [key]: on }));
   }
-  KitLabel { text: "ACCENT COLOUR" }
+  KitLabel { text: "OWN COLOURS"; about: "Colours you make with the plus dot, up to the limit" }
+  KitRow {
+    label: "Share own colours"
+    hint: "Show them in every colour choice"
+    KitSwitch { checked: ShellSettings.shareColours; onToggled: ShellSettings.set("shareColours", !checked) }
+  }
+  KitRow {
+    wide: true
+    label: "Own colours"
+    hint: "How many can be saved"
+    KitSegments {
+      model: [1, 2, 3, 4, 5].map(n => ({ label: String(n), value: n }))
+      current: ShellSettings.customColoursMax
+      onPicked: value => ShellSettings.set("customColoursMax", value)
+    }
+  }
+  KitLine {}
+  KitLabel { text: "ACCENT" }
   KitRow {
     label: "Accent"
     hint: "Highlight active controls across the shell"
     KitSwitch { checked: ShellSettings.accent; onToggled: ShellSettings.set("accent", !checked) }
   }
-  KitColourPicker {
+  KitColourRow {
     visible: ShellSettings.accent
-    width: parent.width
-    palette: root.names
+    label: "Colour"
+    hint: "A named one, or your own"
+    always: true
+    names: root.names
     picked: root.selected
-    colours: name => [Theme.accentColour(name), Theme.accentColour(name)]
-    icons: name => name === "theme" ? "palette" : ""
-    onChosen: name => root.choose(name)
+    colours: name => Theme.accentColour(name)
+    onChosen: value => root.choose(value)
+    onCustomRemoved: hex => { if (root.selected === hex) root.choose("theme"); }
   }
-  KitLine {}
-  KitLabel { text: "USE ACCENT ON" }
+  KitLine { visible: ShellSettings.accent }
+  KitLabel { text: "USE ACCENT ON"; visible: ShellSettings.accent }
   Repeater {
     model: root.targets
     KitRow {

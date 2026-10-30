@@ -13,6 +13,7 @@ import Quickshell
 //              easing in and gliding (kit/KitColumn: popups, option pages)
 //   bar      — workspaces changing, the popup underline
 //   pages    — the Shell Manager's pages and sidebar
+//   tabs     — the sections of a page (a fade when one is picked)
 //   lock     — the lock screen coming in, a shake on a wrong password
 //   island   — the island (Bar › Look › Shape island) morphing between its views
 Singleton {
@@ -26,6 +27,7 @@ Singleton {
   readonly property bool controls: on && ShellSettings.motionControls
   readonly property bool bar: on && ShellSettings.motionBar
   readonly property bool pages: on && ShellSettings.motionPages
+  readonly property bool tabs: on && ShellSettings.motionTabs
   readonly property bool lock: on && ShellSettings.motionLock
   readonly property bool island: on && ShellSettings.motionIsland
 

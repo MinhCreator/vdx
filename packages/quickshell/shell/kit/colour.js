@@ -60,3 +60,24 @@ function hexOfColour(c) {
   const part = x => Math.round(x * 255).toString(16).padStart(2, "0");
   return "#" + part(c.r) + part(c.g) + part(c.b);
 }
+
+// hue, saturation, lightness (each 0..1) to #rrggbb
+function hexOfHsl(h, s, l) {
+  const a = s * Math.min(l, 1 - l);
+  const f = n => {
+    const k = (n + h * 12) % 12;
+    return l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+  };
+  const part = x => Math.round(x * 255).toString(16).padStart(2, "0");
+  return "#" + part(f(0)) + part(f(8)) + part(f(4));
+}
+
+// #rrggbb to { h, s, l } (each 0..1); null for a bad text; h is 0 for a grey
+function hslOf(hex) {
+  const rgb = rgbOf(hex);
+  if (!rgb) return null;
+  const r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min, l = (max + min) / 2;
+  const h = hueOf(hex);
+  return { h: h < 0 ? 0 : h, s: d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1)), l: l };
+}

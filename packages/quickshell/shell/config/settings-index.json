@@ -230,6 +230,12 @@
   "target": "animations:parts"
  },
  {
+  "label": "Tabs",
+  "hint": "The sections of a page fade in",
+  "where": "Motion › PARTS",
+  "target": "animations:parts"
+ },
+ {
   "label": "Island",
   "hint": "Morphs between its views",
   "where": "Motion › PARTS",
@@ -1171,7 +1177,13 @@
   "target": "about:system"
  },
  {
-  "label": "Accent colour",
+  "label": "Own colours",
+  "hint": "",
+  "where": "Appearance",
+  "target": "appearance:accent"
+ },
+ {
+  "label": "Accent",
   "hint": "",
   "where": "Appearance",
   "target": "appearance:accent"
@@ -1219,9 +1231,27 @@
   "target": "appearance:accent"
  },
  {
+  "label": "Share own colours",
+  "hint": "Show them in every colour choice",
+  "where": "Appearance › OWN COLOURS",
+  "target": "appearance:accent"
+ },
+ {
+  "label": "Own colours",
+  "hint": "How many can be saved",
+  "where": "Appearance › OWN COLOURS",
+  "target": "appearance:accent"
+ },
+ {
   "label": "Accent",
   "hint": "Highlight active controls across the shell",
-  "where": "Appearance › ACCENT COLOUR",
+  "where": "Appearance › ACCENT",
+  "target": "appearance:accent"
+ },
+ {
+  "label": "Colour",
+  "hint": "A named one, or your own",
+  "where": "Appearance › ACCENT",
   "target": "appearance:accent"
  },
  {
@@ -1795,6 +1825,12 @@
   "target": "modules:music"
  },
  {
+  "label": "Queue",
+  "hint": "",
+  "where": "Bar modules › Music",
+  "target": "modules:music"
+ },
+ {
   "label": "Players",
   "hint": "",
   "where": "Bar modules › Music",
@@ -1825,12 +1861,6 @@
   "target": "modules:music"
  },
  {
-  "label": "Queue",
-  "hint": "",
-  "where": "Bar modules › Music",
-  "target": "modules:music"
- },
- {
   "label": "Close after stop",
   "hint": "The popup closes when you stop the music",
   "where": "Bar modules › Music › PLAYER",
@@ -1840,6 +1870,12 @@
   "label": "Time left",
   "hint": "The timeline counts down",
   "where": "Bar modules › Music › PLAYER",
+  "target": "modules:music"
+ },
+ {
+  "label": "Tracks shown",
+  "hint": "In the popup's queue, then it scrolls",
+  "where": "Bar modules › Music › QUEUE",
   "target": "modules:music"
  },
  {
@@ -1870,12 +1906,6 @@
   "label": "No folders",
   "hint": "Files is not listed",
   "where": "Bar modules › Music › FILES",
-  "target": "modules:music"
- },
- {
-  "label": "Tracks shown",
-  "hint": "In the popup's queue, then it scrolls",
-  "where": "Bar modules › Music › QUEUE",
   "target": "modules:music"
  },
  {
@@ -2044,7 +2074,7 @@
  },
  {
   "label": "Accent",
-  "hint": "In Appearance › Accent › Bar modules",
+  "hint": "In Appearance › Colours › Bar modules",
   "where": "Bar modules › Equalizer › BAR",
   "target": "modules:equalizer"
  },

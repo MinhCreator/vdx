@@ -105,7 +105,7 @@ Column {
 
       KitSwatches {
         anchors { right: away.left; rightMargin: Theme.gapWide; verticalCenter: parent.verticalCenter }
-        model: Theme.appPalette
+        model: Theme.colourSet
         picked: rule.rl.colour
         colours: name => [Theme.paletteColour(name), Theme.paletteColour(name)]
         onChosen: name => root.edit(rule.index, { colour: name })
