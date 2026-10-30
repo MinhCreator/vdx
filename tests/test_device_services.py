@@ -196,6 +196,42 @@ Scope {
         ''')
         self.assertEqual(result, {"calls": [["--profile", "quiet"]], "previous": "performance"})
 
+    def test_battery_saver_restores_the_profile_active_before_saver(self):
+        result = self.battery('''
+          setSaver(true); const previous = state.lastProfile;
+          busy = null; profile = "quiet"; setSaver(false);
+          return {calls, previous, busy};
+        ''')
+        self.assertEqual(result, {"calls": [["--profile", "quiet"], ["--profile", "performance"]],
+                                  "previous": "performance", "busy": "performance"})
+
+    def test_battery_backend_failure_is_visible_and_allows_retry(self):
+        source = (SHELL / "modules/battery/BatteryService.qml").read_text()
+        callback = handler(source, "actionProc").replace(
+            'Reply.parse(text, "battery.sh")', "JSON.parse(text)")
+        result = self.evaluate('''
+  property var busy: "quiet"
+  property string actionError: ""
+  property string text: ""
+  property var calls: []
+  QtObject { id: actionProc; property bool running: false }
+  QtObject { id: gpuProc }
+  function parse(text) { return JSON.parse(text); }
+  function refresh() {}
+  function run(proc, args) { calls = calls.concat([args]); }
+''' + qml_function(source, "apply") + qml_function(source, "setProfile") +
+        "\nfunction complete(text) " + callback, '''
+          complete(JSON.stringify({ok: false, error: "permission denied"}));
+          const failed = {busy, error: actionError};
+          calls = [];
+          setProfile("balanced");
+          return {failed, retry: calls, busy, error: actionError};
+        ''')
+        self.assertEqual(result, {
+            "failed": {"busy": None, "error": "permission denied"},
+            "retry": [["--profile", "balanced"]], "busy": "balanced", "error": "",
+        })
+
     def test_battery_accepts_limit_after_previous_action_finishes(self):
         self.assertEqual(self.battery('''
           setProfile("quiet"); busy = null; setThreshold(80);
