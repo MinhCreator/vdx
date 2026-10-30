@@ -69,13 +69,15 @@ Singleton {
 
   // ---- actions ----
   property var busy: null                      // value being applied, for its spinner
-  property string error: ""
+  property string actionError: ""
+  property string statusError: ""
+  readonly property string error: actionError || statusError
 
   property bool popupOpen: false
   function popupHidden() { popupOpen = false; }
   function popupShown() {
     popupOpen = true;
-    error = "";
+    actionError = "";
     refresh();
     run(gpuProc, ["--gpu"]);
   }
@@ -107,7 +109,7 @@ Singleton {
   function apply(args, value) {
     if (busy !== null || actionProc.running) return false;
     busy = value;
-    error = "";
+    actionError = "";
     run(actionProc, args);
     return true;
   }
@@ -157,10 +159,25 @@ Singleton {
   // ---- processes ----
   Process {
     id: statusProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.ready = true;
+      root.statusError = "could not start battery status query";
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = Reply.parse(text, "battery.sh", null);
-        if (typeof o?.present === "boolean") { root.info = o; root.ready = true; }
+        if (typeof o?.present !== "boolean") {
+          root.ready = true;
+          root.statusError = o?.error ?? "could not read battery status";
+          return;
+        }
+        root.info = o;
+        root.statusError = "";
+        root.ready = true;
       }
     }
   }
@@ -185,13 +202,13 @@ Singleton {
     onRunningChanged: {
       if (running) return;
       if (started) { started = false; return; }
-      root.error = "could not start battery action";
+      root.actionError = "could not start battery action";
       root.busy = null;
     }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = Reply.parse(text, "battery.sh");
-        if (!o?.ok) root.error = o?.error ?? "action failed";
+        if (!o?.ok) root.actionError = o?.error ?? "action failed";
         root.refresh();
         root.run(gpuProc, ["--gpu"]);
         root.busy = null;

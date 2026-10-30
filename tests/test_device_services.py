@@ -45,7 +45,7 @@ Scope {
         source = (SHELL / "modules/battery/BatteryService.qml").read_text()
         definitions = '''
   property var busy: null
-  property string error: ""
+  property string actionError: ""
   property string profile: "performance"
   readonly property string saverProfile: "quiet"
   property var calls: []
@@ -245,15 +245,17 @@ Scope {
         result = self.evaluate('''
   property var info: ({})
   property bool ready: false
+  property string statusError: ""
   property string text: ""
   function parse(text) { return JSON.parse(text); }
   function complete(text) ''' + callback, '''
           complete(JSON.stringify({ok: false, error: "backend missing"}));
-          const afterError = ready;
+          const afterError = {ready, statusError};
           complete(JSON.stringify({present: false}));
-          return {afterError, ready, info};
+          return {afterError, ready, statusError, info};
         ''')
-        self.assertEqual(result, {"afterError": False, "ready": True, "info": {"present": False}})
+        self.assertEqual(result, {"afterError": {"ready": True, "statusError": "backend missing"},
+                                  "ready": True, "statusError": "", "info": {"present": False}})
 
     def test_audio_missing_devices_are_not_live(self):
         source = (SHELL / "modules/audio/AudioService.qml").read_text()

@@ -15,6 +15,7 @@ KitFrame {
   readonly property string timeLeft: BatteryService.minutesLeft < 0 ? "—"
     : Math.floor(BatteryService.minutesLeft / 60) + ":" + String(BatteryService.minutesLeft % 60).padStart(2, "0")
   readonly property string summary: !BatteryService.ready ? "CHECKING BATTERY"
+    : BatteryService.statusError !== "" ? "BATTERY STATUS UNAVAILABLE"
     : !BatteryService.present ? "NO BATTERY FOUND"
     : BatteryService.charging ? "CHARGING · " + timeLeft + " TO " + BatteryService.threshold + "%"
     : BatteryService.discharging ? "DISCHARGING · " + timeLeft + " LEFT"
@@ -51,7 +52,7 @@ KitFrame {
 
   KitText {
     width: parent.width
-    visible: BatteryService.ready && !BatteryService.present
+    visible: BatteryService.ready && !BatteryService.present && BatteryService.statusError === ""
     text: "No battery was found on this computer."
     color: Theme.muted
     wrapMode: Text.WordWrap
