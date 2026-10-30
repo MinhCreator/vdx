@@ -110,6 +110,28 @@ Scope {
             "adapter": {"alias": "old"}, "devices": [{"mac": "old-device"}],
         })
 
+    def test_bluetooth_status_snapshot_removes_devices_missing_from_refresh(self):
+        source = (SHELL / "modules/bluetooth/BluetoothService.qml").read_text()
+        callback = handler(source, "statusProc").replace(
+            'Reply.parse(text, "bluetooth.sh", null)', "JSON.parse(text)")
+        result = self.evaluate('''
+  property string error: ""
+  property bool powered: true
+  property bool discovering: true
+  property var adapter: ({alias: "adapter"})
+  property var devices: [{mac: "gone"}, {mac: "still-here"}]
+  property bool toggling: false
+  property string text: ""
+  function parse(text) { return JSON.parse(text); }
+  function complete(text) ''' + callback, '''
+          complete(JSON.stringify({ok: true, powered: true, discovering: false,
+            adapter: {alias: "adapter"}, devices: [{mac: "still-here"}]}));
+          return {error, discovering, devices};
+        ''')
+        self.assertEqual(result, {
+            "error": "", "discovering": False, "devices": [{"mac": "still-here"}],
+        })
+
     def test_bluetooth_device_and_adapter_commands_are_serialized(self):
         source = (SHELL / "modules/bluetooth/BluetoothService.qml").read_text()
         definitions = '''
