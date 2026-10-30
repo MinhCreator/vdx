@@ -594,10 +594,19 @@ Singleton {
   Process {
     id: detailsProc
     command: ["bash", root.script, "--details"]
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.details = null;
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
-        root.details = o?.ok ? o : null;
+        root.details = o?.ok && typeof o.chan === "string" && typeof o.freq === "string" &&
+          typeof o.rate === "string" && typeof o.security === "string" && typeof o.bssid === "string"
+          ? o : null;
       }
     }
   }

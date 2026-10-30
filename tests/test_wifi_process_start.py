@@ -232,6 +232,35 @@ Scope {
                     "busy": False, "error": expected_error,
                 }, output)
 
+    def test_failed_details_start_clears_stale_access_point(self):
+        source = (SHELL / "modules/wifi/WifiService.qml").read_text()
+        process = qml_block(source, "Process {\n    id: detailsProc")
+        process = process.replace(
+            'command: ["bash", root.script, "--details"]',
+            'command: ["/no/such/wifi-details-backend"]')
+        process = process.replace("id: detailsProc", "id: detailsProc\n    running: true", 1)
+        with tempfile.TemporaryDirectory(prefix="shell-wifi-details-start-") as tmp:
+            root = Path(tmp)
+            (root / "shell.qml").write_text('''import QtQuick
+import Quickshell
+import Quickshell.Io
+Scope {
+  id: root
+  property var details: ({freq: "5180", security: "WPA2"})
+  function parse(text) { return JSON.parse(text); }
+  ''' + process + '''
+  Timer { interval: 100; running: true; onTriggered: {
+    console.warn("WIFI_DETAILS_START_RESULT:" + JSON.stringify(root.details));
+    Qt.quit();
+  } }
+}
+''')
+            output = run_quickshell(root)
+            results = [line.split("WIFI_DETAILS_START_RESULT:", 1)[1]
+                       for line in output.splitlines() if "WIFI_DETAILS_START_RESULT:" in line]
+            self.assertEqual(len(results), 1, output)
+            self.assertIsNone(json.loads(results[0]), output)
+
     def test_failed_scan_start_clears_busy_and_reports_error(self):
         source = (SHELL / "modules/wifi/WifiService.qml").read_text()
         process = qml_block(source, "Process {\n    id: scanProc")
