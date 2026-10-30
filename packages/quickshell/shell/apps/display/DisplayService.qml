@@ -79,6 +79,13 @@ Singleton {
 
   Process {
     id: listProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.listError = "could not start display query";
+    }
     command: ["python3", root.script, "list"]
     stdout: StdioCollector {
       onStreamFinished: {
@@ -94,6 +101,16 @@ Singleton {
 
   Process {
     id: actProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.working = "";
+      root.pending = null;
+      root.actionError = "could not start display change";
+      root.busy = false;
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const r = root.parse(text);
