@@ -21,7 +21,7 @@ Item {
     id: label
     icon: AudioService.muted ? "volume-x" : AudioService.headphones ? "headphones" : "volume"
     text: BarLayout.faceText("audio", !ModuleSettings.get("audio", "percent", true) ? "" : AudioService.muted || !AudioService.sink ? "--" : String(Math.min(AudioService.maxPercent, AudioService.volume)))
-    tint: AudioService.muted ? Theme.red : Theme.foreground0
+    tint: AudioService.muted ? Theme.red : AudioService.volume > 100 ? Theme.orange : Theme.foreground0
   }
 
   // Wheel events reach a layer-shell surface only through a MouseArea.
