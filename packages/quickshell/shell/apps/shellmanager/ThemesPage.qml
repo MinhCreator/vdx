@@ -8,9 +8,8 @@ import qs.kit
 // one on the right — code, a prompt, controls and its palette, drawn in its own
 // colours. A search over the list; ↑ / ↓ (or a click) previews, Enter or Apply switches the desktop to
 // it, Esc goes back to the active one. Fills the window: the panes scroll.
-Flow {
+Row {
   id: root
-  readonly property bool stacked: width < 660
 
   // the window's fixed header shows these
   readonly property string icon: "palette"
@@ -64,8 +63,8 @@ Flow {
   // ---- the search and the list ----
   Column {
     id: side
-    width: root.stacked ? root.width : Math.min(260, Math.max(220, root.width * 0.34))
-    height: root.stacked ? 180 : root.height - Theme.windowPadding
+    width: 270
+    height: root.height - Theme.windowPadding
     spacing: Theme.gapMedium
 
     KitInput {
@@ -185,8 +184,8 @@ Flow {
   Column {
     id: previewPane
     visible: root.shown.length > 0
-    width: root.stacked ? root.width : root.width - side.width - root.spacing
-    height: root.stacked ? Math.max(120, root.height - side.height - root.spacing) : side.height
+    width: root.width - side.width - root.spacing
+    height: side.height
     spacing: Theme.gapWide
 
     Column {
