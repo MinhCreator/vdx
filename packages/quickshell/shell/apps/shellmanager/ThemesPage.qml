@@ -100,7 +100,13 @@ Row {
       ListView {
         id: themeList
       Controls.ScrollBar.vertical: KitScrollBar {}
-        anchors { fill: parent; margins: Theme.gapSmall }
+        anchors {
+          fill: parent
+          leftMargin: Theme.gapSmall
+          rightMargin: Theme.gapSmall
+          topMargin: Theme.gapSmall + Theme.gapMedium / 2
+          bottomMargin: Theme.gapSmall + Theme.gapMedium / 2
+        }
         clip: true
         spacing: Theme.gapTight
         boundsBehavior: Flickable.StopAtBounds
@@ -114,6 +120,7 @@ Row {
           readonly property bool active: modelData === ThemeService.current
 
           width: themeList.width - Theme.gapMedium
+          anchors.horizontalCenter: parent.horizontalCenter
           height: 56
           radius: Theme.radiusControl
           color: picked ? Theme.pickFill : area.containsMouse ? Theme.controlHover : Theme.clear
