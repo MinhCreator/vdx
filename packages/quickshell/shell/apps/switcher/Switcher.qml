@@ -9,12 +9,12 @@ import qs.config
 import qs.kit
 import qs.modules.windows
 
-// The floating mode's window switcher, like Windows' Alt+Tab, on Super+Tab:
+// The floating mode's window switcher, like Windows' Alt+Tab, on Alt+Tab:
 // the active workspace's windows (minimized ones too, dim) in a grid, the
 // most recently used first, the one before the current picked. Tab again
-// (Shift: back), the arrows or the pointer pick; letting Super go, Enter or
+// (Shift: back), the arrows or the pointer pick; letting Alt go, Enter or
 // a click switches, Escape or a click on the dimmed screen doesn't. Other
-// modes, or with Shell Manager › Windows › Switcher off: Super+Tab does nothing.
+// modes, or with Shell Manager › Windows › Switcher off: Alt+Tab does nothing.
 ScrimWindow {
   id: root
 
@@ -35,7 +35,7 @@ ScrimWindow {
 
   function order(t) { return t.lastIpcObject?.focusHistoryID ?? 1000; }
 
-  // Super+Tab: open on the window before the current one, or the next one
+  // Alt+Tab: open on the window before the current one, or the next one
   function step(d) {
     if (!enabled) return;
     if (!open) {
@@ -72,7 +72,7 @@ ScrimWindow {
   namespace: "switcher"
   onDismissed: open = false
 
-  // `qs -c shell ipc call switcher next` (Super+Tab), `… back` (Super+Shift+Tab)
+  // `qs -c shell ipc call switcher next` (Alt+Tab), `… back` (Alt+Shift+Tab)
   IpcHandler {
     target: "switcher"
     function next(): void { root.step(1); }
@@ -94,9 +94,9 @@ ScrimWindow {
       else return;
       event.accepted = true;
     }
-    // Super let go: switch, as Alt's release does on Windows
+    // Alt let go: switch, as on Windows
     Keys.onReleased: event => {
-      if (event.key === Qt.Key_Super_L || event.key === Qt.Key_Super_R || event.key === Qt.Key_Meta) root.pick();
+      if (event.key === Qt.Key_Alt) root.pick();
     }
   }
 
@@ -217,7 +217,7 @@ ScrimWindow {
       horizontalAlignment: Text.AlignRight
       color: Theme.muted
       font.pixelSize: Theme.fontSize - 2
-      text: "tab next · Shift + Tab back · release Super switch · esc cancel"
+      text: "tab next · Shift + Tab back · release Alt switch · esc cancel"
     }
   }
 }
