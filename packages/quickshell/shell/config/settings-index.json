@@ -1825,6 +1825,12 @@
   "target": "modules:music"
  },
  {
+  "label": "Queue",
+  "hint": "",
+  "where": "Bar modules › Music",
+  "target": "modules:music"
+ },
+ {
   "label": "Close after stop",
   "hint": "The popup closes when you stop the music",
   "where": "Bar modules › Music › PLAYER",
@@ -1864,6 +1870,12 @@
   "label": "No folders",
   "hint": "Files is not listed",
   "where": "Bar modules › Music › FILES",
+  "target": "modules:music"
+ },
+ {
+  "label": "Tracks shown",
+  "hint": "In the popup's queue, then it scrolls",
+  "where": "Bar modules › Music › QUEUE",
   "target": "modules:music"
  },
  {

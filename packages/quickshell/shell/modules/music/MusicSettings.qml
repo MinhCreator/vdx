@@ -46,6 +46,16 @@ KitColumn {
 
   KitLine {}
 
+  KitLabel { text: "QUEUE" }
+
+  KitOptionRow {
+    module: "music"; key: "queueRows"; fallback: 9
+    label: "Tracks shown"; hint: "In the popup's queue, then it scrolls"
+    model: [{ label: "5", value: 5 }, { label: "7", value: 7 }, { label: "9", value: 9 }, { label: "12", value: 12 }]
+  }
+
+  KitLine {}
+
   KitLabel { text: "PLAYERS" }
 
   KitOptionRow {

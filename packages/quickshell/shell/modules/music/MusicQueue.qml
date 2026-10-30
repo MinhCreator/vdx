@@ -7,16 +7,15 @@ import qs.kit
 
 // The music's queue (PlayerService.musicQueue: MPD's; never a station's or another app's): two
 // lines per track, nine rows visible, then it scrolls. It scrolls itself so the current track sits
-// on top. A click plays a track, a right click takes it out; the search button swaps the list for
-// matches.
+// on top. A click plays a track, a right click takes it out; the search field above swaps the list for matches while it has text. How many rows show is Music › Queue rows.
 Column {
   id: root
 
-  property bool searching: false
   property string query: ""
+  readonly property bool searching: query.trim() !== ""
 
   readonly property int rowHeight: 38
-  readonly property int upNext: 9
+  readonly property int upNext: ModuleSettings.get("music", "queueRows", 9)
   readonly property int currentPos: MpdService.player.pos ?? 0
   // the Queue tab is the music's: a station's or another app's queue is not shown here
   readonly property string notice: PlayerService.music.hasMedia ? "" : "Nothing is queued"
@@ -48,32 +47,11 @@ Column {
     font.pixelSize: Theme.fontSize - 1
   }
 
-  Item {
-    visible: root.notice === ""
-    width: parent.width
-    height: searchButton.height
-
-    KitLabel {
-      anchors.verticalCenter: parent.verticalCenter
-      text: root.searching ? "SEARCH" : "UP NEXT FROM #" + root.currentPos
-    }
-
-    KitButton {
-      id: searchButton
-      anchors.right: parent.right
-      icon: root.searching ? "x" : "search"
-      onClicked: {
-        root.searching = !root.searching;
-        root.query = "";
-        if (root.searching) search.input.forceActiveFocus();
-      }
-    }
-  }
-
   KitInput {
     id: search
-    visible: root.searching && root.notice === ""
-    placeholder: "Search artist or title…"
+    visible: root.notice === ""
+    icon: "search"
+    placeholder: "Search the queue"
     text: root.query
     onTextEdited: root.query = text
   }
@@ -155,7 +133,7 @@ Column {
               if (mouse.button === Qt.RightButton) MpdService.control(["--queue-del", String(row.modelData.pos)]);
               else {
                 MpdService.play(row.modelData.pos);
-                root.searching = false;
+                root.query = "";
               }
             }
           }
@@ -166,7 +144,7 @@ Column {
 
   KitText {
     visible: root.notice === "" && root.tracks.length === 0
-    text: root.searching ? (root.query.trim() === "" ? "Type to search." : "Nothing matches") : "The queue is empty."
+    text: root.searching ? "Nothing matches" : "The queue is empty."
     color: Theme.muted
     font.pixelSize: Theme.fontSize - 1
   }
