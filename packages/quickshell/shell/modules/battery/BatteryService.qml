@@ -180,6 +180,14 @@ Singleton {
 
   Process {
     id: actionProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.error = "could not start battery action";
+      root.busy = null;
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = Reply.parse(text, "battery.sh");
