@@ -23,8 +23,10 @@ FloatingWindow {
     Qt.callLater(() => PopupManager.closeModule("cleaner"));
   } else visible = false;
 
-  Cleaner {
+  Loader {
     anchors.fill: parent
+    active: root.visible
+    sourceComponent: Component { Cleaner { anchors.fill: parent } }
   }
 
   Shortcut {

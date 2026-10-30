@@ -20,14 +20,16 @@ FloatingWindow {
   // own visible set, so the next `visible = true` would do nothing: reset it.
   // each time it opens: on the option's tab, the lists up to date
   onVisibleChanged: if (visible) {
-    content.tab = PackagesService.opt("startTab", "updates");
+    Qt.callLater(() => { if (content.item) content.item.tab = PackagesService.opt("startTab", "updates"); });
     PackagesService.freshen(false);
     Qt.callLater(() => PopupManager.closeModule("packages"));
   } else visible = false;
 
-  Packages {
+  Loader {
     id: content
     anchors.fill: parent
+    active: root.visible
+    sourceComponent: Component { Packages { anchors.fill: parent } }
   }
 
   Shortcut {

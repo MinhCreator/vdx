@@ -23,6 +23,11 @@ Rectangle {
 
   property string tab: "appearance"
 
+  Component.onCompleted: {
+    if (ShellSettings.managerOpen && ShellSettings.managerStart === "last")
+      tab = resolve(ShellSettings.managerTab).tab;
+  }
+
   // opening: the main page, or the page it was left on (Shell apps › Shell Manager).
   // A page named by `shell open <page>` is set after this, so it wins.
   Connections {
@@ -174,18 +179,14 @@ Rectangle {
     const r = resolve(value, target);
     searchField.text = "";
     tab = r.tab;
-    const p = pageFor(r.tab);
+    const p = pageContent.item;
+    if (!p) return;
     const j = p.jumps.find(x => x.key === r.target);
     if (j) Qt.callLater(() => root.jumpTo(j));
     else if (r.target && typeof p.jump === "function") p.jump(r.target);
   }
 
-  function pageFor(value) {
-    return ({ themes: themes, fonts: fonts, icons: icons, wallpaper: wallpaper, cursor: cursor, bar: bar, animations: animations, windows: windows, network: network, sound: sound, power: power, updates: updates, hub: hub, live: live, profile: profile, bluetooth: bluetooth, vpn: vpn, displays: displays,
-              modules: modules, apps: apps, about: about, lockscreen: lockscreen,
-              notifications: notifications })[value] ?? appearance;
-  }
-  readonly property Item currentPage: pageFor(tab)
+  readonly property Item currentPage: pageContent.item
 
   // the group being read: the last one whose title is within 40px of the
   // view's top (under the fixed header), the last group once the page is
@@ -194,7 +195,7 @@ Rectangle {
   property string pinnedJump: ""
   readonly property string currentJump: {
     if (pinnedJump !== "") return pinnedJump;
-    const list = currentPage.jumps;
+    const list = currentPage?.jumps ?? [];
     if (list.length === 0) return "";
     if (page.contentY >= page.contentHeight - page.height - 1 && page.interactive)
       return list[list.length - 1].key;
@@ -204,7 +205,7 @@ Rectangle {
   }
 
   function jumpTo(j) {
-    if (typeof currentPage.jump === "function") currentPage.jump(j.key);   // e.g. unfold it
+    if (typeof currentPage?.jump === "function") currentPage.jump(j.key);   // e.g. unfold it
     const max = Math.max(0, page.contentHeight - page.height);
     scroll.to = Math.min(max, Math.max(0, j.y));
     scroll.restart();
@@ -220,7 +221,7 @@ Rectangle {
     id: rejump
     interval: Motion.normal + 120
     onTriggered: {
-      const j = root.currentPage.jumps.find(x => x.key === root.lastJump?.key);
+      const j = (root.currentPage?.jumps ?? []).find(x => x.key === root.lastJump?.key);
       if (j && root.pinnedJump === j.key && Math.abs(page.contentY - j.y) > 2) {
         scroll.to = Math.min(Math.max(0, page.contentHeight - page.height), Math.max(0, j.y));
         scroll.restart();
@@ -440,24 +441,24 @@ Rectangle {
     KitHeader {
       id: pageHead
       page: true
-      icon: root.currentPage.icon
-      title: root.currentPage.title
+      icon: root.currentPage?.icon ?? "sliders"
+      title: root.currentPage?.title ?? "Appearance"
       crumb: root.groupOf(root.tab)
-      description: root.currentPage.description ?? ""
+      description: root.currentPage?.description ?? ""
 
       // a page with tabs (Network) lists them: `tabs` [{label, value}], `tab`
       KitChoices {
-        visible: (root.currentPage.tabs ?? []).length > 0
-        model: root.currentPage.tabs ?? []
-        current: root.currentPage.tab ?? ""
-        onPicked: value => root.currentPage.tab = value
+        visible: (root.currentPage?.tabs ?? []).length > 0
+        model: root.currentPage?.tabs ?? []
+        current: root.currentPage?.tab ?? ""
+        onPicked: value => { if (root.currentPage) root.currentPage.tab = value; }
       }
 
       // a page that can go back to its defaults: `changed`, `reset()`
       KitResetButton {
-        visible: typeof root.currentPage.reset === "function"
-        changed: root.currentPage.changed ?? false
-        onReset: root.currentPage.reset()
+        visible: typeof root.currentPage?.reset === "function"
+        changed: root.currentPage?.changed ?? false
+        onReset: if (root.currentPage && typeof root.currentPage.reset === "function") root.currentPage.reset()
       }
     }
 
@@ -467,7 +468,7 @@ Rectangle {
   // The controls scroll independently of the specimen on the right.
   Item {
     id: previewDock
-    readonly property Item specimen: root.currentPage.previewItem ?? null
+    readonly property Item specimen: root.currentPage?.previewItem ?? null
     readonly property real availableWidth: root.width - sidebar.width
     width: specimen ? Math.max(240, Math.min(420, availableWidth * 0.42)) : 0
     anchors { right: parent.right; rightMargin: Theme.windowPadding; top: header.bottom; topMargin: root.contentGap; bottom: parent.bottom; bottomMargin: Theme.windowPadding }
@@ -502,7 +503,7 @@ Rectangle {
     anchors { left: sidebar.right; leftMargin: 1; right: parent.right; rightMargin: previewDock.visible ? previewDock.width + Theme.windowPadding + Theme.gapWide : 0; top: header.bottom; bottom: parent.bottom }
     // to the window's edge: the rows scroll out of it, not out of a line above it
     // Apps, Bar modules and Themes fill the window and scroll their panes themselves: the page stays
-    contentHeight: (root.currentPage.fillsViewport ?? false) || apps.visible || modules.visible || themes.visible ? height : pages.implicitHeight + pages.y + Theme.windowPadding
+    contentHeight: (root.currentPage?.fillsViewport ?? false) || ["apps", "modules", "themes"].includes(root.tab) ? height : pages.implicitHeight + pages.y + Theme.windowPadding
     clip: true
     boundsBehavior: Flickable.StopAtBounds
     interactive: contentHeight > height
@@ -530,56 +531,56 @@ Rectangle {
       opacity: pageIn.shown
       y: root.contentGap
       width: page.width - 2 * Theme.windowPadding
-      implicitHeight: Math.max(appearance.visible ? appearance.implicitHeight : 0,
-                               bar.visible ? bar.implicitHeight : 0,
-                               themes.visible ? themes.height : 0,
-                               fonts.visible ? fonts.implicitHeight : 0,
-                               icons.visible ? icons.implicitHeight : 0,
-                               wallpaper.visible ? wallpaper.implicitHeight : 0,
-                               cursor.visible ? cursor.implicitHeight : 0,
-                               animations.visible ? animations.implicitHeight : 0,
-                               apps.visible ? apps.height : 0,
-                               windows.visible ? windows.implicitHeight : 0,
-                               network.visible ? network.implicitHeight : 0,
-                               sound.visible ? sound.implicitHeight : 0,
-                               power.visible ? power.implicitHeight : 0,
-                               hub.visible ? hub.implicitHeight : 0,
-                               profile.visible ? profile.implicitHeight : 0,
-                               live.visible ? live.implicitHeight : 0,
-                               updates.visible ? updates.implicitHeight : 0,
-                               bluetooth.visible ? bluetooth.implicitHeight : 0,
-                               vpn.visible ? vpn.implicitHeight : 0,
-                               displays.visible ? displays.implicitHeight : 0,
-                               about.visible ? about.implicitHeight : 0,
-                               lockscreen.visible ? lockscreen.implicitHeight : 0,
-                               notifications.visible ? notifications.implicitHeight : 0,
-                               modules.visible ? modules.height : 0)
+      height: Math.max(implicitHeight, page.height - y)
+      implicitHeight: pageContent.item?.implicitHeight ?? 0
 
-      AppearancePage { id: appearance; width: parent.width; height: page.height - pages.y - Theme.windowPadding; visible: root.tab === "appearance" }
-      BarPage     { id: bar;     width: parent.width; height: page.height - pages.y - Theme.windowPadding; visible: root.tab === "bar" }
-      ThemesPage  { id: themes;  width: parent.width; height: page.height - pages.y; visible: root.tab === "themes" }
-      FontsPage   { id: fonts;   width: parent.width; visible: root.tab === "fonts" }
-      IconsPage   { id: icons;   width: parent.width; visible: root.tab === "icons" }
-      WallpaperPage { id: wallpaper; width: parent.width; visible: root.tab === "wallpaper" }
-      CursorPage  { id: cursor;  width: parent.width; visible: root.tab === "cursor" }
-      AnimationsPage { id: animations; width: parent.width; visible: root.tab === "animations" }
-      // fills the window and scrolls its two panes itself
-      ShellAppsPage { id: apps;  width: parent.width; onNavigate: (t, k) => root.navigate(t, k); onWindowSetup: id => windowDialog.appId = id; height: page.height - pages.y; visible: root.tab === "apps" }
-      WindowsPage { id: windows; width: parent.width; visible: root.tab === "windows" }
-      NetworkPage   { id: network;   width: parent.width; visible: root.tab === "network" }
-      SoundPage     { id: sound;     width: parent.width; visible: root.tab === "sound" }
-      PowerPage     { id: power;     width: parent.width; visible: root.tab === "power" }
-      HubPage       { id: hub;       width: parent.width; onNavigate: (t, k) => root.navigate(t, k); visible: root.tab === "hub" }
-      ProfilePage   { id: profile;   width: parent.width; visible: root.tab === "profile" }
-      LivePage      { id: live;      width: parent.width; visible: root.tab === "live" }
-      UpdatesPage   { id: updates;   width: parent.width; visible: root.tab === "updates" }
-      BluetoothPage { id: bluetooth; width: parent.width; visible: root.tab === "bluetooth" }
-      VpnPage       { id: vpn;       width: parent.width; visible: root.tab === "vpn" }
-      DisplaysPage  { id: displays;  width: parent.width; visible: root.tab === "displays" }
-      AboutPage   { id: about;   width: parent.width; visible: root.tab === "about" }
-      LockScreenPage { id: lockscreen; width: parent.width; visible: root.tab === "lockscreen" }
-      NotificationsPage { id: notifications; width: parent.width; visible: root.tab === "notifications" }
-      ModulesPage { id: modules; width: parent.width; onNavigate: (t, k) => root.navigate(t, k); height: page.height - pages.y; visible: root.tab === "modules" }
+      Loader {
+        id: pageContent
+        anchors { left: parent.left; right: parent.right; top: parent.top; bottom: parent.bottom }
+        asynchronous: false
+        sourceComponent: pages.pageComponent(root.tab)
+      }
+
+      Connections {
+        target: pageContent.item
+        ignoreUnknownSignals: true
+        function onNavigate(t, k) { root.navigate(t, k); }
+        function onWindowSetup(id) { windowDialog.appId = id; }
+      }
+
+      function pageComponent(value) {
+        return ({ themes: themesComponent, fonts: fontsComponent, icons: iconsComponent, wallpaper: wallpaperComponent,
+                  cursor: cursorComponent, bar: barComponent, animations: animationsComponent, windows: windowsComponent,
+                  network: networkComponent, sound: soundComponent, power: powerComponent, updates: updatesComponent,
+                  hub: hubComponent, live: liveComponent, profile: profileComponent, bluetooth: bluetoothComponent,
+                  vpn: vpnComponent, displays: displaysComponent, modules: modulesComponent, apps: appsComponent,
+                  about: aboutComponent, lockscreen: lockscreenComponent, notifications: notificationsComponent })[value] ?? appearanceComponent;
+      }
+
+      Component { id: appearanceComponent; AppearancePage { width: pages.width; height: page.height - pages.y - Theme.windowPadding } }
+      Component { id: barComponent; BarPage { width: pages.width; height: page.height - pages.y - Theme.windowPadding } }
+      Component { id: themesComponent; ThemesPage { width: pages.width; height: page.height - pages.y } }
+      Component { id: fontsComponent; FontsPage { width: pages.width } }
+      Component { id: iconsComponent; IconsPage { width: pages.width } }
+      Component { id: wallpaperComponent; WallpaperPage { width: pages.width } }
+      Component { id: cursorComponent; CursorPage { width: pages.width } }
+      Component { id: animationsComponent; AnimationsPage { width: pages.width } }
+      Component { id: appsComponent; ShellAppsPage { width: pages.width; height: page.height - pages.y } }
+      Component { id: windowsComponent; WindowsPage { width: pages.width } }
+      Component { id: networkComponent; NetworkPage { width: pages.width } }
+      Component { id: soundComponent; SoundPage { width: pages.width } }
+      Component { id: powerComponent; PowerPage { width: pages.width } }
+      Component { id: hubComponent; HubPage { width: pages.width } }
+      Component { id: profileComponent; ProfilePage { width: pages.width } }
+      Component { id: liveComponent; LivePage { width: pages.width } }
+      Component { id: updatesComponent; UpdatesPage { width: pages.width } }
+      Component { id: bluetoothComponent; BluetoothPage { width: pages.width } }
+      Component { id: vpnComponent; VpnPage { width: pages.width } }
+      Component { id: displaysComponent; DisplaysPage { width: pages.width } }
+      Component { id: aboutComponent; AboutPage { width: pages.width } }
+      Component { id: lockscreenComponent; LockScreenPage { width: pages.width } }
+      Component { id: notificationsComponent; NotificationsPage { width: pages.width } }
+      Component { id: modulesComponent; ModulesPage { width: pages.width; height: page.height - pages.y } }
     }
   }
 

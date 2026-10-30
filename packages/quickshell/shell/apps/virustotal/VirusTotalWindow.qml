@@ -21,8 +21,10 @@ FloatingWindow {
   onVisibleChanged: if (visible) Qt.callLater(() => PopupManager.closeModule("virustotal"));
                     else visible = false;
 
-  VirusTotal {
+  Loader {
     anchors.fill: parent
+    active: root.visible
+    sourceComponent: Component { VirusTotal { anchors.fill: parent } }
   }
 
   Shortcut {

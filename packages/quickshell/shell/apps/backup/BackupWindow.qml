@@ -32,8 +32,10 @@ FloatingWindow {
     onTriggered: BackupService.refresh()
   }
 
-  Backup {
+  Loader {
     anchors.fill: parent
+    active: root.visible
+    sourceComponent: Component { Backup { anchors.fill: parent } }
   }
 
   Shortcut {

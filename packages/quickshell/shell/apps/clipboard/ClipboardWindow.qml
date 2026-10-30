@@ -24,12 +24,18 @@ FloatingWindow {
   } else visible = false;
 
   // the same content as the bar's popup, in the window's look (flat, like Cleaner)
-  Clipboard {
+  Loader {
     anchors.fill: parent
-    framed: false
-    padding: Theme.windowPadding
-    headerInset: Theme.headerInset
-    onPicked: root.visible = false
+    active: root.visible
+    sourceComponent: Component {
+      Clipboard {
+        anchors.fill: parent
+        framed: false
+        padding: Theme.windowPadding
+        headerInset: Theme.headerInset
+        onPicked: root.visible = false
+      }
+    }
   }
 
   Shortcut {

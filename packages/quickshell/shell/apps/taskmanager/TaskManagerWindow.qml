@@ -27,10 +27,12 @@ FloatingWindow {
     }
   }
 
-  TaskManager {
-    id: content
+  Loader {
     anchors.fill: parent
-    focus: true
+    active: root.visible
+    sourceComponent: Component {
+      TaskManager { anchors.fill: parent; focus: true }
+    }
   }
 
   Shortcut {

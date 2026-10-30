@@ -23,14 +23,17 @@ FloatingWindow {
     else ShellSettings.managerOpen = false;
   }
 
-  ShellManager {
+  Loader {
     id: manager
     anchors.fill: parent
+    active: root.visible
+    asynchronous: false
+    source: Qt.resolvedUrl("ShellManager.qml")
   }
 
   Shortcut {
     sequences: [StandardKey.Cancel]
-    enabled: !manager.dialogOpen && !manager.searching && !(manager.currentPage.arranging ?? false)   // Escape closes the dialog or the search first
+    enabled: !manager.item?.dialogOpen && !manager.item?.searching && !(manager.item?.currentPage?.arranging ?? false)   // Escape closes the dialog or the search first
     onActivated: ShellSettings.managerOpen = false
   }
 
@@ -42,12 +45,12 @@ FloatingWindow {
     function open(page: string): void {
       const [p, target] = page.split(":");
       ShellSettings.managerOpen = true;
-      manager.navigate(({ layout: "bar" })[p] ?? p, target ?? "");
+      Qt.callLater(() => manager.item?.navigate(({ layout: "bar" })[p] ?? p, target ?? ""));
     }
     // the sidebar's search, `search <words>` typed in
     function search(words: string): void {
       ShellSettings.managerOpen = true;
-      manager.search(words);
+      Qt.callLater(() => manager.item?.search(words));
     }
   }
 }

@@ -48,9 +48,10 @@ FloatingWindow {
     }
   }
 
-  Files {
+  Loader {
     anchors.fill: parent
-    onCloseRequested: root.visible = false
+    active: root.visible
+    sourceComponent: Component { Files { anchors.fill: parent; onCloseRequested: root.visible = false } }
   }
 
   IpcHandler {
