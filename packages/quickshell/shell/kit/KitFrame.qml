@@ -22,11 +22,15 @@ Rectangle {
   // popup width follows this too). The content sets implicitWidth itself.
   property bool fitWidth: false
 
-  implicitWidth: Theme.popupWidth
-  implicitHeight: column.implicitHeight + 2 * padding - headerInset - bottomInset
+  // on a fractional scale (1.2) a 1 px frame and an odd size fall between device pixels
+  // and the stroke looks bent: the frame and the size are whole device pixels
+  readonly property real dpr: Screen.devicePixelRatio > 0 ? Screen.devicePixelRatio : 1
+
+  implicitWidth: Math.ceil(Theme.popupWidth * dpr) / dpr
+  implicitHeight: Math.ceil((column.implicitHeight + 2 * padding - headerInset - bottomInset) * dpr) / dpr
   radius: framed ? Theme.radiusSurface : 0
   color: inIsland ? "transparent" : Theme.background0
-  border.width: framed && !inIsland ? Theme.windowFrameWidth : 0
+  border.width: framed && !inIsland ? Math.max(1, Math.round(Theme.windowFrameWidth * dpr)) / dpr : 0
   border.color: Theme.popupFrame
 
   KitColumn {

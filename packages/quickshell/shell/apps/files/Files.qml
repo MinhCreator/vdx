@@ -340,29 +340,37 @@ Item {
   // the menu of a right click: what an entry can do now (a dimmed row can't)
   function menuFor(entry) {
     const one = FilesService.selection.length === 1;
+    const sep = { separator: true };
     if (FilesService.inTrash) return [
-      { label: "Open", run: () => root.open(entry) },
+      { label: "Open", tone: "primary", run: () => root.open(entry) },
       { label: "Restore", hint: "Ctrl + R", run: () => FilesService.restoreSelection() },
-      { label: "Delete for good", hint: "Delete", run: () => root.remove(true) },
+      sep,
+      { label: "Delete for good", hint: "Delete", tone: "danger", run: () => root.remove(true) },
     ];
+    const custom = picker !== null ? [] : FilesService.actions.map(a => ({
+      label: a.label, run: () => FilesService.runAction(a, FilesService.selection),
+    }));
     return [
-      { label: "Open", run: () => root.open(entry) },
-      { label: "Rename", hint: "F2", disabled: !one || picker !== null, run: () => root.renaming = entry.path },
+      { label: "Open", tone: "primary", run: () => root.open(entry) },
+      { label: "Open the folder it is in", disabled: !FilesService.virtual && !FilesService.searching, run: () => FilesService.reveal(entry.path) },
+      sep,
       { label: "Copy", hint: "Ctrl + C", run: () => FilesService.copySelection() },
       { label: "Cut", hint: "Ctrl + X", disabled: picker !== null, run: () => FilesService.cutSelection() },
       { label: "Paste", hint: "Ctrl + V", disabled: !FilesService.canPaste || picker !== null, run: () => FilesService.paste() },
+      { label: "Copy path", run: () => Quickshell.execDetached(["wl-copy", entry.path]) },
+      sep,
+      { label: "Rename", hint: "F2", disabled: !one || picker !== null, run: () => root.renaming = entry.path },
       { label: FilesService.isStarred(entry.path) ? "Unstar" : "Star", hint: "Ctrl + S", run: () => FilesService.toggleStar(FilesService.selection) },
-      { label: "Open the folder it is in", disabled: !FilesService.virtual && !FilesService.searching, run: () => FilesService.reveal(entry.path) },
+      { label: "Pin to sidebar", disabled: entry.kind !== "dir" || FilesService.isPinned(entry.path), run: () => FilesService.pin(entry.path) },
       { label: "Properties", run: () => FilesService.inspect(entry.path) },
+      sep,
       { label: "Terminal here", disabled: entry.kind !== "dir", run: () => FilesService.openTerminal(entry.path) },
       { label: "Find duplicates here", disabled: entry.kind !== "dir", run: () => FilesService.findDuplicates(entry.path) },
-      { label: "Pin to sidebar", disabled: entry.kind !== "dir" || FilesService.isPinned(entry.path), run: () => FilesService.pin(entry.path) },
-      { label: "Copy path", run: () => Quickshell.execDetached(["wl-copy", entry.path]) },
-      { label: "Move to trash", hint: "Delete", disabled: picker !== null, run: () => root.remove(false) },
-      { label: "Delete for good", hint: "Shift + Delete", disabled: picker !== null, run: () => root.remove(true) },
-    ].concat(picker !== null ? [] : FilesService.actions.map(a => ({
-      label: a.label, run: () => FilesService.runAction(a, FilesService.selection),
-    })));
+    ].concat(custom.length ? [sep].concat(custom) : [], [
+      sep,
+      { label: "Move to trash", hint: "Delete", tone: "danger", disabled: picker !== null, run: () => root.remove(false) },
+      { label: "Delete for good", hint: "Shift + Delete", tone: "danger", disabled: picker !== null, run: () => root.remove(true) },
+    ]);
   }
 
   // ---- the sidebar: its own pane, as in Shell Manager: the window's header, the places, the storage ----
@@ -684,6 +692,6 @@ Item {
 
   FilesMenu {
     id: menu
-    z: 20
+    host: root
   }
 }
