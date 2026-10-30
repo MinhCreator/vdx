@@ -415,6 +415,17 @@ Singleton {
 
   Process {
     id: connectProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      connectProc.environment = {};
+      root.connectingSsid = "";
+      root.connectStatus = "error";
+      root.connectError = "could not start connection request";
+      connectClear.restart();
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
@@ -510,6 +521,15 @@ Singleton {
 
   Process {
     id: hiddenProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      hiddenProc.environment = {};
+      root.hiddenBusy = false;
+      root.hiddenError = "could not start connection request";
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);

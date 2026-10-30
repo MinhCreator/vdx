@@ -81,7 +81,7 @@ that every shell function or desktop scenario has been reviewed.
 | Brightness | Four fake-backend process tests for slider/wheel ordering, startup overlap and latest gamma/temperature; schedule boundary, manual override and disable/re-enable tests |
 | Task manager | Production grouping/tree functions with synthetic rows: prototype-name collisions, resource aggregation, user/kernel/PID filters and cyclic process trees |
 | Timer | Production state/functions with a fake notification receiver: pause/lap between ticks, pause after expiry and duplicate completion |
-| Wi-Fi credentials | Three production completion handlers clear the process password environment before publishing idle, for successful and failed replies; no network commands run |
+| Wi-Fi credentials | Three production completion handlers clear the process password environment before publishing idle, for successful and failed replies; connection and hidden-network process-start failures also clear credentials and busy state |
 | Wi-Fi speedtest | Real child-process test cancels a TERM-resistant old request, immediately starts a replacement, and verifies that the late old reply cannot overwrite the newer result; repeated active requests are rejected |
 | Wi-Fi saved settings | Production action guard rejects overlapping edits, preserves the backend error, and permits a retry after completion; page controls disable during the write |
 | Wi-Fi connection actions | Nearby, saved, password and hidden-network joins share one busy guard; overlapping requests are rejected in both directions and controls reflect pending work |
@@ -135,11 +135,12 @@ reproduce each suspected bug and commit only after the repository checks pass.
 Next focused investigations (suspicions, not confirmed regressions):
 
 1. `modules/wifi/WifiService.qml`: review process-start failures and recovery
-   while a connect request is starting or stopping. Connection errors are
+   while a connect request is stopping. Connection errors are
    visible for open and saved networks in both entry points. Speed-test
    cancellation/stale completion, competing connection paths and overlapping
    saved-network edits are covered; credential cleanup tests cover completed
-   replies, not process-launch failure.
+   replies and connection process-launch failure; other action process-launch
+   failures remain unreviewed.
 2. `modules/bluetooth/BluetoothService.qml`: overlapping device commands,
    discovery lifetime and removed devices. Adapter settings now run FIFO.
    Scan-start replies now reflect `bluetoothctl` output, with fake-backend
