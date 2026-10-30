@@ -102,21 +102,27 @@ def setup(args, stamp: str, log: Path) -> int:
         cat = components.load()
         picked = components.closure(components.defaults(cat, profile.get("hardware") or detect.hardware()), cat)
         note("no components chosen on a fresh machine: the defaults — ./install.py components to change")
-        if not dry:
-            save_selection(picked, cat)
     ctx = steps.context(args)
-    if fresh and dry:
+    if fresh:
         ctx.on = picked
     heading(f"Plan {dim('· ' + str(len(ctx.on)) + ' components · ./install.py components')}")
     rows = steps.plan(ctx)
     steps.show_plan(rows)
     todo = [s for s, pending, _ in rows if pending]
-    if dry or not todo:
+    if dry:
         print()
         ok("nothing to do" if not todo else f"{len(todo)} step(s) would run")
         return 0
-    if not confirm(f"Run {len(todo)} step(s)? (sudo is asked for packages, /etc and services)", args):
+    prompt = (f"Run {len(todo)} step(s)? (sudo is asked for packages, /etc and services)" if todo
+              else "Save these default component choices? No setup steps need to run")
+    if not confirm(prompt, args):
         return 1
+    if fresh:
+        save_selection(picked, ctx.cat)
+    if not todo:
+        print()
+        ok("nothing to do")
+        return 0
     args.yes = True
     journal = {"started": stamp, "log": str(log), "steps": {}}
     # every step is asked again right before it runs: the plan was made before

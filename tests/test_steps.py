@@ -12,7 +12,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from installer import model, setup, steps
+from installer import components, model, setup, steps
 
 
 class Fake(steps.Step):
@@ -84,6 +84,56 @@ class Setup(unittest.TestCase):
         a.done = True
         self.assertEqual(self.run_setup([a]), 0)
         self.assertEqual(a.runs, 0)
+
+    def test_fresh_setup_decline_does_not_save_defaults(self):
+        cat = {
+            "core": {"group": "core", "requires": [], "suggests": []},
+            "desktop": {"group": "desktop", "requires": [], "suggests": []},
+        }
+        defaults = {"core", "desktop"}
+        ctx = steps.Ctx(None, cat, {"core"})
+        work = Fake("work")
+        args = argparse.Namespace(yes=False, dry_run=False)
+        with mock.patch.object(setup.machine, "load", return_value=None), \
+             mock.patch.object(setup, "find_managed", return_value=[]), \
+             mock.patch.object(components, "load", return_value=cat), \
+             mock.patch.object(components, "defaults", return_value=defaults), \
+             mock.patch.object(setup.detect, "hardware", return_value={}), \
+             mock.patch.object(steps, "context", return_value=ctx), \
+             mock.patch.object(steps, "STEPS", [work]), \
+             mock.patch.object(setup, "save_selection") as save_selection, \
+             mock.patch.object(setup, "confirm", return_value=False), \
+             mock.patch("sys.stdout", new=io.StringIO()):
+            self.assertEqual(setup.cmd_setup(args), 1)
+
+        self.assertEqual(ctx.on, defaults)
+        save_selection.assert_not_called()
+        self.assertEqual(work.runs, 0)
+
+    def test_fresh_setup_saves_defaults_after_confirmation(self):
+        cat = {
+            "core": {"group": "core", "requires": [], "suggests": []},
+            "desktop": {"group": "desktop", "requires": [], "suggests": []},
+        }
+        defaults = {"core", "desktop"}
+        ctx = steps.Ctx(None, cat, {"core"})
+        work = Fake("work")
+        args = argparse.Namespace(yes=False, dry_run=False)
+        with mock.patch.object(setup.machine, "load", return_value=None), \
+             mock.patch.object(setup, "find_managed", return_value=[]), \
+             mock.patch.object(components, "load", return_value=cat), \
+             mock.patch.object(components, "defaults", return_value=defaults), \
+             mock.patch.object(setup.detect, "hardware", return_value={}), \
+             mock.patch.object(steps, "context", return_value=ctx), \
+             mock.patch.object(steps, "STEPS", [work]), \
+             mock.patch.object(setup, "save_selection") as save_selection, \
+             mock.patch.object(setup, "confirm", return_value=True), \
+             mock.patch("sys.stdout", new=io.StringIO()):
+            self.assertEqual(setup.cmd_setup(args), 0)
+
+        save_selection.assert_called_once_with(defaults, cat)
+        self.assertEqual(ctx.on, defaults)
+        self.assertEqual(work.runs, 1)
 
     def test_the_log_has_no_colours(self):
         a = Fake("a")

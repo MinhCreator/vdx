@@ -24,6 +24,11 @@ the next run skips what is done. Never done, only listed "by hand": group
 membership, rival services, boot settings (`hint`), units without a running
 systemd (a container, a chroot).
 
+On a fresh machine without a saved component choice, direct `setup` previews
+the catalog defaults and records that selection only after confirmation.
+`--dry-run` never saves it. To install a smaller set, choose it first with
+`./install.py components set <name>…`; `requires` are included automatically.
+
 Preflight, before anything with sudo, for `setup` and `deps`: the
 environment (Arch, not root, pacman / git / sudo), `check components`,
 `check hypr` and the tests. One problem stops the install.

@@ -9,7 +9,11 @@ hardware (`gpu-nvidia`, `laptop`). Its header documents every field.
   `./install.py components add|remove|set <name>…`.
 - With nothing chosen: a machine already set up keeps everything (but
   hardware that wasn't detected); a fresh one gets the catalog's defaults,
-  which `setup` saves.
+  which `setup` previews and saves only after confirmation.
+- Every non-core component can be deselected unless a selected component
+  requires it. `./install.py components set <name>…` starts from only those
+  choices and their requirements; packages for deselected components stay
+  installed but are not removed.
 - A file belongs to the component whose `links` path matches it longest:
   `zsh` owns `zsh/`, `vpn` owns `zsh/functions/vpn`. Theme overlays follow
   their package. A file nobody owns is linked everywhere and fails `check`.
