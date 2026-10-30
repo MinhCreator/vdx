@@ -13,6 +13,42 @@ from tests.qml_runtime import SHELL, run_quickshell
 
 @unittest.skipUnless(shutil.which("qs"), "Quickshell is not installed")
 class WifiProcessStart(unittest.TestCase):
+    def test_radio_backend_failure_restores_state_and_shows_reply_error(self):
+        source = (SHELL / "modules/wifi/WifiService.qml").read_text()
+        callback = qml_block(source[source.index("id: radioProc"):], "onStreamFinished:").split(
+            ":", 1)[1]
+        with tempfile.TemporaryDirectory(prefix="shell-wifi-radio-reply-") as tmp:
+            root = Path(tmp)
+            (root / "shell.qml").write_text('''import QtQuick
+import Quickshell
+Scope {
+  id: root
+  property bool radioOn: false
+  property bool toggling: true
+  property string radioError: ""
+  property string text: ""
+  function parse(text) { return JSON.parse(text); }
+  function refreshStatus() {}
+  QtObject { id: radioSettle; function restart() {} }
+  function complete() ''' + callback + '''
+  Timer { interval: 10; running: true; onTriggered: {
+    text = JSON.stringify({ok: false, error: "radio denied"});
+    complete();
+    console.warn("WIFI_RADIO_REPLY_RESULT:" + JSON.stringify({
+      radioOn: root.radioOn, toggling: root.toggling, error: root.radioError
+    }));
+    Qt.quit();
+  } }
+}
+''')
+            output = run_quickshell(root)
+            results = [line.split("WIFI_RADIO_REPLY_RESULT:", 1)[1]
+                       for line in output.splitlines() if "WIFI_RADIO_REPLY_RESULT:" in line]
+            self.assertEqual(len(results), 1, output)
+            self.assertEqual(json.loads(results[0]), {
+                "radioOn": True, "toggling": False, "error": "radio denied",
+            }, output)
+
     def test_failed_radio_start_restores_state_and_reports_error(self):
         source = (SHELL / "modules/wifi/WifiService.qml").read_text()
         process = qml_block(source, "Process {\n    id: radioProc")

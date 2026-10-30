@@ -430,7 +430,17 @@ Singleton {
       root.refreshStatus();
     }
     stdout: StdioCollector {
-      onStreamFinished: radioSettle.restart()
+      onStreamFinished: {
+        const o = root.parse(text);
+        if (!o?.ok) {
+          root.radioOn = !root.radioOn;
+          root.toggling = false;
+          root.radioError = o?.error ?? "could not switch Wi-Fi radio";
+          root.refreshStatus();
+          return;
+        }
+        radioSettle.restart();
+      }
     }
   }
 
