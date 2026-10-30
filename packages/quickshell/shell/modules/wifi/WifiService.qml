@@ -23,6 +23,7 @@ Singleton {
   // ---- link ----
   property bool radioOn: false
   property bool toggling: false                // radio switch in flight
+  property string radioError: ""
   property string linkState: "unavailable"     // connected | connecting | disconnected | unavailable
   property string ssid: ""
   property string ipAddress: ""
@@ -179,6 +180,7 @@ Singleton {
   function toggleRadio() {
     if (toggling) return;
     toggling = true;
+    radioError = "";
     radioOn = !radioOn;
     if (!radioOn) {
       networks = [];
@@ -417,6 +419,16 @@ Singleton {
 
   Process {
     id: radioProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.radioOn = !root.radioOn;
+      root.toggling = false;
+      root.radioError = "could not start Wi-Fi radio request";
+      root.refreshStatus();
+    }
     stdout: StdioCollector {
       onStreamFinished: radioSettle.restart()
     }
@@ -465,6 +477,15 @@ Singleton {
 
   Process {
     id: dnsSetProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.dnsBusy = false;
+      root.dnsError = "could not start DNS update";
+      root.refreshDns();
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
@@ -511,6 +532,15 @@ Singleton {
 
   Process {
     id: setSavedProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.savedBusy = false;
+      root.saveError = "could not start network update";
+      root.refreshSaved();
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
@@ -564,6 +594,15 @@ Singleton {
 
   Process {
     id: ethernetActionProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      root.ethernetBusy = false;
+      root.ethernetError = "could not start wired connection change";
+      root.refreshEthernet();
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);
@@ -587,6 +626,16 @@ Singleton {
 
   Process {
     id: hotspotActionProc
+    property bool started: false
+    onStarted: started = true
+    onRunningChanged: {
+      if (running) return;
+      if (started) { started = false; return; }
+      hotspotActionProc.environment = {};
+      root.hotspotBusy = false;
+      root.hotspotError = "could not start hotspot change";
+      root.refreshHotspot();
+    }
     stdout: StdioCollector {
       onStreamFinished: {
         const o = root.parse(text);

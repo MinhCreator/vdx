@@ -102,8 +102,8 @@ KitColumn {
 
     KitText {
       width: parent.width
-      visible: ws.connectError !== ""
-      text: ws.connectError
+      visible: ws.radioError !== "" || ws.connectError !== ""
+      text: ws.radioError || ws.connectError
       color: Theme.red
       wrapMode: Text.WordWrap
     }
