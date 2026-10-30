@@ -121,55 +121,29 @@ Current remaining audit map (baseline tests are not a per-function review):
 | Area | Status / remaining work |
 |---|---|
 | Shared controls and Launcher | Reviewed paths covered; complete action and focus review remains |
-| Files | Selection, mutation queue and history reviewed; remaining service, portal and real USB scenarios |
+| Files | Selection, mutation queue, history and folder-list startup recovery covered; real portal routing and USB attach/eject remain manual |
 | Capture | Recorder, saving and clipboard lifecycles reviewed; real GPU capture and overlays |
 | Bar and Island | Content hosting and popup arbitration reviewed; compositor focus, layout changes and multiple monitors |
 | Lock and authentication | Root completion, password attempts, marker ordering and marker-write failure reporting covered; real PAM, polkit and Wayland crash/reload scenarios remain manual |
 | Device services | First pass of all six services completed; Bluetooth adapter/device commands and Wi-Fi saved edits/connection requests are serialized. Bluetooth power, scan, adapter and device actions recover from process-start failure; malformed Bluetooth device lists preserve the last valid state and valid snapshots remove absent devices; audio port changes report process and command failures; battery status and action process starts recover, status backend errors are visible, sysfs writes return success/failure replies, and saver restores the prior profile; display query/action starts and malformed replies recover. Bluetooth discovery timing and real adapter/device removal behavior, battery permission/hardware behavior, listener launch failures in other services, remaining backend/schema failures and hardware edge cases remain |
-| Other apps and background services | Task grouping and tree traversal reviewed; remaining per-function review, navigation, failure states and decomposition |
+| Other apps and background services | Task grouping, tree traversal, Packages queries, Backup status, and Clipboard process starts reviewed; other app actions and failure states remain |
 | Final verification | Both bar styles, theme/settings combinations and measured performance |
 
 ### Resume here
 
-Continue on `redesign/strict-style`; inspect `git status` and recent commits
-before changing anything. The broad refactor is unfinished. Keep changes small,
-reproduce each suspected bug and commit only after the repository checks pass.
+Continue on `redesign/strict-style`; inspect status and recent commits before
+editing. Automated code review now covers the shared UI harness and focused
+recovery paths across Files, Packages, Backup, Capture, Clipboard and Lock.
+Remaining work is bounded to the manual environment checks below and a focused
+pass over other app actions; do not reopen the completed Wi-Fi recovery pass.
 
-Next focused investigations (suspicions, not confirmed regressions):
-
-1. `modules/wifi/WifiService.qml`: review process-start failures and recovery
-   while a connect request is stopping. Connection errors are
-   visible for open and saved networks in both entry points. Speed-test
-   cancellation/stale completion, competing connection paths and overlapping
-   saved-network edits are covered; credential cleanup tests cover completed
-   replies and connection process-launch failure; scan, radio, DNS, saved
-   network, Ethernet and hotspot action process-launch failures now recover;
-   disconnect replies and launch failures are visible;
-   saved-network refreshes coalesce across a query that overlaps an edit;
-   Wi-Fi status and network-list startup/schema errors preserve state and
-   surface an error; speedtest process-start failure clears busy state.
-   Access-point detail queries clear stale data after a failed start or invalid
-   schema; saved-profile query launch failures preserve rows and show an error;
-   Ethernet and hotspot query launch/backend failures are visible. This pass
-   closes the Wi-Fi read-only-query review; continue with Bluetooth discovery.
-2. `modules/bluetooth/BluetoothService.qml`: discovery lifetime and removed
-   devices. Adapter settings now run FIFO and serialize with device actions;
-   power, scan, adapter and device actions recover from process-start failures.
-   Scan-start replies reflect `bluetoothctl` output, and fake-backend coverage
-   confirms the intended 8-second timeout is passed. Continue discovery
-   lifetime and real adapter/device removal behavior
-   (malformed list replies preserve the last valid state; valid snapshots remove
-   absent devices); audio port re-selection after errors is covered. Continue
-   battery permission/hardware behavior and
-   display backend/schema failures with fake backends before real hardware
-   checks.
-3. Files folder-list startup failure is covered. Remaining Files portal and
-   real USB scenarios are manual; other apps still need focused review.
-4. Lock: marker write failure is covered with a fake storage adapter. Owner-led
-   PAM/polkit/Wayland crash/reload tests remain; fake-context coverage does not
-   establish correctness of the real lock protocol.
-5. Finish the manual matrix above and measure idle/popup CPU, process count and
-   reload behavior before deciding on further decomposition or optimization.
+Manual checks that need the owner's actual devices/session: real portal chooser
+routing and USB attach/eject; GPU capture and overlays; PAM, polkit and Wayland
+lock crash/reload; compositor focus, style transitions and monitor hotplug;
+Bluetooth discovery/device removal and battery hardware/permissions. The
+current environment has no reachable Hyprland control socket and no removable
+USB block device, so those checks could not be run here. The remaining code
+review is app actions/failure states and a final performance/theme matrix.
 
 Do not open keyboard-grabbing overlays while the owner is typing or run real
 root/device/network mutations merely to exercise a test. New production files
